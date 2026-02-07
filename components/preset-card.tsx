@@ -6,6 +6,10 @@ import {
   toMicroCredits,
 } from '@/lib/credits';
 import type { Preset } from '@/lib/presets';
+import {
+  DEFAULT_RESPONSE_LENGTH,
+  RESPONSE_LENGTHS,
+} from '@/lib/response-lengths';
 
 export function PresetCard({
   preset,
@@ -107,13 +111,29 @@ export function PresetCard({
         </label>
       )}
 
+      <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+        <span>Response length</span>
+        <select
+          name="length"
+          defaultValue={DEFAULT_RESPONSE_LENGTH}
+          className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+          disabled={locked}
+        >
+          {RESPONSE_LENGTHS.map((length) => (
+            <option key={length.id} value={length.id}>
+              {length.label} · {length.hint}
+            </option>
+          ))}
+        </select>
+      </label>
+
       {showModelSelector && (
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
           <span>Model</span>
           <select
             name="model"
             defaultValue={defaultPremiumModel ?? premiumModels[0]}
-            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
           >
             {premiumModels.map((model) => (
               <option key={model} value={model}>
@@ -128,7 +148,7 @@ export function PresetCard({
       {creditsEnabled && (
         <div
           className="flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.25em] text-muted"
-          title="Estimated credits per bout"
+          title="Estimated credits per bout (standard length)"
         >
           {estimateModels.map((modelId) => (
             <span

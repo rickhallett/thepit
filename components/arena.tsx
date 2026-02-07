@@ -19,6 +19,7 @@ export function Arena({
   preset,
   topic,
   model,
+  length,
   estimatedCredits,
   initialTranscript,
 }: {
@@ -26,6 +27,7 @@ export function Arena({
   preset: Preset;
   topic?: string | null;
   model?: string | null;
+  length?: string | null;
   estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
 }) {
@@ -34,6 +36,7 @@ export function Arena({
     preset,
     topic: topic ?? undefined,
     model: model ?? undefined,
+    length: length ?? undefined,
     initialTranscript,
   });
   const [copied, setCopied] = useState(false);

@@ -23,6 +23,10 @@ export async function createBout(presetId: string, formData?: FormData) {
     formData?.get('model') && typeof formData.get('model') === 'string'
       ? String(formData.get('model')).trim()
       : '';
+  const length =
+    formData?.get('length') && typeof formData.get('length') === 'string'
+      ? String(formData.get('length')).trim()
+      : '';
 
   try {
     await db.insert(bouts).values({
@@ -41,6 +45,9 @@ export async function createBout(presetId: string, formData?: FormData) {
   }
   if (model) {
     params.set('model', model);
+  }
+  if (length) {
+    params.set('length', length);
   }
   redirect(`/bout/${id}?${params.toString()}`);
 }

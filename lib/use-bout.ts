@@ -28,6 +28,7 @@ type UseBoutOptions = {
   initialTranscript?: TranscriptEntry[];
   topic?: string;
   model?: string;
+  length?: string;
 };
 
 type StreamEvent = {
@@ -46,6 +47,7 @@ export function useBout({
   preset,
   topic,
   model,
+  length,
   initialTranscript = [],
 }: UseBoutOptions) {
   const [messages, setMessages] = useState<BoutMessage[]>(() => {
@@ -79,7 +81,13 @@ export function useBout({
       const response = await fetch('/api/run-bout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ boutId, presetId: preset.id, topic, model }),
+        body: JSON.stringify({
+          boutId,
+          presetId: preset.id,
+          topic,
+          model,
+          length,
+        }),
         signal: controller.signal,
       });
 
@@ -167,7 +175,7 @@ export function useBout({
       cancelled = true;
       controller.abort();
     };
-  }, [boutId, initialTranscript.length, preset.id]);
+  }, [boutId, initialTranscript.length, preset.id, topic, model, length]);
 
   return { messages, status, activeAgentId, activeMessageId };
 }

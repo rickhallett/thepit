@@ -17,6 +17,7 @@ import {
   toMicroCredits,
 } from '@/lib/credits';
 import { PRESETS } from '@/lib/presets';
+import { resolveResponseLength } from '@/lib/response-lengths';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,8 +27,13 @@ export default async function BoutPage({
 }: {
   params: Promise<{ id: string }> | { id: string };
   searchParams?:
-    | Promise<{ presetId?: string; topic?: string; model?: string }>
-    | { presetId?: string; topic?: string; model?: string };
+    | Promise<{
+        presetId?: string;
+        topic?: string;
+        model?: string;
+        length?: string;
+      }>
+    | { presetId?: string; topic?: string; model?: string; length?: string };
 }) {
   const db = requireDb();
   const resolvedParams = await params;
@@ -43,6 +49,10 @@ export default async function BoutPage({
   const modelFromQuery =
     typeof resolvedSearchParams?.model === 'string'
       ? resolvedSearchParams.model
+      : null;
+  const lengthFromQuery =
+    typeof resolvedSearchParams?.length === 'string'
+      ? resolvedSearchParams.length
       : null;
 
   let bout: (typeof bouts.$inferSelect) | undefined;
@@ -94,9 +104,18 @@ export default async function BoutPage({
   } else if (requestedModel === 'byok' && BYOK_ENABLED) {
     modelId = 'byok';
   }
+  const lengthConfig = resolveResponseLength(lengthFromQuery);
   const estimatedCredits =
     CREDITS_ENABLED && modelId
-      ? formatCredits(toMicroCredits(estimateBoutCostGbp(preset.maxTurns, modelId)))
+      ? formatCredits(
+          toMicroCredits(
+            estimateBoutCostGbp(
+              preset.maxTurns,
+              modelId,
+              lengthConfig.outputTokensPerTurn,
+            ),
+          ),
+        )
       : null;
 
   return (
@@ -105,6 +124,7 @@ export default async function BoutPage({
       preset={preset}
       topic={topicFromQuery}
       model={modelFromQuery}
+      length={lengthFromQuery}
       estimatedCredits={estimatedCredits}
       initialTranscript={transcript}
     />

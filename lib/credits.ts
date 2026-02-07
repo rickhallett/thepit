@@ -67,22 +67,38 @@ export const getModelPricing = (modelId: string) => {
   return MODEL_PRICES_GBP[modelId];
 };
 
-export const estimateBoutTokens = (turns: number) => {
-  const outputTokens = Math.max(1, Math.ceil(turns * OUTPUT_TOKENS_PER_TURN));
+export const estimateBoutTokens = (
+  turns: number,
+  outputTokensPerTurn = OUTPUT_TOKENS_PER_TURN,
+) => {
+  const outputTokens = Math.max(
+    1,
+    Math.ceil(turns * outputTokensPerTurn),
+  );
   const inputTokens = Math.max(1, Math.ceil(outputTokens * INPUT_FACTOR));
   return { inputTokens, outputTokens };
 };
 
-export const estimateBoutCostGbp = (turns: number, modelId: string) => {
+export const estimateBoutCostGbp = (
+  turns: number,
+  modelId: string,
+  outputTokensPerTurn = OUTPUT_TOKENS_PER_TURN,
+) => {
   if (modelId === 'byok') {
-    const { inputTokens, outputTokens } = estimateBoutTokens(turns);
+    const { inputTokens, outputTokens } = estimateBoutTokens(
+      turns,
+      outputTokensPerTurn,
+    );
     const totalTokens = inputTokens + outputTokens;
     const cost = (totalTokens / 1000) * BYOK_FEE_GBP_PER_1K_TOKENS;
     return Math.max(cost, BYOK_MIN_GBP);
   }
   const pricing = getModelPricing(modelId);
   if (!pricing) return 0;
-  const { inputTokens, outputTokens } = estimateBoutTokens(turns);
+  const { inputTokens, outputTokens } = estimateBoutTokens(
+    turns,
+    outputTokensPerTurn,
+  );
   const raw =
     (inputTokens * pricing.in + outputTokens * pricing.out) / 1_000_000;
   return raw * (1 + CREDIT_PLATFORM_MARGIN);
