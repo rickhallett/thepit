@@ -1,0 +1,160 @@
+'use client';
+
+import { useEffect } from 'react';
+
+import { cn } from '@/lib/cn';
+
+export type AgentDetails = {
+  id: string;
+  name: string;
+  presetName?: string | null;
+  tier: 'free' | 'premium' | 'custom';
+  systemPrompt: string;
+  createdAt?: string | null;
+  ownerId?: string | null;
+  parentId?: string | null;
+  promptHash?: string | null;
+  manifestHash?: string | null;
+  attestationUid?: string | null;
+  attestationTxHash?: string | null;
+  responseLength?: string | null;
+  responseFormat?: string | null;
+};
+
+export function AgentDetailsModal({
+  agent,
+  onClose,
+  className,
+}: {
+  agent: AgentDetails | null;
+  onClose: () => void;
+  className?: string;
+}) {
+  useEffect(() => {
+    if (!agent) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [agent, onClose]);
+
+  if (!agent) return null;
+
+  const easBase =
+    process.env.NEXT_PUBLIC_EAS_SCAN_BASE ??
+    'https://base.easscan.org/attestation';
+  const attestationUrl = agent.attestationUid
+    ? `${easBase}/${agent.attestationUid}`
+    : null;
+
+  return (
+    <div className={cn('fixed inset-0 z-50', className)}>
+      <div
+        className="absolute inset-0 bg-black/80"
+        role="presentation"
+        onClick={onClose}
+      />
+      <div className="absolute left-1/2 top-1/2 w-[min(720px,92vw)] -translate-x-1/2 -translate-y-1/2 border-2 border-foreground/70 bg-black/95 p-6 shadow-[10px_10px_0_rgba(255,255,255,0.2)]">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.35em] text-muted">
+              Agent DNA
+            </p>
+            <h2 className="mt-2 text-2xl uppercase tracking-tight">
+              {agent.name}
+            </h2>
+            {agent.presetName && (
+              <p className="mt-1 text-xs uppercase tracking-[0.3em] text-muted">
+                {agent.presetName}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border-2 border-foreground/60 px-3 py-1 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-3 text-xs uppercase tracking-[0.25em] text-muted">
+          <div className="flex flex-wrap gap-3">
+            <span className="rounded-full border border-foreground/40 px-3 py-1">
+              Tier: {agent.tier}
+            </span>
+            {agent.responseLength && (
+              <span className="rounded-full border border-foreground/40 px-3 py-1">
+                Length: {agent.responseLength}
+              </span>
+            )}
+            {agent.responseFormat && (
+              <span className="rounded-full border border-foreground/40 px-3 py-1">
+                Format: {agent.responseFormat}
+              </span>
+            )}
+            {agent.createdAt && (
+              <span className="rounded-full border border-foreground/40 px-3 py-1">
+                Created: {new Date(agent.createdAt).toLocaleString()}
+              </span>
+            )}
+          </div>
+          {agent.parentId && (
+            <div>Lineage: {agent.parentId}</div>
+          )}
+          {agent.ownerId && <div>Owner: {agent.ownerId}</div>}
+        </div>
+
+        <div className="mt-6">
+          <p className="text-xs uppercase tracking-[0.3em] text-muted">
+            Prompt DNA
+          </p>
+          <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap border-2 border-foreground/60 bg-black/70 p-4 text-sm text-foreground/90">
+            {agent.systemPrompt}
+          </pre>
+        </div>
+
+        <div className="mt-6 grid gap-2 text-xs text-muted">
+          <div>
+            Prompt hash:{' '}
+            <span className="text-foreground">
+              {agent.promptHash ?? 'Pending'}
+            </span>
+          </div>
+          <div>
+            Manifest hash:{' '}
+            <span className="text-foreground">
+              {agent.manifestHash ?? 'Pending'}
+            </span>
+          </div>
+          <div>
+            Attestation:{' '}
+            {attestationUrl ? (
+              <a
+                href={attestationUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-accent underline"
+              >
+                View onchain
+              </a>
+            ) : (
+              <span className="text-foreground">Pending</span>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.3em]">
+          <button
+            type="button"
+            disabled
+            className="rounded-full border-2 border-foreground/50 px-3 py-2 text-muted"
+          >
+            Clone (soon)
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
