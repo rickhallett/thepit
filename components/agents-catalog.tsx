@@ -41,6 +41,18 @@ export function AgentsCatalog({
     null,
   );
 
+  const nameLookup = useMemo(() => {
+    const map = new Map<string, string>();
+    agents.forEach((agent) => map.set(agent.id, agent.name));
+    return map;
+  }, [agents]);
+
+  const parentLookup = useMemo(() => {
+    const map = new Map<string, string | null>();
+    agents.forEach((agent) => map.set(agent.id, agent.parentId ?? null));
+    return map;
+  }, [agents]);
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return agents.filter((agent) => {
@@ -58,6 +70,26 @@ export function AgentsCatalog({
       );
     });
   }, [agents, search, presetFilter, tierFilter]);
+
+  const buildLineage = (agent: AgentCatalogEntry) => {
+    const lineage: { id: string; name: string }[] = [];
+    const seen = new Set<string>();
+    let currentParent = agent.parentId ?? null;
+    let depth = 0;
+    const maxDepth = 3;
+
+    while (currentParent && depth < maxDepth && !seen.has(currentParent)) {
+      seen.add(currentParent);
+      lineage.push({
+        id: currentParent,
+        name: nameLookup.get(currentParent) ?? currentParent,
+      });
+      currentParent = parentLookup.get(currentParent) ?? null;
+      depth += 1;
+    }
+
+    return lineage;
+  };
 
   return (
     <section className={cn('flex flex-col gap-6', className)}>
@@ -163,6 +195,7 @@ export function AgentsCatalog({
                 attestationTxHash: activeAgent.attestationTxHash,
                 responseLength: activeAgent.responseLength ?? null,
                 responseFormat: activeAgent.responseFormat ?? null,
+                lineage: buildLineage(activeAgent),
               }
             : null
         }

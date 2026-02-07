@@ -68,13 +68,69 @@ export function useBout({
   );
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
+  const [thinkingAgentId, setThinkingAgentId] = useState<string | null>(null);
   const activeMessageIdRef = useRef<string | null>(null);
   const turnRef = useRef(initialTranscript.length);
+  const pendingMessageRef = useRef<{
+    id: string;
+    agentId: string;
+    agentName: string;
+    color: string;
+    buffer: string;
+  } | null>(null);
+  const thinkingTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (initialTranscript.length) return;
     const controller = new AbortController();
     let cancelled = false;
+
+    const clearThinkingTimeout = () => {
+      if (thinkingTimeoutRef.current !== null) {
+        window.clearTimeout(thinkingTimeoutRef.current);
+        thinkingTimeoutRef.current = null;
+      }
+    };
+
+    const flushPendingMessage = () => {
+      const pending = pendingMessageRef.current;
+      if (!pending) return;
+      pendingMessageRef.current = null;
+      clearThinkingTimeout();
+      setThinkingAgentId(null);
+      activeMessageIdRef.current = pending.id;
+      setActiveAgentId(pending.agentId);
+      setActiveMessageId(pending.id);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: pending.id,
+          agentId: pending.agentId,
+          agentName: pending.agentName,
+          color: pending.color,
+          text: pending.buffer,
+        },
+      ]);
+    };
+
+    const schedulePendingMessage = (pending: {
+      id: string;
+      agentId: string;
+      agentName: string;
+      color: string;
+    }) => {
+      pendingMessageRef.current = { ...pending, buffer: '' };
+      setThinkingAgentId(pending.agentId);
+      setActiveAgentId(null);
+      setActiveMessageId(null);
+      activeMessageIdRef.current = null;
+      clearThinkingTimeout();
+
+      const delayMs = Math.floor(2000 + Math.random() * 2000);
+      thinkingTimeoutRef.current = window.setTimeout(() => {
+        flushPendingMessage();
+      }, delayMs);
+    };
 
     const run = async () => {
       setStatus('streaming');
@@ -112,25 +168,24 @@ export function useBout({
             turnRef.current += 1;
           }
           const messageId = `${boutId}-${turn}-${data.agentId ?? 'agent'}`;
-          activeMessageIdRef.current = messageId;
-          setActiveAgentId(data.agentId ?? null);
-          setActiveMessageId(messageId);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: messageId,
-              agentId: data.agentId ?? 'agent',
-              agentName: data.agentName ?? 'Agent',
-              color: data.color ?? '#f8fafc',
-              text: '',
-            },
-          ]);
+          schedulePendingMessage({
+            id: messageId,
+            agentId: data.agentId ?? 'agent',
+            agentName: data.agentName ?? 'Agent',
+            color: data.color ?? '#f8fafc',
+          });
           return;
         }
 
         if (event.type === 'text-delta') {
           const activeId = activeMessageIdRef.current;
-          if (!activeId) return;
+          if (!activeId) {
+            const pending = pendingMessageRef.current;
+            if (pending) {
+              pending.buffer += event.delta ?? '';
+            }
+            return;
+          }
           const delta = event.delta ?? '';
           if (!delta) return;
           setMessages((prev) =>
@@ -159,23 +214,34 @@ export function useBout({
       }
 
       if (!cancelled) {
+        flushPendingMessage();
         setStatus('done');
         setActiveAgentId(null);
         setActiveMessageId(null);
+        setThinkingAgentId(null);
       }
     };
 
     run().catch(() => {
       if (!cancelled) {
         setStatus('error');
+        setThinkingAgentId(null);
       }
     });
 
     return () => {
       cancelled = true;
+      clearThinkingTimeout();
+      pendingMessageRef.current = null;
       controller.abort();
     };
   }, [boutId, initialTranscript.length, preset.id, topic, model, length]);
 
-  return { messages, status, activeAgentId, activeMessageId };
+  return {
+    messages,
+    status,
+    activeAgentId,
+    activeMessageId,
+    thinkingAgentId,
+  };
 }

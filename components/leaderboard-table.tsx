@@ -42,6 +42,18 @@ export function LeaderboardTable({
   );
   const [activeAgent, setActiveAgent] = useState<LeaderboardEntry | null>(null);
 
+  const nameLookup = useMemo(() => {
+    const map = new Map<string, string>();
+    entries.forEach((agent) => map.set(agent.id, agent.name));
+    return map;
+  }, [entries]);
+
+  const parentLookup = useMemo(() => {
+    const map = new Map<string, string | null>();
+    entries.forEach((agent) => map.set(agent.id, agent.parentId ?? null));
+    return map;
+  }, [entries]);
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return entries
@@ -59,6 +71,26 @@ export function LeaderboardTable({
       })
       .sort((a, b) => b.votes - a.votes);
   }, [entries, presetFilter, search, sourceFilter]);
+
+  const buildLineage = (agent: LeaderboardEntry) => {
+    const lineage: { id: string; name: string }[] = [];
+    const seen = new Set<string>();
+    let currentParent = agent.parentId ?? null;
+    let depth = 0;
+    const maxDepth = 3;
+
+    while (currentParent && depth < maxDepth && !seen.has(currentParent)) {
+      seen.add(currentParent);
+      lineage.push({
+        id: currentParent,
+        name: nameLookup.get(currentParent) ?? currentParent,
+      });
+      currentParent = parentLookup.get(currentParent) ?? null;
+      depth += 1;
+    }
+
+    return lineage;
+  };
 
   return (
     <section className={cn('flex flex-col gap-6', className)}>
@@ -170,6 +202,7 @@ export function LeaderboardTable({
                 attestationTxHash: activeAgent.attestationTxHash,
                 responseLength: activeAgent.responseLength ?? null,
                 responseFormat: activeAgent.responseFormat ?? null,
+                lineage: buildLineage(activeAgent),
               }
             : null
         }

@@ -31,16 +31,18 @@ export function Arena({
   estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
 }) {
-  const { messages, status, activeAgentId, activeMessageId } = useBout({
-    boutId,
-    preset,
-    topic: topic ?? undefined,
-    model: model ?? undefined,
-    length: length ?? undefined,
-    initialTranscript,
-  });
+  const { messages, status, activeAgentId, activeMessageId, thinkingAgentId } =
+    useBout({
+      boutId,
+      preset,
+      topic: topic ?? undefined,
+      model: model ?? undefined,
+      length: length ?? undefined,
+      initialTranscript,
+    });
   const [copied, setCopied] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [shareUrl, setShareUrl] = useState('');
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -55,6 +57,10 @@ export function Arena({
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
   }, []);
 
   useEffect(() => {
@@ -90,12 +96,47 @@ export function Arena({
       .join('\n\n');
   }, [messages]);
 
+  const sharePayload = useMemo(() => {
+    if (!transcript) return '';
+    const header = [
+      `THE PIT — ${preset.name}`,
+      topic ? `Topic: ${topic}` : null,
+      model ? `Model: ${model}` : null,
+      length ? `Length: ${length}` : null,
+      shareUrl ? `Replay: ${shareUrl}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const origin = shareUrl ? new URL(shareUrl).origin : 'https://tspit.vercel.app';
+    const footer = `Made with THE PIT — ${origin}`;
+
+    return [header, '', transcript, '', footer].join('\n');
+  }, [length, model, preset.name, shareUrl, topic, transcript]);
+
   const copyTranscript = async () => {
-    if (!transcript) return;
-    await navigator.clipboard.writeText(transcript);
+    if (!sharePayload) return;
+    await navigator.clipboard.writeText(sharePayload);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   };
+
+  const alignmentMap = useMemo(() => {
+    const positions = ['self-start', 'self-center', 'self-end'];
+    const map = new Map<string, string>();
+    preset.agents.forEach((agent, index) => {
+      map.set(agent.id, positions[index % positions.length]);
+    });
+    return map;
+  }, [preset.agents]);
+
+  const resolveAlignment = (agentId: string) =>
+    alignmentMap.get(agentId) ?? 'self-start';
+
+  const thinkingAgent = useMemo(() => {
+    if (!thinkingAgentId) return null;
+    return preset.agents.find((agent) => agent.id === thinkingAgentId) ?? null;
+  }, [preset.agents, thinkingAgentId]);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -159,7 +200,10 @@ export function Arena({
           {messages.map((message) => (
             <article
               key={message.id}
-              className="border-2 bg-black/60 p-5 shadow-[6px_6px_0_rgba(255,255,255,0.2)]"
+              className={cn(
+                'w-full max-w-[560px] border-2 bg-black/60 p-5 shadow-[6px_6px_0_rgba(255,255,255,0.2)]',
+                resolveAlignment(message.agentId),
+              )}
               style={{ borderColor: message.color }}
             >
               <header className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
@@ -175,6 +219,23 @@ export function Arena({
               </p>
             </article>
           ))}
+          {thinkingAgent && status === 'streaming' && (
+            <article
+              className={cn(
+                'w-full max-w-[560px] border-2 border-dashed bg-black/40 p-5 text-foreground/80 shadow-[6px_6px_0_rgba(255,255,255,0.15)]',
+                resolveAlignment(thinkingAgent.id),
+              )}
+              style={{ borderColor: thinkingAgent.color }}
+            >
+              <header className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
+                <span style={{ color: thinkingAgent.color }}>
+                  {thinkingAgent.name}
+                </span>
+                <span className="text-muted">Thinking...</span>
+              </header>
+              <p className="mt-4 text-sm italic text-foreground/60">...</p>
+            </article>
+          )}
           <div ref={endRef} />
         </section>
 

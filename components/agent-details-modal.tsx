@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 import { cn } from '@/lib/cn';
+import { buildAgentDetailHref } from '@/lib/agent-links';
+import { buildAttestationUrl } from '@/lib/attestation-links';
 
 export type AgentDetails = {
   id: string;
@@ -19,6 +22,7 @@ export type AgentDetails = {
   attestationTxHash?: string | null;
   responseLength?: string | null;
   responseFormat?: string | null;
+  lineage?: { id: string; name: string }[];
 };
 
 export function AgentDetailsModal({
@@ -41,11 +45,8 @@ export function AgentDetailsModal({
 
   if (!agent) return null;
 
-  const easBase =
-    process.env.NEXT_PUBLIC_EAS_SCAN_BASE ??
-    'https://base.easscan.org/attestation';
   const attestationUrl = agent.attestationUid
-    ? `${easBase}/${agent.attestationUid}`
+    ? buildAttestationUrl(agent.attestationUid)
     : null;
 
   return (
@@ -100,11 +101,27 @@ export function AgentDetailsModal({
               </span>
             )}
           </div>
-          {agent.parentId && (
-            <div>Lineage: {agent.parentId}</div>
-          )}
           {agent.ownerId && <div>Owner: {agent.ownerId}</div>}
         </div>
+
+        {agent.lineage && agent.lineage.length > 0 && (
+          <div className="mt-5">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted">
+              Lineage
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3 text-xs uppercase tracking-[0.25em]">
+              {agent.lineage.map((ancestor) => (
+                <Link
+                  key={ancestor.id}
+                  href={buildAgentDetailHref(ancestor.id)}
+                  className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+                >
+                  {ancestor.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-6">
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
@@ -146,6 +163,12 @@ export function AgentDetailsModal({
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3 text-xs uppercase tracking-[0.3em]">
+          <Link
+            href={buildAgentDetailHref(agent.id)}
+            className="rounded-full border-2 border-foreground/60 px-3 py-2 transition hover:border-accent hover:text-accent"
+          >
+            View full DNA
+          </Link>
           <button
             type="button"
             disabled
