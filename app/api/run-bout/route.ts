@@ -4,6 +4,7 @@ import {
   createUIMessageStreamResponse,
 } from 'ai';
 import { eq } from 'drizzle-orm';
+import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
@@ -91,23 +92,28 @@ export async function POST(req: Request) {
     return new Response('BYOK not enabled.', { status: 400 });
   }
 
+  const { userId } = await auth();
   let preauthMicro = 0;
   if (CREDITS_ENABLED) {
+    if (!userId) {
+      return new Response('Sign in required.', { status: 401 });
+    }
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
       modelId,
       lengthConfig.outputTokensPerTurn,
     );
     preauthMicro = toMicroCredits(estimatedCost);
-    const balance = await getCreditBalanceMicro();
+    const balance = await getCreditBalanceMicro(userId);
     if (balance === null || balance < preauthMicro) {
       return new Response('Insufficient credits.', { status: 402 });
     }
-    await applyCreditDelta(-preauthMicro, 'preauth', {
+    await applyCreditDelta(userId, -preauthMicro, 'preauth', {
       presetId,
       boutId,
       modelId,
       estimatedCostGbp: estimatedCost,
+      referenceId: boutId,
     });
   }
 
@@ -196,12 +202,12 @@ export async function POST(req: Request) {
           .set({ status: 'completed', transcript })
           .where(eq(bouts.id, boutId));
 
-        if (CREDITS_ENABLED) {
+        if (CREDITS_ENABLED && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);
           const delta = actualMicro - preauthMicro;
           if (delta !== 0) {
-            await applyCreditDelta(delta, 'settlement', {
+            await applyCreditDelta(userId, delta, 'settlement', {
               presetId,
               boutId,
               modelId,
@@ -209,6 +215,7 @@ export async function POST(req: Request) {
               outputTokens,
               actualCostGbp: actualCost,
               preauthMicro,
+              referenceId: boutId,
             });
           }
         }
@@ -218,12 +225,12 @@ export async function POST(req: Request) {
           .set({ status: 'error', transcript })
           .where(eq(bouts.id, boutId));
 
-        if (CREDITS_ENABLED && preauthMicro) {
+        if (CREDITS_ENABLED && preauthMicro && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);
           const delta = actualMicro - preauthMicro;
           if (delta !== 0) {
-            await applyCreditDelta(delta, 'settlement-error', {
+            await applyCreditDelta(userId, delta, 'settlement-error', {
               presetId,
               boutId,
               modelId,
@@ -231,6 +238,7 @@ export async function POST(req: Request) {
               outputTokens,
               actualCostGbp: actualCost,
               preauthMicro,
+              referenceId: boutId,
             });
           }
         }

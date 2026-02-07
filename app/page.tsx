@@ -1,3 +1,5 @@
+import { auth } from '@clerk/nextjs/server';
+
 import { PresetCard } from '@/components/preset-card';
 import { AuthControls } from '@/components/auth-controls';
 import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
@@ -16,7 +18,10 @@ import { createBout } from './actions';
 export default async function Home() {
   const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const creditsEnabled = CREDITS_ENABLED;
-  const creditBalanceMicro = creditsEnabled ? await getCreditBalanceMicro() : null;
+  const { userId } = await auth();
+  const creditBalanceMicro =
+    creditsEnabled && userId ? await getCreditBalanceMicro(userId) : null;
+  const showCreditPrompt = creditsEnabled && !userId;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -44,6 +49,11 @@ export default async function Home() {
                 1 credit = £{CREDIT_VALUE_GBP.toFixed(2)}
               </span>
             </div>
+          )}
+          {showCreditPrompt && (
+            <p className="mt-4 text-xs uppercase tracking-[0.25em] text-muted">
+              Sign in to track credits and history.
+            </p>
           )}
         </header>
 

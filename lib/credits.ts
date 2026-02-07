@@ -1,7 +1,7 @@
 import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
-import { creditAccounts, creditEvents } from '@/db/schema';
+import { creditTransactions, credits } from '@/db/schema';
 
 export const CREDIT_VALUE_GBP = Number(
   process.env.CREDIT_VALUE_GBP ?? '0.01',
@@ -9,8 +9,6 @@ export const CREDIT_VALUE_GBP = Number(
 export const MICRO_PER_CREDIT = 100;
 export const MICRO_VALUE_GBP = CREDIT_VALUE_GBP / MICRO_PER_CREDIT;
 export const CREDITS_ENABLED = process.env.CREDITS_ENABLED === 'true';
-export const CREDITS_ACCOUNT_ID =
-  process.env.CREDITS_ACCOUNT_ID ?? 'demo-account';
 export const CREDIT_PLATFORM_MARGIN = Number(
   process.env.CREDIT_PLATFORM_MARGIN ?? '0.25',
 );
@@ -121,23 +119,26 @@ export const computeCostGbp = (
   return raw * (1 + CREDIT_PLATFORM_MARGIN);
 };
 
-export async function ensureCreditAccount() {
+export async function ensureCreditAccount(userId: string) {
   const db = requireDb();
   const [existing] = await db
     .select()
-    .from(creditAccounts)
-    .where(eq(creditAccounts.id, CREDITS_ACCOUNT_ID))
+    .from(credits)
+    .where(eq(credits.userId, userId))
     .limit(1);
 
   if (existing) return existing;
 
   const startingCredits = Number(process.env.CREDITS_STARTING_CREDITS ?? '500');
-  const balanceMicro = Math.max(0, Math.round(startingCredits * MICRO_PER_CREDIT));
+  const balanceMicro = Math.max(
+    0,
+    Math.round(startingCredits * MICRO_PER_CREDIT),
+  );
 
   const [created] = await db
-    .insert(creditAccounts)
+    .insert(credits)
     .values({
-      id: CREDITS_ACCOUNT_ID,
+      userId,
       balanceMicro,
     })
     .returning();
@@ -145,31 +146,35 @@ export async function ensureCreditAccount() {
   return created;
 }
 
-export async function getCreditBalanceMicro() {
+export async function getCreditBalanceMicro(userId: string) {
   if (!CREDITS_ENABLED) return null;
-  const account = await ensureCreditAccount();
+  const account = await ensureCreditAccount(userId);
   return account.balanceMicro;
 }
 
 export async function applyCreditDelta(
+  userId: string,
   deltaMicro: number,
   reason: string,
   metadata: Record<string, unknown>,
 ) {
   const db = requireDb();
-  await db.insert(creditEvents).values({
-    accountId: CREDITS_ACCOUNT_ID,
+  await db.insert(creditTransactions).values({
+    userId,
     deltaMicro,
-    reason,
+    source: reason,
+    referenceId:
+      typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
     metadata,
   });
 
   const [updated] = await db
-    .update(creditAccounts)
+    .update(credits)
     .set({
-      balanceMicro: sql`${creditAccounts.balanceMicro} + ${deltaMicro}`,
+      balanceMicro: sql`${credits.balanceMicro} + ${deltaMicro}`,
+      updatedAt: new Date(),
     })
-    .where(eq(creditAccounts.id, CREDITS_ACCOUNT_ID))
+    .where(eq(credits.userId, userId))
     .returning();
 
   return updated;

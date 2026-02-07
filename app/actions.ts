@@ -2,15 +2,23 @@
 
 import { nanoid } from 'nanoid';
 import { redirect } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { bouts } from '@/db/schema';
 import { PRESETS } from '@/lib/presets';
+import { CREDITS_ENABLED } from '@/lib/credits';
+import { ensureUserRecord } from '@/lib/users';
 
 export async function createBout(presetId: string, formData?: FormData) {
   const presetExists = PRESETS.some((preset) => preset.id === presetId);
   if (!presetExists) {
     throw new Error('Invalid preset.');
+  }
+
+  const { userId } = await auth();
+  if (CREDITS_ENABLED && !userId) {
+    redirect('/sign-in?redirect_url=/');
   }
 
   const db = requireDb();
@@ -28,12 +36,17 @@ export async function createBout(presetId: string, formData?: FormData) {
       ? String(formData.get('length')).trim()
       : '';
 
+  if (userId) {
+    await ensureUserRecord(userId);
+  }
+
   try {
     await db.insert(bouts).values({
       id,
       presetId,
       status: 'running',
       transcript: [],
+      ownerId: userId ?? null,
     });
   } catch (error) {
     console.error('createBout insert failed', error);
