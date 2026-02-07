@@ -6,6 +6,7 @@ import {
   timestamp,
   varchar,
   bigint,
+  text,
 } from 'drizzle-orm/pg-core';
 
 export type TranscriptEntry = {
@@ -20,6 +21,8 @@ export const boutStatus = pgEnum('bout_status', [
   'completed',
   'error',
 ]);
+
+export const agentTier = pgEnum('agent_tier', ['free', 'premium', 'custom']);
 
 export const bouts = pgTable('bouts', {
   id: varchar('id', { length: 21 }).primaryKey(),
@@ -48,4 +51,25 @@ export const creditEvents = pgTable('credit_events', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
+});
+
+export const agents = pgTable('agents', {
+  id: varchar('id', { length: 128 }).primaryKey(),
+  name: varchar('name', { length: 128 }).notNull(),
+  systemPrompt: text('system_prompt').notNull(),
+  presetId: varchar('preset_id', { length: 64 }),
+  tier: agentTier('tier').notNull(),
+  model: varchar('model', { length: 128 }),
+  responseLength: varchar('response_length', { length: 32 }).notNull(),
+  responseFormat: varchar('response_format', { length: 32 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  ownerId: varchar('owner_id', { length: 128 }),
+  parentId: varchar('parent_id', { length: 128 }),
+  promptHash: varchar('prompt_hash', { length: 66 }).notNull(),
+  manifestHash: varchar('manifest_hash', { length: 66 }).notNull(),
+  attestationUid: varchar('attestation_uid', { length: 128 }),
+  attestationTxHash: varchar('attestation_tx_hash', { length: 66 }),
+  attestedAt: timestamp('attested_at', { withTimezone: true }),
 });
