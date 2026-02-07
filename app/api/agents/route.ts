@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
   const lengthConfig = resolveResponseLength(payload.responseLength);
   const formatConfig = resolveResponseFormat(payload.responseFormat);
-  const { userId } = auth();
+  const { userId } = await auth();
   const agentId = nanoid();
 
   const manifest = buildAgentManifest({
