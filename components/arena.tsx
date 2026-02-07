@@ -17,15 +17,23 @@ const STATUS_LABELS: Record<string, string> = {
 export function Arena({
   boutId,
   preset,
+  topic,
+  model,
+  estimatedCredits,
   initialTranscript,
 }: {
   boutId: string;
   preset: Preset;
+  topic?: string | null;
+  model?: string | null;
+  estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
 }) {
   const { messages, status, activeAgentId, activeMessageId } = useBout({
     boutId,
     preset,
+    topic: topic ?? undefined,
+    model: model ?? undefined,
     initialTranscript,
   });
   const [copied, setCopied] = useState(false);
@@ -61,7 +69,10 @@ export function Arena({
     return parts.map((part, index) => {
       if (part.startsWith('*') && part.endsWith('*') && part.length > 1) {
         return (
-          <span key={`action-${index}`} className="text-foreground/70 italic">
+          <span
+            key={`action-${index}`}
+            className="ml-2 inline-block text-foreground/70 italic"
+          >
             {part}
           </span>
         );
@@ -106,6 +117,11 @@ export function Arena({
               >
                 {STATUS_LABELS[status] ?? status}
               </span>
+              {estimatedCredits && (
+                <span className="rounded-full border-2 border-foreground/50 px-3 py-1 text-muted">
+                  Est {estimatedCredits} credits
+                </span>
+              )}
               {status === 'done' && (
                 <button
                   type="button"
