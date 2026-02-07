@@ -7,6 +7,8 @@ import {
   varchar,
   bigint,
   text,
+  uniqueIndex,
+  boolean,
 } from 'drizzle-orm/pg-core';
 
 export type TranscriptEntry = {
@@ -40,13 +42,18 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 256 }),
   displayName: varchar('display_name', { length: 128 }),
   imageUrl: varchar('image_url', { length: 512 }),
+  referralCode: varchar('referral_code', { length: 32 }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (table) => ({
+  referralCodeIdx: uniqueIndex('users_referral_code_idx').on(
+    table.referralCode,
+  ),
+}));
 
 export const credits = pgTable('credits', {
   userId: varchar('user_id', { length: 128 }).primaryKey(),
@@ -66,6 +73,32 @@ export const creditTransactions = pgTable('credit_transactions', {
   source: varchar('source', { length: 64 }).notNull(),
   referenceId: varchar('reference_id', { length: 128 }),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const introPool = pgTable('intro_pool', {
+  id: serial('id').primaryKey(),
+  initialMicro: bigint('initial_micro', { mode: 'number' }).notNull(),
+  claimedMicro: bigint('claimed_micro', { mode: 'number' }).notNull(),
+  drainRateMicroPerMinute: bigint('drain_rate_micro_per_minute', {
+    mode: 'number',
+  }).notNull(),
+  startedAt: timestamp('started_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const referrals = pgTable('referrals', {
+  id: serial('id').primaryKey(),
+  referrerId: varchar('referrer_id', { length: 128 }).notNull(),
+  referredId: varchar('referred_id', { length: 128 }).notNull(),
+  code: varchar('code', { length: 32 }).notNull(),
+  credited: boolean('credited').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

@@ -45,6 +45,8 @@ bouts: id, presetId, status ('running'|'completed'|'error'), transcript (jsonb),
 users: id, email, displayName, imageUrl, createdAt, updatedAt
 credits: userId, balanceMicro, createdAt, updatedAt
 creditTransactions: id, userId, deltaMicro, source, referenceId, metadata (jsonb), createdAt
+introPool: id, initialMicro, claimedMicro, drainRateMicroPerMinute, startedAt, updatedAt
+referrals: id, referrerId, referredId, code, credited, createdAt
 ```
 
 ### Preset System
