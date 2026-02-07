@@ -6,8 +6,9 @@ import { AuthControls } from '@/components/auth-controls';
 import { cn } from '@/lib/cn';
 
 const LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/agents', label: 'All agents' },
+  { href: '/arena', label: 'Arena' },
+  { href: '/research', label: 'Research' },
+  { href: '/roadmap', label: 'Roadmap' },
   { href: '/leaderboard', label: 'Leaderboard' },
 ];
 
