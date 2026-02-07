@@ -1,0 +1,72 @@
+{
+  "version": "1.0.0",
+  "presets": [
+    {
+      "id": "darwin-special",
+      "file": "darwin-special.json",
+      "hero": true,
+      "agents": 4
+    },
+    {
+      "id": "last-supper",
+      "file": "last-supper.json",
+      "hero": false,
+      "agents": 4
+    },
+    {
+      "id": "roast-battle",
+      "file": "roast-battle.json",
+      "hero": false,
+      "agents": 4
+    },
+    {
+      "id": "shark-pit",
+      "file": "shark-pit.json",
+      "hero": false,
+      "agents": 4
+    },
+    {
+      "id": "on-the-couch",
+      "file": "on-the-couch.json",
+      "hero": false,
+      "agents": 4
+    },
+    {
+      "id": "gloves-off",
+      "file": "gloves-off.json",
+      "hero": false,
+      "agents": 4,
+      "requires_input": true
+    },
+    {
+      "id": "first-contact",
+      "file": "first-contact.json",
+      "hero": false,
+      "agents": 2
+    },
+    {
+      "id": "writers-room",
+      "file": "writers-room.json",
+      "hero": false,
+      "agents": 4
+    },
+    {
+      "id": "mansion",
+      "file": "mansion.json",
+      "hero": false,
+      "agents": 4
+    },
+    {
+      "id": "summit",
+      "file": "summit.json",
+      "hero": false,
+      "agents": 6
+    },
+    {
+      "id": "flatshare",
+      "file": "flatshare.json",
+      "hero": false,
+      "agents": 5
+    }
+  ]
+}
