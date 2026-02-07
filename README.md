@@ -24,6 +24,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 - Add a simple “Add credits” admin/testing control.
 - Surface credit usage history in the UI from `credit_events`.
+- Tidy jump-to-latest caret spacing and styling.
 
 ## Learn More
 

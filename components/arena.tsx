@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { AuthControls } from '@/components/auth-controls';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
@@ -110,30 +111,33 @@ export function Arena({
                 {preset.name}
               </h1>
             </div>
-            <div className="flex items-center gap-4 text-xs uppercase tracking-[0.3em]">
-              <span
-                className={cn(
-                  'rounded-full border-2 border-foreground/60 px-3 py-1',
-                  status === 'streaming' && 'border-accent text-accent',
-                  status === 'error' && 'border-red-400 text-red-400',
-                )}
-              >
-                {STATUS_LABELS[status] ?? status}
-              </span>
-              {estimatedCredits && (
-                <span className="rounded-full border-2 border-foreground/50 px-3 py-1 text-muted">
-                  Est {estimatedCredits} credits
-                </span>
-              )}
-              {status === 'done' && (
-                <button
-                  type="button"
-                  onClick={copyTranscript}
-                  className="rounded-full border-2 border-foreground/70 px-3 py-1 transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
+            <div className="flex flex-col items-end gap-3 text-xs uppercase tracking-[0.3em]">
+              <AuthControls className="justify-end" />
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <span
+                  className={cn(
+                    'rounded-full border-2 border-foreground/60 px-3 py-1',
+                    status === 'streaming' && 'border-accent text-accent',
+                    status === 'error' && 'border-red-400 text-red-400',
+                  )}
                 >
-                  {copied ? 'Copied' : 'Share'}
-                </button>
-              )}
+                  {STATUS_LABELS[status] ?? status}
+                </span>
+                {estimatedCredits && (
+                  <span className="rounded-full border-2 border-foreground/50 px-3 py-1 text-muted">
+                    Est {estimatedCredits} credits
+                  </span>
+                )}
+                {status === 'done' && (
+                  <button
+                    type="button"
+                    onClick={copyTranscript}
+                    className="rounded-full border-2 border-foreground/70 px-3 py-1 transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
+                  >
+                    {copied ? 'Copied' : 'Share'}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
