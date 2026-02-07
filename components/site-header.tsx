@@ -7,8 +7,12 @@ import { cn } from '@/lib/cn';
 
 const LINKS = [
   { href: '/', label: 'Home' },
+  { href: '/arena', label: 'Arena' },
   { href: '/agents', label: 'All agents' },
   { href: '/leaderboard', label: 'Leaderboard' },
+  { href: '/research', label: 'Research' },
+  { href: '/roadmap', label: 'Roadmap' },
+  { href: '/contact', label: 'Contact' },
 ];
 
 export function SiteHeader({ className }: { className?: string }) {
