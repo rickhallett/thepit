@@ -75,6 +75,13 @@ Records are **append-only**. No updates after creation.
 - Schema Registry: `0x4200000000000000000000000000000000000020`
 - EAS: `0x4200000000000000000000000000000000000021`
 
+### Signer Wallet Setup (Pending)
+We need a dedicated signer wallet before EAS can go live in prod.
+1. Create a new EVM wallet dedicated to THE PIT attestations.
+2. Export and securely store the private key (for `EAS_SIGNER_PRIVATE_KEY`).
+3. Fund the wallet with Base ETH for gas (schema creation + attestations).
+4. Create the EAS schema on Base and copy the Schema UID.
+
 ### Schema
 Schema string (EAS):
 ```
@@ -117,6 +124,11 @@ string agentId,string name,string presetId,string tier,bytes32 promptHash,bytes3
 ## Observability
 - Log attestation tx hash + uid.
 - Persist errors and surface in admin diagnostics.
+
+## Current Status
+- Onchain attestation flow is implemented in code.
+- We still need to provision the signer wallet + schema UID before enabling in prod.
+- Until EAS is live, we can still surface hashes in the UI and lean on Git history for integrity signals.
 
 ## Open Questions
 - Where to surface attestation failures (retry queue vs manual re-run)?
