@@ -14,6 +14,7 @@ import {
   getModel,
 } from '@/lib/ai';
 import { ALL_PRESETS } from '@/lib/presets';
+import { resolveResponseFormat } from '@/lib/response-formats';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import {
   CREDITS_ENABLED,
@@ -35,6 +36,7 @@ export async function POST(req: Request) {
     topic?: string;
     model?: string;
     length?: string;
+    format?: string;
   };
 
   try {
@@ -46,6 +48,7 @@ export async function POST(req: Request) {
   const { boutId } = payload;
   const topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
   const lengthConfig = resolveResponseLength(payload.length);
+  const formatConfig = resolveResponseFormat(payload.format);
   let { presetId } = payload;
 
   if (!boutId) {
@@ -155,11 +158,12 @@ export async function POST(req: Request) {
           writer.write({ type: 'text-start', id: turnId });
 
           const topicLine = topic ? `Topic: ${topic}\n\n` : '';
-          const lengthLine = `Response length: ${lengthConfig.label} (${lengthConfig.hint}).\n\n`;
+          const lengthLine = `Response length: ${lengthConfig.label} (${lengthConfig.hint}).\n`;
+          const formatLine = `Response format: ${formatConfig.label} (${formatConfig.hint}). ${formatConfig.instruction}\n\n`;
           const prompt =
             history.length > 0
-              ? `${topicLine}${lengthLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
-              : `${topicLine}${lengthLine}Open the debate in character as ${agent.name}.`;
+              ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
+              : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
           inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
           inputTokens += estimateTokensFromText(prompt, 1);
 

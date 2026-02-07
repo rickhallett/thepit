@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 
-import { AuthControls } from '@/components/auth-controls';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
+import { resolveResponseFormat } from '@/lib/response-formats';
 import { useBout } from '@/lib/use-bout';
 import type { TranscriptEntry } from '@/db/schema';
 
@@ -21,6 +22,7 @@ export function Arena({
   topic,
   model,
   length,
+  format,
   estimatedCredits,
   initialTranscript,
 }: {
@@ -29,6 +31,7 @@ export function Arena({
   topic?: string | null;
   model?: string | null;
   length?: string | null;
+  format?: string | null;
   estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
 }) {
@@ -38,11 +41,17 @@ export function Arena({
     topic: topic ?? undefined,
     model: model ?? undefined,
     length: length ?? undefined,
+    format: format ?? undefined,
     initialTranscript,
   });
   const [copied, setCopied] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [pageUrl, setPageUrl] = useState('');
   const endRef = useRef<HTMLDivElement | null>(null);
+  const responseFormat = resolveResponseFormat(format ?? undefined);
+  const canNativeShare =
+    typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   useEffect(() => {
     const onScroll = () => {
@@ -59,6 +68,10 @@ export function Arena({
   }, []);
 
   useEffect(() => {
+    setPageUrl(window.location.href);
+  }, []);
+
+  useEffect(() => {
     if (!autoScroll) return;
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, autoScroll]);
@@ -68,14 +81,14 @@ export function Arena({
     setAutoScroll(true);
   };
 
-  const renderMessageText = (text: string) => {
+  const renderPlainText = (text: string) => {
     const parts = text.split(/(\*[^*]+\*)/g);
     return parts.map((part, index) => {
       if (part.startsWith('*') && part.endsWith('*') && part.length > 1) {
         return (
           <span
             key={`action-${index}`}
-            className="ml-2 inline-block text-foreground/70 italic"
+            className="ml-3 inline-block text-foreground/70 italic"
           >
             {part}
           </span>
@@ -85,11 +98,71 @@ export function Arena({
     });
   };
 
+  const renderMessageBody = (text: string) => {
+    if (responseFormat.id === 'json') {
+      return (
+        <pre className="whitespace-pre-wrap rounded border border-foreground/40 bg-black/40 p-3 font-mono text-xs text-foreground/80">
+          {text}
+        </pre>
+      );
+    }
+
+    if (responseFormat.id === 'markdown') {
+      return (
+        <ReactMarkdown
+          components={{
+            p: ({ children }) => (
+              <p className="mb-3 last:mb-0">{children}</p>
+            ),
+            em: ({ children }) => (
+              <em className="ml-3 inline-block text-foreground/70 italic">
+                {children}
+              </em>
+            ),
+            code: ({ children }) => (
+              <code className="rounded bg-black/50 px-1 py-0.5 text-[0.72rem]">
+                {children}
+              </code>
+            ),
+            li: ({ children }) => (
+              <li className="ml-5 list-disc">{children}</li>
+            ),
+          }}
+        >
+          {text}
+        </ReactMarkdown>
+      );
+    }
+
+    return <span>{renderPlainText(text)}</span>;
+  };
+
+  const shareTranscripts = useMemo(() => {
+    const result: string[] = [];
+    let acc = '';
+    messages.forEach((message, index) => {
+      const line = `${message.agentName}: ${message.text}`;
+      acc = acc ? `${acc}\n\n${line}` : line;
+      result[index] = acc;
+    });
+    return result;
+  }, [messages]);
+
   const transcript = useMemo(() => {
     return messages
       .map((message) => `${message.agentName}: ${message.text}`)
       .join('\n\n');
   }, [messages]);
+
+  const buildSharePayload = (index: number) => {
+    const title = `THE PIT — ${preset.name}`;
+    const text = shareTranscripts[index] ?? '';
+    return {
+      title,
+      text: `${title}\n\n${text}`,
+      url: pageUrl,
+    };
+  };
 
   const copyTranscript = async () => {
     if (!transcript) return;
@@ -98,8 +171,50 @@ export function Arena({
     window.setTimeout(() => setCopied(false), 1600);
   };
 
+  const copyMessage = async (index: number) => {
+    const payload = buildSharePayload(index);
+    const full = payload.url ? `${payload.text}\n\n${payload.url}` : payload.text;
+    await navigator.clipboard.writeText(full);
+    const messageId = messages[index]?.id ?? null;
+    setCopiedMessageId(messageId);
+    window.setTimeout(() => setCopiedMessageId(null), 1600);
+  };
+
+  const shareNative = async (index: number) => {
+    if (typeof navigator.share !== 'function') return;
+    const payload = buildSharePayload(index);
+    try {
+      await navigator.share(payload);
+    } catch {
+      // ignore cancels
+    }
+  };
+
+  const buildShareLinks = (index: number) => {
+    if (!pageUrl) return null;
+    const payload = buildSharePayload(index);
+    const encodedUrl = encodeURIComponent(pageUrl);
+    const maxX = 240;
+    const trimmedText =
+      payload.text.length > maxX
+        ? `${payload.text.slice(0, maxX - 1)}…`
+        : payload.text;
+    const encodedXText = encodeURIComponent(trimmedText);
+    const encodedText = encodeURIComponent(`${payload.text}\n\n${pageUrl}`);
+    return {
+      x: `https://x.com/intent/post?text=${encodedXText}&url=${encodedUrl}`,
+      reddit: `https://www.reddit.com/submit?title=${encodeURIComponent(
+        payload.title,
+      )}&text=${encodedText}`,
+      whatsapp: `https://wa.me/?text=${encodedText}`,
+      telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodeURIComponent(
+        payload.text,
+      )}`,
+    };
+  };
+
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-6 py-10">
         <header className="flex flex-col gap-4 border-b-2 border-foreground/70 pb-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -111,33 +226,30 @@ export function Arena({
                 {preset.name}
               </h1>
             </div>
-            <div className="flex flex-col items-end gap-3 text-xs uppercase tracking-[0.3em]">
-              <AuthControls className="justify-end" />
-              <div className="flex flex-wrap items-center justify-end gap-3">
-                <span
-                  className={cn(
-                    'rounded-full border-2 border-foreground/60 px-3 py-1',
-                    status === 'streaming' && 'border-accent text-accent',
-                    status === 'error' && 'border-red-400 text-red-400',
-                  )}
-                >
-                  {STATUS_LABELS[status] ?? status}
+            <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
+              <span
+                className={cn(
+                  'rounded-full border-2 border-foreground/60 px-3 py-1',
+                  status === 'streaming' && 'border-accent text-accent',
+                  status === 'error' && 'border-red-400 text-red-400',
+                )}
+              >
+                {STATUS_LABELS[status] ?? status}
+              </span>
+              {estimatedCredits && (
+                <span className="rounded-full border-2 border-foreground/50 px-3 py-1 text-muted">
+                  Est {estimatedCredits} credits
                 </span>
-                {estimatedCredits && (
-                  <span className="rounded-full border-2 border-foreground/50 px-3 py-1 text-muted">
-                    Est {estimatedCredits} credits
-                  </span>
-                )}
-                {status === 'done' && (
-                  <button
-                    type="button"
-                    onClick={copyTranscript}
-                    className="rounded-full border-2 border-foreground/70 px-3 py-1 transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
-                  >
-                    {copied ? 'Copied' : 'Share'}
-                  </button>
-                )}
-              </div>
+              )}
+              {status === 'done' && (
+                <button
+                  type="button"
+                  onClick={copyTranscript}
+                  className="rounded-full border-2 border-foreground/70 px-3 py-1 transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
+                >
+                  {copied ? 'Copied' : 'Share'}
+                </button>
+              )}
             </div>
           </div>
           <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
@@ -160,7 +272,7 @@ export function Arena({
             </div>
           )}
 
-          {messages.map((message) => (
+          {messages.map((message, index) => (
             <article
               key={message.id}
               className="border-2 bg-black/60 p-5 shadow-[6px_6px_0_rgba(255,255,255,0.2)]"
@@ -174,9 +286,75 @@ export function Arena({
                   <span className="text-muted">Thinking...</span>
                 )}
               </header>
-              <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-                {message.text ? renderMessageText(message.text) : '...'}
-              </p>
+              <div
+                className={cn(
+                  'mt-4 text-sm leading-relaxed text-foreground/90',
+                  (responseFormat.id === 'markdown' ||
+                    responseFormat.id === 'json')
+                    ? ''
+                    : 'whitespace-pre-wrap',
+                )}
+              >
+                {message.text ? renderMessageBody(message.text) : '...'}
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted">
+                <button
+                  type="button"
+                  onClick={() => copyMessage(index)}
+                  className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+                >
+                  {copiedMessageId === message.id ? 'Copied' : 'Copy'}
+                </button>
+                {canNativeShare && (
+                  <button
+                    type="button"
+                    onClick={() => shareNative(index)}
+                    className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    Share
+                  </button>
+                )}
+                {(() => {
+                  const links = buildShareLinks(index);
+                  if (!links) return null;
+                  return (
+                    <>
+                      <a
+                        href={links.x}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+                      >
+                        X
+                      </a>
+                      <a
+                        href={links.reddit}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+                      >
+                        Reddit
+                      </a>
+                      <a
+                        href={links.whatsapp}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+                      >
+                        WhatsApp
+                      </a>
+                      <a
+                        href={links.telegram}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+                      >
+                        Telegram
+                      </a>
+                    </>
+                  );
+                })()}
+              </div>
             </article>
           ))}
           <div ref={endRef} />

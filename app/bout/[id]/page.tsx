@@ -32,8 +32,15 @@ export default async function BoutPage({
         topic?: string;
         model?: string;
         length?: string;
+        format?: string;
       }>
-    | { presetId?: string; topic?: string; model?: string; length?: string };
+    | {
+        presetId?: string;
+        topic?: string;
+        model?: string;
+        length?: string;
+        format?: string;
+      };
 }) {
   const db = requireDb();
   const resolvedParams = await params;
@@ -53,6 +60,10 @@ export default async function BoutPage({
   const lengthFromQuery =
     typeof resolvedSearchParams?.length === 'string'
       ? resolvedSearchParams.length
+      : null;
+  const formatFromQuery =
+    typeof resolvedSearchParams?.format === 'string'
+      ? resolvedSearchParams.format
       : null;
 
   let bout: (typeof bouts.$inferSelect) | undefined;
@@ -125,6 +136,7 @@ export default async function BoutPage({
       topic={topicFromQuery}
       model={modelFromQuery}
       length={lengthFromQuery}
+      format={formatFromQuery}
       estimatedCredits={estimatedCredits}
       initialTranscript={transcript}
     />
