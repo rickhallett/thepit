@@ -1,15 +1,39 @@
-import { streamText, createUIMessageStream, createUIMessageStreamResponse } from 'ai';
+import {
+  streamText,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+} from 'ai';
 import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
-import { aiModel } from '@/lib/ai';
-import { PRESETS } from '@/lib/presets';
+import {
+  DEFAULT_PREMIUM_MODEL_ID,
+  FREE_MODEL_ID,
+  PREMIUM_MODEL_OPTIONS,
+  getModel,
+} from '@/lib/ai';
+import { ALL_PRESETS } from '@/lib/presets';
+import {
+  CREDITS_ENABLED,
+  applyCreditDelta,
+  computeCostGbp,
+  estimateBoutCostGbp,
+  estimateTokensFromText,
+  getCreditBalanceMicro,
+  toMicroCredits,
+  BYOK_ENABLED,
+} from '@/lib/credits';
 
 export const runtime = 'edge';
 
 export async function POST(req: Request) {
-  let payload: { presetId?: string; boutId?: string };
+  let payload: {
+    presetId?: string;
+    boutId?: string;
+    topic?: string;
+    model?: string;
+  };
 
   try {
     payload = await req.json();
@@ -18,6 +42,7 @@ export async function POST(req: Request) {
   }
 
   const { boutId } = payload;
+  const topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
   let { presetId } = payload;
 
   if (!boutId) {
@@ -40,9 +65,43 @@ export async function POST(req: Request) {
     presetId = row?.presetId;
   }
 
-  const preset = PRESETS.find((item) => item.id === presetId);
+  const preset = ALL_PRESETS.find((item) => item.id === presetId);
   if (!preset) {
     return new Response('Unknown preset.', { status: 404 });
+  }
+
+  const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
+  if (preset.tier === 'premium' && !premiumEnabled) {
+    return new Response('Premium required.', { status: 402 });
+  }
+
+  const requestedModel =
+    typeof payload.model === 'string' ? payload.model.trim() : '';
+  let modelId = FREE_MODEL_ID;
+  if (preset.tier === 'premium' && premiumEnabled) {
+    modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
+      ? requestedModel
+      : DEFAULT_PREMIUM_MODEL_ID;
+  } else if (requestedModel === 'byok' && BYOK_ENABLED) {
+    modelId = 'byok';
+  } else if (requestedModel === 'byok') {
+    return new Response('BYOK not enabled.', { status: 400 });
+  }
+
+  let preauthMicro = 0;
+  if (CREDITS_ENABLED) {
+    const estimatedCost = estimateBoutCostGbp(preset.maxTurns, modelId);
+    preauthMicro = toMicroCredits(estimatedCost);
+    const balance = await getCreditBalanceMicro();
+    if (balance === null || balance < preauthMicro) {
+      return new Response('Insufficient credits.', { status: 402 });
+    }
+    await applyCreditDelta(-preauthMicro, 'preauth', {
+      presetId,
+      boutId,
+      modelId,
+      estimatedCostGbp: estimatedCost,
+    });
   }
 
   try {
@@ -63,6 +122,8 @@ export async function POST(req: Request) {
     async execute({ writer }) {
       const history: string[] = [];
       const transcript: TranscriptEntry[] = [];
+      let inputTokens = 0;
+      let outputTokens = 0;
 
       try {
         await db
@@ -86,13 +147,16 @@ export async function POST(req: Request) {
           });
           writer.write({ type: 'text-start', id: turnId });
 
+          const topicLine = topic ? `Topic: ${topic}\n\n` : '';
           const prompt =
             history.length > 0
-              ? `Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
-              : `Open the debate in character as ${agent.name}.`;
+              ? `${topicLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
+              : `${topicLine}Open the debate in character as ${agent.name}.`;
+          inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
+          inputTokens += estimateTokensFromText(prompt, 1);
 
           const result = streamText({
-            model: aiModel,
+            model: getModel(modelId),
             messages: [
               { role: 'system', content: agent.systemPrompt },
               { role: 'user', content: prompt },
@@ -102,6 +166,7 @@ export async function POST(req: Request) {
           let fullText = '';
           for await (const delta of result.textStream) {
             fullText += delta;
+            outputTokens += estimateTokensFromText(delta, 0);
             writer.write({ type: 'text-delta', id: turnId, delta });
           }
 
@@ -121,11 +186,45 @@ export async function POST(req: Request) {
           .update(bouts)
           .set({ status: 'completed', transcript })
           .where(eq(bouts.id, boutId));
+
+        if (CREDITS_ENABLED) {
+          const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
+          const actualMicro = toMicroCredits(actualCost);
+          const delta = actualMicro - preauthMicro;
+          if (delta !== 0) {
+            await applyCreditDelta(delta, 'settlement', {
+              presetId,
+              boutId,
+              modelId,
+              inputTokens,
+              outputTokens,
+              actualCostGbp: actualCost,
+              preauthMicro,
+            });
+          }
+        }
       } catch (error) {
         await db
           .update(bouts)
           .set({ status: 'error', transcript })
           .where(eq(bouts.id, boutId));
+
+        if (CREDITS_ENABLED && preauthMicro) {
+          const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
+          const actualMicro = toMicroCredits(actualCost);
+          const delta = actualMicro - preauthMicro;
+          if (delta !== 0) {
+            await applyCreditDelta(delta, 'settlement-error', {
+              presetId,
+              boutId,
+              modelId,
+              inputTokens,
+              outputTokens,
+              actualCostGbp: actualCost,
+              preauthMicro,
+            });
+          }
+        }
 
         throw error;
       }
