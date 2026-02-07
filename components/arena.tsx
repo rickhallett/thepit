@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { AuthControls } from '@/components/auth-controls';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
@@ -111,12 +110,10 @@ export function Arena({
                 {preset.name}
               </h1>
             </div>
-            <div className="flex flex-col items-end gap-3 text-xs uppercase tracking-[0.3em]">
-              <AuthControls className="justify-end" />
-              <div className="flex flex-wrap items-center justify-end gap-3">
-                <span
-                  className={cn(
-                    'rounded-full border-2 border-foreground/60 px-3 py-1',
+            <div className="flex flex-wrap items-center justify-end gap-3 text-xs uppercase tracking-[0.3em]">
+              <span
+                className={cn(
+                  'rounded-full border-2 border-foreground/60 px-3 py-1',
                     status === 'streaming' && 'border-accent text-accent',
                     status === 'error' && 'border-red-400 text-red-400',
                   )}
@@ -135,9 +132,8 @@ export function Arena({
                     className="rounded-full border-2 border-foreground/70 px-3 py-1 transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
                   >
                     {copied ? 'Copied' : 'Share'}
-                  </button>
-                )}
-              </div>
+                </button>
+              )}
             </div>
           </div>
           <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
