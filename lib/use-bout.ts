@@ -126,7 +126,7 @@ export function useBout({
       activeMessageIdRef.current = null;
       clearThinkingTimeout();
 
-      const delayMs = Math.floor(1000 + Math.random() * 2000);
+      const delayMs = Math.floor(2000 + Math.random() * 2000);
       thinkingTimeoutRef.current = window.setTimeout(() => {
         flushPendingMessage();
       }, delayMs);
