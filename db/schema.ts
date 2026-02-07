@@ -32,6 +32,8 @@ export const bouts = pgTable('bouts', {
   status: boutStatus('status').notNull(),
   transcript: jsonb('transcript').$type<TranscriptEntry[]>().notNull(),
   ownerId: varchar('owner_id', { length: 128 }),
+  shareLine: text('share_line'),
+  shareGeneratedAt: timestamp('share_generated_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

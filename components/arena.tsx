@@ -22,6 +22,7 @@ export function Arena({
   length,
   estimatedCredits,
   initialTranscript,
+  shareLine,
 }: {
   boutId: string;
   preset: Preset;
@@ -30,15 +31,23 @@ export function Arena({
   length?: string | null;
   estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
+  shareLine?: string | null;
 }) {
-  const { messages, status, activeAgentId, activeMessageId, thinkingAgentId } =
-    useBout({
+  const {
+    messages,
+    status,
+    activeAgentId,
+    activeMessageId,
+    thinkingAgentId,
+    shareLine: liveShareLine,
+  } = useBout({
       boutId,
       preset,
       topic: topic ?? undefined,
       model: model ?? undefined,
       length: length ?? undefined,
       initialTranscript,
+      initialShareLine: shareLine ?? null,
     });
   const [copied, setCopied] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
@@ -97,22 +106,17 @@ export function Arena({
   }, [messages]);
 
   const sharePayload = useMemo(() => {
-    if (!transcript) return '';
-    const header = [
-      `THE PIT — ${preset.name}`,
-      topic ? `Topic: ${topic}` : null,
-      model ? `Model: ${model}` : null,
-      length ? `Length: ${length}` : null,
-      shareUrl ? `Replay: ${shareUrl}` : null,
-    ]
-      .filter(Boolean)
-      .join('\n');
+    if (!transcript && !liveShareLine && !shareLine) return '';
+    const origin = shareUrl
+      ? new URL(shareUrl).origin
+      : 'https://tspit.vercel.app';
+    const replayUrl = `${origin}/b/${boutId}`;
+    const line = (liveShareLine ?? shareLine ?? '').trim();
+    const headline =
+      line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
 
-    const origin = shareUrl ? new URL(shareUrl).origin : 'https://tspit.vercel.app';
-    const footer = `Made with THE PIT — ${origin}`;
-
-    return [header, '', transcript, '', footer].join('\n');
-  }, [length, model, preset.name, shareUrl, topic, transcript]);
+    return [headline, '', replayUrl, '', '🔴 #ThePitArena'].join('\n');
+  }, [boutId, liveShareLine, preset.name, shareLine, shareUrl, transcript]);
 
   const copyTranscript = async () => {
     if (!sharePayload) return;

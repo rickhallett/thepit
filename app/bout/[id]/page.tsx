@@ -93,6 +93,7 @@ export default async function BoutPage({
   }
 
   const transcript = (bout?.transcript ?? []) as TranscriptEntry[];
+  const shareLine = bout?.shareLine ?? null;
   const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const requestedModel =
     typeof modelFromQuery === 'string' ? modelFromQuery.trim() : '';
@@ -127,6 +128,7 @@ export default async function BoutPage({
       length={lengthFromQuery}
       estimatedCredits={estimatedCredits}
       initialTranscript={transcript}
+      shareLine={shareLine}
     />
   );
 }

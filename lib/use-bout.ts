@@ -26,6 +26,7 @@ type UseBoutOptions = {
   boutId: string;
   preset: Preset;
   initialTranscript?: TranscriptEntry[];
+  initialShareLine?: string | null;
   topic?: string;
   model?: string;
   length?: string;
@@ -38,6 +39,7 @@ type StreamEvent = {
     agentId?: string;
     agentName?: string;
     color?: string;
+    text?: string;
   };
   delta?: string;
 };
@@ -49,6 +51,7 @@ export function useBout({
   model,
   length,
   initialTranscript = [],
+  initialShareLine = null,
 }: UseBoutOptions) {
   const [messages, setMessages] = useState<BoutMessage[]>(() => {
     if (initialTranscript.length === 0) return [];
@@ -66,6 +69,7 @@ export function useBout({
   const [status, setStatus] = useState<BoutStatus>(
     initialTranscript.length ? 'done' : 'idle',
   );
+  const [shareLine, setShareLine] = useState<string | null>(initialShareLine);
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   const [thinkingAgentId, setThinkingAgentId] = useState<string | null>(null);
@@ -160,6 +164,13 @@ export function useBout({
           return;
         }
 
+        if (event.type === 'share-line') {
+          if (event.data?.text) {
+            setShareLine(event.data.text);
+          }
+          return;
+        }
+
         if (event.type === 'data-turn') {
           const data = event.data ?? {};
           const turn =
@@ -243,5 +254,6 @@ export function useBout({
     activeAgentId,
     activeMessageId,
     thinkingAgentId,
+    shareLine,
   };
 }
