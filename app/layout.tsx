@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 
 import { ClerkProvider } from '@clerk/nextjs';
 
+import { SiteFooter } from '@/components/site-footer';
+import { SiteHeader } from '@/components/site-header';
+
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -17,7 +20,13 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className="antialiased">{children}</body>
+        <body className="bg-background text-foreground antialiased">
+          <div className="flex min-h-screen flex-col">
+            <SiteHeader />
+            <div className="flex-1">{children}</div>
+            <SiteFooter />
+          </div>
+        </body>
       </html>
     </ClerkProvider>
   );

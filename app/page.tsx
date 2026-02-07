@@ -1,5 +1,4 @@
 import { PresetCard } from '@/components/preset-card';
-import { AuthControls } from '@/components/auth-controls';
 import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import {
@@ -22,12 +21,9 @@ export default async function Home() {
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-12">
         <header className="flex flex-col gap-5 border-b-2 border-foreground/70 pb-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <p className="text-xs uppercase tracking-[0.4em] text-accent">
-              THE PIT
-            </p>
-            <AuthControls />
-          </div>
+          <p className="text-xs uppercase tracking-[0.4em] text-accent">
+            THE PIT
+          </p>
           <h1 className="font-sans text-4xl uppercase tracking-tight md:text-5xl">
             AI Battle Arena
           </h1>
