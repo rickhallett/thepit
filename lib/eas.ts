@@ -88,11 +88,11 @@ export const attestAgent = async (params: {
     schema: EAS_SCHEMA_UID,
     data: {
       recipient: params.recipient ?? signer.address,
-      expirationTime: 0,
+      expirationTime: BigInt(0),
       revocable: false,
       refUID: ethers.ZeroHash,
       data: encoded,
-      value: 0,
+      value: BigInt(0),
     },
   });
 
