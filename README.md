@@ -20,6 +20,11 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Project TODO
+
+- Add a simple “Add credits” admin/testing control.
+- Surface credit usage history in the UI from `credit_events`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
