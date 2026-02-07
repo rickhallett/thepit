@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 import { getAgentDetail } from '@/lib/agent-detail';
+import { buildAgentDetailHref, decodeAgentId } from '@/lib/agent-links';
+import { buildAttestationUrl } from '@/lib/attestation-links';
 
 export default async function AgentDetailPage({
   params,
@@ -9,17 +11,15 @@ export default async function AgentDetailPage({
   params: { id: string } | Promise<{ id: string }>;
 }) {
   const resolved = await params;
-  const detail = await getAgentDetail(resolved.id, 4);
+  const agentId = decodeAgentId(resolved.id);
+  const detail = await getAgentDetail(agentId, 4);
 
   if (!detail) {
     notFound();
   }
 
-  const easBase =
-    process.env.NEXT_PUBLIC_EAS_SCAN_BASE ??
-    'https://base.easscan.org/attestation';
   const attestationUrl = detail.attestationUid
-    ? `${easBase}/${detail.attestationUid}`
+    ? buildAttestationUrl(detail.attestationUid)
     : null;
 
   return (
@@ -68,7 +68,7 @@ export default async function AgentDetailPage({
               {detail.lineage.map((ancestor) => (
                 <Link
                   key={ancestor.id}
-                  href={`/agents/${ancestor.id}`}
+                  href={buildAgentDetailHref(ancestor.id)}
                   className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
                 >
                   {ancestor.name}
