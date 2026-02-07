@@ -1,10 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { ALL_PRESETS } from '@/lib/presets';
+import { getReactionCounts } from '@/lib/reactions';
+import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +18,7 @@ export default async function ReplayPage({
 }) {
   const db = requireDb();
   const resolved = await params;
+  const { userId } = await auth();
   const [bout] = await db
     .select()
     .from(bouts)
@@ -30,12 +34,21 @@ export default async function ReplayPage({
     notFound();
   }
 
+  const [reactionCounts, winnerVoteCounts, userWinnerVote] = await Promise.all([
+    getReactionCounts(resolved.id),
+    getWinnerVoteCounts(resolved.id),
+    userId ? getUserWinnerVote(resolved.id, userId) : Promise.resolve(null),
+  ]);
+
   return (
     <Arena
       boutId={resolved.id}
       preset={preset}
       initialTranscript={(bout.transcript ?? []) as TranscriptEntry[]}
       shareLine={bout.shareLine}
+      initialReactions={reactionCounts}
+      initialWinnerVotes={winnerVoteCounts}
+      initialUserVote={userWinnerVote}
     />
   );
 }

@@ -47,6 +47,8 @@ credits: userId, balanceMicro, createdAt, updatedAt
 creditTransactions: id, userId, deltaMicro, source, referenceId, metadata (jsonb), createdAt
 introPool: id, initialMicro, claimedMicro, drainRateMicroPerMinute, startedAt, updatedAt
 referrals: id, referrerId, referredId, code, credited, createdAt
+reactions: id, boutId, turnIndex, reactionType, userId, createdAt
+winnerVotes: id, boutId, agentId, userId, createdAt
 ```
 
 ### Preset System

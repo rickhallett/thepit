@@ -9,6 +9,7 @@ import {
   text,
   uniqueIndex,
   boolean,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 export type TranscriptEntry = {
@@ -105,6 +106,36 @@ export const referrals = pgTable('referrals', {
     .defaultNow()
     .notNull(),
 });
+
+export const reactions = pgTable('reactions', {
+  id: serial('id').primaryKey(),
+  boutId: varchar('bout_id', { length: 21 }).notNull(),
+  turnIndex: integer('turn_index').notNull(),
+  reactionType: varchar('reaction_type', { length: 32 }).notNull(),
+  userId: varchar('user_id', { length: 128 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const winnerVotes = pgTable(
+  'winner_votes',
+  {
+    id: serial('id').primaryKey(),
+    boutId: varchar('bout_id', { length: 21 }).notNull(),
+    agentId: varchar('agent_id', { length: 128 }).notNull(),
+    userId: varchar('user_id', { length: 128 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniqueVote: uniqueIndex('winner_votes_unique').on(
+      table.boutId,
+      table.userId,
+    ),
+  }),
+);
 
 export const agents = pgTable('agents', {
   id: varchar('id', { length: 128 }).primaryKey(),

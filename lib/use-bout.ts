@@ -7,6 +7,7 @@ import type { Preset } from './presets';
 
 export type BoutMessage = {
   id: string;
+  turn: number;
   agentId: string;
   agentName: string;
   color: string;
@@ -59,6 +60,7 @@ export function useBout({
       const agent = preset.agents.find((item) => item.id === entry.agentId);
       return {
         id: `${boutId}-${entry.turn}-${entry.agentId}`,
+        turn: entry.turn,
         agentId: entry.agentId,
         agentName: entry.agentName ?? agent?.name ?? entry.agentId,
         color: agent?.color ?? '#f8fafc',
@@ -77,6 +79,7 @@ export function useBout({
   const turnRef = useRef(initialTranscript.length);
   const pendingMessageRef = useRef<{
     id: string;
+    turn: number;
     agentId: string;
     agentName: string;
     color: string;
@@ -109,6 +112,7 @@ export function useBout({
         ...prev,
         {
           id: pending.id,
+          turn: pending.turn,
           agentId: pending.agentId,
           agentName: pending.agentName,
           color: pending.color,
@@ -119,6 +123,7 @@ export function useBout({
 
     const schedulePendingMessage = (pending: {
       id: string;
+      turn: number;
       agentId: string;
       agentName: string;
       color: string;
@@ -181,6 +186,7 @@ export function useBout({
           const messageId = `${boutId}-${turn}-${data.agentId ?? 'agent'}`;
           schedulePendingMessage({
             id: messageId,
+            turn,
             agentId: data.agentId ?? 'agent',
             agentName: data.agentName ?? 'Agent',
             color: data.color ?? '#f8fafc',
