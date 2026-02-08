@@ -9,6 +9,11 @@ export const CREDIT_VALUE_GBP = Number(
 export const MICRO_PER_CREDIT = 100;
 export const MICRO_VALUE_GBP = CREDIT_VALUE_GBP / MICRO_PER_CREDIT;
 export const CREDITS_ENABLED = process.env.CREDITS_ENABLED === 'true';
+export const CREDITS_ADMIN_ENABLED =
+  process.env.CREDITS_ADMIN_ENABLED === 'true';
+export const CREDITS_ADMIN_GRANT = Number(
+  process.env.CREDITS_ADMIN_GRANT ?? '100',
+);
 export const CREDIT_PLATFORM_MARGIN = Number(
   process.env.CREDIT_PLATFORM_MARGIN ?? '0.25',
 );
