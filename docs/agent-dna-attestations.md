@@ -88,6 +88,12 @@ Schema string (EAS):
 string agentId,string name,string presetId,string tier,bytes32 promptHash,bytes32 manifestHash,string parentId,string ownerId,uint64 createdAt
 ```
 
+### Create Schema (script)
+Use the helper script to register the schema and print the UID:
+```bash
+node scripts/create-eas-schema.mjs
+```
+
 ### Attestation flow
 - Use `@ethereum-attestation-service/eas-sdk`.
 - Encode with `SchemaEncoder` and submit **onchain** attestation.
