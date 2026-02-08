@@ -95,3 +95,5 @@ Custom event stream (not standard SSE):
 - `BYOK_ENABLED` - Allow bring-your-own-key
 - `RESEND_API_KEY` - Enable contact form delivery
 - `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL` - Contact form routing
+- `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` - Credit checkout + webhook
+- `NEXT_PUBLIC_APP_URL` / `APP_URL` - Redirect URLs for checkout

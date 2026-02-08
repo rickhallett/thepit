@@ -9,6 +9,8 @@ import { bouts } from '@/db/schema';
 import { PRESETS } from '@/lib/presets';
 import { CREDITS_ENABLED } from '@/lib/credits';
 import { ensureUserRecord } from '@/lib/users';
+import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
+import { stripe } from '@/lib/stripe';
 
 export async function createBout(presetId: string, formData?: FormData) {
   const presetExists = PRESETS.some((preset) => preset.id === presetId);
@@ -63,4 +65,60 @@ export async function createBout(presetId: string, formData?: FormData) {
     params.set('length', length);
   }
   redirect(`/bout/${id}?${params.toString()}`);
+}
+
+export async function createCreditCheckout(formData: FormData) {
+  const packId =
+    formData?.get('packId') && typeof formData.get('packId') === 'string'
+      ? String(formData.get('packId')).trim()
+      : '';
+  const pack = CREDIT_PACKAGES.find((item) => item.id === packId);
+
+  if (!pack) {
+    throw new Error('Invalid credit pack.');
+  }
+
+  const { userId } = await auth();
+  if (!userId) {
+    redirect('/sign-in?redirect_url=/arena');
+  }
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('Stripe not configured.');
+  }
+
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.APP_URL ??
+    'http://localhost:3000';
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        price_data: {
+          currency: 'gbp',
+          unit_amount: Math.round(pack.priceGbp * 100),
+          product_data: {
+            name: `THE PIT — ${pack.name} Credits`,
+          },
+        },
+        quantity: 1,
+      },
+    ],
+    metadata: {
+      userId,
+      packId: pack.id,
+      credits: pack.credits.toString(),
+    },
+    success_url: `${appUrl}/arena?checkout=success`,
+    cancel_url: `${appUrl}/arena?checkout=cancel`,
+  });
+
+  if (!session.url) {
+    throw new Error('Failed to create checkout session.');
+  }
+
+  redirect(session.url);
 }
