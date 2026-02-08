@@ -4,71 +4,67 @@ import { useState } from 'react';
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email.trim()) return;
-    
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>(
+    'idle',
+  );
+
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!email) return;
     setStatus('loading');
-    
-    // TODO: Replace with actual API endpoint
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // For now, just log it
-      console.log('Newsletter signup:', email);
-      
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        throw new Error('Failed');
+      }
       setStatus('success');
-      setMessage("You're in. We'll ping you when the gates open.");
       setEmail('');
     } catch {
       setStatus('error');
-      setMessage('Something went wrong. Try again?');
     }
   };
-  
+
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="flex flex-col items-center gap-2">
-        <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Get Notified
+    <div className="border-2 border-foreground/60 bg-black/50 p-6">
+      <p className="text-xs uppercase tracking-[0.4em] text-accent">
+        Early Access
+      </p>
+      <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight">
+        Get Darwin Day updates
+      </h2>
+      <p className="mt-2 text-sm text-muted">
+        We’ll send launch updates, new presets, and major milestones.
+      </p>
+      <form onSubmit={submit} className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <input
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="you@example.com"
+          required
+          className="flex-1 border-2 border-foreground/60 bg-black/60 px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={status === 'loading'}
+          className="border-2 border-accent bg-accent/10 px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background disabled:opacity-50"
+        >
+          {status === 'loading' ? 'Sending…' : 'Notify me'}
+        </button>
+      </form>
+      {status === 'success' && (
+        <p className="mt-3 text-xs uppercase tracking-[0.3em] text-accent">
+          You’re on the list.
         </p>
-        <p className="text-xs uppercase tracking-[0.3em] text-muted">
-          Strictly no spam. We have better things to do.
-        </p>
-      </div>
-      
-      {status === 'success' ? (
-        <div className="border-2 border-accent/50 bg-accent/10 px-6 py-4 text-center">
-          <p className="text-sm text-accent">{message}</p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            required
-            disabled={status === 'loading'}
-            className="flex-1 border-2 border-foreground/70 bg-black/60 px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-accent focus:outline-none disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            disabled={status === 'loading'}
-            className="border-2 border-accent bg-accent/10 px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background disabled:opacity-50"
-          >
-            {status === 'loading' ? 'Joining...' : 'Join'}
-          </button>
-        </form>
       )}
-      
       {status === 'error' && (
-        <p className="text-xs text-red-400">{message}</p>
+        <p className="mt-3 text-xs uppercase tracking-[0.3em] text-red-400">
+          Something went wrong. Try again.
+        </p>
       )}
     </div>
   );

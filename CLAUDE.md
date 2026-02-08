@@ -49,6 +49,7 @@ introPool: id, initialMicro, claimedMicro, drainRateMicroPerMinute, startedAt, u
 referrals: id, referrerId, referredId, code, credited, createdAt
 reactions: id, boutId, turnIndex, reactionType, userId, createdAt
 winnerVotes: id, boutId, agentId, userId, createdAt
+newsletterSignups: id, email, createdAt
 ```
 
 ### Preset System
@@ -92,3 +93,5 @@ Custom event stream (not standard SSE):
 - `PREMIUM_ENABLED` - Enable premium presets
 - `CREDITS_ENABLED` - Enable credit system
 - `BYOK_ENABLED` - Allow bring-your-own-key
+- `RESEND_API_KEY` - Enable contact form delivery
+- `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL` - Contact form routing

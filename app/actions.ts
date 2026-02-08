@@ -18,7 +18,7 @@ export async function createBout(presetId: string, formData?: FormData) {
 
   const { userId } = await auth();
   if (CREDITS_ENABLED && !userId) {
-    redirect('/sign-in?redirect_url=/');
+    redirect('/sign-in?redirect_url=/arena');
   }
 
   const db = requireDb();

@@ -137,6 +137,14 @@ export const winnerVotes = pgTable(
   }),
 );
 
+export const newsletterSignups = pgTable('newsletter_signups', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 256 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export const agents = pgTable('agents', {
   id: varchar('id', { length: 128 }).primaryKey(),
   name: varchar('name', { length: 128 }).notNull(),
