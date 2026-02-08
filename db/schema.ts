@@ -29,24 +29,42 @@ export const bouts = pgTable('bouts', {
   presetId: varchar('preset_id', { length: 64 }).notNull(),
   status: boutStatus('status').notNull(),
   transcript: jsonb('transcript').$type<TranscriptEntry[]>().notNull(),
+  ownerId: varchar('owner_id', { length: 128 }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
 });
 
-export const creditAccounts = pgTable('credit_accounts', {
-  id: varchar('id', { length: 64 }).primaryKey(),
+export const users = pgTable('users', {
+  id: varchar('id', { length: 128 }).primaryKey(),
+  email: varchar('email', { length: 256 }),
+  displayName: varchar('display_name', { length: 128 }),
+  imageUrl: varchar('image_url', { length: 512 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const credits = pgTable('credits', {
+  userId: varchar('user_id', { length: 128 }).primaryKey(),
   balanceMicro: bigint('balance_micro', { mode: 'number' }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
-export const creditEvents = pgTable('credit_events', {
+export const creditTransactions = pgTable('credit_transactions', {
   id: serial('id').primaryKey(),
-  accountId: varchar('account_id', { length: 64 }).notNull(),
+  userId: varchar('user_id', { length: 128 }).notNull(),
   deltaMicro: bigint('delta_micro', { mode: 'number' }).notNull(),
-  reason: varchar('reason', { length: 64 }).notNull(),
+  source: varchar('source', { length: 64 }).notNull(),
+  referenceId: varchar('reference_id', { length: 128 }),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()

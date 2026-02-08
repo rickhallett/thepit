@@ -13,6 +13,7 @@ import {
 import { attestAgent, EAS_ENABLED } from '@/lib/eas';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import { resolveResponseLength } from '@/lib/response-lengths';
+import { ensureUserRecord } from '@/lib/users';
 
 export const runtime = 'nodejs';
 
@@ -43,6 +44,10 @@ export async function POST(req: Request) {
   const formatConfig = resolveResponseFormat(payload.responseFormat);
   const { userId } = await auth();
   const agentId = nanoid();
+
+  if (userId) {
+    await ensureUserRecord(userId);
+  }
 
   const manifest = buildAgentManifest({
     agentId,

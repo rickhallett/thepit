@@ -41,9 +41,10 @@ TSPIT ("THE PIT — AI Battle Arena") is a Next.js 16 application where AI agent
 ### Database Schema (Drizzle ORM)
 
 ```
-bouts: id, presetId, status ('running'|'completed'|'error'), transcript (jsonb), createdAt
-creditAccounts: id, balanceMicro, createdAt
-creditEvents: id, accountId, deltaMicro, reason, metadata (jsonb), createdAt
+bouts: id, presetId, status ('running'|'completed'|'error'), transcript (jsonb), ownerId, createdAt
+users: id, email, displayName, imageUrl, createdAt, updatedAt
+credits: userId, balanceMicro, createdAt, updatedAt
+creditTransactions: id, userId, deltaMicro, source, referenceId, metadata (jsonb), createdAt
 ```
 
 ### Preset System
@@ -65,7 +66,7 @@ Custom event stream (not standard SSE):
 - Pre-authorizes estimated cost on bout start
 - Tracks actual token usage during execution
 - Settles delta on completion (refund or charge difference)
-- Append-only ledger in `credit_events` table
+- Append-only ledger in `credit_transactions` table
 
 ## Code Conventions
 
