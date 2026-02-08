@@ -19,6 +19,14 @@ export type TranscriptEntry = {
   text: string;
 };
 
+export type ArenaAgent = {
+  id: string;
+  name: string;
+  systemPrompt: string;
+  color?: string;
+  avatar?: string;
+};
+
 export const boutStatus = pgEnum('bout_status', [
   'running',
   'completed',
@@ -33,6 +41,9 @@ export const bouts = pgTable('bouts', {
   status: boutStatus('status').notNull(),
   transcript: jsonb('transcript').$type<TranscriptEntry[]>().notNull(),
   ownerId: varchar('owner_id', { length: 128 }),
+  topic: text('topic'),
+  responseLength: varchar('response_length', { length: 32 }),
+  agentLineup: jsonb('agent_lineup').$type<ArenaAgent[]>(),
   shareLine: text('share_line'),
   shareGeneratedAt: timestamp('share_generated_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true })

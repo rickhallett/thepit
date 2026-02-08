@@ -11,6 +11,8 @@ import { CREDITS_ENABLED } from '@/lib/credits';
 import { ensureUserRecord } from '@/lib/users';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
+import { getAgentSnapshots } from '@/lib/agent-registry';
+import { DEFAULT_RESPONSE_LENGTH, resolveResponseLength } from '@/lib/response-lengths';
 
 export async function createBout(presetId: string, formData?: FormData) {
   const presetExists = PRESETS.some((preset) => preset.id === presetId);
@@ -37,6 +39,7 @@ export async function createBout(presetId: string, formData?: FormData) {
     formData?.get('length') && typeof formData.get('length') === 'string'
       ? String(formData.get('length')).trim()
       : '';
+  const lengthConfig = resolveResponseLength(length);
 
   if (userId) {
     await ensureUserRecord(userId);
@@ -49,6 +52,8 @@ export async function createBout(presetId: string, formData?: FormData) {
       status: 'running',
       transcript: [],
       ownerId: userId ?? null,
+      topic: topic || null,
+      responseLength: lengthConfig.id,
     });
   } catch (error) {
     console.error('createBout insert failed', error);
@@ -65,6 +70,63 @@ export async function createBout(presetId: string, formData?: FormData) {
     params.set('length', length);
   }
   redirect(`/bout/${id}?${params.toString()}`);
+}
+
+export async function createArenaBout(formData: FormData) {
+  const { userId } = await auth();
+  if (CREDITS_ENABLED && !userId) {
+    redirect('/sign-in?redirect_url=/arena/custom');
+  }
+
+  const agentIds = formData.getAll('agentIds').filter(Boolean) as string[];
+  const topic =
+    formData?.get('topic') && typeof formData.get('topic') === 'string'
+      ? String(formData.get('topic')).trim()
+      : '';
+  const length =
+    formData?.get('length') && typeof formData.get('length') === 'string'
+      ? String(formData.get('length')).trim()
+      : '';
+  const lengthConfig = resolveResponseLength(length || DEFAULT_RESPONSE_LENGTH);
+
+  if (agentIds.length < 2 || agentIds.length > 6) {
+    throw new Error('Select between 2 and 6 agents.');
+  }
+
+  const snapshots = await getAgentSnapshots();
+  const lineup = agentIds
+    .map((id) => snapshots.find((agent) => agent.id === id))
+    .filter(Boolean)
+    .map((agent) => ({
+      id: agent!.id,
+      name: agent!.name,
+      systemPrompt: agent!.systemPrompt,
+      color: agent!.color,
+      avatar: agent!.avatar,
+    }));
+
+  if (lineup.length !== agentIds.length) {
+    throw new Error('One or more agents could not be found.');
+  }
+
+  if (userId) {
+    await ensureUserRecord(userId);
+  }
+
+  const db = requireDb();
+  const id = nanoid();
+  await db.insert(bouts).values({
+    id,
+    presetId: 'arena',
+    status: 'running',
+    transcript: [],
+    ownerId: userId ?? null,
+    topic: topic || null,
+    responseLength: lengthConfig.id,
+    agentLineup: lineup,
+  });
+
+  redirect(`/bout/${id}`);
 }
 
 export async function createCreditCheckout(formData: FormData) {
