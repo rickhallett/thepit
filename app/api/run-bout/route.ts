@@ -137,6 +137,7 @@ export async function POST(req: Request) {
       const transcript: TranscriptEntry[] = [];
       let inputTokens = 0;
       let outputTokens = 0;
+      let shareLine: string | null = null;
 
       try {
         await db
@@ -197,10 +198,44 @@ export async function POST(req: Request) {
           });
         }
 
+        try {
+          const transcriptText = transcript
+            .map((entry) => `${entry.agentName}: ${entry.text}`)
+            .join('\n');
+          const clippedTranscript = transcriptText.slice(-2000);
+          const sharePrompt = `You just witnessed an AI bout. Here's the transcript.\nWrite a single tweet-length line (max 140 chars) that:\n- Captures the most absurd/funny/surprising moment\n- Makes someone want to click the link\n- Sounds like a human wrote it (not corporate)\n\nTranscript:\n${clippedTranscript}`;
+
+          const shareResult = streamText({
+            model: getModel(FREE_MODEL_ID),
+            maxOutputTokens: 80,
+            messages: [{ role: 'user', content: sharePrompt }],
+          });
+
+          let shareText = '';
+          for await (const delta of shareResult.textStream) {
+            shareText += delta;
+          }
+          shareLine = shareText.trim().replace(/^["']|["']$/g, '');
+          if (shareLine.length > 140) {
+            shareLine = `${shareLine.slice(0, 137).trimEnd()}...`;
+          }
+        } catch (error) {
+          console.warn('Failed to generate share line', error);
+        }
+
         await db
           .update(bouts)
-          .set({ status: 'completed', transcript })
+          .set({
+            status: 'completed',
+            transcript,
+            shareLine,
+            shareGeneratedAt: shareLine ? new Date() : null,
+          })
           .where(eq(bouts.id, boutId));
+
+        if (shareLine) {
+          writer.write({ type: 'share-line', data: { text: shareLine } });
+        }
 
         if (CREDITS_ENABLED && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);

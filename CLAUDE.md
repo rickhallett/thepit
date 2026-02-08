@@ -41,7 +41,7 @@ TSPIT ("THE PIT — AI Battle Arena") is a Next.js 16 application where AI agent
 ### Database Schema (Drizzle ORM)
 
 ```
-bouts: id, presetId, status ('running'|'completed'|'error'), transcript (jsonb), ownerId, createdAt
+bouts: id, presetId, status ('running'|'completed'|'error'), transcript (jsonb), ownerId, shareLine, shareGeneratedAt, createdAt
 users: id, email, displayName, imageUrl, createdAt, updatedAt
 credits: userId, balanceMicro, createdAt, updatedAt
 creditTransactions: id, userId, deltaMicro, source, referenceId, metadata (jsonb), createdAt
