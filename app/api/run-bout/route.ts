@@ -14,7 +14,7 @@ import {
   PREMIUM_MODEL_OPTIONS,
   getModel,
 } from '@/lib/ai';
-import { ALL_PRESETS } from '@/lib/presets';
+import { ALL_PRESETS, type Agent } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import {
@@ -92,13 +92,20 @@ export async function POST(req: Request) {
     if (!row?.agentLineup) {
       return new Response('Unknown preset.', { status: 404 });
     }
+    const lineup: Agent[] = row.agentLineup.map((agent) => ({
+      id: agent.id,
+      name: agent.name,
+      systemPrompt: agent.systemPrompt,
+      color: agent.color ?? '#f8fafc',
+      avatar: agent.avatar,
+    }));
     preset = {
       id: 'arena',
       name: 'Arena Mode',
       description: 'Custom lineup',
       tier: 'free',
       maxTurns: 12,
-      agents: row.agentLineup,
+      agents: lineup,
     };
     if (!topic && row.topic) {
       topic = row.topic;
@@ -207,7 +214,7 @@ export async function POST(req: Request) {
               turn: i,
               agentId: agent.id,
               agentName: agent.name,
-              color: agent.color,
+              color: agent.color ?? '#f8fafc',
             },
           });
           writer.write({ type: 'text-start', id: turnId });
@@ -289,7 +296,7 @@ export async function POST(req: Request) {
           .where(eq(bouts.id, boutId));
 
         if (shareLine) {
-          writer.write({ type: 'share-line', data: { text: shareLine } });
+          writer.write({ type: 'data-share-line', data: { text: shareLine } });
         }
 
         if (CREDITS_ENABLED && userId) {
