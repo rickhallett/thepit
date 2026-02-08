@@ -1,6 +1,8 @@
 import Link from 'next/link';
 
 import { ArenaBuilder } from '@/components/arena-builder';
+import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
+import { BYOK_ENABLED } from '@/lib/credits';
 import { getAgentSnapshots } from '@/lib/agent-registry';
 
 import { createArenaBout } from '../../actions';
@@ -11,6 +13,7 @@ export const metadata = {
 };
 
 export default async function ArenaBuilderPage() {
+  const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const agents = await getAgentSnapshots();
 
   return (
@@ -37,6 +40,10 @@ export default async function ArenaBuilderPage() {
             avatar: agent.avatar,
           }))}
           action={createArenaBout}
+          premiumEnabled={premiumEnabled}
+          premiumModels={PREMIUM_MODEL_OPTIONS}
+          defaultPremiumModel={DEFAULT_PREMIUM_MODEL_ID}
+          byokEnabled={BYOK_ENABLED}
         />
 
         <footer className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground/70 pt-8 text-xs uppercase tracking-[0.3em] text-muted">

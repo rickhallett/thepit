@@ -1,3 +1,7 @@
+'use client';
+
+import { useState, type FormEvent } from 'react';
+
 import { FREE_MODEL_ID } from '@/lib/ai';
 import {
   CREDITS_ENABLED,
@@ -34,8 +38,16 @@ export function PresetCard({
 }) {
   const showInput = Boolean(preset.requiresInput || preset.inputLabel);
   const isPremium = preset.tier === 'premium';
-  const showModelSelector = isPremium && premiumEnabled && premiumModels.length > 0;
+  const showModelSelector =
+    byokEnabled || (isPremium && premiumEnabled && premiumModels.length > 0);
   const creditsEnabled = CREDITS_ENABLED;
+  const defaultModel =
+    isPremium && premiumEnabled
+      ? defaultPremiumModel ?? premiumModels[0] ?? FREE_MODEL_ID
+      : FREE_MODEL_ID;
+  const [selectedModel, setSelectedModel] = useState(defaultModel);
+  const [byokKey, setByokKey] = useState('');
+  const [byokError, setByokError] = useState<string | null>(null);
 
   const estimateCreditsForModel = (modelId: string) => {
     const micro = toMicroCredits(estimateBoutCostGbp(preset.maxTurns, modelId));
@@ -50,16 +62,42 @@ export function PresetCard({
     return modelId;
   };
 
+  const modelOptions = isPremium ? [...premiumModels] : [FREE_MODEL_ID];
+  if (byokEnabled && (isPremium ? premiumEnabled : true)) {
+    modelOptions.push('byok');
+  }
+
   const estimateModels = isPremium
     ? [
         ...premiumModels,
         ...(byokEnabled && premiumEnabled ? ['byok'] : []),
       ]
-    : [FREE_MODEL_ID];
+    : [...modelOptions];
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    if (locked) return;
+    setByokError(null);
+    if (!showModelSelector) {
+      sessionStorage.removeItem('pit_byok_key');
+      return;
+    }
+    if (selectedModel === 'byok') {
+      const trimmed = byokKey.trim();
+      if (!trimmed) {
+        event.preventDefault();
+        setByokError('BYOK key required.');
+        return;
+      }
+      sessionStorage.setItem('pit_byok_key', trimmed);
+      return;
+    }
+    sessionStorage.removeItem('pit_byok_key');
+  };
 
   return (
     <form
       action={action}
+      onSubmit={handleSubmit}
       className="group flex h-full flex-col gap-6 border-2 border-foreground/80 bg-black/60 p-6 shadow-[8px_8px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-1"
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -152,16 +190,37 @@ export function PresetCard({
           <span>Model</span>
           <select
             name="model"
-            defaultValue={defaultPremiumModel ?? premiumModels[0]}
+            value={selectedModel}
+            onChange={(event) => setSelectedModel(event.target.value)}
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            disabled={locked}
           >
-            {premiumModels.map((model) => (
+            {modelOptions.map((model) => (
               <option key={model} value={model}>
-                {model}
+                {model === 'byok' ? 'BYOK' : model}
               </option>
             ))}
-            {byokEnabled && <option value="byok">BYOK</option>}
           </select>
+        </label>
+      )}
+      {showModelSelector && selectedModel === 'byok' && (
+        <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+          <span>BYOK API key</span>
+          <input
+            name="byokKey"
+            type="password"
+            value={byokKey}
+            onChange={(event) => setByokKey(event.target.value)}
+            placeholder="sk-ant-..."
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            disabled={locked}
+            required
+          />
+          {byokError && (
+            <span className="text-[10px] uppercase tracking-[0.25em] text-red-400">
+              {byokError}
+            </span>
+          )}
         </label>
       )}
 

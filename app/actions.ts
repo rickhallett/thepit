@@ -113,6 +113,10 @@ export async function createArenaBout(formData: FormData) {
     formData?.get('format') && typeof formData.get('format') === 'string'
       ? String(formData.get('format')).trim()
       : '';
+  const model =
+    formData?.get('model') && typeof formData.get('model') === 'string'
+      ? String(formData.get('model')).trim()
+      : '';
   const lengthConfig = resolveResponseLength(length || DEFAULT_RESPONSE_LENGTH);
   const formatConfig = resolveResponseFormat(format || DEFAULT_RESPONSE_FORMAT);
 
@@ -154,7 +158,12 @@ export async function createArenaBout(formData: FormData) {
     agentLineup: lineup,
   });
 
-  redirect(`/bout/${id}`);
+  const params = new URLSearchParams();
+  if (model) {
+    params.set('model', model);
+  }
+  const query = params.toString();
+  redirect(query ? `/bout/${id}?${query}` : `/bout/${id}`);
 }
 
 export async function createCreditCheckout(formData: FormData) {

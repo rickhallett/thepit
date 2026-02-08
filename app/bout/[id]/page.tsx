@@ -136,7 +136,8 @@ export default async function BoutPage({
   const requestedModel =
     typeof modelFromQuery === 'string' ? modelFromQuery.trim() : '';
   let modelId = FREE_MODEL_ID;
-  if (preset.tier === 'premium' && premiumEnabled) {
+  const allowPremiumModels = preset.tier === 'premium' || preset.id === 'arena';
+  if (allowPremiumModels && premiumEnabled) {
     modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
       ? requestedModel
       : DEFAULT_PREMIUM_MODEL_ID;

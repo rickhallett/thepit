@@ -1,6 +1,6 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 
-const anthropic = createAnthropic({
+const defaultAnthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
@@ -23,5 +23,12 @@ export const DEFAULT_PREMIUM_MODEL_ID =
   PREMIUM_MODEL_OPTIONS[0] ??
   FREE_MODEL_ID;
 
-export const getModel = (modelId?: string) =>
-  anthropic(modelId ?? FREE_MODEL_ID);
+export const BYOK_MODEL_ID =
+  process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID;
+
+export const getModel = (modelId?: string, apiKey?: string) => {
+  const provider = apiKey ? createAnthropic({ apiKey }) : defaultAnthropic;
+  const resolvedId =
+    modelId === 'byok' ? BYOK_MODEL_ID : modelId ?? FREE_MODEL_ID;
+  return provider(resolvedId);
+};

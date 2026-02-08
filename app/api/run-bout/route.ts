@@ -38,6 +38,7 @@ export async function POST(req: Request) {
     model?: string;
     length?: string;
     format?: string;
+    byokKey?: string;
   };
 
   try {
@@ -55,6 +56,8 @@ export async function POST(req: Request) {
     typeof payload.format === 'string' ? payload.format.trim() : '';
   let formatConfig = resolveResponseFormat(formatKey);
   let { presetId } = payload;
+  const byokKey =
+    typeof payload.byokKey === 'string' ? payload.byokKey.trim() : '';
 
   if (!boutId) {
     return new Response('Missing boutId.', { status: 400 });
@@ -132,11 +135,15 @@ export async function POST(req: Request) {
   const requestedModel =
     typeof payload.model === 'string' ? payload.model.trim() : '';
   let modelId = FREE_MODEL_ID;
-  if (preset.tier === 'premium' && premiumEnabled) {
+  const allowPremiumModels = preset.tier === 'premium' || preset.id === 'arena';
+  if (allowPremiumModels && premiumEnabled) {
     modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
       ? requestedModel
       : DEFAULT_PREMIUM_MODEL_ID;
   } else if (requestedModel === 'byok' && BYOK_ENABLED) {
+    if (!byokKey) {
+      return new Response('BYOK key required.', { status: 400 });
+    }
     modelId = 'byok';
   } else if (requestedModel === 'byok') {
     return new Response('BYOK not enabled.', { status: 400 });
@@ -226,11 +233,8 @@ export async function POST(req: Request) {
             history.length > 0
               ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
               : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
-          inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
-          inputTokens += estimateTokensFromText(prompt, 1);
-
           const result = streamText({
-            model: getModel(modelId),
+            model: getModel(modelId, modelId === 'byok' ? byokKey : undefined),
             maxOutputTokens: lengthConfig.maxOutputTokens,
             messages: [
               {
@@ -242,13 +246,24 @@ export async function POST(req: Request) {
           });
 
           let fullText = '';
+          let estimatedOutputTokens = 0;
           for await (const delta of result.textStream) {
             fullText += delta;
-            outputTokens += estimateTokensFromText(delta, 0);
+            estimatedOutputTokens += estimateTokensFromText(delta, 0);
             writer.write({ type: 'text-delta', id: turnId, delta });
           }
 
           writer.write({ type: 'text-end', id: turnId });
+
+          const usage = await result.usage;
+          if (usage?.inputTokens || usage?.outputTokens) {
+            inputTokens += usage.inputTokens ?? 0;
+            outputTokens += usage.outputTokens ?? 0;
+          } else {
+            inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
+            inputTokens += estimateTokensFromText(prompt, 1);
+            outputTokens += estimatedOutputTokens;
+          }
 
           history.push(`${agent.name}: ${fullText}`);
 

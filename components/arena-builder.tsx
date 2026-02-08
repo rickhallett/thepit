@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 
 import { cn } from '@/lib/cn';
+import { FREE_MODEL_ID } from '@/lib/ai';
 import {
   RESPONSE_LENGTHS,
   DEFAULT_RESPONSE_LENGTH,
@@ -23,12 +24,25 @@ export type ArenaAgentOption = {
 export function ArenaBuilder({
   agents,
   action,
+  premiumEnabled = false,
+  premiumModels = [],
+  defaultPremiumModel,
+  byokEnabled = false,
 }: {
   agents: ArenaAgentOption[];
   action: (formData: FormData) => Promise<void>;
+  premiumEnabled?: boolean;
+  premiumModels?: string[];
+  defaultPremiumModel?: string;
+  byokEnabled?: boolean;
 }) {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
+  const [selectedModel, setSelectedModel] = useState(
+    defaultPremiumModel ?? premiumModels[0] ?? FREE_MODEL_ID,
+  );
+  const [byokKey, setByokKey] = useState('');
+  const [byokError, setByokError] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -52,8 +66,34 @@ export function ArenaBuilder({
     });
   };
 
+  const showModelSelector = premiumEnabled || byokEnabled;
+  const modelOptions = [
+    FREE_MODEL_ID,
+    ...(premiumEnabled ? premiumModels : []),
+    ...(byokEnabled ? ['byok'] : []),
+  ].filter(Boolean);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    setByokError(null);
+    if (!showModelSelector) {
+      sessionStorage.removeItem('pit_byok_key');
+      return;
+    }
+    if (selectedModel === 'byok') {
+      const trimmed = byokKey.trim();
+      if (!trimmed) {
+        event.preventDefault();
+        setByokError('BYOK key required.');
+        return;
+      }
+      sessionStorage.setItem('pit_byok_key', trimmed);
+      return;
+    }
+    sessionStorage.removeItem('pit_byok_key');
+  };
+
   return (
-    <form action={action} className="flex flex-col gap-8">
+    <form action={action} onSubmit={handleSubmit} className="flex flex-col gap-8">
       <section className="border-2 border-foreground/60 bg-black/50 p-6">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
           Lineup ({selected.length}/6)
@@ -119,6 +159,42 @@ export function ArenaBuilder({
             ))}
           </select>
         </label>
+        {showModelSelector && (
+          <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+            <span>Model</span>
+            <select
+              name="model"
+              value={selectedModel}
+              onChange={(event) => setSelectedModel(event.target.value)}
+              className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            >
+              {modelOptions.map((model) => (
+                <option key={model} value={model}>
+                  {model === 'byok' ? 'BYOK' : model}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {showModelSelector && selectedModel === 'byok' && (
+          <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+            <span>BYOK API key</span>
+            <input
+              name="byokKey"
+              type="password"
+              value={byokKey}
+              onChange={(event) => setByokKey(event.target.value)}
+              placeholder="sk-ant-..."
+              className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+              required
+            />
+            {byokError && (
+              <span className="text-[10px] uppercase tracking-[0.25em] text-red-400">
+                {byokError}
+              </span>
+            )}
+          </label>
+        )}
         {selected.map((id) => (
           <input key={id} type="hidden" name="agentIds" value={id} />
         ))}

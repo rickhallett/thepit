@@ -145,17 +145,25 @@ export function useBout({
 
     const run = async () => {
       setStatus('streaming');
+      const byokKey =
+        model === 'byok'
+          ? window.sessionStorage.getItem('pit_byok_key')
+          : null;
+      const payload: Record<string, unknown> = {
+        boutId,
+        presetId: preset.id,
+        topic,
+        model,
+        length,
+        format,
+      };
+      if (byokKey) {
+        payload.byokKey = byokKey;
+      }
       const response = await fetch('/api/run-bout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          boutId,
-          presetId: preset.id,
-          topic,
-          model,
-          length,
-          format,
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
 
