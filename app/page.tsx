@@ -58,6 +58,11 @@ export default async function LandingPage() {
               <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
                 drains 1 credit/min
               </span>
+              {poolStatus.exhausted && (
+                <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
+                  Pool drained
+                </span>
+              )}
             </div>
           )}
         </div>
