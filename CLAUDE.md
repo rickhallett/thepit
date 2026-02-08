@@ -50,6 +50,7 @@ referrals: id, referrerId, referredId, code, credited, createdAt
 reactions: id, boutId, turnIndex, reactionType, userId, createdAt
 winnerVotes: id, boutId, agentId, userId, createdAt
 newsletterSignups: id, email, createdAt
+agents: id, name, systemPrompt, presetId, tier, model, responseLength, responseFormat, archetype, tone, quirks, speechPattern, openingMove, signatureMove, weakness, goal, fears, customInstructions, createdAt, ownerId, parentId, promptHash, manifestHash, attestationUid, attestationTxHash, attestedAt
 ```
 
 ### Preset System

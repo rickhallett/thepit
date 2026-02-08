@@ -87,6 +87,45 @@ export default async function AgentDetailPage({
           </pre>
         </section>
 
+        {(detail.archetype ||
+          detail.tone ||
+          (detail.quirks && detail.quirks.length > 0) ||
+          detail.speechPattern ||
+          detail.openingMove ||
+          detail.signatureMove ||
+          detail.weakness ||
+          detail.goal ||
+          detail.fears ||
+          detail.customInstructions) && (
+          <section className="grid gap-3 text-xs uppercase tracking-[0.25em] text-muted">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted">
+              Structured DNA
+            </p>
+            <div className="grid gap-2 text-sm normal-case text-foreground/90">
+              {detail.archetype && <div>Archetype: {detail.archetype}</div>}
+              {detail.tone && <div>Tone: {detail.tone}</div>}
+              {detail.quirks && detail.quirks.length > 0 && (
+                <div>Quirks: {detail.quirks.join(', ')}</div>
+              )}
+              {detail.speechPattern && (
+                <div>Speech pattern: {detail.speechPattern}</div>
+              )}
+              {detail.openingMove && (
+                <div>Opening move: {detail.openingMove}</div>
+              )}
+              {detail.signatureMove && (
+                <div>Signature move: {detail.signatureMove}</div>
+              )}
+              {detail.weakness && <div>Weakness: {detail.weakness}</div>}
+              {detail.goal && <div>Goal: {detail.goal}</div>}
+              {detail.fears && <div>Fears: {detail.fears}</div>}
+              {detail.customInstructions && (
+                <div>Custom instructions: {detail.customInstructions}</div>
+              )}
+            </div>
+          </section>
+        )}
+
         <section className="grid gap-2 text-xs text-muted">
           <div>
             Prompt hash:{' '}

@@ -165,6 +165,16 @@ export const agents = pgTable('agents', {
   model: varchar('model', { length: 128 }),
   responseLength: varchar('response_length', { length: 32 }).notNull(),
   responseFormat: varchar('response_format', { length: 32 }).notNull(),
+  archetype: text('archetype'),
+  tone: text('tone'),
+  quirks: jsonb('quirks').$type<string[]>(),
+  speechPattern: text('speech_pattern'),
+  openingMove: text('opening_move'),
+  signatureMove: text('signature_move'),
+  weakness: text('weakness'),
+  goal: text('goal'),
+  fears: text('fears'),
+  customInstructions: text('custom_instructions'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
