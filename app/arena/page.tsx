@@ -11,6 +11,7 @@ import {
   CREDITS_ENABLED,
   CREDIT_VALUE_GBP,
   formatCredits,
+  getCreditTransactions,
   getCreditBalanceMicro,
 } from '@/lib/credits';
 import { getIntroPoolStatus } from '@/lib/intro-pool';
@@ -29,6 +30,8 @@ export default async function Home() {
   const { userId } = await auth();
   const creditBalanceMicro =
     creditsEnabled && userId ? await getCreditBalanceMicro(userId) : null;
+  const creditHistory =
+    creditsEnabled && userId ? await getCreditTransactions(userId, 12) : [];
   const showCreditPrompt = creditsEnabled && !userId;
   const poolStatus = creditsEnabled ? await getIntroPoolStatus() : null;
 
@@ -158,6 +161,51 @@ export default async function Home() {
                 </form>
               ))}
             </div>
+          </section>
+        )}
+
+        {creditsEnabled && userId && (
+          <section className="flex flex-col gap-4 border-t-2 border-foreground/60 pt-8">
+            <p className="text-xs uppercase tracking-[0.4em] text-accent">
+              Credit History
+            </p>
+            {creditHistory.length === 0 ? (
+              <p className="text-xs uppercase tracking-[0.3em] text-muted">
+                No credit activity yet.
+              </p>
+            ) : (
+              <div className="overflow-x-auto border-2 border-foreground/60">
+                <div className="grid min-w-[520px] grid-cols-[minmax(0,2fr)_110px_120px_120px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
+                  <span>When</span>
+                  <span>Source</span>
+                  <span className="text-right">Delta</span>
+                  <span className="text-right">Reference</span>
+                </div>
+                {creditHistory.map((row) => {
+                  const delta =
+                    row.deltaMicro >= 0
+                      ? `+${formatCredits(row.deltaMicro)}`
+                      : `-${formatCredits(Math.abs(row.deltaMicro))}`;
+                  return (
+                    <div
+                      key={`${row.source}-${row.createdAt?.toISOString()}`}
+                      className="grid min-w-[520px] grid-cols-[minmax(0,2fr)_110px_120px_120px] gap-4 border-b border-foreground/40 px-4 py-3 text-xs uppercase tracking-[0.25em] text-muted"
+                    >
+                      <span>
+                        {row.createdAt
+                          ? new Date(row.createdAt).toLocaleString()
+                          : '—'}
+                      </span>
+                      <span>{row.source}</span>
+                      <span className="text-right text-foreground">{delta}</span>
+                      <span className="text-right">
+                        {row.referenceId ?? '—'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
         )}
 

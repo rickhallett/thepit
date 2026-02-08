@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { creditTransactions, credits } from '@/db/schema';
@@ -183,4 +183,20 @@ export async function applyCreditDelta(
     .returning();
 
   return updated;
+}
+
+export async function getCreditTransactions(userId: string, limit = 20) {
+  const db = requireDb();
+  return db
+    .select({
+      deltaMicro: creditTransactions.deltaMicro,
+      source: creditTransactions.source,
+      referenceId: creditTransactions.referenceId,
+      metadata: creditTransactions.metadata,
+      createdAt: creditTransactions.createdAt,
+    })
+    .from(creditTransactions)
+    .where(eq(creditTransactions.userId, userId))
+    .orderBy(desc(creditTransactions.createdAt))
+    .limit(limit);
 }
