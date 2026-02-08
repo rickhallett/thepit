@@ -6,6 +6,8 @@ import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
 import type { TranscriptEntry } from '@/db/schema';
+import type { ReactionCountMap } from '@/lib/reactions';
+import type { WinnerVoteCounts } from '@/lib/winner-votes';
 
 const STATUS_LABELS: Record<string, string> = {
   idle: 'Warming up',
@@ -23,6 +25,9 @@ export function Arena({
   estimatedCredits,
   initialTranscript,
   shareLine,
+  initialReactions,
+  initialWinnerVotes,
+  initialUserVote,
 }: {
   boutId: string;
   preset: Preset;
@@ -32,6 +37,9 @@ export function Arena({
   estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
   shareLine?: string | null;
+  initialReactions?: ReactionCountMap;
+  initialWinnerVotes?: WinnerVoteCounts;
+  initialUserVote?: string | null;
 }) {
   const {
     messages,
@@ -52,6 +60,17 @@ export function Arena({
   const [copied, setCopied] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const [shareUrl, setShareUrl] = useState('');
+  const [reactions, setReactions] = useState<ReactionCountMap>(
+    initialReactions ?? {},
+  );
+  const [winnerVotes, setWinnerVotes] = useState<WinnerVoteCounts>(
+    initialWinnerVotes ?? {},
+  );
+  const [userVote, setUserVote] = useState<string | null>(
+    initialUserVote ?? null,
+  );
+  const [voteError, setVoteError] = useState<string | null>(null);
+  const [votePending, setVotePending] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -125,6 +144,61 @@ export function Arena({
     window.setTimeout(() => setCopied(false), 1600);
   };
 
+  const sendReaction = async (turn: number, reactionType: 'heart' | 'fire') => {
+    setReactions((prev) => {
+      const current = prev[turn] ?? { heart: 0, fire: 0 };
+      return {
+        ...prev,
+        [turn]: {
+          ...current,
+          [reactionType]: (current[reactionType] ?? 0) + 1,
+        },
+      };
+    });
+
+    try {
+      await fetch('/api/reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          boutId,
+          turnIndex: turn,
+          reactionType,
+        }),
+      });
+    } catch {
+      // swallow; reactions are best-effort
+    }
+  };
+
+  const castWinnerVote = async (agentId: string) => {
+    if (userVote || votePending) return;
+    setVoteError(null);
+    setVotePending(agentId);
+    try {
+      const res = await fetch('/api/winner-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boutId, agentId }),
+      });
+      if (res.status === 401) {
+        setVoteError('Sign in to cast a winner vote.');
+        return;
+      }
+      if (!res.ok) {
+        setVoteError('Vote failed. Try again.');
+        return;
+      }
+      setUserVote(agentId);
+      setWinnerVotes((prev) => ({
+        ...prev,
+        [agentId]: (prev[agentId] ?? 0) + 1,
+      }));
+    } finally {
+      setVotePending(null);
+    }
+  };
+
   const alignmentMap = useMemo(() => {
     const positions = ['self-start', 'self-center', 'self-end'];
     const map = new Map<string, string>();
@@ -141,6 +215,11 @@ export function Arena({
     if (!thinkingAgentId) return null;
     return preset.agents.find((agent) => agent.id === thinkingAgentId) ?? null;
   }, [preset.agents, thinkingAgentId]);
+
+  const votedLabel = useMemo(() => {
+    if (!userVote) return null;
+    return preset.agents.find((agent) => agent.id === userVote)?.name ?? userVote;
+  }, [preset.agents, userVote]);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -201,7 +280,9 @@ export function Arena({
             </div>
           )}
 
-          {messages.map((message) => (
+          {messages.map((message) => {
+            const counts = reactions[message.turn] ?? { heart: 0, fire: 0 };
+            return (
             <article
               key={message.id}
               className={cn(
@@ -221,8 +302,27 @@ export function Arena({
               <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                 {message.text ? renderMessageText(message.text) : '...'}
               </p>
+              <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-muted">
+                <button
+                  type="button"
+                  onClick={() => sendReaction(message.turn, 'heart')}
+                  className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                >
+                  ♥
+                </button>
+                <span>{counts.heart}</span>
+                <button
+                  type="button"
+                  onClick={() => sendReaction(message.turn, 'fire')}
+                  className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                >
+                  🔥
+                </button>
+                <span>{counts.fire}</span>
+              </div>
             </article>
-          ))}
+          );
+          })}
           {thinkingAgent && status === 'streaming' && (
             <article
               className={cn(
@@ -239,6 +339,43 @@ export function Arena({
               </header>
               <p className="mt-4 text-sm italic text-foreground/60">...</p>
             </article>
+          )}
+          {status === 'done' && messages.length > 0 && (
+            <section className="mt-8 w-full border-2 border-foreground/60 bg-black/50 p-6">
+              <p className="text-xs uppercase tracking-[0.35em] text-muted">
+                Who won?
+              </p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {preset.agents.map((agent) => (
+                  <button
+                    key={agent.id}
+                    type="button"
+                    onClick={() => castWinnerVote(agent.id)}
+                    disabled={Boolean(userVote) || votePending === agent.id}
+                    className={cn(
+                      'flex items-center justify-between border-2 border-foreground/50 bg-black/60 px-4 py-3 text-left text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent',
+                      userVote === agent.id &&
+                        'border-accent text-accent',
+                    )}
+                  >
+                    <span>{agent.name}</span>
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
+                      {winnerVotes[agent.id] ?? 0} votes
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {userVote && (
+                <p className="mt-4 text-xs uppercase tracking-[0.3em] text-accent">
+                  Vote locked: {votedLabel}
+                </p>
+              )}
+              {voteError && (
+                <p className="mt-4 text-xs uppercase tracking-[0.3em] text-red-400">
+                  {voteError}
+                </p>
+              )}
+            </section>
           )}
           <div ref={endRef} />
         </section>

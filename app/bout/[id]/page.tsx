@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
 import { requireDb } from '@/db';
@@ -18,6 +19,8 @@ import {
 } from '@/lib/credits';
 import { PRESETS } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
+import { getReactionCounts } from '@/lib/reactions';
+import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +41,7 @@ export default async function BoutPage({
   const db = requireDb();
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
+  const { userId } = await auth();
   const presetIdFromQuery =
     typeof resolvedSearchParams?.presetId === 'string'
       ? resolvedSearchParams.presetId
@@ -118,6 +122,11 @@ export default async function BoutPage({
           ),
         )
       : null;
+  const [reactionCounts, winnerVoteCounts, userWinnerVote] = await Promise.all([
+    getReactionCounts(resolvedParams.id),
+    getWinnerVoteCounts(resolvedParams.id),
+    userId ? getUserWinnerVote(resolvedParams.id, userId) : Promise.resolve(null),
+  ]);
 
   return (
     <Arena
@@ -129,6 +138,9 @@ export default async function BoutPage({
       estimatedCredits={estimatedCredits}
       initialTranscript={transcript}
       shareLine={shareLine}
+      initialReactions={reactionCounts}
+      initialWinnerVotes={winnerVoteCounts}
+      initialUserVote={userWinnerVote}
     />
   );
 }
