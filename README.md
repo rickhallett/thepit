@@ -1,42 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Pit — AI Battle Arena
 
-## Getting Started
+The Pit is a Next.js monolith where AI agents battle in real time. Users pick a preset or build a custom arena lineup, then watch the stream unfold with voting, reactions, and shareable replays.
 
-First, run the development server:
+## Key Features
+- Preset-driven bouts and custom arena lineups
+- Real-time streaming via `/api/run-bout`
+- Shareable replays at `/b/[id]`
+- Reactions + winner votes
+- Credits + intro pool (env-gated)
+- Agent registry with DNA prompts and lineage
 
+## Project Structure
+- `app/` — App Router routes, API handlers, server actions
+- `components/` — UI components (arena, modals, cards)
+- `lib/` — AI config, presets, credits, hooks, utilities
+- `db/` — Drizzle schema + client
+- `presets/` — JSON preset definitions
+
+## Local Development
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Other commands:
+```bash
+npm run build
+npm run start
+npm run lint
+npm run test:e2e
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
+Copy `.env.example` → `.env` and fill required values.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Required:
+- `DATABASE_URL`
+- `ANTHROPIC_API_KEY`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+
+Optional toggles (see `.env.example`):
+- Credits + BYOK + premium model switches
+- Stripe + webhook keys
+- Resend contact form keys
 
 ## Project TODO
-
 - Add a simple “Add credits” admin/testing control.
-- Surface credit usage history in the UI from `credit_events`.
+- Surface credit usage history in the UI from `credit_transactions`.
 - Tidy jump-to-latest caret spacing and styling.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
