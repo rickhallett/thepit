@@ -12,7 +12,14 @@ import { ensureUserRecord } from '@/lib/users';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
 import { getAgentSnapshots } from '@/lib/agent-registry';
-import { DEFAULT_RESPONSE_LENGTH, resolveResponseLength } from '@/lib/response-lengths';
+import {
+  DEFAULT_RESPONSE_LENGTH,
+  resolveResponseLength,
+} from '@/lib/response-lengths';
+import {
+  DEFAULT_RESPONSE_FORMAT,
+  resolveResponseFormat,
+} from '@/lib/response-formats';
 
 export async function createBout(presetId: string, formData?: FormData) {
   const presetExists = PRESETS.some((preset) => preset.id === presetId);
@@ -39,7 +46,12 @@ export async function createBout(presetId: string, formData?: FormData) {
     formData?.get('length') && typeof formData.get('length') === 'string'
       ? String(formData.get('length')).trim()
       : '';
+  const format =
+    formData?.get('format') && typeof formData.get('format') === 'string'
+      ? String(formData.get('format')).trim()
+      : '';
   const lengthConfig = resolveResponseLength(length);
+  const formatConfig = resolveResponseFormat(format);
 
   if (userId) {
     await ensureUserRecord(userId);
@@ -54,6 +66,7 @@ export async function createBout(presetId: string, formData?: FormData) {
       ownerId: userId ?? null,
       topic: topic || null,
       responseLength: lengthConfig.id,
+      responseFormat: formatConfig.id,
     });
   } catch (error) {
     console.error('createBout insert failed', error);
@@ -68,6 +81,9 @@ export async function createBout(presetId: string, formData?: FormData) {
   }
   if (length) {
     params.set('length', length);
+  }
+  if (format) {
+    params.set('format', format);
   }
   redirect(`/bout/${id}?${params.toString()}`);
 }
@@ -87,7 +103,12 @@ export async function createArenaBout(formData: FormData) {
     formData?.get('length') && typeof formData.get('length') === 'string'
       ? String(formData.get('length')).trim()
       : '';
+  const format =
+    formData?.get('format') && typeof formData.get('format') === 'string'
+      ? String(formData.get('format')).trim()
+      : '';
   const lengthConfig = resolveResponseLength(length || DEFAULT_RESPONSE_LENGTH);
+  const formatConfig = resolveResponseFormat(format || DEFAULT_RESPONSE_FORMAT);
 
   if (agentIds.length < 2 || agentIds.length > 6) {
     throw new Error('Select between 2 and 6 agents.');
@@ -123,6 +144,7 @@ export async function createArenaBout(formData: FormData) {
     ownerId: userId ?? null,
     topic: topic || null,
     responseLength: lengthConfig.id,
+    responseFormat: formatConfig.id,
     agentLineup: lineup,
   });
 

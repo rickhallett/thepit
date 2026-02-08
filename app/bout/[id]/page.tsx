@@ -35,8 +35,15 @@ export default async function BoutPage({
         topic?: string;
         model?: string;
         length?: string;
+        format?: string;
       }>
-    | { presetId?: string; topic?: string; model?: string; length?: string };
+    | {
+        presetId?: string;
+        topic?: string;
+        model?: string;
+        length?: string;
+        format?: string;
+      };
 }) {
   const db = requireDb();
   const resolvedParams = await params;
@@ -57,6 +64,10 @@ export default async function BoutPage({
   const lengthFromQuery =
     typeof resolvedSearchParams?.length === 'string'
       ? resolvedSearchParams.length
+      : null;
+  const formatFromQuery =
+    typeof resolvedSearchParams?.format === 'string'
+      ? resolvedSearchParams.format
       : null;
 
   let bout: (typeof bouts.$inferSelect) | undefined;
@@ -100,6 +111,9 @@ export default async function BoutPage({
           presetId: resolvedPresetId,
           status: 'running',
           transcript: [],
+          topic: topicFromQuery ?? null,
+          responseLength: lengthFromQuery ?? null,
+          responseFormat: formatFromQuery ?? null,
         })
         .onConflictDoNothing();
     } catch (error) {
@@ -111,6 +125,7 @@ export default async function BoutPage({
   const shareLine = bout?.shareLine ?? null;
   const topic = bout?.topic ?? topicFromQuery;
   const length = bout?.responseLength ?? lengthFromQuery;
+  const format = bout?.responseFormat ?? formatFromQuery;
   const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const requestedModel =
     typeof modelFromQuery === 'string' ? modelFromQuery.trim() : '';
@@ -148,6 +163,7 @@ export default async function BoutPage({
       topic={topic}
       model={modelFromQuery}
       length={length}
+      format={format}
       estimatedCredits={estimatedCredits}
       initialTranscript={transcript}
       shareLine={shareLine}

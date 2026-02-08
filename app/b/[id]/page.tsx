@@ -56,6 +56,9 @@ export default async function ReplayPage({
       preset={preset}
       initialTranscript={(bout.transcript ?? []) as TranscriptEntry[]}
       shareLine={bout.shareLine}
+      format={bout.responseFormat ?? null}
+      length={bout.responseLength ?? null}
+      topic={bout.topic ?? null}
       initialReactions={reactionCounts}
       initialWinnerVotes={winnerVoteCounts}
       initialUserVote={userWinnerVote}

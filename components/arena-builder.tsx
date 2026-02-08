@@ -3,7 +3,14 @@
 import { useMemo, useState } from 'react';
 
 import { cn } from '@/lib/cn';
-import { RESPONSE_LENGTHS, DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
+import {
+  RESPONSE_LENGTHS,
+  DEFAULT_RESPONSE_LENGTH,
+} from '@/lib/response-lengths';
+import {
+  DEFAULT_RESPONSE_FORMAT,
+  RESPONSE_FORMATS,
+} from '@/lib/response-formats';
 
 export type ArenaAgentOption = {
   id: string;
@@ -94,6 +101,20 @@ export function ArenaBuilder({
             {RESPONSE_LENGTHS.map((length) => (
               <option key={length.id} value={length.id}>
                 {length.label} · {length.hint}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+          <span>Response format</span>
+          <select
+            name="format"
+            defaultValue={DEFAULT_RESPONSE_FORMAT}
+            className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+          >
+            {RESPONSE_FORMATS.map((format) => (
+              <option key={format.id} value={format.id}>
+                {format.label} · {format.hint}
               </option>
             ))}
           </select>
