@@ -484,10 +484,13 @@ export function Arena({
           <button
             type="button"
             onClick={jumpToLatest}
-            className="fixed bottom-6 right-6 rounded-full border-2 border-foreground/60 bg-black/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted shadow-[6px_6px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
+            className="fixed bottom-6 right-6 inline-flex items-center gap-2 rounded-full border-2 border-foreground/60 bg-black/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted shadow-[6px_6px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
             aria-label="Jump to latest"
           >
-            Latest v
+            <span>Latest</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-foreground/60 text-[10px] text-muted">
+              ˅
+            </span>
           </button>
         )}
       </div>
