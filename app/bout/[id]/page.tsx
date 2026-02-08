@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
 import { requireDb } from '@/db';
-import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
+import { bouts, type TranscriptEntry } from '@/db/schema';
 import {
   DEFAULT_PREMIUM_MODEL_ID,
   FREE_MODEL_ID,
@@ -17,7 +17,7 @@ import {
   formatCredits,
   toMicroCredits,
 } from '@/lib/credits';
-import { PRESETS } from '@/lib/presets';
+import { PRESETS, type Agent } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { getReactionCounts } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
@@ -88,7 +88,13 @@ export default async function BoutPage({
 
   let preset = PRESETS.find((item) => item.id === resolvedPresetId);
   if (!preset && resolvedPresetId === 'arena' && bout?.agentLineup) {
-    const lineup = bout.agentLineup as ArenaAgent[];
+    const lineup: Agent[] = bout.agentLineup.map((agent) => ({
+      id: agent.id,
+      name: agent.name,
+      systemPrompt: agent.systemPrompt,
+      color: agent.color ?? '#f8fafc',
+      avatar: agent.avatar,
+    }));
     preset = {
       id: 'arena',
       name: 'Arena Mode',

@@ -34,7 +34,8 @@ export async function ensureUserRecord(userId: string) {
   let imageUrl: string | null = null;
 
   try {
-    const profile = await clerkClient.users.getUser(userId);
+    const client = await clerkClient();
+    const profile = await client.users.getUser(userId);
     email = profile.emailAddresses[0]?.emailAddress ?? null;
     displayName =
       profile.username ??
