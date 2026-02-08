@@ -74,6 +74,7 @@ export function Arena({
   );
   const [voteError, setVoteError] = useState<string | null>(null);
   const [votePending, setVotePending] = useState<string | null>(null);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -140,11 +141,71 @@ export function Arena({
     return [headline, '', replayUrl, '', '🔴 #ThePitArena'].join('\n');
   }, [boutId, liveShareLine, preset.name, shareLine, shareUrl, transcript]);
 
+  const messageSharePayloads = useMemo(() => {
+    if (messages.length === 0) return [];
+    const origin = shareUrl
+      ? new URL(shareUrl).origin
+      : 'https://tspit.vercel.app';
+    const replayUrl = `${origin}/b/${boutId}`;
+    const headline =
+      (liveShareLine ?? shareLine ?? '').trim() || `THE PIT — ${preset.name}`;
+    const header = [
+      headline,
+      topic ? `Topic: ${topic}` : null,
+      format ? `Format: ${format}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    let runningTranscript = '';
+
+    return messages.map((message) => {
+      const line = `${message.agentName}: ${message.text}`;
+      runningTranscript = runningTranscript
+        ? `${runningTranscript}\n\n${line}`
+        : line;
+      const payload = [
+        header,
+        '',
+        runningTranscript,
+        '',
+        `Replay: ${replayUrl}`,
+        '',
+        '🔴 #ThePitArena',
+      ].join('\n');
+      const encoded = encodeURIComponent(payload);
+      return {
+        payload,
+        links: {
+          x: `https://twitter.com/intent/tweet?text=${encoded}`,
+          whatsapp: `https://wa.me/?text=${encoded}`,
+          telegram: `https://t.me/share/url?url=${encodeURIComponent(
+            replayUrl,
+          )}&text=${encoded}`,
+        },
+      };
+    });
+  }, [
+    boutId,
+    format,
+    liveShareLine,
+    messages,
+    preset.name,
+    shareLine,
+    shareUrl,
+    topic,
+  ]);
+
   const copyTranscript = async () => {
     if (!sharePayload) return;
     await navigator.clipboard.writeText(sharePayload);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
+  };
+
+  const copyMessageShare = async (payload: string, messageId: string) => {
+    await navigator.clipboard.writeText(payload);
+    setCopiedMessageId(messageId);
+    window.setTimeout(() => setCopiedMessageId(null), 1600);
   };
 
   const sendReaction = async (turn: number, reactionType: 'heart' | 'fire') => {
@@ -283,8 +344,9 @@ export function Arena({
             </div>
           )}
 
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             const counts = reactions[message.turn] ?? { heart: 0, fire: 0 };
+            const share = messageSharePayloads[index];
             return (
             <article
               key={message.id}
@@ -323,6 +385,41 @@ export function Arena({
                 </button>
                 <span>{counts.fire}</span>
               </div>
+              {share && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted">
+                  <button
+                    type="button"
+                    onClick={() => copyMessageShare(share.payload, message.id)}
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    {copiedMessageId === message.id ? 'Copied' : 'Copy'}
+                  </button>
+                  <a
+                    href={share.links.x}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    X
+                  </a>
+                  <a
+                    href={share.links.whatsapp}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    WhatsApp
+                  </a>
+                  <a
+                    href={share.links.telegram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    Telegram
+                  </a>
+                </div>
+              )}
             </article>
           );
           })}
