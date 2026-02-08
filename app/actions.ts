@@ -7,7 +7,13 @@ import { auth } from '@clerk/nextjs/server';
 import { requireDb } from '@/db';
 import { bouts } from '@/db/schema';
 import { PRESETS } from '@/lib/presets';
-import { CREDITS_ENABLED } from '@/lib/credits';
+import {
+  applyCreditDelta,
+  CREDITS_ADMIN_ENABLED,
+  CREDITS_ADMIN_GRANT,
+  CREDITS_ENABLED,
+  MICRO_PER_CREDIT,
+} from '@/lib/credits';
 import { ensureUserRecord } from '@/lib/users';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
@@ -205,4 +211,24 @@ export async function createCreditCheckout(formData: FormData) {
   }
 
   redirect(session.url);
+}
+
+export async function grantTestCredits() {
+  const { userId } = await auth();
+  if (!userId) {
+    redirect('/sign-in?redirect_url=/arena');
+  }
+  if (!CREDITS_ADMIN_ENABLED) {
+    throw new Error('Admin credits disabled.');
+  }
+
+  await ensureUserRecord(userId);
+
+  const deltaMicro = Math.round(CREDITS_ADMIN_GRANT * MICRO_PER_CREDIT);
+  await applyCreditDelta(userId, deltaMicro, 'admin_grant', {
+    admin: true,
+    credits: CREDITS_ADMIN_GRANT,
+  });
+
+  redirect('/arena?credits=granted');
 }

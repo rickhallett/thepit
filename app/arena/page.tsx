@@ -7,6 +7,7 @@ import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import {
   BYOK_ENABLED,
+  CREDITS_ADMIN_ENABLED,
   CREDITS_ENABLED,
   CREDIT_VALUE_GBP,
   formatCredits,
@@ -15,7 +16,7 @@ import {
 import { getIntroPoolStatus } from '@/lib/intro-pool';
 import { ALL_PRESETS } from '@/lib/presets';
 
-import { createBout, createCreditCheckout } from '../actions';
+import { createBout, createCreditCheckout, grantTestCredits } from '../actions';
 
 export const metadata = {
   title: 'Arena — THE PIT',
@@ -50,6 +51,16 @@ export default async function Home() {
               <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
                 1 credit = £{CREDIT_VALUE_GBP.toFixed(2)}
               </span>
+              {CREDITS_ADMIN_ENABLED && userId && (
+                <form action={grantTestCredits}>
+                  <button
+                    type="submit"
+                    className="rounded-full border-2 border-foreground/50 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-muted transition hover:border-accent hover:text-accent"
+                  >
+                    Add credits (test)
+                  </button>
+                </form>
+              )}
             </div>
           )}
           {showCreditPrompt && (
