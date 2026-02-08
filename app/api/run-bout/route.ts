@@ -16,6 +16,7 @@ import {
 } from '@/lib/ai';
 import { ALL_PRESETS } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
+import { resolveResponseFormat } from '@/lib/response-formats';
 import {
   CREDITS_ENABLED,
   applyCreditDelta,
@@ -36,6 +37,7 @@ export async function POST(req: Request) {
     topic?: string;
     model?: string;
     length?: string;
+    format?: string;
   };
 
   try {
@@ -49,6 +51,9 @@ export async function POST(req: Request) {
   let lengthKey =
     typeof payload.length === 'string' ? payload.length.trim() : '';
   let lengthConfig = resolveResponseLength(lengthKey);
+  let formatKey =
+    typeof payload.format === 'string' ? payload.format.trim() : '';
+  let formatConfig = resolveResponseFormat(formatKey);
   let { presetId } = payload;
 
   if (!boutId) {
@@ -79,6 +84,7 @@ export async function POST(req: Request) {
         agentLineup: bouts.agentLineup,
         topic: bouts.topic,
         responseLength: bouts.responseLength,
+        responseFormat: bouts.responseFormat,
       })
       .from(bouts)
       .where(eq(bouts.id, boutId))
@@ -100,6 +106,10 @@ export async function POST(req: Request) {
     if (!lengthKey && row.responseLength) {
       lengthKey = row.responseLength;
       lengthConfig = resolveResponseLength(lengthKey);
+    }
+    if (!formatKey && row.responseFormat) {
+      formatKey = row.responseFormat;
+      formatConfig = resolveResponseFormat(formatKey);
     }
   }
 
@@ -158,6 +168,9 @@ export async function POST(req: Request) {
         presetId,
         status: 'running',
         transcript: [],
+        topic: topic || null,
+        responseLength: lengthConfig.id,
+        responseFormat: formatConfig.id,
       })
       .onConflictDoNothing();
   } catch (error) {
@@ -175,7 +188,12 @@ export async function POST(req: Request) {
       try {
         await db
           .update(bouts)
-          .set({ status: 'running' })
+          .set({
+            status: 'running',
+            topic: topic || null,
+            responseLength: lengthConfig.id,
+            responseFormat: formatConfig.id,
+          })
           .where(eq(bouts.id, boutId));
 
         for (let i = 0; i < preset.maxTurns; i += 1) {
@@ -196,10 +214,11 @@ export async function POST(req: Request) {
 
           const topicLine = topic ? `Topic: ${topic}\n\n` : '';
           const lengthLine = `Response length: ${lengthConfig.label} (${lengthConfig.hint}).\n\n`;
+          const formatLine = `Response format: ${formatConfig.label} (${formatConfig.hint}).\n\n`;
           const prompt =
             history.length > 0
-              ? `${topicLine}${lengthLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
-              : `${topicLine}${lengthLine}Open the debate in character as ${agent.name}.`;
+              ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
+              : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
           inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
           inputTokens += estimateTokensFromText(prompt, 1);
 
@@ -207,7 +226,10 @@ export async function POST(req: Request) {
             model: getModel(modelId),
             maxOutputTokens: lengthConfig.maxOutputTokens,
             messages: [
-              { role: 'system', content: agent.systemPrompt },
+              {
+                role: 'system',
+                content: `${agent.systemPrompt}\n\n${formatConfig.instruction}`,
+              },
               { role: 'user', content: prompt },
             ],
           });

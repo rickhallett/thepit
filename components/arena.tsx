@@ -22,6 +22,7 @@ export function Arena({
   topic,
   model,
   length,
+  format,
   estimatedCredits,
   initialTranscript,
   shareLine,
@@ -34,6 +35,7 @@ export function Arena({
   topic?: string | null;
   model?: string | null;
   length?: string | null;
+  format?: string | null;
   estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
   shareLine?: string | null;
@@ -54,6 +56,7 @@ export function Arena({
       topic: topic ?? undefined,
       model: model ?? undefined,
       length: length ?? undefined,
+      format: format ?? undefined,
       initialTranscript,
       initialShareLine: shareLine ?? null,
     });

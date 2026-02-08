@@ -31,6 +31,7 @@ type UseBoutOptions = {
   topic?: string;
   model?: string;
   length?: string;
+  format?: string;
 };
 
 type StreamEvent = {
@@ -53,6 +54,7 @@ export function useBout({
   length,
   initialTranscript = [],
   initialShareLine = null,
+  format,
 }: UseBoutOptions) {
   const [messages, setMessages] = useState<BoutMessage[]>(() => {
     if (initialTranscript.length === 0) return [];
@@ -152,6 +154,7 @@ export function useBout({
           topic,
           model,
           length,
+          format,
         }),
         signal: controller.signal,
       });
@@ -252,7 +255,7 @@ export function useBout({
       pendingMessageRef.current = null;
       controller.abort();
     };
-  }, [boutId, initialTranscript.length, preset.id, topic, model, length]);
+  }, [boutId, initialTranscript.length, preset.id, topic, model, length, format]);
 
   return {
     messages,

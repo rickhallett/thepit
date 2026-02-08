@@ -10,6 +10,10 @@ import {
   DEFAULT_RESPONSE_LENGTH,
   RESPONSE_LENGTHS,
 } from '@/lib/response-lengths';
+import {
+  DEFAULT_RESPONSE_FORMAT,
+  RESPONSE_FORMATS,
+} from '@/lib/response-formats';
 
 export function PresetCard({
   preset,
@@ -122,6 +126,22 @@ export function PresetCard({
           {RESPONSE_LENGTHS.map((length) => (
             <option key={length.id} value={length.id}>
               {length.label} · {length.hint}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+        <span>Response format</span>
+        <select
+          name="format"
+          defaultValue={DEFAULT_RESPONSE_FORMAT}
+          className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+          disabled={locked}
+        >
+          {RESPONSE_FORMATS.map((format) => (
+            <option key={format.id} value={format.id}>
+              {format.label} · {format.hint}
             </option>
           ))}
         </select>

@@ -43,6 +43,7 @@ export const bouts = pgTable('bouts', {
   ownerId: varchar('owner_id', { length: 128 }),
   topic: text('topic'),
   responseLength: varchar('response_length', { length: 32 }),
+  responseFormat: varchar('response_format', { length: 32 }),
   agentLineup: jsonb('agent_lineup').$type<ArenaAgent[]>(),
   shareLine: text('share_line'),
   shareGeneratedAt: timestamp('share_generated_at', { withTimezone: true }),
