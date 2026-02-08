@@ -14,7 +14,7 @@ import {
 import { getIntroPoolStatus } from '@/lib/intro-pool';
 import { ALL_PRESETS } from '@/lib/presets';
 
-import { createBout } from '../actions';
+import { createBout, createCreditCheckout } from '../actions';
 
 export const metadata = {
   title: 'Arena — THE PIT',
@@ -100,8 +100,9 @@ export default async function Home() {
             </p>
             <div className="grid gap-4 md:grid-cols-2">
               {CREDIT_PACKAGES.map((pack) => (
-                <div
+                <form
                   key={pack.id}
+                  action={createCreditCheckout}
                   className="flex flex-col gap-3 border-2 border-foreground/70 bg-black/40 p-5"
                 >
                   <div>
@@ -118,14 +119,14 @@ export default async function Home() {
                   <p className="text-xs uppercase tracking-[0.25em] text-muted">
                     +{Math.round(pack.bonusPercent * 100)}% bonus
                   </p>
+                  <input type="hidden" name="packId" value={pack.id} />
                   <button
-                    type="button"
-                    disabled
-                    className="rounded-full border-2 border-foreground/60 px-3 py-2 text-xs uppercase tracking-[0.3em] text-muted"
+                    type="submit"
+                    className="rounded-full border-2 border-foreground/60 px-3 py-2 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
                   >
-                    Coming soon
+                    Buy credits
                   </button>
-                </div>
+                </form>
               ))}
             </div>
           </section>
