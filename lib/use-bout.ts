@@ -172,7 +172,7 @@ export function useBout({
           return;
         }
 
-        if (event.type === 'share-line') {
+        if (event.type === 'data-share-line') {
           if (event.data?.text) {
             setShareLine(event.data.text);
           }

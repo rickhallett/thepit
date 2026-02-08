@@ -21,7 +21,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const { userId } = await auth();
-  const referralCode = cookies().get('pit_ref')?.value ?? null;
+  const cookieStore = await cookies();
+  const referralCode = cookieStore.get('pit_ref')?.value ?? null;
 
   if (userId) {
     await initializeUserSession({ userId, referralCode });

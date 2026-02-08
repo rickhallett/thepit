@@ -14,7 +14,7 @@ The Pit is a Next.js App Router monolith built for real-time AI bouts. All game 
 Custom JSON event stream (via `createUIMessageStream`):
 - `data-turn` — declares active agent metadata
 - `text-start`, `text-delta`, `text-end` — streamed response
-- `share-line` — generated one-liner for sharing
+- `data-share-line` — generated one-liner for sharing
 - `error` — terminal error
 
 Client parsing happens in `lib/use-bout.ts` with `parseJsonEventStream`.

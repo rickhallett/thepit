@@ -90,30 +90,29 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
   for (const range of ranges) {
     const since = getRangeStart(range);
 
-    let boutsQuery = db.select().from(bouts);
-    let votesQuery = db.select().from(winnerVotes);
-    let referralsQuery = db.select().from(referrals);
-    let agentsQuery = db.select().from(agents);
-    let usersQuery = db.select().from(users);
-
-    if (since) {
-      boutsQuery = boutsQuery.where(gte(bouts.createdAt, since));
-      votesQuery = votesQuery.where(gte(winnerVotes.createdAt, since));
-      referralsQuery = referralsQuery.where(gte(referrals.createdAt, since));
-      agentsQuery = agentsQuery.where(gte(agents.createdAt, since));
-      usersQuery = usersQuery.where(gte(users.createdAt, since));
-    }
-
     const [boutRows, voteRows, referralRows, agentRows, userRows] =
       await Promise.all([
-        boutsQuery,
-        votesQuery,
-        referralsQuery,
-        agentsQuery,
-        usersQuery,
+        since
+          ? db.select().from(bouts).where(gte(bouts.createdAt, since))
+          : db.select().from(bouts),
+        since
+          ? db
+              .select()
+              .from(winnerVotes)
+              .where(gte(winnerVotes.createdAt, since))
+          : db.select().from(winnerVotes),
+        since
+          ? db.select().from(referrals).where(gte(referrals.createdAt, since))
+          : db.select().from(referrals),
+        since
+          ? db.select().from(agents).where(gte(agents.createdAt, since))
+          : db.select().from(agents),
+        since
+          ? db.select().from(users).where(gte(users.createdAt, since))
+          : db.select().from(users),
       ]);
 
-    const boutMap = new Map(boutRows.map((bout) => [bout.id, bout]));
+    const boutById = new Map(boutRows.map((bout) => [bout.id, bout]));
     const pitStats = new Map<
       string,
       { bouts: number; wins: number; votes: number }
@@ -125,7 +124,7 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
     >();
 
     for (const vote of voteRows) {
-      const bout = boutMap.get(vote.boutId);
+      const bout = boutById.get(vote.boutId);
       const canonicalAgentId =
         bout && bout.presetId !== 'arena'
           ? buildPresetAgentId(bout.presetId, vote.agentId)
@@ -138,12 +137,12 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
       stats.votes += 1;
       pitStats.set(canonicalAgentId, stats);
 
-      const boutMap = votesByBout.get(vote.boutId) ?? new Map();
-      boutMap.set(
+      const voteMap = votesByBout.get(vote.boutId) ?? new Map();
+      voteMap.set(
         canonicalAgentId,
-        (boutMap.get(canonicalAgentId) ?? 0) + 1,
+        (voteMap.get(canonicalAgentId) ?? 0) + 1,
       );
-      votesByBout.set(vote.boutId, boutMap);
+      votesByBout.set(vote.boutId, voteMap);
     }
 
     boutRows.forEach((bout) => {
