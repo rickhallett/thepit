@@ -1,18 +1,10 @@
-import { LeaderboardTable } from '@/components/leaderboard-table';
-import { getAgentSnapshots } from '@/lib/agent-registry';
-import { ALL_PRESETS } from '@/lib/presets';
+import { LeaderboardDashboard } from '@/components/leaderboard-dashboard';
+import { getLeaderboardData } from '@/lib/leaderboard';
+
+export const revalidate = 30;
 
 export default async function LeaderboardPage() {
-  const agents = await getAgentSnapshots();
-  const entries = agents.map((agent) => ({
-    ...agent,
-    votes: 0,
-  }));
-
-  const presets = ALL_PRESETS.map((preset) => ({
-    id: preset.id,
-    name: preset.name,
-  }));
+  const data = await getLeaderboardData();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -22,15 +14,16 @@ export default async function LeaderboardPage() {
             Leaderboard
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Top Agents
+            Rankings
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted">
-            Track who is winning crowd votes. Custom agents will join this list
-            once user creation lands.
+            Track who is winning crowd votes and which creators are shaping the
+            arena. Filter by time window and switch between PIT and PLAYER
+            views.
           </p>
         </header>
 
-        <LeaderboardTable entries={entries} presets={presets} />
+        <LeaderboardDashboard data={data} />
       </div>
     </main>
   );

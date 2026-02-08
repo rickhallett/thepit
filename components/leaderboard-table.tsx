@@ -2,50 +2,46 @@
 
 import { useMemo, useState } from 'react';
 
+import Link from 'next/link';
+
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { cn } from '@/lib/cn';
+import type { PitLeaderboardEntry } from '@/lib/leaderboard';
 
-export type LeaderboardEntry = {
-  id: string;
-  name: string;
-  presetId: string | null;
-  presetName: string | null;
-  tier: 'free' | 'premium' | 'custom';
-  votes: number;
-  color?: string;
-  avatar?: string;
-  systemPrompt: string;
-  responseLength?: string | null;
-  responseFormat?: string | null;
-  createdAt?: string | null;
-  ownerId?: string | null;
-  parentId?: string | null;
-  promptHash?: string | null;
-  manifestHash?: string | null;
-  attestationUid?: string | null;
-  attestationTxHash?: string | null;
-};
+type SortKey = 'votes' | 'wins' | 'winRate' | 'bouts';
 
 export function LeaderboardTable({
   entries,
-  presets,
   className,
 }: {
-  entries: LeaderboardEntry[];
-  presets: { id: string; name: string }[];
+  entries: PitLeaderboardEntry[];
   className?: string;
 }) {
   const [search, setSearch] = useState('');
   const [presetFilter, setPresetFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState<'all' | 'preset' | 'custom'>(
-    'preset',
+    'all',
   );
-  const [activeAgent, setActiveAgent] = useState<LeaderboardEntry | null>(null);
+  const [activeAgent, setActiveAgent] = useState<PitLeaderboardEntry | null>(
+    null,
+  );
+  const [sortKey, setSortKey] = useState<SortKey>('votes');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const nameLookup = useMemo(() => {
     const map = new Map<string, string>();
     entries.forEach((agent) => map.set(agent.id, agent.name));
     return map;
+  }, [entries]);
+
+  const presetOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    entries.forEach((entry) => {
+      if (entry.presetId && entry.presetName) {
+        map.set(entry.presetId, entry.presetName);
+      }
+    });
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [entries]);
 
   const parentLookup = useMemo(() => {
@@ -69,10 +65,26 @@ export function LeaderboardTable({
           entry.presetName?.toLowerCase().includes(query)
         );
       })
-      .sort((a, b) => b.votes - a.votes);
-  }, [entries, presetFilter, search, sourceFilter]);
+      .sort((a, b) => {
+        if (a[sortKey] === b[sortKey]) {
+          return a.name.localeCompare(b.name);
+        }
+        return sortDir === 'desc'
+          ? b[sortKey] - a[sortKey]
+          : a[sortKey] - b[sortKey];
+      });
+  }, [entries, presetFilter, search, sourceFilter, sortKey, sortDir]);
 
-  const buildLineage = (agent: LeaderboardEntry) => {
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((prev) => (prev === 'desc' ? 'asc' : 'desc'));
+      return;
+    }
+    setSortKey(key);
+    setSortDir('desc');
+  };
+
+  const buildLineage = (agent: PitLeaderboardEntry) => {
     const lineage: { id: string; name: string }[] = [];
     const seen = new Set<string>();
     let currentParent = agent.parentId ?? null;
@@ -112,7 +124,7 @@ export function LeaderboardTable({
             className="w-52 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
           >
             <option value="all">All presets</option>
-            {presets.map((preset) => (
+            {presetOptions.map((preset) => (
               <option key={preset.id} value={preset.id}>
                 {preset.name}
               </option>
@@ -143,43 +155,94 @@ export function LeaderboardTable({
           No votes yet. Leaderboard will light up once audiences start voting.
         </div>
       ) : (
-        <div className="overflow-hidden border-2 border-foreground/60">
-          <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
+        <div className="overflow-x-auto border-2 border-foreground/60">
+          <div className="grid min-w-[820px] grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_70px_80px_70px_90px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
             <span>Agent</span>
             <span>Preset</span>
-            <span className="text-right">Votes</span>
+            <button
+              type="button"
+              onClick={() => toggleSort('bouts')}
+              className="text-right transition hover:text-foreground"
+            >
+              Bouts
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleSort('wins')}
+              className="text-right transition hover:text-foreground"
+            >
+              Wins
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleSort('winRate')}
+              className="text-right transition hover:text-foreground"
+            >
+              Win %
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleSort('votes')}
+              className="text-right transition hover:text-foreground"
+            >
+              Votes
+            </button>
+            <span className="text-right">Best bout</span>
           </div>
           {filtered.map((entry, index) => (
-            <button
+            <div
               key={`${entry.presetId}-${entry.id}`}
-              type="button"
-              onClick={() => setActiveAgent(entry)}
-              className="grid w-full grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px] gap-4 border-b border-foreground/40 px-4 py-3 text-left text-sm transition hover:bg-black/50"
+              className="grid min-w-[820px] grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_70px_80px_70px_90px] gap-4 border-b border-foreground/40 px-4 py-3 text-left text-sm transition hover:bg-black/50"
             >
               <div className="flex items-center gap-3">
                 <span className="text-xs uppercase tracking-[0.25em] text-muted">
                   {index + 1}
                 </span>
-                <span
-                  className="rounded-full border-2 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]"
-                  style={{
-                    borderColor: entry.color ?? '#f8fafc',
-                    color: entry.color ?? '#f8fafc',
-                  }}
+                <button
+                  type="button"
+                  onClick={() => setActiveAgent(entry)}
+                  className="flex items-center gap-3 uppercase tracking-[0.2em] transition hover:text-accent"
                 >
-                  {entry.avatar ?? '■'}
-                </span>
-                <span className="uppercase tracking-[0.2em]">
-                  {entry.name}
-                </span>
+                  <span
+                    className="rounded-full border-2 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]"
+                    style={{
+                      borderColor: entry.color ?? '#f8fafc',
+                      color: entry.color ?? '#f8fafc',
+                    }}
+                  >
+                    {entry.avatar ?? '■'}
+                  </span>
+                  <span>{entry.name}</span>
+                </button>
               </div>
               <span className="text-xs uppercase tracking-[0.25em] text-muted">
                 {entry.presetName ?? 'Custom'}
               </span>
               <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
+                {entry.bouts}
+              </span>
+              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
+                {entry.wins}
+              </span>
+              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
+                {Math.round(entry.winRate * 100)}%
+              </span>
+              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
                 {entry.votes}
               </span>
-            </button>
+              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
+                {entry.bestBoutId ? (
+                  <Link
+                    href={`/b/${entry.bestBoutId}`}
+                    className="text-accent underline"
+                  >
+                    Replay
+                  </Link>
+                ) : (
+                  '-'
+                )}
+              </span>
+            </div>
           ))}
         </div>
       )}
