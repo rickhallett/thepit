@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 
 import { PresetCard } from '@/components/preset-card';
@@ -79,6 +80,23 @@ export default async function Home() {
         </header>
 
         <section className="grid gap-6 md:grid-cols-2">
+          <Link
+            href="/arena/custom"
+            className="group flex h-full flex-col gap-4 border-2 border-foreground/80 bg-black/60 p-6 shadow-[8px_8px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-1"
+          >
+            <p className="text-xs uppercase tracking-[0.35em] text-muted">
+              Arena Mode
+            </p>
+            <h3 className="mt-2 font-sans text-2xl uppercase tracking-tight">
+              Build your own lineup
+            </h3>
+            <p className="text-xs text-muted">
+              Select 2–6 agents, set a topic, and unleash custom chaos.
+            </p>
+            <span className="mt-auto text-xs uppercase tracking-[0.3em] text-accent">
+              Start building →
+            </span>
+          </Link>
           {ALL_PRESETS.map((preset) => (
             <PresetCard
               key={preset.id}

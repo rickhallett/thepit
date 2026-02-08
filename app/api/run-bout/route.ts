@@ -45,8 +45,10 @@ export async function POST(req: Request) {
   }
 
   const { boutId } = payload;
-  const topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
-  const lengthConfig = resolveResponseLength(payload.length);
+  let topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
+  let lengthKey =
+    typeof payload.length === 'string' ? payload.length.trim() : '';
+  let lengthConfig = resolveResponseLength(lengthKey);
   let { presetId } = payload;
 
   if (!boutId) {
@@ -69,7 +71,38 @@ export async function POST(req: Request) {
     presetId = row?.presetId;
   }
 
-  const preset = ALL_PRESETS.find((item) => item.id === presetId);
+  let preset = ALL_PRESETS.find((item) => item.id === presetId);
+
+  if (!preset && presetId === 'arena') {
+    const [row] = await db
+      .select({
+        agentLineup: bouts.agentLineup,
+        topic: bouts.topic,
+        responseLength: bouts.responseLength,
+      })
+      .from(bouts)
+      .where(eq(bouts.id, boutId))
+      .limit(1);
+    if (!row?.agentLineup) {
+      return new Response('Unknown preset.', { status: 404 });
+    }
+    preset = {
+      id: 'arena',
+      name: 'Arena Mode',
+      description: 'Custom lineup',
+      tier: 'free',
+      maxTurns: 12,
+      agents: row.agentLineup,
+    };
+    if (!topic && row.topic) {
+      topic = row.topic;
+    }
+    if (!lengthKey && row.responseLength) {
+      lengthKey = row.responseLength;
+      lengthConfig = resolveResponseLength(lengthKey);
+    }
+  }
+
   if (!preset) {
     return new Response('Unknown preset.', { status: 404 });
   }

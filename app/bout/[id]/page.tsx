@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
 import { requireDb } from '@/db';
-import { bouts, type TranscriptEntry } from '@/db/schema';
+import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
 import {
   DEFAULT_PREMIUM_MODEL_ID,
   FREE_MODEL_ID,
@@ -75,7 +75,18 @@ export default async function BoutPage({
     notFound();
   }
 
-  const preset = PRESETS.find((item) => item.id === resolvedPresetId);
+  let preset = PRESETS.find((item) => item.id === resolvedPresetId);
+  if (!preset && resolvedPresetId === 'arena' && bout?.agentLineup) {
+    const lineup = bout.agentLineup as ArenaAgent[];
+    preset = {
+      id: 'arena',
+      name: 'Arena Mode',
+      description: 'Custom lineup',
+      tier: 'free',
+      maxTurns: 12,
+      agents: lineup,
+    };
+  }
   if (!preset) {
     notFound();
   }
@@ -98,6 +109,8 @@ export default async function BoutPage({
 
   const transcript = (bout?.transcript ?? []) as TranscriptEntry[];
   const shareLine = bout?.shareLine ?? null;
+  const topic = bout?.topic ?? topicFromQuery;
+  const length = bout?.responseLength ?? lengthFromQuery;
   const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const requestedModel =
     typeof modelFromQuery === 'string' ? modelFromQuery.trim() : '';
@@ -109,7 +122,7 @@ export default async function BoutPage({
   } else if (requestedModel === 'byok' && BYOK_ENABLED) {
     modelId = 'byok';
   }
-  const lengthConfig = resolveResponseLength(lengthFromQuery);
+  const lengthConfig = resolveResponseLength(length);
   const estimatedCredits =
     CREDITS_ENABLED && modelId
       ? formatCredits(
@@ -132,9 +145,9 @@ export default async function BoutPage({
     <Arena
       boutId={resolvedParams.id}
       preset={preset}
-      topic={topicFromQuery}
+      topic={topic}
       model={modelFromQuery}
-      length={lengthFromQuery}
+      length={length}
       estimatedCredits={estimatedCredits}
       initialTranscript={transcript}
       shareLine={shareLine}
