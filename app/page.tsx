@@ -198,21 +198,34 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ── Tiers ─────────────────────────────────────────────────── */}
+      {/* ── Pricing ──────────────────────────────────────────────── */}
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 max-w-8 bg-accent/60" />
-            <p className="text-xs uppercase tracking-[0.4em] text-accent">Tiers</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-accent">Pricing</p>
           </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <TierCard name="Free" model="Haiku" turns="12" price="£0" />
-            <TierCard name="Pit Pass" model="Sonnet" turns="24" price="£9/mo" featured />
-            <TierCard name="Arena" model="Opus" turns="48" price="£15/mo" />
-          </div>
-          <p className="mt-8 text-xs uppercase tracking-[0.25em] text-muted">
-            Or bring your own key with a small platform fee.
+          <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
+            Pay for what you use
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm text-muted">
+            Free tier runs Haiku. Credit packs unlock Sonnet and Opus models,
+            longer bouts, and premium presets. No subscriptions, no lock-in.
           </p>
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <CreditPackCard name="Starter" price={5} credits={550} bonus={10} />
+            <CreditPackCard name="Plus" price={15} credits={1800} bonus={20} featured />
+            <CreditPackCard name="Pro" price={30} credits={3900} bonus={30} />
+            <CreditPackCard name="Studio" price={60} credits={8400} bonus={40} />
+          </div>
+          <div className="mt-8 flex flex-wrap items-center gap-6">
+            <p className="text-xs uppercase tracking-[0.25em] text-muted">
+              1 credit = £0.01 &middot; Haiku bout ≈ 2 credits &middot; Opus bout ≈ 25 credits
+            </p>
+            <p className="text-xs uppercase tracking-[0.25em] text-muted">
+              Or bring your own API key with a small platform fee.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -331,17 +344,17 @@ function ResearchStat({
   );
 }
 
-function TierCard({
+function CreditPackCard({
   name,
-  model,
-  turns,
   price,
+  credits,
+  bonus,
   featured = false,
 }: {
   name: string;
-  model: string;
-  turns: string;
-  price: string;
+  price: number;
+  credits: number;
+  bonus: number;
   featured?: boolean;
 }) {
   return (
@@ -355,22 +368,24 @@ function TierCard({
       {featured && (
         <div className="absolute -top-3 left-6">
           <span className="bg-accent px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-background">
-            Popular
+            Best Value
           </span>
         </div>
       )}
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-muted">{name}</p>
-        <p className="mt-2 font-sans text-3xl uppercase tracking-tight">{price}</p>
+        <p className="mt-2 font-sans text-3xl uppercase tracking-tight">
+          £{price}
+        </p>
       </div>
       <div className="flex flex-col gap-2 text-sm text-muted">
         <div className="flex justify-between">
-          <span>Model</span>
-          <span className="text-foreground/80">{model}</span>
+          <span>Credits</span>
+          <span className="text-foreground/80">{credits.toLocaleString()}</span>
         </div>
         <div className="flex justify-between">
-          <span>Turns</span>
-          <span className="text-foreground/80">{turns}</span>
+          <span>Bonus</span>
+          <span className="text-accent/90">+{bonus}%</span>
         </div>
       </div>
       <Link
@@ -381,7 +396,7 @@ function TierCard({
             : 'border-foreground/50 text-foreground/80 hover:border-foreground'
         }`}
       >
-        Get Started
+        Buy Credits
       </Link>
     </div>
   );
