@@ -20,7 +20,14 @@ export const INTRO_REFERRAL_CREDITS = Number(
 const toMicro = (credits: number) =>
   Math.max(0, Math.round(credits * MICRO_PER_CREDIT));
 
-const computeRemainingMicro = (row: typeof introPool.$inferSelect) => {
+type PoolSnapshot = {
+  initialMicro: number;
+  claimedMicro: number;
+  drainRateMicroPerMinute: number;
+  startedAt: Date;
+};
+
+const computeRemainingMicro = (row: PoolSnapshot) => {
   const elapsedMs = Date.now() - row.startedAt.getTime();
   const elapsedMinutes = Math.floor(elapsedMs / 60000);
   const drained = elapsedMinutes * row.drainRateMicroPerMinute;
@@ -58,6 +65,12 @@ export async function getIntroPoolStatus() {
   };
 }
 
+/**
+ * Atomically claim credits from the intro pool.
+ *
+ * Uses a conditional UPDATE that calculates remaining credits in SQL,
+ * preventing race conditions where concurrent claims could overdraw the pool.
+ */
 export async function claimIntroCredits(params: {
   userId: string;
   credits: number;
@@ -67,33 +80,65 @@ export async function claimIntroCredits(params: {
 }) {
   const db = requireDb();
   const pool = await ensureIntroPool();
-  const remainingMicro = computeRemainingMicro(pool);
   const requestedMicro = toMicro(params.credits);
-  const claimMicro = Math.min(remainingMicro, requestedMicro);
 
-  if (claimMicro <= 0) {
-    return { claimedMicro: 0, remainingMicro, exhausted: true };
+  // Pre-check: is the pool likely exhausted?
+  const preCheckRemaining = computeRemainingMicro(pool);
+  if (preCheckRemaining <= 0) {
+    return { claimedMicro: 0, remainingMicro: 0, exhausted: true };
   }
 
-  await db
+  // Atomic claim: Calculate remaining in SQL and only increment if sufficient
+  // The remaining calculation accounts for time-based drain
+  // remaining = initial - claimed - (elapsed_minutes * drain_rate)
+  //
+  // We use LEAST to cap the claim at what's actually available
+  const [result] = await db
     .update(introPool)
     .set({
-      claimedMicro: sql`${introPool.claimedMicro} + ${claimMicro}`,
+      claimedMicro: sql`${introPool.claimedMicro} + LEAST(
+        ${requestedMicro},
+        GREATEST(
+          0,
+          ${introPool.initialMicro} - ${introPool.claimedMicro} -
+          (EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / 60)::bigint * ${introPool.drainRateMicroPerMinute}
+        )
+      )`,
       updatedAt: new Date(),
     })
-    .where(eq(introPool.id, pool.id));
+    .where(eq(introPool.id, pool.id))
+    .returning({
+      claimedMicro: introPool.claimedMicro,
+      initialMicro: introPool.initialMicro,
+      startedAt: introPool.startedAt,
+      drainRateMicroPerMinute: introPool.drainRateMicroPerMinute,
+    });
 
+  if (!result) {
+    // Pool doesn't exist - shouldn't happen since we called ensureIntroPool
+    return { claimedMicro: 0, remainingMicro: 0, exhausted: true };
+  }
+
+  // Calculate what was actually claimed (new claimed - old claimed)
+  const actualClaimed = result.claimedMicro - pool.claimedMicro;
+  const newRemaining = computeRemainingMicro(result);
+
+  if (actualClaimed <= 0) {
+    return { claimedMicro: 0, remainingMicro: newRemaining, exhausted: newRemaining <= 0 };
+  }
+
+  // Credit the user
   await ensureCreditAccount(params.userId);
-  await applyCreditDelta(params.userId, claimMicro, params.source, {
+  await applyCreditDelta(params.userId, actualClaimed, params.source, {
     referenceId: params.referenceId,
-    introPoolClaimedMicro: claimMicro,
-    introPoolRemainingMicro: remainingMicro - claimMicro,
+    introPoolClaimedMicro: actualClaimed,
+    introPoolRemainingMicro: newRemaining,
     ...params.metadata,
   });
 
   return {
-    claimedMicro: claimMicro,
-    remainingMicro: Math.max(0, remainingMicro - claimMicro),
-    exhausted: remainingMicro - claimMicro <= 0,
+    claimedMicro: actualClaimed,
+    remainingMicro: newRemaining,
+    exhausted: newRemaining <= 0,
   };
 }
