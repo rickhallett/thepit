@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="pitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f7768e"/>
+      <stop offset="100%" style="stop-color:#ff9e64"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background - Tokyo Night Storm -->
+  <rect width="800" height="400" fill="#1a1b26"/>
+  
+  <!-- Subtle grid pattern -->
+  <pattern id="gridPit" width="30" height="30" patternUnits="userSpaceOnUse">
+    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#24283b" stroke-width="0.5"/>
+  </pattern>
+  <rect width="800" height="400" fill="url(#gridPit)" opacity="0.5"/>
+  
+  <!-- Decorative corners -->
+  <path d="M 20 40 L 20 20 L 40 20" fill="none" stroke="#3b4261" stroke-width="2"/>
+  <path d="M 760 20 L 780 20 L 780 40" fill="none" stroke="#3b4261" stroke-width="2"/>
+  <path d="M 20 360 L 20 380 L 40 380" fill="none" stroke="#3b4261" stroke-width="2"/>
+  <path d="M 760 380 L 780 380 L 780 360" fill="none" stroke="#3b4261" stroke-width="2"/>
+  
+  <!-- ASCII Art Text - THE PIT -->
+  <text font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="32" fill="url(#pitGrad)" font-weight="bold">
+    <tspan x="170" y="140">░▀█▀░█░█░█▀▀░░░█▀█░▀█▀░▀█▀</tspan>
+    <tspan x="170" y="180">░░█░░█▀█░█▀▀░░░█▀▀░░█░░░█░</tspan>
+    <tspan x="170" y="220">░░▀░░▀░▀░▀▀▀░░░▀░░░▀▀▀░░▀░</tspan>
+  </text>
+  
+  <!-- Single emoji - smaller, black, 0.9 opacity -->
+  <text x="400" y="280" font-family="system-ui, sans-serif" font-size="40" text-anchor="middle" fill="#000000" opacity="0.9">⚔️</text>
+  
+  <!-- Tagline -->
+  <text x="400" y="340" font-family="'JetBrains Mono', monospace" font-size="18" text-anchor="middle" fill="#f7768e">where bots battle for glory</text>
+  
+  <!-- Description -->
+  <text x="400" y="370" font-family="'JetBrains Mono', monospace" font-size="12" text-anchor="middle" fill="#565f89">multi-agent AI arena</text>
+</svg>

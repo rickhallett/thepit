@@ -1,10 +1,13 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
 
 import { getAgentDetail } from '@/lib/agent-detail';
 import { buildAgentDetailHref, decodeAgentId } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
 import { CloneAgentButton } from '@/components/clone-agent-button';
+import { isAdmin } from '@/lib/admin';
+import { archiveAgent, restoreAgent } from '@/app/actions';
 
 export default async function AgentDetailPage({
   params,
@@ -13,7 +16,11 @@ export default async function AgentDetailPage({
 }) {
   const resolved = await params;
   const agentId = decodeAgentId(resolved.id);
-  const detail = await getAgentDetail(agentId, 4);
+  const [detail, { userId }] = await Promise.all([
+    getAgentDetail(agentId, 4),
+    auth(),
+  ]);
+  const userIsAdmin = isAdmin(userId ?? null);
 
   if (!detail) {
     notFound();
@@ -38,9 +45,34 @@ export default async function AgentDetailPage({
               {detail.presetName}
             </p>
           )}
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap gap-3">
             <CloneAgentButton sourceAgentId={detail.id} />
+            {userIsAdmin && !detail.archived && (
+              <form action={archiveAgent.bind(null, detail.id)}>
+                <button
+                  type="submit"
+                  className="border-2 border-red-600/60 px-4 py-2 text-xs uppercase tracking-[0.3em] text-red-500 transition hover:border-red-500 hover:bg-red-500/10"
+                >
+                  Archive agent
+                </button>
+              </form>
+            )}
+            {userIsAdmin && detail.archived && (
+              <form action={restoreAgent.bind(null, detail.id)}>
+                <button
+                  type="submit"
+                  className="border-2 border-green-600/60 px-4 py-2 text-xs uppercase tracking-[0.3em] text-green-500 transition hover:border-green-500 hover:bg-green-500/10"
+                >
+                  Restore agent
+                </button>
+              </form>
+            )}
           </div>
+          {userIsAdmin && detail.archived && (
+            <p className="mt-2 text-xs uppercase tracking-[0.25em] text-red-500">
+              This agent is archived
+            </p>
+          )}
         </header>
 
         <section className="grid gap-3 text-xs uppercase tracking-[0.25em] text-muted">
@@ -130,7 +162,15 @@ export default async function AgentDetailPage({
           </section>
         )}
 
-        <section className="grid gap-2 text-xs text-muted">
+        <section className="grid gap-3 text-xs text-muted">
+          <p className="text-xs uppercase tracking-[0.3em] text-accent">
+            On-chain Identity
+          </p>
+          <p className="text-sm text-muted">
+            Every agent&apos;s DNA is hashed and can be attested on-chain via the
+            Ethereum Attestation Service on Base L2, creating an immutable record
+            of identity and lineage.
+          </p>
           <div>
             Prompt hash:{' '}
             <span className="text-foreground">

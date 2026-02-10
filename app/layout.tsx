@@ -6,7 +6,9 @@ import { auth } from '@clerk/nextjs/server';
 
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { AskThePit } from '@/components/ask-the-pit';
 import { initializeUserSession } from '@/lib/onboarding';
+import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
 
 import './globals.css';
 
@@ -36,6 +38,7 @@ export default async function RootLayout({
             <SiteHeader />
             <div className="flex-1">{children}</div>
             <SiteFooter />
+            <AskThePit enabled={ASK_THE_PIT_ENABLED} />
           </div>
         </body>
       </html>

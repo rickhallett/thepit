@@ -186,4 +186,24 @@ export const agents = pgTable('agents', {
   attestationUid: varchar('attestation_uid', { length: 128 }),
   attestationTxHash: varchar('attestation_tx_hash', { length: 66 }),
   attestedAt: timestamp('attested_at', { withTimezone: true }),
+  archived: boolean('archived').notNull().default(false),
 });
+
+export const agentFlags = pgTable(
+  'agent_flags',
+  {
+    id: serial('id').primaryKey(),
+    agentId: varchar('agent_id', { length: 128 }).notNull(),
+    userId: varchar('user_id', { length: 128 }).notNull(),
+    reason: varchar('reason', { length: 32 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniqueFlag: uniqueIndex('agent_flags_unique').on(
+      table.agentId,
+      table.userId,
+    ),
+  }),
+);

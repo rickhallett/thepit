@@ -33,6 +33,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# internal strategy docs (not for public repo)
+docs/press-*
+docs/criticism-*
+
 # vercel
 .vercel
 

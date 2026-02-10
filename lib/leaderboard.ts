@@ -1,4 +1,4 @@
-import { gte } from 'drizzle-orm';
+import { and, eq, gte } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { agents, bouts, referrals, users, winnerVotes } from '@/db/schema';
@@ -105,8 +105,8 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
           ? db.select().from(referrals).where(gte(referrals.createdAt, since))
           : db.select().from(referrals),
         since
-          ? db.select().from(agents).where(gte(agents.createdAt, since))
-          : db.select().from(agents),
+          ? db.select().from(agents).where(and(eq(agents.archived, false), gte(agents.createdAt, since)))
+          : db.select().from(agents).where(eq(agents.archived, false)),
         since
           ? db.select().from(users).where(gte(users.createdAt, since))
           : db.select().from(users),

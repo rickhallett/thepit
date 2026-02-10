@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { agents } from '@/db/schema';
@@ -35,6 +35,7 @@ export type AgentSnapshot = {
   manifestHash?: string | null;
   attestationUid?: string | null;
   attestationTxHash?: string | null;
+  archived?: boolean;
 };
 
 export const buildPresetAgentId = (presetId: string, agentId: string) =>
@@ -58,7 +59,7 @@ const findPresetAgent = (presetId: string, agentId: string) => {
 export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
   try {
     const db = requireDb();
-    const rows = await db.select().from(agents);
+    const rows = await db.select().from(agents).where(eq(agents.archived, false));
     if (rows.length) {
       return rows.map((row) => {
         const parsed = parsePresetAgentId(row.id);
@@ -94,6 +95,7 @@ export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
           manifestHash: row.manifestHash ?? null,
           attestationUid: row.attestationUid ?? null,
           attestationTxHash: row.attestationTxHash ?? null,
+          archived: row.archived ?? false,
         } satisfies AgentSnapshot;
       });
     }
@@ -131,6 +133,7 @@ export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
         manifestHash: null,
         attestationUid: null,
         attestationTxHash: null,
+        archived: false,
       })),
     ),
   );
@@ -171,7 +174,7 @@ export const findAgentById = async (agentId: string) => {
   const [row] = await db
     .select()
     .from(agents)
-    .where(eq(agents.id, agentId))
+    .where(and(eq(agents.id, agentId), eq(agents.archived, false)))
     .limit(1);
   return row;
 };

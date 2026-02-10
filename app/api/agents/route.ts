@@ -5,6 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { agents } from '@/db/schema';
+import { checkRateLimit } from '@/lib/rate-limit';
 import {
   buildAgentManifest,
   hashAgentManifest,
@@ -50,6 +51,12 @@ export async function POST(req: Request) {
   const name = typeof payload.name === 'string' ? payload.name.trim() : '';
   if (!name) {
     return new Response('Missing name.', { status: 400 });
+  }
+  if (name.length > 80) {
+    return new Response('Name must be 80 characters or fewer.', { status: 400 });
+  }
+  if (/https?:\/\/|www\./i.test(name)) {
+    return new Response('Name must not contain URLs.', { status: 400 });
   }
 
   const rawPrompt =
@@ -100,6 +107,14 @@ export async function POST(req: Request) {
   // Require authentication to prevent spam/DoS via unauthenticated agent creation
   if (!userId) {
     return new Response('Sign in required.', { status: 401 });
+  }
+
+  const rateCheck = checkRateLimit(
+    { name: 'agent-creation', maxRequests: 10, windowMs: 60 * 60 * 1000 },
+    userId,
+  );
+  if (!rateCheck.success) {
+    return new Response('Rate limit exceeded. Max 10 agents per hour.', { status: 429 });
   }
 
   await ensureUserRecord(userId);
