@@ -1,16 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { mockDb } = vi.hoisted(() => {
+const { mockDb, authMock } = vi.hoisted(() => {
   const db = {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
   };
-  return { mockDb: db };
+  const authFn = vi.fn();
+  return { mockDb: db, authMock: authFn };
 });
 
 vi.mock('@/db', () => ({
   requireDb: () => mockDb,
+}));
+
+vi.mock('@clerk/nextjs/server', () => ({
+  auth: authMock,
 }));
 
 import { POST } from '@/app/api/run-bout/route';
@@ -18,6 +23,7 @@ import { POST } from '@/app/api/run-bout/route';
 describe('run-bout api', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    authMock.mockResolvedValue({ userId: null });
     // Default: no existing bout
     mockDb.select.mockImplementation(() => ({
       from: () => ({
@@ -48,11 +54,15 @@ describe('run-bout api', () => {
     expect(res.status).toBe(400);
   });
 
-  it('returns 409 when bout is already running', async () => {
+  it('returns 409 when bout is already running with transcript', async () => {
     mockDb.select.mockImplementation(() => ({
       from: () => ({
         where: () => ({
-          limit: async () => [{ status: 'running', presetId: 'darwin-special' }],
+          limit: async () => [{
+            status: 'running',
+            presetId: 'darwin-special',
+            transcript: [{ agentId: 'a1', text: 'hello', turn: 0 }],
+          }],
         }),
       }),
     }));
@@ -67,11 +77,42 @@ describe('run-bout api', () => {
     expect(await res.text()).toBe('Bout is already running.');
   });
 
+  it('allows running bout with empty transcript (normal flow)', async () => {
+    // This is the normal flow: createBout inserts status='running' with
+    // empty transcript, then /api/run-bout starts streaming. We should NOT
+    // block this.
+    mockDb.select.mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          limit: async () => [{
+            status: 'running',
+            presetId: 'darwin-special',
+            transcript: [],
+          }],
+        }),
+      }),
+    }));
+
+    const req = new Request('http://localhost/api/run-bout', {
+      method: 'POST',
+      body: JSON.stringify({ boutId: 'bout-normal', presetId: 'darwin-special' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await POST(req);
+    // Should NOT be 409 — it should proceed past the idempotency check.
+    // It may fail later (no auth, no model, etc.) but that's fine.
+    expect(res.status).not.toBe(409);
+  });
+
   it('returns 409 when bout has already completed', async () => {
     mockDb.select.mockImplementation(() => ({
       from: () => ({
         where: () => ({
-          limit: async () => [{ status: 'completed', presetId: 'darwin-special' }],
+          limit: async () => [{
+            status: 'completed',
+            presetId: 'darwin-special',
+            transcript: [{ agentId: 'a1', text: 'hello', turn: 0 }],
+          }],
         }),
       }),
     }));

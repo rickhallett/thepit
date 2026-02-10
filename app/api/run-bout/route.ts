@@ -70,22 +70,34 @@ export async function POST(req: Request) {
     return new Response('DATABASE_URL is not set.', { status: 500 });
   }
 
-  // Idempotency check: Prevent double-running a bout
-  // If bout exists and is already running or completed, reject the request
+  // Idempotency check: Prevent double-running a bout.
+  //
+  // Normal flow: createBout() inserts with status='running' and empty
+  // transcript, then the client calls /api/run-bout to start streaming.
+  // We allow that (empty transcript = not yet streamed). We block:
+  //   - 'running' bouts that already have transcript data (streaming in progress)
+  //   - 'completed' bouts
   const [existingBout] = await db
-    .select({ status: bouts.status, presetId: bouts.presetId })
+    .select({
+      status: bouts.status,
+      presetId: bouts.presetId,
+      transcript: bouts.transcript,
+    })
     .from(bouts)
     .where(eq(bouts.id, boutId))
     .limit(1);
 
   if (existingBout) {
-    if (existingBout.status === 'running') {
+    const hasTranscript =
+      Array.isArray(existingBout.transcript) && existingBout.transcript.length > 0;
+
+    if (existingBout.status === 'running' && hasTranscript) {
       return new Response('Bout is already running.', { status: 409 });
     }
     if (existingBout.status === 'completed') {
       return new Response('Bout has already completed.', { status: 409 });
     }
-    // If status is 'error', allow re-running
+    // Allow: 'running' with no transcript (normal flow), 'error' (retry)
   }
 
   if (!presetId) {
