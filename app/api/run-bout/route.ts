@@ -23,6 +23,7 @@ import {
   computeCostGbp,
   estimateBoutCostGbp,
   estimateTokensFromText,
+  getCreditBalanceMicro,
   preauthorizeCredits,
   toMicroCredits,
   BYOK_ENABLED,
@@ -356,7 +357,17 @@ export async function POST(req: Request) {
         if (CREDITS_ENABLED && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);
-          const delta = actualMicro - preauthMicro;
+          let delta = actualMicro - preauthMicro;
+
+          // Cap additional charges: never settle more than the user can afford.
+          // If actual cost exceeded preauth, charge at most what's available.
+          if (delta > 0) {
+            const balance = await getCreditBalanceMicro(userId);
+            if (balance !== null && delta > balance) {
+              delta = Math.max(0, balance);
+            }
+          }
+
           if (delta !== 0) {
             await applyCreditDelta(userId, delta, 'settlement', {
               presetId,
@@ -367,6 +378,7 @@ export async function POST(req: Request) {
               actualCostGbp: actualCost,
               preauthMicro,
               referenceId: boutId,
+              capped: delta !== (actualMicro - preauthMicro),
             });
           }
         }
