@@ -7,9 +7,9 @@ import {
 } from '@/lib/response-formats';
 
 describe('response formats', () => {
-  it('defaults to plain format', () => {
-    expect(DEFAULT_RESPONSE_FORMAT).toBe('plain');
-    expect(resolveResponseFormat()).toMatchObject({ id: 'plain' });
+  it('defaults to markdown format', () => {
+    expect(DEFAULT_RESPONSE_FORMAT).toBe('markdown');
+    expect(resolveResponseFormat()).toMatchObject({ id: 'markdown' });
   });
 
   it('resolves known values', () => {
@@ -18,8 +18,8 @@ describe('response formats', () => {
     expect(markdown.instruction).toContain('Markdown');
   });
 
-  it('falls back to plain when unknown', () => {
-    expect(resolveResponseFormat('unknown')).toMatchObject({ id: 'plain' });
+  it('falls back to markdown when unknown', () => {
+    expect(resolveResponseFormat('unknown')).toMatchObject({ id: 'markdown' });
   });
 
   it('defines all expected formats', () => {

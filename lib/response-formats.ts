@@ -36,12 +36,14 @@ export const RESPONSE_FORMATS: ResponseFormat[] = [
   },
 ];
 
-export const DEFAULT_RESPONSE_FORMAT: ResponseFormatId = 'plain';
+export const DEFAULT_RESPONSE_FORMAT: ResponseFormatId = 'markdown';
+
+const DEFAULT_FORMAT = RESPONSE_FORMATS.find((f) => f.id === 'markdown')!;
 
 export const resolveResponseFormat = (
   value?: string | null,
 ): ResponseFormat => {
-  if (!value) return RESPONSE_FORMATS[0];
+  if (!value) return DEFAULT_FORMAT;
   const match = RESPONSE_FORMATS.find((format) => format.id === value);
-  return match ?? RESPONSE_FORMATS[0];
+  return match ?? DEFAULT_FORMAT;
 };
