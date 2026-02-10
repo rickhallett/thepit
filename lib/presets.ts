@@ -173,3 +173,19 @@ export const PREMIUM_PRESETS: Preset[] = [
 export const ALL_PRESETS: Preset[] = [...FREE_PRESETS, ...PREMIUM_PRESETS];
 
 export const PRESETS: Preset[] = ALL_PRESETS;
+
+/**
+ * O(1) preset lookup by ID.
+ * Use this instead of ALL_PRESETS.find() for better performance.
+ */
+export const PRESET_BY_ID: Map<string, Preset> = new Map(
+  ALL_PRESETS.map((preset) => [preset.id, preset]),
+);
+
+/**
+ * Get a preset by ID with O(1) lookup.
+ * @returns The preset or undefined if not found.
+ */
+export const getPresetById = (id: string): Preset | undefined => {
+  return PRESET_BY_ID.get(id);
+};

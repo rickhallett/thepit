@@ -14,7 +14,7 @@ import {
   PREMIUM_MODEL_OPTIONS,
   getModel,
 } from '@/lib/ai';
-import { ALL_PRESETS, type Agent } from '@/lib/presets';
+import { getPresetById, type Agent, type Preset } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import {
@@ -98,7 +98,8 @@ export async function POST(req: Request) {
     return new Response('Missing presetId.', { status: 400 });
   }
 
-  let preset = ALL_PRESETS.find((item) => item.id === presetId);
+  // O(1) preset lookup instead of array scan
+  let preset: Preset | undefined = getPresetById(presetId);
 
   if (!preset && presetId === 'arena') {
     const [row] = await db
