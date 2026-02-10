@@ -96,11 +96,14 @@ export async function POST(req: Request) {
   const lengthConfig = resolveResponseLength(payload.responseLength);
   const formatConfig = resolveResponseFormat(payload.responseFormat);
   const { userId } = await auth();
-  const agentId = nanoid();
 
-  if (userId) {
-    await ensureUserRecord(userId);
+  // Require authentication to prevent spam/DoS via unauthenticated agent creation
+  if (!userId) {
+    return new Response('Sign in required.', { status: 401 });
   }
+
+  await ensureUserRecord(userId);
+  const agentId = nanoid();
 
   const manifest = buildAgentManifest({
     agentId,
@@ -112,7 +115,7 @@ export async function POST(req: Request) {
     responseLength: lengthConfig.id,
     responseFormat: formatConfig.id,
     parentId: payload.parentId ?? null,
-    ownerId: userId ?? null,
+    ownerId: userId,
   });
 
   const [promptHash, manifestHash] = await Promise.all([
