@@ -8,6 +8,7 @@ import { buildAttestationUrl } from '@/lib/attestation-links';
 import { CloneAgentButton } from '@/components/clone-agent-button';
 import { isAdmin } from '@/lib/admin';
 import { archiveAgent, restoreAgent } from '@/app/actions';
+import { getUserDisplayName } from '@/lib/users';
 
 export default async function AgentDetailPage({
   params,
@@ -92,7 +93,12 @@ export default async function AgentDetailPage({
               </span>
             )}
           </div>
-          {detail.ownerId && <div>Owner: {detail.ownerId}</div>}
+          {detail.ownerId && (
+            <div>
+              Owner:{' '}
+              {await getUserDisplayName(detail.ownerId)}
+            </div>
+          )}
         </section>
 
         {detail.lineage.length > 0 && (

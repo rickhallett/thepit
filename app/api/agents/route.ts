@@ -19,6 +19,38 @@ import { ensureUserRecord } from '@/lib/users';
 
 export const runtime = 'nodejs';
 
+/** Reject URLs, script tags, and event handlers in free-text fields. */
+const UNSAFE_PATTERN =
+  /https?:\/\/|www\.|<script|javascript:|on\w+\s*=|data:text\/html/i;
+
+type TextFieldLimit = { maxLen: number; label: string };
+
+const TEXT_FIELD_LIMITS: Record<string, TextFieldLimit> = {
+  archetype: { maxLen: 200, label: 'Archetype' },
+  tone: { maxLen: 200, label: 'Tone' },
+  speechPattern: { maxLen: 200, label: 'Speech pattern' },
+  openingMove: { maxLen: 500, label: 'Opening move' },
+  signatureMove: { maxLen: 500, label: 'Signature move' },
+  weakness: { maxLen: 500, label: 'Weakness' },
+  goal: { maxLen: 500, label: 'Goal' },
+  fears: { maxLen: 500, label: 'Fears' },
+  customInstructions: { maxLen: 5000, label: 'Custom instructions' },
+};
+
+function validateTextField(
+  value: string | undefined | null,
+  limit: TextFieldLimit,
+): string | null {
+  if (!value) return null;
+  if (value.length > limit.maxLen) {
+    return `${limit.label} must be ${limit.maxLen} characters or fewer.`;
+  }
+  if (UNSAFE_PATTERN.test(value)) {
+    return `${limit.label} must not contain URLs or scripts.`;
+  }
+  return null;
+}
+
 export async function POST(req: Request) {
   let payload: {
     name?: string;
@@ -59,6 +91,15 @@ export async function POST(req: Request) {
     return new Response('Name must not contain URLs.', { status: 400 });
   }
 
+  // Validate all structured text fields for length and unsafe patterns
+  for (const [field, limit] of Object.entries(TEXT_FIELD_LIMITS)) {
+    const value = payload[field as keyof typeof payload];
+    if (typeof value === 'string') {
+      const error = validateTextField(value, limit);
+      if (error) return new Response(error, { status: 400 });
+    }
+  }
+
   const rawPrompt =
     typeof payload.systemPrompt === 'string' ? payload.systemPrompt.trim() : '';
   const customInstructions =
@@ -68,6 +109,19 @@ export async function POST(req: Request) {
   const quirks = Array.isArray(payload.quirks)
     ? payload.quirks.map((quirk) => quirk.trim()).filter(Boolean)
     : [];
+
+  // Validate quirks: max 10 items, 100 chars each
+  if (quirks.length > 10) {
+    return new Response('Maximum 10 quirks allowed.', { status: 400 });
+  }
+  for (const quirk of quirks) {
+    if (quirk.length > 100) {
+      return new Response('Each quirk must be 100 characters or fewer.', { status: 400 });
+    }
+    if (UNSAFE_PATTERN.test(quirk)) {
+      return new Response('Quirks must not contain URLs or scripts.', { status: 400 });
+    }
+  }
   const hasStructuredFields = Boolean(
     payload.archetype ||
       payload.tone ||
@@ -169,7 +223,7 @@ export async function POST(req: Request) {
     manifestHash,
   });
 
-  let attestationError: string | null = null;
+  let attestationFailed = false;
 
   if (EAS_ENABLED) {
     try {
@@ -187,7 +241,8 @@ export async function POST(req: Request) {
         })
         .where(eq(agents.id, manifest.agentId));
     } catch (error) {
-      attestationError = (error as Error).message;
+      console.error('Agent attestation failed:', (error as Error).message);
+      attestationFailed = true;
     }
   }
 
@@ -195,6 +250,6 @@ export async function POST(req: Request) {
     agentId: manifest.agentId,
     promptHash,
     manifestHash,
-    attestationError,
+    attestationFailed,
   });
 }

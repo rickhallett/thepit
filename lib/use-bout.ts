@@ -145,16 +145,10 @@ export function useBout({
 
     const run = async () => {
       setStatus('streaming');
-      const byokKey =
-        model === 'byok'
-          ? window.sessionStorage.getItem('pit_byok_key')
-          : null;
 
-      // Clear BYOK key from sessionStorage immediately after reading.
-      // Minimizes the XSS exposure window — key is only in memory after this.
-      if (byokKey) {
-        window.sessionStorage.removeItem('pit_byok_key');
-      }
+      // BYOK key is now stashed in an HTTP-only cookie by /api/byok-stash.
+      // The /api/run-bout endpoint reads it directly from the cookie —
+      // the key never touches client-side JS storage.
 
       const payload: Record<string, unknown> = {
         boutId,
@@ -164,9 +158,6 @@ export function useBout({
         length,
         format,
       };
-      if (byokKey) {
-        payload.byokKey = byokKey;
-      }
       const response = await fetch('/api/run-bout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

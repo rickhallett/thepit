@@ -8,6 +8,7 @@ import {
   getAgentSnapshots,
   parsePresetAgentId,
 } from '@/lib/agent-registry';
+import { maskEmail } from '@/lib/users';
 
 export type PitLeaderboardEntry = {
   id: string;
@@ -278,7 +279,10 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
     });
 
     const userNameMap = new Map(
-      userRows.map((user) => [user.id, user.displayName || user.email || user.id]),
+      userRows.map((user) => [
+        user.id,
+        user.displayName || (user.email ? maskEmail(user.email) : user.id.slice(0, 12)),
+      ]),
     );
 
     const playerEntries: PlayerLeaderboardEntry[] = Array.from(

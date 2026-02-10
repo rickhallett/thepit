@@ -7,4 +7,4 @@ export const ASK_THE_PIT_DOCS = [
 
 export const ASK_THE_PIT_MODEL = 'claude-haiku-4-5-20251001';
 
-export const ASK_THE_PIT_MAX_TOKENS = 100_000;
+export const ASK_THE_PIT_MAX_TOKENS = 2_000;

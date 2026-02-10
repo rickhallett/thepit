@@ -182,7 +182,7 @@ export async function createCreditCheckout(formData: FormData) {
   }
 
   if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('Stripe not configured.');
+    throw new Error('Payment service unavailable.');
   }
 
   const appUrl =

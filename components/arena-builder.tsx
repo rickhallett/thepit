@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useRef, useState, type FormEvent } from 'react';
 
 import { cn } from '@/lib/cn';
 import { FREE_MODEL_ID } from '@/lib/ai';
@@ -43,6 +43,7 @@ export function ArenaBuilder({
   );
   const [byokKey, setByokKey] = useState('');
   const [byokError, setByokError] = useState<string | null>(null);
+  const byokStashedRef = useRef(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -73,23 +74,40 @@ export function ArenaBuilder({
     ...(byokEnabled ? ['byok'] : []),
   ].filter(Boolean);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     setByokError(null);
-    if (!showModelSelector) {
-      sessionStorage.removeItem('pit_byok_key');
-      return;
-    }
+    if (!showModelSelector) return;
     if (selectedModel === 'byok') {
+      if (byokStashedRef.current) {
+        byokStashedRef.current = false;
+        return;
+      }
       const trimmed = byokKey.trim();
       if (!trimmed) {
         event.preventDefault();
         setByokError('BYOK key required.');
         return;
       }
-      sessionStorage.setItem('pit_byok_key', trimmed);
+      event.preventDefault();
+      try {
+        const res = await fetch('/api/byok-stash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: trimmed }),
+        });
+        if (!res.ok) {
+          setByokError('Failed to prepare key.');
+          return;
+        }
+      } catch {
+        setByokError('Failed to prepare key.');
+        return;
+      }
+      byokStashedRef.current = true;
+      const form = event.target as HTMLFormElement;
+      form.requestSubmit();
       return;
     }
-    sessionStorage.removeItem('pit_byok_key');
   };
 
   return (
@@ -188,6 +206,18 @@ export function ArenaBuilder({
               className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
               required
             />
+            <span className="text-[10px] normal-case tracking-normal text-muted/70">
+              Your key is sent directly to Anthropic&apos;s API over HTTPS. It is
+              never stored, logged, or visible to platform operators.{' '}
+              <a
+                href="https://github.com/rickhallett/thepit/blob/master/app/api/run-bout/route.ts"
+                target="_blank"
+                rel="noreferrer"
+                className="underline transition hover:text-accent"
+              >
+                Verify
+              </a>
+            </span>
             {byokError && (
               <span className="text-[10px] uppercase tracking-[0.25em] text-red-400">
                 {byokError}
