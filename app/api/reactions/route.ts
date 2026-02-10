@@ -2,10 +2,37 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
+import {
+  checkRateLimit,
+  getClientIdentifier,
+  type RateLimitConfig,
+} from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
+// Rate limit: 30 reactions per minute per IP
+const RATE_LIMIT_CONFIG: RateLimitConfig = {
+  name: 'reactions',
+  maxRequests: 30,
+  windowMs: 60 * 1000,
+};
+
 export async function POST(req: Request) {
+  // Check rate limit before processing
+  const clientId = getClientIdentifier(req);
+  const rateLimit = checkRateLimit(RATE_LIMIT_CONFIG, clientId);
+
+  if (!rateLimit.success) {
+    return new Response('Too many requests.', {
+      status: 429,
+      headers: {
+        'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': String(rateLimit.resetAt),
+      },
+    });
+  }
+
   let payload: {
     boutId?: string;
     turnIndex?: number;
@@ -42,5 +69,10 @@ export async function POST(req: Request) {
     userId: userId ?? null,
   });
 
-  return Response.json({ ok: true });
+  return Response.json({ ok: true }, {
+    headers: {
+      'X-RateLimit-Remaining': String(rateLimit.remaining),
+      'X-RateLimit-Reset': String(rateLimit.resetAt),
+    },
+  });
 }
