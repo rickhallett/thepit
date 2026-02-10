@@ -70,13 +70,32 @@ export async function POST(req: Request) {
     return new Response('DATABASE_URL is not set.', { status: 500 });
   }
 
+  // Idempotency check: Prevent double-running a bout
+  // If bout exists and is already running or completed, reject the request
+  const [existingBout] = await db
+    .select({ status: bouts.status, presetId: bouts.presetId })
+    .from(bouts)
+    .where(eq(bouts.id, boutId))
+    .limit(1);
+
+  if (existingBout) {
+    if (existingBout.status === 'running') {
+      return new Response('Bout is already running.', { status: 409 });
+    }
+    if (existingBout.status === 'completed') {
+      return new Response('Bout has already completed.', { status: 409 });
+    }
+    // If status is 'error', allow re-running
+  }
+
   if (!presetId) {
-    const [row] = await db
-      .select({ presetId: bouts.presetId })
-      .from(bouts)
-      .where(eq(bouts.id, boutId))
-      .limit(1);
-    presetId = row?.presetId;
+    presetId = existingBout?.presetId;
+  }
+
+  // For arena mode, we need to fetch additional bout data
+  if (!presetId) {
+    // No existing bout and no presetId provided
+    return new Response('Missing presetId.', { status: 400 });
   }
 
   let preset = ALL_PRESETS.find((item) => item.id === presetId);
