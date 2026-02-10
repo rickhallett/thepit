@@ -33,6 +33,8 @@ export async function POST(req: Request) {
     return new Response('Invalid signature.', { status: 400 });
   }
 
+  // Process checkout.session.completed events
+  // Use consistent code path to prevent timing oracle attacks
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as {
       id: string;
@@ -43,22 +45,30 @@ export async function POST(req: Request) {
       ? Number(session.metadata.credits)
       : 0;
 
-    if (userId && credits > 0) {
-      const db = requireDb();
-      const [existing] = await db
-        .select({ id: creditTransactions.id })
-        .from(creditTransactions)
-        .where(eq(creditTransactions.referenceId, session.id))
-        .limit(1);
+    const db = requireDb();
 
-      if (!existing) {
-        await ensureCreditAccount(userId);
-        const deltaMicro = toMicroCredits(credits);
-        await applyCreditDelta(userId, deltaMicro, 'purchase', {
-          referenceId: session.id,
-          credits,
-        });
-      }
+    // Always check for existing transaction (consistent timing)
+    const [existing] = await db
+      .select({ id: creditTransactions.id })
+      .from(creditTransactions)
+      .where(eq(creditTransactions.referenceId, session.id))
+      .limit(1);
+
+    // Only process if all conditions are met AND not already processed
+    const shouldProcess = userId && credits > 0 && !existing;
+
+    if (shouldProcess) {
+      await ensureCreditAccount(userId);
+      const deltaMicro = toMicroCredits(credits);
+      await applyCreditDelta(userId, deltaMicro, 'purchase', {
+        referenceId: session.id,
+        credits,
+      });
+    }
+
+    // Log for observability (useful for debugging webhook issues)
+    if (existing) {
+      console.log(`Webhook: Duplicate session ${session.id}, skipping`);
     }
   }
 
