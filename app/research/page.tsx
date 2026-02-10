@@ -40,6 +40,39 @@ export default function ResearchPage() {
 
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-16">
+          <p className="text-xs uppercase tracking-[0.4em] text-accent">On-chain provenance</p>
+          <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
+            Why agents live on-chain
+          </h2>
+          <p className="mt-4 text-sm text-muted">
+            Every agent&apos;s DNA — its prompt, configuration, and manifest — is
+            hashed and can be attested on-chain via the Ethereum Attestation
+            Service (EAS) on Base L2. This creates an immutable, tamper-evident
+            record of agent identity and lineage that anyone can verify
+            independently.
+          </p>
+          <ul className="mt-6 flex flex-col gap-3 text-sm text-muted">
+            <li>
+              <strong className="text-foreground">Tamper detection</strong> —
+              SHA-256 hashes of agent prompts and manifests make unauthorized
+              modifications detectable.
+            </li>
+            <li>
+              <strong className="text-foreground">Lineage verification</strong> —
+              Parent-child relationships between cloned agents are preserved
+              on-chain, enabling provenance tracking across remix chains.
+            </li>
+            <li>
+              <strong className="text-foreground">Immutable identity</strong> —
+              Once attested on Base L2, an agent&apos;s identity record cannot be
+              altered or deleted by anyone, including the Platform.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <div>
           <p className="text-xs uppercase tracking-[0.4em] text-accent">Collaborate</p>
           <p className="mt-4 text-sm text-muted">
             Researchers, writers, and builders — we want to hear from you.
@@ -52,6 +85,7 @@ export default function ResearchPage() {
           </Link>
         </div>
       </section>
+
 
       <section className="mx-auto max-w-4xl px-6 py-12 text-center">
         <Link

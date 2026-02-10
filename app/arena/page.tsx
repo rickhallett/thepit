@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 
+import { Suspense } from 'react';
 import { PresetCard } from '@/components/preset-card';
+import { CheckoutBanner } from '@/components/checkout-banner';
+import { BuyCreditsButton } from '@/components/buy-credits-button';
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
 import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
@@ -93,6 +96,10 @@ export default async function Home() {
           )}
         </header>
 
+        <Suspense>
+          <CheckoutBanner />
+        </Suspense>
+
         <section className="grid gap-6 md:grid-cols-2">
           <Link
             href="/arena/custom"
@@ -152,12 +159,7 @@ export default async function Home() {
                     +{Math.round(pack.bonusPercent * 100)}% bonus
                   </p>
                   <input type="hidden" name="packId" value={pack.id} />
-                  <button
-                    type="submit"
-                    className="rounded-full border-2 border-foreground/60 px-3 py-2 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
-                  >
-                    Buy credits
-                  </button>
+                  <BuyCreditsButton />
                 </form>
               ))}
             </div>

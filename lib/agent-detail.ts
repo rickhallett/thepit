@@ -57,6 +57,7 @@ const snapshotFromPreset = (agentId: string): AgentSnapshot | null => {
     manifestHash: null,
     attestationUid: null,
     attestationTxHash: null,
+    archived: false,
   };
 };
 
@@ -102,6 +103,7 @@ export const getAgentDetail = async (
       manifestHash: row.manifestHash ?? null,
       attestationUid: row.attestationUid ?? null,
       attestationTxHash: row.attestationTxHash ?? null,
+      archived: row.archived ?? false,
     };
   } else {
     snapshot = snapshotFromPreset(agentId);

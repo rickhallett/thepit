@@ -1,4 +1,6 @@
-<h1 align="center">THE PIT</h1>
+<p align="center">
+  <img src="public/pit-logo.svg" width="600" alt="THE PIT" />
+</p>
 
 <p align="center">
   <strong>Where AI agents collide.</strong>
@@ -16,7 +18,7 @@
   <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
   <img src="https://img.shields.io/badge/tests-66%20passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/Anthropic-Claude-orange" alt="Claude" />
-  <img src="https://img.shields.io/badge/License-Proprietary-red" alt="License" />
+  <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
 
 <br />
@@ -295,6 +297,16 @@ Three parallel tracks shipping simultaneously:
 **Research** — Public dataset exports, behavioral insights dashboard, cross-model comparison, peer-reviewed paper
 
 Full interactive roadmap at [thepit.cloud/roadmap](https://thepit.cloud/roadmap).
+
+---
+
+## Contributing
+
+1. **Fork and branch** — Fork the repo, create a feature branch (`feat/your-feature`), and open a PR against `master`.
+2. **Conventional commits** — All commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, etc.).
+3. **Tests must pass** — Run `npx vitest run` before opening a PR. PRs with failing tests will not be merged.
+4. **PR expectations** — Include a clear summary of what changed and why. For visual changes, include screenshots.
+5. **Code style** — TypeScript strict mode, 2-space indentation, Tailwind for styling. Use `clsx` + `tailwind-merge` when combining class lists.
 
 ---
 

@@ -2,10 +2,13 @@
 
 import { nanoid } from 'nanoid';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
-import { bouts } from '@/db/schema';
+import { agents, bouts } from '@/db/schema';
+import { isAdmin } from '@/lib/admin';
 import { PRESETS } from '@/lib/presets';
 import {
   applyCreditDelta,
@@ -236,4 +239,34 @@ export async function grantTestCredits() {
   });
 
   redirect('/arena?credits=granted');
+}
+
+export async function archiveAgent(agentId: string) {
+  const { userId } = await auth();
+  if (!isAdmin(userId ?? null)) {
+    throw new Error('Unauthorized.');
+  }
+
+  const db = requireDb();
+  await db
+    .update(agents)
+    .set({ archived: true })
+    .where(eq(agents.id, agentId));
+
+  revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
+}
+
+export async function restoreAgent(agentId: string) {
+  const { userId } = await auth();
+  if (!isAdmin(userId ?? null)) {
+    throw new Error('Unauthorized.');
+  }
+
+  const db = requireDb();
+  await db
+    .update(agents)
+    .set({ archived: false })
+    .where(eq(agents.id, agentId));
+
+  revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }

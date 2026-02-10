@@ -17,6 +17,7 @@ import {
 import { getPresetById, type Agent, type Preset } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { resolveResponseFormat } from '@/lib/response-formats';
+import { checkRateLimit } from '@/lib/rate-limit';
 import {
   CREDITS_ENABLED,
   applyCreditDelta,
@@ -187,6 +188,17 @@ export async function POST(req: Request) {
   }
 
   const { userId } = await auth();
+
+  if (userId) {
+    const boutRateCheck = checkRateLimit(
+      { name: 'bout-creation', maxRequests: 5, windowMs: 60 * 60 * 1000 },
+      userId,
+    );
+    if (!boutRateCheck.success) {
+      return new Response('Rate limit exceeded. Max 5 bouts per hour.', { status: 429 });
+    }
+  }
+
   let preauthMicro = 0;
   if (CREDITS_ENABLED) {
     if (!userId) {
