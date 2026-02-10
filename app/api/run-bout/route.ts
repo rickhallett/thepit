@@ -4,6 +4,7 @@ import {
   createUIMessageStreamResponse,
 } from 'ai';
 import { eq } from 'drizzle-orm';
+import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
@@ -13,15 +14,16 @@ import {
   PREMIUM_MODEL_OPTIONS,
   getModel,
 } from '@/lib/ai';
-import { ALL_PRESETS } from '@/lib/presets';
+import { getPresetById, type Agent, type Preset } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
+import { resolveResponseFormat } from '@/lib/response-formats';
 import {
   CREDITS_ENABLED,
   applyCreditDelta,
   computeCostGbp,
   estimateBoutCostGbp,
   estimateTokensFromText,
-  getCreditBalanceMicro,
+  preauthorizeCredits,
   toMicroCredits,
   BYOK_ENABLED,
 } from '@/lib/credits';
@@ -35,6 +37,8 @@ export async function POST(req: Request) {
     topic?: string;
     model?: string;
     length?: string;
+    format?: string;
+    byokKey?: string;
   };
 
   try {
@@ -44,9 +48,16 @@ export async function POST(req: Request) {
   }
 
   const { boutId } = payload;
-  const topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
-  const lengthConfig = resolveResponseLength(payload.length);
+  let topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
+  let lengthKey =
+    typeof payload.length === 'string' ? payload.length.trim() : '';
+  let lengthConfig = resolveResponseLength(lengthKey);
+  let formatKey =
+    typeof payload.format === 'string' ? payload.format.trim() : '';
+  let formatConfig = resolveResponseFormat(formatKey);
   let { presetId } = payload;
+  const byokKey =
+    typeof payload.byokKey === 'string' ? payload.byokKey.trim() : '';
 
   if (!boutId) {
     return new Response('Missing boutId.', { status: 400 });
@@ -59,16 +70,91 @@ export async function POST(req: Request) {
     return new Response('DATABASE_URL is not set.', { status: 500 });
   }
 
+  // Idempotency check: Prevent double-running a bout.
+  //
+  // Normal flow: createBout() inserts with status='running' and empty
+  // transcript, then the client calls /api/run-bout to start streaming.
+  // We allow that (empty transcript = not yet streamed). We block:
+  //   - 'running' bouts that already have transcript data (streaming in progress)
+  //   - 'completed' bouts
+  const [existingBout] = await db
+    .select({
+      status: bouts.status,
+      presetId: bouts.presetId,
+      transcript: bouts.transcript,
+    })
+    .from(bouts)
+    .where(eq(bouts.id, boutId))
+    .limit(1);
+
+  if (existingBout) {
+    const hasTranscript =
+      Array.isArray(existingBout.transcript) && existingBout.transcript.length > 0;
+
+    if (existingBout.status === 'running' && hasTranscript) {
+      return new Response('Bout is already running.', { status: 409 });
+    }
+    if (existingBout.status === 'completed') {
+      return new Response('Bout has already completed.', { status: 409 });
+    }
+    // Allow: 'running' with no transcript (normal flow), 'error' (retry)
+  }
+
   if (!presetId) {
+    presetId = existingBout?.presetId;
+  }
+
+  // For arena mode, we need to fetch additional bout data
+  if (!presetId) {
+    // No existing bout and no presetId provided
+    return new Response('Missing presetId.', { status: 400 });
+  }
+
+  // O(1) preset lookup instead of array scan
+  let preset: Preset | undefined = getPresetById(presetId);
+
+  if (!preset && presetId === 'arena') {
     const [row] = await db
-      .select({ presetId: bouts.presetId })
+      .select({
+        agentLineup: bouts.agentLineup,
+        topic: bouts.topic,
+        responseLength: bouts.responseLength,
+        responseFormat: bouts.responseFormat,
+      })
       .from(bouts)
       .where(eq(bouts.id, boutId))
       .limit(1);
-    presetId = row?.presetId;
+    if (!row?.agentLineup) {
+      return new Response('Unknown preset.', { status: 404 });
+    }
+    const lineup: Agent[] = row.agentLineup.map((agent) => ({
+      id: agent.id,
+      name: agent.name,
+      systemPrompt: agent.systemPrompt,
+      color: agent.color ?? '#f8fafc',
+      avatar: agent.avatar,
+    }));
+    preset = {
+      id: 'arena',
+      name: 'Arena Mode',
+      description: 'Custom lineup',
+      tier: 'free',
+      maxTurns: 12,
+      agents: lineup,
+    };
+    if (!topic && row.topic) {
+      topic = row.topic;
+    }
+    if (!lengthKey && row.responseLength) {
+      lengthKey = row.responseLength;
+      lengthConfig = resolveResponseLength(lengthKey);
+    }
+    if (!formatKey && row.responseFormat) {
+      formatKey = row.responseFormat;
+      formatConfig = resolveResponseFormat(formatKey);
+    }
   }
 
-  const preset = ALL_PRESETS.find((item) => item.id === presetId);
   if (!preset) {
     return new Response('Unknown preset.', { status: 404 });
   }
@@ -81,34 +167,46 @@ export async function POST(req: Request) {
   const requestedModel =
     typeof payload.model === 'string' ? payload.model.trim() : '';
   let modelId = FREE_MODEL_ID;
-  if (preset.tier === 'premium' && premiumEnabled) {
+  const allowPremiumModels = preset.tier === 'premium' || preset.id === 'arena';
+  if (allowPremiumModels && premiumEnabled) {
     modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
       ? requestedModel
       : DEFAULT_PREMIUM_MODEL_ID;
   } else if (requestedModel === 'byok' && BYOK_ENABLED) {
+    if (!byokKey) {
+      return new Response('BYOK key required.', { status: 400 });
+    }
     modelId = 'byok';
   } else if (requestedModel === 'byok') {
     return new Response('BYOK not enabled.', { status: 400 });
   }
 
+  const { userId } = await auth();
   let preauthMicro = 0;
   if (CREDITS_ENABLED) {
+    if (!userId) {
+      return new Response('Sign in required.', { status: 401 });
+    }
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
       modelId,
       lengthConfig.outputTokensPerTurn,
     );
     preauthMicro = toMicroCredits(estimatedCost);
-    const balance = await getCreditBalanceMicro();
-    if (balance === null || balance < preauthMicro) {
-      return new Response('Insufficient credits.', { status: 402 });
-    }
-    await applyCreditDelta(-preauthMicro, 'preauth', {
+
+    // Atomic preauthorization - prevents race condition where concurrent
+    // requests could overdraw the account
+    const preauth = await preauthorizeCredits(userId, preauthMicro, 'preauth', {
       presetId,
       boutId,
       modelId,
       estimatedCostGbp: estimatedCost,
+      referenceId: boutId,
     });
+
+    if (!preauth.success) {
+      return new Response('Insufficient credits.', { status: 402 });
+    }
   }
 
   try {
@@ -119,6 +217,9 @@ export async function POST(req: Request) {
         presetId,
         status: 'running',
         transcript: [],
+        topic: topic || null,
+        responseLength: lengthConfig.id,
+        responseFormat: formatConfig.id,
       })
       .onConflictDoNothing();
   } catch (error) {
@@ -131,11 +232,17 @@ export async function POST(req: Request) {
       const transcript: TranscriptEntry[] = [];
       let inputTokens = 0;
       let outputTokens = 0;
+      let shareLine: string | null = null;
 
       try {
         await db
           .update(bouts)
-          .set({ status: 'running' })
+          .set({
+            status: 'running',
+            topic: topic || null,
+            responseLength: lengthConfig.id,
+            responseFormat: formatConfig.id,
+          })
           .where(eq(bouts.id, boutId));
 
         for (let i = 0; i < preset.maxTurns; i += 1) {
@@ -149,37 +256,49 @@ export async function POST(req: Request) {
               turn: i,
               agentId: agent.id,
               agentName: agent.name,
-              color: agent.color,
+              color: agent.color ?? '#f8fafc',
             },
           });
           writer.write({ type: 'text-start', id: turnId });
 
           const topicLine = topic ? `Topic: ${topic}\n\n` : '';
           const lengthLine = `Response length: ${lengthConfig.label} (${lengthConfig.hint}).\n\n`;
+          const formatLine = `Response format: ${formatConfig.label} (${formatConfig.hint}).\n\n`;
           const prompt =
             history.length > 0
-              ? `${topicLine}${lengthLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
-              : `${topicLine}${lengthLine}Open the debate in character as ${agent.name}.`;
-          inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
-          inputTokens += estimateTokensFromText(prompt, 1);
-
+              ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
+              : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
           const result = streamText({
-            model: getModel(modelId),
+            model: getModel(modelId, modelId === 'byok' ? byokKey : undefined),
             maxOutputTokens: lengthConfig.maxOutputTokens,
             messages: [
-              { role: 'system', content: agent.systemPrompt },
+              {
+                role: 'system',
+                content: `${agent.systemPrompt}\n\n${formatConfig.instruction}`,
+              },
               { role: 'user', content: prompt },
             ],
           });
 
           let fullText = '';
+          let estimatedOutputTokens = 0;
           for await (const delta of result.textStream) {
             fullText += delta;
-            outputTokens += estimateTokensFromText(delta, 0);
+            estimatedOutputTokens += estimateTokensFromText(delta, 0);
             writer.write({ type: 'text-delta', id: turnId, delta });
           }
 
           writer.write({ type: 'text-end', id: turnId });
+
+          const usage = await result.usage;
+          if (usage?.inputTokens || usage?.outputTokens) {
+            inputTokens += usage.inputTokens ?? 0;
+            outputTokens += usage.outputTokens ?? 0;
+          } else {
+            inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
+            inputTokens += estimateTokensFromText(prompt, 1);
+            outputTokens += estimatedOutputTokens;
+          }
 
           history.push(`${agent.name}: ${fullText}`);
 
@@ -191,17 +310,51 @@ export async function POST(req: Request) {
           });
         }
 
+        try {
+          const transcriptText = transcript
+            .map((entry) => `${entry.agentName}: ${entry.text}`)
+            .join('\n');
+          const clippedTranscript = transcriptText.slice(-2000);
+          const sharePrompt = `You just witnessed an AI bout. Here's the transcript.\nWrite a single tweet-length line (max 140 chars) that:\n- Captures the most absurd/funny/surprising moment\n- Makes someone want to click the link\n- Sounds like a human wrote it (not corporate)\n\nTranscript:\n${clippedTranscript}`;
+
+          const shareResult = streamText({
+            model: getModel(FREE_MODEL_ID),
+            maxOutputTokens: 80,
+            messages: [{ role: 'user', content: sharePrompt }],
+          });
+
+          let shareText = '';
+          for await (const delta of shareResult.textStream) {
+            shareText += delta;
+          }
+          shareLine = shareText.trim().replace(/^["']|["']$/g, '');
+          if (shareLine.length > 140) {
+            shareLine = `${shareLine.slice(0, 137).trimEnd()}...`;
+          }
+        } catch (error) {
+          console.warn('Failed to generate share line', error);
+        }
+
         await db
           .update(bouts)
-          .set({ status: 'completed', transcript })
+          .set({
+            status: 'completed',
+            transcript,
+            shareLine,
+            shareGeneratedAt: shareLine ? new Date() : null,
+          })
           .where(eq(bouts.id, boutId));
 
-        if (CREDITS_ENABLED) {
+        if (shareLine) {
+          writer.write({ type: 'data-share-line', data: { text: shareLine } });
+        }
+
+        if (CREDITS_ENABLED && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);
           const delta = actualMicro - preauthMicro;
           if (delta !== 0) {
-            await applyCreditDelta(delta, 'settlement', {
+            await applyCreditDelta(userId, delta, 'settlement', {
               presetId,
               boutId,
               modelId,
@@ -209,6 +362,7 @@ export async function POST(req: Request) {
               outputTokens,
               actualCostGbp: actualCost,
               preauthMicro,
+              referenceId: boutId,
             });
           }
         }
@@ -218,12 +372,12 @@ export async function POST(req: Request) {
           .set({ status: 'error', transcript })
           .where(eq(bouts.id, boutId));
 
-        if (CREDITS_ENABLED && preauthMicro) {
+        if (CREDITS_ENABLED && preauthMicro && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);
           const delta = actualMicro - preauthMicro;
           if (delta !== 0) {
-            await applyCreditDelta(delta, 'settlement-error', {
+            await applyCreditDelta(userId, delta, 'settlement-error', {
               presetId,
               boutId,
               modelId,
@@ -231,6 +385,7 @@ export async function POST(req: Request) {
               outputTokens,
               actualCostGbp: actualCost,
               preauthMicro,
+              referenceId: boutId,
             });
           }
         }

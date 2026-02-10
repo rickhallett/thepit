@@ -7,6 +7,7 @@ import type { Preset } from './presets';
 
 export type BoutMessage = {
   id: string;
+  turn: number;
   agentId: string;
   agentName: string;
   color: string;
@@ -26,9 +27,11 @@ type UseBoutOptions = {
   boutId: string;
   preset: Preset;
   initialTranscript?: TranscriptEntry[];
+  initialShareLine?: string | null;
   topic?: string;
   model?: string;
   length?: string;
+  format?: string;
 };
 
 type StreamEvent = {
@@ -38,6 +41,7 @@ type StreamEvent = {
     agentId?: string;
     agentName?: string;
     color?: string;
+    text?: string;
   };
   delta?: string;
 };
@@ -49,6 +53,8 @@ export function useBout({
   model,
   length,
   initialTranscript = [],
+  initialShareLine = null,
+  format,
 }: UseBoutOptions) {
   const [messages, setMessages] = useState<BoutMessage[]>(() => {
     if (initialTranscript.length === 0) return [];
@@ -56,6 +62,7 @@ export function useBout({
       const agent = preset.agents.find((item) => item.id === entry.agentId);
       return {
         id: `${boutId}-${entry.turn}-${entry.agentId}`,
+        turn: entry.turn,
         agentId: entry.agentId,
         agentName: entry.agentName ?? agent?.name ?? entry.agentId,
         color: agent?.color ?? '#f8fafc',
@@ -66,6 +73,7 @@ export function useBout({
   const [status, setStatus] = useState<BoutStatus>(
     initialTranscript.length ? 'done' : 'idle',
   );
+  const [shareLine, setShareLine] = useState<string | null>(initialShareLine);
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   const [thinkingAgentId, setThinkingAgentId] = useState<string | null>(null);
@@ -73,6 +81,7 @@ export function useBout({
   const turnRef = useRef(initialTranscript.length);
   const pendingMessageRef = useRef<{
     id: string;
+    turn: number;
     agentId: string;
     agentName: string;
     color: string;
@@ -105,6 +114,7 @@ export function useBout({
         ...prev,
         {
           id: pending.id,
+          turn: pending.turn,
           agentId: pending.agentId,
           agentName: pending.agentName,
           color: pending.color,
@@ -115,6 +125,7 @@ export function useBout({
 
     const schedulePendingMessage = (pending: {
       id: string;
+      turn: number;
       agentId: string;
       agentName: string;
       color: string;
@@ -134,16 +145,25 @@ export function useBout({
 
     const run = async () => {
       setStatus('streaming');
+      const byokKey =
+        model === 'byok'
+          ? window.sessionStorage.getItem('pit_byok_key')
+          : null;
+      const payload: Record<string, unknown> = {
+        boutId,
+        presetId: preset.id,
+        topic,
+        model,
+        length,
+        format,
+      };
+      if (byokKey) {
+        payload.byokKey = byokKey;
+      }
       const response = await fetch('/api/run-bout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          boutId,
-          presetId: preset.id,
-          topic,
-          model,
-          length,
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal,
       });
 
@@ -160,6 +180,13 @@ export function useBout({
           return;
         }
 
+        if (event.type === 'data-share-line') {
+          if (event.data?.text) {
+            setShareLine(event.data.text);
+          }
+          return;
+        }
+
         if (event.type === 'data-turn') {
           const data = event.data ?? {};
           const turn =
@@ -170,6 +197,7 @@ export function useBout({
           const messageId = `${boutId}-${turn}-${data.agentId ?? 'agent'}`;
           schedulePendingMessage({
             id: messageId,
+            turn,
             agentId: data.agentId ?? 'agent',
             agentName: data.agentName ?? 'Agent',
             color: data.color ?? '#f8fafc',
@@ -235,7 +263,7 @@ export function useBout({
       pendingMessageRef.current = null;
       controller.abort();
     };
-  }, [boutId, initialTranscript.length, preset.id, topic, model, length]);
+  }, [boutId, initialTranscript.length, preset.id, topic, model, length, format]);
 
   return {
     messages,
@@ -243,5 +271,6 @@ export function useBout({
     activeAgentId,
     activeMessageId,
     thinkingAgentId,
+    shareLine,
   };
 }

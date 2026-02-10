@@ -18,6 +18,16 @@ export type AgentSnapshot = {
   systemPrompt: string;
   responseLength: string;
   responseFormat: string;
+  archetype?: string | null;
+  tone?: string | null;
+  quirks?: string[] | null;
+  speechPattern?: string | null;
+  openingMove?: string | null;
+  signatureMove?: string | null;
+  weakness?: string | null;
+  goal?: string | null;
+  fears?: string | null;
+  customInstructions?: string | null;
   createdAt?: string | null;
   ownerId?: string | null;
   parentId?: string | null;
@@ -67,6 +77,16 @@ export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
           systemPrompt: row.systemPrompt,
           responseLength: row.responseLength,
           responseFormat: row.responseFormat,
+          archetype: row.archetype ?? null,
+          tone: row.tone ?? null,
+          quirks: row.quirks ?? null,
+          speechPattern: row.speechPattern ?? null,
+          openingMove: row.openingMove ?? null,
+          signatureMove: row.signatureMove ?? null,
+          weakness: row.weakness ?? null,
+          goal: row.goal ?? null,
+          fears: row.fears ?? null,
+          customInstructions: row.customInstructions ?? null,
           createdAt: row.createdAt?.toISOString() ?? null,
           ownerId: row.ownerId ?? null,
           parentId: row.parentId ?? null,
@@ -94,6 +114,16 @@ export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
         systemPrompt: agent.systemPrompt,
         responseLength: DEFAULT_RESPONSE_LENGTH,
         responseFormat: DEFAULT_RESPONSE_FORMAT,
+        archetype: null,
+        tone: null,
+        quirks: null,
+        speechPattern: null,
+        openingMove: null,
+        signatureMove: null,
+        weakness: null,
+        goal: null,
+        fears: null,
+        customInstructions: null,
         createdAt: null,
         ownerId: null,
         parentId: null,

@@ -41,9 +41,16 @@ TSPIT ("THE PIT — AI Battle Arena") is a Next.js 16 application where AI agent
 ### Database Schema (Drizzle ORM)
 
 ```
-bouts: id, presetId, status ('running'|'completed'|'error'), transcript (jsonb), createdAt
-creditAccounts: id, balanceMicro, createdAt
-creditEvents: id, accountId, deltaMicro, reason, metadata (jsonb), createdAt
+bouts: id, presetId, status ('running'|'completed'|'error'), transcript (jsonb), ownerId, topic, responseLength, responseFormat, agentLineup, shareLine, shareGeneratedAt, createdAt
+users: id, email, displayName, imageUrl, createdAt, updatedAt
+credits: userId, balanceMicro, createdAt, updatedAt
+creditTransactions: id, userId, deltaMicro, source, referenceId, metadata (jsonb), createdAt
+introPool: id, initialMicro, claimedMicro, drainRateMicroPerMinute, startedAt, updatedAt
+referrals: id, referrerId, referredId, code, credited, createdAt
+reactions: id, boutId, turnIndex, reactionType, userId, createdAt
+winnerVotes: id, boutId, agentId, userId, createdAt
+newsletterSignups: id, email, createdAt
+agents: id, name, systemPrompt, presetId, tier, model, responseLength, responseFormat, archetype, tone, quirks, speechPattern, openingMove, signatureMove, weakness, goal, fears, customInstructions, createdAt, ownerId, parentId, promptHash, manifestHash, attestationUid, attestationTxHash, attestedAt
 ```
 
 ### Preset System
@@ -65,7 +72,7 @@ Custom event stream (not standard SSE):
 - Pre-authorizes estimated cost on bout start
 - Tracks actual token usage during execution
 - Settles delta on completion (refund or charge difference)
-- Append-only ledger in `credit_events` table
+- Append-only ledger in `credit_transactions` table
 
 ## Code Conventions
 
@@ -87,3 +94,7 @@ Custom event stream (not standard SSE):
 - `PREMIUM_ENABLED` - Enable premium presets
 - `CREDITS_ENABLED` - Enable credit system
 - `BYOK_ENABLED` - Allow bring-your-own-key
+- `RESEND_API_KEY` - Enable contact form delivery
+- `CONTACT_TO_EMAIL` / `CONTACT_FROM_EMAIL` - Contact form routing
+- `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` - Credit checkout + webhook
+- `NEXT_PUBLIC_APP_URL` / `APP_URL` - Redirect URLs for checkout

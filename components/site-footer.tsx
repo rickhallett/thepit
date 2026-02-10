@@ -7,6 +7,18 @@ export function SiteFooter() {
         <span>© THE PIT</span>
         <div className="flex flex-wrap gap-3">
           <Link
+            href="/research"
+            className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+          >
+            Research
+          </Link>
+          <Link
+            href="/contact"
+            className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+          >
+            Contact
+          </Link>
+          <Link
             href="/disclaimer"
             className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
           >

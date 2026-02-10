@@ -1,0 +1,33 @@
+import { describe, expect, it } from 'vitest';
+
+import {
+  DEFAULT_RESPONSE_FORMAT,
+  RESPONSE_FORMATS,
+  resolveResponseFormat,
+} from '@/lib/response-formats';
+
+describe('response formats', () => {
+  it('defaults to plain format', () => {
+    expect(DEFAULT_RESPONSE_FORMAT).toBe('plain');
+    expect(resolveResponseFormat()).toMatchObject({ id: 'plain' });
+  });
+
+  it('resolves known values', () => {
+    const markdown = resolveResponseFormat('markdown');
+    expect(markdown).toMatchObject({ id: 'markdown' });
+    expect(markdown.instruction).toContain('Markdown');
+  });
+
+  it('falls back to plain when unknown', () => {
+    expect(resolveResponseFormat('unknown')).toMatchObject({ id: 'plain' });
+  });
+
+  it('defines all expected formats', () => {
+    expect(RESPONSE_FORMATS.map((format) => format.id)).toEqual([
+      'plain',
+      'spaced',
+      'markdown',
+      'json',
+    ]);
+  });
+});

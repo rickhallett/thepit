@@ -7,6 +7,9 @@ import {
   varchar,
   bigint,
   text,
+  uniqueIndex,
+  boolean,
+  integer,
 } from 'drizzle-orm/pg-core';
 
 export type TranscriptEntry = {
@@ -14,6 +17,14 @@ export type TranscriptEntry = {
   agentId: string;
   agentName: string;
   text: string;
+};
+
+export type ArenaAgent = {
+  id: string;
+  name: string;
+  systemPrompt: string;
+  color?: string;
+  avatar?: string;
 };
 
 export const boutStatus = pgEnum('bout_status', [
@@ -29,25 +40,118 @@ export const bouts = pgTable('bouts', {
   presetId: varchar('preset_id', { length: 64 }).notNull(),
   status: boutStatus('status').notNull(),
   transcript: jsonb('transcript').$type<TranscriptEntry[]>().notNull(),
+  ownerId: varchar('owner_id', { length: 128 }),
+  topic: text('topic'),
+  responseLength: varchar('response_length', { length: 32 }),
+  responseFormat: varchar('response_format', { length: 32 }),
+  agentLineup: jsonb('agent_lineup').$type<ArenaAgent[]>(),
+  shareLine: text('share_line'),
+  shareGeneratedAt: timestamp('share_generated_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
 });
 
-export const creditAccounts = pgTable('credit_accounts', {
-  id: varchar('id', { length: 64 }).primaryKey(),
+export const users = pgTable('users', {
+  id: varchar('id', { length: 128 }).primaryKey(),
+  email: varchar('email', { length: 256 }),
+  displayName: varchar('display_name', { length: 128 }),
+  imageUrl: varchar('image_url', { length: 512 }),
+  referralCode: varchar('referral_code', { length: 32 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  referralCodeIdx: uniqueIndex('users_referral_code_idx').on(
+    table.referralCode,
+  ),
+}));
+
+export const credits = pgTable('credits', {
+  userId: varchar('user_id', { length: 128 }).primaryKey(),
   balanceMicro: bigint('balance_micro', { mode: 'number' }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
-export const creditEvents = pgTable('credit_events', {
+export const creditTransactions = pgTable('credit_transactions', {
   id: serial('id').primaryKey(),
-  accountId: varchar('account_id', { length: 64 }).notNull(),
+  userId: varchar('user_id', { length: 128 }).notNull(),
   deltaMicro: bigint('delta_micro', { mode: 'number' }).notNull(),
-  reason: varchar('reason', { length: 64 }).notNull(),
+  source: varchar('source', { length: 64 }).notNull(),
+  referenceId: varchar('reference_id', { length: 128 }),
   metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const introPool = pgTable('intro_pool', {
+  id: serial('id').primaryKey(),
+  initialMicro: bigint('initial_micro', { mode: 'number' }).notNull(),
+  claimedMicro: bigint('claimed_micro', { mode: 'number' }).notNull(),
+  drainRateMicroPerMinute: bigint('drain_rate_micro_per_minute', {
+    mode: 'number',
+  }).notNull(),
+  startedAt: timestamp('started_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const referrals = pgTable('referrals', {
+  id: serial('id').primaryKey(),
+  referrerId: varchar('referrer_id', { length: 128 }).notNull(),
+  referredId: varchar('referred_id', { length: 128 }).notNull(),
+  code: varchar('code', { length: 32 }).notNull(),
+  credited: boolean('credited').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const reactions = pgTable('reactions', {
+  id: serial('id').primaryKey(),
+  boutId: varchar('bout_id', { length: 21 }).notNull(),
+  turnIndex: integer('turn_index').notNull(),
+  reactionType: varchar('reaction_type', { length: 32 }).notNull(),
+  userId: varchar('user_id', { length: 128 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const winnerVotes = pgTable(
+  'winner_votes',
+  {
+    id: serial('id').primaryKey(),
+    boutId: varchar('bout_id', { length: 21 }).notNull(),
+    agentId: varchar('agent_id', { length: 128 }).notNull(),
+    userId: varchar('user_id', { length: 128 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniqueVote: uniqueIndex('winner_votes_unique').on(
+      table.boutId,
+      table.userId,
+    ),
+  }),
+);
+
+export const newsletterSignups = pgTable('newsletter_signups', {
+  id: serial('id').primaryKey(),
+  email: varchar('email', { length: 256 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -62,6 +166,16 @@ export const agents = pgTable('agents', {
   model: varchar('model', { length: 128 }),
   responseLength: varchar('response_length', { length: 32 }).notNull(),
   responseFormat: varchar('response_format', { length: 32 }).notNull(),
+  archetype: text('archetype'),
+  tone: text('tone'),
+  quirks: jsonb('quirks').$type<string[]>(),
+  speechPattern: text('speech_pattern'),
+  openingMove: text('opening_move'),
+  signatureMove: text('signature_move'),
+  weakness: text('weakness'),
+  goal: text('goal'),
+  fears: text('fears'),
+  customInstructions: text('custom_instructions'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

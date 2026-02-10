@@ -26,6 +26,9 @@
   --color-border: var(--border);
   --font-sans: var(--font-grotesk);
   --font-mono: var(--font-plex-mono);
+  /* Bump text-sm from 14px to 15px for readability */
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5;
 }
 
 * {
@@ -48,4 +51,10 @@ body {
 ::selection {
   background: var(--accent);
   color: #0b0b0b;
+}
+
+/* Bump text-sm from 14px to 15px for public readability */
+.text-sm {
+  font-size: 0.9375rem;
+  line-height: 1.5;
 }

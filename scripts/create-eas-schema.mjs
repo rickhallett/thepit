@@ -1,5 +1,5 @@
-const { SchemaRegistry } = require('@ethereum-attestation-service/eas-sdk');
-const { ethers } = require('ethers');
+import { SchemaRegistry } from '@ethereum-attestation-service/eas-sdk';
+import { ethers } from 'ethers';
 
 const schema =
   process.env.EAS_SCHEMA_STRING ||

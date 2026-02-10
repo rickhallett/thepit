@@ -6,6 +6,8 @@ import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
 import type { TranscriptEntry } from '@/db/schema';
+import type { ReactionCountMap } from '@/lib/reactions';
+import type { WinnerVoteCounts } from '@/lib/winner-votes';
 
 const STATUS_LABELS: Record<string, string> = {
   idle: 'Warming up',
@@ -20,29 +22,59 @@ export function Arena({
   topic,
   model,
   length,
+  format,
   estimatedCredits,
   initialTranscript,
+  shareLine,
+  initialReactions,
+  initialWinnerVotes,
+  initialUserVote,
 }: {
   boutId: string;
   preset: Preset;
   topic?: string | null;
   model?: string | null;
   length?: string | null;
+  format?: string | null;
   estimatedCredits?: string | null;
   initialTranscript: TranscriptEntry[];
+  shareLine?: string | null;
+  initialReactions?: ReactionCountMap;
+  initialWinnerVotes?: WinnerVoteCounts;
+  initialUserVote?: string | null;
 }) {
-  const { messages, status, activeAgentId, activeMessageId, thinkingAgentId } =
-    useBout({
+  const {
+    messages,
+    status,
+    activeAgentId,
+    activeMessageId,
+    thinkingAgentId,
+    shareLine: liveShareLine,
+  } = useBout({
       boutId,
       preset,
       topic: topic ?? undefined,
       model: model ?? undefined,
       length: length ?? undefined,
+      format: format ?? undefined,
       initialTranscript,
+      initialShareLine: shareLine ?? null,
     });
   const [copied, setCopied] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const [shareUrl, setShareUrl] = useState('');
+  const [reactions, setReactions] = useState<ReactionCountMap>(
+    initialReactions ?? {},
+  );
+  const [winnerVotes, setWinnerVotes] = useState<WinnerVoteCounts>(
+    initialWinnerVotes ?? {},
+  );
+  const [userVote, setUserVote] = useState<string | null>(
+    initialUserVote ?? null,
+  );
+  const [voteError, setVoteError] = useState<string | null>(null);
+  const [votePending, setVotePending] = useState<string | null>(null);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -97,28 +129,138 @@ export function Arena({
   }, [messages]);
 
   const sharePayload = useMemo(() => {
-    if (!transcript) return '';
+    if (!transcript && !liveShareLine && !shareLine) return '';
+    const origin = shareUrl
+      ? new URL(shareUrl).origin
+      : 'https://tspit.vercel.app';
+    const replayUrl = `${origin}/b/${boutId}`;
+    const line = (liveShareLine ?? shareLine ?? '').trim();
+    const headline =
+      line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
+
+    return [headline, '', replayUrl, '', '🔴 #ThePitArena'].join('\n');
+  }, [boutId, liveShareLine, preset.name, shareLine, shareUrl, transcript]);
+
+  const messageSharePayloads = useMemo(() => {
+    if (messages.length === 0) return [];
+    const origin = shareUrl
+      ? new URL(shareUrl).origin
+      : 'https://tspit.vercel.app';
+    const replayUrl = `${origin}/b/${boutId}`;
+    const headline =
+      (liveShareLine ?? shareLine ?? '').trim() || `THE PIT — ${preset.name}`;
     const header = [
-      `THE PIT — ${preset.name}`,
+      headline,
       topic ? `Topic: ${topic}` : null,
-      model ? `Model: ${model}` : null,
-      length ? `Length: ${length}` : null,
-      shareUrl ? `Replay: ${shareUrl}` : null,
+      format ? `Format: ${format}` : null,
     ]
       .filter(Boolean)
       .join('\n');
+    let runningTranscript = '';
 
-    const origin = shareUrl ? new URL(shareUrl).origin : 'https://tspit.vercel.app';
-    const footer = `Made with THE PIT — ${origin}`;
-
-    return [header, '', transcript, '', footer].join('\n');
-  }, [length, model, preset.name, shareUrl, topic, transcript]);
+    return messages.map((message) => {
+      const line = `${message.agentName}: ${message.text}`;
+      runningTranscript = runningTranscript
+        ? `${runningTranscript}\n\n${line}`
+        : line;
+      const payload = [
+        header,
+        '',
+        runningTranscript,
+        '',
+        `Replay: ${replayUrl}`,
+        '',
+        '🔴 #ThePitArena',
+      ].join('\n');
+      const encoded = encodeURIComponent(payload);
+      return {
+        payload,
+        links: {
+          x: `https://twitter.com/intent/tweet?text=${encoded}`,
+          whatsapp: `https://wa.me/?text=${encoded}`,
+          telegram: `https://t.me/share/url?url=${encodeURIComponent(
+            replayUrl,
+          )}&text=${encoded}`,
+        },
+      };
+    });
+  }, [
+    boutId,
+    format,
+    liveShareLine,
+    messages,
+    preset.name,
+    shareLine,
+    shareUrl,
+    topic,
+  ]);
 
   const copyTranscript = async () => {
     if (!sharePayload) return;
     await navigator.clipboard.writeText(sharePayload);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
+  };
+
+  const copyMessageShare = async (payload: string, messageId: string) => {
+    await navigator.clipboard.writeText(payload);
+    setCopiedMessageId(messageId);
+    window.setTimeout(() => setCopiedMessageId(null), 1600);
+  };
+
+  const sendReaction = async (turn: number, reactionType: 'heart' | 'fire') => {
+    setReactions((prev) => {
+      const current = prev[turn] ?? { heart: 0, fire: 0 };
+      return {
+        ...prev,
+        [turn]: {
+          ...current,
+          [reactionType]: (current[reactionType] ?? 0) + 1,
+        },
+      };
+    });
+
+    try {
+      await fetch('/api/reactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          boutId,
+          turnIndex: turn,
+          reactionType,
+        }),
+      });
+    } catch {
+      // swallow; reactions are best-effort
+    }
+  };
+
+  const castWinnerVote = async (agentId: string) => {
+    if (userVote || votePending) return;
+    setVoteError(null);
+    setVotePending(agentId);
+    try {
+      const res = await fetch('/api/winner-vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boutId, agentId }),
+      });
+      if (res.status === 401) {
+        setVoteError('Sign in to cast a winner vote.');
+        return;
+      }
+      if (!res.ok) {
+        setVoteError('Vote failed. Try again.');
+        return;
+      }
+      setUserVote(agentId);
+      setWinnerVotes((prev) => ({
+        ...prev,
+        [agentId]: (prev[agentId] ?? 0) + 1,
+      }));
+    } finally {
+      setVotePending(null);
+    }
   };
 
   const alignmentMap = useMemo(() => {
@@ -137,6 +279,11 @@ export function Arena({
     if (!thinkingAgentId) return null;
     return preset.agents.find((agent) => agent.id === thinkingAgentId) ?? null;
   }, [preset.agents, thinkingAgentId]);
+
+  const votedLabel = useMemo(() => {
+    if (!userVote) return null;
+    return preset.agents.find((agent) => agent.id === userVote)?.name ?? userVote;
+  }, [preset.agents, userVote]);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -197,7 +344,10 @@ export function Arena({
             </div>
           )}
 
-          {messages.map((message) => (
+          {messages.map((message, index) => {
+            const counts = reactions[message.turn] ?? { heart: 0, fire: 0 };
+            const share = messageSharePayloads[index];
+            return (
             <article
               key={message.id}
               className={cn(
@@ -217,8 +367,62 @@ export function Arena({
               <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                 {message.text ? renderMessageText(message.text) : '...'}
               </p>
+              <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-muted">
+                <button
+                  type="button"
+                  onClick={() => sendReaction(message.turn, 'heart')}
+                  className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                >
+                  ♥
+                </button>
+                <span>{counts.heart}</span>
+                <button
+                  type="button"
+                  onClick={() => sendReaction(message.turn, 'fire')}
+                  className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                >
+                  🔥
+                </button>
+                <span>{counts.fire}</span>
+              </div>
+              {share && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted">
+                  <button
+                    type="button"
+                    onClick={() => copyMessageShare(share.payload, message.id)}
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    {copiedMessageId === message.id ? 'Copied' : 'Copy'}
+                  </button>
+                  <a
+                    href={share.links.x}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    X
+                  </a>
+                  <a
+                    href={share.links.whatsapp}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    WhatsApp
+                  </a>
+                  <a
+                    href={share.links.telegram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    Telegram
+                  </a>
+                </div>
+              )}
             </article>
-          ))}
+          );
+          })}
           {thinkingAgent && status === 'streaming' && (
             <article
               className={cn(
@@ -236,6 +440,43 @@ export function Arena({
               <p className="mt-4 text-sm italic text-foreground/60">...</p>
             </article>
           )}
+          {status === 'done' && messages.length > 0 && (
+            <section className="mt-8 w-full border-2 border-foreground/60 bg-black/50 p-6">
+              <p className="text-xs uppercase tracking-[0.35em] text-muted">
+                Who won?
+              </p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {preset.agents.map((agent) => (
+                  <button
+                    key={agent.id}
+                    type="button"
+                    onClick={() => castWinnerVote(agent.id)}
+                    disabled={Boolean(userVote) || votePending === agent.id}
+                    className={cn(
+                      'flex items-center justify-between border-2 border-foreground/50 bg-black/60 px-4 py-3 text-left text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent',
+                      userVote === agent.id &&
+                        'border-accent text-accent',
+                    )}
+                  >
+                    <span>{agent.name}</span>
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
+                      {winnerVotes[agent.id] ?? 0} votes
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {userVote && (
+                <p className="mt-4 text-xs uppercase tracking-[0.3em] text-accent">
+                  Vote locked: {votedLabel}
+                </p>
+              )}
+              {voteError && (
+                <p className="mt-4 text-xs uppercase tracking-[0.3em] text-red-400">
+                  {voteError}
+                </p>
+              )}
+            </section>
+          )}
           <div ref={endRef} />
         </section>
 
@@ -243,10 +484,13 @@ export function Arena({
           <button
             type="button"
             onClick={jumpToLatest}
-            className="fixed bottom-6 right-6 rounded-full border-2 border-foreground/60 bg-black/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted shadow-[6px_6px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
+            className="fixed bottom-6 right-6 inline-flex items-center gap-2 rounded-full border-2 border-foreground/60 bg-black/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted shadow-[6px_6px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
             aria-label="Jump to latest"
           >
-            Latest v
+            <span>Latest</span>
+            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-foreground/60 text-[10px] text-muted">
+              ˅
+            </span>
           </button>
         )}
       </div>
