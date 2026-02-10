@@ -200,3 +200,58 @@ export async function getCreditTransactions(userId: string, limit = 20) {
     .orderBy(desc(creditTransactions.createdAt))
     .limit(limit);
 }
+
+/**
+ * Atomically preauthorize credits. This uses a conditional UPDATE that only
+ * succeeds if the user has sufficient balance, preventing race conditions
+ * where concurrent requests could overdraw the account.
+ *
+ * @returns Object with `success` boolean and current `balanceMicro`.
+ *          If success is false, the preauth was rejected due to insufficient funds.
+ */
+export async function preauthorizeCredits(
+  userId: string,
+  amountMicro: number,
+  reason: string,
+  metadata: Record<string, unknown>,
+): Promise<{ success: boolean; balanceMicro: number }> {
+  const db = requireDb();
+
+  // Ensure account exists first
+  await ensureCreditAccount(userId);
+
+  // Atomic conditional update: only deduct if balance >= amount
+  // This prevents race conditions by making check-and-deduct a single operation
+  const [result] = await db
+    .update(credits)
+    .set({
+      balanceMicro: sql`${credits.balanceMicro} - ${amountMicro}`,
+      updatedAt: new Date(),
+    })
+    .where(
+      sql`${credits.userId} = ${userId} AND ${credits.balanceMicro} >= ${amountMicro}`,
+    )
+    .returning({ balanceMicro: credits.balanceMicro });
+
+  if (!result) {
+    // Update didn't match - insufficient balance
+    const [current] = await db
+      .select({ balanceMicro: credits.balanceMicro })
+      .from(credits)
+      .where(eq(credits.userId, userId))
+      .limit(1);
+    return { success: false, balanceMicro: current?.balanceMicro ?? 0 };
+  }
+
+  // Record the transaction after successful deduction
+  await db.insert(creditTransactions).values({
+    userId,
+    deltaMicro: -amountMicro,
+    source: reason,
+    referenceId:
+      typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
+    metadata,
+  });
+
+  return { success: true, balanceMicro: result.balanceMicro };
+}

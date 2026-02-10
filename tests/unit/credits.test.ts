@@ -282,4 +282,113 @@ describe('credits helpers', () => {
     const result = await getCreditTransactions('user-4', 5);
     expect(result).toEqual(rows);
   });
+
+  describe('preauthorizeCredits', () => {
+    it('succeeds when balance is sufficient', async () => {
+      // Setup: account exists with 1000 micro
+      setupSelect([{ userId: 'user-preauth', balanceMicro: 1000 }]);
+
+      // Mock successful update (returns the new balance)
+      mockDb.update.mockImplementation(() => ({
+        set: () => ({
+          where: () => ({
+            returning: vi.fn().mockResolvedValue([{ balanceMicro: 500 }]),
+          }),
+        }),
+      }));
+
+      // Mock transaction insert
+      mockDb.insert.mockImplementation((table: unknown) => {
+        if (table === creditTransactionsTable) {
+          return { values: vi.fn().mockResolvedValue(undefined) };
+        }
+        return {
+          values: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([{ userId: 'user-preauth', balanceMicro: 1000 }]),
+          }),
+        };
+      });
+
+      const { preauthorizeCredits } = await loadCredits();
+      const result = await preauthorizeCredits('user-preauth', 500, 'preauth', {
+        boutId: 'bout-1',
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.balanceMicro).toBe(500);
+    });
+
+    it('fails when balance is insufficient', async () => {
+      // Setup: account exists with 100 micro
+      setupSelect([{ userId: 'user-broke', balanceMicro: 100 }]);
+
+      // Mock update returns empty (WHERE condition not met)
+      mockDb.update.mockImplementation(() => ({
+        set: () => ({
+          where: () => ({
+            returning: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      }));
+
+      // Mock ensureCreditAccount (account exists)
+      mockDb.insert.mockImplementation(() => ({
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([{ userId: 'user-broke', balanceMicro: 100 }]),
+        }),
+      }));
+
+      const { preauthorizeCredits } = await loadCredits();
+      const result = await preauthorizeCredits('user-broke', 500, 'preauth', {
+        boutId: 'bout-2',
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.balanceMicro).toBe(100);
+    });
+
+    it('records transaction only on successful preauth', async () => {
+      const transactionCalls: unknown[] = [];
+
+      setupSelect([{ userId: 'user-track', balanceMicro: 1000 }]);
+
+      mockDb.update.mockImplementation(() => ({
+        set: () => ({
+          where: () => ({
+            returning: vi.fn().mockResolvedValue([{ balanceMicro: 700 }]),
+          }),
+        }),
+      }));
+
+      mockDb.insert.mockImplementation((table: unknown) => {
+        if (table === creditTransactionsTable) {
+          return {
+            values: vi.fn().mockImplementation((v) => {
+              transactionCalls.push(v);
+              return Promise.resolve(undefined);
+            }),
+          };
+        }
+        return {
+          values: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([{ userId: 'user-track', balanceMicro: 1000 }]),
+          }),
+        };
+      });
+
+      const { preauthorizeCredits } = await loadCredits();
+      await preauthorizeCredits('user-track', 300, 'preauth', {
+        boutId: 'bout-3',
+        referenceId: 'bout-3',
+      });
+
+      expect(transactionCalls).toHaveLength(1);
+      expect(transactionCalls[0]).toMatchObject({
+        userId: 'user-track',
+        deltaMicro: -300,
+        source: 'preauth',
+        referenceId: 'bout-3',
+      });
+    });
+  });
 });

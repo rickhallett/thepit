@@ -23,7 +23,7 @@ import {
   computeCostGbp,
   estimateBoutCostGbp,
   estimateTokensFromText,
-  getCreditBalanceMicro,
+  preauthorizeCredits,
   toMicroCredits,
   BYOK_ENABLED,
 } from '@/lib/credits';
@@ -161,17 +161,20 @@ export async function POST(req: Request) {
       lengthConfig.outputTokensPerTurn,
     );
     preauthMicro = toMicroCredits(estimatedCost);
-    const balance = await getCreditBalanceMicro(userId);
-    if (balance === null || balance < preauthMicro) {
-      return new Response('Insufficient credits.', { status: 402 });
-    }
-    await applyCreditDelta(userId, -preauthMicro, 'preauth', {
+
+    // Atomic preauthorization - prevents race condition where concurrent
+    // requests could overdraw the account
+    const preauth = await preauthorizeCredits(userId, preauthMicro, 'preauth', {
       presetId,
       boutId,
       modelId,
       estimatedCostGbp: estimatedCost,
       referenceId: boutId,
     });
+
+    if (!preauth.success) {
+      return new Response('Insufficient credits.', { status: 402 });
+    }
   }
 
   try {
