@@ -18,27 +18,51 @@ import {
 
 type TabId = 'basics' | 'personality' | 'tactics' | 'advanced';
 
-export function AgentBuilder({ className }: { className?: string }) {
+export type AgentBuilderInitialValues = {
+  name?: string;
+  archetype?: string;
+  tone?: string;
+  quirks?: string[];
+  speechPattern?: string;
+  openingMove?: string;
+  signatureMove?: string;
+  weakness?: string;
+  goal?: string;
+  fears?: string;
+  customInstructions?: string;
+  responseLength?: ResponseLength;
+  responseFormat?: ResponseFormatId;
+  parentId?: string;
+};
+
+export function AgentBuilder({
+  className,
+  initialValues,
+}: {
+  className?: string;
+  initialValues?: AgentBuilderInitialValues;
+}) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>('basics');
-  const [name, setName] = useState('');
-  const [archetype, setArchetype] = useState('');
-  const [tone, setTone] = useState('');
-  const [quirks, setQuirks] = useState<string[]>([]);
+  const [name, setName] = useState(initialValues?.name ?? '');
+  const [archetype, setArchetype] = useState(initialValues?.archetype ?? '');
+  const [tone, setTone] = useState(initialValues?.tone ?? '');
+  const [quirks, setQuirks] = useState<string[]>(initialValues?.quirks ?? []);
   const [quirkInput, setQuirkInput] = useState('');
-  const [speechPattern, setSpeechPattern] = useState('');
-  const [openingMove, setOpeningMove] = useState('');
-  const [signatureMove, setSignatureMove] = useState('');
-  const [weakness, setWeakness] = useState('');
-  const [goal, setGoal] = useState('');
-  const [fears, setFears] = useState('');
-  const [customInstructions, setCustomInstructions] = useState('');
+  const [speechPattern, setSpeechPattern] = useState(initialValues?.speechPattern ?? '');
+  const [openingMove, setOpeningMove] = useState(initialValues?.openingMove ?? '');
+  const [signatureMove, setSignatureMove] = useState(initialValues?.signatureMove ?? '');
+  const [weakness, setWeakness] = useState(initialValues?.weakness ?? '');
+  const [goal, setGoal] = useState(initialValues?.goal ?? '');
+  const [fears, setFears] = useState(initialValues?.fears ?? '');
+  const [customInstructions, setCustomInstructions] = useState(initialValues?.customInstructions ?? '');
   const [responseLength, setResponseLength] =
-    useState<ResponseLength>(DEFAULT_RESPONSE_LENGTH);
+    useState<ResponseLength>(initialValues?.responseLength ?? DEFAULT_RESPONSE_LENGTH);
   const [responseFormat, setResponseFormat] =
-    useState<ResponseFormatId>(DEFAULT_RESPONSE_FORMAT);
+    useState<ResponseFormatId>(initialValues?.responseFormat ?? DEFAULT_RESPONSE_FORMAT);
   const [status, setStatus] = useState<'idle' | 'saving'>('idle');
   const [error, setError] = useState<string | null>(null);
+  const parentId = initialValues?.parentId ?? null;
 
   const previewPrompt = useMemo(() => {
     if (!name.trim()) return '';
@@ -125,6 +149,7 @@ export function AgentBuilder({ className }: { className?: string }) {
           customInstructions: customInstructions.trim() || null,
           responseLength,
           responseFormat,
+          parentId,
         }),
       });
 
@@ -373,10 +398,14 @@ export function AgentBuilder({ className }: { className?: string }) {
               status === 'saving' && 'cursor-wait opacity-70',
             )}
           >
-            {status === 'saving' ? 'Creating...' : 'Create agent'}
+            {status === 'saving'
+              ? parentId ? 'Cloning...' : 'Creating...'
+              : parentId ? 'Clone agent' : 'Create agent'}
           </button>
           <span className="text-[10px] uppercase tracking-[0.3em] text-muted">
-            Saved agents become immutable on creation.
+            {parentId
+              ? 'Cloned agents inherit lineage from the source.'
+              : 'Saved agents become immutable on creation.'}
           </span>
         </div>
       </div>

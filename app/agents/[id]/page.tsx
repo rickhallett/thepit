@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getAgentDetail } from '@/lib/agent-detail';
 import { buildAgentDetailHref, decodeAgentId } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
+import { CloneAgentButton } from '@/components/clone-agent-button';
 
 export default async function AgentDetailPage({
   params,
@@ -37,6 +38,9 @@ export default async function AgentDetailPage({
               {detail.presetName}
             </p>
           )}
+          <div className="mt-4">
+            <CloneAgentButton sourceAgentId={detail.id} />
+          </div>
         </header>
 
         <section className="grid gap-3 text-xs uppercase tracking-[0.25em] text-muted">
