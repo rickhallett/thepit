@@ -78,7 +78,7 @@ describe('credits helpers', () => {
     mockDb.insert.mockReset();
     mockDb.update.mockReset();
     process.env.CREDIT_VALUE_GBP = '0.01';
-    process.env.CREDIT_PLATFORM_MARGIN = '0.25';
+    process.env.CREDIT_PLATFORM_MARGIN = '0.10';
     process.env.CREDIT_TOKEN_CHARS_PER = '4';
     process.env.CREDIT_OUTPUT_TOKENS_PER_TURN = '120';
     process.env.CREDIT_INPUT_FACTOR = '5.5';
@@ -134,7 +134,7 @@ describe('credits helpers', () => {
 
     const creditsModule = await loadCredits();
     expect(creditsModule.CREDIT_VALUE_GBP).toBe(0.01);
-    expect(creditsModule.CREDIT_PLATFORM_MARGIN).toBe(0.25);
+    expect(creditsModule.CREDIT_PLATFORM_MARGIN).toBe(0.10);
     expect(creditsModule.TOKEN_CHARS_PER).toBe(4);
     expect(creditsModule.OUTPUT_TOKENS_PER_TURN).toBe(120);
     expect(creditsModule.INPUT_FACTOR).toBe(5.5);
@@ -156,15 +156,15 @@ describe('credits helpers', () => {
   it('handles missing pricing env gracefully', async () => {
     delete process.env.MODEL_PRICES_GBP_JSON;
     const { getModelPricing } = await loadCredits();
-    expect(getModelPricing('claude-haiku-4-5-20251001')).toEqual({ in: 1, out: 5 });
+    expect(getModelPricing('claude-haiku-4-5-20251001')).toEqual({ in: 0.732, out: 3.66 });
   });
 
   it('falls back to defaults when pricing env is invalid', async () => {
     process.env.MODEL_PRICES_GBP_JSON = '{bad-json';
     const { getModelPricing } = await loadCredits();
     expect(getModelPricing('claude-haiku-4-5-20251001')).toEqual({
-      in: 1,
-      out: 5,
+      in: 0.732,
+      out: 3.66,
     });
   });
 

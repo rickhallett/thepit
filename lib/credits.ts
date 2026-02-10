@@ -15,7 +15,7 @@ export const CREDITS_ADMIN_GRANT = Number(
   process.env.CREDITS_ADMIN_GRANT ?? '100',
 );
 export const CREDIT_PLATFORM_MARGIN = Number(
-  process.env.CREDIT_PLATFORM_MARGIN ?? '0.25',
+  process.env.CREDIT_PLATFORM_MARGIN ?? '0.10',
 );
 export const TOKEN_CHARS_PER = Number(
   process.env.CREDIT_TOKEN_CHARS_PER ?? '4',
@@ -33,11 +33,14 @@ export const BYOK_FEE_GBP_PER_1K_TOKENS = Number(
 );
 export const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
 
+// Prices per million tokens in GBP (converted from USD at ~0.732 GBP/USD).
+// Combined with CREDIT_PLATFORM_MARGIN (default 10%), these yield ~10% margin
+// over actual Anthropic API costs.
 const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
-  'claude-haiku-4-5-20251001': { in: 1, out: 5 },
-  'claude-sonnet-4-5-20250929': { in: 3, out: 15 },
-  'claude-opus-4-5-20251101': { in: 5, out: 25 },
-  'claude-opus-4-6': { in: 5, out: 25 },
+  'claude-haiku-4-5-20251001': { in: 0.732, out: 3.66 },
+  'claude-sonnet-4-5-20250929': { in: 2.196, out: 10.98 },
+  'claude-opus-4-5-20251101': { in: 3.66, out: 18.3 },
+  'claude-opus-4-6': { in: 3.66, out: 18.3 },
 };
 
 const ENV_MODEL_PRICES = (() => {

@@ -149,6 +149,13 @@ export function useBout({
         model === 'byok'
           ? window.sessionStorage.getItem('pit_byok_key')
           : null;
+
+      // Clear BYOK key from sessionStorage immediately after reading.
+      // Minimizes the XSS exposure window — key is only in memory after this.
+      if (byokKey) {
+        window.sessionStorage.removeItem('pit_byok_key');
+      }
+
       const payload: Record<string, unknown> = {
         boutId,
         presetId: preset.id,

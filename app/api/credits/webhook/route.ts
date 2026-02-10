@@ -6,7 +6,7 @@ import { creditTransactions } from '@/db/schema';
 import {
   applyCreditDelta,
   ensureCreditAccount,
-  toMicroCredits,
+  MICRO_PER_CREDIT,
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
 
     if (shouldProcess) {
       await ensureCreditAccount(userId);
-      const deltaMicro = toMicroCredits(credits);
+      const deltaMicro = credits * MICRO_PER_CREDIT;
       await applyCreditDelta(userId, deltaMicro, 'purchase', {
         referenceId: session.id,
         credits,

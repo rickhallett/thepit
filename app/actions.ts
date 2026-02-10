@@ -63,20 +63,16 @@ export async function createBout(presetId: string, formData?: FormData) {
     await ensureUserRecord(userId);
   }
 
-  try {
-    await db.insert(bouts).values({
-      id,
-      presetId,
-      status: 'running',
-      transcript: [],
-      ownerId: userId ?? null,
-      topic: topic || null,
-      responseLength: lengthConfig.id,
-      responseFormat: formatConfig.id,
-    });
-  } catch (error) {
-    console.error('createBout insert failed', error);
-  }
+  await db.insert(bouts).values({
+    id,
+    presetId,
+    status: 'running',
+    transcript: [],
+    ownerId: userId ?? null,
+    topic: topic ?? null,
+    responseLength: lengthConfig.id,
+    responseFormat: formatConfig.id,
+  });
 
   const params = new URLSearchParams({ presetId });
   if (topic) {
