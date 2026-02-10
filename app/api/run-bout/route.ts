@@ -28,7 +28,11 @@ import {
   BYOK_ENABLED,
 } from '@/lib/credits';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
+
+// Allow up to 120 seconds for multi-turn streaming bouts.
+// Edge runtime has a 30s limit which is insufficient for 12-turn bouts.
+export const maxDuration = 120;
 
 export async function POST(req: Request) {
   let payload: {
@@ -394,7 +398,20 @@ export async function POST(req: Request) {
       }
     },
     onError(error) {
-      console.error(error);
+      const message =
+        error instanceof Error ? error.message : String(error);
+      console.error('Bout stream error:', message);
+
+      // Surface a more descriptive error to the client
+      if (message.includes('timeout') || message.includes('DEADLINE')) {
+        return 'The bout timed out. Try a shorter length or fewer turns.';
+      }
+      if (message.includes('rate') || message.includes('429')) {
+        return 'API rate limited. Please wait a moment and try again.';
+      }
+      if (message.includes('overloaded') || message.includes('529')) {
+        return 'The model is overloaded. Please try again shortly.';
+      }
       return 'The arena short-circuited.';
     },
   });
