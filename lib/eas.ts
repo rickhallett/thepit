@@ -23,6 +23,23 @@ export type AttestationResult = {
   txHash: string;
 };
 
+/**
+ * Validate that a string is a valid bytes32 hex string (66 chars: 0x + 64 hex)
+ */
+export const isValidBytes32 = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false;
+  return /^0x[a-fA-F0-9]{64}$/.test(value);
+};
+
+/**
+ * Validate that a string is a valid transaction hash
+ */
+export const isValidTxHash = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false;
+  // Transaction hashes are also bytes32
+  return /^0x[a-fA-F0-9]{64}$/.test(value);
+};
+
 const requireEasConfig = () => {
   if (!EAS_ENABLED) {
     throw new Error('EAS is not enabled.');
@@ -104,5 +121,16 @@ export const attestAgent = async (params: {
   };
   const txHash =
     txInfo.receipt?.transactionHash ?? txInfo.tx?.hash ?? txInfo.hash ?? '';
+
+  // Validate returned values to catch data corruption early
+  if (!isValidBytes32(uid)) {
+    throw new Error(`Invalid attestation UID returned: ${uid}`);
+  }
+
+  if (txHash && !isValidTxHash(txHash)) {
+    console.warn(`Invalid transaction hash format: ${txHash}`);
+    // Don't throw - txHash is informational, UID is what matters
+  }
+
   return { uid, txHash };
 };
