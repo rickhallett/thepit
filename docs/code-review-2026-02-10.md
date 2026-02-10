@@ -335,23 +335,23 @@ The happy paths are tested. The attack vectors are not.
 
 | # | Severity | Issue | Status |
 |---|----------|-------|--------|
-| 1 | CRITICAL | Credit preauth race condition | ⬜ TODO |
-| 2 | CRITICAL | Unauthenticated agent creation | ⬜ TODO |
-| 3 | CRITICAL | BYOK key in session storage | ⬜ TODO |
-| 4 | CRITICAL | No rate limiting on reactions | ⬜ TODO |
-| 5 | CRITICAL | Webhook timing oracle | ⬜ TODO |
-| 6 | HIGH | Intro pool race condition | ⬜ TODO |
-| 7 | HIGH | Remix self-enrichment loophole | ⬜ TODO |
-| 8 | HIGH | Attestation UID type mismatch | ⬜ TODO |
-| 9 | HIGH | Credit settlement can go negative | ⬜ TODO |
-| 10 | HIGH | Bout ID collision handling | ⬜ TODO |
-| 11 | MEDIUM | Global DB client nullable | ⬜ TODO |
-| 12 | MEDIUM | Preset lookup O(n) | ⬜ TODO |
-| 13 | MEDIUM | Transcript unbounded growth | ⬜ TODO |
-| 14 | MEDIUM | Error swallowing | ⬜ TODO |
-| 15 | MEDIUM | Share line truncation lossy | ⬜ TODO |
-| 16 | LOW | Type coercion inconsistencies | ⬜ TODO |
-| 17 | LOW | Magic numbers | ⬜ TODO |
-| 18 | LOW | Mixed concerns in routes | ⬜ TODO |
-| 19 | LOW | Inconsistent null handling | ⬜ TODO |
-| 20 | LOW | Test coverage gaps | ⬜ TODO |
+| 1 | CRITICAL | Credit preauth race condition | ✅ FIXED |
+| 2 | CRITICAL | Unauthenticated agent creation | ✅ FIXED |
+| 3 | CRITICAL | BYOK key in session storage | ⬜ DEFERRED |
+| 4 | CRITICAL | No rate limiting on reactions | ✅ FIXED |
+| 5 | CRITICAL | Webhook timing oracle | ✅ FIXED |
+| 6 | HIGH | Intro pool race condition | ✅ FIXED |
+| 7 | HIGH | Remix self-enrichment loophole | ⬜ DEFERRED |
+| 8 | HIGH | Attestation UID type mismatch | ✅ FIXED |
+| 9 | HIGH | Credit settlement can go negative | ⬜ DEFERRED |
+| 10 | HIGH | Bout ID collision handling | ✅ FIXED |
+| 11 | MEDIUM | Global DB client nullable | ⬜ DEFERRED |
+| 12 | MEDIUM | Preset lookup O(n) | ✅ FIXED |
+| 13 | MEDIUM | Transcript unbounded growth | ⬜ DEFERRED |
+| 14 | MEDIUM | Error swallowing | ⬜ DEFERRED |
+| 15 | MEDIUM | Share line truncation lossy | ⬜ DEFERRED |
+| 16 | LOW | Type coercion inconsistencies | ⬜ DEFERRED |
+| 17 | LOW | Magic numbers | ⬜ DEFERRED |
+| 18 | LOW | Mixed concerns in routes | ⬜ DEFERRED |
+| 19 | LOW | Inconsistent null handling | ⬜ DEFERRED |
+| 20 | LOW | Test coverage gaps | ⬜ DEFERRED |
