@@ -22,8 +22,8 @@ export default async function LandingPage() {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(244,244,240,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(244,244,240,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
         <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-6 py-24">
           <div className="flex items-center gap-3">
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-accent" />
-            <p className="text-xs uppercase tracking-[0.4em] text-accent">
+            <span className="inline-block h-3 w-3 animate-pulse rounded-full bg-accent" />
+            <p className="text-sm uppercase tracking-[0.5em] text-accent md:text-base">
               THE PIT
             </p>
           </div>
