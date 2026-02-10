@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { buildAgentDetailHref } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
+import { CloneAgentButton } from '@/components/clone-agent-button';
 
 export type AgentDetails = {
   id: string;
@@ -169,13 +170,7 @@ export function AgentDetailsModal({
           >
             View full DNA
           </Link>
-          <button
-            type="button"
-            disabled
-            className="rounded-full border-2 border-foreground/50 px-3 py-2 text-muted"
-          >
-            Clone (soon)
-          </button>
+          <CloneAgentButton sourceAgentId={agent.id} onClone={onClose} />
         </div>
       </div>
     </div>
