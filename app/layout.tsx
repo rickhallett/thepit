@@ -8,7 +8,7 @@ import { Analytics } from '@vercel/analytics/react';
 
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
-import { AskThePit } from '@/components/ask-the-pit';
+import { AskThePitLazy } from '@/components/ask-the-pit-lazy';
 import { PostHogProvider } from '@/components/posthog-provider';
 import { initializeUserSession } from '@/lib/onboarding';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
@@ -25,8 +25,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { userId } = await auth();
-  const cookieStore = await cookies();
+  const [{ userId }, cookieStore] = await Promise.all([auth(), cookies()]);
   const referralCode = cookieStore.get('pit_ref')?.value ?? null;
 
   if (userId) {
@@ -42,7 +41,7 @@ export default async function RootLayout({
               <SiteHeader />
               <div className="flex-1">{children}</div>
               <SiteFooter />
-              <AskThePit enabled={ASK_THE_PIT_ENABLED} />
+              <AskThePitLazy enabled={ASK_THE_PIT_ENABLED} />
             </div>
             <Analytics />
           </PostHogProvider>

@@ -156,7 +156,7 @@ export function ArenaBuilder({
           <select
             name="length"
             defaultValue={DEFAULT_RESPONSE_LENGTH}
-            className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
           >
             {RESPONSE_LENGTHS.map((length) => (
               <option key={length.id} value={length.id}>
@@ -170,7 +170,7 @@ export function ArenaBuilder({
           <select
             name="format"
             defaultValue={DEFAULT_RESPONSE_FORMAT}
-            className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
           >
             {RESPONSE_FORMATS.map((format) => (
               <option key={format.id} value={format.id}>
@@ -186,7 +186,7 @@ export function ArenaBuilder({
               name="model"
               value={selectedModel}
               onChange={(event) => setSelectedModel(event.target.value)}
-              className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+              className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
             >
               {modelOptions.map((model) => (
                 <option key={model} value={model}>

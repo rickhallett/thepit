@@ -64,8 +64,7 @@ export default async function ReplayPage({
   params: Promise<{ id: string }> | { id: string };
 }) {
   const db = requireDb();
-  const resolved = await params;
-  const { userId } = await auth();
+  const [resolved, { userId }] = await Promise.all([params, auth()]);
   const [bout] = await db
     .select()
     .from(bouts)

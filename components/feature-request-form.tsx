@@ -120,7 +120,7 @@ export function FeatureRequestForm() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               required
-              className="border-2 border-foreground/70 bg-black/60 px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
+              className="border-2 border-foreground/70 bg-black/60 px-4 py-3 pr-10 text-sm text-foreground focus:border-accent focus:outline-none"
             >
               <option value="" disabled>
                 Select a category...

@@ -356,7 +356,7 @@ export function AgentBuilder({
                 onChange={(event) =>
                   setResponseLength(event.target.value as ResponseLength)
                 }
-                className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
+                className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-sm text-foreground focus:border-accent focus:outline-none"
               >
                 {RESPONSE_LENGTHS.map((length) => (
                   <option key={length.id} value={length.id}>
@@ -372,7 +372,7 @@ export function AgentBuilder({
                 onChange={(event) =>
                   setResponseFormat(event.target.value as ResponseFormatId)
                 }
-                className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
+                className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-sm text-foreground focus:border-accent focus:outline-none"
               >
                 {RESPONSE_FORMATS.map((format) => (
                   <option key={format.id} value={format.id}>
