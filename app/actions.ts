@@ -205,6 +205,9 @@ export async function grantTestCredits() {
   if (!userId) {
     redirect('/sign-in?redirect_url=/arena');
   }
+  if (!isAdmin(userId)) {
+    throw new Error('Unauthorized.');
+  }
   if (!CREDITS_ADMIN_ENABLED) {
     throw new Error('Admin credits disabled.');
   }
