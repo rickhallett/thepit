@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 
 import { AgentDetailsModal } from '@/components/agent-details-modal';
+import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import type { PitLeaderboardEntry } from '@/lib/leaderboard';
@@ -206,13 +207,13 @@ export function LeaderboardTable({
                   className="flex items-center gap-3 uppercase tracking-[0.2em] transition hover:text-accent"
                 >
                   <span
-                    className="rounded-full border-2 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]"
+                    className="flex items-center justify-center rounded-full border-2 px-2 py-0.5"
                     style={{
                       borderColor: entry.color ?? DEFAULT_AGENT_COLOR,
                       color: entry.color ?? DEFAULT_AGENT_COLOR,
                     }}
                   >
-                    {entry.avatar ?? '■'}
+                    <AgentIcon avatar={entry.avatar} size={12} />
                   </span>
                   <span>{entry.name}</span>
                 </button>
