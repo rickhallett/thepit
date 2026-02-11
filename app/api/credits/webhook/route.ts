@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { eq } from 'drizzle-orm';
+import type Stripe from 'stripe';
 
 import { requireDb } from '@/db';
 import { creditTransactions } from '@/db/schema';
@@ -36,10 +37,7 @@ export async function POST(req: Request) {
   // Process checkout.session.completed events
   // Use consistent code path to prevent timing oracle attacks
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as {
-      id: string;
-      metadata?: Record<string, string>;
-    };
+    const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
     const credits = session.metadata?.credits
       ? Number(session.metadata.credits)

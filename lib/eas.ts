@@ -136,14 +136,16 @@ export const attestAgent = async (params: {
 
   const uid = await transaction.wait();
   // The EAS SDK returns transaction info in an inconsistent shape across
-  // versions, so we defensively extract the hash from multiple possible paths.
-  const txInfo = transaction as unknown as {
-    receipt?: { transactionHash?: string };
-    tx?: { hash?: string };
-    hash?: string;
-  };
+  // versions, so we defensively extract the hash via runtime property checks
+  // instead of using a double type-cast that would bypass the compiler.
+  const txObj = transaction as unknown as Record<string, unknown>;
+  const receipt = txObj.receipt as Record<string, unknown> | undefined;
+  const tx = txObj.tx as Record<string, unknown> | undefined;
   const txHash =
-    txInfo.receipt?.transactionHash ?? txInfo.tx?.hash ?? txInfo.hash ?? '';
+    (typeof receipt?.transactionHash === 'string' ? receipt.transactionHash : null) ??
+    (typeof tx?.hash === 'string' ? tx.hash : null) ??
+    (typeof txObj.hash === 'string' ? txObj.hash : '') ??
+    '';
 
   // Validate returned values to catch data corruption early
   if (!isValidBytes32(uid)) {

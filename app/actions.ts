@@ -29,6 +29,7 @@ import {
   DEFAULT_RESPONSE_FORMAT,
   resolveResponseFormat,
 } from '@/lib/response-formats';
+import { getFormString } from '@/lib/form-utils';
 
 export async function createBout(presetId: string, formData?: FormData) {
   const presetExists = PRESETS.some((preset) => preset.id === presetId);
@@ -43,22 +44,10 @@ export async function createBout(presetId: string, formData?: FormData) {
 
   const db = requireDb();
   const id = nanoid();
-  const topic =
-    formData?.get('topic') && typeof formData.get('topic') === 'string'
-      ? String(formData.get('topic')).trim()
-      : '';
-  const model =
-    formData?.get('model') && typeof formData.get('model') === 'string'
-      ? String(formData.get('model')).trim()
-      : '';
-  const length =
-    formData?.get('length') && typeof formData.get('length') === 'string'
-      ? String(formData.get('length')).trim()
-      : '';
-  const format =
-    formData?.get('format') && typeof formData.get('format') === 'string'
-      ? String(formData.get('format')).trim()
-      : '';
+  const topic = getFormString(formData, 'topic');
+  const model = getFormString(formData, 'model');
+  const length = getFormString(formData, 'length');
+  const format = getFormString(formData, 'format');
   const lengthConfig = resolveResponseLength(length);
   const formatConfig = resolveResponseFormat(format);
 
@@ -100,22 +89,10 @@ export async function createArenaBout(formData: FormData) {
   }
 
   const agentIds = formData.getAll('agentIds').filter(Boolean) as string[];
-  const topic =
-    formData?.get('topic') && typeof formData.get('topic') === 'string'
-      ? String(formData.get('topic')).trim()
-      : '';
-  const length =
-    formData?.get('length') && typeof formData.get('length') === 'string'
-      ? String(formData.get('length')).trim()
-      : '';
-  const format =
-    formData?.get('format') && typeof formData.get('format') === 'string'
-      ? String(formData.get('format')).trim()
-      : '';
-  const model =
-    formData?.get('model') && typeof formData.get('model') === 'string'
-      ? String(formData.get('model')).trim()
-      : '';
+  const topic = getFormString(formData, 'topic');
+  const length = getFormString(formData, 'length');
+  const format = getFormString(formData, 'format');
+  const model = getFormString(formData, 'model');
   const lengthConfig = resolveResponseLength(length || DEFAULT_RESPONSE_LENGTH);
   const formatConfig = resolveResponseFormat(format || DEFAULT_RESPONSE_FORMAT);
 
@@ -166,10 +143,7 @@ export async function createArenaBout(formData: FormData) {
 }
 
 export async function createCreditCheckout(formData: FormData) {
-  const packId =
-    formData?.get('packId') && typeof formData.get('packId') === 'string'
-      ? String(formData.get('packId')).trim()
-      : '';
+  const packId = getFormString(formData, 'packId');
   const pack = CREDIT_PACKAGES.find((item) => item.id === packId);
 
   if (!pack) {

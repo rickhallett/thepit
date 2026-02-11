@@ -130,9 +130,7 @@ export function Arena({
 
   const sharePayload = useMemo(() => {
     if (!transcript && !liveShareLine && !shareLine) return '';
-    const origin = shareUrl
-      ? new URL(shareUrl).origin
-      : 'https://tspit.vercel.app';
+    const origin = shareUrl ? new URL(shareUrl).origin : '';
     const replayUrl = `${origin}/b/${boutId}`;
     const line = (liveShareLine ?? shareLine ?? '').trim();
     const headline =
@@ -145,7 +143,7 @@ export function Arena({
     if (messages.length === 0) return [];
     const origin = shareUrl
       ? new URL(shareUrl).origin
-      : 'https://tspit.vercel.app';
+      : '';
     const replayUrl = `${origin}/b/${boutId}`;
     const headline =
       (liveShareLine ?? shareLine ?? '').trim() || `THE PIT — ${preset.name}`;
