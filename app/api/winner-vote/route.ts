@@ -1,7 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
-import { winnerVotes } from '@/db/schema';
+import { bouts, winnerVotes } from '@/db/schema';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +30,18 @@ export async function POST(req: Request) {
   }
 
   const db = requireDb();
+
+  // Verify the bout exists before accepting the vote.
+  const [bout] = await db
+    .select({ id: bouts.id })
+    .from(bouts)
+    .where(eq(bouts.id, boutId))
+    .limit(1);
+
+  if (!bout) {
+    return new Response('Bout not found.', { status: 404 });
+  }
+
   await db
     .insert(winnerVotes)
     .values({ boutId, agentId, userId })
