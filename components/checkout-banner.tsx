@@ -6,15 +6,14 @@ import { useSearchParams } from 'next/navigation';
 export function CheckoutBanner() {
   const searchParams = useSearchParams();
   const checkout = searchParams.get('checkout');
-  const [visible, setVisible] = useState(false);
+  const shouldShow = checkout === 'success' || checkout === 'cancel';
+  const [visible, setVisible] = useState(shouldShow);
 
   useEffect(() => {
-    if (checkout === 'success' || checkout === 'cancel') {
-      setVisible(true);
-      const timer = setTimeout(() => setVisible(false), 6000);
-      return () => clearTimeout(timer);
-    }
-  }, [checkout]);
+    if (!shouldShow) return;
+    const timer = setTimeout(() => setVisible(false), 6000);
+    return () => clearTimeout(timer);
+  }, [shouldShow]);
 
   if (!visible) return null;
 
