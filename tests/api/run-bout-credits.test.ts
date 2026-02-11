@@ -258,7 +258,7 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
       makeRequest({ boutId: 'b1', presetId: 'darwin-special' }),
     );
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 
   // -------------------------------------------------------------------------
@@ -271,7 +271,7 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
       makeRequest({ boutId: 'b2', presetId: 'darwin-special' }),
     );
     expect(res.status).toBe(402);
-    expect(await res.text()).toBe('Insufficient credits.');
+    expect(await res.json()).toEqual({ error: 'Insufficient credits.' });
   });
 
   // -------------------------------------------------------------------------

@@ -88,28 +88,28 @@ describe('ask-the-pit route', () => {
     const res = await POST(makeJsonReq({ message: 'hello' }));
 
     expect(res.status).toBe(404);
-    expect(await res.text()).toBe('Ask The Pit is not enabled.');
+    expect(await res.json()).toEqual({ error: 'Ask The Pit is not enabled.' });
   });
 
   it('U2: missing message → 400 "Missing message."', async () => {
     const res = await POST(makeJsonReq({}));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing message.');
+    expect(await res.json()).toEqual({ error: 'Missing message.' });
   });
 
   it('U3: empty message (whitespace) → 400 "Missing message."', async () => {
     const res = await POST(makeJsonReq({ message: '   ' }));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing message.');
+    expect(await res.json()).toEqual({ error: 'Missing message.' });
   });
 
   it('U4: invalid JSON → 400 "Invalid JSON."', async () => {
     const res = await POST(makeReq('{bad'));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid JSON.');
+    expect(await res.json()).toEqual({ error: 'Invalid JSON.' });
   });
 
   it('U5: rate limit → 429', async () => {
@@ -122,7 +122,8 @@ describe('ask-the-pit route', () => {
     const res = await POST(makeJsonReq({ message: 'hello' }));
 
     expect(res.status).toBe(429);
-    expect(await res.text()).toContain('Rate limit exceeded');
+    const body = await res.json();
+    expect(body.error).toContain('Rate limit exceeded');
   });
 
   it('H1: valid message with feature enabled → 200 streaming response', async () => {

@@ -69,10 +69,10 @@ describe('newsletter edge cases', () => {
     const res = await POST(makeReq({ email: longEmail }));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid email address.');
+    expect(await res.json()).toEqual({ error: 'Invalid email address.' });
   });
 
-  it('U2: rate limit → 429 "Too many requests. Try again later."', async () => {
+  it('U2: rate limit → 429 "Rate limit exceeded."', async () => {
     checkRateLimitMock.mockReturnValue({
       success: false,
       remaining: 0,
@@ -82,13 +82,13 @@ describe('newsletter edge cases', () => {
     const res = await POST(makeReq({ email: 'test@example.com' }));
 
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe('Too many requests. Try again later.');
+    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
   });
 
   it('U3: email with whitespace → 400 (regex rejects spaces)', async () => {
     const res = await POST(makeReq({ email: 'test @example.com' }));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid email address.');
+    expect(await res.json()).toEqual({ error: 'Invalid email address.' });
   });
 });

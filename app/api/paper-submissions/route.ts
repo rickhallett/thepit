@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { paperSubmissions } from '@/db/schema';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { parseArxivId, fetchArxivMetadata } from '@/lib/arxiv';
@@ -22,7 +23,7 @@ const VALID_AREAS = [
 export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
-    return new Response('Sign in required.', { status: 401 });
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
   const rateCheck = checkRateLimit(
@@ -30,22 +31,16 @@ export const POST = withLogging(async function POST(req: Request) {
     userId,
   );
   if (!rateCheck.success) {
-    return new Response('Too many submissions. Try again later.', {
-      status: 429,
-    });
+    return rateLimitResponse(rateCheck);
   }
 
-  let payload: {
+  const parsed = await parseJsonBody<{
     arxivUrl?: string;
     justification?: string;
     relevanceArea?: string;
-  };
-
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const arxivUrl =
     typeof payload.arxivUrl === 'string' ? payload.arxivUrl.trim() : '';
@@ -59,39 +54,33 @@ export const POST = withLogging(async function POST(req: Request) {
       : '';
 
   if (!arxivUrl) {
-    return new Response('arXiv URL required.', { status: 400 });
+    return errorResponse('arXiv URL required.', 400);
   }
 
   const arxivId = parseArxivId(arxivUrl);
   if (!arxivId) {
-    return new Response('Invalid arXiv URL.', { status: 400 });
+    return errorResponse('Invalid arXiv URL.', 400);
   }
 
   if (!VALID_AREAS.includes(relevanceArea as (typeof VALID_AREAS)[number])) {
-    return new Response('Invalid relevance area.', { status: 400 });
+    return errorResponse('Invalid relevance area.', 400);
   }
 
   if (justification.length < 50) {
-    return new Response('Justification must be at least 50 characters.', {
-      status: 400,
-    });
+    return errorResponse('Justification must be at least 50 characters.', 400);
   }
 
   if (justification.length > 2000) {
-    return new Response('Justification must be 2000 characters or fewer.', {
-      status: 400,
-    });
+    return errorResponse('Justification must be 2000 characters or fewer.', 400);
   }
 
   if (UNSAFE_PATTERN.test(justification)) {
-    return new Response('Justification must not contain URLs or scripts.', {
-      status: 400,
-    });
+    return errorResponse('Justification must not contain URLs or scripts.', 400);
   }
 
   const metadata = await fetchArxivMetadata(arxivId);
   if (!metadata) {
-    return new Response('Paper not found on arXiv.', { status: 400 });
+    return errorResponse('Paper not found on arXiv.', 400);
   }
 
   await ensureUserRecord(userId);

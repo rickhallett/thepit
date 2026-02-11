@@ -10,14 +10,15 @@ import {
 } from '@/lib/agent-registry';
 import { attestAgent, EAS_ENABLED } from '@/lib/eas';
 import { requireAdmin } from '@/lib/admin-auth';
+import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
     requireAdmin(req);
-  } catch (error) {
-    return new Response('Unauthorized.', { status: 401 });
+  } catch {
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
   const db = requireDb();

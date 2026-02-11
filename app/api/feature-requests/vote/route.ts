@@ -3,6 +3,7 @@ import { eq, and, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { featureRequestVotes } from '@/db/schema';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 
@@ -12,7 +13,7 @@ export const runtime = 'nodejs';
 export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
-    return new Response('Sign in required.', { status: 401 });
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
   const rateCheck = checkRateLimit(
@@ -20,20 +21,16 @@ export const POST = withLogging(async function POST(req: Request) {
     userId,
   );
   if (!rateCheck.success) {
-    return new Response('Too many requests.', { status: 429 });
+    return rateLimitResponse(rateCheck);
   }
 
-  let payload: { featureRequestId?: number };
-
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ featureRequestId?: number }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const featureRequestId = payload.featureRequestId;
   if (typeof featureRequestId !== 'number' || !Number.isInteger(featureRequestId)) {
-    return new Response('Missing or invalid featureRequestId.', { status: 400 });
+    return errorResponse('Missing or invalid featureRequestId.', 400);
   }
 
   const db = requireDb();

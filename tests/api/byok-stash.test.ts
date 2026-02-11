@@ -74,7 +74,7 @@ describe('byok-stash', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid key format.');
+    expect(await res.json()).toEqual({ error: 'Invalid key format.' });
   });
 
   it('POST sets cookie and returns { ok: true }', async () => {

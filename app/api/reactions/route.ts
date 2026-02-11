@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
+import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -24,27 +25,16 @@ export const POST = withLogging(async function POST(req: Request) {
   const rateLimit = checkRateLimit(RATE_LIMIT_CONFIG, clientId);
 
   if (!rateLimit.success) {
-    return new Response('Too many requests.', {
-      status: 429,
-      headers: {
-        'Retry-After': String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)),
-        'X-RateLimit-Remaining': '0',
-        'X-RateLimit-Reset': String(rateLimit.resetAt),
-      },
-    });
+    return rateLimitResponse(rateLimit);
   }
 
-  let payload: {
+  const parsed = await parseJsonBody<{
     boutId?: string;
     turnIndex?: number;
     reactionType?: string;
-  };
-
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const boutId =
     typeof payload.boutId === 'string' ? payload.boutId.trim() : '';
@@ -54,11 +44,11 @@ export const POST = withLogging(async function POST(req: Request) {
       : '';
 
   if (!boutId || typeof payload.turnIndex !== 'number') {
-    return new Response('Missing boutId or turnIndex.', { status: 400 });
+    return errorResponse('Missing boutId or turnIndex.', 400);
   }
 
   if (!['heart', 'fire'].includes(reactionType)) {
-    return new Response('Invalid reaction type.', { status: 400 });
+    return errorResponse('Invalid reaction type.', 400);
   }
 
   const { userId } = await auth();

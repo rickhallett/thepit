@@ -502,7 +502,7 @@ describe('POST /api/agents — input validation', () => {
       makeRequest({ name: 'Bot https://evil.com', systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Name must not contain URLs.');
+    expect(await res.json()).toEqual({ error: 'Name must not contain URLs.' });
   });
 
   it('returns 400 when name contains www.', async () => {
@@ -510,7 +510,7 @@ describe('POST /api/agents — input validation', () => {
       makeRequest({ name: 'Bot www.evil.com', systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Name must not contain URLs.');
+    expect(await res.json()).toEqual({ error: 'Name must not contain URLs.' });
   });
 
   it('returns 400 when name exceeds 80 characters', async () => {
@@ -519,7 +519,7 @@ describe('POST /api/agents — input validation', () => {
       makeRequest({ name: longName, systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Name must be 80 characters or fewer.');
+    expect(await res.json()).toEqual({ error: 'Name must be 80 characters or fewer.' });
   });
 
   it('returns 400 when archetype exceeds max length', async () => {
@@ -530,9 +530,9 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Archetype must be 200 characters or fewer.',
-    );
+    expect(await res.json()).toEqual({
+      error: 'Archetype must be 200 characters or fewer.',
+    });
   });
 
   it('returns 400 when tone exceeds max length', async () => {
@@ -543,7 +543,7 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Tone must be 200 characters or fewer.');
+    expect(await res.json()).toEqual({ error: 'Tone must be 200 characters or fewer.' });
   });
 
   it('returns 400 when customInstructions exceeds 5000 chars', async () => {
@@ -554,9 +554,9 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Custom instructions must be 5000 characters or fewer.',
-    );
+    expect(await res.json()).toEqual({
+      error: 'Custom instructions must be 5000 characters or fewer.',
+    });
   });
 
   it('returns 400 when structured field contains <script>', async () => {
@@ -567,9 +567,9 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Archetype must not contain URLs or scripts.',
-    );
+    expect(await res.json()).toEqual({
+      error: 'Archetype must not contain URLs or scripts.',
+    });
   });
 
   it('returns 400 when structured field contains javascript:', async () => {
@@ -580,7 +580,7 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Tone must not contain URLs or scripts.');
+    expect(await res.json()).toEqual({ error: 'Tone must not contain URLs or scripts.' });
   });
 
   it('returns 400 when structured field contains a URL', async () => {
@@ -591,7 +591,7 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Goal must not contain URLs or scripts.');
+    expect(await res.json()).toEqual({ error: 'Goal must not contain URLs or scripts.' });
   });
 
   it('returns 400 when more than 10 quirks are provided', async () => {
@@ -603,7 +603,7 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Maximum 10 quirks allowed.');
+    expect(await res.json()).toEqual({ error: 'Maximum 10 quirks allowed.' });
   });
 
   it('returns 400 when a quirk exceeds 100 characters', async () => {
@@ -615,9 +615,9 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Each quirk must be 100 characters or fewer.',
-    );
+    expect(await res.json()).toEqual({
+      error: 'Each quirk must be 100 characters or fewer.',
+    });
   });
 
   it('returns 400 when a quirk contains a URL', async () => {
@@ -629,9 +629,9 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Quirks must not contain URLs or scripts.',
-    );
+    expect(await res.json()).toEqual({
+      error: 'Quirks must not contain URLs or scripts.',
+    });
   });
 
   it('returns 400 when clientManifestHash does not match', async () => {
@@ -643,19 +643,19 @@ describe('POST /api/agents — input validation', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Manifest hash mismatch.');
+    expect(await res.json()).toEqual({ error: 'Manifest hash mismatch.' });
   });
 
   it('returns 400 when name is missing', async () => {
     const res = await POST(makeRequest({ systemPrompt: 'ok' }));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing name.');
+    expect(await res.json()).toEqual({ error: 'Missing name.' });
   });
 
   it('returns 400 when prompt is missing and no structured fields', async () => {
     const res = await POST(makeRequest({ name: 'NoPromptBot' }));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing prompt.');
+    expect(await res.json()).toEqual({ error: 'Missing prompt.' });
   });
 });
 
@@ -670,7 +670,7 @@ describe('POST /api/agents — auth & rate limiting', () => {
       makeRequest({ name: 'Bot', systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 
   it('returns 429 when rate limited', async () => {
@@ -684,8 +684,8 @@ describe('POST /api/agents — auth & rate limiting', () => {
       makeRequest({ name: 'Bot', systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe(
-      'Rate limit exceeded. Max 10 agents per hour.',
-    );
+    expect(await res.json()).toEqual({
+      error: 'Rate limit exceeded. Max 10 agents per hour.',
+    });
   });
 });

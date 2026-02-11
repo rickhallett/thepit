@@ -87,7 +87,7 @@ describe('contact form', () => {
       makeJsonReq({ email: 'a@b.com', message: 'hi' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing fields.');
+    expect(await res.json()).toEqual({ error: 'Missing fields.' });
   });
 
   it('U2: missing email → 400 "Missing fields."', async () => {
@@ -95,7 +95,7 @@ describe('contact form', () => {
       makeJsonReq({ name: 'Alice', message: 'hi' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing fields.');
+    expect(await res.json()).toEqual({ error: 'Missing fields.' });
   });
 
   it('U3: missing message → 400 "Missing fields."', async () => {
@@ -103,13 +103,13 @@ describe('contact form', () => {
       makeJsonReq({ name: 'Alice', email: 'a@b.com' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing fields.');
+    expect(await res.json()).toEqual({ error: 'Missing fields.' });
   });
 
   it('U4: invalid JSON → 400 "Invalid JSON."', async () => {
     const res = await POST(makeReq('{bad'));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid JSON.');
+    expect(await res.json()).toEqual({ error: 'Invalid JSON.' });
   });
 
   it('U5: RESEND_API_KEY not set → 501 "Contact email not configured."', async () => {
@@ -119,7 +119,7 @@ describe('contact form', () => {
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
     expect(res.status).toBe(501);
-    expect(await res.text()).toBe('Contact email not configured.');
+    expect(await res.json()).toEqual({ error: 'Contact email not configured.' });
   });
 
   it('U6: CONTACT_TO_EMAIL not set → 501 "Contact email not configured."', async () => {
@@ -129,7 +129,7 @@ describe('contact form', () => {
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
     expect(res.status).toBe(501);
-    expect(await res.text()).toBe('Contact email not configured.');
+    expect(await res.json()).toEqual({ error: 'Contact email not configured.' });
   });
 
   it('U7: Resend API returns 500 → 500 "Email delivery failed."', async () => {
@@ -141,7 +141,7 @@ describe('contact form', () => {
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
     expect(res.status).toBe(500);
-    expect(await res.text()).toBe('Email delivery failed.');
+    expect(await res.json()).toEqual({ error: 'Email delivery failed.' });
   });
 
   it('U8: rate limit exceeded → 429', async () => {
@@ -155,7 +155,7 @@ describe('contact form', () => {
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe('Too many requests. Try again later.');
+    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
   });
 
   it('U9: HTML special chars in fields are escaped in email body', async () => {
