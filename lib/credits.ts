@@ -158,13 +158,27 @@ export async function ensureCreditAccount(userId: string) {
     Math.round(startingCredits * MICRO_PER_CREDIT),
   );
 
+  // Use onConflictDoNothing to handle concurrent insert races — two
+  // simultaneous requests for the same new user won't throw a PK violation.
   const [created] = await db
     .insert(credits)
     .values({
       userId,
       balanceMicro,
     })
+    .onConflictDoNothing()
     .returning();
+
+  if (!created) {
+    // Another request inserted first — re-read the row.
+    const [raced] = await db
+      .select()
+      .from(credits)
+      .where(eq(credits.userId, userId))
+      .limit(1);
+    if (!raced) throw new Error(`Failed to ensure credit account for ${userId}`);
+    return raced;
+  }
 
   return created;
 }

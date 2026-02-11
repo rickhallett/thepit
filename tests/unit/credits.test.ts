@@ -53,6 +53,9 @@ const setupInsert = (created: unknown) => {
     }
     return {
       values: vi.fn().mockReturnValue({
+        onConflictDoNothing: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([created]),
+        }),
         returning: vi.fn().mockResolvedValue([created]),
       }),
     };
