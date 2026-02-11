@@ -28,6 +28,15 @@ const { mockDb, usersTable, mockClerkClient } = vi.hoisted(() => {
   return { mockDb: db, usersTable: table, mockClerkClient: clerkClientFn, clerkGetUser };
 });
 
+const mockLog = vi.hoisted(() => ({
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+}));
+
+vi.mock('@/lib/logger', () => ({ log: mockLog }));
+
 vi.mock('@clerk/nextjs/server', () => ({
   auth: vi.fn().mockResolvedValue({ userId: null }),
   clerkClient: mockClerkClient,
@@ -214,15 +223,14 @@ describe('users', () => {
       };
       setupInsert(createdRow);
 
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const { ensureUserRecord } = await loadUsers();
       const result = await ensureUserRecord('user_noclerk');
       expect(result).toEqual(createdRow);
-      // Structured logger outputs a formatted string (dev) or JSON (prod)
-      expect(warnSpy).toHaveBeenCalled();
-      const call = warnSpy.mock.calls[0][0] as string;
-      expect(call).toContain('Failed to fetch Clerk profile');
-      warnSpy.mockRestore();
+      expect(mockLog.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to fetch Clerk profile'),
+        expect.any(Error),
+        expect.any(Object),
+      );
     });
 
     it('handles concurrent insert race (onConflictDoNothing returns empty, re-reads)', async () => {

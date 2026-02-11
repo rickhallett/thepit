@@ -62,6 +62,15 @@ const fixturePresets = [
   },
 ];
 
+const mockLog = vi.hoisted(() => ({
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+}));
+
+vi.mock('@/lib/logger', () => ({ log: mockLog }));
+
 const mockBuildAgentManifest = vi.fn().mockReturnValue({
   agentId: 'preset:roast-battle:judge',
   name: 'The Judge',
@@ -220,15 +229,13 @@ describe('agent-registry', () => {
         throw new Error('DB connection failed');
       });
 
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const { getAgentSnapshots } = await loadRegistry();
       const result = await getAgentSnapshots();
       expect(result).toHaveLength(2); // falls back to presets
-      // Structured logger outputs a formatted string (dev) or JSON (prod)
-      expect(errorSpy).toHaveBeenCalled();
-      const call = errorSpy.mock.calls[0][0] as string;
-      expect(call).toContain('Failed to load agents from DB');
-      errorSpy.mockRestore();
+      expect(mockLog.error).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to load agents from DB'),
+        expect.any(Error),
+      );
     });
   });
 

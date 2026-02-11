@@ -27,6 +27,15 @@ vi.mock('@/db/schema', () => ({
   },
 }));
 
+const mockLog = vi.hoisted(() => ({
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+}));
+
+vi.mock('@/lib/logger', () => ({ log: mockLog }));
+
 vi.mock('@/lib/admin', () => ({
   isAdmin: (id: string) => id === 'admin-user',
 }));
@@ -374,14 +383,13 @@ describe('tier module', () => {
 
     it('returns 0 and warns when user not found', async () => {
       setupUpdate([]);
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const { incrementFreeBoutsUsed } = await loadTier();
       const count = await incrementFreeBoutsUsed('missing-user');
       expect(count).toBe(0);
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('missing-user'),
+      expect(mockLog.warn).toHaveBeenCalledWith(
+        expect.stringContaining('no user found'),
+        expect.objectContaining({ userId: 'missing-user' }),
       );
-      warnSpy.mockRestore();
     });
   });
 
