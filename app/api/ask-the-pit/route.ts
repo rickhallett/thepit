@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import { streamText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
@@ -28,9 +28,14 @@ let cachedDocs: string | null = null;
 
 function loadDocs(): string {
   if (cachedDocs !== null) return cachedDocs;
+  const root = process.cwd();
   cachedDocs = ASK_THE_PIT_DOCS.map((docPath) => {
     try {
-      const fullPath = join(process.cwd(), docPath);
+      const fullPath = resolve(join(root, docPath));
+      // Prevent path traversal — resolved path must stay within the project root.
+      if (!fullPath.startsWith(root)) {
+        return `[Blocked: ${docPath}]`;
+      }
       const content = readFileSync(fullPath, 'utf-8');
       return stripSensitiveSections(content);
     } catch {
