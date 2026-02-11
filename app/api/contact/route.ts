@@ -38,6 +38,15 @@ export async function POST(req: Request) {
     return new Response('Missing fields.', { status: 400 });
   }
 
+  if (name.length > 200 || email.length > 256 || message.length > 5000) {
+    return new Response('Input too long.', { status: 400 });
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!EMAIL_RE.test(email)) {
+    return new Response('Invalid email address.', { status: 400 });
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   const toEmail = process.env.CONTACT_TO_EMAIL;
   const fromEmail = process.env.CONTACT_FROM_EMAIL ?? 'The Pit <contact@thepit.ai>';
