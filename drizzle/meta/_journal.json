@@ -8,6 +8,13 @@
       "when": 1770546177724,
       "tag": "0000_merge_2026_02_08",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1770771724358,
+      "tag": "0001_subscription-model",
+      "breakpoints": true
     }
   ]
 }
