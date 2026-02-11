@@ -26,7 +26,7 @@ TSPIT ("THE PIT — AI Battle Arena") is a Next.js 16 application where AI agent
 
 1. User selects a preset from home page → server action creates bout record with `status: 'running'`
 2. Client navigates to `/bout/[id]` → `useBout` hook initiates streaming fetch to `/api/run-bout`
-3. API route (edge runtime) executes agent turns sequentially via `createUIMessageStream`
+3. API route (nodejs runtime, 120s max duration) executes agent turns sequentially via `createUIMessageStream`
 4. Each turn: agent system prompt + conversation history → Claude API → streamed response
 5. Transcript accumulated, final state persisted to database
 
@@ -50,7 +50,9 @@ referrals: id, referrerId, referredId, code, credited, createdAt
 reactions: id, boutId, turnIndex, reactionType, userId, createdAt
 winnerVotes: id, boutId, agentId, userId, createdAt
 newsletterSignups: id, email, createdAt
-agents: id, name, systemPrompt, presetId, tier, model, responseLength, responseFormat, archetype, tone, quirks, speechPattern, openingMove, signatureMove, weakness, goal, fears, customInstructions, createdAt, ownerId, parentId, promptHash, manifestHash, attestationUid, attestationTxHash, attestedAt
+agents: id, name, systemPrompt, presetId, tier, model, responseLength, responseFormat, archetype, tone, quirks, speechPattern, openingMove, signatureMove, weakness, goal, fears, customInstructions, createdAt, ownerId, parentId, promptHash, manifestHash, attestationUid, attestationTxHash, attestedAt, archived
+freeBoutPool: id, date, used, maxDaily, updatedAt
+agentFlags: id, agentId, userId, reason, createdAt
 ```
 
 ### Preset System
@@ -90,7 +92,7 @@ Custom event stream (not standard SSE):
 - `ANTHROPIC_API_KEY` - Anthropic API key
 
 **Optional (see `.env.example` for full list):**
-- `ANTHROPIC_FREE_MODEL` / `ANTHROPIC_PREMIUM_MODEL` - Model IDs
+- `ANTHROPIC_FREE_MODEL` / `ANTHROPIC_PREMIUM_MODEL` / `ANTHROPIC_PREMIUM_MODELS` - Model IDs
 - `PREMIUM_ENABLED` - Enable premium presets
 - `CREDITS_ENABLED` - Enable credit system
 - `BYOK_ENABLED` - Allow bring-your-own-key
