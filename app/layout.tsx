@@ -4,9 +4,12 @@ import { cookies } from 'next/headers';
 import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 
+import { Analytics } from '@vercel/analytics/react';
+
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { AskThePit } from '@/components/ask-the-pit';
+import { PostHogProvider } from '@/components/posthog-provider';
 import { initializeUserSession } from '@/lib/onboarding';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
 
@@ -34,12 +37,15 @@ export default async function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className="bg-background text-foreground antialiased">
-          <div className="flex min-h-screen flex-col">
-            <SiteHeader />
-            <div className="flex-1">{children}</div>
-            <SiteFooter />
-            <AskThePit enabled={ASK_THE_PIT_ENABLED} />
-          </div>
+          <PostHogProvider>
+            <div className="flex min-h-screen flex-col">
+              <SiteHeader />
+              <div className="flex-1">{children}</div>
+              <SiteFooter />
+              <AskThePit enabled={ASK_THE_PIT_ENABLED} />
+            </div>
+            <Analytics />
+          </PostHogProvider>
         </body>
       </html>
     </ClerkProvider>
