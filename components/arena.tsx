@@ -64,6 +64,7 @@ export function Arena({
   const [copied, setCopied] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const [shareUrl, setShareUrl] = useState('');
+  const [shortSlug, setShortSlug] = useState<string | null>(null);
   const [reactions, setReactions] = useState<ReactionCountMap>(
     initialReactions ?? {},
   );
@@ -95,6 +96,23 @@ export function Arena({
   useEffect(() => {
     setShareUrl(window.location.href);
   }, []);
+
+  // Create/fetch short link when bout completes
+  useEffect(() => {
+    if (status !== 'done' || shortSlug) return;
+    fetch('/api/short-links', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ boutId }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.slug) setShortSlug(data.slug);
+      })
+      .catch(() => {
+        // Non-critical — fall back to /b/ URLs
+      });
+  }, [boutId, shortSlug, status]);
 
   useEffect(() => {
     if (!autoScroll) return;
@@ -129,23 +147,22 @@ export function Arena({
       .join('\n\n');
   }, [messages]);
 
+  const replayUrl = useMemo(() => {
+    const origin = shareUrl ? new URL(shareUrl).origin : '';
+    return shortSlug ? `${origin}/s/${shortSlug}` : `${origin}/b/${boutId}`;
+  }, [boutId, shareUrl, shortSlug]);
+
   const sharePayload = useMemo(() => {
     if (!transcript && !liveShareLine && !shareLine) return '';
-    const origin = shareUrl ? new URL(shareUrl).origin : '';
-    const replayUrl = `${origin}/b/${boutId}`;
     const line = (liveShareLine ?? shareLine ?? '').trim();
     const headline =
       line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
 
     return [headline, '', replayUrl, '', '🔴 #ThePitArena'].join('\n');
-  }, [boutId, liveShareLine, preset.name, shareLine, shareUrl, transcript]);
+  }, [liveShareLine, preset.name, replayUrl, shareLine, transcript]);
 
   const messageSharePayloads = useMemo(() => {
     if (messages.length === 0) return [];
-    const origin = shareUrl
-      ? new URL(shareUrl).origin
-      : '';
-    const replayUrl = `${origin}/b/${boutId}`;
     const headline =
       (liveShareLine ?? shareLine ?? '').trim() || `THE PIT — ${preset.name}`;
     const header = [
@@ -184,13 +201,12 @@ export function Arena({
       };
     });
   }, [
-    boutId,
     format,
     liveShareLine,
     messages,
     preset.name,
+    replayUrl,
     shareLine,
-    shareUrl,
     topic,
   ]);
 
@@ -198,12 +214,14 @@ export function Arena({
     if (!sharePayload) return;
     await navigator.clipboard.writeText(sharePayload);
     setCopied(true);
+    trackEvent('bout_shared', { boutId, method: 'copy_header' });
     window.setTimeout(() => setCopied(false), 1600);
   };
 
   const copyMessageShare = async (payload: string, messageId: string) => {
     await navigator.clipboard.writeText(payload);
     setCopiedMessageId(messageId);
+    trackEvent('bout_shared', { boutId, method: 'copy_message' });
     window.setTimeout(() => setCopiedMessageId(null), 1600);
   };
 
