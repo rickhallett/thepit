@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
@@ -10,6 +11,52 @@ import { getReactionCounts } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }> | { id: string };
+}): Promise<Metadata> {
+  const db = requireDb();
+  const resolved = await params;
+  const [bout] = await db
+    .select({
+      presetId: bouts.presetId,
+      shareLine: bouts.shareLine,
+      topic: bouts.topic,
+    })
+    .from(bouts)
+    .where(eq(bouts.id, resolved.id))
+    .limit(1);
+
+  if (!bout) {
+    return { title: 'Bout Not Found — THE PIT' };
+  }
+
+  const preset = ALL_PRESETS.find((p) => p.id === bout.presetId);
+  const presetName = preset?.name ?? 'Arena Mode';
+  const agents = preset?.agents.map((a) => a.name).join(' vs ') ?? '';
+  const title = `${presetName} — THE PIT`;
+  const description =
+    bout.shareLine ??
+    (agents ? `${agents} battle it out in The Pit.` : 'Watch the replay.');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      siteName: 'THE PIT',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function ReplayPage({
   params,
