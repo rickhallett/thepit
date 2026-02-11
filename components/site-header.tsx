@@ -15,6 +15,7 @@ const LINKS = [
   { href: '/research', label: 'Research' },
   { href: '/roadmap', label: 'Roadmap' },
   { href: '/contact', label: 'Contact' },
+  { href: '/feedback', label: 'Feedback' },
 ];
 
 export function SiteHeader({ className }: { className?: string }) {
