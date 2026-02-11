@@ -31,6 +31,14 @@ import {
   toMicroCredits,
   BYOK_ENABLED,
 } from '@/lib/credits';
+import {
+  SUBSCRIPTIONS_ENABLED,
+  getUserTier,
+  canRunBout,
+  canAccessModel,
+  incrementFreeBoutsUsed,
+} from '@/lib/tier';
+import { consumeFreeBout } from '@/lib/free-bout-pool';
 
 export const runtime = 'nodejs';
 
@@ -38,6 +46,7 @@ export const runtime = 'nodejs';
 // Edge runtime has a 30s limit which is insufficient for 12-turn bouts.
 export const maxDuration = 120;
 
+/** Stream a multi-turn AI debate bout with tier-based access control and credit accounting. */
 export async function POST(req: Request) {
   let payload: {
     presetId?: string;
@@ -164,11 +173,6 @@ export async function POST(req: Request) {
     return new Response('Unknown preset.', { status: 404 });
   }
 
-  const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
-  if (preset.tier === 'premium' && !premiumEnabled) {
-    return new Response('Premium required.', { status: 402 });
-  }
-
   const requestedModel =
     typeof payload.model === 'string' ? payload.model.trim() : '';
 
@@ -181,22 +185,76 @@ export async function POST(req: Request) {
     byokKey = readAndClearByokKey(jar) ?? '';
   }
 
-  let modelId = FREE_MODEL_ID;
-  const allowPremiumModels = preset.tier === 'premium' || preset.id === ARENA_PRESET_ID;
-  if (allowPremiumModels && premiumEnabled) {
-    modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
-      ? requestedModel
-      : DEFAULT_PREMIUM_MODEL_ID;
-  } else if (requestedModel === 'byok' && BYOK_ENABLED) {
-    if (!byokKey) {
-      return new Response('BYOK key required.', { status: 400 });
-    }
-    modelId = 'byok';
-  } else if (requestedModel === 'byok') {
-    return new Response('BYOK not enabled.', { status: 400 });
-  }
-
   const { userId } = await auth();
+
+  // --- Tier-based access control ---
+  // When subscriptions are enabled, use per-user tier checks.
+  // When disabled, fall back to the legacy PREMIUM_ENABLED flag.
+  const isByok = requestedModel === 'byok' && BYOK_ENABLED;
+
+  let modelId = FREE_MODEL_ID;
+
+  if (SUBSCRIPTIONS_ENABLED && userId) {
+    const tier = await getUserTier(userId);
+
+    // Check if user can run a bout (lifetime cap, daily limits)
+    const boutCheck = await canRunBout(userId, isByok);
+    if (!boutCheck.allowed) {
+      return new Response(boutCheck.reason, { status: 402 });
+    }
+
+    if (isByok) {
+      if (!byokKey) {
+        return new Response('BYOK key required.', { status: 400 });
+      }
+      modelId = 'byok';
+    } else if (requestedModel && PREMIUM_MODEL_OPTIONS.includes(requestedModel)) {
+      // User requested a specific premium model — check tier access
+      if (!canAccessModel(tier, requestedModel)) {
+        return new Response(
+          `Your plan does not include access to this model. Upgrade or use BYOK.`,
+          { status: 402 },
+        );
+      }
+      modelId = requestedModel;
+    } else if (preset.tier === 'premium' || preset.id === ARENA_PRESET_ID) {
+      // Preset wants a premium model — pick the best one the user's tier allows
+      const allowed = PREMIUM_MODEL_OPTIONS.filter((m) => canAccessModel(tier, m));
+      modelId = allowed[0] ?? FREE_MODEL_ID;
+    }
+
+    // For free-tier platform-funded bouts, consume from global pool
+    if (!isByok && tier === 'free') {
+      const poolResult = await consumeFreeBout();
+      if (!poolResult.consumed) {
+        return new Response(
+          'Daily free bout pool exhausted. Upgrade your plan or use your own API key (BYOK).',
+          { status: 429 },
+        );
+      }
+      await incrementFreeBoutsUsed(userId);
+    }
+  } else {
+    // Legacy path: subscriptions not enabled
+    const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
+    if (preset.tier === 'premium' && !premiumEnabled) {
+      return new Response('Premium required.', { status: 402 });
+    }
+
+    const allowPremiumModels = preset.tier === 'premium' || preset.id === ARENA_PRESET_ID;
+    if (allowPremiumModels && premiumEnabled) {
+      modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
+        ? requestedModel
+        : DEFAULT_PREMIUM_MODEL_ID;
+    } else if (isByok) {
+      if (!byokKey) {
+        return new Response('BYOK key required.', { status: 400 });
+      }
+      modelId = 'byok';
+    } else if (requestedModel === 'byok') {
+      return new Response('BYOK not enabled.', { status: 400 });
+    }
+  }
 
   if (userId) {
     const boutRateCheck = checkRateLimit(

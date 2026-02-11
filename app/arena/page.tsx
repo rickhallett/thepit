@@ -6,6 +6,7 @@ import { PresetCard } from '@/components/preset-card';
 import { CheckoutBanner } from '@/components/checkout-banner';
 import { BuyCreditsButton } from '@/components/buy-credits-button';
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
+import { FreeBoutCounter } from '@/components/free-bout-counter';
 import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import {
@@ -18,25 +19,53 @@ import {
   getCreditBalanceMicro,
 } from '@/lib/credits';
 import { getIntroPoolStatus } from '@/lib/intro-pool';
+import { getFreeBoutPoolStatus } from '@/lib/free-bout-pool';
+import {
+  SUBSCRIPTIONS_ENABLED,
+  getUserTier,
+  TIER_CONFIG,
+  getAvailableModels,
+  getFreeBoutsUsed,
+} from '@/lib/tier';
 import { ALL_PRESETS } from '@/lib/presets';
 
-import { createBout, createCreditCheckout, grantTestCredits } from '../actions';
+import {
+  createBout,
+  createCreditCheckout,
+  createSubscriptionCheckout,
+  createBillingPortal,
+  grantTestCredits,
+} from '../actions';
 
 export const metadata = {
   title: 'Arena — THE PIT',
   description: 'Pick your preset and watch AI personas clash in real time.',
 };
 
+/** Arena page: preset grid with tier-aware model access, free bout counter, and upgrade section. */
 export default async function Home() {
-  const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const creditsEnabled = CREDITS_ENABLED;
+  const subsEnabled = SUBSCRIPTIONS_ENABLED;
   const { userId } = await auth();
+
+  // Tier resolution
+  const userTier = subsEnabled && userId ? await getUserTier(userId) : null;
+  const tierConfig = userTier ? TIER_CONFIG[userTier] : null;
+  const availableModels = userTier ? getAvailableModels(userTier) : PREMIUM_MODEL_OPTIONS;
+  const freeBoutsUsed = subsEnabled && userId && userTier === 'free'
+    ? await getFreeBoutsUsed(userId)
+    : null;
+
+  // Legacy premium flag (used when subscriptions are disabled)
+  const premiumEnabled = !subsEnabled && process.env.PREMIUM_ENABLED === 'true';
+
   const creditBalanceMicro =
     creditsEnabled && userId ? await getCreditBalanceMicro(userId) : null;
   const creditHistory =
     creditsEnabled && userId ? await getCreditTransactions(userId, 12) : [];
   const showCreditPrompt = creditsEnabled && !userId;
   const poolStatus = creditsEnabled ? await getIntroPoolStatus() : null;
+  const freeBoutPoolStatus = subsEnabled ? await getFreeBoutPoolStatus() : null;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -69,10 +98,57 @@ export default async function Home() {
               )}
             </div>
           )}
+          {/* Tier badge and subscription status */}
+          {subsEnabled && userId && userTier && tierConfig && (
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+              <span className={`rounded-full border-2 px-3 py-1 text-xs uppercase tracking-[0.3em] ${
+                userTier === 'lab'
+                  ? 'border-purple-400 text-purple-400'
+                  : userTier === 'pass'
+                    ? 'border-accent text-accent'
+                    : 'border-foreground/60 text-muted'
+              }`}>
+                {userTier === 'lab' ? 'Pit Lab' : userTier === 'pass' ? 'Pit Pass' : 'Free'}
+              </span>
+              {userTier === 'free' && freeBoutsUsed !== null && tierConfig.lifetimeBoutCap !== null && (
+                <span className="text-xs uppercase tracking-[0.25em] text-muted">
+                  {tierConfig.lifetimeBoutCap - freeBoutsUsed} of {tierConfig.lifetimeBoutCap} lifetime bouts remaining
+                </span>
+              )}
+              {userTier !== 'free' && (
+                <form action={createBillingPortal}>
+                  <button
+                    type="submit"
+                    className="text-[10px] uppercase tracking-[0.25em] text-muted transition hover:text-accent"
+                  >
+                    Manage subscription
+                  </button>
+                </form>
+              )}
+              {userTier === 'free' && (
+                <Link
+                  href="#upgrade"
+                  className="text-[10px] uppercase tracking-[0.25em] text-accent transition hover:text-accent/80"
+                >
+                  Upgrade plan
+                </Link>
+              )}
+            </div>
+          )}
           {showCreditPrompt && (
             <p className="mt-4 text-xs uppercase tracking-[0.25em] text-muted">
               Sign in to track credits and history.
             </p>
+          )}
+          {/* Free bout pool counter */}
+          {freeBoutPoolStatus && (
+            <div className="mt-4 max-w-sm">
+              <FreeBoutCounter
+                used={freeBoutPoolStatus.used}
+                max={freeBoutPoolStatus.max}
+                remaining={freeBoutPoolStatus.remaining}
+              />
+            </div>
           )}
           {poolStatus && (
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted">
@@ -123,14 +199,77 @@ export default async function Home() {
               key={preset.id}
               preset={preset}
               action={createBout.bind(null, preset.id)}
-              locked={preset.tier === 'premium' && !premiumEnabled}
-              premiumEnabled={premiumEnabled}
-              premiumModels={PREMIUM_MODEL_OPTIONS}
-              defaultPremiumModel={DEFAULT_PREMIUM_MODEL_ID}
+              locked={
+                subsEnabled
+                  ? false // Tier checks happen server-side in run-bout
+                  : preset.tier === 'premium' && !premiumEnabled
+              }
+              premiumEnabled={subsEnabled || premiumEnabled}
+              premiumModels={subsEnabled ? availableModels : PREMIUM_MODEL_OPTIONS}
+              defaultPremiumModel={
+                subsEnabled
+                  ? availableModels[availableModels.length - 1] ?? DEFAULT_PREMIUM_MODEL_ID
+                  : DEFAULT_PREMIUM_MODEL_ID
+              }
               byokEnabled={BYOK_ENABLED}
             />
           ))}
         </section>
+
+        {/* Subscription upgrade section */}
+        {subsEnabled && userId && userTier !== 'lab' && (
+          <section id="upgrade" className="flex flex-col gap-4 border-t-2 border-foreground/60 pt-8">
+            <p className="text-xs uppercase tracking-[0.4em] text-accent">
+              Upgrade Your Plan
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              {userTier === 'free' && (
+                <form
+                  action={createSubscriptionCheckout}
+                  className="flex flex-col gap-3 border-2 border-accent/60 bg-accent/5 p-5"
+                >
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-accent">Pit Pass</p>
+                    <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
+                      £3<span className="text-sm text-muted">/mo</span>
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted">
+                    15 bouts/day, Haiku + Sonnet, 5 agents, analytics
+                  </p>
+                  <input type="hidden" name="plan" value="pass" />
+                  <button
+                    type="submit"
+                    className="mt-auto border-2 border-accent px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+                  >
+                    Subscribe
+                  </button>
+                </form>
+              )}
+              <form
+                action={createSubscriptionCheckout}
+                className="flex flex-col gap-3 border-2 border-purple-400/60 bg-purple-400/5 p-5"
+              >
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-purple-400">Pit Lab</p>
+                  <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
+                    £10<span className="text-sm text-muted">/mo</span>
+                  </p>
+                </div>
+                <p className="text-xs text-muted">
+                  100 bouts/day, all models incl. Opus, unlimited agents, API access
+                </p>
+                <input type="hidden" name="plan" value="lab" />
+                <button
+                  type="submit"
+                  className="mt-auto border-2 border-purple-400 px-4 py-3 text-xs uppercase tracking-[0.3em] text-purple-400 transition hover:bg-purple-400 hover:text-background"
+                >
+                  Subscribe
+                </button>
+              </form>
+            </div>
+          </section>
+        )}
 
         {creditsEnabled && (
           <section className="flex flex-col gap-4 border-t-2 border-foreground/60 pt-8">
