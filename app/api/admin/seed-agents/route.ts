@@ -116,5 +116,6 @@ export async function POST(req: Request) {
     }
   }
 
+  log.info('audit', { action: 'seed_agents', created, attested, errors: errors.length });
   return Response.json({ created, attested, errors: errors.length });
 }

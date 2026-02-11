@@ -1,6 +1,7 @@
 import { withLogging } from '@/lib/api-logging';
 import { generateResearchExport } from '@/lib/research-exports';
 import { requireAdmin } from '@/lib/admin-auth';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -26,5 +27,6 @@ export const POST = withLogging(async function POST(req: Request) {
 
   const result = await generateResearchExport(version);
 
+  log.info('audit', { action: 'generate_research_export', version });
   return Response.json(result, { status: 201 });
 }, 'admin-research-export');

@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { spec } from '@/lib/openapi';
 import { getUserTier, SUBSCRIPTIONS_ENABLED, TIER_CONFIG } from '@/lib/tier';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 /**
  * Serve the OpenAPI spec as JSON. Gated behind Lab tier.
@@ -10,6 +11,8 @@ import { getUserTier, SUBSCRIPTIONS_ENABLED, TIER_CONFIG } from '@/lib/tier';
  * but the raw spec JSON requires Lab tier auth (enables code generation,
  * Postman import, SDK generation, etc.).
  */
+const RATE_LIMIT = { name: 'openapi', maxRequests: 10, windowMs: 60_000 };
+
 export async function GET() {
   const { userId } = await auth();
 
@@ -17,6 +20,14 @@ export async function GET() {
     return Response.json(
       { error: 'Authentication required.' },
       { status: 401 },
+    );
+  }
+
+  const rateCheck = checkRateLimit(RATE_LIMIT, userId);
+  if (!rateCheck.success) {
+    return Response.json(
+      { error: 'Rate limit exceeded.' },
+      { status: 429 },
     );
   }
 

@@ -45,7 +45,15 @@ async function updateUserSubscription(params: {
     .where(eq(users.id, params.userId));
 }
 
-/** Handle Stripe webhook events for credit purchases and subscription lifecycle. */
+/**
+ * Handle Stripe webhook events for credit purchases and subscription lifecycle.
+ *
+ * Idempotency:
+ * - checkout.session.completed: guarded by creditTransactions.referenceId lookup.
+ * - Subscription/invoice events: naturally idempotent — updateUserSubscription
+ *   is a SET (not increment), so replayed events write the same values.
+ *   Out-of-order delivery is mitigated by Stripe's per-object ordering.
+ */
 export const POST = withLogging(async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {

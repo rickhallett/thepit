@@ -58,6 +58,7 @@ import {
   incrementFreeBoutsUsed,
 } from '@/lib/tier';
 import { consumeFreeBout } from '@/lib/free-bout-pool';
+import { UNSAFE_PATTERN } from '@/lib/validation';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -137,6 +138,10 @@ export async function validateBoutRequest(
 
   if (topic.length > 500) {
     return { error: new Response('Topic must be 500 characters or fewer.', { status: 400 }) };
+  }
+
+  if (UNSAFE_PATTERN.test(topic)) {
+    return { error: new Response('Topic contains disallowed content.', { status: 400 }) };
   }
 
   let db: ReturnType<typeof requireDb>;
@@ -603,13 +608,15 @@ export async function executeBout(
       .set({ status: 'error', transcript, updatedAt: new Date() })
       .where(eq(bouts.id, boutId));
 
-    // Error-path credit settlement: refund unused preauth
+    // Error-path credit settlement: refund unused preauth.
+    // The preauth already deducted preauthMicro from the user's balance.
+    // We need to add back the unused portion (preauthMicro - actualMicro).
     if (CREDITS_ENABLED && preauthMicro && userId) {
       const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
       const actualMicro = toMicroCredits(actualCost);
-      const delta = actualMicro - preauthMicro;
-      if (delta !== 0) {
-        await applyCreditDelta(userId, delta, 'settlement-error', {
+      const refundMicro = preauthMicro - actualMicro;
+      if (refundMicro > 0) {
+        await applyCreditDelta(userId, refundMicro, 'settlement-error', {
           presetId,
           boutId,
           modelId,
