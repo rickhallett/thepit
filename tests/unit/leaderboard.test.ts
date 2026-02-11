@@ -104,7 +104,7 @@ const referralRows = [
  * Set up the mock DB select chain. Each call to db.select() returns the
  * next result set from the provided arrays (cycled per range).
  */
-const setupSelectForRange = () => {
+const _setupSelectForRange = () => {
   let callIndex = 0;
   // The leaderboard queries 5 tables per range (bouts, votes, referrals, agents, users)
   // and iterates over 3 ranges = 15 calls total.

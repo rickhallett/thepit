@@ -242,7 +242,7 @@ describe('run-bout streaming error handling', () => {
       };
     });
 
-    let dbUpdateCalls: Array<Record<string, unknown>> = [];
+    const dbUpdateCalls: Array<Record<string, unknown>> = [];
     mockDb.update.mockImplementation(() => ({
       set: (data: Record<string, unknown>) => {
         dbUpdateCalls.push(data);
@@ -312,7 +312,7 @@ describe('run-bout streaming error handling', () => {
       };
     });
 
-    let dbUpdateCalls: Array<Record<string, unknown>> = [];
+    const dbUpdateCalls: Array<Record<string, unknown>> = [];
     mockDb.update.mockImplementation(() => ({
       set: (data: Record<string, unknown>) => {
         dbUpdateCalls.push(data);
@@ -363,7 +363,7 @@ describe('run-bout streaming error handling', () => {
       usage: Promise.resolve({ inputTokens: 0, outputTokens: 0 }),
     });
 
-    let dbUpdateCalls: Array<Record<string, unknown>> = [];
+    const dbUpdateCalls: Array<Record<string, unknown>> = [];
     mockDb.update.mockImplementation(() => ({
       set: (data: Record<string, unknown>) => {
         dbUpdateCalls.push(data);
