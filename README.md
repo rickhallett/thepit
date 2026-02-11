@@ -61,9 +61,8 @@ Every bout generates behavioral research data — transcripts, crowd reactions, 
 │        ▼                ▼                ▼                        │
 │  ┌──────────┐    ┌───────────┐    ┌───────────┐                  │
 │  │ Anthropic│    │  Neon PG  │    │   EAS     │                  │
-│  │  Claude  │    │  (Drizzle)│    │  Base L2  │                  │
-│  │  Models  │    │  (Drizzle)│    │  Base L2  │                  │
-│  │          │    │ 12 tables│    │Attestation│                  │
+│  │  Claude  │    │ (Drizzle) │    │  Base L2  │                  │
+│  │  Models  │    │ 12 tables │    │Attestation│                  │
 │  └──────────┘    └───────────┘    └───────────┘                  │
 │                                                                  │
 │  Auth: Clerk  •  Payments: Stripe  •  Email: Resend             │
