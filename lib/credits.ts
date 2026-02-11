@@ -328,8 +328,11 @@ export async function settleCredits(
         metadata: { ...metadata, atomicSettlement: true },
       });
     }
-  } else {
-    // Refund: unconditionally add funds back
-    await applyCreditDelta(userId, deltaMicro, reason, metadata);
+  } else if (deltaMicro < 0) {
+    // Refund: unconditionally add funds back.
+    // deltaMicro is negative (actualCost - preauth < 0), so negate it to
+    // produce a positive value for applyCreditDelta (which adds to balance).
+    await applyCreditDelta(userId, -deltaMicro, reason, metadata);
   }
+  // deltaMicro === 0: no-op (exact match, nothing to settle)
 }
