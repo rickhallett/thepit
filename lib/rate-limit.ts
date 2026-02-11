@@ -2,8 +2,15 @@
  * Simple in-memory rate limiter for serverless environments.
  * Uses a sliding window approach with automatic cleanup.
  *
- * Note: In a multi-instance deployment, each instance has its own
- * rate limit state. For stricter enforcement, use Redis or similar.
+ * LIMITATION: In-memory only — each serverless instance has independent
+ * state. A determined attacker hitting different instances can bypass
+ * limits. For strict production enforcement, migrate to a shared store
+ * (e.g. Upstash Redis).
+ *
+ * Current mitigations: DB-level constraints (unique indexes, atomic
+ * conditional updates, preauthorization) serve as the authoritative
+ * enforcement layer. This rate limiter provides best-effort throttling
+ * to reduce load on those DB checks.
  */
 
 type RateLimitEntry = {

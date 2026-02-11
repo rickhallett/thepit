@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { eq } from 'drizzle-orm';
+import type Stripe from 'stripe';
 
 import { requireDb } from '@/db';
 import { creditTransactions, users } from '@/db/schema';
@@ -65,11 +66,7 @@ export async function POST(req: Request) {
 
   // --- Credit pack purchase (one-time checkout) ---
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as {
-      id: string;
-      mode?: string;
-      metadata?: Record<string, string>;
-    };
+    const session = event.data.object as Stripe.Checkout.Session;
 
     // Only process one-time payment checkouts (not subscription checkouts)
     if (session.mode === 'payment') {
