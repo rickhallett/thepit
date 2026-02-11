@@ -108,19 +108,19 @@ describe('feature-requests/vote api', () => {
   it('U1: invalid JSON returns 400', async () => {
     const res = await POST(makeRawReq('{bad'));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid JSON.');
+    expect(await res.json()).toEqual({ error: 'Invalid JSON.' });
   });
 
   it('U2: missing featureRequestId returns 400', async () => {
     const res = await POST(makeReq({}));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing or invalid featureRequestId.');
+    expect(await res.json()).toEqual({ error: 'Missing or invalid featureRequestId.' });
   });
 
   it('U3: non-integer featureRequestId returns 400', async () => {
     const res = await POST(makeReq({ featureRequestId: 'abc' }));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing or invalid featureRequestId.');
+    expect(await res.json()).toEqual({ error: 'Missing or invalid featureRequestId.' });
   });
 
   it('U4: unauthenticated returns 401', async () => {
@@ -128,7 +128,7 @@ describe('feature-requests/vote api', () => {
 
     const res = await POST(makeReq({ featureRequestId: 1 }));
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 
   it('U5: rate limited returns 429', async () => {

@@ -7,6 +7,7 @@
 import { requireDb } from '@/db';
 import { pageViews } from '@/db/schema';
 import { sha256Hex } from '@/lib/hash';
+import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -14,10 +15,10 @@ export async function POST(req: Request) {
   // Verify internal secret — reject external callers
   const secret = req.headers.get('x-pv-secret');
   if (!secret || secret !== process.env.PV_INTERNAL_SECRET) {
-    return new Response('Forbidden.', { status: 403 });
+    return errorResponse(API_ERRORS.FORBIDDEN, 403);
   }
 
-  let payload: {
+  const parsed = await parseJsonBody<{
     path?: string;
     sessionId?: string;
     clientIp?: string;
@@ -25,19 +26,15 @@ export async function POST(req: Request) {
     userAgent?: string;
     country?: string;
     utm?: string;
-  };
-
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Bad request.', { status: 400 });
-  }
+  }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const path = typeof payload.path === 'string' ? payload.path : '';
   const sessionId = typeof payload.sessionId === 'string' ? payload.sessionId : '';
 
   if (!path || !sessionId) {
-    return new Response('Missing path or sessionId.', { status: 400 });
+    return errorResponse('Missing path or sessionId.', 400);
   }
 
   // Parse UTM from cookie JSON
@@ -72,7 +69,7 @@ export async function POST(req: Request) {
     });
   } catch {
     // Best-effort — don't fail the page load
-    return new Response('Error.', { status: 500 });
+    return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 
   return new Response('OK', { status: 200 });

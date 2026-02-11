@@ -56,6 +56,6 @@ describe('agents api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 });

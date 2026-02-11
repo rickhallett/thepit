@@ -3,6 +3,7 @@ import { eq, ne, sql, desc } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { featureRequests, featureRequestVotes, users } from '@/db/schema';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { ensureUserRecord } from '@/lib/users';
@@ -75,7 +76,7 @@ export const GET = withLogging(async function GET() {
 export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
-    return new Response('Sign in required.', { status: 401 });
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
   const rateCheck = checkRateLimit(
@@ -83,20 +84,16 @@ export const POST = withLogging(async function POST(req: Request) {
     userId,
   );
   if (!rateCheck.success) {
-    return new Response('Too many requests. Try again later.', { status: 429 });
+    return rateLimitResponse(rateCheck);
   }
 
-  let payload: {
+  const parsed = await parseJsonBody<{
     title?: string;
     description?: string;
     category?: string;
-  };
-
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const title =
     typeof payload.title === 'string' ? payload.title.trim() : '';
@@ -106,43 +103,31 @@ export const POST = withLogging(async function POST(req: Request) {
     typeof payload.category === 'string' ? payload.category.trim() : '';
 
   if (title.length < 5) {
-    return new Response('Title must be at least 5 characters.', {
-      status: 400,
-    });
+    return errorResponse('Title must be at least 5 characters.', 400);
   }
 
   if (title.length > 200) {
-    return new Response('Title must be 200 characters or fewer.', {
-      status: 400,
-    });
+    return errorResponse('Title must be 200 characters or fewer.', 400);
   }
 
   if (description.length < 20) {
-    return new Response('Description must be at least 20 characters.', {
-      status: 400,
-    });
+    return errorResponse('Description must be at least 20 characters.', 400);
   }
 
   if (description.length > 3000) {
-    return new Response('Description must be 3000 characters or fewer.', {
-      status: 400,
-    });
+    return errorResponse('Description must be 3000 characters or fewer.', 400);
   }
 
   if (!VALID_CATEGORIES.includes(category as (typeof VALID_CATEGORIES)[number])) {
-    return new Response('Invalid category.', { status: 400 });
+    return errorResponse('Invalid category.', 400);
   }
 
   if (UNSAFE_PATTERN.test(title)) {
-    return new Response('Title must not contain URLs or scripts.', {
-      status: 400,
-    });
+    return errorResponse('Title must not contain URLs or scripts.', 400);
   }
 
   if (UNSAFE_PATTERN.test(description)) {
-    return new Response('Description must not contain URLs or scripts.', {
-      status: 400,
-    });
+    return errorResponse('Description must not contain URLs or scripts.', 400);
   }
 
   await ensureUserRecord(userId);

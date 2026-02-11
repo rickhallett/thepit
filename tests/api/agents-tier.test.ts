@@ -192,7 +192,8 @@ describe('agents tier-based slot limits', () => {
 
     const res = await POST(makeRequest(VALID_PAYLOAD));
     expect(res.status).toBe(402);
-    expect(await res.text()).toContain('Free tier allows 1 custom agent');
+    const body = await res.json();
+    expect(body.error).toContain('Free tier allows 1 custom agent');
   });
 
   // -------------------------------------------------------------------------
@@ -322,7 +323,7 @@ describe('agents tier-based slot limits', () => {
 
     const res = await POST(makeRequest(VALID_PAYLOAD));
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
     // canCreateAgent should never be reached
     expect(canCreateAgentMock).not.toHaveBeenCalled();
   });

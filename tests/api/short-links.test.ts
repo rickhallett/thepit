@@ -97,19 +97,19 @@ describe('POST /api/short-links', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid JSON.');
+    expect(await res.json()).toEqual({ error: 'Invalid JSON.' });
   });
 
   it('U2: missing boutId returns 400', async () => {
     const res = await POST(makeReq({}));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Valid boutId required.');
+    expect(await res.json()).toEqual({ error: 'Valid boutId required.' });
   });
 
   it('U3: boutId too long returns 400', async () => {
     const res = await POST(makeReq({ boutId: 'x'.repeat(22) }));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Valid boutId required.');
+    expect(await res.json()).toEqual({ error: 'Valid boutId required.' });
   });
 
   it('U4: nonexistent bout returns 404', async () => {
@@ -117,7 +117,7 @@ describe('POST /api/short-links', () => {
 
     const res = await POST(makeReq({ boutId: 'nonexistent_bout_id' }));
     expect(res.status).toBe(404);
-    expect(await res.text()).toBe('Bout not found.');
+    expect(await res.json()).toEqual({ error: 'Bout not found.' });
   });
 
   it('U5: rate limited returns 429', async () => {
@@ -129,6 +129,6 @@ describe('POST /api/short-links', () => {
 
     const res = await POST(makeReq({ boutId: 'bout_123' }));
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe('Too many requests. Try again later.');
+    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
   });
 });

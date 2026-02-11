@@ -4,6 +4,7 @@ import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { createShortLink } from '@/lib/short-links';
 import { eq } from 'drizzle-orm';
+import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -13,21 +14,18 @@ export const POST = withLogging(async function POST(req: Request) {
     getClientIdentifier(req),
   );
   if (!rateCheck.success) {
-    return new Response('Too many requests. Try again later.', { status: 429 });
+    return rateLimitResponse(rateCheck);
   }
 
-  let payload: { boutId?: string };
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ boutId?: string }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const boutId =
     typeof payload.boutId === 'string' ? payload.boutId.trim() : '';
 
   if (!boutId || boutId.length > 21) {
-    return new Response('Valid boutId required.', { status: 400 });
+    return errorResponse('Valid boutId required.', 400);
   }
 
   // Verify bout exists
@@ -39,7 +37,7 @@ export const POST = withLogging(async function POST(req: Request) {
     .limit(1);
 
   if (!bout) {
-    return new Response('Bout not found.', { status: 404 });
+    return errorResponse('Bout not found.', 404);
   }
 
   const { slug, created } = await createShortLink(boutId);
