@@ -145,11 +145,11 @@ func TestTruncateID(t *testing.T) {
 		want  string
 	}{
 		{"short", "short"},
-		{"user_2abc1234defg5678", "...defg5678"}, // 20 chars -> ...last8
-		{"user_2nBxKzPq9mR5vWjY", "...9mR5vWjY"}, // 18 chars -> ...last8
-		{"12chars_long", "12chars_long"},         // 12 chars -> no truncation
+		{"user_2abc1234defg5678", "...defg5678"},
+		{"user_2nBxKzPq9mR5vWjY", "...9mR5vWjY"},
+		{"12chars_long", "12chars_long"},
 		{"a", "a"},
-		{"1234567890123", "...67890123"}, // 13 chars -> ...last8
+		{"1234567890123", "...67890123"},
 	}
 
 	for _, tc := range tests {

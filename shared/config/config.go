@@ -1,6 +1,6 @@
 // Package config handles .env file parsing and environment variable validation
-// for pitctl. It reads the tspit project's .env file and provides typed access
-// to all configuration values the CLI needs.
+// for THE PIT CLI tools. It reads the tspit project's .env file and provides
+// typed access to all configuration values.
 package config
 
 import (
@@ -19,7 +19,7 @@ type VarSpec struct {
 	Desc     string
 }
 
-// Schema defines all environment variables pitctl knows about.
+// Schema defines all environment variables the CLI tools know about.
 var Schema = []VarSpec{
 	{Name: "DATABASE_URL", Required: true, Desc: "Neon PostgreSQL connection string"},
 	{Name: "ANTHROPIC_API_KEY", Required: true, Desc: "Anthropic Claude API key"},
@@ -39,6 +39,7 @@ var Schema = []VarSpec{
 	{Name: "ASK_THE_PIT_ENABLED", Required: false, Desc: "Enable RAG chatbot"},
 	{Name: "EAS_ENABLED", Required: false, Desc: "Enable on-chain attestations"},
 	{Name: "RESEND_API_KEY", Required: false, Desc: "Resend email API key"},
+	{Name: "LICENSE_SIGNING_KEY", Required: false, Desc: "Ed25519 private key for license signing (hex)"},
 }
 
 // Config holds resolved configuration values.
@@ -126,10 +127,11 @@ func resolveEnvPath() string {
 		return ""
 	}
 
-	// If CWD is the pitctl directory, look one level up.
+	// Walk up to three levels to find .env (handles tool subdirectories).
 	candidates := []string{
 		filepath.Join(cwd, ".env"),
 		filepath.Join(cwd, "..", ".env"),
+		filepath.Join(cwd, "..", "..", ".env"),
 	}
 
 	for _, p := range candidates {

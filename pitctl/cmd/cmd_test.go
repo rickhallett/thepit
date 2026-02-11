@@ -3,7 +3,7 @@ package cmd
 import (
 	"testing"
 
-	"github.com/rickhallett/thepit/pitctl/internal/config"
+	"github.com/rickhallett/thepit/shared/config"
 )
 
 // TestUsersSetTierValidation tests input validation for tier changes.

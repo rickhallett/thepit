@@ -1,4 +1,4 @@
-// Package db provides PostgreSQL connectivity for pitctl.
+// Package db provides PostgreSQL connectivity for THE PIT CLI tools.
 // It wraps database/sql with lib/pq for Neon serverless Postgres.
 package db
 
@@ -16,7 +16,7 @@ type DB struct {
 	*sql.DB
 }
 
-// Connect opens a connection to the database and verifies it with a ping.
+// Connect opens a connection to the database.
 func Connect(databaseURL string) (*DB, error) {
 	if databaseURL == "" {
 		return nil, fmt.Errorf("DATABASE_URL is not set")
