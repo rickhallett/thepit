@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/rickhallett/thepit/pitctl/internal/config"
-	"github.com/rickhallett/thepit/pitctl/internal/db"
-	"github.com/rickhallett/thepit/pitctl/internal/theme"
+	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/db"
+	"github.com/rickhallett/thepit/shared/theme"
 )
 
 // RunEnv validates environment variables and optionally checks connectivity.

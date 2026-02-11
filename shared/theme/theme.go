@@ -1,5 +1,5 @@
 // Package theme provides the Tokyo Night color palette and reusable
-// lipgloss styles for pitctl's terminal output. Consistent with runnerboy.
+// lipgloss styles for THE PIT CLI tools.
 package theme
 
 import "github.com/charmbracelet/lipgloss"

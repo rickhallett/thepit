@@ -1,4 +1,5 @@
-// Package format provides number, time, and credit formatting utilities.
+// Package format provides number, time, and credit formatting utilities
+// for THE PIT CLI tools.
 package format
 
 import (

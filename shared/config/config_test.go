@@ -7,7 +7,6 @@ import (
 )
 
 func TestLoadFromEnvFile(t *testing.T) {
-	// Create a temporary .env file.
 	dir := t.TempDir()
 	envPath := filepath.Join(dir, ".env")
 	content := `DATABASE_URL=postgres://localhost:5432/testdb
@@ -104,7 +103,6 @@ func TestIsEnabled(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	// All required vars set.
 	cfg := &Config{
 		Vars: map[string]string{
 			"DATABASE_URL":                      "postgres://foo",
@@ -119,12 +117,10 @@ func TestValidate(t *testing.T) {
 		t.Errorf("Validate() returned missing vars: %v", missing)
 	}
 
-	// Missing required var.
 	cfg2 := &Config{
 		Vars: map[string]string{
 			"DATABASE_URL":      "postgres://foo",
 			"ANTHROPIC_API_KEY": "sk-ant-test",
-			// Missing CLERK keys
 		},
 	}
 
@@ -156,7 +152,6 @@ func TestEnvVarOverridesEnvFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Set env var to override.
 	t.Setenv("DATABASE_URL", "from_env")
 
 	cfg, err := Load(envPath)
@@ -186,5 +181,15 @@ func TestSchemaContainsRequiredVars(t *testing.T) {
 		if !schemaNames[r] {
 			t.Errorf("required var %q not found in Schema", r)
 		}
+	}
+}
+
+func TestSchemaContainsLicenseSigningKey(t *testing.T) {
+	schemaNames := make(map[string]bool)
+	for _, s := range Schema {
+		schemaNames[s.Name] = true
+	}
+	if !schemaNames["LICENSE_SIGNING_KEY"] {
+		t.Error("LICENSE_SIGNING_KEY not found in Schema")
 	}
 }

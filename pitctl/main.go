@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/rickhallett/thepit/pitctl/cmd"
-	"github.com/rickhallett/thepit/pitctl/internal/config"
-	"github.com/rickhallett/thepit/pitctl/internal/theme"
+	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/theme"
 )
 
 var version = "dev"
