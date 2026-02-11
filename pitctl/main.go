@@ -17,6 +17,7 @@ func main() {
 	// Global flags.
 	envPath := flag.String("env", "", "path to .env file")
 	yes := flag.Bool("yes", false, "skip confirmation prompts")
+	jsonOut := flag.Bool("json", false, "output as JSON where supported")
 	flag.Usage = usage
 	flag.Parse()
 
@@ -47,6 +48,14 @@ func main() {
 		runBouts(cfg, args[1:], *yes)
 	case "agents":
 		runAgents(cfg, args[1:], *yes)
+	case "alerts":
+		runAlerts(cfg, args[1:], *jsonOut)
+	case "watch":
+		runWatch(cfg, args[1:], *jsonOut)
+	case "metrics":
+		runMetrics(cfg, args[1:], *jsonOut)
+	case "report":
+		runReport(cfg, args[1:])
 	case "smoke":
 		url := cfg.AppURL
 		if u := flagVal(args[1:], "--url"); u != "" {
@@ -205,6 +214,47 @@ func runAgents(cfg *config.Config, args []string, confirmed bool) {
 	}
 }
 
+func runAlerts(cfg *config.Config, args []string, jsonOut bool) {
+	opts := cmd.AlertsOpts{
+		Quiet:      hasFlag(args, "--quiet"),
+		JSON:       jsonOut || hasFlag(args, "--json"),
+		WebhookURL: flagVal(args, "--webhook"),
+	}
+	must("alerts", cmd.RunAlertsCheck(cfg, opts))
+}
+
+func runWatch(cfg *config.Config, args []string, jsonOut bool) {
+	opts := cmd.WatchOpts{
+		JSON:       jsonOut || hasFlag(args, "--json"),
+		WebhookURL: flagVal(args, "--webhook"),
+	}
+	if i := flagVal(args, "--interval"); i != "" {
+		opts.IntervalRaw = i
+	}
+	must("watch", cmd.RunWatch(cfg, opts))
+}
+
+func runMetrics(cfg *config.Config, args []string, jsonOut bool) {
+	period := "24h"
+	if len(args) > 0 && args[0] != "" && args[0][0] != '-' {
+		period = args[0]
+	}
+	opts := cmd.MetricsOpts{
+		Period: period,
+		JSON:   jsonOut || hasFlag(args, "--json"),
+	}
+	must("metrics", cmd.RunMetrics(cfg, opts))
+}
+
+func runReport(cfg *config.Config, args []string) {
+	period := "daily"
+	if len(args) > 0 && (args[0] == "daily" || args[0] == "weekly") {
+		period = args[0]
+	}
+	webhookURL := flagVal(args, "--webhook")
+	must("report", cmd.RunReport(cfg, period, webhookURL))
+}
+
 func runExport(cfg *config.Config, args []string) {
 	if len(args) == 0 {
 		fatalf("export", "specify a resource: bouts, agents")
@@ -235,12 +285,17 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  credits [balance|grant|ledger|summary]\n")
 	fmt.Fprintf(os.Stderr, "  bouts [inspect|stats|purge-errors]\n")
 	fmt.Fprintf(os.Stderr, "  agents [inspect|archive|restore]\n")
+	fmt.Fprintf(os.Stderr, "  alerts [--quiet|--webhook <url>]  Health checks and alerts\n")
+	fmt.Fprintf(os.Stderr, "  watch [--interval 5m] [--webhook] Continuous monitoring loop\n")
+	fmt.Fprintf(os.Stderr, "  metrics [24h|7d|30d]           Time-series aggregations\n")
+	fmt.Fprintf(os.Stderr, "  report [daily|weekly] [--webhook] Summary report\n")
 	fmt.Fprintf(os.Stderr, "  smoke [--url <url>]            HTTP health checks\n")
 	fmt.Fprintf(os.Stderr, "  export [bouts|agents]          Research data export\n")
 	fmt.Fprintf(os.Stderr, "  version                        Show version\n\n")
 	fmt.Fprintf(os.Stderr, "Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --env <path>  Path to .env file (default: auto-detect)\n")
-	fmt.Fprintf(os.Stderr, "  --yes         Skip confirmation prompts for write operations\n\n")
+	fmt.Fprintf(os.Stderr, "  --yes         Skip confirmation prompts for write operations\n")
+	fmt.Fprintf(os.Stderr, "  --json        Output as JSON where supported\n\n")
 }
 
 func must(ctx string, err error) {
