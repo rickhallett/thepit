@@ -1,11 +1,14 @@
 import Link from 'next/link';
 
+import { getLatestExportMetadata } from '@/lib/research-exports';
+
 export const metadata = {
   title: 'Research — THE PIT',
   description: 'How The Pit turns chaotic AI bouts into research data.',
 };
 
-export default function ResearchPage() {
+export default async function ResearchPage() {
+  const latestExport = await getLatestExportMetadata().catch(() => null);
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="mx-auto max-w-4xl px-6 py-20">
@@ -92,6 +95,46 @@ export default function ResearchPage() {
             </li>
           </ul>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <p className="text-xs uppercase tracking-[0.4em] text-accent">
+          Dataset downloads
+        </p>
+        <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
+          Research-grade data
+        </h2>
+        <p className="mt-4 text-sm text-muted">
+          Anonymized exports of bout transcripts, crowd reactions, winner votes,
+          and agent metadata. All user IDs are replaced with salted SHA-256
+          hashes. Suitable for academic research into multi-agent debate
+          dynamics, persona effectiveness, and crowd evaluation patterns.
+        </p>
+        {latestExport ? (
+          <div className="mt-6 border-2 border-foreground/40 bg-black/60 p-6">
+            <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.25em] text-muted">
+              <span>Version: {latestExport.version}</span>
+              <span>
+                Generated:{' '}
+                {new Date(latestExport.generatedAt).toLocaleDateString()}
+              </span>
+              <span>{latestExport.boutCount} bouts</span>
+              <span>{latestExport.reactionCount} reactions</span>
+              <span>{latestExport.voteCount} votes</span>
+              <span>{latestExport.agentCount} agents</span>
+            </div>
+            <a
+              href={`/api/research/export?id=${latestExport.id}`}
+              className="mt-4 inline-block border-2 border-accent px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+            >
+              Download JSON dataset &darr;
+            </a>
+          </div>
+        ) : (
+          <p className="mt-6 text-xs uppercase tracking-[0.25em] text-muted">
+            No exports available yet. Check back soon.
+          </p>
+        )}
       </section>
 
       <section className="mx-auto max-w-4xl px-6 py-16">
