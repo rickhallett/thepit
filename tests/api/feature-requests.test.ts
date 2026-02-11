@@ -8,7 +8,7 @@ const {
   authMock,
   checkRateLimitMock,
   ensureUserRecordMock,
-  mockReturning,
+  _mockReturning,
   mockValues,
   mockInsert,
 } = vi.hoisted(() => {
@@ -19,7 +19,7 @@ const {
     authMock: vi.fn(),
     checkRateLimitMock: vi.fn(),
     ensureUserRecordMock: vi.fn(),
-    mockReturning,
+    _mockReturning: mockReturning,
     mockValues,
     mockInsert,
   };

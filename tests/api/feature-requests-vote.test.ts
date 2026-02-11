@@ -9,8 +9,8 @@ const {
   checkRateLimitMock,
   mockSelectLimit,
   mockDeleteWhere,
-  mockOnConflictDoNothing,
-  mockInsertValues,
+  _mockOnConflictDoNothing,
+  _mockInsertValues,
   mockInsert,
   mockCountResult,
 } = vi.hoisted(() => {
@@ -27,8 +27,8 @@ const {
     checkRateLimitMock: vi.fn(),
     mockSelectLimit,
     mockDeleteWhere,
-    mockOnConflictDoNothing,
-    mockInsertValues,
+    _mockOnConflictDoNothing: mockOnConflictDoNothing,
+    _mockInsertValues: mockInsertValues,
     mockInsert,
     mockCountResult,
   };
