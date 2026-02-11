@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/cn';
+import { trackEvent } from '@/lib/analytics';
 import { buildStructuredPrompt } from '@/lib/agent-prompts';
 import {
   DEFAULT_RESPONSE_LENGTH,
@@ -160,6 +161,7 @@ export function AgentBuilder({
 
       const payload = (await response.json()) as { agentId?: string };
       if (payload.agentId) {
+        trackEvent(parentId ? 'agent_cloned' : 'agent_created', { agentId: payload.agentId });
         router.push(`/agents/${payload.agentId}`);
         return;
       }

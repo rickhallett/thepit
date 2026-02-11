@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 import { parseJsonEventStream, uiMessageChunkSchema } from 'ai';
 
 import { DEFAULT_AGENT_COLOR, type Preset } from './presets';
+import { trackEvent } from '@/lib/analytics';
 
 export type BoutMessage = {
   id: string;
@@ -162,8 +163,10 @@ export function useBout({
       }, delayMs);
     };
 
+    const boutStartTime = Date.now();
     const run = async () => {
       setStatus('streaming');
+      trackEvent('bout_started', { presetId: preset.id, model: model ?? null });
 
       // BYOK key is now stashed in an HTTP-only cookie by /api/byok-stash.
       // The /api/run-bout endpoint reads it directly from the cookie —
@@ -264,6 +267,11 @@ export function useBout({
         setActiveAgentId(null);
         setActiveMessageId(null);
         setThinkingAgentId(null);
+        trackEvent('bout_completed', {
+          presetId: preset.id,
+          model: model ?? null,
+          durationMs: Date.now() - boutStartTime,
+        });
       }
     };
 
@@ -271,6 +279,7 @@ export function useBout({
       if (!cancelled) {
         setStatus('error');
         setThinkingAgentId(null);
+        trackEvent('bout_error', { presetId: preset.id, model: model ?? null });
       }
     });
 
