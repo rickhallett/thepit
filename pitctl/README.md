@@ -1,3 +1,5 @@
+[← Root](../README.md)
+
 # pitctl
 
 Site administration CLI for [THE PIT](https://thepit.cloud). Reads the project `.env` file and queries Neon Postgres directly — no ORM, no server dependency.
@@ -144,3 +146,7 @@ make clean     # remove binary + coverage artifacts
 ```
 
 31 tests across 5 packages. `make gate` must exit 0 before committing.
+
+---
+
+[← Root](../README.md) · [App](../app/README.md) · [DB](../db/README.md) · [Scripts](../scripts/README.md)
