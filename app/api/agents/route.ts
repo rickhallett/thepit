@@ -263,7 +263,7 @@ export async function POST(req: Request) {
         })
         .where(eq(agents.id, manifest.agentId));
     } catch (error) {
-      console.error('Agent attestation failed:', (error as Error).message);
+      console.error('Agent attestation failed:', error instanceof Error ? error.message : String(error));
       attestationFailed = true;
     }
   }
