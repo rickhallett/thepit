@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { eq } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 
 import { auth } from '@clerk/nextjs/server';
 
@@ -16,6 +16,7 @@ import { attestAgent, EAS_ENABLED } from '@/lib/eas';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { ensureUserRecord } from '@/lib/users';
+import { SUBSCRIPTIONS_ENABLED, canCreateAgent } from '@/lib/tier';
 
 export const runtime = 'nodejs';
 
@@ -172,6 +173,25 @@ export async function POST(req: Request) {
   }
 
   await ensureUserRecord(userId);
+
+  // Tier-based agent slot limit
+  if (SUBSCRIPTIONS_ENABLED) {
+    const db = requireDb();
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(agents)
+      .where(
+        and(
+          eq(agents.ownerId, userId),
+          eq(agents.archived, false),
+        ),
+      );
+    const currentCount = countResult?.count ?? 0;
+    const slotCheck = await canCreateAgent(userId, currentCount);
+    if (!slotCheck.allowed) {
+      return new Response(slotCheck.reason, { status: 402 });
+    }
+  }
   const agentId = nanoid();
 
   const manifest = buildAgentManifest({

@@ -49,6 +49,8 @@ export const boutStatus = pgEnum('bout_status', [
 
 export const agentTier = pgEnum('agent_tier', ['free', 'premium', 'custom']);
 
+export const userTier = pgEnum('user_tier', ['free', 'pass', 'lab']);
+
 export const bouts = pgTable('bouts', {
   id: varchar('id', { length: 21 }).primaryKey(),
   presetId: varchar('preset_id', { length: 64 }).notNull(),
@@ -72,6 +74,14 @@ export const users = pgTable('users', {
   displayName: varchar('display_name', { length: 128 }),
   imageUrl: varchar('image_url', { length: 512 }),
   referralCode: varchar('referral_code', { length: 32 }),
+  subscriptionTier: userTier('subscription_tier').notNull().default('free'),
+  subscriptionStatus: varchar('subscription_status', { length: 32 }),
+  subscriptionId: varchar('subscription_id', { length: 128 }),
+  subscriptionCurrentPeriodEnd: timestamp('subscription_current_period_end', {
+    withTimezone: true,
+  }),
+  stripeCustomerId: varchar('stripe_customer_id', { length: 128 }),
+  freeBoutsUsed: integer('free_bouts_used').notNull().default(0),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -202,6 +212,18 @@ export const agents = pgTable('agents', {
   attestedAt: timestamp('attested_at', { withTimezone: true }),
   archived: boolean('archived').notNull().default(false),
 });
+
+export const freeBoutPool = pgTable('free_bout_pool', {
+  id: serial('id').primaryKey(),
+  date: varchar('date', { length: 10 }).notNull(),
+  used: integer('used').notNull().default(0),
+  maxDaily: integer('max_daily').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  dateIdx: uniqueIndex('free_bout_pool_date_idx').on(table.date),
+}));
 
 export const agentFlags = pgTable(
   'agent_flags',
