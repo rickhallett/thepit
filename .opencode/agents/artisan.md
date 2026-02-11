@@ -118,7 +118,7 @@ pending → thinking (delay active) → streaming (text arriving) → complete
 |-----------|------|-------|---------|
 | Arena | `components/arena.tsx` | 498 | Bout display, streaming, reactions, voting, sharing |
 | ArenaBuilder | `components/arena-builder.tsx` | ~300 | Custom lineup selection, BYOK stash |
-| AgentBuilder | `components/agent-builder.tsx` | ~400 | 4-tab agent creation form, live prompt preview |
+| AgentBuilder | `components/agent-builder.tsx` | ~400 | 4-tab agent creation form, live prompt preview. Agent fields submitted via the builder are XML-escaped server-side by `buildXmlAgentPrompt()` in `lib/xml-prompt.ts` before storage. |
 | AskThePit | `components/ask-the-pit.tsx` | ~200 | AI FAQ chat widget |
 | PresetCard | `components/preset-card.tsx` | ~150 | Preset selection with model/BYOK options |
 | AgentsCatalog | `components/agents-catalog.tsx` | ~200 | Filterable agent listing |

@@ -46,7 +46,7 @@ Captain (you — orchestration, planning, shipping)
 
 | Task Type | Primary Agent | Support Agents |
 |-----------|--------------|----------------|
-| New feature (full-stack) | Architect | Artisan (UI), Foreman (DB), Watchdog (tests) |
+| New feature (full-stack) | Architect | Artisan (UI), Foreman (DB), Watchdog (tests). Any feature with new LLM prompts must use `lib/xml-prompt.ts` builders. Sentinel audits XML escaping. |
 | Security hardening | Sentinel | Watchdog (security tests), Foreman (DB constraints) |
 | Performance optimization | Architect + Foreman | Lighthouse (instrumentation) |
 | Bug fix (API) | Architect | Watchdog (regression test) |
@@ -75,6 +75,7 @@ When preparing a release, generate a review document covering:
 ### HIGH (fix before release)
 ### MEDIUM (fix within sprint)
 ### LOW (backlog)
+> Include: XML prompt safety — verify all user-supplied content is `xmlEscape()`d before embedding in prompts.
 
 ## 2. Code Quality Findings
 ### HIGH / MEDIUM / LOW

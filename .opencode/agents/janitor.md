@@ -37,6 +37,7 @@ When the same literal appears in 3+ locations, extract it.
 - `DEFAULT_AGENT_COLOR = '#f8fafc'` — was hardcoded in 6 locations
 - `DEFAULT_ARENA_MAX_TURNS = 12` — was hardcoded in 3 locations
 - `ARENA_PRESET_ID = 'arena'` — sentinel value for custom lineups
+- String-concatenated LLM prompts replaced by XML builders in `lib/xml-prompt.ts`
 
 **Pattern:**
 ```typescript
@@ -45,6 +46,16 @@ export const DEFAULT_AGENT_COLOR = '#f8fafc';
 
 // In consuming files:
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
+```
+
+**Anti-pattern — raw prompt concatenation (now replaced):**
+```typescript
+// BAD (old pattern — do not reintroduce):
+const prompt = `${SAFETY_PREAMBLE}${agent.systemPrompt}\n\n${format}`;
+
+// GOOD (current pattern — use XML builders):
+import { buildSystemMessage } from '@/lib/xml-prompt';
+const systemContent = buildSystemMessage({ safety: SAFETY_TEXT, persona: agent.systemPrompt, format: formatConfig.instruction });
 ```
 
 ### 2. Duplicated Code → Extracted Functions
@@ -137,6 +148,13 @@ const agents = results.filter((a): a is NonNullable<typeof a> => Boolean(a));
 3. Ensure the extracted functions are testable in isolation
 4. Run `npm run test:ci` to verify behavior is preserved
 
+### Trigger: LLM prompt constructed via string concatenation
+**Detection:** String template or concatenation producing content for `streamText()` messages outside `lib/xml-prompt.ts`
+**Action:**
+1. Replace with the appropriate builder function: `buildSystemMessage()`, `buildUserMessage()`, `buildSharePrompt()`, `buildAskThePitSystem()`, or `buildXmlAgentPrompt()`
+2. Ensure user-supplied content passes through `xmlEscape()`
+3. Run `npm run test:ci` to verify
+
 ### Trigger: `as any` or `as unknown as` appears in production code
 **Detection:** Type assertion in `app/` or `lib/` files
 **Action:**
@@ -182,4 +200,9 @@ export const MICRO_PER_CREDIT = 100;
 
 // lib/rate-limit.ts
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+
+// lib/xml-prompt.ts — XML prompt builder exports
+xmlEscape, xmlTag, xmlInline,
+buildSystemMessage, buildUserMessage, buildSharePrompt,
+buildAskThePitSystem, buildXmlAgentPrompt, wrapPersona, hasXmlStructure
 ```
