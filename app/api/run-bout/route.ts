@@ -26,8 +26,8 @@ import {
   computeCostGbp,
   estimateBoutCostGbp,
   estimateTokensFromText,
-  getCreditBalanceMicro,
   preauthorizeCredits,
+  settleCredits,
   toMicroCredits,
   BYOK_ENABLED,
 } from '@/lib/credits';
@@ -252,6 +252,7 @@ export async function POST(req: Request) {
       .onConflictDoNothing();
   } catch (error) {
     console.error('Failed to ensure bout exists', error);
+    return new Response('Service temporarily unavailable.', { status: 503 });
   }
 
   const stream = createUIMessageStream({
@@ -386,19 +387,13 @@ export async function POST(req: Request) {
         if (CREDITS_ENABLED && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);
-          let delta = actualMicro - preauthMicro;
-
-          // Cap additional charges: never settle more than the user can afford.
-          // If actual cost exceeded preauth, charge at most what's available.
-          if (delta > 0) {
-            const balance = await getCreditBalanceMicro(userId);
-            if (balance !== null && delta > balance) {
-              delta = Math.max(0, balance);
-            }
-          }
+          const delta = actualMicro - preauthMicro;
 
           if (delta !== 0) {
-            await applyCreditDelta(userId, delta, 'settlement', {
+            // Atomic settlement: additional charges are capped at available
+            // balance inside settleCredits to eliminate the TOCTOU gap where
+            // a separate balance read + write could be interleaved.
+            await settleCredits(userId, delta, 'settlement', {
               presetId,
               boutId,
               modelId,
@@ -407,7 +402,6 @@ export async function POST(req: Request) {
               actualCostGbp: actualCost,
               preauthMicro,
               referenceId: boutId,
-              capped: delta !== (actualMicro - preauthMicro),
             });
           }
         }
