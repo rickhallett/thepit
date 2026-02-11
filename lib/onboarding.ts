@@ -48,24 +48,45 @@ export async function applySignupBonus(userId: string) {
   };
 }
 
+// In-memory set of recently initialized users. Prevents the 5+ DB queries
+// in initializeUserSession from running on every single page load for the
+// same authenticated user. Entries expire after 1 hour.
+const recentlyInitialized = new Map<string, number>();
+const INIT_CACHE_TTL_MS = 60 * 60 * 1000;
+
 export async function initializeUserSession(params: {
   userId: string;
   referralCode?: string | null;
 }) {
-  await ensureUserRecord(params.userId);
-  await ensureReferralCode(params.userId);
-
-  if (!CREDITS_ENABLED) {
+  const now = Date.now();
+  const lastInit = recentlyInitialized.get(params.userId);
+  if (lastInit && now - lastInit < INIT_CACHE_TTL_MS) {
     return;
   }
 
-  await ensureCreditAccount(params.userId);
-  await applySignupBonus(params.userId);
+  await ensureUserRecord(params.userId);
+  await ensureReferralCode(params.userId);
 
-  if (params.referralCode) {
-    await applyReferralBonus({
-      referredId: params.userId,
-      code: params.referralCode,
-    });
+  if (CREDITS_ENABLED) {
+    await ensureCreditAccount(params.userId);
+    await applySignupBonus(params.userId);
+
+    if (params.referralCode) {
+      await applyReferralBonus({
+        referredId: params.userId,
+        code: params.referralCode,
+      });
+    }
+  }
+
+  recentlyInitialized.set(params.userId, now);
+
+  // Periodic cleanup: remove stale entries to prevent unbounded growth
+  if (recentlyInitialized.size > 1000) {
+    for (const [uid, ts] of recentlyInitialized) {
+      if (now - ts > INIT_CACHE_TTL_MS) {
+        recentlyInitialized.delete(uid);
+      }
+    }
   }
 }
