@@ -12,7 +12,7 @@ export default clerkMiddleware((_, req) => {
   const response = NextResponse.next();
 
   // Only set referral cookie if one doesn't already exist (prevent attribution theft).
-  if (response.cookies.get('pit_ref')) {
+  if (req.cookies.get('pit_ref')) {
     return response;
   }
 
