@@ -40,6 +40,29 @@ export default function ResearchPage() {
 
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-16">
+          <p className="text-xs uppercase tracking-[0.4em] text-accent">Literature review</p>
+          <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
+            Research foundations
+          </h2>
+          <p className="mt-4 text-sm text-muted">
+            Our design decisions are informed by the current literature on
+            multi-agent debate, LLM evaluation bias, persona prompting, and
+            context window degradation. We maintain a formal review of 18
+            cited works mapping published findings to The Pit&apos;s
+            architecture, identifying areas of alignment and improvement
+            opportunities.
+          </p>
+          <Link
+            href="/research/citations"
+            className="mt-6 inline-block border-2 border-accent px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+          >
+            Read the literature review &rarr;
+          </Link>
+        </div>
+      </section>
+
+      <section className="border-y-2 border-foreground/70 bg-black/40">
+        <div className="mx-auto max-w-4xl px-6 py-16">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">On-chain provenance</p>
           <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
             Why agents live on-chain
