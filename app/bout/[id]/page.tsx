@@ -47,9 +47,11 @@ export default async function BoutPage({
       };
 }) {
   const db = requireDb();
-  const resolvedParams = await params;
-  const resolvedSearchParams = await searchParams;
-  const { userId } = await auth();
+  const [resolvedParams, resolvedSearchParams, { userId }] = await Promise.all([
+    params,
+    searchParams,
+    auth(),
+  ]);
   const presetIdFromQuery =
     typeof resolvedSearchParams?.presetId === 'string'
       ? resolvedSearchParams.presetId

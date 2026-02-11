@@ -6,12 +6,18 @@ import { auth } from '@clerk/nextjs/server';
 
 import { Analytics } from '@vercel/analytics/react';
 
+import dynamic from 'next/dynamic';
+
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
-import { AskThePit } from '@/components/ask-the-pit';
 import { PostHogProvider } from '@/components/posthog-provider';
 import { initializeUserSession } from '@/lib/onboarding';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
+
+const AskThePit = dynamic(
+  () => import('@/components/ask-the-pit').then((m) => ({ default: m.AskThePit })),
+  { ssr: false },
+);
 
 import './globals.css';
 
@@ -25,8 +31,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { userId } = await auth();
-  const cookieStore = await cookies();
+  const [{ userId }, cookieStore] = await Promise.all([auth(), cookies()]);
   const referralCode = cookieStore.get('pit_ref')?.value ?? null;
 
   if (userId) {

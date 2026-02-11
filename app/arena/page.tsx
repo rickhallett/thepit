@@ -48,8 +48,17 @@ export default async function ArenaPage() {
   const subsEnabled = SUBSCRIPTIONS_ENABLED;
   const { userId } = await auth();
 
-  // Tier resolution
-  const userTier = subsEnabled && userId ? await getUserTier(userId) : null;
+  // Fire independent queries in parallel to avoid sequential DB waterfalls
+  const [userTier, creditBalanceMicro, creditHistory, poolStatus, freeBoutPoolStatus] =
+    await Promise.all([
+      subsEnabled && userId ? getUserTier(userId) : Promise.resolve(null),
+      creditsEnabled && userId ? getCreditBalanceMicro(userId) : Promise.resolve(null),
+      creditsEnabled && userId ? getCreditTransactions(userId, 12) : Promise.resolve([] as Awaited<ReturnType<typeof getCreditTransactions>>),
+      creditsEnabled ? getIntroPoolStatus() : Promise.resolve(null),
+      subsEnabled ? getFreeBoutPoolStatus() : Promise.resolve(null),
+    ]);
+
+  // Tier-dependent follow-up (needs userTier result)
   const tierConfig = userTier ? TIER_CONFIG[userTier] : null;
   const availableModels = userTier ? getAvailableModels(userTier) : PREMIUM_MODEL_OPTIONS;
   const freeBoutsUsed = subsEnabled && userId && userTier === 'free'
@@ -58,14 +67,7 @@ export default async function ArenaPage() {
 
   // Legacy premium flag (used when subscriptions are disabled)
   const premiumEnabled = !subsEnabled && process.env.PREMIUM_ENABLED === 'true';
-
-  const creditBalanceMicro =
-    creditsEnabled && userId ? await getCreditBalanceMicro(userId) : null;
-  const creditHistory =
-    creditsEnabled && userId ? await getCreditTransactions(userId, 12) : [];
   const showCreditPrompt = creditsEnabled && !userId;
-  const poolStatus = creditsEnabled ? await getIntroPoolStatus() : null;
-  const freeBoutPoolStatus = subsEnabled ? await getFreeBoutPoolStatus() : null;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
