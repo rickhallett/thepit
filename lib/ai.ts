@@ -8,11 +8,27 @@
 // The getModel() function resolves a model ID + optional API key into a
 // provider instance. When modelId is 'byok', it creates a fresh Anthropic
 // provider using the user's key instead of the platform's default.
+//
+// When HELICONE_API_KEY is set, all platform-funded AI calls are routed
+// through Helicone's proxy for cost/latency/token analytics. BYOK calls
+// bypass Helicone since we don't proxy user-supplied keys.
 
 import { createAnthropic } from '@ai-sdk/anthropic';
 
+const HELICONE_API_KEY = process.env.HELICONE_API_KEY;
+const HELICONE_BASE_URL = 'https://anthropic.helicone.ai';
+
 const defaultAnthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  ...(HELICONE_API_KEY
+    ? {
+        baseURL: HELICONE_BASE_URL,
+        headers: {
+          'Helicone-Auth': `Bearer ${HELICONE_API_KEY}`,
+          'Helicone-Property-Service': 'tspit',
+        },
+      }
+    : {}),
 });
 
 export const FREE_MODEL_ID =

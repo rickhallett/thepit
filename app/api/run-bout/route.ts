@@ -9,6 +9,7 @@ import { cookies } from 'next/headers';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
+import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/app/api/byok-stash/route';
 import {
@@ -64,6 +65,7 @@ export async function POST(req: Request) {
     return new Response('Invalid JSON.', { status: 400 });
   }
 
+  const requestId = getRequestId(req);
   const { boutId } = payload;
   let topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
   let lengthKey =
@@ -329,6 +331,16 @@ export async function POST(req: Request) {
     return new Response('Service temporarily unavailable.', { status: 503 });
   }
 
+  const boutStartTime = Date.now();
+  log.info('Bout stream starting', {
+    requestId,
+    boutId,
+    presetId,
+    modelId,
+    maxTurns: preset.maxTurns,
+    userId: userId ?? undefined,
+  });
+
   const stream = createUIMessageStream({
     async execute({ writer }) {
       const history: string[] = [];
@@ -378,6 +390,7 @@ export async function POST(req: Request) {
             history.length > 0
               ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
               : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
+          const turnStart = Date.now();
           const result = streamText({
             model: boutModel,
             maxOutputTokens: lengthConfig.maxOutputTokens,
@@ -401,14 +414,31 @@ export async function POST(req: Request) {
           writer.write({ type: 'text-end', id: turnId });
 
           const usage = await result.usage;
+          let turnInputTokens = 0;
+          let turnOutputTokens = 0;
           if (usage?.inputTokens || usage?.outputTokens) {
-            inputTokens += usage.inputTokens ?? 0;
-            outputTokens += usage.outputTokens ?? 0;
+            turnInputTokens = usage.inputTokens ?? 0;
+            turnOutputTokens = usage.outputTokens ?? 0;
+            inputTokens += turnInputTokens;
+            outputTokens += turnOutputTokens;
           } else {
-            inputTokens += estimateTokensFromText(agent.systemPrompt, 1);
-            inputTokens += estimateTokensFromText(prompt, 1);
-            outputTokens += estimatedOutputTokens;
+            turnInputTokens = estimateTokensFromText(agent.systemPrompt, 1) + estimateTokensFromText(prompt, 1);
+            turnOutputTokens = estimatedOutputTokens;
+            inputTokens += turnInputTokens;
+            outputTokens += turnOutputTokens;
           }
+
+          const turnDurationMs = Date.now() - turnStart;
+          log.info('AI turn complete', {
+            requestId,
+            boutId,
+            turn: i,
+            agentId: agent.id,
+            modelId,
+            inputTokens: turnInputTokens,
+            outputTokens: turnOutputTokens,
+            durationMs: turnDurationMs,
+          });
 
           history.push(`${agent.name}: ${fullText}`);
 
@@ -456,6 +486,19 @@ export async function POST(req: Request) {
           })
           .where(eq(bouts.id, boutId));
 
+        const boutDurationMs = Date.now() - boutStartTime;
+        log.info('Bout completed', {
+          requestId,
+          boutId,
+          presetId,
+          modelId,
+          turns: preset.maxTurns,
+          inputTokens,
+          outputTokens,
+          durationMs: boutDurationMs,
+          hasShareLine: !!shareLine,
+        });
+
         if (shareLine) {
           writer.write({ type: 'data-share-line', data: { text: shareLine } });
         }
@@ -482,6 +525,18 @@ export async function POST(req: Request) {
           }
         }
       } catch (error) {
+        const boutDurationMs = Date.now() - boutStartTime;
+        log.error('Bout stream failed', error as Error, {
+          requestId,
+          boutId,
+          presetId,
+          modelId,
+          turnsCompleted: transcript.length,
+          inputTokens,
+          outputTokens,
+          durationMs: boutDurationMs,
+        });
+
         await db
           .update(bouts)
           .set({ status: 'error', transcript, updatedAt: new Date() })
