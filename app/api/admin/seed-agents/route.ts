@@ -2,7 +2,6 @@ import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
-import { withLogging } from '@/lib/api-logging';
 import { agents } from '@/db/schema';
 import { ALL_PRESETS } from '@/lib/presets';
 import {
@@ -18,7 +17,7 @@ export async function POST(req: Request) {
   try {
     requireAdmin(req);
   } catch (error) {
-    return new Response(error instanceof Error ? error.message : 'Unauthorized', { status: 401 });
+    return new Response('Unauthorized.', { status: 401 });
   }
 
   const db = requireDb();

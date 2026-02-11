@@ -12,10 +12,8 @@ describe('UNSAFE_PATTERN', () => {
     ['data:text/html,<h1>hi</h1>', true],
     ['safe text with no issues', false],
     ['This is a perfectly normal sentence.', false],
-    ['I like onions and onclick games', false], // "onclick" without = should not match... actually it will match "on\w+\s*="
+    ['I like onions and onclick games', false], // "onclick" without = should not match
   ])('"%s" → match=%s', (input, expected) => {
-    // Reset lastIndex for global-like patterns
-    UNSAFE_PATTERN.lastIndex = 0;
     expect(UNSAFE_PATTERN.test(input)).toBe(expected);
   });
 

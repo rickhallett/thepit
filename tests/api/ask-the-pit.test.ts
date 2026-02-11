@@ -140,7 +140,7 @@ describe('ask-the-pit route', () => {
       { role: 'user', content: 'What is The Pit?' },
     ]);
 
-    // Verify getModel was called
-    expect(getModelMock).toHaveBeenCalledTimes(1);
+    // Verify getModel was called with the configured model
+    expect(getModelMock).toHaveBeenCalledWith('claude-haiku-4-5-20251001');
   });
 });

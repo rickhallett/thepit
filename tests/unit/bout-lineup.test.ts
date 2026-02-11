@@ -37,4 +37,10 @@ describe('buildArenaPresetFromLineup', () => {
     const preset = buildArenaPresetFromLineup(lineup);
     expect(preset.agents[0].avatar).toBeUndefined();
   });
+
+  it('handles empty lineup', () => {
+    const preset = buildArenaPresetFromLineup([]);
+    expect(preset.agents).toHaveLength(0);
+    expect(preset.id).toBe(ARENA_PRESET_ID);
+  });
 });

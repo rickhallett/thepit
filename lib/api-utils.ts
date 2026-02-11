@@ -22,6 +22,6 @@ export async function parseJsonBody<T>(
 export function errorResponse(message: string, status: number): Response {
   return Response.json(
     { error: message },
-    { status, headers: { 'Content-Type': 'application/json' } },
+    { status },
   );
 }

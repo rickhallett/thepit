@@ -12,7 +12,7 @@ This document revises the original `docs/typescript-architecture-review-2026-02-
 
 **Changes since original:**
 - 30 commits landed on master adding ~20 new files, including `lib/bout-engine.ts` (major SRP-1 fix), CI/CD pipelines, short links, remix events, research exports, feature requests, paper submissions, and OpenAPI spec
-- 16 findings resolved (4 by prior PRs, 12 by this review's implementation PR)
+- 20 finding IDs resolved (4 by prior PRs, 16 by this review's implementation PR)
 - 10 new findings added from new code
 - All line number references updated to current codebase state
 
@@ -24,7 +24,7 @@ THE PIT is a well-structured codebase with **zero `any` types**, **zero `@ts-ign
 
 Since the original review, the highest-impact finding (SRP-1: `run-bout/route.ts` monolith) has been resolved via extraction to `lib/bout-engine.ts`. CI/CD pipelines now exist via GitHub Actions, and E2E coverage has grown from 1 to 3 specs.
 
-This PR addresses 12 additional findings from the original review:
+This PR addresses 16 additional finding IDs (12 logical findings) from the original review:
 
 | ID | Finding | Resolution |
 |----|---------|------------|
@@ -148,4 +148,4 @@ SRP-1, DIP-1, and EXT-1 were the original 3 critical findings. SRP-1 is resolved
 | New (this revision) | 0 | 4 | 2 | 6 |
 | **Total** | **8** | **25** | **14** | **47** |
 
-**Previously resolved:** 16 findings (SRP-1, TS-1, TS-2, TS-3, TS-4, TS-5, TS-7, TS-8, DUP-4, DUP-6, DUP-7, RR-H1, RR-H4, EXT-2, EXT-3, EXT-8, SEC-1, ERR-1, TST-4, TST-5)
+**Previously resolved:** 20 finding IDs across 14 logical findings (SRP-1, TS-1, TS-2, TS-3, TS-4, TS-5, TS-7, TS-8, DUP-4, DUP-6, DUP-7, RR-H1, RR-H4, EXT-2, EXT-3, EXT-8, SEC-1, ERR-1, TST-4, TST-5). Some IDs are paired (TS-4/TS-8, EXT-2/EXT-3) where a single change resolved both.
