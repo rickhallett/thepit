@@ -77,6 +77,10 @@ export async function POST(req: Request) {
     return new Response('Missing boutId.', { status: 400 });
   }
 
+  if (topic.length > 500) {
+    return new Response('Topic must be 500 characters or fewer.', { status: 400 });
+  }
+
   let db: ReturnType<typeof requireDb>;
   try {
     db = requireDb();
