@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 
+import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
@@ -272,9 +273,10 @@ export function ArenaBuilder({
                 )}
               >
                 <div className="min-w-0">
-                  <p className="text-sm uppercase tracking-[0.25em]">
-                    {agent.avatar ? `${agent.avatar} ` : ''}{agent.name}
-                  </p>
+                <p className="flex items-center gap-2 text-sm uppercase tracking-[0.25em]">
+                    <AgentIcon avatar={agent.avatar} size={14} className="shrink-0" />
+                    {agent.name}
+                </p>
                   <p className="mt-2 text-[10px] uppercase tracking-[0.3em] text-muted">
                     {agent.presetName ?? 'Custom'}
                   </p>
