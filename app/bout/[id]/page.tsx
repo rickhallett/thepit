@@ -17,7 +17,7 @@ import {
   formatCredits,
   toMicroCredits,
 } from '@/lib/credits';
-import { PRESETS, type Agent } from '@/lib/presets';
+import { PRESETS, DEFAULT_AGENT_COLOR, DEFAULT_ARENA_MAX_TURNS, ARENA_PRESET_ID, type Agent } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { getReactionCounts } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
@@ -87,20 +87,20 @@ export default async function BoutPage({
   }
 
   let preset = PRESETS.find((item) => item.id === resolvedPresetId);
-  if (!preset && resolvedPresetId === 'arena' && bout?.agentLineup) {
+  if (!preset && resolvedPresetId === ARENA_PRESET_ID && bout?.agentLineup) {
     const lineup: Agent[] = bout.agentLineup.map((agent) => ({
       id: agent.id,
       name: agent.name,
       systemPrompt: agent.systemPrompt,
-      color: agent.color ?? '#f8fafc',
+      color: agent.color ?? DEFAULT_AGENT_COLOR,
       avatar: agent.avatar,
     }));
     preset = {
-      id: 'arena',
+      id: ARENA_PRESET_ID,
       name: 'Arena Mode',
       description: 'Custom lineup',
       tier: 'free',
-      maxTurns: 12,
+      maxTurns: DEFAULT_ARENA_MAX_TURNS,
       agents: lineup,
     };
   }

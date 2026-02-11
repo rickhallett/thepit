@@ -16,7 +16,7 @@ import {
   PREMIUM_MODEL_OPTIONS,
   getModel,
 } from '@/lib/ai';
-import { ARENA_PRESET_ID, getPresetById, type Agent, type Preset } from '@/lib/presets';
+import { ARENA_PRESET_ID, DEFAULT_AGENT_COLOR, DEFAULT_ARENA_MAX_TURNS, getPresetById, type Agent, type Preset } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
@@ -153,7 +153,7 @@ export async function POST(req: Request) {
       id: agent.id,
       name: agent.name,
       systemPrompt: agent.systemPrompt,
-      color: agent.color ?? '#f8fafc',
+      color: agent.color ?? DEFAULT_AGENT_COLOR,
       avatar: agent.avatar,
     }));
     preset = {
@@ -161,7 +161,7 @@ export async function POST(req: Request) {
       name: 'Arena Mode',
       description: 'Custom lineup',
       tier: 'free',
-      maxTurns: 12,
+      maxTurns: DEFAULT_ARENA_MAX_TURNS,
       agents: lineup,
     };
     if (!topic && row.topic) {
@@ -365,7 +365,7 @@ export async function POST(req: Request) {
               turn: i,
               agentId: agent.id,
               agentName: agent.name,
-              color: agent.color ?? '#f8fafc',
+              color: agent.color ?? DEFAULT_AGENT_COLOR,
             },
           });
           writer.write({ type: 'text-start', id: turnId });

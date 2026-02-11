@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { cn } from '@/lib/cn';
+import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 
 export type AgentCatalogEntry = {
   id: string;
@@ -166,8 +167,8 @@ export function AgentsCatalog({
               <span
                 className="rounded-full border-2 px-3 py-1 text-[10px] uppercase tracking-[0.25em]"
                 style={{
-                  borderColor: agent.color ?? '#f8fafc',
-                  color: agent.color ?? '#f8fafc',
+                  borderColor: agent.color ?? DEFAULT_AGENT_COLOR,
+                  color: agent.color ?? DEFAULT_AGENT_COLOR,
                 }}
               >
                 {agent.id}

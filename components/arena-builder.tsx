@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, type FormEvent } from 'react';
 
 import { cn } from '@/lib/cn';
 import { FREE_MODEL_ID } from '@/lib/ai';
+import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {
   RESPONSE_LENGTHS,
   DEFAULT_RESPONSE_LENGTH,
@@ -281,8 +282,8 @@ export function ArenaBuilder({
                 <span
                   className="rounded-full border-2 px-3 py-1 text-[10px] uppercase tracking-[0.25em]"
                   style={{
-                    borderColor: agent.color ?? '#f8fafc',
-                    color: agent.color ?? '#f8fafc',
+                    borderColor: agent.color ?? DEFAULT_AGENT_COLOR,
+                    color: agent.color ?? DEFAULT_AGENT_COLOR,
                   }}
                 >
                   {isSelected ? 'Selected' : 'Pick'}

@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { cn } from '@/lib/cn';
+import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import type { PitLeaderboardEntry } from '@/lib/leaderboard';
 
 type SortKey = 'votes' | 'wins' | 'winRate' | 'bouts';
@@ -206,8 +207,8 @@ export function LeaderboardTable({
                   <span
                     className="rounded-full border-2 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]"
                     style={{
-                      borderColor: entry.color ?? '#f8fafc',
-                      color: entry.color ?? '#f8fafc',
+                      borderColor: entry.color ?? DEFAULT_AGENT_COLOR,
+                      color: entry.color ?? DEFAULT_AGENT_COLOR,
                     }}
                   >
                     {entry.avatar ?? '■'}
