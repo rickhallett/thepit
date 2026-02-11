@@ -184,6 +184,60 @@ func TestSchemaContainsRequiredVars(t *testing.T) {
 	}
 }
 
+func TestLoadEmptyPathResolvesEnvFile(t *testing.T) {
+	// Create a temp dir with a .env file, chdir into it, call Load("").
+	dir := t.TempDir()
+	envPath := filepath.Join(dir, ".env")
+	content := "DATABASE_URL=postgres://resolve-test\nANTHROPIC_API_KEY=sk-test\n"
+	if err := os.WriteFile(envPath, []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Save and restore CWD.
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load("")
+	if err != nil {
+		t.Fatalf("Load(\"\") error: %v", err)
+	}
+	if !cfg.Loaded {
+		t.Error("expected Loaded=true when .env exists in CWD")
+	}
+	if cfg.DatabaseURL != "postgres://resolve-test" {
+		t.Errorf("DatabaseURL = %q, want postgres://resolve-test", cfg.DatabaseURL)
+	}
+}
+
+func TestLoadEmptyPathNoEnvFile(t *testing.T) {
+	// chdir into a temp dir with no .env file, call Load("").
+	dir := t.TempDir()
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load("")
+	if err != nil {
+		t.Fatalf("Load(\"\") error: %v", err)
+	}
+	if cfg.Loaded {
+		t.Error("expected Loaded=false when no .env exists")
+	}
+}
+
 func TestSchemaContainsLicenseSigningKey(t *testing.T) {
 	schemaNames := make(map[string]bool)
 	for _, s := range Schema {

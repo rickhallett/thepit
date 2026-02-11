@@ -1,6 +1,7 @@
 package dataset
 
 import (
+	"os"
 	"testing"
 )
 
@@ -141,6 +142,54 @@ func TestParseTime(t *testing.T) {
 		if !tt.valid && err == nil {
 			t.Errorf("ParseTime(%q) expected error", tt.input)
 		}
+	}
+}
+
+func TestLoadFromFile(t *testing.T) {
+	dir := t.TempDir()
+	path := dir + "/test-export.json"
+	if err := os.WriteFile(path, []byte(testExportJSON), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	ds, err := LoadFromFile(path)
+	if err != nil {
+		t.Fatalf("LoadFromFile(%q) error: %v", path, err)
+	}
+	if len(ds.Export.Bouts) != 3 {
+		t.Errorf("expected 3 bouts, got %d", len(ds.Export.Bouts))
+	}
+	if len(ds.Export.Agents) != 3 {
+		t.Errorf("expected 3 agents, got %d", len(ds.Export.Agents))
+	}
+	// Verify indexes are built.
+	if _, ok := ds.BoutsByID["b1"]; !ok {
+		t.Error("BoutsByID index missing b1")
+	}
+}
+
+func TestLoadFromFileMissing(t *testing.T) {
+	_, err := LoadFromFile("/tmp/definitely_does_not_exist_xyz.json")
+	if err == nil {
+		t.Error("expected error for missing file")
+	}
+}
+
+func TestVotesPerBout(t *testing.T) {
+	ds := loadTestDataset(t)
+	stats := ds.Stats()
+	vpb := stats.VotesPerBout()
+	// 5 votes / 3 bouts ~ 1.666...
+	if vpb < 1.6 || vpb > 1.7 {
+		t.Errorf("VotesPerBout = %f, want ~1.667", vpb)
+	}
+}
+
+func TestVotesPerBoutEmpty(t *testing.T) {
+	ds, _ := Parse([]byte(`{"exportVersion":"1.0","generatedAt":"2026-01-01T00:00:00Z","bouts":[],"reactions":[],"votes":[],"agents":[]}`))
+	stats := ds.Stats()
+	if stats.VotesPerBout() != 0 {
+		t.Errorf("VotesPerBout on empty dataset = %f, want 0", stats.VotesPerBout())
 	}
 }
 

@@ -221,6 +221,93 @@ func TestIsValidBytes32(t *testing.T) {
 	}
 }
 
+func TestGetAttestationSuccess(t *testing.T) {
+	// Build a valid ABI-encoded getAttestation response.
+	// The return is: offset-to-tuple (slot 0) + tuple fields.
+	//
+	// Slot 0: 0x20 (offset to tuple = 32 bytes = slot index 1)
+	// Then from slot 1 (base):
+	//   +0: uid (bytes32)
+	//   +1: schema (bytes32)
+	//   +2: time (uint64)
+	//   +3: expirationTime (uint64)
+	//   +4: revocationTime (uint64) - we don't expose but need it
+	//   +5: refUID (bytes32)
+	//   +6: recipient (address, right-aligned in 32 bytes)
+	//   +7: attester (address, right-aligned in 32 bytes)
+	//   +8: revocable (bool as uint256)
+	//   +9: offset to dynamic bytes data (relative to base)
+	//   Then: data length + data content
+
+	uid := strings.Repeat("aa", 32)
+	schema := strings.Repeat("bb", 32)
+	refUID := strings.Repeat("00", 32)
+	recipient := strings.Repeat("0", 24) + "1111111111111111111111111111111111111111" // 20 bytes
+	attester := strings.Repeat("0", 24) + "2222222222222222222222222222222222222222"  // 20 bytes
+
+	slot := func(hex64 string) string {
+		if len(hex64) < 64 {
+			hex64 = strings.Repeat("0", 64-len(hex64)) + hex64
+		}
+		return hex64
+	}
+
+	// Build response hex (no 0x prefix for the inner parts).
+	var hex strings.Builder
+	hex.WriteString(slot("20"))                                 // slot 0: offset = 32 bytes
+	hex.WriteString(uid)                                        // base+0: uid
+	hex.WriteString(schema)                                     // base+1: schema
+	hex.WriteString(slot("65a8db80"))                           // base+2: time = 1705598848
+	hex.WriteString(slot("0"))                                  // base+3: expirationTime = 0
+	hex.WriteString(slot("0"))                                  // base+4: revocationTime = 0
+	hex.WriteString(refUID)                                     // base+5: refUID
+	hex.WriteString(recipient)                                  // base+6: recipient
+	hex.WriteString(attester)                                   // base+7: attester
+	hex.WriteString(slot("1"))                                  // base+8: revocable = true
+	hex.WriteString(slot(fmt.Sprintf("%x", 10*32)))             // base+9: data offset (10 slots from base = 320 bytes)
+	hex.WriteString(slot(fmt.Sprintf("%x", 4)))                 // data length = 4 bytes
+	hex.WriteString(slot("deadbeef" + strings.Repeat("0", 56))) // data content (4 bytes padded)
+
+	srv := newTestServer(func(method string, params []interface{}) (interface{}, error) {
+		if method == "eth_call" {
+			return "0x" + hex.String(), nil
+		}
+		return nil, fmt.Errorf("unknown method: %s", method)
+	})
+	defer srv.Close()
+
+	c := New(Config{RPCURL: srv.URL})
+	att, err := c.GetAttestation(context.Background(), "0x"+uid)
+	if err != nil {
+		t.Fatalf("GetAttestation: %v", err)
+	}
+
+	if att.UID != "0x"+uid {
+		t.Errorf("UID = %q, want %q", att.UID, "0x"+uid)
+	}
+	if att.Schema != "0x"+schema {
+		t.Errorf("Schema = %q, want %q", att.Schema, "0x"+schema)
+	}
+	if att.Time != 1705565056 {
+		t.Errorf("Time = %d, want 1705565056", att.Time)
+	}
+	if att.ExpirationTime != 0 {
+		t.Errorf("ExpirationTime = %d, want 0", att.ExpirationTime)
+	}
+	if !att.Revocable {
+		t.Error("Revocable = false, want true")
+	}
+	if att.Recipient != "0x1111111111111111111111111111111111111111" {
+		t.Errorf("Recipient = %q", att.Recipient)
+	}
+	if att.Attester != "0x2222222222222222222222222222222222222222" {
+		t.Errorf("Attester = %q", att.Attester)
+	}
+	if len(att.Data) != 4 {
+		t.Errorf("Data length = %d, want 4", len(att.Data))
+	}
+}
+
 func TestConstants(t *testing.T) {
 	if EASContractAddress != "0x4200000000000000000000000000000000000021" {
 		t.Errorf("wrong EAS address: %s", EASContractAddress)
