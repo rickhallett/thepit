@@ -19,7 +19,7 @@ import {
 import { ARENA_PRESET_ID, getPresetById, type Agent, type Preset } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { resolveResponseFormat } from '@/lib/response-formats';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import {
   CREDITS_ENABLED,
   applyCreditDelta,
@@ -187,6 +187,18 @@ export async function POST(req: Request) {
 
   const { userId } = await auth();
 
+  // Rate-limit all callers — authenticated by userId, anonymous by IP.
+  // Unauthenticated users get a stricter cap (2/hr vs 5/hr) to limit
+  // platform API spend from anonymous traffic.
+  const rateLimitId = userId ?? getClientIdentifier(req);
+  const boutRateCheck = checkRateLimit(
+    { name: 'bout-creation', maxRequests: userId ? 5 : 2, windowMs: 60 * 60 * 1000 },
+    rateLimitId,
+  );
+  if (!boutRateCheck.success) {
+    return new Response('Rate limit exceeded. Try again later.', { status: 429 });
+  }
+
   // --- Tier-based access control ---
   // When subscriptions are enabled, use per-user tier checks.
   // When disabled, fall back to the legacy PREMIUM_ENABLED flag.
@@ -253,16 +265,6 @@ export async function POST(req: Request) {
       modelId = 'byok';
     } else if (requestedModel === 'byok') {
       return new Response('BYOK not enabled.', { status: 400 });
-    }
-  }
-
-  if (userId) {
-    const boutRateCheck = checkRateLimit(
-      { name: 'bout-creation', maxRequests: 5, windowMs: 60 * 60 * 1000 },
-      userId,
-    );
-    if (!boutRateCheck.success) {
-      return new Response('Rate limit exceeded. Max 5 bouts per hour.', { status: 429 });
     }
   }
 
