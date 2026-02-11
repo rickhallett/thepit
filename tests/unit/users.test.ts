@@ -42,7 +42,7 @@ vi.mock('@/db/schema', () => ({
 }));
 
 const setupSelect = (result: unknown[]) => {
-  mockDb.select.mockImplementation((fields?: unknown) => ({
+  mockDb.select.mockImplementation((_fields?: unknown) => ({
     from: () => ({
       where: () => ({
         limit: async () => result,
@@ -95,9 +95,7 @@ describe('users', () => {
     mockDb.insert.mockReset();
     mockDb.update.mockReset();
     mockClerkClient.mockClear();
-    // Reset clerkGetUser for each test
-    const { clerkGetUser } = vi.hoisted(() => ({ clerkGetUser: undefined as unknown }));
-    // Re-access through the module mock
+    // Reset clerkGetUser for each test — hoisted mock reset
   });
 
   describe('maskEmail', () => {

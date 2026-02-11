@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   try {
     requireAdmin(req);
   } catch (error) {
-    return new Response((error as Error).message, { status: 401 });
+    return new Response(error instanceof Error ? error.message : 'Unauthorized', { status: 401 });
   }
 
   const db = requireDb();
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
             attested += 1;
           }
         } catch (error) {
-          console.error(`Seed agent error [${agentId}]:`, (error as Error).message);
+          console.error(`Seed agent error [${agentId}]:`, error instanceof Error ? error.message : String(error));
           errors.push(agentId);
         }
         continue;
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
             .where(eq(agents.id, registration.agentId));
           attested += 1;
         } catch (error) {
-          console.error(`Seed attestation error [${agentId}]:`, (error as Error).message);
+          console.error(`Seed attestation error [${agentId}]:`, error instanceof Error ? error.message : String(error));
           errors.push(agentId);
         }
       }

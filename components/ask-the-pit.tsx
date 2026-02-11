@@ -3,9 +3,12 @@
 import { useCallback, useRef, useState } from 'react';
 
 type Message = {
+  id: number;
   role: 'user' | 'assistant';
   content: string;
 };
+
+let nextMessageId = 0;
 
 export function AskThePit({ enabled }: { enabled: boolean }) {
   const [open, setOpen] = useState(false);
@@ -29,7 +32,7 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
       const trimmed = input.trim();
       if (!trimmed || streaming) return;
 
-      const userMessage: Message = { role: 'user', content: trimmed };
+      const userMessage: Message = { id: nextMessageId++, role: 'user', content: trimmed };
       setMessages((prev) => [...prev, userMessage]);
       setInput('');
       setStreaming(true);
@@ -46,7 +49,7 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
           const text = await res.text();
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: `Error: ${text}` },
+            { id: nextMessageId++, role: 'assistant', content: `Error: ${text}` },
           ]);
           setStreaming(false);
           return;
@@ -56,7 +59,7 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
         if (!reader) {
           setMessages((prev) => [
             ...prev,
-            { role: 'assistant', content: 'No response stream.' },
+            { id: nextMessageId++, role: 'assistant', content: 'No response stream.' },
           ]);
           setStreaming(false);
           return;
@@ -64,8 +67,9 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
 
         const decoder = new TextDecoder();
         let assistantContent = '';
+        const assistantId = nextMessageId++;
 
-        setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+        setMessages((prev) => [...prev, { id: assistantId, role: 'assistant', content: '' }]);
 
         while (true) {
           const { done, value } = await reader.read();
@@ -77,6 +81,7 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
           setMessages((prev) => {
             const updated = [...prev];
             updated[updated.length - 1] = {
+              id: assistantId,
               role: 'assistant',
               content: assistantContent,
             };
@@ -87,7 +92,7 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
       } catch {
         setMessages((prev) => [
           ...prev,
-          { role: 'assistant', content: 'Failed to connect.' },
+          { id: nextMessageId++, role: 'assistant', content: 'Failed to connect.' },
         ]);
       } finally {
         setStreaming(false);
@@ -126,9 +131,9 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
                 Ask anything about The Pit.
               </p>
             )}
-            {messages.map((msg, i) => (
+            {messages.map((msg) => (
               <div
-                key={i}
+                key={msg.id}
                 className={`mb-3 text-sm ${
                   msg.role === 'user'
                     ? 'text-foreground'

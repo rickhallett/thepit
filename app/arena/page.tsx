@@ -43,7 +43,7 @@ export const metadata = {
 };
 
 /** Arena page: preset grid with tier-aware model access, free bout counter, and upgrade section. */
-export default async function Home() {
+export default async function ArenaPage() {
   const creditsEnabled = CREDITS_ENABLED;
   const subsEnabled = SUBSCRIPTIONS_ENABLED;
   const { userId } = await auth();

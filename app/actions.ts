@@ -106,13 +106,13 @@ export async function createArenaBout(formData: FormData) {
   const snapshots = await getAgentSnapshots();
   const lineup = agentIds
     .map((id) => snapshots.find((agent) => agent.id === id))
-    .filter(Boolean)
+    .filter((a): a is NonNullable<typeof a> => Boolean(a))
     .map((agent) => ({
-      id: agent!.id,
-      name: agent!.name,
-      systemPrompt: agent!.systemPrompt,
-      color: agent!.color,
-      avatar: agent!.avatar,
+      id: agent.id,
+      name: agent.name,
+      systemPrompt: agent.systemPrompt,
+      color: agent.color,
+      avatar: agent.avatar,
     }));
 
   if (lineup.length !== agentIds.length) {
