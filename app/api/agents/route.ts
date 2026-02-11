@@ -5,6 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
+import { withLogging } from '@/lib/api-logging';
 import { agents } from '@/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import {
@@ -55,7 +56,7 @@ function validateTextField(
 }
 
 /** Create a new agent with tier-based slot limits and content validation. */
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   let payload: {
     name?: string;
     systemPrompt?: string;
@@ -275,4 +276,4 @@ export async function POST(req: Request) {
     manifestHash,
     attestationFailed,
   });
-}
+}, 'agents');

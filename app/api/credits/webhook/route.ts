@@ -4,6 +4,7 @@ import type Stripe from 'stripe';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
+import { withLogging } from '@/lib/api-logging';
 import { creditTransactions, users } from '@/db/schema';
 import {
   applyCreditDelta,
@@ -44,7 +45,7 @@ async function updateUserSubscription(params: {
 }
 
 /** Handle Stripe webhook events for credit purchases and subscription lifecycle. */
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     return new Response('Service unavailable.', { status: 500 });
@@ -267,4 +268,4 @@ export async function POST(req: Request) {
   }
 
   return Response.json({ received: true });
-}
+}, 'credits-webhook');

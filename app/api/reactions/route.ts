@@ -7,6 +7,7 @@ import {
   getClientIdentifier,
   type RateLimitConfig,
 } from '@/lib/rate-limit';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
@@ -17,7 +18,7 @@ const RATE_LIMIT_CONFIG: RateLimitConfig = {
   windowMs: 60 * 1000,
 };
 
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   // Check rate limit before processing
   const clientId = getClientIdentifier(req);
   const rateLimit = checkRateLimit(RATE_LIMIT_CONFIG, clientId);
@@ -82,4 +83,4 @@ export async function POST(req: Request) {
       'X-RateLimit-Remaining': String(rateLimit.remaining),
     },
   });
-}
+}, 'reactions');

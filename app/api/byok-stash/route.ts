@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
@@ -14,7 +15,7 @@ const KEY_MAX_LENGTH = 256;
  * This eliminates the sessionStorage XSS window entirely.
  * Requires authentication to prevent cookie jar pollution.
  */
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
     return new Response('Authentication required.', { status: 401 });
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
   });
 
   return Response.json({ ok: true });
-}
+}, 'byok-stash');
 
 /**
  * Read and delete the stashed BYOK key (used internally by run-bout).
