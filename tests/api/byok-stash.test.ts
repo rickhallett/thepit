@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-// Mock cookie jar
-const { cookieStore } = vi.hoisted(() => {
+// Mock cookie jar and auth
+const { cookieStore, authMock } = vi.hoisted(() => {
   const store = new Map<string, { name: string; value: string }>();
   return {
     cookieStore: {
@@ -14,11 +14,16 @@ const { cookieStore } = vi.hoisted(() => {
         store.delete(name);
       }),
     },
+    authMock: vi.fn(),
   };
 });
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(async () => cookieStore),
+}));
+
+vi.mock('@clerk/nextjs/server', () => ({
+  auth: authMock,
 }));
 
 import { POST, readAndClearByokKey } from '@/app/api/byok-stash/route';
@@ -27,6 +32,7 @@ describe('byok-stash', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     cookieStore._store.clear();
+    authMock.mockResolvedValue({ userId: 'user_test' });
   });
 
   it('POST returns 400 for invalid JSON', async () => {
@@ -49,10 +55,32 @@ describe('byok-stash', () => {
     expect(res.status).toBe(400);
   });
 
+  it('POST returns 401 when unauthenticated', async () => {
+    authMock.mockResolvedValue({ userId: null });
+    const req = new Request('http://localhost/api/byok-stash', {
+      method: 'POST',
+      body: JSON.stringify({ key: 'sk-ant-test-123' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(401);
+  });
+
+  it('POST returns 400 for invalid key format', async () => {
+    const req = new Request('http://localhost/api/byok-stash', {
+      method: 'POST',
+      body: JSON.stringify({ key: 'invalid-prefix-key' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    expect(await res.text()).toBe('Invalid key format.');
+  });
+
   it('POST sets cookie and returns { ok: true }', async () => {
     const req = new Request('http://localhost/api/byok-stash', {
       method: 'POST',
-      body: JSON.stringify({ key: 'sk-test-123' }),
+      body: JSON.stringify({ key: 'sk-ant-test-123' }),
       headers: { 'Content-Type': 'application/json' },
     });
     const res = await POST(req);
@@ -61,7 +89,7 @@ describe('byok-stash', () => {
     expect(json.ok).toBe(true);
     expect(cookieStore.set).toHaveBeenCalledWith(
       'pit_byok',
-      'sk-test-123',
+      'sk-ant-test-123',
       expect.objectContaining({ httpOnly: true }),
     );
   });
