@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
@@ -13,10 +14,20 @@ export const runtime = 'nodejs';
 
 const requireAdmin = (req: Request) => {
   const token = req.headers.get('x-admin-token');
-  if (!process.env.ADMIN_SEED_TOKEN) {
+  const expected = process.env.ADMIN_SEED_TOKEN;
+  if (!expected) {
     throw new Error('Not configured.');
   }
-  if (!token || token !== process.env.ADMIN_SEED_TOKEN) {
+  if (!token) {
+    throw new Error('Unauthorized');
+  }
+  // Constant-time comparison to prevent timing side-channel attacks.
+  const a = Buffer.from(token);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) {
+    throw new Error('Unauthorized');
+  }
+  if (!timingSafeEqual(a, b)) {
     throw new Error('Unauthorized');
   }
 };
