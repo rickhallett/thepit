@@ -1,0 +1,6 @@
+# Binary
+pitbench
+!pitbench/
+
+# Test output
+coverage.out
