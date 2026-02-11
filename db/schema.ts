@@ -271,3 +271,67 @@ export const agentFlags = pgTable(
     ),
   }),
 );
+
+export const paperSubmissions = pgTable(
+  'paper_submissions',
+  {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id', { length: 128 }).notNull(),
+    arxivId: varchar('arxiv_id', { length: 32 }).notNull(),
+    arxivUrl: varchar('arxiv_url', { length: 512 }).notNull(),
+    title: varchar('title', { length: 500 }).notNull(),
+    authors: varchar('authors', { length: 1000 }).notNull(),
+    abstract: text('abstract'),
+    justification: text('justification').notNull(),
+    relevanceArea: varchar('relevance_area', { length: 64 }).notNull(),
+    status: varchar('status', { length: 16 }).notNull().default('pending'),
+    adminNotes: text('admin_notes'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    userIdx: index('paper_submissions_user_idx').on(table.userId),
+    uniqueSubmission: uniqueIndex('paper_submissions_unique').on(
+      table.userId,
+      table.arxivId,
+    ),
+  }),
+);
+
+export const featureRequests = pgTable(
+  'feature_requests',
+  {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id', { length: 128 }).notNull(),
+    title: varchar('title', { length: 200 }).notNull(),
+    description: text('description').notNull(),
+    category: varchar('category', { length: 64 }).notNull(),
+    status: varchar('status', { length: 16 }).notNull().default('pending'),
+    adminNotes: text('admin_notes'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    createdAtIdx: index('feature_requests_created_at_idx').on(table.createdAt),
+  }),
+);
+
+export const featureRequestVotes = pgTable(
+  'feature_request_votes',
+  {
+    id: serial('id').primaryKey(),
+    featureRequestId: integer('feature_request_id').notNull(),
+    userId: varchar('user_id', { length: 128 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniqueVote: uniqueIndex('feature_request_votes_unique').on(
+      table.featureRequestId,
+      table.userId,
+    ),
+  }),
+);

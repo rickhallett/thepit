@@ -26,7 +26,10 @@ export type AnalyticsEvent =
   | 'winner_voted'
   | 'credit_purchase_initiated'
   | 'preset_selected'
-  | 'byok_key_stashed';
+  | 'byok_key_stashed'
+  | 'paper_submitted'
+  | 'feature_request_submitted'
+  | 'feature_request_voted';
 
 export function trackEvent(event: AnalyticsEvent, properties?: EventProperties) {
   if (typeof window === 'undefined') return;

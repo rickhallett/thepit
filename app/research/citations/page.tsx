@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { PaperSubmissionForm } from '@/components/paper-submission-form';
+
 export const metadata = {
   title: 'Research Foundations — THE PIT',
   description:
@@ -711,6 +713,27 @@ export default function ResearchCitationsPage() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Section 6 — Paper submission form                             */}
+      {/* ------------------------------------------------------------ */}
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <p className="text-xs uppercase tracking-[0.4em] text-accent">
+          Contribute
+        </p>
+        <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
+          Suggest research
+        </h2>
+        <p className="mt-4 text-sm text-muted">
+          Know a paper that belongs here? Submit an arXiv link with a brief
+          explanation of its relevance to multi-agent debate, evaluation, or
+          prompt engineering. Submissions are reviewed by our team and added to
+          this page when accepted.
+        </p>
+        <div className="mt-8">
+          <PaperSubmissionForm />
         </div>
       </section>
 
