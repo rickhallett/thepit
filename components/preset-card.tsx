@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 
 import { FREE_MODEL_ID } from '@/lib/ai';
+import { trackEvent } from '@/lib/analytics';
 import {
   CREDITS_ENABLED,
   estimateBoutCostGbp,
@@ -78,6 +79,7 @@ export function PresetCard({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     if (locked) return;
     setByokError(null);
+    trackEvent('preset_selected', { presetId: preset.id, model: selectedModel });
     if (!showModelSelector) return;
     if (selectedModel === 'byok') {
       // If we already stashed the key, allow the form to submit normally

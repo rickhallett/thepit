@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
+import { trackEvent } from '@/lib/analytics';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
@@ -228,6 +229,7 @@ export function Arena({
           reactionType,
         }),
       });
+      trackEvent('reaction_submitted', { reactionType, turn });
     } catch {
       // swallow; reactions are best-effort
     }
@@ -256,6 +258,7 @@ export function Arena({
         ...prev,
         [agentId]: (prev[agentId] ?? 0) + 1,
       }));
+      trackEvent('winner_voted', { agentId });
     } finally {
       setVotePending(null);
     }
