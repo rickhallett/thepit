@@ -100,12 +100,21 @@ export async function POST(req: Request) {
       status: bouts.status,
       presetId: bouts.presetId,
       transcript: bouts.transcript,
+      ownerId: bouts.ownerId,
     })
     .from(bouts)
     .where(eq(bouts.id, boutId))
     .limit(1);
 
   if (existingBout) {
+    // Ownership check: prevent users from running bouts they don't own.
+    if (existingBout.ownerId) {
+      const { userId: callerId } = await auth();
+      if (callerId && existingBout.ownerId !== callerId) {
+        return new Response('Forbidden.', { status: 403 });
+      }
+    }
+
     const hasTranscript =
       Array.isArray(existingBout.transcript) && existingBout.transcript.length > 0;
 
