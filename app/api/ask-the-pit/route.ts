@@ -11,6 +11,8 @@ import {
   ASK_THE_PIT_MAX_TOKENS,
 } from '@/lib/ask-the-pit-config';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { log } from '@/lib/logger';
+import { getRequestId } from '@/lib/request-context';
 
 export const runtime = 'nodejs';
 
@@ -74,6 +76,7 @@ export async function POST(req: Request) {
     return new Response('Missing message.', { status: 400 });
   }
 
+  const requestId = getRequestId(req);
   const docs = loadDocs();
   const systemPrompt = `${SYSTEM_PROMPT_PREFIX}\n\n--- Documentation ---\n\n${docs}`;
 
@@ -81,14 +84,25 @@ export async function POST(req: Request) {
     apiKey: process.env.ANTHROPIC_API_KEY,
   });
 
-  const result = streamText({
-    model: anthropic(ASK_THE_PIT_MODEL),
-    maxOutputTokens: ASK_THE_PIT_MAX_TOKENS,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: message },
-    ],
-  });
+  log.info('Ask The Pit request', { requestId, messageLength: message.length });
 
-  return result.toTextStreamResponse();
+  try {
+    const start = Date.now();
+    const result = streamText({
+      model: anthropic(ASK_THE_PIT_MODEL),
+      maxOutputTokens: ASK_THE_PIT_MAX_TOKENS,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message },
+      ],
+    });
+
+    const response = result.toTextStreamResponse();
+    const durationMs = Date.now() - start;
+    log.info('Ask The Pit stream started', { requestId, model: ASK_THE_PIT_MODEL, durationMs });
+    return response;
+  } catch (error) {
+    log.error('Ask The Pit stream failed', error as Error, { requestId });
+    return new Response('The assistant is unavailable.', { status: 500 });
+  }
 }
