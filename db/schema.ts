@@ -25,6 +25,7 @@ import {
   index,
   boolean,
   integer,
+  foreignKey,
 } from 'drizzle-orm/pg-core';
 
 export type TranscriptEntry = {
@@ -335,3 +336,91 @@ export const featureRequestVotes = pgTable(
     ),
   }),
 );
+
+// ---------------------------------------------------------------------------
+// Short links – shareable slugs that resolve to a bout
+// ---------------------------------------------------------------------------
+
+export const shortLinks = pgTable('short_links', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 32 }).notNull(),
+  boutId: varchar('bout_id', { length: 21 }).notNull(),
+  createdByUserId: varchar('created_by_user_id', { length: 128 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  boutIdIdx: uniqueIndex('short_links_bout_id_idx').on(table.boutId),
+  slugIdx: uniqueIndex('short_links_slug_idx').on(table.slug),
+}));
+
+// ---------------------------------------------------------------------------
+// Short link clicks – analytics for each short-link resolution
+// ---------------------------------------------------------------------------
+
+export const shortLinkClicks = pgTable('short_link_clicks', {
+  id: serial('id').primaryKey(),
+  shortLinkId: integer('short_link_id').notNull(),
+  boutId: varchar('bout_id', { length: 21 }).notNull(),
+  refCode: varchar('ref_code', { length: 64 }),
+  utmSource: varchar('utm_source', { length: 128 }),
+  utmMedium: varchar('utm_medium', { length: 128 }),
+  utmCampaign: varchar('utm_campaign', { length: 128 }),
+  utmTerm: varchar('utm_term', { length: 128 }),
+  utmContent: varchar('utm_content', { length: 128 }),
+  referer: text('referer'),
+  userAgent: text('user_agent'),
+  ipHash: varchar('ip_hash', { length: 66 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  shortLinkFk: foreignKey({
+    columns: [table.shortLinkId],
+    foreignColumns: [shortLinks.id],
+    name: 'short_link_clicks_short_link_id_short_links_id_fk',
+  }),
+}));
+
+// ---------------------------------------------------------------------------
+// Remix events – tracks agent remix/clone lineage and reward payouts
+// ---------------------------------------------------------------------------
+
+export const remixEvents = pgTable('remix_events', {
+  id: serial('id').primaryKey(),
+  sourceAgentId: varchar('source_agent_id', { length: 128 }).notNull(),
+  remixedAgentId: varchar('remixed_agent_id', { length: 128 }),
+  remixerUserId: varchar('remixer_user_id', { length: 128 }).notNull(),
+  sourceOwnerId: varchar('source_owner_id', { length: 128 }),
+  outcome: varchar('outcome', { length: 32 }).notNull(),
+  reason: varchar('reason', { length: 64 }),
+  rewardRemixerMicro: bigint('reward_remixer_micro', { mode: 'number' })
+    .notNull()
+    .default(0),
+  rewardSourceOwnerMicro: bigint('reward_source_owner_micro', {
+    mode: 'number',
+  })
+    .notNull()
+    .default(0),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// Research exports – snapshot payloads for research dataset downloads
+// ---------------------------------------------------------------------------
+
+export const researchExports = pgTable('research_exports', {
+  id: serial('id').primaryKey(),
+  version: varchar('version', { length: 16 }).notNull(),
+  generatedAt: timestamp('generated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  boutCount: integer('bout_count').notNull(),
+  reactionCount: integer('reaction_count').notNull(),
+  voteCount: integer('vote_count').notNull(),
+  agentCount: integer('agent_count').notNull(),
+  payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
+});
