@@ -238,7 +238,7 @@ export function canAccessModel(
   if (modelId === 'byok') return true;
 
   const family = MODEL_FAMILY[modelId];
-  if (!family) return true; // Unknown models default to allowed
+  if (!family) return false; // Unknown models default to denied (fail-closed)
 
   return TIER_CONFIG[tier].models.includes(family);
 }

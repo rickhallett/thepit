@@ -72,5 +72,5 @@ export async function POST(req: Request) {
     return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 
-  return new Response('OK', { status: 200 });
+  return Response.json({ ok: true });
 }
