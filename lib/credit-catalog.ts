@@ -17,9 +17,8 @@ export type CreditPackage = {
 };
 
 const BASE_PACKAGES: Array<Omit<CreditPackage, 'credits'>> = [
-  { id: 'starter', name: 'Starter', priceGbp: 5, bonusPercent: 0.1 },
-  { id: 'plus', name: 'Plus', priceGbp: 15, bonusPercent: 0.2 },
-  { id: 'pro', name: 'Pro', priceGbp: 30, bonusPercent: 0.3 },
+  { id: 'starter', name: 'Starter', priceGbp: 3, bonusPercent: 0 },
+  { id: 'plus', name: 'Plus', priceGbp: 8, bonusPercent: 0 },
 ];
 
 const baseCreditsForPrice = (priceGbp: number) =>
