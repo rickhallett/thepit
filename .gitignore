@@ -40,6 +40,9 @@ docs/criticism-*
 # vercel
 .vercel
 
+# generated reports
+*_runnerboy.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
