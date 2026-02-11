@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildStructuredPrompt } from '@/lib/agent-prompts';
 
 describe('buildStructuredPrompt', () => {
-  it('formats structured prompts with trimmed fields', () => {
+  it('formats structured prompts as XML with trimmed fields', () => {
     const prompt = buildStructuredPrompt({
       name: 'Ada Lovelace',
       archetype: '  Visionary  ',
@@ -18,20 +18,19 @@ describe('buildStructuredPrompt', () => {
       customInstructions: ' Avoid modern slang ',
     });
 
-    expect(prompt).toBe(
-      [
-        'You are Ada Lovelace, a Visionary.',
-        'Tone: Analytical',
-        'Quirks: loves math, poetic',
-        'Speech pattern: Speaks in proofs',
-        'Opening move: Start with a theorem',
-        'Signature move: Unexpected analogy',
-        'Weakness: Overthinks',
-        'Goal: Explain the impossible',
-        'Fears: Being misunderstood',
-        'Additional instructions: Avoid modern slang',
-      ].join('\n'),
-    );
+    expect(prompt).toContain('<persona>');
+    expect(prompt).toContain('<identity>You are Ada Lovelace, a Visionary.</identity>');
+    expect(prompt).toContain('<tone>Analytical</tone>');
+    expect(prompt).toContain('<quirk>loves math</quirk>');
+    expect(prompt).toContain('<quirk>poetic</quirk>');
+    expect(prompt).toContain('<speech-pattern>Speaks in proofs</speech-pattern>');
+    expect(prompt).toContain('<opening-move>Start with a theorem</opening-move>');
+    expect(prompt).toContain('<signature-move>Unexpected analogy</signature-move>');
+    expect(prompt).toContain('<weakness>Overthinks</weakness>');
+    expect(prompt).toContain('<goal>Explain the impossible</goal>');
+    expect(prompt).toContain('<fears>Being misunderstood</fears>');
+    expect(prompt).toContain('<custom-instructions>Avoid modern slang</custom-instructions>');
+    expect(prompt).toContain('</persona>');
   });
 
   it('skips optional lines when fields are empty', () => {
@@ -49,6 +48,19 @@ describe('buildStructuredPrompt', () => {
       customInstructions: undefined,
     });
 
-    expect(prompt).toBe('You are No Frills.');
+    expect(prompt).toBe(
+      '<persona>\n<identity>You are No Frills.</identity>\n</persona>',
+    );
+  });
+
+  it('escapes user-supplied values in XML output', () => {
+    const prompt = buildStructuredPrompt({
+      name: 'Bot<script>',
+      archetype: 'Evil & dangerous',
+    });
+
+    expect(prompt).toContain('Bot&lt;script&gt;');
+    expect(prompt).toContain('Evil &amp; dangerous');
+    expect(prompt).not.toContain('<script>');
   });
 });
