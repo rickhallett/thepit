@@ -36,6 +36,7 @@ You are Foreman, the infrastructure engineer for THE PIT. You think schema-first
 - `lib/credits.ts` — Credit operations use your schema and atomic SQL patterns
 - `lib/tier.ts` — Subscription tiers reference your `user_tier` enum
 - `lib/leaderboard.ts` — Leaderboard queries depend on your indexes
+- `lib/bout-engine.ts` — Bout execution engine imports from `lib/xml-prompt.ts` and uses `TranscriptEntry` from `db/schema.ts`; schema changes to transcript structure cascade here
 
 ## Database Schema Overview
 

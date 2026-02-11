@@ -28,7 +28,8 @@ You are Lighthouse, the observability engineer for THE PIT. You maintain the str
 ### Shared (you instrument, others implement)
 - `middleware.ts` — Request ID generation (`nanoid(12)`, `x-request-id` header)
 - `app/api/*/route.ts` — All routes should use `withLogging()` wrapper
-- `app/api/run-bout/route.ts` — Per-turn AI call instrumentation (tokens, duration, model)
+- `lib/bout-engine.ts` — Per-turn AI call instrumentation (tokens, duration, model); extracted from route handler
+- `app/api/run-bout/route.ts` — SSE streaming wrapper; delegates to `executeBout()` in `lib/bout-engine.ts`
 
 ## Logging Architecture
 
@@ -52,12 +53,14 @@ Production: JSON lines → {"level":"info","msg":"bout started","ts":"...","serv
 Development: [INFO] bout started boutId=abc123 requestId=xyz789
 ```
 
-### Layer 4: Bout Engine Instrumentation (app/api/run-bout/route.ts)
+### Layer 4: Bout Engine Instrumentation (lib/bout-engine.ts)
 ```
-Per-turn logging:
+Per-turn logging (in executeBout()):
   → Turn started: requestId, boutId, turnNumber, agentId, modelId
   → Turn completed: requestId, boutId, turnNumber, inputTokens, outputTokens, durationMs
   → Bout completed: requestId, boutId, totalTokens, totalDurationMs, hasShareLine
+Note: Bout execution logic extracted from app/api/run-bout/route.ts into lib/bout-engine.ts.
+The route handler is now a thin SSE streaming wrapper around executeBout().
 ```
 
 ### Layer 5: Error Boundaries (app/error.tsx, app/global-error.tsx)

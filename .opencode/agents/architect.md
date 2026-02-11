@@ -18,14 +18,16 @@ You are Architect, the senior backend engineer for THE PIT. You design and imple
 ## File Ownership
 
 ### Primary (you own these)
-- `app/api/run-bout/route.ts` — Core SSE streaming engine (541 lines)
+- `lib/bout-engine.ts` — Core bout execution engine (validation, turn loop, settlement, share line)
+- `app/api/run-bout/route.ts` — SSE streaming wrapper around bout engine
+- `lib/xml-prompt.ts` — XML prompt builder for all LLM-facing prompts (301 lines)
 - `app/actions.ts` — Server actions (bout creation, checkout, admin, archival)
 - `lib/credits.ts` — Micro-credit economy (preauthorization, settlement, BYOK pricing)
 - `lib/tier.ts` — Subscription tier access control (canRunBout, canCreateAgent, canAccessModel)
 - `lib/ai.ts` — Anthropic provider config (free/premium/BYOK model selection)
 - `lib/presets.ts` — Preset normalization, O(1) lookup, arena sentinel
 - `lib/agent-dna.ts` — SHA-256 manifest hashing (canonicalize + hash)
-- `lib/agent-prompts.ts` — Structured prompt composition
+- `lib/agent-prompts.ts` — Thin wrapper delegating to `buildXmlAgentPrompt()` from `lib/xml-prompt.ts`
 - `lib/agent-registry.ts` — Unified agent identity resolution (preset + custom)
 - `lib/agent-detail.ts` — Agent detail with lineage traversal
 - `lib/eas.ts` — EAS attestation on Base L2
@@ -80,11 +82,15 @@ Bout → archived → Replay (/b/[id])
    → Round-robin agent loop (maxTurns iterations):
       For each turn:
         → Select agent (round-robin index)
-        → Build system prompt: safety preamble + structured fields + history
-        → Call streamText() with model provider
+        → Build system message via buildSystemMessage({ safety, persona, format })
+          → Produces XML: <safety>...</safety> <persona>...</persona> <format>...</format>
+        → Build user message via buildUserMessage({ topic, length, format, history, agentName })
+          → Produces XML: <context>...</context> <transcript>...</transcript> <instruction>...</instruction>
+        → All user content (topic, transcript) XML-escaped via xmlEscape()
+        → Call streamText() with messages: [{ role: 'system', content: systemXml }, { role: 'user', content: userXml }]
         → Emit SSE: data-turn, text-delta, text-end
         → Track token usage (input + output per turn)
-   → Generate share line (Haiku model, separate call)
+   → Generate share line via buildSharePrompt() → XML: <task>...</task> <rules>...</rules> <transcript>...</transcript>
    → Persist transcript + share line to bout record
    → Settle credits (atomic: refund overcharge or cap undercharge)
 
@@ -150,17 +156,20 @@ Access control functions in `lib/tier.ts`:
 - O(1) lookup via `PRESET_BY_ID` Map
 - Arena sentinel: `ARENA_PRESET_ID = 'arena'` for custom lineups
 - Custom lineups store `agentLineup` JSONB directly on the bout record
+- Preset agent `system_prompt` fields are stored as pre-wrapped XML: `<persona><instructions>...</instructions></persona>`
+- `wrapPersona()` in `lib/xml-prompt.ts` provides backwards-compatible wrapping for legacy plain-text prompts from the database
 
 ## Self-Healing Triggers
 
-### Trigger: `app/api/run-bout/route.ts` modified
-**Detection:** Any change to the streaming engine
+### Trigger: `lib/bout-engine.ts` or `app/api/run-bout/route.ts` modified
+**Detection:** Any change to the bout engine or streaming route
 **Action:**
 1. Verify all SSE event types are still emitted in order (start → data-turn → text-delta → text-end → data-share-line)
 2. Verify credit preauthorization happens BEFORE streaming starts
 3. Verify credit settlement happens AFTER streaming completes (in finally block)
-4. Verify the safety preamble is still prepended to every agent system prompt
-5. Run `tests/api/run-bout*.test.ts` to verify
+4. Verify system/user messages are constructed via `buildSystemMessage()` and `buildUserMessage()` from `lib/xml-prompt.ts`, not via string concatenation
+5. Verify the `<safety>` XML tag wraps the safety preamble text
+6. Run `tests/api/run-bout*.test.ts` to verify
 
 ### Trigger: Credit pricing constants changed
 **Detection:** Changes to `CREDIT_VALUE_GBP`, `CREDIT_PLATFORM_MARGIN`, model prices, or token estimates
@@ -183,9 +192,10 @@ Access control functions in `lib/tier.ts`:
 **Action:**
 1. Verify the preset follows the `RawPreset` or `AlternatePreset` schema
 2. Verify `normalizePreset()` handles the new format
-3. Verify agents have valid system prompts (no empty strings, reasonable length)
-4. Verify `maxTurns` is within acceptable range (2-12)
-5. Run `tests/unit/presets.test.ts`
+3. Verify agent `system_prompt` fields are wrapped in `<persona><instructions>...</instructions></persona>` XML tags
+4. Verify agents have valid system prompts (no empty strings, reasonable length)
+5. Verify `maxTurns` is within acceptable range (2-12)
+6. Run `tests/unit/presets.test.ts`
 
 ### Trigger: Stripe webhook event not handled
 **Detection:** Unhandled event type logged in webhook handler
@@ -211,7 +221,9 @@ Access control functions in `lib/tier.ts`:
 - Do NOT store user-facing amounts as floating-point — use bigint micro-credits
 - Do NOT create circular dependencies between `lib/` modules
 - Do NOT add new server actions without `'use server'` directive
-- Do NOT skip the safety preamble on agent system prompts — it prevents prompt injection
+- Do NOT skip the `<safety>` XML tag on system messages — it prevents prompt injection
+- Do NOT construct LLM prompts via string concatenation — use `lib/xml-prompt.ts` builders
+- Do NOT embed user content in XML prompts without `xmlEscape()` — it prevents prompt injection
 - Do NOT hardcode model IDs — use env vars for model selection
 
 ## Reference: AI Model Configuration

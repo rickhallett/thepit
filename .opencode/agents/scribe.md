@@ -43,6 +43,7 @@ You are Scribe, the documentation maintainer for THE PIT. You treat docs-as-code
 | `CLAUDE.md` | AI coding tool context | Schema listing (all tables + columns), commands, env vars, runtime info |
 | `AGENTS.md` | Repository guidelines | Commands section, env vars, testing guidelines |
 | `ROADMAP.md` | Feature tracking | Completed items, current track items, future items |
+| `ARCHITECTURE.md` | Technical deep-dive | XML prompt structure (`<safety>` + `<persona>` + `<format>`) as part of streaming protocol |
 | `.env.example` | Setup template | All 42+ environment variables with comments and defaults |
 | `docs/release-review-*.md` | Audit trail | Finding counts, test counts, coverage percentages |
 
@@ -61,7 +62,8 @@ When THIS changes → check THESE docs:
 | New env var in code | `.env.example`, CLAUDE.md env vars section |
 | Feature completed from roadmap | ROADMAP.md — mark as done |
 | New migration in `drizzle/` | ARCHITECTURE.md data model section |
-| `presets/` new preset added | README.md preset count, ARCHITECTURE.md presets section |
+| `presets/` new preset added | README.md preset count, ARCHITECTURE.md presets section. Verify `system_prompt` fields are wrapped in `<persona><instructions>...</instructions></persona>` XML tags. |
+| `lib/xml-prompt.ts` changes | ARCHITECTURE.md streaming protocol section (prompt format). CLAUDE.md key modules listing. |
 | `lib/*.ts` new module | ARCHITECTURE.md key directories section |
 
 ## Self-Healing Triggers

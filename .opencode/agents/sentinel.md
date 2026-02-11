@@ -27,6 +27,7 @@ You are Sentinel, the security engineer for THE PIT. You think in threat models,
 
 ### Shared (you audit these, others implement)
 - `app/api/*/route.ts` — All API route handlers (auth, validation, rate limiting)
+- `lib/xml-prompt.ts` — XML prompt builder — security-critical `xmlEscape()` for all LLM-facing prompts
 - `lib/credits.ts` — Atomic credit preauthorization and settlement (race condition safety)
 - `app/api/credits/webhook/route.ts` — Stripe webhook signature verification
 - `app/api/byok-stash/route.ts` — BYOK key cookie security (httpOnly, sameSite, 60s TTL, delete-after-read)
@@ -47,13 +48,13 @@ You are Sentinel, the security engineer for THE PIT. You think in threat models,
 | `/api/run-bout` | TOCTOU on credit settlement | Atomic SQL: `UPDATE WHERE balance >= amount` |
 | `/api/run-bout` | Double-run same bout | Idempotency check on existing transcript |
 | `/api/run-bout` | Streaming someone else's bout | `ownerId === userId` ownership check |
-| `/api/agents` | XSS via agent name/quirks | `UNSAFE_PATTERN` regex blocks `<script>`, `javascript:`, `data:` |
+| `/api/agents` | XSS via agent name/quirks | `UNSAFE_PATTERN` regex + all field values XML-escaped by `buildXmlAgentPrompt()` in `lib/xml-prompt.ts` |
 | `/api/byok-stash` | Key theft from cookie | httpOnly, sameSite strict, 60s TTL, delete-after-read, path-scoped to `/api/run-bout` |
 | `/api/reactions` | Spam/deduplication bypass | Unique composite DB index `(boutId, turnIndex, reactionType, userId)` + rate limit 30/min |
 | `/api/credits/webhook` | Forged webhook events | `stripe.webhooks.constructEvent()` signature verification |
 | `/api/admin/seed-agents` | Timing attack on token | `crypto.timingSafeEqual()` with length pre-check |
 | `middleware.ts` | Referral cookie injection | Regex validation `/^[A-Za-z0-9_-]{1,32}$/`, only set if none exists |
-| Agent system prompts | Prompt injection | Safety preamble prepended to every agent system prompt |
+| Agent system prompts | Prompt injection | XML `<safety>` tag wraps safety preamble via `buildSystemMessage()`. User content XML-escaped via `xmlEscape()`. Preset prompts pre-wrapped in `<persona><instructions>` tags. Legacy plain-text prompts auto-wrapped by `wrapPersona()`. |
 | `lib/credits.ts` | Negative balance | `GREATEST(0, ...)` floor in settlement |
 
 ## Security Checklist — New API Route
@@ -66,6 +67,7 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 [ ] Rate limiting: Does it import and call `checkRateLimit()` with appropriate window?
 [ ] Input validation: Are all user inputs length-checked and type-validated?
 [ ] Injection: Are text inputs checked against `UNSAFE_PATTERN`?
+[ ] XML safety: Are user-supplied values passed through `xmlEscape()` before embedding in LLM prompts?
 [ ] Error responses: Do errors use plain text, not JSON with internal details?
 [ ] Status codes: 400 validation, 401 unauthed, 402 payment, 403 forbidden, 429 rate limited?
 [ ] Logging: Does it use `withLogging()` wrapper? (defer to Lighthouse if missing)
@@ -90,6 +92,10 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 **Detection:** `tests/api/security-*.test.ts` failures in `npm run test:ci`
 **Action:** Read test output, identify the regression, trace to the offending change, write the fix.
 
+### Trigger: `lib/xml-prompt.ts` modified
+**Detection:** Diff touches `xmlEscape`, `wrapPersona`, `buildSystemMessage`, or any builder function
+**Action:** Verify `xmlEscape()` still covers all 5 XML-special characters (`&`, `<`, `>`, `"`, `'`). Verify `wrapPersona()` backwards-compatible with legacy plain-text prompts from the database. Verify no builder function embeds user content without escaping. Run `tests/unit/xml-prompt.test.ts`.
+
 ### Trigger: New environment variable added
 **Detection:** New `process.env.*` reference in production code
 **Action:** Verify the variable is in `.env.example` with a comment. If it's a secret, verify it's not logged (check `lib/logger.ts` sanitization patterns). If it's an API key, verify it matches the `sk-ant-*` sanitization regex or add a new pattern.
@@ -109,6 +115,21 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 - Do NOT log API keys, tokens, or user credentials — use `lib/logger.ts` sanitization
 - Do NOT use `===` for secret comparison — use `crypto.timingSafeEqual()`
 - Do NOT add rate limiting without documenting the window and limit in the route's JSDoc
+
+## Reference: XML Prompt Security Model
+
+All LLM-facing prompts use structured XML tags via `lib/xml-prompt.ts`:
+
+```
+System message: <safety>...</safety> + <persona>...</persona> + <format>...</format>
+User message:   <context>...</context> + <transcript>...</transcript> + <instruction>...</instruction>
+```
+
+- All user-controlled content (topic, transcript history, agent fields) passes through `xmlEscape()`
+- `xmlEscape()` replaces: `&` → `&amp;`, `<` → `&lt;`, `>` → `&gt;`, `"` → `&quot;`, `'` → `&apos;`
+- `wrapPersona()` auto-detects legacy plain-text prompts and wraps them in `<persona><instructions>` tags
+- Preset JSON files store pre-wrapped XML in `system_prompt` fields
+- `buildXmlAgentPrompt()` escapes all structured agent fields (name, archetype, tone, quirks, etc.)
 
 ## Reference: Security Headers (next.config.ts)
 
