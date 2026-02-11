@@ -44,7 +44,7 @@ function getAppUrl(): string {
 /** Create a bout record and redirect to its streaming page. */
 export async function createBout(presetId: string, formData?: FormData) {
   if (!getPresetById(presetId)) {
-    throw new Error('Invalid preset.');
+    redirect('/arena');
   }
 
   const { userId } = await auth();
