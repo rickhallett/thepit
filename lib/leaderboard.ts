@@ -79,7 +79,17 @@ const getRangeStart = (range: LeaderboardRange) => {
   return new Date(Date.now() - RANGE_MS[range]);
 };
 
+// In-memory cache to avoid repeated full-table scans. The leaderboard is
+// read-heavy and tolerant of 5-minute staleness. At scale this should be
+// replaced with SQL aggregation queries and/or a dedicated cache layer.
+let leaderboardCache: { data: LeaderboardData; timestamp: number } | null = null;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
 export async function getLeaderboardData(): Promise<LeaderboardData> {
+  if (leaderboardCache && Date.now() - leaderboardCache.timestamp < CACHE_TTL_MS) {
+    return leaderboardCache.data;
+  }
+
   const db = requireDb();
   const snapshots = await getAgentSnapshots();
   const agentMeta = new Map<string, (typeof snapshots)[number]>();
@@ -308,5 +318,6 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
     result[range] = { pit: pitEntries, players: playerEntries };
   }
 
+  leaderboardCache = { data: result, timestamp: Date.now() };
   return result;
 }
