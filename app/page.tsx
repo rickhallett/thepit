@@ -206,24 +206,63 @@ export default async function LandingPage() {
             <p className="text-xs uppercase tracking-[0.4em] text-accent">Pricing</p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Pay for what you use
+            Plans for every pit fighter
           </h2>
           <p className="mt-4 max-w-2xl text-sm text-muted">
-            Free tier runs Haiku. Credit packs unlock Sonnet and Opus models,
-            longer bouts, and premium presets. No subscriptions, no lock-in.
+            Start free with 15 lifetime bouts. Upgrade for more bouts, better models,
+            and unlimited agents. BYOK is always free and unlimited.
           </p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <CreditPackCard name="Starter" price={5} credits={550} bonus={10} />
-            <CreditPackCard name="Plus" price={15} credits={1800} bonus={20} featured />
-            <CreditPackCard name="Pro" price={30} credits={3900} bonus={30} />
-            <CreditPackCard name="Studio" price={60} credits={8400} bonus={40} />
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            <PlanCard
+              name="Free"
+              price={0}
+              period=""
+              features={[
+                '3 bouts/day (15 lifetime)',
+                'Haiku model',
+                '1 custom agent',
+                'BYOK unlimited',
+              ]}
+            />
+            <PlanCard
+              name="Pit Pass"
+              price={3}
+              period="/mo"
+              featured
+              features={[
+                '15 bouts/day',
+                'Haiku + Sonnet',
+                '5 custom agents',
+                'Agent analytics',
+                'BYOK unlimited',
+              ]}
+            />
+            <PlanCard
+              name="Pit Lab"
+              price={10}
+              period="/mo"
+              features={[
+                '100 bouts/day',
+                'All models (incl. Opus)',
+                'Unlimited agents',
+                'API access',
+                'Agent analytics',
+                'BYOK unlimited',
+              ]}
+            />
           </div>
-          <div className="mt-8 flex flex-wrap items-center gap-6">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted">
-              1 credit = £0.01 &middot; Haiku bout ≈ 2 credits &middot; Opus bout ≈ 25 credits
+
+          {/* Credit top-ups */}
+          <div className="mt-12 border-t border-foreground/20 pt-8">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted">
+              Need extra bouts? Top up with credit packs
             </p>
-            <p className="text-xs uppercase tracking-[0.25em] text-muted">
-              Or bring your own API key with a small platform fee.
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-2 max-w-lg">
+              <CreditPackCard name="Starter" price={3} credits={300} />
+              <CreditPackCard name="Plus" price={8} credits={800} />
+            </div>
+            <p className="mt-4 text-xs text-muted">
+              Or bring your own API key — BYOK bouts are always free and unlimited.
             </p>
           </div>
         </div>
@@ -344,17 +383,17 @@ function ResearchStat({
   );
 }
 
-function CreditPackCard({
+function PlanCard({
   name,
   price,
-  credits,
-  bonus,
+  period,
+  features,
   featured = false,
 }: {
   name: string;
   price: number;
-  credits: number;
-  bonus: number;
+  period: string;
+  features: string[];
   featured?: boolean;
 }) {
   return (
@@ -368,26 +407,27 @@ function CreditPackCard({
       {featured && (
         <div className="absolute -top-3 left-6">
           <span className="bg-accent px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-background">
-            Best Value
+            Most Popular
           </span>
         </div>
       )}
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-muted">{name}</p>
         <p className="mt-2 font-sans text-3xl uppercase tracking-tight">
-          £{price}
+          {price === 0 ? 'Free' : `£${price}`}
+          {period && (
+            <span className="text-base text-muted">{period}</span>
+          )}
         </p>
       </div>
-      <div className="flex flex-col gap-2 text-sm text-muted">
-        <div className="flex justify-between">
-          <span>Credits</span>
-          <span className="text-foreground/80">{credits.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Bonus</span>
-          <span className="text-accent/90">+{bonus}%</span>
-        </div>
-      </div>
+      <ul className="flex flex-col gap-2 text-sm text-muted">
+        {features.map((feature) => (
+          <li key={feature} className="flex items-start gap-2">
+            <span className="mt-0.5 text-accent">+</span>
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
       <Link
         href="/arena"
         className={`mt-auto border-2 px-4 py-3 text-center text-xs uppercase tracking-[0.3em] transition ${
@@ -396,8 +436,36 @@ function CreditPackCard({
             : 'border-foreground/50 text-foreground/80 hover:border-foreground'
         }`}
       >
-        Buy Credits
+        {price === 0 ? 'Get Started' : 'Subscribe'}
       </Link>
+    </div>
+  );
+}
+
+function CreditPackCard({
+  name,
+  price,
+  credits,
+}: {
+  name: string;
+  price: number;
+  credits: number;
+}) {
+  return (
+    <div className="group flex flex-col gap-3 border-2 border-foreground/50 bg-black/40 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[6px_6px_0_rgba(255,255,255,0.1)]">
+      <div className="flex items-center justify-between">
+        <p className="text-xs uppercase tracking-[0.3em] text-muted">{name}</p>
+        <p className="font-sans text-xl uppercase tracking-tight">£{price}</p>
+      </div>
+      <div className="flex items-center justify-between text-sm text-muted">
+        <span>{credits.toLocaleString()} credits</span>
+        <Link
+          href="/arena"
+          className="text-xs uppercase tracking-[0.2em] text-accent transition hover:text-accent/80"
+        >
+          Buy
+        </Link>
+      </div>
     </div>
   );
 }

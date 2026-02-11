@@ -59,7 +59,7 @@ WEBHOOK=$(stripe webhook_endpoints create \
     "customer.subscription.deleted" \
     "invoice.payment_failed" \
     "invoice.payment_succeeded" \
-  --api-version "2023-10-16" \
+  --api-version "2024-10-28.acacia" \
   --format json)
 
 SECRET=$(echo "$WEBHOOK" | jq -r '.secret')
