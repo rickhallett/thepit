@@ -22,8 +22,13 @@ function stripSensitiveSections(text: string): string {
   return text.replace(/## Environment[\s\S]*?(?=##|$)/gi, '');
 }
 
+// Cache loaded docs in module scope — they don't change at runtime,
+// and re-reading from filesystem on every request is unnecessary I/O.
+let cachedDocs: string | null = null;
+
 function loadDocs(): string {
-  return ASK_THE_PIT_DOCS.map((docPath) => {
+  if (cachedDocs !== null) return cachedDocs;
+  cachedDocs = ASK_THE_PIT_DOCS.map((docPath) => {
     try {
       const fullPath = join(process.cwd(), docPath);
       const content = readFileSync(fullPath, 'utf-8');
@@ -32,6 +37,7 @@ function loadDocs(): string {
       return `[Could not load ${docPath}]`;
     }
   }).join('\n\n---\n\n');
+  return cachedDocs;
 }
 
 export async function POST(req: Request) {
