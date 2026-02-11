@@ -58,7 +58,13 @@ export const buildPresetAgentId = (presetId: string, agentId: string) =>
 
 export const parsePresetAgentId = (agentId: string) => {
   if (!agentId.startsWith('preset:')) return null;
-  const [, presetId, innerId] = agentId.split(':');
+  // Use indexOf instead of split to handle agent IDs containing colons.
+  // Format: "preset:<presetId>:<agentId>" where agentId may contain colons.
+  const firstColon = 6; // length of "preset"
+  const secondColon = agentId.indexOf(':', firstColon + 1);
+  if (secondColon === -1) return null;
+  const presetId = agentId.slice(firstColon + 1, secondColon);
+  const innerId = agentId.slice(secondColon + 1);
   if (!presetId || !innerId) return null;
   return { presetId, agentId: innerId };
 };
