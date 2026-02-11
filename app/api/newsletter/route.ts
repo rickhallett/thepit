@@ -2,6 +2,7 @@ import { requireDb } from '@/db';
 import { newsletterSignups } from '@/db/schema';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
+import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -14,23 +15,19 @@ export const POST = withLogging(async function POST(req: Request) {
     clientId,
   );
   if (!rateCheck.success) {
-    return new Response('Too many requests. Try again later.', { status: 429 });
+    return rateLimitResponse(rateCheck);
   }
 
-  let payload: { email?: string };
-
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ email?: string }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const email = typeof payload.email === 'string' ? payload.email.trim() : '';
   if (!email) {
-    return new Response('Email required.', { status: 400 });
+    return errorResponse('Email required.', 400);
   }
   if (!EMAIL_RE.test(email) || email.length > 256) {
-    return new Response('Invalid email address.', { status: 400 });
+    return errorResponse('Invalid email address.', 400);
   }
 
   const db = requireDb();

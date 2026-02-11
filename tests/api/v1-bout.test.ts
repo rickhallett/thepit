@@ -124,11 +124,11 @@ describe('POST /api/v1/bout', () => {
   describe('validation pass-through', () => {
     it('U4: returns validation error when validateBoutRequest fails', async () => {
       validateBoutRequestMock.mockResolvedValue({
-        error: new Response('Missing boutId.', { status: 400 }),
+        error: Response.json({ error: 'Missing boutId.' }, { status: 400 }),
       });
       const res = await POST(makeRequest({}));
       expect(res.status).toBe(400);
-      expect(await res.text()).toBe('Missing boutId.');
+      expect(await res.json()).toEqual({ error: 'Missing boutId.' });
     });
   });
 

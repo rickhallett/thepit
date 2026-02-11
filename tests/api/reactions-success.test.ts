@@ -123,6 +123,6 @@ describe('reactions success paths', () => {
     );
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing boutId or turnIndex.');
+    expect(await res.json()).toEqual({ error: 'Missing boutId or turnIndex.' });
   });
 });

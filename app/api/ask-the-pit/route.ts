@@ -15,6 +15,7 @@ import { log } from '@/lib/logger';
 import { toError } from '@/lib/errors';
 import { getRequestId } from '@/lib/request-context';
 import { buildAskThePitSystem } from '@/lib/xml-prompt';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -59,7 +60,7 @@ function loadDocs(): string {
 
 export async function POST(req: Request) {
   if (!ASK_THE_PIT_ENABLED) {
-    return new Response('Ask The Pit is not enabled.', { status: 404 });
+    return errorResponse('Ask The Pit is not enabled.', 404);
   }
 
   const clientId = getClientIdentifier(req);
@@ -68,22 +69,17 @@ export async function POST(req: Request) {
     clientId,
   );
   if (!rateCheck.success) {
-    return new Response('Rate limit exceeded. Max 5 requests per minute.', {
-      status: 429,
-    });
+    return rateLimitResponse(rateCheck);
   }
 
-  let payload: { message?: string };
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ message?: string }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const message =
     typeof payload.message === 'string' ? payload.message.trim() : '';
   if (!message) {
-    return new Response('Missing message.', { status: 400 });
+    return errorResponse('Missing message.', 400);
   }
 
   const requestId = getRequestId(req);
@@ -113,6 +109,6 @@ export async function POST(req: Request) {
     return response;
   } catch (error) {
     log.error('Ask The Pit stream failed', toError(error), { requestId });
-    return new Response('The assistant is unavailable.', { status: 500 });
+    return errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 500);
   }
 }
