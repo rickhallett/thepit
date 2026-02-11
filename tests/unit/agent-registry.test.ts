@@ -168,6 +168,16 @@ describe('agent-registry', () => {
       const { parsePresetAgentId } = await loadRegistry();
       expect(parsePresetAgentId('preset:only-one-part')).toBeNull();
     });
+
+    it('B3-regression: handles agent IDs containing colons', async () => {
+      const { parsePresetAgentId } = await loadRegistry();
+      // Agent ID itself contains a colon (e.g., "co:host")
+      const result = parsePresetAgentId('preset:premium-top5-debate:co:host');
+      expect(result).toEqual({
+        presetId: 'premium-top5-debate',
+        agentId: 'co:host',
+      });
+    });
   });
 
   describe('getAgentSnapshots', () => {
