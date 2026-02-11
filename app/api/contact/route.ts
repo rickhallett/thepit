@@ -1,3 +1,5 @@
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+
 export const runtime = 'nodejs';
 
 function escapeHtml(str: string): string {
@@ -10,6 +12,15 @@ function escapeHtml(str: string): string {
 }
 
 export async function POST(req: Request) {
+  const clientId = getClientIdentifier(req);
+  const rateCheck = checkRateLimit(
+    { name: 'contact', maxRequests: 5, windowMs: 60 * 60 * 1000 },
+    clientId,
+  );
+  if (!rateCheck.success) {
+    return new Response('Too many requests. Try again later.', { status: 429 });
+  }
+
   let payload: { name?: string; email?: string; message?: string };
 
   try {
