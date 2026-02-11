@@ -61,18 +61,25 @@ export async function POST(req: Request) {
   }
 
   const { userId } = await auth();
+  const ip = getClientIdentifier(req);
   const db = requireDb();
-  await db.insert(reactions).values({
-    boutId,
-    turnIndex: payload.turnIndex,
-    reactionType,
-    userId: userId ?? null,
-  });
+
+  // Deduplicate: one reaction per user (or IP) per turn per type.
+  // Uses the clientId as a stable identifier for anonymous users.
+  const dedupeUserId = userId ?? `anon:${ip}`;
+  await db
+    .insert(reactions)
+    .values({
+      boutId,
+      turnIndex: payload.turnIndex,
+      reactionType,
+      userId: dedupeUserId,
+    })
+    .onConflictDoNothing();
 
   return Response.json({ ok: true }, {
     headers: {
       'X-RateLimit-Remaining': String(rateLimit.remaining),
-      'X-RateLimit-Reset': String(rateLimit.resetAt),
     },
   });
 }

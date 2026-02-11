@@ -166,6 +166,12 @@ export const reactions = pgTable('reactions', {
     .notNull(),
 }, (table) => ({
   boutIdIdx: index('reactions_bout_id_idx').on(table.boutId),
+  uniqueReaction: uniqueIndex('reactions_unique_idx').on(
+    table.boutId,
+    table.turnIndex,
+    table.reactionType,
+    table.userId,
+  ),
 }));
 
 export const winnerVotes = pgTable(
