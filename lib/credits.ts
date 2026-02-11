@@ -287,3 +287,49 @@ export async function preauthorizeCredits(
 
   return { success: true, balanceMicro: result.balanceMicro };
 }
+
+/**
+ * Atomically settle credits after a bout completes.
+ *
+ * For additional charges (delta > 0, actual cost exceeded preauth), uses a
+ * conditional UPDATE that caps the deduction at the user's available balance.
+ * This eliminates the TOCTOU gap where a separate balance read + write could
+ * be interleaved by concurrent transactions.
+ *
+ * For refunds (delta < 0, actual cost was less than preauth), applies the
+ * credit unconditionally since adding funds can't overdraw.
+ */
+export async function settleCredits(
+  userId: string,
+  deltaMicro: number,
+  reason: string,
+  metadata: Record<string, unknown>,
+) {
+  const db = requireDb();
+
+  if (deltaMicro > 0) {
+    // Additional charge: cap at available balance atomically
+    const [result] = await db
+      .update(credits)
+      .set({
+        balanceMicro: sql`${credits.balanceMicro} - LEAST(${deltaMicro}, GREATEST(0, ${credits.balanceMicro}))`,
+        updatedAt: new Date(),
+      })
+      .where(eq(credits.userId, userId))
+      .returning({ balanceMicro: credits.balanceMicro });
+
+    if (result) {
+      await db.insert(creditTransactions).values({
+        userId,
+        deltaMicro: -deltaMicro,
+        source: reason,
+        referenceId:
+          typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
+        metadata: { ...metadata, atomicSettlement: true },
+      });
+    }
+  } else {
+    // Refund: unconditionally add funds back
+    await applyCreditDelta(userId, deltaMicro, reason, metadata);
+  }
+}
