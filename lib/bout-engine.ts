@@ -595,13 +595,15 @@ export async function executeBout(
       .set({ status: 'error', transcript, updatedAt: new Date() })
       .where(eq(bouts.id, boutId));
 
-    // Error-path credit settlement: refund unused preauth
+    // Error-path credit settlement: refund unused preauth.
+    // The preauth already deducted preauthMicro from the user's balance.
+    // We need to add back the unused portion (preauthMicro - actualMicro).
     if (CREDITS_ENABLED && preauthMicro && userId) {
       const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
       const actualMicro = toMicroCredits(actualCost);
-      const delta = actualMicro - preauthMicro;
-      if (delta !== 0) {
-        await applyCreditDelta(userId, delta, 'settlement-error', {
+      const refundMicro = preauthMicro - actualMicro;
+      if (refundMicro > 0) {
+        await applyCreditDelta(userId, refundMicro, 'settlement-error', {
           presetId,
           boutId,
           modelId,
