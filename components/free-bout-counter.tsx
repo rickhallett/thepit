@@ -31,7 +31,14 @@ export function FreeBoutCounter({
           <span className="text-[10px] text-red-400">Pool exhausted</span>
         )}
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
+      <div
+        role="progressbar"
+        aria-valuenow={used}
+        aria-valuemin={0}
+        aria-valuemax={max}
+        aria-label={`Free bouts used: ${used} of ${max}`}
+        className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/10"
+      >
         <div
           className={`h-full transition-all duration-500 ${
             exhausted ? 'bg-red-400' : pct > 80 ? 'bg-yellow-400' : 'bg-accent'

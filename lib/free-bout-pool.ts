@@ -55,7 +55,10 @@ async function ensureTodayPool() {
       .from(freeBoutPool)
       .where(eq(freeBoutPool.date, date))
       .limit(1);
-    return raced!;
+    if (!raced) {
+      throw new Error(`Failed to ensure free bout pool row for ${date}`);
+    }
+    return raced;
   }
 
   return created;

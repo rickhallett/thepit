@@ -21,7 +21,7 @@ import { ensureUserRecord } from '@/lib/users';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
 import { getAgentSnapshots } from '@/lib/agent-registry';
-import { SUBSCRIPTIONS_ENABLED, type UserTier } from '@/lib/tier';
+import { SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
 import {
   DEFAULT_RESPONSE_LENGTH,
   resolveResponseLength,
@@ -31,6 +31,7 @@ import {
   resolveResponseFormat,
 } from '@/lib/response-formats';
 
+/** Create a bout record and redirect to its streaming page. */
 export async function createBout(presetId: string, formData?: FormData) {
   const presetExists = PRESETS.some((preset) => preset.id === presetId);
   if (!presetExists) {
@@ -94,6 +95,7 @@ export async function createBout(presetId: string, formData?: FormData) {
   redirect(`/bout/${id}?${params.toString()}`);
 }
 
+/** Create an arena-mode bout with a custom agent lineup and redirect to the bout page. */
 export async function createArenaBout(formData: FormData) {
   const { userId } = await auth();
   if (CREDITS_ENABLED && !userId) {
@@ -166,6 +168,7 @@ export async function createArenaBout(formData: FormData) {
   redirect(query ? `/bout/${id}?${query}` : `/bout/${id}`);
 }
 
+/** Create a Stripe Checkout session for a one-time credit pack purchase. */
 export async function createCreditCheckout(formData: FormData) {
   const packId =
     formData?.get('packId') && typeof formData.get('packId') === 'string'
@@ -222,6 +225,7 @@ export async function createCreditCheckout(formData: FormData) {
   redirect(session.url);
 }
 
+/** Grant test credits to the current user (admin-only). */
 export async function grantTestCredits() {
   const { userId } = await auth();
   if (!userId) {
@@ -242,6 +246,7 @@ export async function grantTestCredits() {
   redirect('/arena?credits=granted');
 }
 
+/** Mark an agent as archived (admin-only). */
 export async function archiveAgent(agentId: string) {
   const { userId } = await auth();
   if (!isAdmin(userId ?? null)) {
@@ -257,6 +262,7 @@ export async function archiveAgent(agentId: string) {
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
 
+/** Restore an archived agent (admin-only). */
 export async function restoreAgent(agentId: string) {
   const { userId } = await auth();
   if (!isAdmin(userId ?? null)) {
@@ -274,7 +280,11 @@ export async function restoreAgent(agentId: string) {
 
 /**
  * Get or create a Stripe customer for a user.
- * Stores the customer ID on the users table to avoid duplicate customers.
+ *
+ * Resolves in this order to avoid duplicate customers under concurrency:
+ *   1. Return stripeCustomerId from the users table if already stored.
+ *   2. Search Stripe for an existing customer with matching userId metadata.
+ *   3. Create a new Stripe customer and persist the ID.
  */
 async function getOrCreateStripeCustomer(userId: string): Promise<string> {
   const db = requireDb();
@@ -288,6 +298,22 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
     .limit(1);
 
   if (user?.stripeCustomerId) return user.stripeCustomerId;
+
+  // Guard against race conditions: check Stripe for an existing customer
+  // created by a concurrent request before our DB write completed.
+  const existing = await stripe.customers.search({
+    query: `metadata["userId"]:"${userId}"`,
+    limit: 1,
+  });
+
+  if (existing.data.length > 0) {
+    const customerId = existing.data[0].id;
+    await db
+      .update(users)
+      .set({ stripeCustomerId: customerId, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+    return customerId;
+  }
 
   const customer = await stripe.customers.create({
     metadata: { userId },

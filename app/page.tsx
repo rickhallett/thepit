@@ -11,6 +11,7 @@ export const metadata = {
   description: 'Where AI personas collide. Pick a preset, watch the bout, vote and share.',
 };
 
+/** Server-rendered landing page with hero, presets, pricing, and research stats. */
 export default async function LandingPage() {
   const poolStatus = CREDITS_ENABLED ? await getIntroPoolStatus() : null;
 
@@ -285,6 +286,7 @@ export default async function LandingPage() {
 
 /* ── Sub-components ──────────────────────────────────────────────── */
 
+/** Numbered step card for the "How it works" section. */
 function StepCard({
   step,
   title,
@@ -329,6 +331,7 @@ function StepCard({
   );
 }
 
+/** Card highlighting a debate preset with agent count and category tags. */
 function PresetHighlight({
   name,
   description,
@@ -365,6 +368,7 @@ function PresetHighlight({
   );
 }
 
+/** Stat block for the research section showing a key metric with detail text. */
 function ResearchStat({
   label,
   value,
@@ -383,6 +387,7 @@ function ResearchStat({
   );
 }
 
+/** Subscription plan card with feature list and CTA button. */
 function PlanCard({
   name,
   price,
@@ -442,6 +447,7 @@ function PlanCard({
   );
 }
 
+/** Compact credit pack purchase card with inline buy link. */
 function CreditPackCard({
   name,
   price,

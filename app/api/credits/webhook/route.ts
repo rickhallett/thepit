@@ -41,6 +41,7 @@ async function updateUserSubscription(params: {
     .where(eq(users.id, params.userId));
 }
 
+/** Handle Stripe webhook events for credit purchases and subscription lifecycle. */
 export async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
@@ -204,8 +205,19 @@ export async function POST(req: Request) {
       subscription_details?: { metadata?: Record<string, string> };
     };
 
-    // Look up user from subscription metadata
-    const userId = invoice.subscription_details?.metadata?.userId;
+    // Resolve user from subscription metadata, falling back to DB lookup
+    // by stripeCustomerId when metadata isn't propagated on the invoice.
+    let userId = invoice.subscription_details?.metadata?.userId;
+    if (!userId && invoice.customer) {
+      const db = requireDb();
+      const [found] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.stripeCustomerId, invoice.customer))
+        .limit(1);
+      userId = found?.id;
+    }
+
     if (userId && invoice.subscription) {
       await updateUserSubscription({
         userId,
@@ -231,7 +243,19 @@ export async function POST(req: Request) {
       lines?: { data: Array<{ price: { id: string } }> };
     };
 
-    const userId = invoice.subscription_details?.metadata?.userId;
+    // Resolve user from subscription metadata, falling back to DB lookup
+    // by stripeCustomerId when metadata isn't propagated on the invoice.
+    let userId = invoice.subscription_details?.metadata?.userId;
+    if (!userId && invoice.customer) {
+      const db = requireDb();
+      const [found] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.stripeCustomerId, invoice.customer))
+        .limit(1);
+      userId = found?.id;
+    }
+
     const priceId = invoice.lines?.data[0]?.price.id;
 
     if (userId && invoice.subscription && priceId) {

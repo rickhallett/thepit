@@ -42,6 +42,7 @@ export const metadata = {
   description: 'Pick your preset and watch AI personas clash in real time.',
 };
 
+/** Arena page: preset grid with tier-aware model access, free bout counter, and upgrade section. */
 export default async function Home() {
   const creditsEnabled = CREDITS_ENABLED;
   const subsEnabled = SUBSCRIPTIONS_ENABLED;

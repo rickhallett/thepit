@@ -38,6 +38,7 @@ const TEXT_FIELD_LIMITS: Record<string, TextFieldLimit> = {
   customInstructions: { maxLen: 5000, label: 'Custom instructions' },
 };
 
+/** Validate a text field against length and safety constraints. Returns an error message or null. */
 function validateTextField(
   value: string | undefined | null,
   limit: TextFieldLimit,
@@ -52,6 +53,7 @@ function validateTextField(
   return null;
 }
 
+/** Create a new agent with tier-based slot limits and content validation. */
 export async function POST(req: Request) {
   let payload: {
     name?: string;

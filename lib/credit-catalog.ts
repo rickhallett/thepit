@@ -21,6 +21,7 @@ const BASE_PACKAGES: Array<Omit<CreditPackage, 'credits'>> = [
   { id: 'plus', name: 'Plus', priceGbp: 8, bonusPercent: 0 },
 ];
 
+/** Convert a GBP price to base credits (before bonus). */
 const baseCreditsForPrice = (priceGbp: number) =>
   priceGbp / CREDIT_VALUE_GBP;
 
@@ -33,5 +34,6 @@ export const CREDIT_PACKAGES: CreditPackage[] = BASE_PACKAGES.map((pack) => {
   };
 });
 
+/** Format a credit count as a display string (rounded integer). */
 export const describeCredits = (credits: number) =>
   microToCredits(credits * MICRO_PER_CREDIT).toFixed(0);

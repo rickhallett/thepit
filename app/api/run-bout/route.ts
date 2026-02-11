@@ -46,6 +46,7 @@ export const runtime = 'nodejs';
 // Edge runtime has a 30s limit which is insufficient for 12-turn bouts.
 export const maxDuration = 120;
 
+/** Stream a multi-turn AI debate bout with tier-based access control and credit accounting. */
 export async function POST(req: Request) {
   let payload: {
     presetId?: string;
