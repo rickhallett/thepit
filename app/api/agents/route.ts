@@ -15,6 +15,7 @@ import {
 } from '@/lib/agent-dna';
 import { buildStructuredPrompt } from '@/lib/agent-prompts';
 import { attestAgent, EAS_ENABLED } from '@/lib/eas';
+import { recordRemixEvent } from '@/lib/remix-events';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { ensureUserRecord } from '@/lib/users';
@@ -268,6 +269,23 @@ export const POST = withLogging(async function POST(req: Request) {
       log.error('Agent attestation failed', error instanceof Error ? error : new Error(String(error)), { agentId: manifest.agentId });
       attestationFailed = true;
     }
+  }
+
+  // Record remix event for cloned agents (fire-and-forget)
+  if (manifest.parentId) {
+    recordRemixEvent({
+      sourceAgentId: manifest.parentId,
+      remixedAgentId: manifest.agentId,
+      remixerUserId: userId,
+      outcome: 'completed',
+      metadata: { promptHash, manifestHash },
+    }).catch((err) => {
+      log.warn(
+        'Failed to record remix event',
+        err instanceof Error ? err : new Error(String(err)),
+        { agentId: manifest.agentId, parentId: manifest.parentId },
+      );
+    });
   }
 
   return Response.json({

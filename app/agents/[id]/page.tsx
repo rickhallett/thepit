@@ -5,6 +5,8 @@ import { auth } from '@clerk/nextjs/server';
 import { getAgentDetail } from '@/lib/agent-detail';
 import { buildAgentDetailHref, decodeAgentId } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
+import { getRemixStats } from '@/lib/remix-events';
+import { MICRO_PER_CREDIT } from '@/lib/credits';
 import { CloneAgentButton } from '@/components/clone-agent-button';
 import { isAdmin } from '@/lib/admin';
 import { archiveAgent, restoreAgent } from '@/app/actions';
@@ -17,9 +19,10 @@ export default async function AgentDetailPage({
 }) {
   const resolved = await params;
   const agentId = decodeAgentId(resolved.id);
-  const [detail, { userId }] = await Promise.all([
+  const [detail, { userId }, remixStats] = await Promise.all([
     getAgentDetail(agentId, 4),
     auth(),
+    getRemixStats(agentId),
   ]);
   const userIsAdmin = isAdmin(userId ?? null);
 
@@ -116,6 +119,24 @@ export default async function AgentDetailPage({
                   {ancestor.name}
                 </Link>
               ))}
+            </div>
+          </section>
+        )}
+
+        {remixStats.remixCount > 0 && (
+          <section className="grid gap-2 text-xs uppercase tracking-[0.25em] text-muted">
+            <p className="text-xs uppercase tracking-[0.3em] text-muted">
+              Remix Impact
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="rounded-full border border-foreground/40 px-3 py-1">
+                Remixed {remixStats.remixCount} {remixStats.remixCount === 1 ? 'time' : 'times'}
+              </span>
+              {remixStats.totalRewardsMicro > 0 && (
+                <span className="rounded-full border border-accent/60 px-3 py-1 text-accent">
+                  {(remixStats.totalRewardsMicro / MICRO_PER_CREDIT).toFixed(1)} credits earned
+                </span>
+              )}
             </div>
           </section>
         )}
