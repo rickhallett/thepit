@@ -35,9 +35,9 @@ echo ""
 
 echo "Creating Pit Pass product (£3/mo)..."
 PASS_PRODUCT=$(stripe products create \
-  --name "THE PIT — Pit Pass" \
+  --name "THE PIT - Pit Pass" \
   --description "15 bouts/day, Haiku + Sonnet, 5 custom agents" \
-  --format json) || { echo "ERROR: Failed to create Pass product"; exit 1; }
+  -c) || { echo "ERROR: Failed to create Pass product"; exit 1; }
 
 PASS_PRODUCT_ID=$(extract "$PASS_PRODUCT" '.id')
 echo "  Product ID: $PASS_PRODUCT_ID"
@@ -46,8 +46,8 @@ PASS_PRICE=$(stripe prices create \
   --product "$PASS_PRODUCT_ID" \
   --unit-amount 300 \
   --currency gbp \
-  --recurring-interval month \
-  --format json) || { echo "ERROR: Failed to create Pass price"; exit 1; }
+  --recurring.interval month \
+  -c) || { echo "ERROR: Failed to create Pass price"; exit 1; }
 
 PASS_PRICE_ID=$(extract "$PASS_PRICE" '.id')
 echo "  Price ID:   $PASS_PRICE_ID"
@@ -57,9 +57,9 @@ echo ""
 
 echo "Creating Pit Lab product (£10/mo)..."
 LAB_PRODUCT=$(stripe products create \
-  --name "THE PIT — Pit Lab" \
+  --name "THE PIT - Pit Lab" \
   --description "100 bouts/day, all models, unlimited agents, API access" \
-  --format json) || { echo "ERROR: Failed to create Lab product"; exit 1; }
+  -c) || { echo "ERROR: Failed to create Lab product"; exit 1; }
 
 LAB_PRODUCT_ID=$(extract "$LAB_PRODUCT" '.id')
 echo "  Product ID: $LAB_PRODUCT_ID"
@@ -68,8 +68,8 @@ LAB_PRICE=$(stripe prices create \
   --product "$LAB_PRODUCT_ID" \
   --unit-amount 1000 \
   --currency gbp \
-  --recurring-interval month \
-  --format json) || { echo "ERROR: Failed to create Lab price"; exit 1; }
+  --recurring.interval month \
+  -c) || { echo "ERROR: Failed to create Lab price"; exit 1; }
 
 LAB_PRICE_ID=$(extract "$LAB_PRICE" '.id')
 echo "  Price ID:   $LAB_PRICE_ID"
@@ -80,15 +80,14 @@ echo ""
 echo "Creating webhook endpoint..."
 WEBHOOK=$(stripe webhook_endpoints create \
   --url "https://thepit.cloud/api/credits/webhook" \
-  --enabled-events \
-    "checkout.session.completed" \
-    "customer.subscription.created" \
-    "customer.subscription.updated" \
-    "customer.subscription.deleted" \
-    "invoice.payment_failed" \
-    "invoice.payment_succeeded" \
+  -d "enabled_events[]=checkout.session.completed" \
+  -d "enabled_events[]=customer.subscription.created" \
+  -d "enabled_events[]=customer.subscription.updated" \
+  -d "enabled_events[]=customer.subscription.deleted" \
+  -d "enabled_events[]=invoice.payment_failed" \
+  -d "enabled_events[]=invoice.payment_succeeded" \
   --api-version "2023-10-16" \
-  --format json) || { echo "ERROR: Failed to create webhook endpoint"; exit 1; }
+  -c) || { echo "ERROR: Failed to create webhook endpoint"; exit 1; }
 
 SECRET=$(extract "$WEBHOOK" '.secret')
 echo "  Webhook secret: ${SECRET:0:12}..."
