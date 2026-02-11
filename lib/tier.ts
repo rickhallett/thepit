@@ -20,6 +20,21 @@ export type UserTier = 'free' | 'pass' | 'lab';
 export const SUBSCRIPTIONS_ENABLED =
   process.env.SUBSCRIPTIONS_ENABLED === 'true';
 
+/** Map Stripe price IDs to subscription tiers. */
+const PRICE_TO_TIER: Record<string, UserTier> = {
+  ...(process.env.STRIPE_PASS_PRICE_ID
+    ? { [process.env.STRIPE_PASS_PRICE_ID]: 'pass' as const }
+    : {}),
+  ...(process.env.STRIPE_LAB_PRICE_ID
+    ? { [process.env.STRIPE_LAB_PRICE_ID]: 'lab' as const }
+    : {}),
+};
+
+/** Resolve a Stripe price ID to a UserTier. Returns null if unrecognized. */
+export function resolveTierFromPriceId(priceId: string): UserTier | null {
+  return PRICE_TO_TIER[priceId] ?? null;
+}
+
 export type TierConfig = {
   /** Max platform-funded bouts per day (BYOK unlimited for all tiers). */
   boutsPerDay: number;

@@ -7,7 +7,7 @@ import { auth } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
-import { agents, bouts } from '@/db/schema';
+import { agents, bouts, users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
 import { ARENA_PRESET_ID, PRESETS } from '@/lib/presets';
 import {
@@ -21,6 +21,7 @@ import { ensureUserRecord } from '@/lib/users';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
 import { getAgentSnapshots } from '@/lib/agent-registry';
+import { SUBSCRIPTIONS_ENABLED, type UserTier } from '@/lib/tier';
 import {
   DEFAULT_RESPONSE_LENGTH,
   resolveResponseLength,
@@ -270,3 +271,121 @@ export async function restoreAgent(agentId: string) {
 
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
+
+/**
+ * Get or create a Stripe customer for a user.
+ * Stores the customer ID on the users table to avoid duplicate customers.
+ */
+async function getOrCreateStripeCustomer(userId: string): Promise<string> {
+  const db = requireDb();
+  const [user] = await db
+    .select({
+      stripeCustomerId: users.stripeCustomerId,
+      email: users.email,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (user?.stripeCustomerId) return user.stripeCustomerId;
+
+  const customer = await stripe.customers.create({
+    metadata: { userId },
+    ...(user?.email ? { email: user.email } : {}),
+  });
+
+  await db
+    .update(users)
+    .set({ stripeCustomerId: customer.id, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+
+  return customer.id;
+}
+
+/**
+ * Create a Stripe Checkout session for a subscription plan.
+ * Redirects the user to Stripe's hosted checkout page.
+ */
+export async function createSubscriptionCheckout(formData: FormData) {
+  if (!SUBSCRIPTIONS_ENABLED) {
+    throw new Error('Subscriptions not enabled.');
+  }
+
+  const plan = formData?.get('plan');
+  if (plan !== 'pass' && plan !== 'lab') {
+    throw new Error('Invalid plan.');
+  }
+
+  const priceId =
+    plan === 'pass'
+      ? process.env.STRIPE_PASS_PRICE_ID
+      : process.env.STRIPE_LAB_PRICE_ID;
+
+  if (!priceId) {
+    throw new Error('Subscription plan not configured.');
+  }
+
+  const { userId } = await auth();
+  if (!userId) {
+    redirect('/sign-in?redirect_url=/arena');
+  }
+
+  await ensureUserRecord(userId);
+  const customerId = await getOrCreateStripeCustomer(userId);
+
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.APP_URL ??
+    'http://localhost:3000';
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    customer: customerId,
+    line_items: [{ price: priceId, quantity: 1 }],
+    metadata: { userId, plan },
+    subscription_data: {
+      metadata: { userId, plan },
+    },
+    success_url: `${appUrl}/arena?subscription=success`,
+    cancel_url: `${appUrl}/arena?subscription=cancel`,
+  });
+
+  if (!session.url) {
+    throw new Error('Failed to create checkout session.');
+  }
+
+  redirect(session.url);
+}
+
+/**
+ * Create a Stripe Billing Portal session for managing subscriptions.
+ * Redirects the user to Stripe's self-service portal where they can
+ * upgrade, downgrade, cancel, or update payment methods.
+ */
+export async function createBillingPortal() {
+  if (!SUBSCRIPTIONS_ENABLED) {
+    throw new Error('Subscriptions not enabled.');
+  }
+
+  const { userId } = await auth();
+  if (!userId) {
+    redirect('/sign-in?redirect_url=/arena');
+  }
+
+  await ensureUserRecord(userId);
+  const customerId = await getOrCreateStripeCustomer(userId);
+
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.APP_URL ??
+    'http://localhost:3000';
+
+  const session = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: `${appUrl}/arena`,
+  });
+
+  redirect(session.url);
+}
+
+
