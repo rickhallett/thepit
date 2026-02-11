@@ -1,15 +1,23 @@
 package main
 
 import (
+	"crypto/ed25519"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
 
+	"github.com/rickhallett/thepit/pitforge/cmd"
 	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/license"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
 var version = "dev"
+
+// publicKeyHex is the embedded public key for license verification.
+// Override at build time: go build -ldflags "-X main.publicKeyHex=<hex>"
+var publicKeyHex = ""
 
 func main() {
 	envPath := flag.String("env", "", "path to .env file")
@@ -22,17 +30,47 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Commands that don't require config.
+	switch args[0] {
+	case "version":
+		fmt.Printf("pitforge %s\n", version)
+		return
+	case "init":
+		cmd.RunInit(args[1:])
+		return
+	case "validate":
+		cmd.RunValidate(args[1:])
+		return
+	case "lint":
+		cmd.RunLint(args[1:])
+		return
+	case "hash":
+		cmd.RunHash(args[1:])
+		return
+	case "diff":
+		cmd.RunDiff(args[1:])
+		return
+	case "catalog":
+		cmd.RunCatalog(args[1:])
+		return
+	}
+
+	// Commands that require config (DB access, API keys, etc.)
 	cfg, err := config.Load(*envPath)
 	if err != nil {
 		fatal("config", err)
 	}
 
-	// Suppress unused warning during scaffold phase.
-	_ = cfg
+	// Enforce lab-tier license for premium commands.
+	requireLicense()
 
 	switch args[0] {
-	case "version":
-		fmt.Printf("pitforge %s\n", version)
+	case "spar":
+		cmd.RunSpar(args[1:], cfg)
+	case "evolve":
+		cmd.RunEvolve(args[1:], cfg)
+	case "lineage":
+		cmd.RunLineage(args[1:], cfg)
 	default:
 		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
 		usage()
@@ -73,4 +111,22 @@ func fatal(ctx string, err error) {
 
 func fatalf(ctx, format string, args ...interface{}) {
 	fatal(ctx, fmt.Errorf(format, args...))
+}
+
+// requireLicense enforces lab-tier license verification.
+// If no public key is embedded (dev builds), the check is skipped.
+func requireLicense() {
+	if publicKeyHex == "" {
+		return // dev build, no license check
+	}
+
+	pubBytes, err := hex.DecodeString(publicKeyHex)
+	if err != nil || len(pubBytes) != ed25519.PublicKeySize {
+		fatal("license", fmt.Errorf("invalid embedded public key"))
+	}
+
+	_, err = license.RequireLabTier(ed25519.PublicKey(pubBytes))
+	if err != nil {
+		fatal("license", err)
+	}
 }
