@@ -100,12 +100,16 @@ export async function POST(req: Request) {
       status: bouts.status,
       presetId: bouts.presetId,
       transcript: bouts.transcript,
+      ownerId: bouts.ownerId,
     })
     .from(bouts)
     .where(eq(bouts.id, boutId))
     .limit(1);
 
   if (existingBout) {
+    // Ownership check: prevent users from running bouts they don't own.
+    // Deferred until after the main auth() call below — see post-auth ownership block.
+
     const hasTranscript =
       Array.isArray(existingBout.transcript) && existingBout.transcript.length > 0;
 
@@ -190,6 +194,13 @@ export async function POST(req: Request) {
   }
 
   const { userId } = await auth();
+
+  // Ownership check (deferred from idempotency block above): reject if the
+  // bout belongs to someone else.  Unauthenticated callers are also blocked
+  // from owned bouts — they must sign in first.
+  if (existingBout?.ownerId && existingBout.ownerId !== userId) {
+    return new Response('Forbidden.', { status: 403 });
+  }
 
   // Rate-limit all callers — authenticated by userId, anonymous by IP.
   // Unauthenticated users get a stricter cap (2/hr vs 5/hr) to limit

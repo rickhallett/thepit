@@ -208,7 +208,7 @@ export async function applyCreditDelta(
   const [updated] = await db
     .update(credits)
     .set({
-      balanceMicro: sql`${credits.balanceMicro} + ${deltaMicro}`,
+      balanceMicro: sql`GREATEST(0, ${credits.balanceMicro} + ${deltaMicro})`,
       updatedAt: new Date(),
     })
     .where(eq(credits.userId, userId))

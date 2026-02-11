@@ -9,17 +9,20 @@ const {
   mockOnConflictDoNothing,
   mockValues,
   mockInsert,
+  mockSelectLimit,
 } = vi.hoisted(() => {
   const mockOnConflictDoNothing = vi.fn().mockResolvedValue(undefined);
   const mockValues = vi
     .fn()
     .mockReturnValue({ onConflictDoNothing: mockOnConflictDoNothing });
   const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
+  const mockSelectLimit = vi.fn().mockResolvedValue([{ id: 'bout-1' }]);
   return {
     authMock: vi.fn(),
     mockOnConflictDoNothing,
     mockValues,
     mockInsert,
+    mockSelectLimit,
   };
 });
 
@@ -27,12 +30,26 @@ vi.mock('@clerk/nextjs/server', () => ({
   auth: authMock,
 }));
 
+vi.mock('drizzle-orm', () => ({
+  eq: vi.fn(),
+}));
+
 vi.mock('@/db', () => ({
-  requireDb: () => ({ insert: mockInsert }),
+  requireDb: () => ({
+    insert: mockInsert,
+    select: () => ({
+      from: () => ({
+        where: () => ({
+          limit: mockSelectLimit,
+        }),
+      }),
+    }),
+  }),
 }));
 
 vi.mock('@/db/schema', () => ({
   winnerVotes: Symbol('winnerVotes'),
+  bouts: { id: Symbol('bouts.id') },
 }));
 
 /* ------------------------------------------------------------------ */
@@ -43,6 +60,8 @@ describe('winner-vote success paths', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     authMock.mockResolvedValue({ userId: 'user_123' });
+    // Default: bout exists
+    mockSelectLimit.mockResolvedValue([{ id: 'bout-1' }]);
   });
 
   function makeReq(body: unknown) {
@@ -74,6 +93,15 @@ describe('winner-vote success paths', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
     expect(mockOnConflictDoNothing).toHaveBeenCalled();
+  });
+
+  it('H3: vote on non-existent bout → 404', async () => {
+    mockSelectLimit.mockResolvedValue([]);
+
+    const res = await POST(makeReq({ boutId: 'ghost-bout', agentId: 'agent-a' }));
+
+    expect(res.status).toBe(404);
+    expect(await res.text()).toBe('Bout not found.');
   });
 
   it('U1: unauthenticated user → 401 "Sign in required."', async () => {
