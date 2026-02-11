@@ -6,8 +6,15 @@
 // consistency (same userId always maps to the same hash).
 
 import { sha256Hex } from '@/lib/hash';
+import { log } from '@/lib/logger';
 
-const ANONYMIZE_SALT = process.env.RESEARCH_ANONYMIZE_SALT ?? 'thepit-research-default-salt';
+const ANONYMIZE_SALT = (() => {
+  const salt = process.env.RESEARCH_ANONYMIZE_SALT;
+  if (!salt && process.env.NODE_ENV === 'production') {
+    log.warn('RESEARCH_ANONYMIZE_SALT is not set in production — anonymization uses a weak default salt', new Error('Missing RESEARCH_ANONYMIZE_SALT'));
+  }
+  return salt ?? 'thepit-research-default-salt';
+})();
 
 /**
  * Anonymize a user ID by salting and hashing it.

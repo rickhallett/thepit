@@ -3,6 +3,7 @@
 // Parses arXiv paper IDs from various URL formats and fetches
 // title/authors/abstract from the arXiv Atom API.
 
+import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 
 /**
@@ -86,7 +87,7 @@ export async function fetchArxivMetadata(
       abstract: abstract ? cleanWhitespace(abstract) : '',
     };
   } catch (error) {
-    log.warn('arXiv API fetch failed', error as Error, { arxivId });
+    log.warn('arXiv API fetch failed', toError(error), { arxivId });
     return null;
   }
 }

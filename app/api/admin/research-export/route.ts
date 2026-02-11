@@ -1,20 +1,8 @@
-import { timingSafeEqual } from 'crypto';
-
 import { withLogging } from '@/lib/api-logging';
 import { generateResearchExport } from '@/lib/research-exports';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export const runtime = 'nodejs';
-
-function requireAdmin(req: Request) {
-  const token = req.headers.get('x-admin-token');
-  const expected = process.env.ADMIN_SEED_TOKEN;
-  if (!expected) throw new Error('Not configured.');
-  if (!token) throw new Error('Unauthorized');
-  const a = Buffer.from(token);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) throw new Error('Unauthorized');
-  if (!timingSafeEqual(a, b)) throw new Error('Unauthorized');
-}
 
 export const POST = withLogging(async function POST(req: Request) {
   try {

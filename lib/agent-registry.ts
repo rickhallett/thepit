@@ -18,6 +18,8 @@ import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
 import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
 import { ALL_PRESETS } from '@/lib/presets';
 import { buildAgentManifest, hashAgentManifest, hashAgentPrompt } from '@/lib/agent-dna';
+import { rowToSnapshot } from '@/lib/agent-mapper';
+import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 
 export type AgentSnapshot = {
@@ -80,40 +82,11 @@ export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
           parsed && row.presetId
             ? findPresetAgent(parsed.presetId, parsed.agentId)
             : null;
-        return {
-          id: row.id,
-          name: row.name,
-          presetId: row.presetId ?? null,
-          presetName: presetMatch?.preset.name ?? null,
-          tier: row.tier,
-          color: presetMatch?.agent.color,
-          avatar: presetMatch?.agent.avatar,
-          systemPrompt: row.systemPrompt,
-          responseLength: row.responseLength,
-          responseFormat: row.responseFormat,
-          archetype: row.archetype ?? null,
-          tone: row.tone ?? null,
-          quirks: row.quirks ?? null,
-          speechPattern: row.speechPattern ?? null,
-          openingMove: row.openingMove ?? null,
-          signatureMove: row.signatureMove ?? null,
-          weakness: row.weakness ?? null,
-          goal: row.goal ?? null,
-          fears: row.fears ?? null,
-          customInstructions: row.customInstructions ?? null,
-          createdAt: row.createdAt?.toISOString() ?? null,
-          ownerId: row.ownerId ?? null,
-          parentId: row.parentId ?? null,
-          promptHash: row.promptHash ?? null,
-          manifestHash: row.manifestHash ?? null,
-          attestationUid: row.attestationUid ?? null,
-          attestationTxHash: row.attestationTxHash ?? null,
-          archived: row.archived ?? false,
-        } satisfies AgentSnapshot;
+        return rowToSnapshot(row, presetMatch);
       });
     }
   } catch (error) {
-    log.error('Failed to load agents from DB', error as Error);
+    log.error('Failed to load agents from DB', toError(error));
   }
 
   const fallback = await Promise.all(

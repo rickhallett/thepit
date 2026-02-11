@@ -8,6 +8,7 @@ import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
+import { buildLineage } from '@/lib/agent-lineage';
 import type { PitLeaderboardEntry } from '@/lib/leaderboard';
 
 type SortKey = 'votes' | 'wins' | 'winRate' | 'bouts';
@@ -86,25 +87,8 @@ export function LeaderboardTable({
     setSortDir('desc');
   };
 
-  const buildLineage = (agent: PitLeaderboardEntry) => {
-    const lineage: { id: string; name: string }[] = [];
-    const seen = new Set<string>();
-    let currentParent = agent.parentId ?? null;
-    let depth = 0;
-    const maxDepth = 3;
-
-    while (currentParent && depth < maxDepth && !seen.has(currentParent)) {
-      seen.add(currentParent);
-      lineage.push({
-        id: currentParent,
-        name: nameLookup.get(currentParent) ?? currentParent,
-      });
-      currentParent = parentLookup.get(currentParent) ?? null;
-      depth += 1;
-    }
-
-    return lineage;
-  };
+  const getLineage = (agent: PitLeaderboardEntry) =>
+    buildLineage(agent.parentId, nameLookup, parentLookup);
 
   return (
     <section className={cn('flex flex-col gap-6', className)}>
@@ -270,7 +254,7 @@ export function LeaderboardTable({
                 attestationTxHash: activeAgent.attestationTxHash,
                 responseLength: activeAgent.responseLength ?? null,
                 responseFormat: activeAgent.responseFormat ?? null,
-                lineage: buildLineage(activeAgent),
+                lineage: getLineage(activeAgent),
               }
             : null
         }

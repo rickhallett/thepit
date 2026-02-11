@@ -9,6 +9,7 @@ import { auth, clerkClient } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
+import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 import { users } from '@/db/schema';
 
@@ -79,7 +80,7 @@ export async function ensureUserRecord(userId: string) {
           .returning();
         return updated;
       } catch (error) {
-        log.warn('Failed to refresh Clerk profile', error as Error, { userId });
+        log.warn('Failed to refresh Clerk profile', toError(error), { userId });
       }
     }
 
@@ -96,7 +97,7 @@ export async function ensureUserRecord(userId: string) {
     displayName = profile.displayName;
     imageUrl = profile.imageUrl;
   } catch (error) {
-    log.warn('Failed to fetch Clerk profile', error as Error, { userId });
+    log.warn('Failed to fetch Clerk profile', toError(error), { userId });
   }
 
   // Use onConflictDoNothing to handle concurrent insert races — two

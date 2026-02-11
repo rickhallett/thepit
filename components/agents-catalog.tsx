@@ -5,27 +5,17 @@ import { useMemo, useState } from 'react';
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
+import type { AgentSnapshot } from '@/lib/agent-registry';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
+import { buildLineage } from '@/lib/agent-lineage';
 
-export type AgentCatalogEntry = {
-  id: string;
-  name: string;
-  presetId: string | null;
-  presetName: string | null;
-  tier: 'free' | 'premium' | 'custom';
-  color?: string;
-  avatar?: string;
-  systemPrompt: string;
-  responseLength?: string | null;
-  responseFormat?: string | null;
-  createdAt?: string | null;
-  ownerId?: string | null;
-  parentId?: string | null;
-  promptHash?: string | null;
-  manifestHash?: string | null;
-  attestationUid?: string | null;
-  attestationTxHash?: string | null;
-};
+export type AgentCatalogEntry = Pick<
+  AgentSnapshot,
+  | 'id' | 'name' | 'presetId' | 'presetName' | 'tier'
+  | 'color' | 'avatar' | 'systemPrompt' | 'responseLength'
+  | 'responseFormat' | 'createdAt' | 'ownerId' | 'parentId'
+  | 'promptHash' | 'manifestHash' | 'attestationUid' | 'attestationTxHash'
+>;
 
 export function AgentsCatalog({
   agents,
@@ -73,25 +63,8 @@ export function AgentsCatalog({
     });
   }, [agents, search, presetFilter, tierFilter]);
 
-  const buildLineage = (agent: AgentCatalogEntry) => {
-    const lineage: { id: string; name: string }[] = [];
-    const seen = new Set<string>();
-    let currentParent = agent.parentId ?? null;
-    let depth = 0;
-    const maxDepth = 3;
-
-    while (currentParent && depth < maxDepth && !seen.has(currentParent)) {
-      seen.add(currentParent);
-      lineage.push({
-        id: currentParent,
-        name: nameLookup.get(currentParent) ?? currentParent,
-      });
-      currentParent = parentLookup.get(currentParent) ?? null;
-      depth += 1;
-    }
-
-    return lineage;
-  };
+  const getLineage = (agent: AgentCatalogEntry) =>
+    buildLineage(agent.parentId, nameLookup, parentLookup);
 
   return (
     <section className={cn('flex flex-col gap-6', className)}>
@@ -198,7 +171,7 @@ export function AgentsCatalog({
                 attestationTxHash: activeAgent.attestationTxHash,
                 responseLength: activeAgent.responseLength ?? null,
                 responseFormat: activeAgent.responseFormat ?? null,
-                lineage: buildLineage(activeAgent),
+                lineage: getLineage(activeAgent),
               }
             : null
         }

@@ -8,14 +8,14 @@ const {
   checkRateLimitMock,
   getClientIdentifierMock,
   streamTextMock,
-  createAnthropicMock,
+  getModelMock,
   readFileSyncMock,
   pitConfig,
 } = vi.hoisted(() => ({
   checkRateLimitMock: vi.fn(),
   getClientIdentifierMock: vi.fn(),
   streamTextMock: vi.fn(),
-  createAnthropicMock: vi.fn(),
+  getModelMock: vi.fn(),
   readFileSyncMock: vi.fn(),
   pitConfig: {
     ASK_THE_PIT_ENABLED: true,
@@ -36,8 +36,9 @@ vi.mock('ai', () => ({
   streamText: streamTextMock,
 }));
 
-vi.mock('@ai-sdk/anthropic', () => ({
-  createAnthropic: createAnthropicMock,
+vi.mock('@/lib/ai', () => ({
+  getModel: getModelMock,
+  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
 }));
 
 vi.mock('node:fs', () => ({
@@ -62,9 +63,7 @@ describe('ask-the-pit route', () => {
     pitConfig.ASK_THE_PIT_ENABLED = true;
 
     readFileSyncMock.mockReturnValue('test documentation content');
-    createAnthropicMock.mockReturnValue(
-      (model: string) => ({ modelId: model }),
-    );
+    getModelMock.mockReturnValue({ modelId: 'claude-haiku-4-5-20251001' });
     streamTextMock.mockReturnValue({
       toTextStreamResponse: () =>
         new Response('streamed text', { status: 200 }),
@@ -141,7 +140,7 @@ describe('ask-the-pit route', () => {
       { role: 'user', content: 'What is The Pit?' },
     ]);
 
-    // Verify createAnthropic was called
-    expect(createAnthropicMock).toHaveBeenCalledTimes(1);
+    // Verify getModel was called with the configured model
+    expect(getModelMock).toHaveBeenCalledWith('claude-haiku-4-5-20251001');
   });
 });

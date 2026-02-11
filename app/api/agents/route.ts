@@ -20,12 +20,9 @@ import { resolveResponseFormat } from '@/lib/response-formats';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { ensureUserRecord } from '@/lib/users';
 import { SUBSCRIPTIONS_ENABLED, canCreateAgent } from '@/lib/tier';
+import { UNSAFE_PATTERN } from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-/** Reject URLs, script tags, and event handlers in free-text fields. */
-const UNSAFE_PATTERN =
-  /https?:\/\/|www\.|<script|javascript:|on\w+\s*=|data:text\/html/i;
 
 type TextFieldLimit = { maxLen: number; label: string };
 

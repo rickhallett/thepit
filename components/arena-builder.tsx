@@ -15,13 +15,12 @@ import {
   RESPONSE_FORMATS,
 } from '@/lib/response-formats';
 
-export type ArenaAgentOption = {
-  id: string;
-  name: string;
-  presetName?: string | null;
-  color?: string;
-  avatar?: string;
-};
+import type { AgentSnapshot } from '@/lib/agent-registry';
+
+export type ArenaAgentOption = Pick<
+  AgentSnapshot,
+  'id' | 'name' | 'presetName' | 'color' | 'avatar'
+>;
 
 export function ArenaBuilder({
   agents,

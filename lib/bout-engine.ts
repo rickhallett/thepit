@@ -17,6 +17,7 @@ import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 
 import { requireDb } from '@/db';
+import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
@@ -30,11 +31,10 @@ import {
 import {
   ARENA_PRESET_ID,
   DEFAULT_AGENT_COLOR,
-  DEFAULT_ARENA_MAX_TURNS,
   getPresetById,
-  type Agent,
   type Preset,
 } from '@/lib/presets';
+import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
 import { resolveResponseLength, type ResponseLengthConfig } from '@/lib/response-lengths';
 import { resolveResponseFormat, type ResponseFormat } from '@/lib/response-formats';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
@@ -194,21 +194,7 @@ export async function validateBoutRequest(
     if (!row?.agentLineup) {
       return { error: new Response('Unknown preset.', { status: 404 }) };
     }
-    const lineup: Agent[] = row.agentLineup.map((agent) => ({
-      id: agent.id,
-      name: agent.name,
-      systemPrompt: agent.systemPrompt,
-      color: agent.color ?? DEFAULT_AGENT_COLOR,
-      avatar: agent.avatar,
-    }));
-    preset = {
-      id: ARENA_PRESET_ID,
-      name: 'Arena Mode',
-      description: 'Custom lineup',
-      tier: 'free',
-      maxTurns: DEFAULT_ARENA_MAX_TURNS,
-      agents: lineup,
-    };
+    preset = buildArenaPresetFromLineup(row.agentLineup);
     if (!topic && row.topic) {
       topic = row.topic;
     }
@@ -359,7 +345,7 @@ export async function validateBoutRequest(
       })
       .onConflictDoNothing();
   } catch (error) {
-    log.error('Failed to ensure bout exists', error as Error, { boutId });
+    log.error('Failed to ensure bout exists', toError(error), { boutId });
     return { error: new Response('Service temporarily unavailable.', { status: 503 }) };
   }
 
@@ -537,7 +523,7 @@ export async function executeBout(
         shareLine = `${shareLine.slice(0, 137).trimEnd()}...`;
       }
     } catch (error) {
-      log.warn('Failed to generate share line', error as Error, { boutId });
+      log.warn('Failed to generate share line', toError(error), { boutId });
     }
 
     // Persist completed bout
@@ -592,7 +578,7 @@ export async function executeBout(
     return { transcript, shareLine, inputTokens, outputTokens };
   } catch (error) {
     const boutDurationMs = Date.now() - boutStartTime;
-    log.error('Bout stream failed', error as Error, {
+    log.error('Bout stream failed', toError(error), {
       requestId,
       boutId,
       presetId,

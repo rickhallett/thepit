@@ -8,6 +8,7 @@ import { agents } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import type { AgentSnapshot } from '@/lib/agent-registry';
 import { parsePresetAgentId } from '@/lib/agent-registry';
+import { rowToSnapshot } from '@/lib/agent-mapper';
 import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
 import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
 
@@ -79,36 +80,7 @@ export const getAgentDetail = async (
   let snapshot: AgentSnapshot | null = null;
   if (row) {
     const presetMatch = findPresetAgentById(row.id);
-    snapshot = {
-      id: row.id,
-      name: row.name,
-      presetId: row.presetId ?? null,
-      presetName: presetMatch?.preset.name ?? null,
-      tier: row.tier,
-      color: presetMatch?.agent.color,
-      avatar: presetMatch?.agent.avatar,
-      systemPrompt: row.systemPrompt,
-      responseLength: row.responseLength,
-      responseFormat: row.responseFormat,
-      archetype: row.archetype ?? null,
-      tone: row.tone ?? null,
-      quirks: row.quirks ?? null,
-      speechPattern: row.speechPattern ?? null,
-      openingMove: row.openingMove ?? null,
-      signatureMove: row.signatureMove ?? null,
-      weakness: row.weakness ?? null,
-      goal: row.goal ?? null,
-      fears: row.fears ?? null,
-      customInstructions: row.customInstructions ?? null,
-      createdAt: row.createdAt?.toISOString() ?? null,
-      ownerId: row.ownerId ?? null,
-      parentId: row.parentId ?? null,
-      promptHash: row.promptHash ?? null,
-      manifestHash: row.manifestHash ?? null,
-      attestationUid: row.attestationUid ?? null,
-      attestationTxHash: row.attestationTxHash ?? null,
-      archived: row.archived ?? false,
-    };
+    snapshot = rowToSnapshot(row, presetMatch);
   } else {
     snapshot = snapshotFromPreset(agentId);
   }

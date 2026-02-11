@@ -17,7 +17,7 @@ export const spec = {
   },
   servers: [
     {
-      url: 'https://thepit.cloud',
+      url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thepit.cloud',
       description: 'Production',
     },
   ],

@@ -103,7 +103,11 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
   const presetMap = buildPresetMap();
 
   const ranges: LeaderboardRange[] = ['all', 'week', 'day'];
-  const result = {} as LeaderboardData;
+  const result: LeaderboardData = {
+    all: { pit: [], players: [] },
+    week: { pit: [], players: [] },
+    day: { pit: [], players: [] },
+  };
 
   for (const range of ranges) {
     const since = getRangeStart(range);
