@@ -17,7 +17,11 @@ export async function ensureReferralCode(userId: string) {
     .where(eq(users.id, userId))
     .limit(1);
 
-  if (existing?.referralCode) {
+  if (!existing) {
+    throw new Error(`User not found: ${userId}`);
+  }
+
+  if (existing.referralCode) {
     return existing.referralCode;
   }
 
