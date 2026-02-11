@@ -1,3 +1,18 @@
+// Credit economy for THE PIT.
+//
+// Three-layer unit system:
+//   tokens (Anthropic API) -> GBP (cost) -> micro-credits (internal) -> credits (user-facing)
+//
+// 1 credit  = 100 micro-credits
+// 1 credit  = CREDIT_VALUE_GBP (default 0.01 GBP)
+// Token cost is computed from per-million pricing, converted to GBP, then to micro-credits.
+//
+// Micro-credits exist to avoid floating-point rounding in financial operations.
+// All database storage and atomic operations use micro-credits as the base unit.
+//
+// Revenue comes from a configurable platform margin (default 10%) applied on top
+// of Anthropic's API cost. BYOK users pay a flat per-1K-token platform fee instead.
+
 import { desc, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';

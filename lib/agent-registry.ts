@@ -1,3 +1,15 @@
+// Agent registry: identity resolution and persistence for AI personas.
+//
+// Agents exist in two forms:
+//   - Preset agents: defined in JSON preset files, identified by composite IDs
+//     like "preset:roast-battle:judge" (built via buildPresetAgentId).
+//   - Custom agents: user-created via cloning, stored directly in the agents table.
+//
+// The registry provides a unified snapshot view across both sources, falling
+// back to preset definitions when the database is empty or unavailable. This
+// ensures leaderboards and agent detail pages work even before agents are
+// explicitly registered in the DB.
+
 import { and, eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';

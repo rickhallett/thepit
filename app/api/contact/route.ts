@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     body: JSON.stringify({
       from: fromEmail,
       to: [toEmail],
-      subject: `The Pit contact — ${name}`,
+      subject: `The Pit contact — ${name.replace(/[\r\n]+/g, ' ').trim()}`,
       html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`,
     }),
   });

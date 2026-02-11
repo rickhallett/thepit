@@ -1,3 +1,7 @@
+// Credit pack definitions for the Stripe checkout flow.
+// Each pack has a GBP price, a volume bonus percentage, and a computed credit
+// total. Higher-tier packs give proportionally more credits per pound.
+
 import {
   CREDIT_VALUE_GBP,
   MICRO_PER_CREDIT,

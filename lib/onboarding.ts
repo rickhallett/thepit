@@ -1,3 +1,8 @@
+// New-user onboarding: signup bonus, referral processing, and session init.
+// Orchestrates the first-time flow: ensure user record, generate referral code,
+// create credit account, apply signup bonus from the intro pool, and credit
+// any referral bonus.
+
 import { eq, and } from 'drizzle-orm';
 
 import { requireDb } from '@/db';

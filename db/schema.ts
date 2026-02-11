@@ -1,3 +1,17 @@
+// Drizzle ORM schema for THE PIT's PostgreSQL database (Neon serverless).
+//
+// Key design decisions:
+//   - bouts.id uses varchar(21) because nanoid() produces 21-char IDs by default.
+//   - credits.balanceMicro is a bigint in micro-credits (1 credit = 100 micro)
+//     to avoid floating-point rounding in financial operations.
+//   - bouts.agentLineup is JSONB rather than a join table because arena-mode
+//     lineups are ephemeral, user-composed, and only read alongside the bout.
+//   - agents has both promptHash and manifestHash: promptHash identifies the
+//     behaviour (system prompt only), manifestHash identifies the full identity
+//     (all fields). Both are used in on-chain EAS attestations.
+//   - winnerVotes has a unique index on (boutId, userId) to enforce one vote per
+//     user per bout at the database level.
+
 import {
   jsonb,
   pgEnum,

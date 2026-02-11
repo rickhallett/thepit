@@ -1,3 +1,14 @@
+// Anthropic model provider configuration and resolution.
+//
+// Three model tiers:
+//   - Free:    Haiku (cheapest, used for free-tier presets and share line generation)
+//   - Premium: Sonnet/Opus (used for premium presets and arena mode)
+//   - BYOK:    User-supplied API key with platform's chosen model
+//
+// The getModel() function resolves a model ID + optional API key into a
+// provider instance. When modelId is 'byok', it creates a fresh Anthropic
+// provider using the user's key instead of the platform's default.
+
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 const defaultAnthropic = createAnthropic({

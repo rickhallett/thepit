@@ -1,3 +1,7 @@
+// Referral system: users share a unique code, and both referrer and referred
+// user receive bonus credits from the community intro pool. Codes are 8-char
+// nanoid strings stored on the user record and retried on collision.
+
 import { nanoid } from 'nanoid';
 import { eq } from 'drizzle-orm';
 

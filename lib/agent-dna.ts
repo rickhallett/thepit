@@ -1,3 +1,16 @@
+// Agent DNA: deterministic identity fingerprinting for AI personas.
+//
+// Every agent gets two hashes:
+//   - promptHash:    SHA-256 of the canonicalized system prompt (behaviour identity)
+//   - manifestHash:  SHA-256 of the full canonicalized manifest (complete identity)
+//
+// Canonicalization uses RFC 8785 (JSON Canonicalization Scheme) to ensure the
+// same logical agent always produces the same hash regardless of key ordering.
+//
+// These hashes serve as the foundation for on-chain attestations (see lib/eas.ts)
+// and enable tamper-evident agent identity: if someone modifies a prompt, the
+// hash changes and no longer matches the attestation record.
+
 import canonicalize from 'canonicalize';
 
 import { sha256Hex } from '@/lib/hash';

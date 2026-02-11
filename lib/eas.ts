@@ -1,8 +1,23 @@
+// On-chain agent identity attestation via the Ethereum Attestation Service (EAS).
+//
+// EAS is a protocol for creating verifiable, on-chain attestations. We use it
+// on Base L2 to publish tamper-proof records of agent identity: given an agent's
+// manifest and prompt hashes (from lib/agent-dna.ts), this module writes an
+// attestation that anyone can independently verify on-chain.
+//
+// Why: if someone claims a particular AI persona produced a result, the
+// attestation proves the exact system prompt and manifest that were in use.
+// This creates a public, immutable audit trail for multi-agent research.
+//
+// Flow: agent-dna.ts hashes the agent -> this module encodes and submits the
+// attestation -> the EAS contract returns a unique attestation UID.
+
 import { EAS, SchemaEncoder } from '@ethereum-attestation-service/eas-sdk';
 import { ethers } from 'ethers';
 
 import type { AgentManifest } from '@/lib/agent-dna';
 
+// Base L2 pre-deployed EAS contract addresses (same for all Base deployments)
 const DEFAULT_EAS_ADDRESS = '0x4200000000000000000000000000000000000021';
 const DEFAULT_SCHEMA_REGISTRY = '0x4200000000000000000000000000000000000020';
 
@@ -15,6 +30,10 @@ export const EAS_CONTRACT_ADDRESS =
 export const EAS_SCHEMA_REGISTRY_ADDRESS =
   process.env.EAS_SCHEMA_REGISTRY_ADDRESS ?? DEFAULT_SCHEMA_REGISTRY;
 
+// The on-chain schema defines the attestation structure. Each field maps to a
+// Solidity type: strings for human-readable IDs, bytes32 for the 32-byte
+// SHA-256 hashes, and uint64 for the unix timestamp. This schema must match
+// the one registered on-chain via EAS_SCHEMA_UID.
 export const EAS_SCHEMA_STRING =
   'string agentId,string name,string presetId,string tier,bytes32 promptHash,bytes32 manifestHash,string parentId,string ownerId,uint64 createdAt';
 
@@ -101,6 +120,8 @@ export const attestAgent = async (params: {
     },
   ]);
 
+  // Submit the attestation on-chain. Non-expiring and non-revocable because
+  // agent identity records should be permanent and immutable.
   const transaction = await eas.attest({
     schema: EAS_SCHEMA_UID,
     data: {
@@ -114,6 +135,8 @@ export const attestAgent = async (params: {
   });
 
   const uid = await transaction.wait();
+  // The EAS SDK returns transaction info in an inconsistent shape across
+  // versions, so we defensively extract the hash from multiple possible paths.
   const txInfo = transaction as unknown as {
     receipt?: { transactionHash?: string };
     tx?: { hash?: string };

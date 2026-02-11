@@ -16,7 +16,7 @@ import {
   PREMIUM_MODEL_OPTIONS,
   getModel,
 } from '@/lib/ai';
-import { getPresetById, type Agent, type Preset } from '@/lib/presets';
+import { ARENA_PRESET_ID, getPresetById, type Agent, type Preset } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
   // O(1) preset lookup instead of array scan
   let preset: Preset | undefined = getPresetById(presetId);
 
-  if (!preset && presetId === 'arena') {
+  if (!preset && presetId === ARENA_PRESET_ID) {
     const [row] = await db
       .select({
         agentLineup: bouts.agentLineup,
@@ -140,7 +140,7 @@ export async function POST(req: Request) {
       avatar: agent.avatar,
     }));
     preset = {
-      id: 'arena',
+      id: ARENA_PRESET_ID,
       name: 'Arena Mode',
       description: 'Custom lineup',
       tier: 'free',
@@ -182,7 +182,7 @@ export async function POST(req: Request) {
   }
 
   let modelId = FREE_MODEL_ID;
-  const allowPremiumModels = preset.tier === 'premium' || preset.id === 'arena';
+  const allowPremiumModels = preset.tier === 'premium' || preset.id === ARENA_PRESET_ID;
   if (allowPremiumModels && premiumEnabled) {
     modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
       ? requestedModel
@@ -415,6 +415,10 @@ export async function POST(req: Request) {
           .set({ status: 'error', transcript })
           .where(eq(bouts.id, boutId));
 
+        // Error-path settlement: refund unused preauthorized credits.
+        // Unlike the success path, we do NOT cap the delta here -- if the bout
+        // errored early, actual usage is likely far below preauth and the user
+        // should get the full difference back (delta will be negative = refund).
         if (CREDITS_ENABLED && preauthMicro && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);

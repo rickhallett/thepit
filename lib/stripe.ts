@@ -1,3 +1,5 @@
+// Stripe client for one-time credit pack purchases (GBP currency).
+
 import Stripe from 'stripe';
 
 const key = process.env.STRIPE_SECRET_KEY ?? '';

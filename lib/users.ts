@@ -1,3 +1,10 @@
+// User record management, bridging Clerk authentication with the local database.
+//
+// Clerk is the source of truth for auth; this module syncs profile data
+// (email, display name, avatar) into the local users table for use in
+// leaderboards, bout ownership, and referral tracking. Profiles are
+// refreshed lazily when stale (>24 hours since last sync).
+
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
 
@@ -36,8 +43,8 @@ async function fetchClerkProfile(userId: string) {
   return {
     email: profile.emailAddresses[0]?.emailAddress ?? null,
     displayName:
-      profile.username ??
-      [profile.firstName, profile.lastName].filter(Boolean).join(' ') ??
+      profile.username ||
+      [profile.firstName, profile.lastName].filter(Boolean).join(' ') ||
       null,
     imageUrl: profile.imageUrl ?? null,
   };

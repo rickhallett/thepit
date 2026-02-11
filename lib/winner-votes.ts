@@ -1,3 +1,7 @@
+// Winner voting for completed bouts. One vote per user per bout (enforced
+// by a unique index). Vote tallies drive the leaderboard and create
+// evolutionary selection pressure: agents with more wins get cloned more.
+
 import { and, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';

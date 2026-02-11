@@ -1,3 +1,7 @@
+// Response length presets that control how much each agent says per turn.
+// Each length maps to a maxOutputTokens cap (hard limit sent to the model)
+// and an outputTokensPerTurn estimate (used for credit cost estimation).
+
 export type ResponseLength = 'short' | 'standard' | 'long';
 
 export type ResponseLengthConfig = {

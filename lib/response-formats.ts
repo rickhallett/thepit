@@ -1,3 +1,6 @@
+// Response format options that control how agents structure their output.
+// Each format includes an instruction string appended to the system prompt.
+
 export type ResponseFormatId = 'plain' | 'spaced' | 'markdown' | 'json';
 
 export type ResponseFormat = {
