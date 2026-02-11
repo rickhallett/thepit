@@ -2,6 +2,7 @@ import { timingSafeEqual } from 'crypto';
 import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
+import { log } from '@/lib/logger';
 import { agents } from '@/db/schema';
 import { ALL_PRESETS } from '@/lib/presets';
 import {
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
             attested += 1;
           }
         } catch (error) {
-          console.error(`Seed agent error [${agentId}]:`, error instanceof Error ? error.message : String(error));
+          log.error('Seed agent error', error instanceof Error ? error : new Error(String(error)), { agentId });
           errors.push(agentId);
         }
         continue;
@@ -128,7 +129,7 @@ export async function POST(req: Request) {
             .where(eq(agents.id, registration.agentId));
           attested += 1;
         } catch (error) {
-          console.error(`Seed attestation error [${agentId}]:`, error instanceof Error ? error.message : String(error));
+          log.error('Seed attestation error', error instanceof Error ? error : new Error(String(error)), { agentId });
           errors.push(agentId);
         }
       }

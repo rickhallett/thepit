@@ -10,6 +10,7 @@ import {
   FREE_MODEL_ID,
   PREMIUM_MODEL_OPTIONS,
 } from '@/lib/ai';
+import { log } from '@/lib/logger';
 import {
   BYOK_ENABLED,
   CREDITS_ENABLED,
@@ -78,7 +79,7 @@ export default async function BoutPage({
       .where(eq(bouts.id, resolvedParams.id))
       .limit(1);
   } catch (error) {
-    console.error('Failed to load bout', error);
+    log.error('Failed to load bout', error as Error, { boutId: resolvedParams.id });
   }
 
   const resolvedPresetId = bout?.presetId ?? presetIdFromQuery;
@@ -123,7 +124,7 @@ export default async function BoutPage({
         })
         .onConflictDoNothing();
     } catch (error) {
-      console.error('Failed to backfill bout', error);
+      log.error('Failed to backfill bout', error as Error, { boutId: resolvedParams.id });
     }
   }
 

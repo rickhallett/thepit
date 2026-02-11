@@ -16,6 +16,7 @@ import { EAS, SchemaEncoder } from '@ethereum-attestation-service/eas-sdk';
 import { ethers } from 'ethers';
 
 import type { AgentManifest } from '@/lib/agent-dna';
+import { log } from '@/lib/logger';
 
 // Base L2 pre-deployed EAS contract addresses (same for all Base deployments)
 const DEFAULT_EAS_ADDRESS = '0x4200000000000000000000000000000000000021';
@@ -153,7 +154,7 @@ export const attestAgent = async (params: {
   }
 
   if (txHash && !isValidTxHash(txHash)) {
-    console.warn(`Invalid transaction hash format: ${txHash}`);
+    log.warn('Invalid transaction hash format', { txHash });
     // Don't throw - txHash is informational, UID is what matters
   }
 

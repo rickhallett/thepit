@@ -4,6 +4,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
+import { log } from '@/lib/logger';
 import { agents } from '@/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import {
@@ -263,7 +264,7 @@ export async function POST(req: Request) {
         })
         .where(eq(agents.id, manifest.agentId));
     } catch (error) {
-      console.error('Agent attestation failed:', error instanceof Error ? error.message : String(error));
+      log.error('Agent attestation failed', error instanceof Error ? error : new Error(String(error)), { agentId: manifest.agentId });
       attestationFailed = true;
     }
   }

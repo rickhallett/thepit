@@ -12,6 +12,7 @@
 import { eq, sql, and, gte, count } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
+import { log } from '@/lib/logger';
 import { bouts, users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
 
@@ -135,7 +136,7 @@ export async function incrementFreeBoutsUsed(userId: string): Promise<number> {
     .returning({ id: users.id });
 
   if (result.length === 0) {
-    console.warn(`incrementFreeBoutsUsed: no user found for id=${userId}`);
+    log.warn('incrementFreeBoutsUsed: no user found', { userId });
   }
 
   return result.length;

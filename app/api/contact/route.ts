@@ -1,4 +1,5 @@
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
 
   if (!res.ok) {
     const text = await res.text();
-    console.error('Resend API error:', text);
+    log.error('Resend API error', { responseText: text });
     return new Response('Email delivery failed.', { status: 500 });
   }
 

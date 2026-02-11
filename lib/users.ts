@@ -9,6 +9,7 @@ import { auth, clerkClient } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
+import { log } from '@/lib/logger';
 import { users } from '@/db/schema';
 
 /** How long before we re-fetch a user's Clerk profile (24 hours). */
@@ -78,7 +79,7 @@ export async function ensureUserRecord(userId: string) {
           .returning();
         return updated;
       } catch (error) {
-        console.warn('Failed to refresh Clerk profile for user', userId, error);
+        log.warn('Failed to refresh Clerk profile', error as Error, { userId });
       }
     }
 
@@ -95,7 +96,7 @@ export async function ensureUserRecord(userId: string) {
     displayName = profile.displayName;
     imageUrl = profile.imageUrl;
   } catch (error) {
-    console.warn('Failed to fetch Clerk profile for user', userId, error);
+    log.warn('Failed to fetch Clerk profile', error as Error, { userId });
   }
 
   // Use onConflictDoNothing to handle concurrent insert races — two

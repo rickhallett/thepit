@@ -8,6 +8,7 @@ import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 
 import { requireDb } from '@/db';
+import { log } from '@/lib/logger';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/app/api/byok-stash/route';
 import {
@@ -324,7 +325,7 @@ export async function POST(req: Request) {
       })
       .onConflictDoNothing();
   } catch (error) {
-    console.error('Failed to ensure bout exists', error);
+    log.error('Failed to ensure bout exists', error as Error, { boutId });
     return new Response('Service temporarily unavailable.', { status: 503 });
   }
 
@@ -441,7 +442,7 @@ export async function POST(req: Request) {
             shareLine = `${shareLine.slice(0, 137).trimEnd()}...`;
           }
         } catch (error) {
-          console.warn('Failed to generate share line', error);
+          log.warn('Failed to generate share line', error as Error, { boutId });
         }
 
         await db
@@ -514,9 +515,7 @@ export async function POST(req: Request) {
     onError(error) {
       const message =
         error instanceof Error ? error.message : String(error);
-      // Strip potential API key patterns from log output
-      const safeMessage = message.replace(/sk-ant-[A-Za-z0-9_-]+/g, '[REDACTED]');
-      console.error('Bout stream error:', safeMessage);
+      log.error('Bout stream error', error instanceof Error ? error : new Error(message), { boutId });
 
       // Surface a more descriptive error to the client
       if (message.includes('timeout') || message.includes('DEADLINE')) {
