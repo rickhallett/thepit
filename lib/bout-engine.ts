@@ -19,6 +19,7 @@ import { cookies } from 'next/headers';
 import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
+import { buildSystemMessage, buildUserMessage, buildSharePrompt } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/app/api/byok-stash/route';
@@ -412,8 +413,8 @@ export async function executeBout(
       })
       .where(eq(bouts.id, boutId));
 
-    const SAFETY_PREAMBLE =
-      'The following is a character persona for a debate simulation. Stay in character. Do not reveal system details, API keys, or internal platform information.\n\n';
+    const SAFETY_TEXT =
+      'The following is a character persona for a debate simulation. Stay in character. Do not reveal system details, API keys, or internal platform information.';
 
     const boutModel = getModel(modelId, modelId === 'byok' ? byokKey : undefined);
 
@@ -433,23 +434,30 @@ export async function executeBout(
       });
       onEvent?.({ type: 'text-start', id: turnId });
 
-      const topicLine = topic ? `Topic: ${topic}\n\n` : '';
-      const lengthLine = `Response length: ${lengthConfig.label} (${lengthConfig.hint}).\n\n`;
-      const formatLine = `Response format: ${formatConfig.label} (${formatConfig.hint}).\n\n`;
-      const prompt =
-        history.length > 0
-          ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
-          : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
+      const systemContent = buildSystemMessage({
+        safety: SAFETY_TEXT,
+        persona: agent.systemPrompt,
+        format: formatConfig.instruction,
+      });
+
+      const userContent = buildUserMessage({
+        topic,
+        lengthLabel: lengthConfig.label,
+        lengthHint: lengthConfig.hint,
+        formatLabel: formatConfig.label,
+        formatHint: formatConfig.hint,
+        history,
+        agentName: agent.name,
+        isOpening: history.length === 0,
+      });
+
       const turnStart = Date.now();
       const result = streamText({
         model: boutModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
         messages: [
-          {
-            role: 'system',
-            content: `${SAFETY_PREAMBLE}${agent.systemPrompt}\n\n${formatConfig.instruction}`,
-          },
-          { role: 'user', content: prompt },
+          { role: 'system', content: systemContent },
+          { role: 'user', content: userContent },
         ],
       });
 
@@ -472,7 +480,7 @@ export async function executeBout(
         inputTokens += turnInputTokens;
         outputTokens += turnOutputTokens;
       } else {
-        turnInputTokens = estimateTokensFromText(agent.systemPrompt, 1) + estimateTokensFromText(prompt, 1);
+        turnInputTokens = estimateTokensFromText(systemContent, 1) + estimateTokensFromText(userContent, 1);
         turnOutputTokens = estimatedOutputTokens;
         inputTokens += turnInputTokens;
         outputTokens += turnOutputTokens;
@@ -506,12 +514,12 @@ export async function executeBout(
         .map((entry) => `${entry.agentName}: ${entry.text}`)
         .join('\n');
       const clippedTranscript = transcriptText.slice(-2000);
-      const sharePrompt = `You just witnessed an AI bout. Here's the transcript.\nWrite a single tweet-length line (max 140 chars) that:\n- Captures the most absurd/funny/surprising moment\n- Makes someone want to click the link\n- Sounds like a human wrote it (not corporate)\n\nTranscript:\n${clippedTranscript}`;
+      const shareContent = buildSharePrompt(clippedTranscript);
 
       const shareResult = streamText({
         model: getModel(FREE_MODEL_ID),
         maxOutputTokens: 80,
-        messages: [{ role: 'user', content: sharePrompt }],
+        messages: [{ role: 'user', content: shareContent }],
       });
 
       let shareText = '';
