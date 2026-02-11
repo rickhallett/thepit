@@ -84,8 +84,18 @@ export const formatCredits = (micro: number) =>
 export const estimateTokensFromText = (text: string, min = 0) =>
   Math.max(min, Math.ceil(text.length / TOKEN_CHARS_PER));
 
+/** Default fallback pricing (haiku) for unrecognized model IDs. */
+const FALLBACK_MODEL_PRICING = DEFAULT_MODEL_PRICES_GBP['claude-haiku-4-5-20251001'];
+
 export const getModelPricing = (modelId: string) => {
-  return MODEL_PRICES_GBP[modelId];
+  const pricing = MODEL_PRICES_GBP[modelId];
+  if (!pricing) {
+    // Fall back to cheapest model pricing so unrecognized models are never free.
+    // This prevents a silent zero-cost path if a new model is added to ai.ts
+    // but not to the pricing table.
+    return FALLBACK_MODEL_PRICING;
+  }
+  return pricing;
 };
 
 export const estimateBoutTokens = (
