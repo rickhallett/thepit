@@ -13,6 +13,9 @@
 - `npm run build` creates a production build.
 - `npm run start` runs the production build locally.
 - `npm run lint` runs ESLint.
+- `npm run typecheck` runs TypeScript type checking.
+- `npm run test:unit` runs unit + API tests (425 tests).
+- `npm run test:ci` runs lint + typecheck + unit + integration.
 - `npm run test:e2e` runs Playwright tests. Set `BASE_URL` to target a deployed instance.
 
 ## Coding Style & Naming Conventions
@@ -35,5 +38,5 @@
 
 ## Security & Configuration Tips
 - Local secrets live in `.env` (do not commit).
-- Required env vars include `DATABASE_URL`, `ANTHROPIC_API_KEY`, and `ANTHROPIC_MODEL`.
+- Required env vars include `DATABASE_URL`, `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, and `CLERK_SECRET_KEY`.
 - When rotating keys, update local `.env` and deployment envs consistently.
