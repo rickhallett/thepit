@@ -16,7 +16,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/tests-66%20passing-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-425%20passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/Anthropic-Claude-orange" alt="Claude" />
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
@@ -62,7 +62,8 @@ Every bout generates behavioral research data — transcripts, crowd reactions, 
 │  ┌──────────┐    ┌───────────┐    ┌───────────┐                  │
 │  │ Anthropic│    │  Neon PG  │    │   EAS     │                  │
 │  │  Claude  │    │  (Drizzle)│    │  Base L2  │                  │
-│  │  Models  │    │  9 tables │    │Attestation│                  │
+│  │  Models  │    │  (Drizzle)│    │  Base L2  │                  │
+│  │          │    │ 12 tables│    │Attestation│                  │
 │  └──────────┘    └───────────┘    └───────────┘                  │
 │                                                                  │
 │  Auth: Clerk  •  Payments: Stripe  •  Email: Resend             │
@@ -80,7 +81,7 @@ createBout()          POST /api/run-bout           Client (SSE)
                       Agent A → stream             text-delta
                       Agent B → stream             text-delta
                       ...N turns...                ...
-                      Generate share line    →     bout-complete
+                       Generate share line    →     data-share-line
                       Settle credits               
                       status:completed             Voting panel
 ```
@@ -156,7 +157,7 @@ Hit the seed endpoint to populate preset agents in the database:
 
 ```bash
 curl -X POST http://localhost:3000/api/admin/seed-agents \
-  -H "Authorization: Bearer $ADMIN_SEED_TOKEN"
+  -H "x-admin-token: $ADMIN_SEED_TOKEN"
 ```
 
 ---
@@ -168,7 +169,9 @@ npm run dev          # Start dev server (Turbopack)
 npm run build        # Production build
 npm run start        # Serve production build
 npm run lint         # ESLint
-npx vitest run       # Unit + API tests (66 tests)
+npm run typecheck    # TypeScript type checking
+npm run test:unit    # Unit + API tests (425 tests)
+npm run test:ci      # Lint + typecheck + unit + integration
 npm run test:e2e     # Playwright E2E (requires running server)
 ```
 
@@ -190,14 +193,22 @@ Copy `.env.example` to `.env`. Required variables:
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `ANTHROPIC_FREE_MODEL` | Free tier model | `claude-haiku-4-5-20251001` |
+| `ANTHROPIC_PREMIUM_MODEL` | Default premium model | `claude-sonnet-4-5-20250929` |
 | `ANTHROPIC_PREMIUM_MODELS` | Premium models (comma-separated) | `claude-sonnet-4-5-20250929,claude-opus-4-5-20251101` |
 | `CREDITS_ENABLED` | Enable credit economy | `false` |
 | `PREMIUM_ENABLED` | Enable premium tier | `false` |
 | `BYOK_ENABLED` | Enable bring-your-own-key | `false` |
+| `SUBSCRIPTIONS_ENABLED` | Enable subscription tiers (pass/lab) | `false` |
 | `EAS_ENABLED` | Enable on-chain attestations | `false` |
+| `ASK_THE_PIT_ENABLED` | Enable AI FAQ assistant | `false` |
+| `FREE_BOUT_POOL_MAX` | Daily free bout cap | `500` |
 | `RESEND_API_KEY` | Contact form email delivery | — |
 | `STRIPE_SECRET_KEY` | Credit pack purchases | — |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook verification | — |
+| `STRIPE_PASS_PRICE_ID` | Stripe price for Pit Pass | — |
+| `STRIPE_LAB_PRICE_ID` | Stripe price for Pit Lab | — |
 | `ADMIN_SEED_TOKEN` | Auth for `/api/admin/seed-agents` | — |
+| `ADMIN_USER_IDS` | Comma-separated admin user IDs | — |
 
 ---
 
@@ -206,83 +217,104 @@ Copy `.env.example` to `.env`. Required variables:
 ```
 app/
 ├── page.tsx                    # Landing page
-├── actions.ts                  # Server actions (createBout, createArenaBout)
-├── arena/                      # Preset selection + custom lineup
+├── actions.ts                  # Server actions (createBout, checkout, admin)
+├── arena/                      # Preset selection + custom lineup builder
 ├── bout/[id]/                  # Live bout (streaming)
 ├── b/[id]/                     # Replay (read-only)
-├── agents/                     # Catalog, builder, clone, detail
+├── agents/                     # Catalog, builder, clone, detail pages
 ├── leaderboard/                # PIT + PLAYER rankings
+├── contact/                    # Contact form
 ├── research/                   # Research description
 ├── roadmap/                    # Three-lane public roadmap
+├── security/                   # Security & transparency page
+├── privacy/                    # Privacy policy
+├── terms/                      # Terms of service
+├── disclaimer/                 # AI content disclaimer
+├── sign-in/, sign-up/          # Clerk authentication
 ├── api/
 │   ├── run-bout/               # SSE streaming orchestrator
-│   ├── agents/                 # Agent CRUD
-│   ├── reactions/              # Heart/fire (rate-limited)
+│   ├── agents/                 # Agent creation
+│   ├── reactions/              # Heart/fire (rate-limited, deduped)
 │   ├── winner-vote/            # Per-bout voting
 │   ├── credits/webhook/        # Stripe webhook
 │   ├── contact/                # Resend email
 │   ├── newsletter/             # Email signup
+│   ├── ask-the-pit/            # AI FAQ assistant
+│   ├── byok-stash/             # BYOK key cookie stash
 │   └── admin/seed-agents/      # DB seeding
-components/
-├── arena.tsx                   # Core bout UI (500 lines)
+components/                     # 20 React components
+├── arena.tsx                   # Core bout UI (streaming, reactions, voting)
 ├── arena-builder.tsx           # Custom lineup builder
 ├── agent-builder.tsx           # New agent form (4 tabs)
-├── clone-agent-button.tsx      # Clone/remix navigation
-├── agent-details-modal.tsx     # DNA modal with clone
+├── agents-catalog.tsx          # Agent listing with filters
 ├── leaderboard-dashboard.tsx   # PIT/PLAYER toggle
-lib/
+├── ask-the-pit.tsx             # AI FAQ chat widget
+├── ...                         # Auth, checkout, counters, etc.
+lib/                            # 30 shared modules
 ├── ai.ts                       # Anthropic provider config
 ├── presets.ts                  # 22 preset normalization
-├── credits.ts                  # Micro-credit economy
+├── credits.ts                  # Micro-credit economy (atomic preauth)
+├── tier.ts                     # Subscription tier access control
 ├── agent-dna.ts                # Manifest hashing (SHA-256)
 ├── agent-prompts.ts            # Structured prompt composition
 ├── eas.ts                      # EAS attestation (Base L2)
 ├── rate-limit.ts               # Sliding window limiter
 ├── use-bout.ts                 # Client SSE streaming hook
+├── stripe.ts                   # Stripe client (lazy init)
+├── ...                         # Users, referrals, leaderboard, etc.
 db/
-├── schema.ts                   # Drizzle schema (9 tables)
+├── schema.ts                   # Drizzle schema (12 tables)
 └── index.ts                    # Neon serverless client
 tests/
-├── unit/                       # Pure function tests
-├── api/                        # Route handler tests
+├── unit/                       # Pure function tests (42 files)
+├── api/                        # Route handler tests (17 files)
 ├── integration/                # Real DB tests
 └── e2e/                        # Playwright browser tests
 presets/                        # JSON preset definitions
+scripts/                        # Admin/setup scripts
+pitctl/                         # Go CLI for admin operations
 ```
 
 ---
 
 ## Database Schema
 
-9 tables on Neon PostgreSQL via Drizzle ORM:
+12 tables on Neon PostgreSQL via Drizzle ORM:
 
 | Table | Purpose |
 |-------|---------|
 | `bouts` | Bout state, transcript (JSONB), agent lineup, share line |
 | `agents` | Agent DNA, structured fields, hashes, attestation UIDs |
-| `users` | Clerk profile sync, referral codes |
+| `users` | Clerk profile sync, referral codes, subscription tier |
 | `credits` | Per-user micro-credit balance |
-| `credit_transactions` | Ledger with source/delta/metadata |
+| `credit_transactions` | Append-only ledger with source/delta/metadata |
 | `intro_pool` | Community credit pool with atomic drain |
 | `referrals` | Referrer/referred pairs with credit tracking |
-| `reactions` | Per-turn heart/fire reactions |
+| `reactions` | Per-turn heart/fire reactions (deduped) |
 | `winner_votes` | Per-bout winner votes (unique per user) |
+| `newsletter_signups` | Email newsletter subscriptions |
+| `free_bout_pool` | Daily free bout cap tracking |
+| `agent_flags` | User-submitted agent moderation flags |
 
 ---
 
 ## Security
 
-Hardened after adversarial code review (Feb 2026). Key measures:
+Hardened after two adversarial code reviews (Feb 2026). Key measures:
 
+- **Security headers** — HSTS, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy
 - **Atomic credit preauthorization** — conditional SQL `UPDATE WHERE balance >= amount` prevents race conditions
-- **Rate limiting** — sliding window (30 req/min) on reactions endpoint
-- **Bout idempotency** — status check before running prevents double-execution
-- **Auth required** — agent creation requires Clerk authentication
-- **EAS validation** — bytes32 format validation on attestation UIDs
-- **Webhook timing** — uniform code path prevents oracle attacks
+- **Timing-safe admin auth** — `crypto.timingSafeEqual` on admin token comparison
+- **Rate limiting** — sliding window (30 req/min) on reactions, 5/hr on bouts
+- **Reaction deduplication** — unique index prevents spam inflation
+- **Bout ownership** — streaming restricted to bout owner
+- **BYOK cookie security** — HTTP-only, strict SameSite, 60s TTL, delete-after-read
+- **Input validation** — length limits on topics, email regex, key format checks
+- **Referral hardening** — format validation, secure flag, attribution preservation
+- **Auth required** — agent creation, BYOK stash, and admin actions require authentication
 - **O(1) preset lookup** — `Map`-based resolution replaces linear scan
 
-See `docs/code-review-2026-02-10.md` for the full review and tracking table.
+See `docs/release-review-2026-02-11.md` for the full review.
 
 ---
 
@@ -304,7 +336,7 @@ Full interactive roadmap at [thepit.cloud/roadmap](https://thepit.cloud/roadmap)
 
 1. **Fork and branch** — Fork the repo, create a feature branch (`feat/your-feature`), and open a PR against `master`.
 2. **Conventional commits** — All commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, etc.).
-3. **Tests must pass** — Run `npx vitest run` before opening a PR. PRs with failing tests will not be merged.
+3. **Tests must pass** — Run `npm run test:ci` before opening a PR. PRs with failing tests will not be merged.
 4. **PR expectations** — Include a clear summary of what changed and why. For visual changes, include screenshots.
 5. **Code style** — TypeScript strict mode, 2-space indentation, Tailwind for styling. Use `clsx` + `tailwind-merge` when combining class lists.
 
@@ -323,7 +355,7 @@ Full interactive roadmap at [thepit.cloud/roadmap](https://thepit.cloud/roadmap)
 | Attestations | Ethereum Attestation Service (Base L2) |
 | Email | Resend |
 | Hosting | Vercel |
-| Tests | Vitest (66) + Playwright |
+| Tests | Vitest (425) + Playwright |
 
 ---
 
