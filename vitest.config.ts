@@ -10,7 +10,11 @@ export default defineConfig({
 
   test: {
     environment: 'node',
-    include: ['tests/unit/**/*.test.ts', 'tests/api/**/*.test.ts'],
+    include: [
+      'tests/unit/**/*.test.ts',
+      'tests/api/**/*.test.ts',
+      'tests/integration/**/*.test.ts',
+    ],
 
     // Silence application logging during test runs
     env: { LOG_LEVEL: 'silent' },
