@@ -217,56 +217,101 @@ export default async function Home() {
         </section>
 
         {/* Subscription upgrade section */}
-        {subsEnabled && userId && userTier !== 'lab' && (
+        {subsEnabled && userTier !== 'lab' && (
           <section id="upgrade" className="flex flex-col gap-4 border-t-2 border-foreground/60 pt-8">
             <p className="text-xs uppercase tracking-[0.4em] text-accent">
-              Upgrade Your Plan
+              {userId ? 'Upgrade Your Plan' : 'Choose Your Plan'}
             </p>
+            {!userId && (
+              <p className="text-xs text-muted">
+                Sign up to subscribe and unlock premium models, more bouts, and custom agents.
+              </p>
+            )}
             <div className="grid gap-4 md:grid-cols-2">
-              {userTier === 'free' && (
+              {(!userId || userTier === 'free') && (
+                userId ? (
+                  <form
+                    action={createSubscriptionCheckout}
+                    className="flex flex-col gap-3 border-2 border-accent/60 bg-accent/5 p-5"
+                  >
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-accent">Pit Pass</p>
+                      <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
+                        £3<span className="text-sm text-muted">/mo</span>
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted">
+                      15 bouts/day, Haiku + Sonnet, 5 agents, analytics
+                    </p>
+                    <input type="hidden" name="plan" value="pass" />
+                    <button
+                      type="submit"
+                      className="mt-auto border-2 border-accent px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+                    >
+                      Subscribe
+                    </button>
+                  </form>
+                ) : (
+                  <div className="flex flex-col gap-3 border-2 border-accent/60 bg-accent/5 p-5">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-accent">Pit Pass</p>
+                      <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
+                        £3<span className="text-sm text-muted">/mo</span>
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted">
+                      15 bouts/day, Haiku + Sonnet, 5 agents, analytics
+                    </p>
+                    <Link
+                      href="/sign-up?redirect_url=/arena#upgrade"
+                      className="mt-auto border-2 border-accent px-4 py-3 text-center text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+                    >
+                      Sign up to subscribe
+                    </Link>
+                  </div>
+                )
+              )}
+              {userId ? (
                 <form
                   action={createSubscriptionCheckout}
-                  className="flex flex-col gap-3 border-2 border-accent/60 bg-accent/5 p-5"
+                  className="flex flex-col gap-3 border-2 border-purple-400/60 bg-purple-400/5 p-5"
                 >
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-accent">Pit Pass</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-purple-400">Pit Lab</p>
                     <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
-                      £3<span className="text-sm text-muted">/mo</span>
+                      £10<span className="text-sm text-muted">/mo</span>
                     </p>
                   </div>
                   <p className="text-xs text-muted">
-                    15 bouts/day, Haiku + Sonnet, 5 agents, analytics
+                    100 bouts/day, all models incl. Opus, unlimited agents, API access
                   </p>
-                  <input type="hidden" name="plan" value="pass" />
+                  <input type="hidden" name="plan" value="lab" />
                   <button
                     type="submit"
-                    className="mt-auto border-2 border-accent px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+                    className="mt-auto border-2 border-purple-400 px-4 py-3 text-xs uppercase tracking-[0.3em] text-purple-400 transition hover:bg-purple-400 hover:text-background"
                   >
                     Subscribe
                   </button>
                 </form>
-              )}
-              <form
-                action={createSubscriptionCheckout}
-                className="flex flex-col gap-3 border-2 border-purple-400/60 bg-purple-400/5 p-5"
-              >
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-purple-400">Pit Lab</p>
-                  <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
-                    £10<span className="text-sm text-muted">/mo</span>
+              ) : (
+                <div className="flex flex-col gap-3 border-2 border-purple-400/60 bg-purple-400/5 p-5">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-purple-400">Pit Lab</p>
+                    <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
+                      £10<span className="text-sm text-muted">/mo</span>
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted">
+                    100 bouts/day, all models incl. Opus, unlimited agents, API access
                   </p>
+                  <Link
+                    href="/sign-up?redirect_url=/arena#upgrade"
+                    className="mt-auto border-2 border-purple-400 px-4 py-3 text-center text-xs uppercase tracking-[0.3em] text-purple-400 transition hover:bg-purple-400 hover:text-background"
+                  >
+                    Sign up to subscribe
+                  </Link>
                 </div>
-                <p className="text-xs text-muted">
-                  100 bouts/day, all models incl. Opus, unlimited agents, API access
-                </p>
-                <input type="hidden" name="plan" value="lab" />
-                <button
-                  type="submit"
-                  className="mt-auto border-2 border-purple-400 px-4 py-3 text-xs uppercase tracking-[0.3em] text-purple-400 transition hover:bg-purple-400 hover:text-background"
-                >
-                  Subscribe
-                </button>
-              </form>
+              )}
             </div>
           </section>
         )}

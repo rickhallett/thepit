@@ -1,0 +1,9 @@
+# Binary
+pitctl
+!pitctl/
+
+# Test output
+coverage.out
+
+# Export data
+export/
