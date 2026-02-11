@@ -81,6 +81,9 @@ export async function POST(req: Request) {
   if (!message) {
     return errorResponse('Missing message.', 400);
   }
+  if (message.length > 2000) {
+    return errorResponse('Message must be 2000 characters or fewer.', 400);
+  }
 
   const requestId = getRequestId(req);
   const docs = loadDocs();
@@ -109,6 +112,6 @@ export async function POST(req: Request) {
     return response;
   } catch (error) {
     log.error('Ask The Pit stream failed', toError(error), { requestId });
-    return errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 500);
+    return errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 503);
   }
 }

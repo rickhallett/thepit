@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { bouts, winnerVotes } from '@/db/schema';
-import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit } from '@/lib/rate-limit';
 
@@ -32,7 +32,7 @@ export const POST = withLogging(async function POST(req: Request) {
 
   const rateCheck = checkRateLimit(RATE_LIMIT, userId);
   if (!rateCheck.success) {
-    return errorResponse(API_ERRORS.RATE_LIMITED, 429);
+    return rateLimitResponse(rateCheck);
   }
 
   const db = requireDb();

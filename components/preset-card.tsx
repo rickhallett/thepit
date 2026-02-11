@@ -231,8 +231,8 @@ export function PresetCard({
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
           <span>BYOK API key</span>
           <input
-            name="byokKey"
             type="password"
+            autoComplete="off"
             value={byokKey}
             onChange={(event) => setByokKey(event.target.value)}
             placeholder="sk-ant-..."

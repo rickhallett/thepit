@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -26,7 +26,7 @@ export const POST = withLogging(async function POST(req: Request) {
 
   const rateCheck = checkRateLimit(RATE_LIMIT, userId);
   if (!rateCheck.success) {
-    return errorResponse(API_ERRORS.RATE_LIMITED, 429);
+    return rateLimitResponse(rateCheck);
   }
 
   const parsed = await parseJsonBody<{ key?: string }>(req);
