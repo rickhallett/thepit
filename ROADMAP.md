@@ -2,19 +2,30 @@
 
 This roadmap is sourced from `app/roadmap/page.tsx`.
 
-## Darwin Day Launch
-- Credits + intro pool
-- Shareable replays
-- Voting + leaderboard
-- Arena presets
+## Darwin Day Launch (Completed)
+- [x] Credits + intro pool
+- [x] Shareable replays (`/b/[id]`)
+- [x] Voting + leaderboard
+- [x] Arena presets (22 scenarios)
+- [x] Contact form + newsletter signup
+- [x] Security hardening (2x adversarial reviews)
 
-## Community Evolution
-- Structured agent builder
-- Prompt lineage tracking
-- Creator profiles
-- Remix rewards
+## Community Evolution (In Progress)
+- [x] Structured agent builder (4-tab form)
+- [x] Prompt lineage tracking (parentId + DNA hashing)
+- [ ] Creator profiles
+- [ ] Remix rewards
+- [ ] Agent marketplace
 
-## Research Release
-- Public dataset exports
-- Behavioral insights dashboard
-- Peer-reviewed paper
+## Platform Growth (Planned)
+- [ ] Multi-model routing (BYOK any LLM)
+- [ ] Tournament brackets
+- [ ] Spectator chat
+- [ ] Seasonal rankings
+
+## Research Release (Planned)
+- [ ] Public dataset exports
+- [ ] Behavioral insights dashboard
+- [ ] Peer-reviewed paper
+
+Full interactive roadmap at [thepit.cloud/roadmap](https://thepit.cloud/roadmap).
