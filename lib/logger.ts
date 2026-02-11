@@ -10,8 +10,29 @@
 //   log.error('Stream failed', error, { boutId });
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type ConfigLevel = LogLevel | 'silent';
 
 type LogContext = Record<string, unknown>;
+
+/** Numeric priority for level comparison. Higher = more severe. */
+const LEVEL_PRIORITY: Record<ConfigLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+  silent: 4,
+};
+
+/**
+ * Minimum log level. Set via LOG_LEVEL env var.
+ * Accepts: debug | info | warn | error | silent
+ * Default: 'info'
+ */
+const MIN_LEVEL: ConfigLevel = (() => {
+  const env = process.env.LOG_LEVEL?.toLowerCase();
+  if (env && env in LEVEL_PRIORITY) return env as ConfigLevel;
+  return 'info';
+})();
 
 /** Strip API key patterns from any string value to prevent secret leakage. */
 function sanitize(value: unknown): unknown {
@@ -54,6 +75,8 @@ function emit(
   errorOrCtx?: Error | LogContext,
   maybeCtx?: LogContext,
 ) {
+  if (LEVEL_PRIORITY[level] < LEVEL_PRIORITY[MIN_LEVEL]) return;
+
   let error: Error | undefined;
   let ctx: LogContext = {};
 
