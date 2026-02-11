@@ -22,6 +22,7 @@ import {
   bigint,
   text,
   uniqueIndex,
+  index,
   boolean,
   integer,
 } from 'drizzle-orm/pg-core';
@@ -66,7 +67,12 @@ export const bouts = pgTable('bouts', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  createdAtIdx: index('bouts_created_at_idx').on(table.createdAt),
+}));
 
 export const users = pgTable('users', {
   id: varchar('id', { length: 128 }).primaryKey(),
@@ -115,7 +121,13 @@ export const creditTransactions = pgTable('credit_transactions', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (table) => ({
+  userCreatedIdx: index('credit_txn_user_created_idx').on(
+    table.userId,
+    table.createdAt,
+  ),
+  referenceIdIdx: index('credit_txn_reference_id_idx').on(table.referenceId),
+}));
 
 export const introPool = pgTable('intro_pool', {
   id: serial('id').primaryKey(),
@@ -152,7 +164,9 @@ export const reactions = pgTable('reactions', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (table) => ({
+  boutIdIdx: index('reactions_bout_id_idx').on(table.boutId),
+}));
 
 export const winnerVotes = pgTable(
   'winner_votes',
@@ -170,6 +184,7 @@ export const winnerVotes = pgTable(
       table.boutId,
       table.userId,
     ),
+    createdAtIdx: index('winner_votes_created_at_idx').on(table.createdAt),
   }),
 );
 
@@ -179,7 +194,9 @@ export const newsletterSignups = pgTable('newsletter_signups', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (table) => ({
+  emailIdx: uniqueIndex('newsletter_signups_email_idx').on(table.email),
+}));
 
 export const agents = pgTable('agents', {
   id: varchar('id', { length: 128 }).primaryKey(),
@@ -211,7 +228,12 @@ export const agents = pgTable('agents', {
   attestationTxHash: varchar('attestation_tx_hash', { length: 66 }),
   attestedAt: timestamp('attested_at', { withTimezone: true }),
   archived: boolean('archived').notNull().default(false),
-});
+}, (table) => ({
+  archivedCreatedIdx: index('agents_archived_created_idx').on(
+    table.archived,
+    table.createdAt,
+  ),
+}));
 
 export const freeBoutPool = pgTable('free_bout_pool', {
   id: serial('id').primaryKey(),

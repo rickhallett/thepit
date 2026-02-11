@@ -329,6 +329,7 @@ export async function POST(req: Request) {
             topic: topic || null,
             responseLength: lengthConfig.id,
             responseFormat: formatConfig.id,
+            updatedAt: new Date(),
           })
           .where(eq(bouts.id, boutId));
 
@@ -435,6 +436,7 @@ export async function POST(req: Request) {
             transcript,
             shareLine,
             shareGeneratedAt: shareLine ? new Date() : null,
+            updatedAt: new Date(),
           })
           .where(eq(bouts.id, boutId));
 
@@ -466,7 +468,7 @@ export async function POST(req: Request) {
       } catch (error) {
         await db
           .update(bouts)
-          .set({ status: 'error', transcript })
+          .set({ status: 'error', transcript, updatedAt: new Date() })
           .where(eq(bouts.id, boutId));
 
         // Error-path settlement: refund unused preauthorized credits.
