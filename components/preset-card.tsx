@@ -111,6 +111,7 @@ export function PresetCard({
       }
       // Re-submit the form now that the key is stashed
       byokStashedRef.current = true;
+      trackEvent('byok_key_stashed');
       const form = event.target as HTMLFormElement;
       form.requestSubmit();
       return;

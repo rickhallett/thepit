@@ -1,11 +1,13 @@
 // API route logging wrapper for observability.
 //
 // Wraps Next.js API route handlers with automatic request/response
-// logging, timing, and request ID propagation.
+// logging, timing, request ID propagation, and forensic context
+// (client IP, user agent, referer).
 
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
-import { getRequestId } from '@/lib/request-context';
+import { getRequestId, getClientIp, getUserAgent, getReferer } from '@/lib/request-context';
+import { checkAnomaly } from '@/lib/anomaly';
 
 type RouteHandler = (req: Request) => Promise<Response> | Response;
 
@@ -13,9 +15,11 @@ type RouteHandler = (req: Request) => Promise<Response> | Response;
  * Wrap an API route handler with structured request/response logging.
  *
  * Logs:
- *   - START: method, path, requestId, userId (if available)
+ *   - START: method, path, requestId, clientIp, userAgent, referer
  *   - END:   status, durationMs, requestId
  *   - ERROR: status, error message, requestId (for 5xx responses)
+ *
+ * Also feeds request/response data to the anomaly detector.
  */
 export function withLogging(
   handler: RouteHandler,
@@ -27,8 +31,17 @@ export function withLogging(
     const url = new URL(req.url);
     const path = url.pathname;
     const start = Date.now();
+    const clientIp = getClientIp(req);
+    const userAgent = getUserAgent(req);
+    const referer = getReferer(req);
 
-    log.info(`${method} ${path}`, { requestId, route: routeName });
+    log.info(`${method} ${path}`, {
+      requestId,
+      route: routeName,
+      clientIp,
+      userAgent: userAgent.slice(0, 200),
+      referer: referer.slice(0, 200),
+    });
 
     try {
       const response = await handler(req);
@@ -41,6 +54,7 @@ export function withLogging(
           route: routeName,
           status,
           durationMs,
+          clientIp,
         });
       } else if (status >= 400) {
         log.warn(`${method} ${path} ${status}`, {
@@ -48,6 +62,7 @@ export function withLogging(
           route: routeName,
           status,
           durationMs,
+          clientIp,
         });
       } else {
         log.info(`${method} ${path} ${status}`, {
@@ -58,6 +73,9 @@ export function withLogging(
         });
       }
 
+      // Feed to anomaly detector (non-blocking)
+      checkAnomaly({ clientIp, userAgent, route: routeName, status });
+
       return response;
     } catch (error) {
       const durationMs = Date.now() - start;
@@ -65,7 +83,9 @@ export function withLogging(
         requestId,
         route: routeName,
         durationMs,
+        clientIp,
       });
+      checkAnomaly({ clientIp, userAgent, route: routeName, status: 500 });
       throw error;
     }
   };

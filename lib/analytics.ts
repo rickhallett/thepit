@@ -29,7 +29,10 @@ export type AnalyticsEvent =
   | 'byok_key_stashed'
   | 'paper_submitted'
   | 'feature_request_submitted'
-  | 'feature_request_voted';
+  | 'feature_request_voted'
+  | 'page_scroll_depth'
+  | 'page_active_time'
+  | 'bout_engagement_depth';
 
 export function trackEvent(event: AnalyticsEvent, properties?: EventProperties) {
   if (typeof window === 'undefined') return;

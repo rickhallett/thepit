@@ -23,12 +23,14 @@ type MetricsOpts struct {
 
 // MetricsData holds all computed metrics for JSON output.
 type MetricsData struct {
-	Period    string        `json:"period"`
-	Generated time.Time     `json:"generated"`
-	Bouts     BoutMetrics   `json:"bouts"`
-	Users     UserMetrics   `json:"users"`
-	Credits   CreditMetrics `json:"credits"`
-	Errors    ErrorMetrics  `json:"errors"`
+	Period    string          `json:"period"`
+	Generated time.Time       `json:"generated"`
+	Bouts     BoutMetrics     `json:"bouts"`
+	Users     UserMetrics     `json:"users"`
+	Credits   CreditMetrics   `json:"credits"`
+	Errors    ErrorMetrics    `json:"errors"`
+	Pages     PageMetrics     `json:"pages"`
+	Referrals ReferralMetrics `json:"referrals"`
 }
 
 // BoutMetrics holds bout-related metrics.
@@ -56,6 +58,34 @@ type CreditMetrics struct {
 type ErrorMetrics struct {
 	TotalErrors int64   `json:"total_errors"`
 	ErrorRate   float64 `json:"error_rate_pct"`
+}
+
+// PageMetrics holds page view analytics.
+type PageMetrics struct {
+	TotalViews     int64     `json:"total_views"`
+	UniqueVisitors int64     `json:"unique_visitors"`
+	AvgPerHr       float64   `json:"avg_per_hour"`
+	TopPages       []TopPage `json:"top_pages,omitempty"`
+}
+
+// TopPage represents a frequently-visited path.
+type TopPage struct {
+	Path  string `json:"path"`
+	Views int64  `json:"views"`
+}
+
+// ReferralMetrics holds referral funnel data.
+type ReferralMetrics struct {
+	TotalReferrals    int64     `json:"total_referrals"`
+	CreditedReferrals int64     `json:"credited_referrals"`
+	ConversionRate    float64   `json:"conversion_rate_pct"`
+	TopCodes          []TopCode `json:"top_codes,omitempty"`
+}
+
+// TopCode represents a top-performing referral code.
+type TopCode struct {
+	Code      string `json:"code"`
+	Referrals int64  `json:"referrals"`
 }
 
 // RunMetrics computes and displays time-series metrics.
@@ -108,6 +138,54 @@ func RunMetrics(cfg *config.Config, opts MetricsOpts) error {
 		data.Errors.ErrorRate = float64(data.Bouts.Errored) / float64(data.Bouts.Total) * 100
 	}
 
+	// Page view metrics (table may not exist yet — queries fail gracefully via QueryVal).
+	conn.QueryVal(ctx, &data.Pages.TotalViews,
+		`SELECT COUNT(*) FROM page_views WHERE created_at >= NOW() - $1::interval`, interval)
+	conn.QueryVal(ctx, &data.Pages.UniqueVisitors,
+		`SELECT COUNT(DISTINCT session_id) FROM page_views WHERE created_at >= NOW() - $1::interval`, interval)
+	if hours > 0 {
+		data.Pages.AvgPerHr = float64(data.Pages.TotalViews) / hours
+	}
+
+	// Top 5 pages by view count.
+	pageRows2, err := conn.DB.QueryContext(ctx,
+		`SELECT path, COUNT(*) as views FROM page_views
+		 WHERE created_at >= NOW() - $1::interval
+		 GROUP BY path ORDER BY views DESC LIMIT 5`, interval)
+	if err == nil {
+		defer pageRows2.Close()
+		for pageRows2.Next() {
+			var tp TopPage
+			if pageRows2.Scan(&tp.Path, &tp.Views) == nil {
+				data.Pages.TopPages = append(data.Pages.TopPages, tp)
+			}
+		}
+	}
+
+	// Referral funnel metrics.
+	conn.QueryVal(ctx, &data.Referrals.TotalReferrals,
+		`SELECT COUNT(*) FROM referrals WHERE created_at >= NOW() - $1::interval`, interval)
+	conn.QueryVal(ctx, &data.Referrals.CreditedReferrals,
+		`SELECT COUNT(*) FROM referrals WHERE credited = true AND created_at >= NOW() - $1::interval`, interval)
+	if data.Referrals.TotalReferrals > 0 {
+		data.Referrals.ConversionRate = float64(data.Referrals.CreditedReferrals) / float64(data.Referrals.TotalReferrals) * 100
+	}
+
+	// Top 5 referral codes.
+	codeRows2, err := conn.DB.QueryContext(ctx,
+		`SELECT code, COUNT(*) as referrals FROM referrals
+		 WHERE created_at >= NOW() - $1::interval
+		 GROUP BY code ORDER BY referrals DESC LIMIT 5`, interval)
+	if err == nil {
+		defer codeRows2.Close()
+		for codeRows2.Next() {
+			var tc TopCode
+			if codeRows2.Scan(&tc.Code, &tc.Referrals) == nil {
+				data.Referrals.TopCodes = append(data.Referrals.TopCodes, tc)
+			}
+		}
+	}
+
 	if opts.JSON {
 		out, _ := json.MarshalIndent(data, "", "  ")
 		fmt.Println(string(out))
@@ -143,16 +221,39 @@ func RunMetrics(cfg *config.Config, opts MetricsOpts) error {
 		{"Error rate", fmt.Sprintf("%.1f%%", data.Errors.ErrorRate)},
 	}
 
+	pageRows := [][]string{
+		{"Total views", format.Num(data.Pages.TotalViews)},
+		{"Unique visitors", format.Num(data.Pages.UniqueVisitors)},
+		{"Avg/hour", fmt.Sprintf("%.1f", data.Pages.AvgPerHr)},
+	}
+	for _, tp := range data.Pages.TopPages {
+		pageRows = append(pageRows, []string{tp.Path, format.Num(tp.Views)})
+	}
+
+	referralRows := [][]string{
+		{"Total referrals", format.Num(data.Referrals.TotalReferrals)},
+		{"Credited", format.Num(data.Referrals.CreditedReferrals)},
+		{"Conversion", fmt.Sprintf("%.1f%%", data.Referrals.ConversionRate)},
+	}
+	for _, tc := range data.Referrals.TopCodes {
+		referralRows = append(referralRows, []string{tc.Code, format.Num(tc.Referrals)})
+	}
+
 	bt := makeMetricsTable("Bouts", boutRows)
 	ut := makeMetricsTable("Users", userRows)
 	ct := makeMetricsTable("Credits", creditRows)
 	et := makeMetricsTable("Errors", errorRows)
+	pt := makeMetricsTable("Pages", pageRows)
+	rt := makeMetricsTable("Referrals", referralRows)
 
 	row1 := lipgloss.JoinHorizontal(lipgloss.Top, bt, "  ", ut)
 	row2 := lipgloss.JoinHorizontal(lipgloss.Top, ct, "  ", et)
+	row3 := lipgloss.JoinHorizontal(lipgloss.Top, pt, "  ", rt)
 	fmt.Println(row1)
 	fmt.Println()
 	fmt.Println(row2)
+	fmt.Println()
+	fmt.Println(row3)
 	fmt.Println()
 
 	return nil

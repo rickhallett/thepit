@@ -31,6 +31,7 @@ import {
   resolveResponseFormat,
 } from '@/lib/response-formats';
 import { getFormString } from '@/lib/form-utils';
+import { log } from '@/lib/logger';
 
 /** Resolve the app URL for redirects (e.g. Stripe checkout success/cancel). */
 function getAppUrl(): string {
@@ -225,6 +226,7 @@ export async function grantTestCredits() {
     credits: CREDITS_ADMIN_GRANT,
   });
 
+  log.info('audit', { action: 'grant_test_credits', userId, credits: CREDITS_ADMIN_GRANT });
   redirect('/arena?credits=granted');
 }
 
@@ -241,6 +243,7 @@ export async function archiveAgent(agentId: string) {
     .set({ archived: true })
     .where(eq(agents.id, agentId));
 
+  log.info('audit', { action: 'archive_agent', userId, agentId });
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
 
@@ -257,6 +260,7 @@ export async function restoreAgent(agentId: string) {
     .set({ archived: false })
     .where(eq(agents.id, agentId));
 
+  log.info('audit', { action: 'restore_agent', userId, agentId });
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
 

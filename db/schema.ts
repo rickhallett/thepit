@@ -338,6 +338,34 @@ export const featureRequestVotes = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// Page views – server-side analytics for all non-API page loads
+// ---------------------------------------------------------------------------
+
+export const pageViews = pgTable('page_views', {
+  id: serial('id').primaryKey(),
+  path: varchar('path', { length: 512 }).notNull(),
+  userId: varchar('user_id', { length: 128 }),
+  sessionId: varchar('session_id', { length: 32 }).notNull(),
+  referrer: varchar('referrer', { length: 1024 }),
+  userAgent: varchar('user_agent', { length: 512 }),
+  ipHash: varchar('ip_hash', { length: 66 }),
+  utmSource: varchar('utm_source', { length: 128 }),
+  utmMedium: varchar('utm_medium', { length: 128 }),
+  utmCampaign: varchar('utm_campaign', { length: 128 }),
+  country: varchar('country', { length: 2 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  pathCreatedIdx: index('page_views_path_created_idx').on(
+    table.path,
+    table.createdAt,
+  ),
+  sessionIdx: index('page_views_session_idx').on(table.sessionId),
+  createdAtIdx: index('page_views_created_at_idx').on(table.createdAt),
+}));
+
+// ---------------------------------------------------------------------------
 // Short links – shareable slugs that resolve to a bout
 // ---------------------------------------------------------------------------
 
