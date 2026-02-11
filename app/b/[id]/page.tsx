@@ -5,7 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 import { Arena } from '@/components/arena';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
-import { ALL_PRESETS, type Agent } from '@/lib/presets';
+import { ALL_PRESETS, ARENA_PRESET_ID, DEFAULT_AGENT_COLOR, DEFAULT_ARENA_MAX_TURNS, type Agent } from '@/lib/presets';
 import { getReactionCounts } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
@@ -30,20 +30,20 @@ export default async function ReplayPage({
   }
 
   let preset = ALL_PRESETS.find((item) => item.id === bout.presetId);
-  if (!preset && bout.presetId === 'arena' && bout.agentLineup) {
+  if (!preset && bout.presetId === ARENA_PRESET_ID && bout.agentLineup) {
     const lineup: Agent[] = bout.agentLineup.map((agent) => ({
       id: agent.id,
       name: agent.name,
       systemPrompt: agent.systemPrompt,
-      color: agent.color ?? '#f8fafc',
+      color: agent.color ?? DEFAULT_AGENT_COLOR,
       avatar: agent.avatar,
     }));
     preset = {
-      id: 'arena',
+      id: ARENA_PRESET_ID,
       name: 'Arena Mode',
       description: 'Custom lineup',
       tier: 'free',
-      maxTurns: 12,
+      maxTurns: DEFAULT_ARENA_MAX_TURNS,
       agents: lineup,
     };
   }

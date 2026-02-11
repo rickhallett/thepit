@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm';
 import { requireDb } from '@/db';
 import { agents, bouts, users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
-import { ARENA_PRESET_ID, PRESETS } from '@/lib/presets';
+import { ARENA_PRESET_ID, getPresetById } from '@/lib/presets';
 import {
   applyCreditDelta,
   CREDITS_ADMIN_ENABLED,
@@ -32,10 +32,18 @@ import {
 } from '@/lib/response-formats';
 import { getFormString } from '@/lib/form-utils';
 
+/** Resolve the app URL for redirects (e.g. Stripe checkout success/cancel). */
+function getAppUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.APP_URL ??
+    'http://localhost:3000'
+  );
+}
+
 /** Create a bout record and redirect to its streaming page. */
 export async function createBout(presetId: string, formData?: FormData) {
-  const presetExists = PRESETS.some((preset) => preset.id === presetId);
-  if (!presetExists) {
+  if (!getPresetById(presetId)) {
     throw new Error('Invalid preset.');
   }
 
@@ -163,10 +171,7 @@ export async function createCreditCheckout(formData: FormData) {
     throw new Error('Payment service unavailable.');
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.APP_URL ??
-    'http://localhost:3000';
+  const appUrl = getAppUrl();
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -336,10 +341,7 @@ export async function createSubscriptionCheckout(formData: FormData) {
   await ensureUserRecord(userId);
   const customerId = await getOrCreateStripeCustomer(userId);
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.APP_URL ??
-    'http://localhost:3000';
+  const appUrl = getAppUrl();
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
@@ -378,10 +380,7 @@ export async function createBillingPortal() {
   await ensureUserRecord(userId);
   const customerId = await getOrCreateStripeCustomer(userId);
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.APP_URL ??
-    'http://localhost:3000';
+  const appUrl = getAppUrl();
 
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,

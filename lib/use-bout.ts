@@ -16,7 +16,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { parseJsonEventStream, uiMessageChunkSchema } from 'ai';
 
-import type { Preset } from './presets';
+import { DEFAULT_AGENT_COLOR, type Preset } from './presets';
 
 export type BoutMessage = {
   id: string;
@@ -78,7 +78,7 @@ export function useBout({
         turn: entry.turn,
         agentId: entry.agentId,
         agentName: entry.agentName ?? agent?.name ?? entry.agentId,
-        color: agent?.color ?? '#f8fafc',
+        color: agent?.color ?? DEFAULT_AGENT_COLOR,
         text: entry.text,
       };
     });
@@ -217,7 +217,7 @@ export function useBout({
             turn,
             agentId: data.agentId ?? 'agent',
             agentName: data.agentName ?? 'Agent',
-            color: data.color ?? '#f8fafc',
+            color: data.color ?? DEFAULT_AGENT_COLOR,
           });
           return;
         }

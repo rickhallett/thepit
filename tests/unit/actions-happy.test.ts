@@ -115,13 +115,18 @@ vi.mock('@/lib/tier', () => ({
   SUBSCRIPTIONS_ENABLED: false,
 }));
 
-vi.mock('@/lib/presets', () => ({
-  PRESETS: [
+vi.mock('@/lib/presets', () => {
+  const presets = [
     { id: 'darwin-special', name: 'Darwin', agents: [], maxTurns: 12, tier: 'free' },
     { id: 'arena', name: 'Arena', agents: [], maxTurns: 12, tier: 'free' },
-  ],
-  ARENA_PRESET_ID: 'arena',
-}));
+  ];
+  const presetMap = new Map(presets.map((p) => [p.id, p]));
+  return {
+    PRESETS: presets,
+    ARENA_PRESET_ID: 'arena',
+    getPresetById: (id: string) => presetMap.get(id),
+  };
+});
 
 vi.mock('@/lib/credit-catalog', () => ({
   CREDIT_PACKAGES: [
