@@ -53,7 +53,7 @@ const LANES: Lane[] = [
       { label: 'Structured agent builder', status: 'done', detail: 'Archetype, tone, quirks, goals, fears' },
       { label: 'Prompt lineage tracking', status: 'done', detail: 'Parent/child agent genealogy' },
       { label: 'Creator profiles', status: 'active', detail: 'Public pages with agent portfolio and stats' },
-      { label: 'Remix rewards', status: 'active', detail: 'Credits for remixing and being remixed' },
+      { label: 'Remix rewards', status: 'done', detail: 'Credits for remixing and being remixed' },
       { label: 'Agent marketplace', status: 'planned', detail: 'Browse, fork, and trade agent prompts' },
       { label: 'Social graph', status: 'planned', detail: 'Follow creators, get notified on new agents' },
       { label: 'Collaborative agents', status: 'planned', detail: 'Multi-author agent construction' },
@@ -69,7 +69,7 @@ const LANES: Lane[] = [
     items: [
       { label: 'Behavioral data capture', status: 'done', detail: 'Turn-level transcript + reaction logging' },
       { label: 'Anonymized export pipeline', status: 'done', detail: 'Salted hashes, consent-ready schema' },
-      { label: 'Public dataset exports', status: 'active', detail: 'Downloadable research-grade datasets' },
+      { label: 'Public dataset exports', status: 'done', detail: 'Downloadable research-grade datasets' },
       { label: 'Behavioral insights dashboard', status: 'planned', detail: 'Aggregate persona dynamics visualization' },
       { label: 'Cross-model comparison', status: 'planned', detail: 'Same prompts, different models, measured delta' },
       { label: 'Peer-reviewed paper', status: 'planned', detail: 'Multi-agent persona emergence in constrained debate' },
