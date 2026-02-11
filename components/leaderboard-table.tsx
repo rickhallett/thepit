@@ -122,7 +122,7 @@ export function LeaderboardTable({
           <select
             value={presetFilter}
             onChange={(event) => setPresetFilter(event.target.value)}
-            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-52"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-52"
           >
             <option value="all">All presets</option>
             {presetOptions.map((preset) => (
@@ -139,7 +139,7 @@ export function LeaderboardTable({
             onChange={(event) =>
               setSourceFilter(event.target.value as 'all' | 'preset' | 'custom')
             }
-            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-40"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-40"
           >
             <option value="preset">Preset</option>
             <option value="custom">Custom</option>
