@@ -112,6 +112,48 @@ func TestMicroCreditsCeiling(t *testing.T) {
 	}
 }
 
+func TestResponseLengthTokens(t *testing.T) {
+	expected := map[string]int{
+		"short":    120,
+		"standard": 200,
+		"long":     320,
+	}
+	if len(ResponseLengthTokens) != len(expected) {
+		t.Errorf("ResponseLengthTokens has %d entries, want %d", len(ResponseLengthTokens), len(expected))
+	}
+	for k, want := range expected {
+		got, ok := ResponseLengthTokens[k]
+		if !ok {
+			t.Errorf("ResponseLengthTokens missing key %q", k)
+			continue
+		}
+		if got != want {
+			t.Errorf("ResponseLengthTokens[%q] = %d, want %d", k, got, want)
+		}
+	}
+}
+
+func TestResponseLengthOutputPerTurn(t *testing.T) {
+	expected := map[string]int{
+		"short":    80,
+		"standard": 120,
+		"long":     180,
+	}
+	if len(ResponseLengthOutputPerTurn) != len(expected) {
+		t.Errorf("ResponseLengthOutputPerTurn has %d entries, want %d", len(ResponseLengthOutputPerTurn), len(expected))
+	}
+	for k, want := range expected {
+		got, ok := ResponseLengthOutputPerTurn[k]
+		if !ok {
+			t.Errorf("ResponseLengthOutputPerTurn missing key %q", k)
+			continue
+		}
+		if got != want {
+			t.Errorf("ResponseLengthOutputPerTurn[%q] = %d, want %d", k, got, want)
+		}
+	}
+}
+
 func TestAllModelsExist(t *testing.T) {
 	expected := []string{
 		"claude-haiku-4-5-20251001",

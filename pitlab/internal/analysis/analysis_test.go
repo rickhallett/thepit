@@ -138,6 +138,71 @@ func TestReactionDistribution(t *testing.T) {
 	}
 }
 
+func TestWinnerStatsEmpty(t *testing.T) {
+	ds, err := dataset.Parse([]byte(`{"exportVersion":"1.0","generatedAt":"2026-01-01T00:00:00Z","bouts":[],"reactions":[],"votes":[],"agents":[]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	records := WinnerStats(ds)
+	if len(records) != 0 {
+		t.Errorf("WinnerStats on empty dataset returned %d records, want 0", len(records))
+	}
+}
+
+func TestPositionBiasEmpty(t *testing.T) {
+	ds, err := dataset.Parse([]byte(`{"exportVersion":"1.0","generatedAt":"2026-01-01T00:00:00Z","bouts":[],"reactions":[],"votes":[],"agents":[]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	stats := PositionBias(ds)
+	// With no voted bouts, the function still returns a single zero-valued entry
+	// for position 0 (the loop runs 0..maxPos where maxPos defaults to 0).
+	if len(stats) != 1 {
+		t.Errorf("PositionBias on empty dataset returned %d stats, want 1", len(stats))
+	}
+	if len(stats) == 1 && stats[0].Bouts != 0 {
+		t.Errorf("PositionBias[0].Bouts = %d, want 0", stats[0].Bouts)
+	}
+}
+
+func TestEngagementByTurnEmpty(t *testing.T) {
+	ds, err := dataset.Parse([]byte(`{"exportVersion":"1.0","generatedAt":"2026-01-01T00:00:00Z","bouts":[],"reactions":[],"votes":[],"agents":[]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	engagement := EngagementByTurn(ds)
+	// With no reactions or bouts, the function still returns a single zero-valued
+	// entry for turn 0 (the loop runs 0..maxTurn where maxTurn defaults to 0).
+	if len(engagement) != 1 {
+		t.Errorf("EngagementByTurn on empty dataset returned %d entries, want 1", len(engagement))
+	}
+	if len(engagement) == 1 && engagement[0].Reactions != 0 {
+		t.Errorf("EngagementByTurn[0].Reactions = %d, want 0", engagement[0].Reactions)
+	}
+}
+
+func TestPresetPopularityEmpty(t *testing.T) {
+	ds, err := dataset.Parse([]byte(`{"exportVersion":"1.0","generatedAt":"2026-01-01T00:00:00Z","bouts":[],"reactions":[],"votes":[],"agents":[]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	stats := PresetPopularity(ds)
+	if len(stats) != 0 {
+		t.Errorf("PresetPopularity on empty dataset returned %d stats, want 0", len(stats))
+	}
+}
+
+func TestReactionDistributionEmpty(t *testing.T) {
+	ds, err := dataset.Parse([]byte(`{"exportVersion":"1.0","generatedAt":"2026-01-01T00:00:00Z","bouts":[],"reactions":[],"votes":[],"agents":[]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	dist := ReactionDistribution(ds)
+	if len(dist) != 0 {
+		t.Errorf("ReactionDistribution on empty dataset returned %d entries, want 0", len(dist))
+	}
+}
+
 func TestDescribe(t *testing.T) {
 	vals := []float64{2, 4, 4, 4, 5, 5, 7, 9}
 	d := Describe(vals)

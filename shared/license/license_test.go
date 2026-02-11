@@ -260,6 +260,124 @@ func TestVerifyRejectsInvalidPublicKey(t *testing.T) {
 	}
 }
 
+func TestRequireLabTierSuccess(t *testing.T) {
+	pub, priv := generateTestKeys(t)
+
+	token, err := Sign(priv, "user_lab", "lab")
+	if err != nil {
+		t.Fatalf("Sign: %v", err)
+	}
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "license.jwt")
+	if err := SaveToFile(path, token); err != nil {
+		t.Fatalf("SaveToFile: %v", err)
+	}
+
+	t.Setenv("PITLAB_LICENSE", path)
+
+	claims, err := RequireLabTier(pub)
+	if err != nil {
+		t.Fatalf("RequireLabTier: %v", err)
+	}
+	if claims.Sub != "user_lab" {
+		t.Errorf("Sub = %q, want user_lab", claims.Sub)
+	}
+	if claims.Tier != "lab" {
+		t.Errorf("Tier = %q, want lab", claims.Tier)
+	}
+}
+
+func TestRequireLabTierWrongTier(t *testing.T) {
+	pub, priv := generateTestKeys(t)
+
+	// Sign with "free" tier instead of "lab".
+	token, err := Sign(priv, "user_free", "free")
+	if err != nil {
+		t.Fatalf("Sign: %v", err)
+	}
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "license.jwt")
+	if err := SaveToFile(path, token); err != nil {
+		t.Fatalf("SaveToFile: %v", err)
+	}
+
+	t.Setenv("PITLAB_LICENSE", path)
+
+	_, err = RequireLabTier(pub)
+	if err == nil {
+		t.Error("expected error for non-lab tier")
+	}
+	if !strings.Contains(err.Error(), "lab tier required") {
+		t.Errorf("error should mention tier requirement, got: %v", err)
+	}
+}
+
+func TestRequireLabTierMissingFile(t *testing.T) {
+	pub, _ := generateTestKeys(t)
+	t.Setenv("PITLAB_LICENSE", "/tmp/nonexistent_license_file.jwt")
+
+	_, err := RequireLabTier(pub)
+	if err == nil {
+		t.Error("expected error for missing license file")
+	}
+	if !strings.Contains(err.Error(), "lab tier license required") {
+		t.Errorf("error should mention license required, got: %v", err)
+	}
+}
+
+func TestRequireLabTierNoPath(t *testing.T) {
+	pub, _ := generateTestKeys(t)
+	t.Setenv("PITLAB_LICENSE", "")
+	// Also clear HOME to force DefaultLicensePath to return ""
+	t.Setenv("HOME", "")
+
+	_, err := RequireLabTier(pub)
+	if err == nil {
+		t.Error("expected error when license path cannot be determined")
+	}
+	if !strings.Contains(err.Error(), "cannot determine license path") {
+		t.Errorf("error should mention path determination, got: %v", err)
+	}
+}
+
+func TestRequireLabTierExpired(t *testing.T) {
+	pub, priv := generateTestKeys(t)
+
+	// Manually create an expired lab token.
+	claims := Claims{
+		Sub:  "user_expired",
+		Tier: "lab",
+		Iss:  "thepit.cloud",
+		Iat:  time.Now().Add(-48 * time.Hour).Unix(),
+		Exp:  time.Now().Add(-1 * time.Hour).Unix(),
+	}
+	payloadJSON, _ := json.Marshal(claims)
+	headerB64 := b64.EncodeToString(headerJSON)
+	payloadB64 := b64.EncodeToString(payloadJSON)
+	signingInput := headerB64 + "." + payloadB64
+	sig := ed25519.Sign(priv, []byte(signingInput))
+	sigB64 := b64.EncodeToString(sig)
+	token := []byte(signingInput + "." + sigB64)
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "license.jwt")
+	if err := SaveToFile(path, token); err != nil {
+		t.Fatalf("SaveToFile: %v", err)
+	}
+
+	t.Setenv("PITLAB_LICENSE", path)
+
+	_, err := RequireLabTier(pub)
+	if err == nil {
+		t.Error("expected error for expired license")
+	}
+	if !strings.Contains(err.Error(), "invalid or expired license") {
+		t.Errorf("error should mention expired, got: %v", err)
+	}
+}
+
 func TestClaimsIsExpired(t *testing.T) {
 	expired := Claims{Exp: time.Now().Add(-time.Hour).Unix()}
 	if !expired.IsExpired() {
