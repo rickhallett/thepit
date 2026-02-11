@@ -125,7 +125,6 @@ export const estimateBoutCostGbp = (
     return Math.max(cost, BYOK_MIN_GBP);
   }
   const pricing = getModelPricing(modelId);
-  if (!pricing) return 0;
   const { inputTokens, outputTokens } = estimateBoutTokens(
     turns,
     outputTokensPerTurn,
@@ -146,7 +145,6 @@ export const computeCostGbp = (
     return Math.max(cost, BYOK_MIN_GBP);
   }
   const pricing = getModelPricing(modelId);
-  if (!pricing) return 0;
   const raw =
     (inputTokens * pricing.in + outputTokens * pricing.out) / 1_000_000;
   return raw * (1 + CREDIT_PLATFORM_MARGIN);

@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { spec } from '@/lib/openapi';
 import { getUserTier, SUBSCRIPTIONS_ENABLED, TIER_CONFIG } from '@/lib/tier';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { errorResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 /**
  * Serve the OpenAPI spec as JSON. Gated behind Lab tier.
@@ -23,7 +23,7 @@ export async function GET() {
 
   const rateCheck = checkRateLimit(RATE_LIMIT, userId);
   if (!rateCheck.success) {
-    return errorResponse(API_ERRORS.RATE_LIMITED, 429);
+    return rateLimitResponse(rateCheck);
   }
 
   if (SUBSCRIPTIONS_ENABLED) {
