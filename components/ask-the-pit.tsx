@@ -115,7 +115,7 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
       </button>
 
       {open && (
-        <div className="fixed bottom-20 right-6 z-50 flex h-[420px] w-[340px] flex-col overflow-hidden rounded-lg border-2 border-foreground/60 bg-background shadow-2xl">
+        <div className="fixed bottom-20 right-6 z-50 flex h-[min(420px,calc(100dvh-120px))] w-[min(340px,calc(100vw-48px))] flex-col overflow-hidden rounded-lg border-2 border-foreground/60 bg-background shadow-2xl">
           <div className="border-b-2 border-foreground/40 px-4 py-3">
             <p className="text-xs uppercase tracking-[0.3em] text-accent">
               Ask The Pit

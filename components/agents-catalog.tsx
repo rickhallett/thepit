@@ -101,7 +101,7 @@ export function AgentsCatalog({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Agent, preset, id"
-            className="w-64 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none sm:w-64"
           />
         </label>
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
@@ -109,7 +109,7 @@ export function AgentsCatalog({
           <select
             value={presetFilter}
             onChange={(event) => setPresetFilter(event.target.value)}
-            className="w-52 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-52"
           >
             <option value="all">All presets</option>
             {presets.map((preset) => (
@@ -124,7 +124,7 @@ export function AgentsCatalog({
           <select
             value={tierFilter}
             onChange={(event) => setTierFilter(event.target.value)}
-            className="w-40 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-40"
           >
             <option value="all">All</option>
             <option value="free">Free</option>
@@ -156,7 +156,7 @@ export function AgentsCatalog({
                 }
               }}
             >
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm uppercase tracking-[0.25em]">
                   {agent.avatar ? `${agent.avatar} ` : ''}{agent.name}
                 </p>
@@ -165,7 +165,7 @@ export function AgentsCatalog({
                 </p>
               </div>
               <span
-                className="rounded-full border-2 px-3 py-1 text-[10px] uppercase tracking-[0.25em]"
+                className="max-w-[120px] shrink-0 truncate rounded-full border-2 px-3 py-1 text-[10px] uppercase tracking-[0.25em]"
                 style={{
                   borderColor: agent.color ?? DEFAULT_AGENT_COLOR,
                   color: agent.color ?? DEFAULT_AGENT_COLOR,

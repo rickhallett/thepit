@@ -52,7 +52,7 @@ export function PlayerLeaderboardTable({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Player name"
-            className="w-64 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none sm:w-64"
           />
         </label>
         <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-muted">
@@ -65,7 +65,8 @@ export function PlayerLeaderboardTable({
           No player activity yet.
         </div>
       ) : (
-        <div className="overflow-x-auto border-2 border-foreground/60">
+        <div className="relative">
+          <div className="overflow-x-auto border-2 border-foreground/60">
           <div className="grid min-w-[640px] grid-cols-[minmax(0,2fr)_90px_90px_90px_90px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
             <span>Player</span>
             <button
@@ -122,6 +123,8 @@ export function PlayerLeaderboardTable({
               </span>
             </div>
           ))}
+          </div>
+          <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden" />
         </div>
       )}
     </section>
