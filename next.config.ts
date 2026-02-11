@@ -1,5 +1,9 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Content-Security-Policy directives.
 // Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
@@ -38,6 +42,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Pin Turbopack root to this project directory to prevent it from
+  // walking up to a parent lockfile (e.g. ~/code/bun.lock).
+  turbopack: {
+    root: __dirname,
+  },
   async headers() {
     return [
       {
@@ -55,7 +64,14 @@ export default withSentryConfig(nextConfig, {
   // Upload source maps for readable stack traces in Sentry.
   // Requires SENTRY_AUTH_TOKEN and SENTRY_ORG/SENTRY_PROJECT env vars.
   silent: !process.env.CI,
-  disableLogger: true,
+
+  // Treeshake Sentry debug logging from production bundles.
+  // Note: only effective with webpack builds; Turbopack ignores this.
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 
   // Opt out of Sentry's telemetry collection.
   telemetry: false,
