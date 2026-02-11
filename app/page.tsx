@@ -218,6 +218,8 @@ export default async function LandingPage() {
               name="Free"
               price={0}
               period=""
+              href="/sign-up?redirect_url=/arena"
+              cta="Get Started"
               features={[
                 '3 bouts/day (15 lifetime)',
                 'Haiku model',
@@ -230,6 +232,8 @@ export default async function LandingPage() {
               price={3}
               period="/mo"
               featured
+              href="/sign-up?redirect_url=/arena#upgrade"
+              cta="Subscribe"
               features={[
                 '15 bouts/day',
                 'Haiku + Sonnet',
@@ -242,6 +246,8 @@ export default async function LandingPage() {
               name="Pit Lab"
               price={10}
               period="/mo"
+              href="/sign-up?redirect_url=/arena#upgrade"
+              cta="Subscribe"
               features={[
                 '100 bouts/day',
                 'All models (incl. Opus)',
@@ -394,12 +400,16 @@ function PlanCard({
   period,
   features,
   featured = false,
+  href,
+  cta,
 }: {
   name: string;
   price: number;
   period: string;
   features: string[];
   featured?: boolean;
+  href: string;
+  cta: string;
 }) {
   return (
     <div
@@ -434,14 +444,14 @@ function PlanCard({
         ))}
       </ul>
       <Link
-        href="/arena"
+        href={href}
         className={`mt-auto border-2 px-4 py-3 text-center text-xs uppercase tracking-[0.3em] transition ${
           featured
             ? 'border-accent text-accent hover:bg-accent hover:text-background'
             : 'border-foreground/50 text-foreground/80 hover:border-foreground'
         }`}
       >
-        {price === 0 ? 'Get Started' : 'Subscribe'}
+        {cta}
       </Link>
     </div>
   );

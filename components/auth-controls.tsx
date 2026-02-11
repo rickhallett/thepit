@@ -10,6 +10,28 @@ import {
 
 import { cn } from '@/lib/cn';
 
+/** Icon for the subscription menu item inside the UserButton dropdown. */
+function SubscriptionIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ width: '1em', height: '1em' }}
+    >
+      <path d="M2 10h20" />
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M6 16h.01" />
+      <path d="M10 16h4" />
+    </svg>
+  );
+}
+
+/** Auth controls with sign-in/up buttons (signed out) or UserButton with subscription link (signed in). */
 export function AuthControls({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center gap-2', className)}>
@@ -38,7 +60,15 @@ export function AuthControls({ className }: { className?: string }) {
               avatarBox: 'h-8 w-8 rounded-full border-2 border-foreground/60',
             },
           }}
-        />
+        >
+          <UserButton.MenuItems>
+            <UserButton.Link
+              label="Manage subscription"
+              labelIcon={<SubscriptionIcon />}
+              href="/arena#upgrade"
+            />
+          </UserButton.MenuItems>
+        </UserButton>
       </SignedIn>
     </div>
   );
