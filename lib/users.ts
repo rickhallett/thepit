@@ -98,6 +98,8 @@ export async function ensureUserRecord(userId: string) {
     console.warn('Failed to fetch Clerk profile for user', userId, error);
   }
 
+  // Use onConflictDoNothing to handle concurrent insert races — two
+  // simultaneous requests for the same new user won't throw a PK violation.
   const [created] = await db
     .insert(users)
     .values({
@@ -106,7 +108,19 @@ export async function ensureUserRecord(userId: string) {
       displayName,
       imageUrl,
     })
+    .onConflictDoNothing()
     .returning();
+
+  if (!created) {
+    // Another request inserted first — re-read the row.
+    const [raced] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    if (!raced) throw new Error(`Failed to ensure user record for ${userId}`);
+    return raced;
+  }
 
   return created;
 }
