@@ -1,5 +1,14 @@
 export const runtime = 'nodejs';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function POST(req: Request) {
   let payload: { name?: string; email?: string; message?: string };
 
@@ -35,14 +44,15 @@ export async function POST(req: Request) {
     body: JSON.stringify({
       from: fromEmail,
       to: [toEmail],
-      subject: `The Pit contact — ${name}`,
-      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p>${message.replace(/\n/g, '<br/>')}</p>`,
+      subject: `The Pit contact — ${name.replace(/[\r\n]+/g, ' ').trim()}`,
+      html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`,
     }),
   });
 
   if (!res.ok) {
     const text = await res.text();
-    return new Response(text || 'Email failed.', { status: 500 });
+    console.error('Resend API error:', text);
+    return new Response('Email delivery failed.', { status: 500 });
   }
 
   return Response.json({ ok: true });

@@ -1,3 +1,6 @@
+// Per-turn reaction counts (heart/fire) for bout turns.
+// Reactions are crowd signals used for research data and social proof.
+
 import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';

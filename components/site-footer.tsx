@@ -19,6 +19,12 @@ export function SiteFooter() {
             Contact
           </Link>
           <Link
+            href="/security"
+            className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+          >
+            Security
+          </Link>
+          <Link
             href="/disclaimer"
             className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
           >

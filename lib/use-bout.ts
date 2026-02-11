@@ -1,3 +1,16 @@
+// Client-side hook for streaming a bout (multi-agent debate) in real time.
+//
+// Connects to /api/run-bout via SSE and renders agent turns as they stream.
+// Uses a "pending message" pattern to simulate a thinking delay: when a new
+// turn arrives, tokens are buffered invisibly for 2-4 seconds (random) before
+// the message appears, creating a natural "thinking..." UX. Once flushed,
+// subsequent text-deltas append to the visible message in real time.
+//
+// State machine (per turn):
+//   data-turn event -> schedulePendingMessage (buffer tokens, show thinking indicator)
+//   [2-4s timeout]  -> flushPendingMessage (make message visible, start streaming)
+//   text-delta      -> append to visible message (or buffer if still pending)
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -77,6 +90,10 @@ export function useBout({
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   const [thinkingAgentId, setThinkingAgentId] = useState<string | null>(null);
+  // Refs for the thinking-delay state machine:
+  // - activeMessageIdRef: the currently visible message receiving text-deltas
+  // - pendingMessageRef:  a message buffering tokens before it becomes visible
+  // - thinkingTimeoutRef: the timer that triggers the pending -> visible transition
   const activeMessageIdRef = useRef<string | null>(null);
   const turnRef = useRef(initialTranscript.length);
   const pendingMessageRef = useRef<{
@@ -137,6 +154,8 @@ export function useBout({
       activeMessageIdRef.current = null;
       clearThinkingTimeout();
 
+      // Random 2-4s delay simulates the agent "thinking" before responding.
+      // Tokens arriving during this window are buffered and flushed all at once.
       const delayMs = Math.floor(2000 + Math.random() * 2000);
       thinkingTimeoutRef.current = window.setTimeout(() => {
         flushPendingMessage();
@@ -145,16 +164,10 @@ export function useBout({
 
     const run = async () => {
       setStatus('streaming');
-      const byokKey =
-        model === 'byok'
-          ? window.sessionStorage.getItem('pit_byok_key')
-          : null;
 
-      // Clear BYOK key from sessionStorage immediately after reading.
-      // Minimizes the XSS exposure window — key is only in memory after this.
-      if (byokKey) {
-        window.sessionStorage.removeItem('pit_byok_key');
-      }
+      // BYOK key is now stashed in an HTTP-only cookie by /api/byok-stash.
+      // The /api/run-bout endpoint reads it directly from the cookie —
+      // the key never touches client-side JS storage.
 
       const payload: Record<string, unknown> = {
         boutId,
@@ -164,9 +177,6 @@ export function useBout({
         length,
         format,
       };
-      if (byokKey) {
-        payload.byokKey = byokKey;
-      }
       const response = await fetch('/api/run-bout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

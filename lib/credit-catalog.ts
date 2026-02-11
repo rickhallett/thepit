@@ -1,3 +1,7 @@
+// Credit pack definitions for the Stripe checkout flow.
+// Each pack has a GBP price, a volume bonus percentage, and a computed credit
+// total. Higher-tier packs give proportionally more credits per pound.
+
 import {
   CREDIT_VALUE_GBP,
   MICRO_PER_CREDIT,
@@ -16,7 +20,6 @@ const BASE_PACKAGES: Array<Omit<CreditPackage, 'credits'>> = [
   { id: 'starter', name: 'Starter', priceGbp: 5, bonusPercent: 0.1 },
   { id: 'plus', name: 'Plus', priceGbp: 15, bonusPercent: 0.2 },
   { id: 'pro', name: 'Pro', priceGbp: 30, bonusPercent: 0.3 },
-  { id: 'studio', name: 'Studio', priceGbp: 60, bonusPercent: 0.4 },
 ];
 
 const baseCreditsForPrice = (priceGbp: number) =>

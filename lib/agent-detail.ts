@@ -1,3 +1,7 @@
+// Agent detail page data: fetches a single agent's full snapshot plus its
+// clone lineage (up to maxDepth generations of parent agents). Falls back to
+// preset definitions when the agent isn't yet in the database.
+
 import { ALL_PRESETS } from '@/lib/presets';
 import { requireDb } from '@/db';
 import { agents } from '@/db/schema';

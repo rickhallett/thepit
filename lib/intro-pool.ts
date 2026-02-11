@@ -1,3 +1,10 @@
+// Community intro credit pool -- a shared pool of credits that drains over time.
+//
+// Creates viral acquisition pressure: new users claim signup bonuses from the
+// pool, and referrers earn bonus credits. The pool drains at a configurable
+// rate per minute even without claims, creating urgency ("claim before it's gone").
+// All claims use atomic SQL to prevent race conditions on concurrent signups.
+
 import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';

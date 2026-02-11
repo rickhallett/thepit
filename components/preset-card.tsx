@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 
 import { FREE_MODEL_ID } from '@/lib/ai';
 import {
@@ -48,6 +48,7 @@ export function PresetCard({
   const [selectedModel, setSelectedModel] = useState(defaultModel);
   const [byokKey, setByokKey] = useState('');
   const [byokError, setByokError] = useState<string | null>(null);
+  const byokStashedRef = useRef(false);
 
   const estimateCreditsForModel = (modelId: string) => {
     const micro = toMicroCredits(estimateBoutCostGbp(preset.maxTurns, modelId));
@@ -74,24 +75,44 @@ export function PresetCard({
       ]
     : [...modelOptions];
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     if (locked) return;
     setByokError(null);
-    if (!showModelSelector) {
-      sessionStorage.removeItem('pit_byok_key');
-      return;
-    }
+    if (!showModelSelector) return;
     if (selectedModel === 'byok') {
+      // If we already stashed the key, allow the form to submit normally
+      if (byokStashedRef.current) {
+        byokStashedRef.current = false;
+        return;
+      }
       const trimmed = byokKey.trim();
       if (!trimmed) {
         event.preventDefault();
         setByokError('BYOK key required.');
         return;
       }
-      sessionStorage.setItem('pit_byok_key', trimmed);
+      // Stash key in HTTP-only cookie (eliminates sessionStorage XSS window)
+      event.preventDefault();
+      try {
+        const res = await fetch('/api/byok-stash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: trimmed }),
+        });
+        if (!res.ok) {
+          setByokError('Failed to prepare key.');
+          return;
+        }
+      } catch {
+        setByokError('Failed to prepare key.');
+        return;
+      }
+      // Re-submit the form now that the key is stashed
+      byokStashedRef.current = true;
+      const form = event.target as HTMLFormElement;
+      form.requestSubmit();
       return;
     }
-    sessionStorage.removeItem('pit_byok_key');
   };
 
   return (
@@ -216,6 +237,18 @@ export function PresetCard({
             disabled={locked}
             required
           />
+          <span className="text-[10px] normal-case tracking-normal text-muted/70">
+            Your key is sent directly to Anthropic&apos;s API over HTTPS. It is
+            never stored, logged, or visible to platform operators.{' '}
+            <a
+              href="https://github.com/rickhallett/thepit/blob/master/app/api/run-bout/route.ts"
+              target="_blank"
+              rel="noreferrer"
+              className="underline transition hover:text-accent"
+            >
+              Verify
+            </a>
+          </span>
           {byokError && (
             <span className="text-[10px] uppercase tracking-[0.25em] text-red-400">
               {byokError}

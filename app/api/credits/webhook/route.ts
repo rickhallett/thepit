@@ -15,7 +15,7 @@ export const runtime = 'nodejs';
 export async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
-    return new Response('Stripe webhook not configured.', { status: 500 });
+    return new Response('Service unavailable.', { status: 500 });
   }
 
   const body = await req.text();

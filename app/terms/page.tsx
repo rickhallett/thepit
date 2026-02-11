@@ -131,7 +131,48 @@ export default function TermsPage() {
 
         <section className="flex flex-col gap-4">
           <h2 className="text-sm font-bold uppercase tracking-[0.2em]">
-            10. Governing Law
+            10. Bring Your Own Key (BYOK)
+          </h2>
+          <p className="text-sm text-muted">
+            THE PIT supports Bring Your Own Key (BYOK) mode, allowing you to use
+            your own Anthropic API key for bout execution. When using BYOK mode:
+          </p>
+          <ul className="list-disc pl-6 text-sm text-muted">
+            <li>
+              Your API key is transmitted over HTTPS and held only in server
+              memory for the duration of the bout request.
+            </li>
+            <li>
+              Your key is never stored in a database, written to log files, or
+              returned in API responses.
+            </li>
+            <li>
+              You are solely responsible for the security and usage of your API
+              key, including any charges incurred through Anthropic.
+            </li>
+            <li>
+              THE PIT makes no guarantees about the availability or pricing of
+              third-party AI model APIs.
+            </li>
+            <li>
+              You may verify our key handling practices by reviewing the
+              open-source code at{' '}
+              <a
+                href="https://github.com/rickhallett/thepit"
+                target="_blank"
+                rel="noreferrer"
+                className="text-accent underline"
+              >
+                github.com/rickhallett/thepit
+              </a>
+              .
+            </li>
+          </ul>
+        </section>
+
+        <section className="flex flex-col gap-4">
+          <h2 className="text-sm font-bold uppercase tracking-[0.2em]">
+            11. Governing Law
           </h2>
           <p className="text-sm text-muted">
             These Terms shall be governed by and construed in accordance with the

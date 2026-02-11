@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm';
 import { requireDb } from '@/db';
 import { agents, bouts } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
-import { PRESETS } from '@/lib/presets';
+import { ARENA_PRESET_ID, PRESETS } from '@/lib/presets';
 import {
   applyCreditDelta,
   CREDITS_ADMIN_ENABLED,
@@ -147,7 +147,7 @@ export async function createArenaBout(formData: FormData) {
   const id = nanoid();
   await db.insert(bouts).values({
     id,
-    presetId: 'arena',
+    presetId: ARENA_PRESET_ID,
     status: 'running',
     transcript: [],
     ownerId: userId ?? null,
@@ -182,7 +182,7 @@ export async function createCreditCheckout(formData: FormData) {
   }
 
   if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('Stripe not configured.');
+    throw new Error('Payment service unavailable.');
   }
 
   const appUrl =

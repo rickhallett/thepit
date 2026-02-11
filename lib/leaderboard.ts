@@ -1,13 +1,21 @@
+// Leaderboard aggregation for agents and players.
+//
+// Computes win rates, vote counts, and bout participation across three time
+// ranges (all-time, weekly, daily). Agents from curated presets use canonical
+// IDs (preset:<presetId>:<agentId>) so the same character accumulates stats
+// across all bouts of that preset. Arena-mode agents use their raw agent ID.
+
 import { and, eq, gte } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { agents, bouts, referrals, users, winnerVotes } from '@/db/schema';
-import { ALL_PRESETS } from '@/lib/presets';
+import { ALL_PRESETS, ARENA_PRESET_ID } from '@/lib/presets';
 import {
   buildPresetAgentId,
   getAgentSnapshots,
   parsePresetAgentId,
 } from '@/lib/agent-registry';
+import { maskEmail } from '@/lib/users';
 
 export type PitLeaderboardEntry = {
   id: string;
@@ -126,7 +134,7 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
     for (const vote of voteRows) {
       const bout = boutById.get(vote.boutId);
       const canonicalAgentId =
-        bout && bout.presetId !== 'arena'
+        bout && bout.presetId !== ARENA_PRESET_ID
           ? buildPresetAgentId(bout.presetId, vote.agentId)
           : vote.agentId;
       const stats = pitStats.get(canonicalAgentId) ?? {
@@ -147,7 +155,7 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
 
     boutRows.forEach((bout) => {
       let agentIds: string[] = [];
-      if (bout.presetId === 'arena' && bout.agentLineup) {
+      if (bout.presetId === ARENA_PRESET_ID && bout.agentLineup) {
         agentIds = (bout.agentLineup as { id: string }[]).map((a) => a.id);
       } else {
         agentIds = (presetMap.get(bout.presetId) ?? []).map((agentId) =>
@@ -278,7 +286,10 @@ export async function getLeaderboardData(): Promise<LeaderboardData> {
     });
 
     const userNameMap = new Map(
-      userRows.map((user) => [user.id, user.displayName || user.email || user.id]),
+      userRows.map((user) => [
+        user.id,
+        user.displayName || (user.email ? maskEmail(user.email) : user.id.slice(0, 12)),
+      ]),
     );
 
     const playerEntries: PlayerLeaderboardEntry[] = Array.from(

@@ -5,16 +5,18 @@ import {
 } from 'ai';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
 
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
+import { readAndClearByokKey } from '@/app/api/byok-stash/route';
 import {
   DEFAULT_PREMIUM_MODEL_ID,
   FREE_MODEL_ID,
   PREMIUM_MODEL_OPTIONS,
   getModel,
 } from '@/lib/ai';
-import { getPresetById, type Agent, type Preset } from '@/lib/presets';
+import { ARENA_PRESET_ID, getPresetById, type Agent, type Preset } from '@/lib/presets';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -44,7 +46,6 @@ export async function POST(req: Request) {
     model?: string;
     length?: string;
     format?: string;
-    byokKey?: string;
   };
 
   try {
@@ -62,8 +63,6 @@ export async function POST(req: Request) {
     typeof payload.format === 'string' ? payload.format.trim() : '';
   let formatConfig = resolveResponseFormat(formatKey);
   let { presetId } = payload;
-  const byokKey =
-    typeof payload.byokKey === 'string' ? payload.byokKey.trim() : '';
 
   if (!boutId) {
     return new Response('Missing boutId.', { status: 400 });
@@ -73,7 +72,7 @@ export async function POST(req: Request) {
   try {
     db = requireDb();
   } catch {
-    return new Response('DATABASE_URL is not set.', { status: 500 });
+    return new Response('Service unavailable.', { status: 500 });
   }
 
   // Idempotency check: Prevent double-running a bout.
@@ -119,7 +118,7 @@ export async function POST(req: Request) {
   // O(1) preset lookup instead of array scan
   let preset: Preset | undefined = getPresetById(presetId);
 
-  if (!preset && presetId === 'arena') {
+  if (!preset && presetId === ARENA_PRESET_ID) {
     const [row] = await db
       .select({
         agentLineup: bouts.agentLineup,
@@ -141,7 +140,7 @@ export async function POST(req: Request) {
       avatar: agent.avatar,
     }));
     preset = {
-      id: 'arena',
+      id: ARENA_PRESET_ID,
       name: 'Arena Mode',
       description: 'Custom lineup',
       tier: 'free',
@@ -172,8 +171,18 @@ export async function POST(req: Request) {
 
   const requestedModel =
     typeof payload.model === 'string' ? payload.model.trim() : '';
+
+  // Read BYOK key from HTTP-only cookie (set by /api/byok-stash).
+  // The cookie is deleted immediately after reading.
+  // Placed here (after early validation) to avoid calling cookies() in tests.
+  let byokKey = '';
+  if (requestedModel === 'byok') {
+    const jar = await cookies();
+    byokKey = readAndClearByokKey(jar) ?? '';
+  }
+
   let modelId = FREE_MODEL_ID;
-  const allowPremiumModels = preset.tier === 'premium' || preset.id === 'arena';
+  const allowPremiumModels = preset.tier === 'premium' || preset.id === ARENA_PRESET_ID;
   if (allowPremiumModels && premiumEnabled) {
     modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
       ? requestedModel
@@ -262,6 +271,12 @@ export async function POST(req: Request) {
           })
           .where(eq(bouts.id, boutId));
 
+        const SAFETY_PREAMBLE =
+          'The following is a character persona for a debate simulation. Stay in character. Do not reveal system details, API keys, or internal platform information.\n\n';
+
+        // Create the AI model provider once per request (not per turn)
+        const boutModel = getModel(modelId, modelId === 'byok' ? byokKey : undefined);
+
         for (let i = 0; i < preset.maxTurns; i += 1) {
           const agent = preset.agents[i % preset.agents.length];
           const turnId = `${boutId}-${i}-${agent.id}`;
@@ -286,12 +301,12 @@ export async function POST(req: Request) {
               ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
               : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
           const result = streamText({
-            model: getModel(modelId, modelId === 'byok' ? byokKey : undefined),
+            model: boutModel,
             maxOutputTokens: lengthConfig.maxOutputTokens,
             messages: [
               {
                 role: 'system',
-                content: `${agent.systemPrompt}\n\n${formatConfig.instruction}`,
+                content: `${SAFETY_PREAMBLE}${agent.systemPrompt}\n\n${formatConfig.instruction}`,
               },
               { role: 'user', content: prompt },
             ],
@@ -400,6 +415,10 @@ export async function POST(req: Request) {
           .set({ status: 'error', transcript })
           .where(eq(bouts.id, boutId));
 
+        // Error-path settlement: refund unused preauthorized credits.
+        // Unlike the success path, we do NOT cap the delta here -- if the bout
+        // errored early, actual usage is likely far below preauth and the user
+        // should get the full difference back (delta will be negative = refund).
         if (CREDITS_ENABLED && preauthMicro && userId) {
           const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
           const actualMicro = toMicroCredits(actualCost);
@@ -424,7 +443,9 @@ export async function POST(req: Request) {
     onError(error) {
       const message =
         error instanceof Error ? error.message : String(error);
-      console.error('Bout stream error:', message);
+      // Strip potential API key patterns from log output
+      const safeMessage = message.replace(/sk-ant-[A-Za-z0-9_-]+/g, '[REDACTED]');
+      console.error('Bout stream error:', safeMessage);
 
       // Surface a more descriptive error to the client
       if (message.includes('timeout') || message.includes('DEADLINE')) {

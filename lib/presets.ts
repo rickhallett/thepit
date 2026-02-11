@@ -1,3 +1,13 @@
+// Preset definitions and normalization for THE PIT's debate scenarios.
+//
+// Presets come from two sources:
+//   - Free presets:    Hand-authored JSON files in /presets/ (11 scenarios)
+//   - Premium presets: Bundled packs (presetsTop5, presetsRemaining6) with
+//                      richer personas and higher model tiers
+//
+// Raw JSON uses snake_case (preset_id, system_prompt). The normalizePreset()
+// function converts to camelCase for internal use.
+
 import darwinSpecial from '@/presets/darwin-special.json';
 import firstContact from '@/presets/first-contact.json';
 import flatshare from '@/presets/flatshare.json';
@@ -11,6 +21,11 @@ import summit from '@/presets/summit.json';
 import writersRoom from '@/presets/writers-room.json';
 import presetsTop5 from '@/presets/presets-top5.json';
 import presetsRemaining6 from '@/presets/presets-remaining6.json';
+
+// Sentinel value used as presetId when users build a custom agent lineup
+// instead of selecting a curated preset. Arena bouts store their lineup in
+// bouts.agentLineup (JSONB) rather than referencing a preset definition.
+export const ARENA_PRESET_ID = 'arena';
 
 export type PresetTier = 'free' | 'premium';
 

@@ -1,3 +1,5 @@
+// Builds a URL to view an EAS attestation on easscan.org (or a custom explorer).
+
 export const buildAttestationUrl = (uid: string) => {
   let base =
     process.env.NEXT_PUBLIC_EAS_SCAN_BASE ??

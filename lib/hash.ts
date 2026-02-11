@@ -1,3 +1,6 @@
+// SHA-256 hashing with universal runtime support (browser via SubtleCrypto,
+// Node.js via crypto module). Returns a 0x-prefixed hex string.
+
 const toHex = (buffer: ArrayBuffer) =>
   Array.from(new Uint8Array(buffer))
     .map((byte) => byte.toString(16).padStart(2, '0'))

@@ -14,7 +14,7 @@ export const runtime = 'nodejs';
 const requireAdmin = (req: Request) => {
   const token = req.headers.get('x-admin-token');
   if (!process.env.ADMIN_SEED_TOKEN) {
-    throw new Error('ADMIN_SEED_TOKEN is not configured.');
+    throw new Error('Not configured.');
   }
   if (!token || token !== process.env.ADMIN_SEED_TOKEN) {
     throw new Error('Unauthorized');
@@ -86,7 +86,8 @@ export async function POST(req: Request) {
             attested += 1;
           }
         } catch (error) {
-          errors.push(`${agentId}: ${(error as Error).message}`);
+          console.error(`Seed agent error [${agentId}]:`, (error as Error).message);
+          errors.push(agentId);
         }
         continue;
       }
@@ -116,11 +117,12 @@ export async function POST(req: Request) {
             .where(eq(agents.id, registration.agentId));
           attested += 1;
         } catch (error) {
-          errors.push(`${agentId}: ${(error as Error).message}`);
+          console.error(`Seed attestation error [${agentId}]:`, (error as Error).message);
+          errors.push(agentId);
         }
       }
     }
   }
 
-  return Response.json({ created, attested, errors });
+  return Response.json({ created, attested, errors: errors.length });
 }

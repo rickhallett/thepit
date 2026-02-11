@@ -1,3 +1,12 @@
+// Structured prompt composition for AI agent personas.
+//
+// Rather than raw freeform system prompts, agents are defined via typed fields
+// (archetype, tone, quirks, etc.) that compose into a system prompt string.
+// This structured approach gives us pre-labelled taxonomy for research analysis
+// and lets users tweak individual personality facets when cloning agents.
+//
+// The composed prompt is consumed by the bout orchestrator (app/api/run-bout).
+
 export type AgentPromptFields = {
   name: string;
   archetype?: string | null;
