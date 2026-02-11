@@ -417,10 +417,10 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
 
     await executePromise;
 
-    // delta = actualMicro - preauthMicro = 1000 - 5000 = -4000 (refund)
+    // refundMicro = preauthMicro - actualMicro = 5000 - 1000 = 4000 (positive refund)
     expect(applyCreditDeltaMock).toHaveBeenCalledWith(
       'user-1',
-      -4000,
+      4000,
       'settlement-error',
       expect.objectContaining({
         boutId: 'b6',

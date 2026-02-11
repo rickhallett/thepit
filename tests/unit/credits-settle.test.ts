@@ -44,9 +44,9 @@ describe('settleCredits', () => {
     process.env.CREDITS_ENABLED = 'true';
   });
 
-  it('H1: refund (actual cost < preauthorized) calls applyCreditDelta with negative delta', async () => {
+  it('H1: refund (actual cost < preauthorized) calls applyCreditDelta with positive delta', async () => {
     // deltaMicro < 0 means refund: the actual cost was less than preauthorized.
-    // settleCredits delegates to applyCreditDelta for refunds.
+    // settleCredits negates the delta to produce a positive value for applyCreditDelta.
     const transactionValues: unknown[] = [];
 
     mockDb.insert.mockImplementation((table: unknown) => {
@@ -83,50 +83,19 @@ describe('settleCredits', () => {
     expect(transactionValues).toHaveLength(1);
     expect(transactionValues[0]).toMatchObject({
       userId: 'user-1',
-      deltaMicro: -200,
+      deltaMicro: 200,
       source: 'settle-refund',
     });
   });
 
-  it('H2: zero delta (exact match) does nothing', async () => {
-    // deltaMicro === 0 falls into the else branch (deltaMicro <= 0).
-    // applyCreditDelta is called with 0 delta — no balance change.
-    const transactionValues: unknown[] = [];
-
-    mockDb.insert.mockImplementation((table: unknown) => {
-      if (table === creditTransactionsTable) {
-        return {
-          values: vi.fn().mockImplementation((v) => {
-            transactionValues.push(v);
-            return Promise.resolve(undefined);
-          }),
-        };
-      }
-      return {
-        values: vi.fn().mockReturnValue({
-          returning: vi.fn().mockResolvedValue([]),
-        }),
-      };
-    });
-
-    mockDb.update.mockImplementation(() => ({
-      set: () => ({
-        where: () => ({
-          returning: vi.fn().mockResolvedValue([{ balanceMicro: 500 }]),
-        }),
-      }),
-    }));
-
+  it('H2: zero delta (exact match) is a no-op', async () => {
+    // deltaMicro === 0 means exact match: nothing to settle.
     const { settleCredits } = await loadCredits();
     await settleCredits('user-2', 0, 'settle-exact', { boutId: 'bout-2' });
 
-    // Zero delta goes through applyCreditDelta path (delta <= 0)
-    expect(transactionValues).toHaveLength(1);
-    expect(transactionValues[0]).toMatchObject({
-      userId: 'user-2',
-      deltaMicro: 0,
-      source: 'settle-exact',
-    });
+    // No DB calls — exact match means no settlement needed
+    expect(mockDb.insert).not.toHaveBeenCalled();
+    expect(mockDb.update).not.toHaveBeenCalled();
   });
 
   it('H3: additional charge with sufficient balance — atomic UPDATE succeeds', async () => {
@@ -248,6 +217,57 @@ describe('settleCredits', () => {
 
     // No result from update → no transaction insert
     expect(mockDb.insert).not.toHaveBeenCalled();
+  });
+
+  it('B1-regression: refund path records POSITIVE delta (credits returned to user)', async () => {
+    // CONTEXT: settleCredits is called with negative deltaMicro when
+    // actual cost < preauthorized amount (e.g., delta = actualMicro - preauthMicro = -200).
+    //
+    // The refund branch delegates to applyCreditDelta which does:
+    //   SQL: GREATEST(0, balance + deltaMicro)
+    //
+    // For a refund, applyCreditDelta must receive a POSITIVE value so the
+    // balance INCREASES. The transaction record should also show a positive
+    // deltaMicro (credits returned).
+    //
+    // BUG: Before fix, settleCredits passed the raw negative deltaMicro
+    // directly to applyCreditDelta, causing balance to DECREASE (double charge).
+    const transactionValues: unknown[] = [];
+
+    mockDb.insert.mockImplementation((table: unknown) => {
+      if (table === creditTransactionsTable) {
+        return {
+          values: vi.fn().mockImplementation((v) => {
+            transactionValues.push(v);
+            return Promise.resolve(undefined);
+          }),
+        };
+      }
+      return {
+        values: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([]),
+        }),
+      };
+    });
+
+    mockDb.update.mockImplementation(() => ({
+      set: () => ({
+        where: () => ({
+          returning: vi.fn().mockResolvedValue([{ balanceMicro: 1200 }]),
+        }),
+      }),
+    }));
+
+    const { settleCredits } = await loadCredits();
+    // Refund scenario: actual cost was 200 micro less than preauth
+    await settleCredits('user-refund', -200, 'settlement', {
+      boutId: 'bout-refund',
+      referenceId: 'bout-refund',
+    });
+
+    expect(transactionValues).toHaveLength(1);
+    // The transaction should record a POSITIVE delta: credits returned to user
+    expect((transactionValues[0] as Record<string, unknown>).deltaMicro).toBe(200);
   });
 
   it('refund stores null referenceId when metadata has non-string referenceId', async () => {
