@@ -114,7 +114,7 @@ export function LeaderboardTable({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Agent name"
-            className="w-64 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none sm:w-64"
           />
         </label>
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
@@ -122,7 +122,7 @@ export function LeaderboardTable({
           <select
             value={presetFilter}
             onChange={(event) => setPresetFilter(event.target.value)}
-            className="w-52 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-52"
           >
             <option value="all">All presets</option>
             {presetOptions.map((preset) => (
@@ -139,7 +139,7 @@ export function LeaderboardTable({
             onChange={(event) =>
               setSourceFilter(event.target.value as 'all' | 'preset' | 'custom')
             }
-            className="w-40 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+            className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-40"
           >
             <option value="preset">Preset</option>
             <option value="custom">Custom</option>
@@ -156,7 +156,8 @@ export function LeaderboardTable({
           No votes yet. Leaderboard will light up once audiences start voting.
         </div>
       ) : (
-        <div className="overflow-x-auto border-2 border-foreground/60">
+        <div className="relative">
+          <div className="overflow-x-auto border-2 border-foreground/60">
           <div className="grid min-w-[820px] grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_70px_80px_70px_90px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
             <span>Agent</span>
             <span>Preset</span>
@@ -245,6 +246,8 @@ export function LeaderboardTable({
               </span>
             </div>
           ))}
+          </div>
+          <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden" />
         </div>
       )}
 

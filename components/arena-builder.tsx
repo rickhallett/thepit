@@ -271,7 +271,7 @@ export function ArenaBuilder({
                   isSelected && 'border-accent text-accent',
                 )}
               >
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm uppercase tracking-[0.25em]">
                     {agent.avatar ? `${agent.avatar} ` : ''}{agent.name}
                   </p>
@@ -280,7 +280,7 @@ export function ArenaBuilder({
                   </p>
                 </div>
                 <span
-                  className="rounded-full border-2 px-3 py-1 text-[10px] uppercase tracking-[0.25em]"
+                  className="max-w-[120px] shrink-0 truncate rounded-full border-2 px-3 py-1 text-[10px] uppercase tracking-[0.25em]"
                   style={{
                     borderColor: agent.color ?? DEFAULT_AGENT_COLOR,
                     color: agent.color ?? DEFAULT_AGENT_COLOR,

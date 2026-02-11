@@ -360,6 +360,7 @@ export default async function ArenaPage() {
                 No credit activity yet.
               </p>
             ) : (
+              <div className="relative">
               <div className="overflow-x-auto border-2 border-foreground/60">
                 <div className="grid min-w-[520px] grid-cols-[minmax(0,2fr)_110px_120px_120px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
                   <span>When</span>
@@ -390,6 +391,8 @@ export default async function ArenaPage() {
                     </div>
                   );
                 })}
+              </div>
+              <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden" />
               </div>
             )}
           </section>
