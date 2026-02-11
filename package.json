@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:loop": "node scripts/test-loop.mjs",
     "test:ci": "npm run lint && npm run typecheck && npm run test:unit && npm run test:integration",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "db:reset-ci": "neonctl branches reset ci-test --parent --project-id snowy-river-64480457 --org-id org-nameless-moon-32936094"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.37",
@@ -22,6 +23,7 @@
     "@fontsource/ibm-plex-mono": "^5.2.7",
     "@fontsource/space-grotesk": "^5.2.10",
     "@neondatabase/serverless": "^1.0.2",
+    "@scalar/nextjs-api-reference": "^0.9.18",
     "@sentry/nextjs": "^10.38.0",
     "@vercel/analytics": "^1.6.1",
     "ai": "^6.0.73",
