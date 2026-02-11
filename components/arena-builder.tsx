@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 
 import { AgentIcon } from '@/components/agent-icon';
+import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
@@ -105,6 +106,7 @@ export function ArenaBuilder({
         return;
       }
       byokStashedRef.current = true;
+      trackEvent('byok_key_stashed');
       const form = event.target as HTMLFormElement;
       form.requestSubmit();
       return;

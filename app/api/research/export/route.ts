@@ -8,10 +8,18 @@ import {
   getLatestExportMetadata,
   getExportPayload,
 } from '@/lib/research-exports';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
+const RATE_LIMIT = { name: 'research-export', maxRequests: 5, windowMs: 60 * 60 * 1000 };
+
 export const GET = withLogging(async function GET(req: Request) {
+  const rateCheck = checkRateLimit(RATE_LIMIT, getClientIdentifier(req));
+  if (!rateCheck.success) {
+    return new Response('Rate limit exceeded.', { status: 429 });
+  }
+
   const url = new URL(req.url);
   const exportId = url.searchParams.get('id');
 

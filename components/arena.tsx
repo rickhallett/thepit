@@ -6,6 +6,11 @@ import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
 import { trackEvent } from '@/lib/analytics';
+import {
+  initScrollDepthTracking,
+  initActiveTimeTracking,
+  trackBoutEngagement,
+} from '@/lib/engagement';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
@@ -113,6 +118,24 @@ export function Arena({
         // Non-critical — fall back to /b/ URLs
       });
   }, [boutId, shortSlug, status]);
+
+  // Engagement tracking — scroll depth and active time
+  const reactionsGivenRef = useRef(0);
+  useEffect(() => {
+    const cleanupScroll = initScrollDepthTracking();
+    const cleanupTime = initActiveTimeTracking();
+    return () => {
+      cleanupScroll();
+      cleanupTime();
+      // Fire bout engagement depth on unmount
+      trackBoutEngagement(boutId, {
+        turnsWatched: messages.length,
+        reactionsGiven: reactionsGivenRef.current,
+        votesCast: userVote ? 1 : 0,
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!autoScroll) return;
@@ -248,6 +271,7 @@ export function Arena({
         }),
       });
       trackEvent('reaction_submitted', { reactionType, turn });
+      reactionsGivenRef.current += 1;
     } catch {
       // swallow; reactions are best-effort
     }

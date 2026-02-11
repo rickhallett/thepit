@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { withLogging } from '@/lib/api-logging';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -8,6 +9,7 @@ const COOKIE_NAME = 'pit_byok';
 const MAX_AGE_SECONDS = 60;
 const KEY_PREFIX = 'sk-ant-';
 const KEY_MAX_LENGTH = 256;
+const RATE_LIMIT = { name: 'byok-stash', maxRequests: 10, windowMs: 60_000 };
 
 /**
  * Stash a BYOK key in a short-lived, HTTP-only cookie.
@@ -19,6 +21,11 @@ export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
     return new Response('Authentication required.', { status: 401 });
+  }
+
+  const rateCheck = checkRateLimit(RATE_LIMIT, userId);
+  if (!rateCheck.success) {
+    return new Response('Rate limit exceeded.', { status: 429 });
   }
 
   let payload: { key?: string };
