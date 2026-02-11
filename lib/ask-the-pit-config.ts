@@ -8,6 +8,8 @@ export const ASK_THE_PIT_DOCS = [
   'AGENTS.md',
 ];
 
-export const ASK_THE_PIT_MODEL = 'claude-haiku-4-5-20251001';
+import { FREE_MODEL_ID } from '@/lib/ai';
+
+export const ASK_THE_PIT_MODEL = process.env.ASK_THE_PIT_MODEL ?? FREE_MODEL_ID;
 
 export const ASK_THE_PIT_MAX_TOKENS = 2_000;

@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import type Stripe from 'stripe';
 
 import { requireDb } from '@/db';
+import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 import { withLogging } from '@/lib/api-logging';
 import { creditTransactions, users } from '@/db/schema';
@@ -62,7 +63,7 @@ export const POST = withLogging(async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
-    log.warn('Stripe webhook signature failed', error as Error);
+    log.warn('Stripe webhook signature failed', toError(error));
     return new Response('Invalid signature.', { status: 400 });
   }
 

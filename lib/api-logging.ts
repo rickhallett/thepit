@@ -3,6 +3,7 @@
 // Wraps Next.js API route handlers with automatic request/response
 // logging, timing, and request ID propagation.
 
+import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 import { getRequestId } from '@/lib/request-context';
 
@@ -60,7 +61,7 @@ export function withLogging(
       return response;
     } catch (error) {
       const durationMs = Date.now() - start;
-      log.error(`${method} ${path} unhandled error`, error as Error, {
+      log.error(`${method} ${path} unhandled error`, toError(error), {
         requestId,
         route: routeName,
         durationMs,

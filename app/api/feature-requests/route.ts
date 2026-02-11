@@ -6,12 +6,9 @@ import { featureRequests, featureRequestVotes, users } from '@/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { ensureUserRecord } from '@/lib/users';
+import { UNSAFE_PATTERN } from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-/** Reject URLs, script tags, and event handlers in free-text fields. */
-const UNSAFE_PATTERN =
-  /https?:\/\/|www\.|<script|javascript:|on\w+\s*=|data:text\/html/i;
 
 const VALID_CATEGORIES = [
   'agents',

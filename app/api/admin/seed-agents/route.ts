@@ -1,8 +1,8 @@
-import { timingSafeEqual } from 'crypto';
 import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
+import { withLogging } from '@/lib/api-logging';
 import { agents } from '@/db/schema';
 import { ALL_PRESETS } from '@/lib/presets';
 import {
@@ -10,28 +10,9 @@ import {
   registerPresetAgent,
 } from '@/lib/agent-registry';
 import { attestAgent, EAS_ENABLED } from '@/lib/eas';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export const runtime = 'nodejs';
-
-const requireAdmin = (req: Request) => {
-  const token = req.headers.get('x-admin-token');
-  const expected = process.env.ADMIN_SEED_TOKEN;
-  if (!expected) {
-    throw new Error('Not configured.');
-  }
-  if (!token) {
-    throw new Error('Unauthorized');
-  }
-  // Constant-time comparison to prevent timing side-channel attacks.
-  const a = Buffer.from(token);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) {
-    throw new Error('Unauthorized');
-  }
-  if (!timingSafeEqual(a, b)) {
-    throw new Error('Unauthorized');
-  }
-};
 
 export async function POST(req: Request) {
   try {

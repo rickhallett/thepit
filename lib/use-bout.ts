@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 import { parseJsonEventStream, uiMessageChunkSchema } from 'ai';
 
 import { DEFAULT_AGENT_COLOR, type Preset } from './presets';
+import type { TranscriptEntry } from '@/db/schema';
 import { trackEvent } from '@/lib/analytics';
 
 export type BoutMessage = {
@@ -25,13 +26,6 @@ export type BoutMessage = {
   agentId: string;
   agentName: string;
   color: string;
-  text: string;
-};
-
-type TranscriptEntry = {
-  turn: number;
-  agentId: string;
-  agentName: string;
   text: string;
 };
 

@@ -14,10 +14,11 @@
 import canonicalize from 'canonicalize';
 
 import { sha256Hex } from '@/lib/hash';
+import type { ResponseFormatId } from '@/lib/response-formats';
+import type { ResponseLength as ResponseLengthId } from '@/lib/response-lengths';
 
 export type AgentTier = 'free' | 'premium' | 'custom';
-export type ResponseLengthId = 'short' | 'standard' | 'long';
-export type ResponseFormatId = 'plain' | 'spaced' | 'markdown' | 'json';
+export type { ResponseLengthId, ResponseFormatId };
 
 export type AgentManifest = {
   agentId: string;

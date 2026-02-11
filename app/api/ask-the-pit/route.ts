@@ -2,7 +2,6 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 import { streamText } from 'ai';
-import { createAnthropic } from '@ai-sdk/anthropic';
 
 import {
   ASK_THE_PIT_ENABLED,
@@ -10,8 +9,10 @@ import {
   ASK_THE_PIT_MODEL,
   ASK_THE_PIT_MAX_TOKENS,
 } from '@/lib/ask-the-pit-config';
+import { getModel } from '@/lib/ai';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { log } from '@/lib/logger';
+import { toError } from '@/lib/errors';
 import { getRequestId } from '@/lib/request-context';
 
 export const runtime = 'nodejs';
@@ -80,16 +81,12 @@ export async function POST(req: Request) {
   const docs = loadDocs();
   const systemPrompt = `${SYSTEM_PROMPT_PREFIX}\n\n--- Documentation ---\n\n${docs}`;
 
-  const anthropic = createAnthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-  });
-
   log.info('Ask The Pit request', { requestId, messageLength: message.length });
 
   try {
     const start = Date.now();
     const result = streamText({
-      model: anthropic(ASK_THE_PIT_MODEL),
+      model: getModel(ASK_THE_PIT_MODEL),
       maxOutputTokens: ASK_THE_PIT_MAX_TOKENS,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -102,7 +99,7 @@ export async function POST(req: Request) {
     log.info('Ask The Pit stream started', { requestId, model: ASK_THE_PIT_MODEL, durationMs });
     return response;
   } catch (error) {
-    log.error('Ask The Pit stream failed', error as Error, { requestId });
+    log.error('Ask The Pit stream failed', toError(error), { requestId });
     return new Response('The assistant is unavailable.', { status: 500 });
   }
 }
