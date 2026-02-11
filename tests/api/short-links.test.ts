@@ -8,17 +8,17 @@ const {
   checkRateLimitMock,
   createShortLinkMock,
   mockSelectLimit,
-  mockSelectWhere,
+  _mockSelectWhere,
   mockSelectFrom,
 } = vi.hoisted(() => {
   const mockSelectLimit = vi.fn().mockResolvedValue([{ id: 'bout_123' }]);
-  const mockSelectWhere = vi.fn().mockReturnValue({ limit: mockSelectLimit });
-  const mockSelectFrom = vi.fn().mockReturnValue({ where: mockSelectWhere });
+  const _mockSelectWhere = vi.fn().mockReturnValue({ limit: mockSelectLimit });
+  const mockSelectFrom = vi.fn().mockReturnValue({ where: _mockSelectWhere });
   return {
     checkRateLimitMock: vi.fn(),
     createShortLinkMock: vi.fn(),
     mockSelectLimit,
-    mockSelectWhere,
+    _mockSelectWhere,
     mockSelectFrom,
   };
 });

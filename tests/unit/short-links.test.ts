@@ -6,33 +6,33 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const {
   mockSelectFrom,
-  mockSelectWhere,
+  _mockSelectWhere,
   mockSelectLimit,
   mockInsertValues,
-  mockInsertOnConflict,
+  _mockInsertOnConflict,
   mockInsertReturning,
   mockInsertClickValues,
   sha256HexMock,
 } = vi.hoisted(() => {
   const mockSelectLimit = vi.fn().mockResolvedValue([]);
-  const mockSelectWhere = vi.fn().mockReturnValue({ limit: mockSelectLimit });
-  const mockSelectFrom = vi.fn().mockReturnValue({ where: mockSelectWhere });
+  const _mockSelectWhere = vi.fn().mockReturnValue({ limit: mockSelectLimit });
+  const mockSelectFrom = vi.fn().mockReturnValue({ where: _mockSelectWhere });
   const mockInsertReturning = vi
     .fn()
     .mockResolvedValue([{ slug: 'aBcDeFgH' }]);
-  const mockInsertOnConflict = vi
+  const _mockInsertOnConflict = vi
     .fn()
     .mockReturnValue({ returning: mockInsertReturning });
   const mockInsertValues = vi
     .fn()
-    .mockReturnValue({ onConflictDoNothing: mockInsertOnConflict });
+    .mockReturnValue({ onConflictDoNothing: _mockInsertOnConflict });
   const mockInsertClickValues = vi.fn().mockResolvedValue(undefined);
   return {
     mockSelectFrom,
-    mockSelectWhere,
+    _mockSelectWhere,
     mockSelectLimit,
     mockInsertValues,
-    mockInsertOnConflict,
+    _mockInsertOnConflict,
     mockInsertReturning,
     mockInsertClickValues,
     sha256HexMock: vi.fn().mockResolvedValue('0xabcdef1234567890'),
