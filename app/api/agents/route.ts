@@ -4,6 +4,8 @@ import { eq, and, sql } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
+import { log } from '@/lib/logger';
+import { withLogging } from '@/lib/api-logging';
 import { agents } from '@/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import {
@@ -54,7 +56,7 @@ function validateTextField(
 }
 
 /** Create a new agent with tier-based slot limits and content validation. */
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   let payload: {
     name?: string;
     systemPrompt?: string;
@@ -263,7 +265,7 @@ export async function POST(req: Request) {
         })
         .where(eq(agents.id, manifest.agentId));
     } catch (error) {
-      console.error('Agent attestation failed:', error instanceof Error ? error.message : String(error));
+      log.error('Agent attestation failed', error instanceof Error ? error : new Error(String(error)), { agentId: manifest.agentId });
       attestationFailed = true;
     }
   }
@@ -274,4 +276,4 @@ export async function POST(req: Request) {
     manifestHash,
     attestationFailed,
   });
-}
+}, 'agents');

@@ -3,6 +3,8 @@ import { eq } from 'drizzle-orm';
 import type Stripe from 'stripe';
 
 import { requireDb } from '@/db';
+import { log } from '@/lib/logger';
+import { withLogging } from '@/lib/api-logging';
 import { creditTransactions, users } from '@/db/schema';
 import {
   applyCreditDelta,
@@ -43,7 +45,7 @@ async function updateUserSubscription(params: {
 }
 
 /** Handle Stripe webhook events for credit purchases and subscription lifecycle. */
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     return new Response('Service unavailable.', { status: 500 });
@@ -60,7 +62,7 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
-    console.warn('Stripe webhook signature failed', error);
+    log.warn('Stripe webhook signature failed', error as Error);
     return new Response('Invalid signature.', { status: 400 });
   }
 
@@ -96,7 +98,7 @@ export async function POST(req: Request) {
       }
 
       if (existing) {
-        console.log(`Webhook: Duplicate session ${session.id}, skipping`);
+        log.info('Webhook: duplicate session, skipping', { sessionId: session.id });
       }
     }
   }
@@ -128,9 +130,7 @@ export async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
-        console.log(
-          `Subscription created: user=${userId} tier=${tier} sub=${subscription.id}`,
-        );
+        log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
   }
@@ -162,9 +162,7 @@ export async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
-        console.log(
-          `Subscription updated: user=${userId} tier=${tier} status=${subscription.status}`,
-        );
+        log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
   }
@@ -189,7 +187,7 @@ export async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: subscription.customer,
       });
-      console.log(`Subscription deleted: user=${userId} downgraded to free`);
+      log.info('Subscription deleted, downgraded to free', { userId });
     }
   }
 
@@ -224,9 +222,7 @@ export async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: invoice.customer,
       });
-      console.log(
-        `Payment failed: user=${userId} sub=${invoice.subscription} downgraded to free`,
-      );
+      log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }
 
@@ -266,12 +262,10 @@ export async function POST(req: Request) {
           currentPeriodEnd: null, // Will be updated by subscription.updated event
           stripeCustomerId: invoice.customer,
         });
-        console.log(
-          `Payment succeeded: user=${userId} tier=${tier} restored`,
-        );
+        log.info('Payment succeeded, tier restored', { userId, tier });
       }
     }
   }
 
   return Response.json({ received: true });
-}
+}, 'credits-webhook');

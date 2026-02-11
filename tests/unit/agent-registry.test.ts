@@ -224,10 +224,10 @@ describe('agent-registry', () => {
       const { getAgentSnapshots } = await loadRegistry();
       const result = await getAgentSnapshots();
       expect(result).toHaveLength(2); // falls back to presets
-      expect(errorSpy).toHaveBeenCalledWith(
-        'Failed to load agents from DB',
-        expect.any(Error),
-      );
+      // Structured logger outputs a formatted string (dev) or JSON (prod)
+      expect(errorSpy).toHaveBeenCalled();
+      const call = errorSpy.mock.calls[0][0] as string;
+      expect(call).toContain('Failed to load agents from DB');
       errorSpy.mockRestore();
     });
   });

@@ -3,10 +3,11 @@ import { eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { bouts, winnerVotes } from '@/db/schema';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   let payload: { boutId?: string; agentId?: string };
 
   try {
@@ -31,7 +32,6 @@ export async function POST(req: Request) {
 
   const db = requireDb();
 
-  // Verify the bout exists before accepting the vote.
   const [bout] = await db
     .select({ id: bouts.id })
     .from(bouts)
@@ -48,4 +48,4 @@ export async function POST(req: Request) {
     .onConflictDoNothing();
 
   return Response.json({ ok: true });
-}
+}, 'winner-vote');

@@ -18,6 +18,7 @@ import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
 import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
 import { ALL_PRESETS } from '@/lib/presets';
 import { buildAgentManifest, hashAgentManifest, hashAgentPrompt } from '@/lib/agent-dna';
+import { log } from '@/lib/logger';
 
 export type AgentSnapshot = {
   id: string;
@@ -112,7 +113,7 @@ export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
       });
     }
   } catch (error) {
-    console.error('Failed to load agents from DB', error);
+    log.error('Failed to load agents from DB', error as Error);
   }
 
   const fallback = await Promise.all(

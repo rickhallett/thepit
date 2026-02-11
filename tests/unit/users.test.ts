@@ -218,11 +218,10 @@ describe('users', () => {
       const { ensureUserRecord } = await loadUsers();
       const result = await ensureUserRecord('user_noclerk');
       expect(result).toEqual(createdRow);
-      expect(warnSpy).toHaveBeenCalledWith(
-        'Failed to fetch Clerk profile for user',
-        'user_noclerk',
-        expect.any(Error),
-      );
+      // Structured logger outputs a formatted string (dev) or JSON (prod)
+      expect(warnSpy).toHaveBeenCalled();
+      const call = warnSpy.mock.calls[0][0] as string;
+      expect(call).toContain('Failed to fetch Clerk profile');
       warnSpy.mockRestore();
     });
 

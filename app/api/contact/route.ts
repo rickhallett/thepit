@@ -1,4 +1,6 @@
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
+import { log } from '@/lib/logger';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
@@ -11,7 +13,7 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#39;');
 }
 
-export async function POST(req: Request) {
+export const POST = withLogging(async function POST(req: Request) {
   const clientId = getClientIdentifier(req);
   const rateCheck = checkRateLimit(
     { name: 'contact', maxRequests: 5, windowMs: 60 * 60 * 1000 },
@@ -71,9 +73,9 @@ export async function POST(req: Request) {
 
   if (!res.ok) {
     const text = await res.text();
-    console.error('Resend API error:', text);
+    log.error('Resend API error', { responseText: text });
     return new Response('Email delivery failed.', { status: 500 });
   }
 
   return Response.json({ ok: true });
-}
+}, 'contact');
