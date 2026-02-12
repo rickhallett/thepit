@@ -4,17 +4,28 @@
 // importing DB code into edge middleware. Protected by a shared secret
 // to prevent external abuse.
 
+import crypto from 'crypto';
+
 import { requireDb } from '@/db';
 import { pageViews } from '@/db/schema';
 import { sha256Hex } from '@/lib/hash';
+import { log } from '@/lib/logger';
 import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
+/** Timing-safe string comparison using SHA-256 digests. */
+function timingSafeCompare(a: string, b: string): boolean {
+  const digestA = crypto.createHash('sha256').update(a).digest();
+  const digestB = crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(digestA, digestB);
+}
+
 export async function POST(req: Request) {
   // Verify internal secret — reject external callers
   const secret = req.headers.get('x-pv-secret');
-  if (!secret || secret !== process.env.PV_INTERNAL_SECRET) {
+  const expected = process.env.PV_INTERNAL_SECRET ?? '';
+  if (!secret || !expected || !timingSafeCompare(secret, expected)) {
     return errorResponse(API_ERRORS.FORBIDDEN, 403);
   }
 
@@ -67,8 +78,9 @@ export async function POST(req: Request) {
       utmCampaign,
       country: payload.country?.slice(0, 2) || null,
     });
-  } catch {
+  } catch (error) {
     // Best-effort — don't fail the page load
+    log.error('page view insert failed', { error: error instanceof Error ? error.message : String(error), path, sessionId });
     return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 

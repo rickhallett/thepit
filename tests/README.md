@@ -118,7 +118,7 @@ Common mock helpers (`setupSelect()`, `setupInsert()`, `setupUpdate()`) are defi
 - **No shared test utilities** — Mock setup helpers are duplicated across ~85 test files. This maximizes isolation (no hidden shared state) but increases maintenance cost when DB mock patterns change. Extracting a `tests/helpers/` module with shared mock factories would reduce duplication. This is the most impactful improvement opportunity in the test layer.
 - **No CI/CD pipeline** — The `test:ci` npm script defines the gate (`lint + typecheck + unit + integration`) but there are no `.github/workflows/` or equivalent config files. Tests run via Vercel's build pipeline implicitly. Adding a GitHub Actions workflow would provide pre-merge CI and branch protection.
 - **Coverage targets are selective** — Only 6 critical lib modules have enforced 85% coverage. Other modules have no minimum. This focuses coverage enforcement on the highest-risk code (credits, hashing, rate limiting) without creating busywork for UI-adjacent modules.
-- **Single E2E test** — One Playwright spec covers the happy path. This is appropriate for the current scale but leaves rendering regressions uncovered. Additional E2E specs for agent creation, leaderboard, and replay viewing would improve confidence.
+- **Three E2E tests** — Playwright specs cover the core bout flow, citation validation, and mobile responsiveness. This is appropriate for the current scale but leaves some rendering regressions uncovered. Additional E2E specs for agent creation, leaderboard, and replay viewing would improve confidence.
 
 ---
 

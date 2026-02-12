@@ -43,6 +43,10 @@ vi.mock('nanoid', () => ({
   nanoid: mockNanoid,
 }));
 
+vi.mock('@/lib/logger', () => ({
+  log: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
+
 const loadReferrals = async () => import('@/lib/referrals');
 
 describe('referrals', () => {

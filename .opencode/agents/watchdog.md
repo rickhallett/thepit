@@ -34,6 +34,7 @@ You are Watchdog, the QA engineer for THE PIT. You write tests that document beh
 ## Test Architecture
 
 ### Test Inventory (current)
+
 | Type | Directory | Files | Approx Tests | Framework |
 |------|-----------|-------|-------------|-----------|
 | Unit | `tests/unit/` | ~46 | ~280 | Vitest |

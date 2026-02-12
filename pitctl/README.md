@@ -63,10 +63,10 @@ pitctl db stats    # same as bare `pitctl db`
 
 ```bash
 pitctl users                              # list all users
-pitctl users --tier pro --limit 20        # filter by tier
+pitctl users --tier pass --limit 20       # filter by tier
 pitctl users --search "kai" --sort recent # search + sort
 pitctl users inspect <userId>             # full user detail
-pitctl --yes users set-tier <userId> pro  # change subscription tier
+pitctl --yes users set-tier <userId> pass # change subscription tier
 ```
 
 Tiers: `free`, `pass`, `lab`.

@@ -24,7 +24,7 @@ JSON preset definitions for THE PIT's debate scenarios. Each preset defines a ca
 | `presets-top5.json` | Premium | Top 5 premium pack (5 presets) |
 | `presets-remaining6.json` | Premium | Remaining 6 premium pack (6 presets) |
 
-**Total: 11 free presets + 11 premium presets = 22 scenarios.**
+**Total: 10 active free presets (+1 dormant on disk) + 11 premium presets = 21 active scenarios (22 on disk).**
 
 ## JSON Format
 
