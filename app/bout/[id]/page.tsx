@@ -1,10 +1,11 @@
+import type { Metadata } from 'next';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
-import { requireDb } from '@/db';
-import { bouts, type TranscriptEntry } from '@/db/schema';
+import { db, requireDb } from '@/db';
+import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
 import {
   DEFAULT_PREMIUM_MODEL_ID,
   FREE_MODEL_ID,
@@ -25,6 +26,61 @@ import { getReactionCounts } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
 export const dynamic = 'force-dynamic';
+
+type MetadataProps = {
+  params: Promise<{ id: string }>;
+};
+
+export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const { id } = await params;
+
+  let bout: (typeof bouts.$inferSelect) | null = null;
+  if (db) {
+    const [result] = await db
+      .select()
+      .from(bouts)
+      .where(eq(bouts.id, id))
+      .limit(1);
+    bout = result ?? null;
+  }
+
+  const presetId = bout?.presetId;
+  const preset = presetId ? PRESETS.find((p) => p.id === presetId) : null;
+  const agentLineup = (bout?.agentLineup ?? []) as ArenaAgent[];
+
+  // Build arena preset if needed
+  const resolvedPreset =
+    presetId === ARENA_PRESET_ID && agentLineup.length > 0
+      ? buildArenaPresetFromLineup(agentLineup)
+      : preset;
+
+  const presetName = resolvedPreset?.name ?? 'AI Battle';
+  const agentNames = resolvedPreset?.agents.map((a) => a.name).slice(0, 3) ?? [];
+  const agentList =
+    agentNames.length > 0
+      ? agentNames.join(', ') + (resolvedPreset && resolvedPreset.agents.length > 3 ? ' & more' : '')
+      : '';
+
+  const title = `${presetName} — THE PIT`;
+  const description = agentList
+    ? `Watch ${agentList} clash in real-time debate. ${resolvedPreset?.description ?? ''}`
+    : `Watch AI agents clash in real-time debate on THE PIT.`;
+
+  return {
+    title,
+    description: description.slice(0, 160),
+    openGraph: {
+      title,
+      description: description.slice(0, 160),
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: description.slice(0, 160),
+    },
+  };
+}
 
 export default async function BoutPage({
   params,
