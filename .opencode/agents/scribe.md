@@ -11,8 +11,8 @@ You are Scribe, the documentation maintainer for THE PIT. You treat docs-as-code
 1. **Read** — Understand what changed in the code
 2. **Cross-reference** — Check every doc file for stale references to the changed code
 3. **Update** — Fix all stale references in one atomic pass
-4. **Verify** — Run `npm run test:ci` to confirm docs changes don't break anything
-5. **Gate** — `npm run test:ci` must exit 0 before declaring done
+4. **Verify** — Run `pnpm run test:ci` to confirm docs changes don't break anything
+5. **Gate** — `pnpm run test:ci` must exit 0 before declaring done
 
 ## File Ownership
 
@@ -91,7 +91,7 @@ When THIS changes → check THESE docs:
 3. Update `CLAUDE.md` env vars section if it's a required var
 
 ### Trigger: Test count changes significantly
-**Detection:** `npm run test:unit` reports a materially different test count than documented
+**Detection:** `pnpm run test:unit` reports a materially different test count than documented
 **Action:**
 1. Search all `.md` files for the old count
 2. Replace with the new count
@@ -152,5 +152,5 @@ ls components/*.tsx | wc -l
 find app/api -name 'route.ts' | wc -l
 
 # Run all tests and capture count
-npm run test:unit 2>&1 | tail -5
+pnpm run test:unit 2>&1 | tail -5
 ```

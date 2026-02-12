@@ -78,10 +78,10 @@ Each directory has its own README documenting architecture, design decisions, an
 ```bash
 git clone git@github.com:rickhallett/thepit.git
 cd thepit
-npm install
+pnpm install
 cp .env.example .env
 # Fill required values (see Environment below)
-npm run dev
+pnpm run dev
 ```
 
 ### Seed Agents
@@ -96,14 +96,14 @@ curl -X POST http://localhost:3000/api/admin/seed-agents \
 ## Commands
 
 ```bash
-npm run dev              # Dev server (Turbopack)
-npm run build            # Production build
-npm run start            # Serve production build
-npm run lint             # ESLint
-npm run typecheck        # TypeScript type checking
-npm run test:unit        # Unit + API tests (425 tests)
-npm run test:ci          # Lint + typecheck + unit + integration
-npm run test:e2e         # Playwright E2E (requires running server)
+pnpm run dev              # Dev server (Turbopack)
+pnpm run build            # Production build
+pnpm run start            # Serve production build
+pnpm run lint             # ESLint
+pnpm run typecheck        # TypeScript type checking
+pnpm run test:unit        # Unit + API tests (425 tests)
+pnpm run test:ci          # Lint + typecheck + unit + integration
+pnpm run test:e2e         # Playwright E2E (requires running server)
 ```
 
 ---
@@ -163,7 +163,7 @@ Copy `.env.example` to `.env`. Required variables:
 
 1. **Fork and branch** — Fork the repo, create a feature branch (`feat/your-feature`), and open a PR against `master`.
 2. **Conventional commits** — All commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, etc.).
-3. **Tests must pass** — Run `npm run test:ci` before opening a PR. PRs with failing tests will not be merged.
+3. **Tests must pass** — Run `pnpm run test:ci` before opening a PR. PRs with failing tests will not be merged.
 4. **PR expectations** — Include a clear summary of what changed and why. For visual changes, include screenshots.
 5. **Code style** — TypeScript strict mode, 2-space indentation, Tailwind for styling. Use `clsx` + `tailwind-merge` when combining class lists.
 

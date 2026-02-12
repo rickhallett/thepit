@@ -31,11 +31,11 @@ drizzle/
 ```bash
 # 1. Edit db/schema.ts with your changes
 # 2. Generate a migration:
-npx drizzle-kit generate
+pnpm exec drizzle-kit generate
 
 # 3. Review the generated SQL in drizzle/
 # 4. Apply to your database:
-npx drizzle-kit push
+pnpm exec drizzle-kit push
 ```
 
 ### Configuration

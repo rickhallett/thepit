@@ -121,7 +121,7 @@ else
     echo -e "${BOLD}Server already running at ${BASE_URL}${RESET}"
   else
     echo -e "${BOLD}Starting dev server...${RESET}"
-    npm run dev > /tmp/tspit-dev-server.log 2>&1 &
+    pnpm run dev > /tmp/tspit-dev-server.log 2>&1 &
     DEV_PID=$!
     STARTED_SERVER=true
     wait_for_server

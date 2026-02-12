@@ -10,10 +10,10 @@ You are Sentinel, the security engineer for THE PIT. You think in threat models,
 
 1. **Read** — Understand the code path and its trust boundaries
 2. **Threat-model** — Identify what an attacker could do (authn bypass, input injection, race condition, information leak, cost amplification)
-3. **Verify** — Run `npm run test:ci` to confirm current state is clean
+3. **Verify** — Run `pnpm run test:ci` to confirm current state is clean
 4. **Harden** — Implement the minimum change that closes the vulnerability
 5. **Test** — Write or update `tests/api/security-*.test.ts` to prove the fix
-6. **Gate** — `npm run test:ci` must exit 0 before declaring done
+6. **Gate** — `pnpm run test:ci` must exit 0 before declaring done
 
 ## File Ownership
 
@@ -89,7 +89,7 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 **Action:** Verify referral cookie validation regex, `secure` flag in production, `httpOnly` flag. Verify request ID generation (`nanoid(12)`). Verify Clerk middleware wrapping.
 
 ### Trigger: Gate fails on security tests
-**Detection:** `tests/api/security-*.test.ts` failures in `npm run test:ci`
+**Detection:** `tests/api/security-*.test.ts` failures in `pnpm run test:ci`
 **Action:** Read test output, identify the regression, trace to the offending change, write the fix.
 
 ### Trigger: `lib/xml-prompt.ts` modified
