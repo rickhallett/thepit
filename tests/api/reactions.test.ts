@@ -79,7 +79,7 @@ describe('reactions api', () => {
     const res = await POST(req);
 
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe('Too many requests.');
+    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
     expect(res.headers.get('X-RateLimit-Remaining')).toBe('0');
     expect(res.headers.get('Retry-After')).toBeDefined();
   });

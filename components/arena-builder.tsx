@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 
 import { AgentIcon } from '@/components/agent-icon';
+import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
@@ -105,6 +106,7 @@ export function ArenaBuilder({
         return;
       }
       byokStashedRef.current = true;
+      trackEvent('byok_key_stashed');
       const form = event.target as HTMLFormElement;
       form.requestSubmit();
       return;
@@ -199,8 +201,8 @@ export function ArenaBuilder({
           <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
             <span>BYOK API key</span>
             <input
-              name="byokKey"
               type="password"
+              autoComplete="off"
               value={byokKey}
               onChange={(event) => setByokKey(event.target.value)}
               placeholder="sk-ant-..."

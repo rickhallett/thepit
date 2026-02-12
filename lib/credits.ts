@@ -84,8 +84,19 @@ export const formatCredits = (micro: number) =>
 export const estimateTokensFromText = (text: string, min = 0) =>
   Math.max(min, Math.ceil(text.length / TOKEN_CHARS_PER));
 
+/** Default fallback pricing (haiku) for unrecognized model IDs.
+ *  Computed from the merged MODEL_PRICES_GBP map so env overrides apply. */
+const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP['claude-haiku-4-5-20251001'];
+
 export const getModelPricing = (modelId: string) => {
-  return MODEL_PRICES_GBP[modelId];
+  const pricing = MODEL_PRICES_GBP[modelId];
+  if (!pricing) {
+    // Fall back to cheapest model pricing so unrecognized models are never free.
+    // This prevents a silent zero-cost path if a new model is added to ai.ts
+    // but not to the pricing table.
+    return FALLBACK_MODEL_PRICING;
+  }
+  return pricing;
 };
 
 export const estimateBoutTokens = (
@@ -115,7 +126,6 @@ export const estimateBoutCostGbp = (
     return Math.max(cost, BYOK_MIN_GBP);
   }
   const pricing = getModelPricing(modelId);
-  if (!pricing) return 0;
   const { inputTokens, outputTokens } = estimateBoutTokens(
     turns,
     outputTokensPerTurn,
@@ -136,7 +146,6 @@ export const computeCostGbp = (
     return Math.max(cost, BYOK_MIN_GBP);
   }
   const pricing = getModelPricing(modelId);
-  if (!pricing) return 0;
   const raw =
     (inputTokens * pricing.in + outputTokens * pricing.out) / 1_000_000;
   return raw * (1 + CREDIT_PLATFORM_MARGIN);
@@ -328,8 +337,11 @@ export async function settleCredits(
         metadata: { ...metadata, atomicSettlement: true },
       });
     }
-  } else {
-    // Refund: unconditionally add funds back
-    await applyCreditDelta(userId, deltaMicro, reason, metadata);
+  } else if (deltaMicro < 0) {
+    // Refund: unconditionally add funds back.
+    // deltaMicro is negative (actualCost - preauth < 0), so negate it to
+    // produce a positive value for applyCreditDelta (which adds to balance).
+    await applyCreditDelta(userId, -deltaMicro, reason, metadata);
   }
+  // deltaMicro === 0: no-op (exact match, nothing to settle)
 }

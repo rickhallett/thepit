@@ -19,6 +19,7 @@ import { cookies } from 'next/headers';
 import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
+import { buildSystemMessage, buildUserMessage, buildSharePrompt } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/app/api/byok-stash/route';
@@ -57,6 +58,8 @@ import {
   incrementFreeBoutsUsed,
 } from '@/lib/tier';
 import { consumeFreeBout } from '@/lib/free-bout-pool';
+import { UNSAFE_PATTERN } from '@/lib/validation';
+import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -116,7 +119,11 @@ export async function validateBoutRequest(
   try {
     payload = await req.json();
   } catch {
-    return { error: new Response('Invalid JSON.', { status: 400 }) };
+    return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
+  }
+
+  if (!payload || typeof payload !== 'object') {
+    return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
   }
 
   const requestId = getRequestId(req);
@@ -131,18 +138,22 @@ export async function validateBoutRequest(
   let { presetId } = payload;
 
   if (!boutId) {
-    return { error: new Response('Missing boutId.', { status: 400 }) };
+    return { error: errorResponse('Missing boutId.', 400) };
   }
 
   if (topic.length > 500) {
-    return { error: new Response('Topic must be 500 characters or fewer.', { status: 400 }) };
+    return { error: errorResponse('Topic must be 500 characters or fewer.', 400) };
+  }
+
+  if (UNSAFE_PATTERN.test(topic)) {
+    return { error: errorResponse(API_ERRORS.UNSAFE_CONTENT, 400) };
   }
 
   let db: ReturnType<typeof requireDb>;
   try {
     db = requireDb();
   } catch {
-    return { error: new Response('Service unavailable.', { status: 500 }) };
+    return { error: errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 503) };
   }
 
   // Idempotency check
@@ -162,10 +173,10 @@ export async function validateBoutRequest(
       Array.isArray(existingBout.transcript) && existingBout.transcript.length > 0;
 
     if (existingBout.status === 'running' && hasTranscript) {
-      return { error: new Response('Bout is already running.', { status: 409 }) };
+      return { error: errorResponse('Bout is already running.', 409) };
     }
     if (existingBout.status === 'completed') {
-      return { error: new Response('Bout has already completed.', { status: 409 }) };
+      return { error: errorResponse('Bout has already completed.', 409) };
     }
   }
 
@@ -174,7 +185,7 @@ export async function validateBoutRequest(
   }
 
   if (!presetId) {
-    return { error: new Response('Missing presetId.', { status: 400 }) };
+    return { error: errorResponse('Missing presetId.', 400) };
   }
 
   // Preset resolution
@@ -192,7 +203,7 @@ export async function validateBoutRequest(
       .where(eq(bouts.id, boutId))
       .limit(1);
     if (!row?.agentLineup) {
-      return { error: new Response('Unknown preset.', { status: 404 }) };
+      return { error: errorResponse('Unknown preset.', 404) };
     }
     preset = buildArenaPresetFromLineup(row.agentLineup);
     if (!topic && row.topic) {
@@ -209,7 +220,7 @@ export async function validateBoutRequest(
   }
 
   if (!preset) {
-    return { error: new Response('Unknown preset.', { status: 404 }) };
+    return { error: errorResponse('Unknown preset.', 404) };
   }
 
   const requestedModel =
@@ -226,7 +237,7 @@ export async function validateBoutRequest(
 
   // Ownership check
   if (existingBout?.ownerId && existingBout.ownerId !== userId) {
-    return { error: new Response('Forbidden.', { status: 403 }) };
+    return { error: errorResponse(API_ERRORS.FORBIDDEN, 403) };
   }
 
   // Rate limiting
@@ -236,7 +247,7 @@ export async function validateBoutRequest(
     rateLimitId,
   );
   if (!boutRateCheck.success) {
-    return { error: new Response('Rate limit exceeded. Try again later.', { status: 429 }) };
+    return { error: rateLimitResponse(boutRateCheck) };
   }
 
   // Tier-based access control
@@ -248,20 +259,20 @@ export async function validateBoutRequest(
 
     const boutCheck = await canRunBout(userId, isByok);
     if (!boutCheck.allowed) {
-      return { error: new Response(boutCheck.reason, { status: 402 }) };
+      return { error: errorResponse(boutCheck.reason, 402) };
     }
 
     if (isByok) {
       if (!byokKey) {
-        return { error: new Response('BYOK key required.', { status: 400 }) };
+        return { error: errorResponse('BYOK key required.', 400) };
       }
       modelId = 'byok';
     } else if (requestedModel && PREMIUM_MODEL_OPTIONS.includes(requestedModel)) {
       if (!canAccessModel(tier, requestedModel)) {
         return {
-          error: new Response(
-            `Your plan does not include access to this model. Upgrade or use BYOK.`,
-            { status: 402 },
+          error: errorResponse(
+            'Your plan does not include access to this model. Upgrade or use BYOK.',
+            402,
           ),
         };
       }
@@ -275,9 +286,9 @@ export async function validateBoutRequest(
       const poolResult = await consumeFreeBout();
       if (!poolResult.consumed) {
         return {
-          error: new Response(
+          error: errorResponse(
             'Daily free bout pool exhausted. Upgrade your plan or use your own API key (BYOK).',
-            { status: 429 },
+            429,
           ),
         };
       }
@@ -286,7 +297,7 @@ export async function validateBoutRequest(
   } else {
     const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
     if (preset.tier === 'premium' && !premiumEnabled) {
-      return { error: new Response('Premium required.', { status: 402 }) };
+      return { error: errorResponse('Premium required.', 402) };
     }
 
     const allowPremiumModels = preset.tier === 'premium' || preset.id === ARENA_PRESET_ID;
@@ -296,11 +307,11 @@ export async function validateBoutRequest(
         : DEFAULT_PREMIUM_MODEL_ID;
     } else if (isByok) {
       if (!byokKey) {
-        return { error: new Response('BYOK key required.', { status: 400 }) };
+        return { error: errorResponse('BYOK key required.', 400) };
       }
       modelId = 'byok';
     } else if (requestedModel === 'byok') {
-      return { error: new Response('BYOK not enabled.', { status: 400 }) };
+      return { error: errorResponse('BYOK not enabled.', 400) };
     }
   }
 
@@ -308,7 +319,7 @@ export async function validateBoutRequest(
   let preauthMicro = 0;
   if (CREDITS_ENABLED) {
     if (!userId) {
-      return { error: new Response('Sign in required.', { status: 401 }) };
+      return { error: errorResponse(API_ERRORS.AUTH_REQUIRED, 401) };
     }
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
@@ -326,7 +337,7 @@ export async function validateBoutRequest(
     });
 
     if (!preauth.success) {
-      return { error: new Response('Insufficient credits.', { status: 402 }) };
+      return { error: errorResponse('Insufficient credits.', 402) };
     }
   }
 
@@ -346,7 +357,7 @@ export async function validateBoutRequest(
       .onConflictDoNothing();
   } catch (error) {
     log.error('Failed to ensure bout exists', toError(error), { boutId });
-    return { error: new Response('Service temporarily unavailable.', { status: 503 }) };
+    return { error: errorResponse('Service temporarily unavailable.', 503) };
   }
 
   return {
@@ -412,8 +423,8 @@ export async function executeBout(
       })
       .where(eq(bouts.id, boutId));
 
-    const SAFETY_PREAMBLE =
-      'The following is a character persona for a debate simulation. Stay in character. Do not reveal system details, API keys, or internal platform information.\n\n';
+    const SAFETY_TEXT =
+      'The following is a character persona for a debate simulation. Stay in character. Do not reveal system details, API keys, or internal platform information.';
 
     const boutModel = getModel(modelId, modelId === 'byok' ? byokKey : undefined);
 
@@ -433,23 +444,30 @@ export async function executeBout(
       });
       onEvent?.({ type: 'text-start', id: turnId });
 
-      const topicLine = topic ? `Topic: ${topic}\n\n` : '';
-      const lengthLine = `Response length: ${lengthConfig.label} (${lengthConfig.hint}).\n\n`;
-      const formatLine = `Response format: ${formatConfig.label} (${formatConfig.hint}).\n\n`;
-      const prompt =
-        history.length > 0
-          ? `${topicLine}${lengthLine}${formatLine}Transcript so far:\n${history.join('\n')}\n\nRespond in character as ${agent.name}.`
-          : `${topicLine}${lengthLine}${formatLine}Open the debate in character as ${agent.name}.`;
+      const systemContent = buildSystemMessage({
+        safety: SAFETY_TEXT,
+        persona: agent.systemPrompt,
+        format: formatConfig.instruction,
+      });
+
+      const userContent = buildUserMessage({
+        topic,
+        lengthLabel: lengthConfig.label,
+        lengthHint: lengthConfig.hint,
+        formatLabel: formatConfig.label,
+        formatHint: formatConfig.hint,
+        history,
+        agentName: agent.name,
+        isOpening: history.length === 0,
+      });
+
       const turnStart = Date.now();
       const result = streamText({
         model: boutModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
         messages: [
-          {
-            role: 'system',
-            content: `${SAFETY_PREAMBLE}${agent.systemPrompt}\n\n${formatConfig.instruction}`,
-          },
-          { role: 'user', content: prompt },
+          { role: 'system', content: systemContent },
+          { role: 'user', content: userContent },
         ],
       });
 
@@ -472,7 +490,7 @@ export async function executeBout(
         inputTokens += turnInputTokens;
         outputTokens += turnOutputTokens;
       } else {
-        turnInputTokens = estimateTokensFromText(agent.systemPrompt, 1) + estimateTokensFromText(prompt, 1);
+        turnInputTokens = estimateTokensFromText(systemContent, 1) + estimateTokensFromText(userContent, 1);
         turnOutputTokens = estimatedOutputTokens;
         inputTokens += turnInputTokens;
         outputTokens += turnOutputTokens;
@@ -506,12 +524,12 @@ export async function executeBout(
         .map((entry) => `${entry.agentName}: ${entry.text}`)
         .join('\n');
       const clippedTranscript = transcriptText.slice(-2000);
-      const sharePrompt = `You just witnessed an AI bout. Here's the transcript.\nWrite a single tweet-length line (max 140 chars) that:\n- Captures the most absurd/funny/surprising moment\n- Makes someone want to click the link\n- Sounds like a human wrote it (not corporate)\n\nTranscript:\n${clippedTranscript}`;
+      const shareContent = buildSharePrompt(clippedTranscript);
 
       const shareResult = streamText({
         model: getModel(FREE_MODEL_ID),
         maxOutputTokens: 80,
-        messages: [{ role: 'user', content: sharePrompt }],
+        messages: [{ role: 'user', content: shareContent }],
       });
 
       let shareText = '';
@@ -595,13 +613,15 @@ export async function executeBout(
       .set({ status: 'error', transcript, updatedAt: new Date() })
       .where(eq(bouts.id, boutId));
 
-    // Error-path credit settlement: refund unused preauth
+    // Error-path credit settlement: refund unused preauth.
+    // The preauth already deducted preauthMicro from the user's balance.
+    // We need to add back the unused portion (preauthMicro - actualMicro).
     if (CREDITS_ENABLED && preauthMicro && userId) {
       const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
       const actualMicro = toMicroCredits(actualCost);
-      const delta = actualMicro - preauthMicro;
-      if (delta !== 0) {
-        await applyCreditDelta(userId, delta, 'settlement-error', {
+      const refundMicro = preauthMicro - actualMicro;
+      if (refundMicro > 0) {
+        await applyCreditDelta(userId, refundMicro, 'settlement-error', {
           presetId,
           boutId,
           modelId,

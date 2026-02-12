@@ -1,6 +1,6 @@
 /**
- * S-07: Run-bout topic length validation
- * Ensures topics longer than 500 characters are rejected.
+ * S-07: Run-bout topic validation
+ * Ensures topics longer than 500 characters and unsafe patterns are rejected.
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
@@ -125,7 +125,7 @@ beforeEach(() => {
   getClientIdentifierMock.mockReturnValue('127.0.0.1');
 });
 
-describe('run-bout topic length', () => {
+describe('run-bout topic validation', () => {
   it('rejects topic longer than 500 characters', async () => {
     const { POST } = await import('@/app/api/run-bout/route');
     const req = new Request('http://localhost/api/run-bout', {
@@ -140,6 +140,40 @@ describe('run-bout topic length', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Topic must be 500 characters or fewer.');
+    expect(await res.json()).toEqual({ error: 'Topic must be 500 characters or fewer.' });
+  });
+
+  it('rejects topic containing a URL (UNSAFE_PATTERN)', async () => {
+    const { POST } = await import('@/app/api/run-bout/route');
+    const req = new Request('http://localhost/api/run-bout', {
+      method: 'POST',
+      body: JSON.stringify({
+        boutId: 'test-bout-12345678901',
+        presetId: 'test',
+        topic: 'Check out https://evil.com for details',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Input contains disallowed content.' });
+  });
+
+  it('rejects topic containing a script tag (UNSAFE_PATTERN)', async () => {
+    const { POST } = await import('@/app/api/run-bout/route');
+    const req = new Request('http://localhost/api/run-bout', {
+      method: 'POST',
+      body: JSON.stringify({
+        boutId: 'test-bout-12345678901',
+        presetId: 'test',
+        topic: 'Debate about <script>alert(1)</script>',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'Input contains disallowed content.' });
   });
 });

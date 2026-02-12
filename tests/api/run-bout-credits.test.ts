@@ -258,7 +258,7 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
       makeRequest({ boutId: 'b1', presetId: 'darwin-special' }),
     );
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 
   // -------------------------------------------------------------------------
@@ -271,7 +271,7 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
       makeRequest({ boutId: 'b2', presetId: 'darwin-special' }),
     );
     expect(res.status).toBe(402);
-    expect(await res.text()).toBe('Insufficient credits.');
+    expect(await res.json()).toEqual({ error: 'Insufficient credits.' });
   });
 
   // -------------------------------------------------------------------------
@@ -417,10 +417,10 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
 
     await executePromise;
 
-    // delta = actualMicro - preauthMicro = 1000 - 5000 = -4000 (refund)
+    // refundMicro = preauthMicro - actualMicro = 5000 - 1000 = 4000 (positive refund)
     expect(applyCreditDeltaMock).toHaveBeenCalledWith(
       'user-1',
-      -4000,
+      4000,
       'settlement-error',
       expect.objectContaining({
         boutId: 'b6',

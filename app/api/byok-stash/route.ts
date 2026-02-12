@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { withLogging } from '@/lib/api-logging';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -8,6 +10,7 @@ const COOKIE_NAME = 'pit_byok';
 const MAX_AGE_SECONDS = 60;
 const KEY_PREFIX = 'sk-ant-';
 const KEY_MAX_LENGTH = 256;
+const RATE_LIMIT = { name: 'byok-stash', maxRequests: 10, windowMs: 60_000 };
 
 /**
  * Stash a BYOK key in a short-lived, HTTP-only cookie.
@@ -18,27 +21,29 @@ const KEY_MAX_LENGTH = 256;
 export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
-    return new Response('Authentication required.', { status: 401 });
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
-  let payload: { key?: string };
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
+  const rateCheck = checkRateLimit(RATE_LIMIT, userId);
+  if (!rateCheck.success) {
+    return rateLimitResponse(rateCheck);
   }
+
+  const parsed = await parseJsonBody<{ key?: string }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const key = typeof payload.key === 'string' ? payload.key.trim() : '';
   if (!key) {
-    return new Response('Missing key.', { status: 400 });
+    return errorResponse('Missing key.', 400);
   }
 
   if (key.length > KEY_MAX_LENGTH) {
-    return new Response('Key too long.', { status: 400 });
+    return errorResponse('Key too long.', 400);
   }
 
   if (!key.startsWith(KEY_PREFIX)) {
-    return new Response('Invalid key format.', { status: 400 });
+    return errorResponse('Invalid key format.', 400);
   }
 
   const jar = await cookies();

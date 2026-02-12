@@ -293,7 +293,7 @@ describe('run-bout arena mode', () => {
     );
 
     expect(res.status).toBe(404);
-    expect(await res.text()).toBe('Unknown preset.');
+    expect(await res.json()).toEqual({ error: 'Unknown preset.' });
   });
 
   // -------------------------------------------------------------------------
@@ -323,7 +323,7 @@ describe('run-bout arena mode', () => {
     );
 
     expect(res.status).toBe(404);
-    expect(await res.text()).toBe('Unknown preset.');
+    expect(await res.json()).toEqual({ error: 'Unknown preset.' });
   });
 
   // -------------------------------------------------------------------------
@@ -469,7 +469,7 @@ describe('run-bout arena mode', () => {
     );
 
     expect(res.status).toBe(404);
-    expect(await res.text()).toBe('Unknown preset.');
+    expect(await res.json()).toEqual({ error: 'Unknown preset.' });
   });
 
   // -------------------------------------------------------------------------

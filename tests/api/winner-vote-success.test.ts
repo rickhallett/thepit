@@ -101,29 +101,29 @@ describe('winner-vote success paths', () => {
     const res = await POST(makeReq({ boutId: 'ghost-bout', agentId: 'agent-a' }));
 
     expect(res.status).toBe(404);
-    expect(await res.text()).toBe('Bout not found.');
+    expect(await res.json()).toEqual({ error: 'Bout not found.' });
   });
 
-  it('U1: unauthenticated user → 401 "Sign in required."', async () => {
+  it('U1: unauthenticated user → 401 "Authentication required."', async () => {
     authMock.mockResolvedValue({ userId: null });
 
     const res = await POST(makeReq({ boutId: 'bout-1', agentId: 'agent-a' }));
 
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 
   it('U2: missing boutId → 400', async () => {
     const res = await POST(makeReq({ agentId: 'agent-a' }));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing boutId or agentId.');
+    expect(await res.json()).toEqual({ error: 'Missing boutId or agentId.' });
   });
 
   it('U3: missing agentId → 400', async () => {
     const res = await POST(makeReq({ boutId: 'bout-1' }));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing boutId or agentId.');
+    expect(await res.json()).toEqual({ error: 'Missing boutId or agentId.' });
   });
 });

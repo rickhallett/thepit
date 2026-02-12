@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { log } from '@/lib/logger';
 import { validateBoutRequest, executeBout } from '@/lib/bout-engine';
 import { getUserTier, SUBSCRIPTIONS_ENABLED, TIER_CONFIG } from '@/lib/tier';
+import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -22,19 +23,13 @@ export async function POST(req: Request) {
   // Lab tier gate: check before running validation (which may consume credits)
   const { userId } = await auth();
   if (!userId) {
-    return Response.json(
-      { error: 'Authentication required.' },
-      { status: 401 },
-    );
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
   if (SUBSCRIPTIONS_ENABLED) {
     const tier = await getUserTier(userId);
     if (!TIER_CONFIG[tier].apiAccess) {
-      return Response.json(
-        { error: 'API access requires a Pit Lab subscription.' },
-        { status: 403 },
-      );
+      return errorResponse('API access requires a Pit Lab subscription.', 403);
     }
   }
 
@@ -71,27 +66,15 @@ export async function POST(req: Request) {
     });
 
     if (message.includes('timeout') || message.includes('DEADLINE')) {
-      return Response.json(
-        { error: 'The bout timed out. Try a shorter length or fewer turns.' },
-        { status: 504 },
-      );
+      return errorResponse('The bout timed out. Try a shorter length or fewer turns.', 504);
     }
     if (message.includes('rate') || message.includes('429')) {
-      return Response.json(
-        { error: 'API rate limited. Please wait a moment and try again.' },
-        { status: 429 },
-      );
+      return errorResponse('API rate limited. Please wait a moment and try again.', 429);
     }
     if (message.includes('overloaded') || message.includes('529')) {
-      return Response.json(
-        { error: 'The model is overloaded. Please try again shortly.' },
-        { status: 503 },
-      );
+      return errorResponse('The model is overloaded. Please try again shortly.', 503);
     }
 
-    return Response.json(
-      { error: 'Internal server error.' },
-      { status: 500 },
-    );
+    return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 }

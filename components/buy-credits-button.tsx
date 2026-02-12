@@ -1,9 +1,20 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
+import { trackEvent } from '@/lib/analytics';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
+  const wasIdle = useRef(true);
+
+  useEffect(() => {
+    if (pending && wasIdle.current) {
+      trackEvent('credit_purchase_initiated');
+    }
+    wasIdle.current = !pending;
+  }, [pending]);
+
   return (
     <button
       type="submit"

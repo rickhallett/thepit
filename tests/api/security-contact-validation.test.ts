@@ -39,7 +39,7 @@ describe('contact form validation', () => {
     const { POST } = await import('@/app/api/contact/route');
     const res = await POST(makeReq({ name: 'Test', email: 'not-an-email', message: 'Hello' }));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid email address.');
+    expect(await res.json()).toEqual({ error: 'Invalid email address.' });
   });
 
   it('rejects name exceeding 200 characters', async () => {
@@ -48,7 +48,7 @@ describe('contact form validation', () => {
       makeReq({ name: 'A'.repeat(201), email: 'test@test.com', message: 'Hello' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Input too long.');
+    expect(await res.json()).toEqual({ error: 'Input too long.' });
   });
 
   it('rejects message exceeding 5000 characters', async () => {
@@ -57,6 +57,6 @@ describe('contact form validation', () => {
       makeReq({ name: 'Test', email: 'test@test.com', message: 'X'.repeat(5001) }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Input too long.');
+    expect(await res.json()).toEqual({ error: 'Input too long.' });
   });
 });

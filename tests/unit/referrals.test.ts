@@ -130,6 +130,23 @@ describe('referrals', () => {
       expect(mockNanoid).toHaveBeenCalledTimes(2);
       expect(code).toBe('unique99');
     });
+
+    it('B5: throws if user does not exist in database', async () => {
+      // Select returns empty array (user not found)
+      mockDb.select.mockImplementation(() => ({
+        from: () => ({
+          where: () => ({
+            limit: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      }));
+
+      const { ensureReferralCode } = await loadReferrals();
+      await expect(ensureReferralCode('nonexistent-user')).rejects.toThrow(
+        'User not found',
+      );
+      expect(mockDb.update).not.toHaveBeenCalled();
+    });
   });
 
   describe('applyReferralBonus', () => {

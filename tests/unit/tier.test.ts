@@ -344,9 +344,9 @@ describe('tier module', () => {
       expect(canAccessModel('lab', 'claude-opus-4-6')).toBe(true);
     });
 
-    it('allows unknown models by default', async () => {
+    it('denies unknown models by default (fail-closed)', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', 'some-future-model')).toBe(true);
+      expect(canAccessModel('free', 'some-future-model')).toBe(false);
     });
   });
 

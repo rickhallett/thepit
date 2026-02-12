@@ -375,10 +375,9 @@ describe('server actions', () => {
   // createBout
   // ================================================================
   describe('createBout', () => {
-    it('throws on invalid preset', async () => {
-      await expect(createBout('nonexistent-preset')).rejects.toThrow(
-        'Invalid preset.',
-      );
+    it('redirects to /arena on invalid preset', async () => {
+      const url = await catchRedirect(() => createBout('nonexistent-preset'));
+      expect(url).toContain('/arena');
     });
 
     it('creates bout and redirects to bout page', async () => {

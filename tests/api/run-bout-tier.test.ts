@@ -270,7 +270,7 @@ describe('run-bout tier-based access control', () => {
 
     const res = await POST(makeRequest({ boutId: 'b1', presetId: 'darwin-special' }));
     expect(res.status).toBe(402);
-    expect(await res.text()).toBe('limit reached');
+    expect(await res.json()).toEqual({ error: 'limit reached' });
   });
 
   // -------------------------------------------------------------------------
@@ -287,7 +287,8 @@ describe('run-bout tier-based access control', () => {
       }),
     );
     expect(res.status).toBe(402);
-    expect(await res.text()).toContain('does not include access');
+    const body2 = await res.json();
+    expect(body2.error).toContain('does not include access');
   });
 
   // -------------------------------------------------------------------------
@@ -299,7 +300,8 @@ describe('run-bout tier-based access control', () => {
 
     const res = await POST(makeRequest({ boutId: 'b3', presetId: 'darwin-special' }));
     expect(res.status).toBe(429);
-    expect(await res.text()).toContain('pool exhausted');
+    const body3 = await res.json();
+    expect(body3.error).toContain('pool exhausted');
   });
 
   // -------------------------------------------------------------------------
@@ -366,7 +368,8 @@ describe('run-bout tier-based access control', () => {
       }),
     );
     expect(res.status).toBe(402);
-    expect(await res.text()).toContain('does not include access');
+    const body7 = await res.json();
+    expect(body7.error).toContain('does not include access');
   });
 
   // -------------------------------------------------------------------------
@@ -489,6 +492,6 @@ describe('run-bout tier-based access control', () => {
       makeRequest({ boutId: 'b8', presetId: 'darwin-special' }),
     );
     expect(res.status).toBe(402);
-    expect(await res.text()).toBe('Premium required.');
+    expect(await res.json()).toEqual({ error: 'Premium required.' });
   });
 });

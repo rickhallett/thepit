@@ -138,7 +138,7 @@ describe('paper-submissions api', () => {
   it('U1: invalid JSON returns 400', async () => {
     const res = await POST(makeRawReq('{bad'));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid JSON.');
+    expect(await res.json()).toEqual({ error: 'Invalid JSON.' });
   });
 
   it('U2: missing arxivUrl returns 400', async () => {
@@ -146,7 +146,7 @@ describe('paper-submissions api', () => {
       makeReq({ justification: VALID_JUSTIFICATION, relevanceArea: 'other' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('arXiv URL required.');
+    expect(await res.json()).toEqual({ error: 'arXiv URL required.' });
   });
 
   it('U3: invalid arXiv URL returns 400', async () => {
@@ -160,7 +160,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid arXiv URL.');
+    expect(await res.json()).toEqual({ error: 'Invalid arXiv URL.' });
   });
 
   it('U4: justification too short returns 400', async () => {
@@ -172,9 +172,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Justification must be at least 50 characters.',
-    );
+    expect(await res.json()).toEqual({ error: 'Justification must be at least 50 characters.' });
   });
 
   it('U5: justification too long returns 400', async () => {
@@ -186,9 +184,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Justification must be 2000 characters or fewer.',
-    );
+    expect(await res.json()).toEqual({ error: 'Justification must be 2000 characters or fewer.' });
   });
 
   it('U6: invalid relevanceArea returns 400', async () => {
@@ -200,7 +196,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid relevance area.');
+    expect(await res.json()).toEqual({ error: 'Invalid relevance area.' });
   });
 
   it('U7: unauthenticated request returns 401', async () => {
@@ -214,7 +210,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 
   it('U8: rate limited returns 429', async () => {
@@ -232,7 +228,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(429);
-    expect(await res.text()).toBe('Too many submissions. Try again later.');
+    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
   });
 
   it('U9: paper not found on arXiv returns 400', async () => {
@@ -246,7 +242,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Paper not found on arXiv.');
+    expect(await res.json()).toEqual({ error: 'Paper not found on arXiv.' });
   });
 
   it('U10: UNSAFE_PATTERN in justification returns 400', async () => {
@@ -259,9 +255,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Justification must not contain URLs or scripts.',
-    );
+    expect(await res.json()).toEqual({ error: 'Justification must not contain URLs or scripts.' });
   });
 
   it('U11: each valid relevanceArea is accepted', async () => {

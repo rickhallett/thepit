@@ -1,7 +1,36 @@
+import { createRequire } from 'node:module';
 import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
+
+// Node 21.2+ provides import.meta.dirname natively. Avoid the
+// fileURLToPath(import.meta.url) pattern because Next.js 16's config
+// compiler mishandles import.meta.url, producing "exports is not
+// defined in ES module scope".
+const __dirname = import.meta.dirname;
+const require = createRequire(import.meta.url);
+
+// Content-Security-Policy directives.
+// Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
+// api.stripe.com) are omitted since CSP only governs the browser.
+const cspDirectives = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://cdn.jsdelivr.net",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https://img.clerk.com https://images.clerk.dev",
+  "font-src 'self' data:",
+  "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://us.i.posthog.com https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com",
+  "frame-src 'self' https://checkout.stripe.com https://*.clerk.accounts.dev https://*.clerk.com",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+];
 
 const securityHeaders = [
+  {
+    key: 'Content-Security-Policy',
+    value: cspDirectives.join('; '),
+  },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -16,6 +45,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Pin Turbopack root to this project directory to prevent it from
+  // walking up to a parent lockfile (e.g. ~/code/bun.lock).
+  turbopack: {
+    root: __dirname,
+  },
   async headers() {
     return [
       {
@@ -27,13 +61,24 @@ const nextConfig: NextConfig = {
 };
 
 // Sentry wraps the Next.js config to enable source map uploads and
-// automatic instrumentation. When SENTRY_AUTH_TOKEN is not set (local dev),
-// this is effectively a no-op passthrough.
+// automatic instrumentation. Use createRequire to load the CJS package
+// — @sentry/nextjs resolves to CJS under the "node" condition but
+// Next.js 16 compiles next.config.ts as ESM, so a static import causes
+// "exports is not defined in ES module scope".
+const { withSentryConfig } = require('@sentry/nextjs');
+
 export default withSentryConfig(nextConfig, {
   // Upload source maps for readable stack traces in Sentry.
   // Requires SENTRY_AUTH_TOKEN and SENTRY_ORG/SENTRY_PROJECT env vars.
   silent: !process.env.CI,
-  disableLogger: true,
+
+  // Treeshake Sentry debug logging from production bundles.
+  // Note: only effective with webpack builds; Turbopack ignores this.
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 
   // Opt out of Sentry's telemetry collection.
   telemetry: false,

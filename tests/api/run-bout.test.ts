@@ -74,7 +74,7 @@ describe('run-bout api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(409);
-    expect(await res.text()).toBe('Bout is already running.');
+    expect(await res.json()).toEqual({ error: 'Bout is already running.' });
   });
 
   it('allows running bout with empty transcript (normal flow)', async () => {
@@ -124,6 +124,6 @@ describe('run-bout api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(409);
-    expect(await res.text()).toBe('Bout has already completed.');
+    expect(await res.json()).toEqual({ error: 'Bout has already completed.' });
   });
 });

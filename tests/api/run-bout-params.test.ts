@@ -437,7 +437,7 @@ describe('run-bout parameter passthrough', () => {
     );
 
     expect(res.status).toBe(409);
-    expect(await res.text()).toBe('Bout is already running.');
+    expect(await res.json()).toEqual({ error: 'Bout is already running.' });
   });
 
   // -------------------------------------------------------------------------
@@ -451,7 +451,7 @@ describe('run-bout parameter passthrough', () => {
     );
 
     expect(res.status).toBe(409);
-    expect(await res.text()).toBe('Bout has already completed.');
+    expect(await res.json()).toEqual({ error: 'Bout has already completed.' });
   });
 
   // -------------------------------------------------------------------------
@@ -484,7 +484,7 @@ describe('run-bout parameter passthrough', () => {
     const res = await POST(makeRequest({ boutId: 'no-preset' }));
 
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Missing presetId.');
+    expect(await res.json()).toEqual({ error: 'Missing presetId.' });
   });
 
   // -------------------------------------------------------------------------
@@ -504,7 +504,7 @@ describe('run-bout parameter passthrough', () => {
     );
 
     expect(res.status).toBe(503);
-    expect(await res.text()).toBe('Service temporarily unavailable.');
+    expect(await res.json()).toEqual({ error: 'Service temporarily unavailable.' });
   });
 
   // -------------------------------------------------------------------------

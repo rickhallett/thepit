@@ -17,7 +17,20 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'THE PIT — AI Battle Arena',
-  description: 'A high-velocity multi-agent debate arena.',
+  description: 'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thepit.cloud'),
+  openGraph: {
+    title: 'THE PIT — AI Battle Arena',
+    description: 'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
+    siteName: 'THE PIT',
+    locale: 'en_GB',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'THE PIT — AI Battle Arena',
+    description: 'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
+  },
 };
 
 export default async function RootLayout({

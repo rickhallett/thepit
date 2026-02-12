@@ -117,10 +117,17 @@ describe('credits helpers', () => {
     expect(cost).toBeGreaterThan(0);
   });
 
-  it('returns zero costs for unknown models', async () => {
-    const { estimateBoutCostGbp, computeCostGbp } = await loadCredits();
-    expect(estimateBoutCostGbp(4, 'unknown-model', 120)).toBe(0);
-    expect(computeCostGbp(10, 20, 'unknown-model')).toBe(0);
+  it('B2-regression: unknown models fall back to haiku pricing, not zero', async () => {
+    const { estimateBoutCostGbp, computeCostGbp, getModelPricing } = await loadCredits();
+
+    // Unknown model should fall back to haiku pricing
+    const haikuPricing = getModelPricing('claude-haiku-4-5-20251001');
+    const unknownPricing = getModelPricing('unknown-model');
+    expect(unknownPricing).toEqual(haikuPricing);
+
+    // Cost calculations should return positive values, not zero
+    expect(estimateBoutCostGbp(4, 'unknown-model', 120)).toBeGreaterThan(0);
+    expect(computeCostGbp(10, 20, 'unknown-model')).toBeGreaterThan(0);
   });
 
   it('uses defaults when env is missing', async () => {

@@ -5,6 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
+import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
 import { agents } from '@/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -55,7 +56,7 @@ function validateTextField(
 
 /** Create a new agent with tier-based slot limits and content validation. */
 export const POST = withLogging(async function POST(req: Request) {
-  let payload: {
+  const parsed = await parseJsonBody<{
     name?: string;
     systemPrompt?: string;
     presetId?: string;
@@ -75,23 +76,19 @@ export const POST = withLogging(async function POST(req: Request) {
     fears?: string;
     customInstructions?: string;
     clientManifestHash?: string;
-  };
-
-  try {
-    payload = await req.json();
-  } catch {
-    return new Response('Invalid JSON.', { status: 400 });
-  }
+  }>(req);
+  if (parsed.error) return parsed.error;
+  const payload = parsed.data;
 
   const name = typeof payload.name === 'string' ? payload.name.trim() : '';
   if (!name) {
-    return new Response('Missing name.', { status: 400 });
+    return errorResponse('Missing name.', 400);
   }
   if (name.length > 80) {
-    return new Response('Name must be 80 characters or fewer.', { status: 400 });
+    return errorResponse('Name must be 80 characters or fewer.', 400);
   }
   if (/https?:\/\/|www\./i.test(name)) {
-    return new Response('Name must not contain URLs.', { status: 400 });
+    return errorResponse('Name must not contain URLs.', 400);
   }
 
   // Validate all structured text fields for length and unsafe patterns
@@ -99,7 +96,7 @@ export const POST = withLogging(async function POST(req: Request) {
     const value = payload[field as keyof typeof payload];
     if (typeof value === 'string') {
       const error = validateTextField(value, limit);
-      if (error) return new Response(error, { status: 400 });
+      if (error) return errorResponse(error, 400);
     }
   }
 
@@ -110,51 +107,72 @@ export const POST = withLogging(async function POST(req: Request) {
       ? payload.customInstructions.trim()
       : rawPrompt || null;
   const quirks = Array.isArray(payload.quirks)
-    ? payload.quirks.map((quirk) => quirk.trim()).filter(Boolean)
+    ? payload.quirks
+        .filter((q): q is string => typeof q === 'string')
+        .map((q) => q.trim())
+        .filter(Boolean)
     : [];
 
   // Validate quirks: max 10 items, 100 chars each
   if (quirks.length > 10) {
-    return new Response('Maximum 10 quirks allowed.', { status: 400 });
+    return errorResponse('Maximum 10 quirks allowed.', 400);
   }
   for (const quirk of quirks) {
     if (quirk.length > 100) {
-      return new Response('Each quirk must be 100 characters or fewer.', { status: 400 });
+      return errorResponse('Each quirk must be 100 characters or fewer.', 400);
     }
     if (UNSAFE_PATTERN.test(quirk)) {
-      return new Response('Quirks must not contain URLs or scripts.', { status: 400 });
+      return errorResponse('Quirks must not contain URLs or scripts.', 400);
     }
   }
+  /** Trim a string field to null if empty/missing. */
+  const trimOrNull = (v: string | undefined | null): string | null => {
+    const t = typeof v === 'string' ? v.trim() : null;
+    return t || null;
+  };
+
+  const archetype = trimOrNull(payload.archetype);
+  const tone = trimOrNull(payload.tone);
+  const speechPattern = trimOrNull(payload.speechPattern);
+  const openingMove = trimOrNull(payload.openingMove);
+  const signatureMove = trimOrNull(payload.signatureMove);
+  const weakness = trimOrNull(payload.weakness);
+  const goal = trimOrNull(payload.goal);
+  const fears = trimOrNull(payload.fears);
+
+  // Only consider customInstructions for hasStructuredFields when the user
+  // explicitly provided it (not when it was derived from rawPrompt fallback).
+  const explicitCustomInstructions = trimOrNull(payload.customInstructions);
   const hasStructuredFields = Boolean(
-    payload.archetype ||
-      payload.tone ||
+    archetype ||
+      tone ||
       quirks.length > 0 ||
-      payload.speechPattern ||
-      payload.openingMove ||
-      payload.signatureMove ||
-      payload.weakness ||
-      payload.goal ||
-      payload.fears ||
-      payload.customInstructions,
+      speechPattern ||
+      openingMove ||
+      signatureMove ||
+      weakness ||
+      goal ||
+      fears ||
+      explicitCustomInstructions,
   );
   const systemPrompt = hasStructuredFields
     ? buildStructuredPrompt({
         name,
-        archetype: payload.archetype,
-        tone: payload.tone,
+        archetype,
+        tone,
         quirks,
-        speechPattern: payload.speechPattern,
-        openingMove: payload.openingMove,
-        signatureMove: payload.signatureMove,
-        weakness: payload.weakness,
-        goal: payload.goal,
-        fears: payload.fears,
+        speechPattern,
+        openingMove,
+        signatureMove,
+        weakness,
+        goal,
+        fears,
         customInstructions,
       })
     : rawPrompt;
 
   if (!systemPrompt) {
-    return new Response('Missing prompt.', { status: 400 });
+    return errorResponse('Missing prompt.', 400);
   }
 
   const lengthConfig = resolveResponseLength(payload.responseLength);
@@ -163,7 +181,7 @@ export const POST = withLogging(async function POST(req: Request) {
 
   // Require authentication to prevent spam/DoS via unauthenticated agent creation
   if (!userId) {
-    return new Response('Sign in required.', { status: 401 });
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
   const rateCheck = checkRateLimit(
@@ -171,7 +189,7 @@ export const POST = withLogging(async function POST(req: Request) {
     userId,
   );
   if (!rateCheck.success) {
-    return new Response('Rate limit exceeded. Max 10 agents per hour.', { status: 429 });
+    return rateLimitResponse(rateCheck, 'Rate limit exceeded. Max 10 agents per hour.');
   }
 
   await ensureUserRecord(userId);
@@ -191,7 +209,7 @@ export const POST = withLogging(async function POST(req: Request) {
     const currentCount = countResult?.count ?? 0;
     const slotCheck = await canCreateAgent(userId, currentCount);
     if (!slotCheck.allowed) {
-      return new Response(slotCheck.reason, { status: 402 });
+      return errorResponse(slotCheck.reason, 402);
     }
   }
   const agentId = nanoid();
@@ -215,7 +233,7 @@ export const POST = withLogging(async function POST(req: Request) {
   ]);
 
   if (payload.clientManifestHash && payload.clientManifestHash !== manifestHash) {
-    return new Response('Manifest hash mismatch.', { status: 400 });
+    return errorResponse('Manifest hash mismatch.', 400);
   }
 
   const db = requireDb();
@@ -228,15 +246,15 @@ export const POST = withLogging(async function POST(req: Request) {
     model: manifest.model,
     responseLength: manifest.responseLength,
     responseFormat: manifest.responseFormat,
-    archetype: payload.archetype ?? null,
-    tone: payload.tone ?? null,
+    archetype,
+    tone,
     quirks,
-    speechPattern: payload.speechPattern ?? null,
-    openingMove: payload.openingMove ?? null,
-    signatureMove: payload.signatureMove ?? null,
-    weakness: payload.weakness ?? null,
-    goal: payload.goal ?? null,
-    fears: payload.fears ?? null,
+    speechPattern,
+    openingMove,
+    signatureMove,
+    weakness,
+    goal,
+    fears,
     customInstructions,
     createdAt: new Date(manifest.createdAt),
     ownerId: manifest.ownerId,

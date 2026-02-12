@@ -6,6 +6,11 @@ import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
 import { trackEvent } from '@/lib/analytics';
+import {
+  initScrollDepthTracking,
+  initActiveTimeTracking,
+  trackBoutEngagement,
+} from '@/lib/engagement';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
@@ -113,6 +118,29 @@ export function Arena({
         // Non-critical — fall back to /b/ URLs
       });
   }, [boutId, shortSlug, status]);
+
+  // Engagement tracking — scroll depth and active time.
+  // Store mutable values in refs to avoid stale closures in the unmount cleanup.
+  const reactionsGivenRef = useRef(0);
+  const turnsWatchedRef = useRef(messages.length);
+  const userVoteRef = useRef(userVote);
+  turnsWatchedRef.current = messages.length;
+  userVoteRef.current = userVote;
+  useEffect(() => {
+    const cleanupScroll = initScrollDepthTracking();
+    const cleanupTime = initActiveTimeTracking();
+    return () => {
+      cleanupScroll();
+      cleanupTime();
+      // Fire bout engagement depth on unmount
+      trackBoutEngagement(boutId, {
+        turnsWatched: turnsWatchedRef.current,
+        reactionsGiven: reactionsGivenRef.current,
+        votesCast: Boolean(userVoteRef.current),
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!autoScroll) return;
@@ -248,6 +276,7 @@ export function Arena({
         }),
       });
       trackEvent('reaction_submitted', { reactionType, turn });
+      reactionsGivenRef.current += 1;
     } catch {
       // swallow; reactions are best-effort
     }

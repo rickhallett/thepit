@@ -127,7 +127,7 @@ describe('feature-requests POST api', () => {
   it('U1: invalid JSON returns 400', async () => {
     const res = await POST(makeRawReq('{bad'));
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid JSON.');
+    expect(await res.json()).toEqual({ error: 'Invalid JSON.' });
   });
 
   it('U2: title too short returns 400', async () => {
@@ -135,7 +135,7 @@ describe('feature-requests POST api', () => {
       makeReq({ title: 'Hi', description: VALID_DESCRIPTION, category: 'ui' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Title must be at least 5 characters.');
+    expect(await res.json()).toEqual({ error: 'Title must be at least 5 characters.' });
   });
 
   it('U3: title too long returns 400', async () => {
@@ -147,7 +147,7 @@ describe('feature-requests POST api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Title must be 200 characters or fewer.');
+    expect(await res.json()).toEqual({ error: 'Title must be 200 characters or fewer.' });
   });
 
   it('U4: description too short returns 400', async () => {
@@ -159,9 +159,7 @@ describe('feature-requests POST api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Description must be at least 20 characters.',
-    );
+    expect(await res.json()).toEqual({ error: 'Description must be at least 20 characters.' });
   });
 
   it('U5: description too long returns 400', async () => {
@@ -173,9 +171,7 @@ describe('feature-requests POST api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Description must be 3000 characters or fewer.',
-    );
+    expect(await res.json()).toEqual({ error: 'Description must be 3000 characters or fewer.' });
   });
 
   it('U6: invalid category returns 400', async () => {
@@ -187,7 +183,7 @@ describe('feature-requests POST api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Invalid category.');
+    expect(await res.json()).toEqual({ error: 'Invalid category.' });
   });
 
   it('U7: unauthenticated returns 401', async () => {
@@ -201,7 +197,7 @@ describe('feature-requests POST api', () => {
       }),
     );
     expect(res.status).toBe(401);
-    expect(await res.text()).toBe('Sign in required.');
+    expect(await res.json()).toEqual({ error: 'Authentication required.' });
   });
 
   it('U8: rate limited returns 429', async () => {
@@ -230,7 +226,7 @@ describe('feature-requests POST api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Title must not contain URLs or scripts.');
+    expect(await res.json()).toEqual({ error: 'Title must not contain URLs or scripts.' });
   });
 
   it('U10: UNSAFE_PATTERN in description returns 400', async () => {
@@ -243,9 +239,7 @@ describe('feature-requests POST api', () => {
       }),
     );
     expect(res.status).toBe(400);
-    expect(await res.text()).toBe(
-      'Description must not contain URLs or scripts.',
-    );
+    expect(await res.json()).toEqual({ error: 'Description must not contain URLs or scripts.' });
   });
 
   it('U11: each valid category is accepted', async () => {

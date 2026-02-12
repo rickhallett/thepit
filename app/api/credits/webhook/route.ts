@@ -6,6 +6,7 @@ import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 import { withLogging } from '@/lib/api-logging';
+import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { creditTransactions, users } from '@/db/schema';
 import {
   applyCreditDelta,
@@ -45,18 +46,26 @@ async function updateUserSubscription(params: {
     .where(eq(users.id, params.userId));
 }
 
-/** Handle Stripe webhook events for credit purchases and subscription lifecycle. */
+/**
+ * Handle Stripe webhook events for credit purchases and subscription lifecycle.
+ *
+ * Idempotency:
+ * - checkout.session.completed: guarded by creditTransactions.referenceId lookup.
+ * - Subscription/invoice events: naturally idempotent — updateUserSubscription
+ *   is a SET (not increment), so replayed events write the same values.
+ *   Out-of-order delivery is mitigated by Stripe's per-object ordering.
+ */
 export const POST = withLogging(async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
-    return new Response('Service unavailable.', { status: 500 });
+    return errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 500);
   }
 
   const body = await req.text();
   const headerList = await headers();
   const signature = headerList.get('stripe-signature');
   if (!signature) {
-    return new Response('Missing signature.', { status: 400 });
+    return errorResponse('Missing signature.', 400);
   }
 
   let event;
@@ -64,7 +73,7 @@ export const POST = withLogging(async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
     log.warn('Stripe webhook signature failed', toError(error));
-    return new Response('Invalid signature.', { status: 400 });
+    return errorResponse('Invalid signature.', 400);
   }
 
   // --- Credit pack purchase (one-time checkout) ---
