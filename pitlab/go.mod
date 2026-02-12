@@ -1,6 +1,6 @@
 module github.com/rickhallett/thepit/pitlab
 
-go 1.25.6
+go 1.25.7
 
 require github.com/rickhallett/thepit/shared v0.0.0
 

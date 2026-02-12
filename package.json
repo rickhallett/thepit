@@ -2,6 +2,9 @@
   "name": "tspit",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,7 +15,7 @@
     "test:integration": "vitest run tests/integration --coverage=false",
     "test:watch": "vitest",
     "test:loop": "node scripts/test-loop.mjs",
-    "test:ci": "npm run lint && npm run typecheck && npm run test:unit && npm run test:integration",
+    "test:ci": "pnpm run lint && pnpm run typecheck && pnpm run test:unit && pnpm run test:integration",
     "test:e2e": "playwright test",
     "db:reset-ci": "neonctl branches reset ci-test --parent --project-id snowy-river-64480457 --org-id org-nameless-moon-32936094"
   },
@@ -54,5 +57,18 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@sentry/cli",
+      "core-js",
+      "esbuild",
+      "keccak",
+      "protobufjs",
+      "secp256k1",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }
