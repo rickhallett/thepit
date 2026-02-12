@@ -13,6 +13,7 @@ import posthog from 'posthog-js';
 import { PostHogProvider as PHProvider, usePostHog } from 'posthog-js/react';
 import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
@@ -51,6 +52,23 @@ if (typeof window !== 'undefined' && POSTHOG_KEY) {
   }
 }
 
+/** Sync Clerk auth state with PostHog identity. */
+function PostHogIdentify() {
+  const { userId, isSignedIn } = useAuth();
+  const ph = usePostHog();
+
+  useEffect(() => {
+    if (!ph) return;
+    if (isSignedIn && userId) {
+      ph.identify(userId);
+    } else if (isSignedIn === false) {
+      ph.reset();
+    }
+  }, [ph, userId, isSignedIn]);
+
+  return null;
+}
+
 /** Track SPA page views on route change. */
 function PostHogPageView() {
   const pathname = usePathname();
@@ -73,6 +91,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PHProvider client={posthog}>
+      <PostHogIdentify />
       <Suspense fallback={null}>
         <PostHogPageView />
       </Suspense>
