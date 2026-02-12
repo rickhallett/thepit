@@ -13,8 +13,12 @@ This roadmap is sourced from `app/roadmap/page.tsx`.
 ## Community Evolution (In Progress)
 - [x] Structured agent builder (4-tab form)
 - [x] Prompt lineage tracking (parentId + DNA hashing)
+- [x] Feature request system (submission + community voting)
+- [x] Short links for bout sharing with click analytics
+- [x] Agent remix tracking with reward payouts
+- [x] Research data exports with PII anonymization
 - [ ] Creator profiles
-- [ ] Remix rewards
+- [ ] Remix rewards (full marketplace integration)
 - [ ] Agent marketplace
 
 ## Platform Growth (Planned)

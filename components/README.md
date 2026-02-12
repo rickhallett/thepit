@@ -2,7 +2,7 @@
 
 # components/
 
-21 React components in a flat directory. All but two (`SiteFooter`, `PostHogProvider`) are marked `'use client'`. There are no subdirectories and no shared UI primitive layer — styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
+26 React components in a flat directory. All but two (`SiteFooter`, `AgentIcon`) are marked `'use client'`. There are no subdirectories and no shared UI primitive layer — styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
 
 ## Component Inventory
 
@@ -21,6 +21,7 @@
 | `agent-builder.tsx` | `AgentBuilder` | 4-tab form (Basics/Personality/Tactics/Advanced) with live prompt preview |
 | `agents-catalog.tsx` | `AgentsCatalog` | Searchable/filterable grid with preset, tier, and text filters |
 | `agent-details-modal.tsx` | `AgentDetailsModal` | Full-screen DNA modal: prompt, hashes, attestation link, lineage, clone button |
+| `agent-icon.tsx` | `AgentIcon` | Maps avatar identifier strings to Lucide icon components. Shared by ArenaBuilder, LeaderboardTable, AgentsCatalog. |
 | `clone-agent-button.tsx` | `CloneAgentButton` | Navigates to `/agents/clone?source={encoded-id}` |
 
 ### Leaderboard
@@ -49,11 +50,20 @@
 | `intro-pool-counter.tsx` | `IntroPoolCounter` | Live-ticking community credit pool, accounts for drain rate |
 | `darwin-countdown.tsx` | `DarwinCountdown` | Countdown timer to Darwin Day launch |
 
+### Community
+
+| File | Component | Purpose |
+|------|-----------|---------|
+| `feature-request-form.tsx` | `FeatureRequestForm` | Feature request submission form with Clerk auth gating |
+| `feature-request-list.tsx` | `FeatureRequestList` | Votable list of community feature requests with optimistic updates |
+| `paper-submission-form.tsx` | `PaperSubmissionForm` | arXiv paper submission form for the research/citations page |
+
 ### Platform Features
 
 | File | Component | Purpose |
 |------|-----------|---------|
 | `ask-the-pit.tsx` | `AskThePit` | Floating chat FAB for AI Q&A via streaming |
+| `ask-the-pit-lazy.tsx` | `AskThePitLazy` | Lazy-loading wrapper via `next/dynamic` with `ssr: false`. Used by RootLayout. |
 | `newsletter-signup.tsx` | `NewsletterSignup` | Email signup form |
 | `posthog-provider.tsx` | `PostHogProvider` | PostHog analytics context provider |
 
@@ -65,26 +75,32 @@ RootLayout (server)
   │   └── AuthControls
   ├── [page content]
   ├── SiteFooter
-  ├── AskThePit
+  ├── AskThePitLazy → (lazy) AskThePit
   └── PostHogProvider (wraps all)
 
 LeaderboardDashboard
   ├── LeaderboardTable
+  │   ├── AgentIcon
   │   └── AgentDetailsModal
   │       └── CloneAgentButton
   └── PlayerLeaderboardTable
 
 AgentsCatalog
+  ├── AgentIcon
   └── AgentDetailsModal
       └── CloneAgentButton
 
 Arena ← useBout hook for streaming state
 PresetCard ← standalone form, server action binding
-ArenaBuilder ← standalone form, server action binding
+ArenaBuilder
+  └── AgentIcon
 AgentBuilder ← standalone form, POSTs to /api/agents
+FeatureRequestForm ← standalone form, POSTs to /api/feature-requests
+FeatureRequestList ← standalone list with voting
+PaperSubmissionForm ← standalone form, POSTs to /api/paper-submissions
 ```
 
-**Key reuse:** `AgentDetailsModal` is shared between `LeaderboardTable` and `AgentsCatalog` — the only shared modal pattern in the codebase.
+**Key reuse:** `AgentDetailsModal` is shared between `LeaderboardTable` and `AgentsCatalog`. `AgentIcon` is shared between `ArenaBuilder`, `LeaderboardTable`, and `AgentsCatalog`.
 
 ## State Management
 
@@ -97,6 +113,7 @@ AgentBuilder ← standalone form, POSTs to /api/agents
 | `useRef` | Scroll targets, BYOK stash flags, thinking-delay refs |
 | `useEffect` | Scroll listeners, keyboard handlers (Escape), timers, SSE connection |
 | `useFormStatus` | Pending state for server action form submissions |
+| `useCallback` | Stable callback references for event handlers and API calls |
 | `useBout` (custom) | SSE streaming lifecycle — the only custom hook (from `lib/use-bout.ts`) |
 
 ## Styling Conventions
@@ -110,9 +127,9 @@ All components use Tailwind CSS v4 directly. The `cn()` utility (`clsx` + `tailw
 
 ## Design Decisions & Trade-offs
 
-- **No shared UI primitive layer** — There's no `ui/button.tsx` or `ui/input.tsx`. Every component applies Tailwind classes directly. This works well at the current scale (21 components) because the design vocabulary is tight and consistent. If the component count grows past ~35 or if a second contributor joins, extracting shared primitives (Button, Input, Card, Modal) would reduce duplication and enforce consistency.
-- **Flat directory** — No subdirectories. Components are grouped by naming convention (e.g., `agent-*`, `leaderboard-*`). Consider introducing subdirectories if component count doubles.
-- **All client components** — Nearly every component is `'use client'`. This is appropriate: the components handle user interaction (forms, streaming, modals, counters). Server components are the page-level files in `app/`.
+- **No shared UI primitive layer** — There's no `ui/button.tsx` or `ui/input.tsx`. Every component applies Tailwind classes directly. This works well at the current scale (26 components) because the design vocabulary is tight and consistent. If the component count grows past ~35 or if a second contributor joins, extracting shared primitives (Button, Input, Card, Modal) would reduce duplication and enforce consistency.
+- **Flat directory** — No subdirectories. Components are grouped by naming convention (e.g., `agent-*`, `leaderboard-*`, `feature-request-*`). Consider introducing subdirectories if component count doubles.
+- **Nearly all client components** — All but two (`SiteFooter`, `AgentIcon`) are `'use client'`. This is appropriate: the components handle user interaction (forms, streaming, modals, counters). Server components are the page-level files in `app/`.
 
 ---
 

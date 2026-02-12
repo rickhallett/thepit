@@ -20,7 +20,7 @@ JSON preset definitions for THE PIT's debate scenarios. Each preset defines a ca
 | `mansion.json` | Free | Murder mystery mansion |
 | `summit.json` | Free | Diplomatic summit |
 | `flatshare.json` | Free | Flatmate conflicts |
-| `special-guest-hal.json` | Free | HAL 9000 guest appearance |
+| `special-guest-hal.json` | Free (dormant) | HAL 9000 guest appearance — exists on disk but is not imported by `lib/presets.ts` at runtime |
 | `presets-top5.json` | Premium | Top 5 premium pack (5 presets) |
 | `presets-remaining6.json` | Premium | Remaining 6 premium pack (6 presets) |
 
@@ -34,15 +34,16 @@ JSON preset definitions for THE PIT's debate scenarios. Each preset defines a ca
 {
   "preset_id": "roast-battle",
   "name": "Roast Battle",
-  "description": "Two comedians go head-to-head...",
-  "max_turns": { "standard": 8 },
-  "requires_input": false,
+  "description": "Pure chaos. Insult comic vs...",
+  "max_turns": { "standard": 12 },
+  "turn_order": "sequential",
   "agents": [
     {
-      "id": "roast-comedian-a",
-      "name": "Comedian A",
-      "system_prompt": "You are a razor-sharp stand-up comedian...",
-      "color": "#FF4444"
+      "id": "insult-comic",
+      "name": "The Insult Comic",
+      "system_prompt": "<persona><instructions>...</instructions></persona>",
+      "color": "#FF0000",
+      "avatar": "mic"
     }
   ]
 }

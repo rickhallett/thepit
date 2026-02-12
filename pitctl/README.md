@@ -69,7 +69,7 @@ pitctl users inspect <userId>             # full user detail
 pitctl --yes users set-tier <userId> pro  # change subscription tier
 ```
 
-Tiers: `free`, `pro`, `team`.
+Tiers: `free`, `pass`, `lab`.
 
 #### `credits` — Credit economy
 
@@ -124,6 +124,49 @@ pitctl export agents                      # export all agents as JSON
 ```
 
 Files are written to `pitctl/export/` (gitignored).
+
+#### `alerts` — Health checks
+
+```bash
+pitctl alerts                             # run all health checks (DB, API, free pool, error rate)
+pitctl alerts --json                      # output as JSON
+pitctl alerts --quiet                     # exit code only (for cron/CI)
+pitctl alerts --webhook <slack-url>       # send alerts to Slack
+```
+
+Checks database connectivity, API health endpoint, free bout pool exhaustion, and recent error rate.
+
+#### `metrics` — Platform metrics
+
+```bash
+pitctl metrics                            # last 24h metrics (default)
+pitctl metrics --period 7d                # last 7 days
+pitctl metrics --period 30d               # last 30 days
+pitctl metrics --json                     # output as JSON
+```
+
+Shows bout completion rates, user growth, credit economy stats, agent creation rates, and engagement metrics for the specified period.
+
+#### `report` — Summary report
+
+```bash
+pitctl report                             # daily summary report
+pitctl report --period weekly             # weekly summary
+pitctl report --webhook <slack-url>       # send to Slack
+```
+
+Generates a formatted summary report with key metrics. Optionally posts to Slack.
+
+#### `watch` — Continuous monitoring
+
+```bash
+pitctl watch                              # check every 5m (default)
+pitctl watch --interval 30s               # custom interval
+pitctl watch --json                       # output as JSON
+pitctl watch --webhook <slack-url>        # send alerts to Slack
+```
+
+Runs `alerts` checks in a continuous loop until interrupted (Ctrl+C).
 
 #### `version`
 

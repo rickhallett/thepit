@@ -2,7 +2,7 @@
 
 # scripts/
 
-4 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
+5 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
 
 ## Inventory
 
@@ -11,6 +11,7 @@
 | `stripe-setup.sh` | Bash | Create Stripe products and prices for credit packs | `bash scripts/stripe-setup.sh` |
 | `test-loop.mjs` | Node.js | Run the test suite repeatedly (stress testing) | `npm run test:loop` or `node scripts/test-loop.mjs` |
 | `smoke-http.sh` | Bash | HTTP smoke test against a running instance | `bash scripts/smoke-http.sh [url]` |
+| `sanity-check.sh` | Bash | Comprehensive route + middleware sanity check (auto-starts dev server) | `bash scripts/sanity-check.sh [--url URL]` |
 | `create-eas-schema.mjs` | Node.js | Create the EAS attestation schema on Base L2 | `node scripts/create-eas-schema.mjs` |
 
 ### `stripe-setup.sh`
@@ -24,6 +25,10 @@ Runs `vitest run` in a loop for N iterations (default: 10). Useful for detecting
 ### `smoke-http.sh`
 
 Hits key routes with `curl` and reports HTTP status codes. Defaults to `https://thepit.cloud`; pass a URL argument for local or staging instances.
+
+### `sanity-check.sh`
+
+Comprehensive sanity check that tests 25+ routes and middleware behaviors. Optionally starts the dev server automatically. Checks health endpoint, SEO meta routes (robots.txt, sitemap.xml), all public SSR pages, API route validation, admin auth rejection, session cookies, UTM tracking, CSP headers, short link redirects, and bout page handling. Exit code 0 if all checks pass.
 
 ### `create-eas-schema.mjs`
 
