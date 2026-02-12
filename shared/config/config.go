@@ -52,7 +52,7 @@ type Config struct {
 }
 
 // Load reads the .env file and merges with environment variables.
-// envPath can be empty to use default resolution (CWD/../.env or CWD/.env).
+// envPath can be empty to use default resolution (CWD/.env, CWD/../.env, or CWD/../../.env).
 func Load(envPath string) (*Config, error) {
 	cfg := &Config{
 		Vars: make(map[string]string),

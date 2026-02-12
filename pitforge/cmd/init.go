@@ -104,6 +104,10 @@ func RunInit(args []string) {
 	}
 
 	slug := agent.Slugify(name)
+	if slug == "" {
+		fmt.Fprintf(os.Stderr, "%s name produces an empty filename\n", theme.Error.Render("error:"))
+		os.Exit(1)
+	}
 	filename := slug + ".yaml"
 
 	// Check if file already exists.

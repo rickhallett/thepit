@@ -13,6 +13,7 @@ package canon
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"sort"
 	"strconv"
 	"strings"
@@ -27,6 +28,11 @@ func Canonicalize(input []byte) ([]byte, error) {
 	dec.UseNumber()
 	if err := dec.Decode(&raw); err != nil {
 		return nil, fmt.Errorf("parsing JSON: %w", err)
+	}
+	// Reject trailing data after the first JSON value.
+	var extra any
+	if err := dec.Decode(&extra); err != io.EOF {
+		return nil, fmt.Errorf("parsing JSON: trailing data after top-level value")
 	}
 
 	var buf strings.Builder
@@ -111,8 +117,27 @@ func writeNumber(buf *strings.Builder, n json.Number) error {
 	}
 
 	// ES6 spec: use the shortest representation that round-trips.
-	buf.WriteString(strconv.FormatFloat(f, 'f', -1, 64))
+	s = strconv.FormatFloat(f, 'g', -1, 64)
+	buf.WriteString(normalizeExponent(s))
 	return nil
+}
+
+// normalizeExponent removes leading zeros from the exponent to match ES6 formatting.
+// Go's 'g' format emits at least two exponent digits (e.g., "e+06"); ES6 requires
+// no leading zeros (e.g., "e+6").
+func normalizeExponent(s string) string {
+	if i := strings.IndexByte(s, 'e'); i != -1 {
+		head, exp := s[:i+1], s[i+1:]
+		if len(exp) > 0 && (exp[0] == '+' || exp[0] == '-') {
+			sign := exp[0]
+			exp = strings.TrimLeft(exp[1:], "0")
+			if exp == "" {
+				exp = "0"
+			}
+			return head + string(sign) + exp
+		}
+	}
+	return s
 }
 
 func writeString(buf *strings.Builder, s string) {

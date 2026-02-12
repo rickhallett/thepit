@@ -92,7 +92,7 @@ func TestFileRoundTrip(t *testing.T) {
 }
 
 func TestLoadFromFileNotFound(t *testing.T) {
-	_, err := LoadFromFile("/tmp/nonexistent-agent-file.yaml")
+	_, err := LoadFromFile(filepath.Join(t.TempDir(), "nonexistent-agent-file.yaml"))
 	if err == nil {
 		t.Error("expected error for missing file")
 	}

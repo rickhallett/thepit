@@ -75,8 +75,16 @@ func RunDiff(args []string) {
 	diffs := DiffAgents(defA, defB)
 
 	// Also compare prompt hashes.
-	hashA, _ := dna.HashPrompt(prompt.GetSystemPrompt(defA))
-	hashB, _ := dna.HashPrompt(prompt.GetSystemPrompt(defB))
+	hashA, err := dna.HashPrompt(prompt.GetSystemPrompt(defA))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "\n  %s hashing %s: %v\n\n", theme.Error.Render("error:"), args[0], err)
+		os.Exit(1)
+	}
+	hashB, err := dna.HashPrompt(prompt.GetSystemPrompt(defB))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "\n  %s hashing %s: %v\n\n", theme.Error.Render("error:"), args[1], err)
+		os.Exit(1)
+	}
 
 	fmt.Printf("\n  %s vs %s\n\n", theme.Title.Render(args[0]), theme.Title.Render(args[1]))
 

@@ -39,6 +39,9 @@ func HashPrompt(systemPrompt string) (string, error) {
 // HashManifest computes the manifest hash: sha256(canonicalize(manifest)).
 // This matches lib/agent-dna.ts hashAgentManifest().
 func HashManifest(m *agent.Manifest) (string, error) {
+	if m == nil {
+		return "", fmt.Errorf("manifest is nil")
+	}
 	jsonBytes, err := json.Marshal(m)
 	if err != nil {
 		return "", fmt.Errorf("marshaling manifest: %w", err)

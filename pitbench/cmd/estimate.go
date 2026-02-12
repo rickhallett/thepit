@@ -11,7 +11,7 @@ import (
 
 // RunEstimate implements the "estimate" command.
 func RunEstimate(args []string) {
-	model := "claude-haiku-4-5-20251001"
+	model := "claude-3-5-haiku-latest"
 	turns := 12
 	length := "standard"
 
@@ -66,7 +66,7 @@ func printCostBreakdown(cost pricing.CostBreakdown) {
 
 // RunCost implements the "cost" command — cost for specific token counts.
 func RunCost(args []string) {
-	model := "claude-haiku-4-5-20251001"
+	model := "claude-3-5-haiku-latest"
 	inputTokens := 0
 	outputTokens := 0
 
@@ -149,6 +149,10 @@ func RunModels() {
 		theme.Muted.Render("Ratio"))
 	fmt.Printf("  %s\n", strings.Repeat("─", 72))
 
+	if len(pricing.DefaultModels) == 0 {
+		fmt.Println(theme.Muted.Render("  No models configured."))
+		return
+	}
 	base := pricing.DefaultModels[0]
 	for _, m := range pricing.DefaultModels {
 		ratio := m.OutputGBP / base.OutputGBP

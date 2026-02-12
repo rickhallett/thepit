@@ -201,7 +201,10 @@ func (c *Client) GetAttestation(ctx context.Context, uid string) (*Attestation, 
 
 	// ABI-encode the call: getAttestation(bytes32 uid)
 	// Function selector (4 bytes) + uid (32 bytes, zero-padded)
-	uidBytes, _ := hex.DecodeString(uid[2:])
+	uidBytes, err := hex.DecodeString(uid[2:])
+	if err != nil {
+		return nil, fmt.Errorf("decode UID: %w", err)
+	}
 	callData := GetAttestationSelector + hex.EncodeToString(padLeft(uidBytes, 32))
 
 	type ethCallParams struct {
@@ -390,6 +393,9 @@ func parseHexUint64(s string) (uint64, error) {
 	_, ok := n.SetString(s, 16)
 	if !ok {
 		return 0, fmt.Errorf("invalid hex: %q", s)
+	}
+	if !n.IsUint64() {
+		return 0, fmt.Errorf("value exceeds uint64: %q", s)
 	}
 	return n.Uint64(), nil
 }

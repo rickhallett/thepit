@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/rickhallett/thepit/pitlab/internal/analysis"
@@ -14,7 +16,12 @@ func RunSurvival(ds *dataset.Dataset, args []string) {
 	minBouts := 1
 	for i := 0; i < len(args); i++ {
 		if args[i] == "--min-bouts" && i+1 < len(args) {
-			fmt.Sscanf(args[i+1], "%d", &minBouts)
+			n, err := strconv.Atoi(args[i+1])
+			if err != nil || n < 1 {
+				fmt.Fprintf(os.Stderr, "%s --min-bouts must be a positive integer\n", theme.Error.Render("error:"))
+				os.Exit(1)
+			}
+			minBouts = n
 			i++
 		}
 	}

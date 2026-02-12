@@ -17,7 +17,7 @@ const (
 	APIVersion      = "2023-06-01"
 
 	// Default model matching the free tier in the web app.
-	DefaultModel = "claude-haiku-4-5-20251001"
+	DefaultModel = "claude-3-5-haiku-latest"
 )
 
 // Client wraps the Anthropic Messages API.

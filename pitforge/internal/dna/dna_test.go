@@ -23,16 +23,28 @@ func TestHashPromptFormat(t *testing.T) {
 
 func TestHashPromptDeterministic(t *testing.T) {
 	prompt := "You are The Philosopher, a classical philosopher."
-	h1, _ := HashPrompt(prompt)
-	h2, _ := HashPrompt(prompt)
+	h1, err := HashPrompt(prompt)
+	if err != nil {
+		t.Fatalf("HashPrompt: %v", err)
+	}
+	h2, err := HashPrompt(prompt)
+	if err != nil {
+		t.Fatalf("HashPrompt: %v", err)
+	}
 	if h1 != h2 {
 		t.Errorf("hash not deterministic: %s != %s", h1, h2)
 	}
 }
 
 func TestHashPromptDifferentInputs(t *testing.T) {
-	h1, _ := HashPrompt("prompt A")
-	h2, _ := HashPrompt("prompt B")
+	h1, err := HashPrompt("prompt A")
+	if err != nil {
+		t.Fatalf("HashPrompt: %v", err)
+	}
+	h2, err := HashPrompt("prompt B")
+	if err != nil {
+		t.Fatalf("HashPrompt: %v", err)
+	}
 	if h1 == h2 {
 		t.Error("different prompts produced same hash")
 	}
@@ -80,8 +92,14 @@ func TestHashManifestDeterministic(t *testing.T) {
 		OwnerID:        nil,
 	}
 
-	h1, _ := HashManifest(m)
-	h2, _ := HashManifest(m)
+	h1, err := HashManifest(m)
+	if err != nil {
+		t.Fatalf("HashManifest: %v", err)
+	}
+	h2, err := HashManifest(m)
+	if err != nil {
+		t.Fatalf("HashManifest: %v", err)
+	}
 	if h1 != h2 {
 		t.Errorf("hash not deterministic: %s != %s", h1, h2)
 	}
@@ -89,7 +107,10 @@ func TestHashManifestDeterministic(t *testing.T) {
 
 func TestHashManifestDiffersFromPromptHash(t *testing.T) {
 	prompt := "You are a test."
-	promptHash, _ := HashPrompt(prompt)
+	promptHash, err := HashPrompt(prompt)
+	if err != nil {
+		t.Fatalf("HashPrompt: %v", err)
+	}
 
 	m := &agent.Manifest{
 		AgentID:        "test",
@@ -100,7 +121,10 @@ func TestHashManifestDiffersFromPromptHash(t *testing.T) {
 		ResponseFormat: "plain",
 		CreatedAt:      "2026-01-01T00:00:00.000Z",
 	}
-	manifestHash, _ := HashManifest(m)
+	manifestHash, err := HashManifest(m)
+	if err != nil {
+		t.Fatalf("HashManifest: %v", err)
+	}
 
 	if promptHash == manifestHash {
 		t.Error("prompt hash and manifest hash should differ")
@@ -162,7 +186,10 @@ func TestManifestNullFieldsSerialization(t *testing.T) {
 		OwnerID:        nil,
 	}
 
-	hash1, _ := HashManifest(m)
+	hash1, err := HashManifest(m)
+	if err != nil {
+		t.Fatalf("HashManifest: %v", err)
+	}
 
 	// Same manifest with empty strings instead of nil should produce
 	// a DIFFERENT hash (null != "").
@@ -181,7 +208,10 @@ func TestManifestNullFieldsSerialization(t *testing.T) {
 		OwnerID:        &s,
 	}
 
-	hash2, _ := HashManifest(m2)
+	hash2, err := HashManifest(m2)
+	if err != nil {
+		t.Fatalf("HashManifest: %v", err)
+	}
 
 	if hash1 == hash2 {
 		t.Error("null fields and empty string fields should produce different hashes")

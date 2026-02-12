@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/rickhallett/thepit/pitnet/internal/abi"
 	"github.com/rickhallett/thepit/shared/theme"
@@ -73,7 +74,12 @@ func RunSubmit(args []string) {
 			}
 		case "--created-at":
 			if i+1 < len(args) {
-				fmt.Sscanf(args[i+1], "%d", &createdAt)
+				v, err := strconv.ParseUint(args[i+1], 10, 64)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%s --created-at must be a unix timestamp\n", theme.Error.Render("error:"))
+					os.Exit(1)
+				}
+				createdAt = v
 				i++
 			}
 		case "--json", "-j":

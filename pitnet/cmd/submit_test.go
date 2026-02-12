@@ -19,6 +19,9 @@ func captureStdout(t *testing.T, fn func()) string {
 		t.Fatal(err)
 	}
 	os.Stdout = w
+	defer func() {
+		os.Stdout = oldStdout
+	}()
 
 	fn()
 
@@ -26,7 +29,9 @@ func captureStdout(t *testing.T, fn func()) string {
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer
-	io.Copy(&buf, r)
+	if _, err := io.Copy(&buf, r); err != nil {
+		t.Errorf("failed to read captured stdout: %v", err)
+	}
 	r.Close()
 	return buf.String()
 }
@@ -78,7 +83,10 @@ func TestRunSubmitJSONFile(t *testing.T) {
 
 	dir := t.TempDir()
 	path := dir + "/manifest.json"
-	data, _ := json.Marshal(manifest)
+	data, err := json.Marshal(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := os.WriteFile(path, data, 0644); err != nil {
 		t.Fatal(err)
 	}

@@ -123,7 +123,13 @@ func RunSpar(args []string, cfg *config.Config) {
 
 		systemPrompt := prompt.GetSystemPrompt(def)
 		rl := defaultIfEmptySpar(def.ResponseLength, "standard")
+		if _, ok := responseLengthTokens[rl]; !ok {
+			rl = "standard"
+		}
 		rf := defaultIfEmptySpar(def.ResponseFormat, "markdown")
+		if _, ok := responseFormatInstructions[rf]; !ok {
+			rf = "markdown"
+		}
 
 		// Build system message (safety preamble + agent prompt + format instruction).
 		system := safetyPreamble + systemPrompt + "\n\n" + responseFormatInstructions[rf]
