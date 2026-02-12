@@ -119,8 +119,13 @@ export function Arena({
       });
   }, [boutId, shortSlug, status]);
 
-  // Engagement tracking — scroll depth and active time
+  // Engagement tracking — scroll depth and active time.
+  // Store mutable values in refs to avoid stale closures in the unmount cleanup.
   const reactionsGivenRef = useRef(0);
+  const turnsWatchedRef = useRef(messages.length);
+  const userVoteRef = useRef(userVote);
+  turnsWatchedRef.current = messages.length;
+  userVoteRef.current = userVote;
   useEffect(() => {
     const cleanupScroll = initScrollDepthTracking();
     const cleanupTime = initActiveTimeTracking();
@@ -129,9 +134,9 @@ export function Arena({
       cleanupTime();
       // Fire bout engagement depth on unmount
       trackBoutEngagement(boutId, {
-        turnsWatched: messages.length,
+        turnsWatched: turnsWatchedRef.current,
         reactionsGiven: reactionsGivenRef.current,
-        votesCast: userVote ? 1 : 0,
+        votesCast: Boolean(userVoteRef.current),
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

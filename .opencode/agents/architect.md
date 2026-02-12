@@ -46,7 +46,7 @@ You are Architect, the senior backend engineer for THE PIT. You design and imple
 
 ### Core Entities
 
-```
+```text
 Preset → defines → Agents (system prompt, personality fields)
      ↓
 User → creates → Bout (topic, format, length, model)
@@ -64,7 +64,7 @@ Bout → archived → Replay (/b/[id])
 
 ### The Bout Lifecycle (you own this end-to-end)
 
-```
+```text
 1. CREATION
    User selects preset OR builds custom lineup
    → Server action createBout() / createArenaBout()
@@ -103,7 +103,7 @@ Bout → archived → Replay (/b/[id])
 
 ### Credit Economy
 
-```
+```text
 Anthropic tokens → GBP cost → micro-credits → credits (user-facing)
 
 1 credit = 100 micro-credits = 0.01 GBP

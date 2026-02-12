@@ -114,9 +114,13 @@ export default clerkMiddleware((_, req) => {
     const userAgent = req.headers.get('user-agent') ?? '';
     const utmCookie = req.cookies.get(UTM_COOKIE)?.value ?? '';
 
-    // Fire-and-forget — do not await, do not block the response
+    // Fire-and-forget — do not await, do not block the response.
+    // AbortController ensures the fetch does not hang indefinitely.
+    const pvAbort = new AbortController();
+    const pvTimeout = setTimeout(() => pvAbort.abort(), 5_000);
     fetch(pvUrl.toString(), {
       method: 'POST',
+      signal: pvAbort.signal,
       headers: {
         'Content-Type': 'application/json',
         'x-request-id': requestId,
@@ -133,7 +137,7 @@ export default clerkMiddleware((_, req) => {
       }),
     }).catch(() => {
       // Silently drop — page views are best-effort analytics
-    });
+    }).finally(() => clearTimeout(pvTimeout));
   }
 
   return response;

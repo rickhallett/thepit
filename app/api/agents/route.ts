@@ -107,7 +107,10 @@ export const POST = withLogging(async function POST(req: Request) {
       ? payload.customInstructions.trim()
       : rawPrompt || null;
   const quirks = Array.isArray(payload.quirks)
-    ? payload.quirks.map((quirk) => quirk.trim()).filter(Boolean)
+    ? payload.quirks
+        .filter((q): q is string => typeof q === 'string')
+        .map((q) => q.trim())
+        .filter(Boolean)
     : [];
 
   // Validate quirks: max 10 items, 100 chars each
@@ -122,30 +125,48 @@ export const POST = withLogging(async function POST(req: Request) {
       return errorResponse('Quirks must not contain URLs or scripts.', 400);
     }
   }
+  /** Trim a string field to null if empty/missing. */
+  const trimOrNull = (v: string | undefined | null): string | null => {
+    const t = typeof v === 'string' ? v.trim() : null;
+    return t || null;
+  };
+
+  const archetype = trimOrNull(payload.archetype);
+  const tone = trimOrNull(payload.tone);
+  const speechPattern = trimOrNull(payload.speechPattern);
+  const openingMove = trimOrNull(payload.openingMove);
+  const signatureMove = trimOrNull(payload.signatureMove);
+  const weakness = trimOrNull(payload.weakness);
+  const goal = trimOrNull(payload.goal);
+  const fears = trimOrNull(payload.fears);
+
+  // Only consider customInstructions for hasStructuredFields when the user
+  // explicitly provided it (not when it was derived from rawPrompt fallback).
+  const explicitCustomInstructions = trimOrNull(payload.customInstructions);
   const hasStructuredFields = Boolean(
-    payload.archetype ||
-      payload.tone ||
+    archetype ||
+      tone ||
       quirks.length > 0 ||
-      payload.speechPattern ||
-      payload.openingMove ||
-      payload.signatureMove ||
-      payload.weakness ||
-      payload.goal ||
-      payload.fears ||
-      payload.customInstructions,
+      speechPattern ||
+      openingMove ||
+      signatureMove ||
+      weakness ||
+      goal ||
+      fears ||
+      explicitCustomInstructions,
   );
   const systemPrompt = hasStructuredFields
     ? buildStructuredPrompt({
         name,
-        archetype: payload.archetype,
-        tone: payload.tone,
+        archetype,
+        tone,
         quirks,
-        speechPattern: payload.speechPattern,
-        openingMove: payload.openingMove,
-        signatureMove: payload.signatureMove,
-        weakness: payload.weakness,
-        goal: payload.goal,
-        fears: payload.fears,
+        speechPattern,
+        openingMove,
+        signatureMove,
+        weakness,
+        goal,
+        fears,
         customInstructions,
       })
     : rawPrompt;
@@ -225,15 +246,15 @@ export const POST = withLogging(async function POST(req: Request) {
     model: manifest.model,
     responseLength: manifest.responseLength,
     responseFormat: manifest.responseFormat,
-    archetype: payload.archetype ?? null,
-    tone: payload.tone ?? null,
+    archetype,
+    tone,
     quirks,
-    speechPattern: payload.speechPattern ?? null,
-    openingMove: payload.openingMove ?? null,
-    signatureMove: payload.signatureMove ?? null,
-    weakness: payload.weakness ?? null,
-    goal: payload.goal ?? null,
-    fears: payload.fears ?? null,
+    speechPattern,
+    openingMove,
+    signatureMove,
+    weakness,
+    goal,
+    fears,
     customInstructions,
     createdAt: new Date(manifest.createdAt),
     ownerId: manifest.ownerId,

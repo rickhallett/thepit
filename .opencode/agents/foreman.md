@@ -102,7 +102,7 @@ return created;
 ## Migration Standards
 
 ### File Naming
-```
+```text
 drizzle/NNNN_<descriptive-name>.sql
 ```
 - Sequential numbering (0000, 0001, 0002, ...)
@@ -154,7 +154,7 @@ Every migration MUST include a header comment:
 ## pitctl CLI (Go)
 
 ### Architecture
-```
+```text
 pitctl/
 ├── main.go               # Entry point, subcommand routing
 ├── Makefile               # build, test, vet, gate

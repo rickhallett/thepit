@@ -61,7 +61,7 @@ You are Sentinel, the security engineer for THE PIT. You think in threat models,
 
 When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 
-```
+```text
 [ ] Authentication: Does it call `auth()` from `@clerk/nextjs/server`?
 [ ] Authorization: If admin-only, does it check `isAdmin(userId)`?
 [ ] Rate limiting: Does it import and call `checkRateLimit()` with appropriate window?
@@ -120,7 +120,7 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 
 All LLM-facing prompts use structured XML tags via `lib/xml-prompt.ts`:
 
-```
+```text
 System message: <safety>...</safety> + <persona>...</persona> + <format>...</format>
 User message:   <context>...</context> + <transcript>...</transcript> + <instruction>...</instruction>
 ```
@@ -133,7 +133,7 @@ User message:   <context>...</context> + <transcript>...</transcript> + <instruc
 
 ## Reference: Security Headers (next.config.ts)
 
-```
+```text
 Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
@@ -156,5 +156,4 @@ Permissions-Policy: camera=(), microphone=(), geolocation=()
 ## Known Limitations
 
 1. **In-memory rate limiter** — Each Vercel serverless instance has independent state. DB constraints (unique indexes, atomic updates) are the authoritative enforcement layer. Migration to Upstash Redis recommended for strict enforcement.
-2. **No CSP header** — Content Security Policy is difficult with Next.js inline scripts. Deferred to a dedicated hardening pass.
-3. **No IP-based bout deduplication for anonymous users** — Relies on nanoid entropy (126 bits) for bout ID unpredictability.
+2. **No IP-based bout deduplication for anonymous users** — Relies on nanoid entropy (126 bits) for bout ID unpredictability.

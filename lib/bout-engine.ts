@@ -149,7 +149,7 @@ export async function validateBoutRequest(
   try {
     db = requireDb();
   } catch {
-    return { error: errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 500) };
+    return { error: errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 503) };
   }
 
   // Idempotency check

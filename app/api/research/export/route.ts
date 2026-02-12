@@ -9,7 +9,7 @@ import {
   getExportPayload,
 } from '@/lib/research-exports';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
-import { errorResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 export const runtime = 'nodejs';
 
@@ -18,7 +18,7 @@ const RATE_LIMIT = { name: 'research-export', maxRequests: 5, windowMs: 60 * 60 
 export const GET = withLogging(async function GET(req: Request) {
   const rateCheck = checkRateLimit(RATE_LIMIT, getClientIdentifier(req));
   if (!rateCheck.success) {
-    return errorResponse(API_ERRORS.RATE_LIMITED, 429);
+    return rateLimitResponse(rateCheck);
   }
 
   const url = new URL(req.url);

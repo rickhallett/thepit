@@ -159,7 +159,7 @@ export const buildSharePrompt = (clippedTranscript: string): string => {
     ),
   );
   sections.push(
-    xmlTag('rules', rules.map((r) => xmlInline('rule', r)).join('\n')),
+    xmlTag('rules', rules.map((r) => xmlInline('rule', xmlEscape(r))).join('\n')),
   );
   sections.push(xmlTag('transcript', xmlEscape(clippedTranscript)));
 
@@ -185,11 +185,11 @@ export type AskThePitParts = {
 export const buildAskThePitSystem = (parts: AskThePitParts): string => {
   const sections: string[] = [];
 
-  sections.push(xmlTag('role', parts.roleDescription.trim()));
+  sections.push(xmlTag('role', xmlEscape(parts.roleDescription.trim())));
   sections.push(
     xmlTag(
       'rules',
-      parts.rules.map((r) => xmlInline('rule', r.trim())).join('\n'),
+      parts.rules.map((r) => xmlInline('rule', xmlEscape(r.trim()))).join('\n'),
     ),
   );
   sections.push(xmlTag('documentation', xmlEscape(parts.documentation)));
@@ -230,16 +230,16 @@ export const wrapPersona = (prompt: string): string => {
       .filter(Boolean);
 
     const parts: string[] = [];
-    parts.push(xmlTag('instructions', instructions));
+    parts.push(xmlTag('instructions', xmlEscape(instructions)));
     if (ruleItems.length > 0) {
       parts.push(
-        xmlTag('rules', ruleItems.map((r) => xmlInline('rule', r)).join('\n')),
+        xmlTag('rules', ruleItems.map((r) => xmlInline('rule', xmlEscape(r))).join('\n')),
       );
     }
     return xmlTag('persona', parts.join('\n'));
   }
 
-  return xmlTag('persona', xmlTag('instructions', trimmed));
+  return xmlTag('persona', xmlTag('instructions', xmlEscape(trimmed)));
 };
 
 // ---------------------------------------------------------------------------

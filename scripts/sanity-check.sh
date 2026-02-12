@@ -246,11 +246,11 @@ fi
 bout_code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 \
   -H "User-Agent: sanity-check/1.0" \
   "${BASE_URL}/bout/nonexistent-id" 2>/dev/null) || bout_code="000"
-if [[ "$bout_code" == "404" || "$bout_code" == "200" || "$bout_code" == "500" ]]; then
+if [[ "$bout_code" == "404" || "$bout_code" == "200" ]]; then
   echo -e "  ${GREEN}PASS${RESET}  GET /bout/nonexistent-id (HTTP $bout_code — route responds)"
   PASS=$((PASS + 1))
 else
-  echo -e "  ${RED}FAIL${RESET}  GET /bout/nonexistent-id (got HTTP $bout_code, expected 200/404/500)"
+  echo -e "  ${RED}FAIL${RESET}  GET /bout/nonexistent-id (got HTTP $bout_code, expected 200/404)"
   FAIL=$((FAIL + 1))
 fi
 

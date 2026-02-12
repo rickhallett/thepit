@@ -11,6 +11,9 @@ import { bouts } from '@/db/schema';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thepit.cloud';
 
+/** Revalidate the sitemap every hour. */
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     {

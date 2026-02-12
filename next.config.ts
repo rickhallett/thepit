@@ -67,10 +67,8 @@ export default withSentryConfig(nextConfig, {
 
   // Treeshake Sentry debug logging from production bundles.
   // Note: only effective with webpack builds; Turbopack ignores this.
-  webpack: {
-    treeshake: {
-      removeDebugLogging: true,
-    },
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
   },
 
   // Opt out of Sentry's telemetry collection.
