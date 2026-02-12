@@ -122,6 +122,10 @@ export async function validateBoutRequest(
     return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
   }
 
+  if (!payload || typeof payload !== 'object') {
+    return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
+  }
+
   const requestId = getRequestId(req);
   const { boutId } = payload;
   let topic = typeof payload.topic === 'string' ? payload.topic.trim() : '';
@@ -142,7 +146,7 @@ export async function validateBoutRequest(
   }
 
   if (UNSAFE_PATTERN.test(topic)) {
-    return { error: errorResponse('Topic contains disallowed content.', 400) };
+    return { error: errorResponse(API_ERRORS.UNSAFE_CONTENT, 400) };
   }
 
   let db: ReturnType<typeof requireDb>;
