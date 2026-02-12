@@ -106,7 +106,8 @@ export default clerkMiddleware((_, req) => {
   // Page view recording — fire-and-forget to /api/pv internal endpoint
   // ---------------------------------------------------------------------------
   const pathname = req.nextUrl.pathname;
-  if (!SKIP_PAGE_VIEW_RE.test(pathname) && req.method === 'GET') {
+  const pvSecret = process.env.PV_INTERNAL_SECRET;
+  if (pvSecret && !SKIP_PAGE_VIEW_RE.test(pathname) && req.method === 'GET') {
     // We record page views via a lightweight internal API endpoint rather than
     // importing DB code into edge middleware (which has runtime constraints).
     const pvUrl = new URL('/api/pv', req.url);
@@ -124,7 +125,7 @@ export default clerkMiddleware((_, req) => {
       headers: {
         'Content-Type': 'application/json',
         'x-request-id': requestId,
-        'x-pv-secret': process.env.PV_INTERNAL_SECRET ?? '',
+        'x-pv-secret': pvSecret,
       },
       body: JSON.stringify({
         path: pathname,

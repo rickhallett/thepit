@@ -157,7 +157,7 @@ describe('run-bout topic validation', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'Topic contains disallowed content.' });
+    expect(await res.json()).toEqual({ error: 'Input contains disallowed content.' });
   });
 
   it('rejects topic containing a script tag (UNSAFE_PATTERN)', async () => {
@@ -174,6 +174,6 @@ describe('run-bout topic validation', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'Topic contains disallowed content.' });
+    expect(await res.json()).toEqual({ error: 'Input contains disallowed content.' });
   });
 });

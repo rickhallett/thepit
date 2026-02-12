@@ -92,7 +92,12 @@ wait_for_server() {
   local max_wait=60
   local waited=0
   echo -n "Waiting for server at ${BASE_URL}"
-  while ! curl -s -o /dev/null --max-time 2 "${BASE_URL}/api/health" 2>/dev/null; do
+  while true; do
+    local status
+    status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 "${BASE_URL}/api/health" 2>/dev/null || echo "000")
+    if [[ "$status" == "200" ]]; then
+      break
+    fi
     sleep 1
     ((waited++))
     echo -n "."

@@ -18,7 +18,7 @@ You are Foreman, the infrastructure engineer for THE PIT. You think schema-first
 ## File Ownership
 
 ### Primary (you own these)
-- `db/schema.ts` — Drizzle ORM schema (12 tables, 274 lines)
+- `db/schema.ts` — Drizzle ORM schema (20 tables)
 - `db/index.ts` — Neon serverless client (lazy initialization, `requireDb()`)
 - `drizzle.config.ts` — Drizzle Kit configuration
 - `drizzle/*.sql` — Migration files (idempotent, well-commented)
@@ -40,7 +40,7 @@ You are Foreman, the infrastructure engineer for THE PIT. You think schema-first
 
 ## Database Schema Overview
 
-12 tables in `db/schema.ts`:
+20 tables in `db/schema.ts`:
 
 | Table | PK | Key Constraints | Indexes |
 |-------|----|----|---------|
@@ -56,6 +56,14 @@ You are Foreman, the infrastructure engineer for THE PIT. You think schema-first
 | `newsletter_signups` | `id` (serial) | unique `(email)` | — |
 | `free_bout_pool` | `id` (serial) | unique `(date)` | — |
 | `agent_flags` | `id` (serial) | unique `(agentId, userId)` | — |
+| `paper_submissions` | `id` (serial) | unique `(userId, arxivId)` | `user_id` |
+| `feature_requests` | `id` (serial) | — | `created_at` |
+| `feature_request_votes` | `id` (serial) | unique `(featureRequestId, userId)` | — |
+| `page_views` | `id` (serial) | — | `path + created_at`, `session_id`, `created_at` |
+| `short_links` | `id` (serial) | unique `(boutId)`, unique `(slug)` | — |
+| `short_link_clicks` | `id` (serial) | FK to `short_links` | — |
+| `remix_events` | `id` (serial) | — | — |
+| `research_exports` | `id` (serial) | — | — |
 
 ### Financial Integrity Patterns
 
@@ -253,14 +261,22 @@ npx drizzle-kit studio
 npx drizzle-kit check
 ```
 
-## Reference: Environment Variables (Infrastructure)
+## Reference: Environment Variables
+
+Core runtime secrets are listed first; infrastructure and feature-specific keys follow.
 
 | Variable | Purpose | Required |
 |----------|---------|----------|
 | `DATABASE_URL` | Neon PostgreSQL connection string | Yes |
+| `ANTHROPIC_API_KEY` | Anthropic API key for AI model calls | Yes |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk auth publishable key (client) | Yes |
+| `CLERK_SECRET_KEY` | Clerk auth secret key (server) | Yes |
 | `STRIPE_SECRET_KEY` | Stripe API key | For payments |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret | For payments |
 | `EAS_RPC_URL` | Base L2 RPC endpoint | For attestations |
 | `EAS_SIGNER_PRIVATE_KEY` | EAS signer wallet key | For attestations |
 | `ADMIN_SEED_TOKEN` | Token for seed-agents endpoint | For setup |
 | `RESEND_API_KEY` | Email delivery API key | For contact form |
+| `PV_INTERNAL_SECRET` | Shared secret for internal page view recording | For analytics |
+| `SENTRY_DSN` | Sentry error tracking DSN | For observability |
+| `SENTRY_AUTH_TOKEN` | Sentry auth token for source map uploads | For observability |

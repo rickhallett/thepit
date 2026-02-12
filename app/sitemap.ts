@@ -77,7 +77,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     }));
-  } catch {
+  } catch (error) {
+    console.error('[sitemap] Failed to fetch bouts:', error);
     // DB unavailable — return static routes only
   }
 
