@@ -59,10 +59,12 @@ func RunStatus(args []string) {
 	}
 
 	// Check latest block.
+	hasFailure := false
 	blockNum, err := client.BlockNumber(ctx)
 	if err != nil {
 		fmt.Printf("  %-22s %s (%v)\n", theme.Muted.Render("latest block:"),
 			theme.Error.Render("failed"), err)
+		hasFailure = true
 	} else {
 		fmt.Printf("  %-22s %s (#%d)\n", theme.Muted.Render("latest block:"),
 			theme.Success.Render("OK"), blockNum)
@@ -78,4 +80,8 @@ func RunStatus(args []string) {
 	}
 
 	fmt.Println()
+
+	if hasFailure {
+		os.Exit(1)
+	}
 }

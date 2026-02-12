@@ -50,7 +50,7 @@ type PresetAgent struct {
 
 // RunCatalog implements the "catalog" command.
 func RunCatalog(args []string) {
-	// Find presets directory relative to the binary or cwd.
+	// Find presets directory relative to cwd.
 	presetsDir := findPresetsDir()
 	if presetsDir == "" {
 		fmt.Fprintf(os.Stderr, "\n  %s cannot find presets/ directory\n", theme.Error.Render("error:"))

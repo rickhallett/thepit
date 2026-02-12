@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"crypto/ed25519"
 	"encoding/hex"
 	"os"
@@ -42,8 +43,8 @@ func TestLicenseGenerateKeys(t *testing.T) {
 	}
 
 	// Verify they decode to valid Ed25519 keys.
-	pubHex := string(pubBytes[:len(pubBytes)-1]) // trim newline
-	privHex := string(privBytes[:len(privBytes)-1])
+	pubHex := string(bytes.TrimSpace(pubBytes))
+	privHex := string(bytes.TrimSpace(privBytes))
 
 	pub, err := hex.DecodeString(pubHex)
 	if err != nil {

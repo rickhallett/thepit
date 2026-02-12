@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/rickhallett/thepit/pitforge/internal/agent"
@@ -44,10 +45,13 @@ func DiffAgents(a, b *agent.Definition) []FieldDiff {
 	check("responseLength", a.ResponseLength, b.ResponseLength)
 	check("responseFormat", a.ResponseFormat, b.ResponseFormat)
 
-	// Quirks comparison.
-	qa := strings.Join(a.Quirks, ", ")
-	qb := strings.Join(b.Quirks, ", ")
-	check("quirks", qa, qb)
+	// Quirks comparison — use element-wise comparison to avoid
+	// false equality when items contain the separator.
+	if !slices.Equal(a.Quirks, b.Quirks) {
+		qa := strings.Join(a.Quirks, ", ")
+		qb := strings.Join(b.Quirks, ", ")
+		diffs = append(diffs, FieldDiff{"quirks", qa, qb})
+	}
 
 	return diffs
 }

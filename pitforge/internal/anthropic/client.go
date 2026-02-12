@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const (
@@ -32,7 +33,7 @@ func NewClient(apiKey string) *Client {
 	return &Client{
 		APIKey:   apiKey,
 		Endpoint: DefaultEndpoint,
-		Client:   http.DefaultClient,
+		Client:   &http.Client{Timeout: 5 * time.Minute},
 	}
 }
 
@@ -119,12 +120,13 @@ func parseSSEStream(r io.Reader, onDelta StreamDelta) (string, error) {
 			switch eventType {
 			case "content_block_delta":
 				var delta contentBlockDelta
-				if err := json.Unmarshal([]byte(data), &delta); err == nil {
-					if delta.Delta.Type == "text_delta" {
-						full.WriteString(delta.Delta.Text)
-						if onDelta != nil {
-							onDelta(delta.Delta.Text)
-						}
+				if err := json.Unmarshal([]byte(data), &delta); err != nil {
+					return full.String(), fmt.Errorf("parsing content_block_delta: %w", err)
+				}
+				if delta.Delta.Type == "text_delta" {
+					full.WriteString(delta.Delta.Text)
+					if onDelta != nil {
+						onDelta(delta.Delta.Text)
 					}
 				}
 
@@ -139,9 +141,10 @@ func parseSSEStream(r io.Reader, onDelta StreamDelta) (string, error) {
 						Message string `json:"message"`
 					} `json:"error"`
 				}
-				if err := json.Unmarshal([]byte(data), &apiErr); err == nil {
-					return full.String(), fmt.Errorf("stream error: %s: %s", apiErr.Error.Type, apiErr.Error.Message)
+				if err := json.Unmarshal([]byte(data), &apiErr); err != nil {
+					return full.String(), fmt.Errorf("parsing error event: %w", err)
 				}
+				return full.String(), fmt.Errorf("stream error: %s: %s", apiErr.Error.Type, apiErr.Error.Message)
 			}
 
 			eventType = ""

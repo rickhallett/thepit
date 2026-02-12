@@ -33,7 +33,7 @@ func RunLicenseGenerateKeys(cfg *config.Config) error {
 	pubPath := filepath.Join(dir, "license-key.pub")
 	privPath := filepath.Join(dir, "license-key.priv")
 
-	if err := os.WriteFile(pubPath, []byte(pubHex+"\n"), 0644); err != nil {
+	if err := os.WriteFile(pubPath, []byte(pubHex+"\n"), 0600); err != nil {
 		return fmt.Errorf("writing public key: %w", err)
 	}
 	if err := os.WriteFile(privPath, []byte(privHex+"\n"), 0600); err != nil {
@@ -122,7 +122,10 @@ func RunLicenseVerify(cfg *config.Config) error {
 		return fmt.Errorf("invalid LICENSE_SIGNING_KEY: expected %d bytes, got %d", ed25519.PrivateKeySize, len(privBytes))
 	}
 	priv := ed25519.PrivateKey(privBytes)
-	pub := priv.Public().(ed25519.PublicKey)
+	pub, ok := priv.Public().(ed25519.PublicKey)
+	if !ok {
+		return fmt.Errorf("failed to derive public key from private key")
+	}
 
 	path := license.DefaultLicensePath()
 	if path == "" {

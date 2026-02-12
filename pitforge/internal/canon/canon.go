@@ -103,23 +103,57 @@ func writeCanonical(buf *strings.Builder, val interface{}) error {
 
 func writeNumber(buf *strings.Builder, n json.Number) error {
 	s := n.String()
-
-	// Try integer first.
-	if i, err := strconv.ParseInt(s, 10, 64); err == nil {
-		buf.WriteString(strconv.FormatInt(i, 10))
-		return nil
-	}
-
-	// Float: use ES6 serialization.
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return fmt.Errorf("parsing number %q: %w", s, err)
 	}
-
-	// ES6 spec: use the shortest representation that round-trips.
-	s = strconv.FormatFloat(f, 'g', -1, 64)
-	buf.WriteString(normalizeExponent(s))
+	buf.WriteString(formatES6Number(f))
 	return nil
+}
+
+// formatES6Number formats a float64 using ECMAScript Number → String rules
+// (ECMA-262 §7.1.12.1). Fixed notation is used when the decimal exponent n
+// satisfies −6 < n ≤ 21; otherwise scientific notation is used. Negative
+// zero is normalised to "0" per RFC 8785.
+func formatES6Number(f float64) string {
+	// ES6 / RFC 8785: −0 → "0".
+	if f == 0 {
+		return "0"
+	}
+
+	// Produce the shortest scientific representation that round-trips.
+	sci := strconv.FormatFloat(f, 'e', -1, 64)
+	parts := strings.SplitN(sci, "e", 2)
+	mant, expStr := parts[0], parts[1]
+	exp, _ := strconv.Atoi(expStr)
+
+	sign := ""
+	if strings.HasPrefix(mant, "-") {
+		sign = "-"
+		mant = mant[1:]
+	}
+
+	// Strip the decimal point to get the raw digit string.
+	digits := strings.ReplaceAll(mant, ".", "")
+
+	// ES6: fixed notation when −6 ≤ exp ≤ 20.
+	if exp >= -6 && exp <= 20 {
+		pos := exp + 1 // number of digits before the decimal point
+		switch {
+		case pos <= 0:
+			// e.g. 1e-6 → "0.000001"
+			return sign + "0." + strings.Repeat("0", -pos) + digits
+		case pos >= len(digits):
+			// e.g. 1e6 → "1000000"
+			return sign + digits + strings.Repeat("0", pos-len(digits))
+		default:
+			return sign + digits[:pos] + "." + digits[pos:]
+		}
+	}
+
+	// Scientific notation with normalised exponent (no leading zeros, no
+	// positive sign suppression — ES6 uses e+N / e-N).
+	return sign + normalizeExponent(sci)
 }
 
 // normalizeExponent removes leading zeros from the exponent to match ES6 formatting.

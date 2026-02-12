@@ -65,7 +65,7 @@ func captureStdout(t *testing.T, fn func()) string {
 
 	var buf bytes.Buffer
 	if _, err := io.Copy(&buf, r); err != nil {
-		t.Errorf("failed to read captured stdout: %v", err)
+		t.Fatalf("failed to read captured stdout: %v", err)
 	}
 	r.Close()
 	return buf.String()

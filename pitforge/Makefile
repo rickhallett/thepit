@@ -1,7 +1,9 @@
-.PHONY: gate build install test coverage clean
+.PHONY: gate vet build install test coverage clean
 
-gate: build test
+vet:
 	go vet ./...
+
+gate: vet build test
 
 build:
 	go build -o pitforge .
