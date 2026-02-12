@@ -1,6 +1,6 @@
 module github.com/rickhallett/thepit/shared
 
-go 1.25.6
+go 1.25.7
 
 require (
 	github.com/charmbracelet/lipgloss v1.1.0
