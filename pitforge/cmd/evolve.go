@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/rickhallett/thepit/pitforge/internal/agent"
@@ -40,11 +41,12 @@ func RunEvolve(args []string, cfg *config.Config) {
 			}
 		case "--count", "-n":
 			if i+1 < len(args) {
-				n := 0
-				fmt.Sscanf(args[i+1], "%d", &n)
-				if n > 0 {
-					count = n
+				n, err := strconv.Atoi(args[i+1])
+				if err != nil || n < 1 {
+					fmt.Fprintf(os.Stderr, "%s --count must be a positive integer\n", theme.Error.Render("error:"))
+					os.Exit(1)
 				}
+				count = n
 				i++
 			}
 		}

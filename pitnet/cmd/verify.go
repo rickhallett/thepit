@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/rickhallett/thepit/pitnet/internal/abi"
@@ -32,6 +33,10 @@ func RunVerify(args []string) {
 			}
 			rpcURL = args[i+1]
 			i++
+		default:
+			if strings.HasPrefix(args[i], "-") {
+				fmt.Fprintf(os.Stderr, "%s unrecognized flag: %s\n", theme.Warning.Render("warning:"), args[i])
+			}
 		}
 	}
 

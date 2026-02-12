@@ -274,42 +274,61 @@ func decodeAttestation(hexData string, uid string) (*Attestation, error) {
 		return "0x" + slot[24:]
 	}
 
-	readUint64 := func(idx int) uint64 {
+	readUint64 := func(idx int) (uint64, error) {
 		slot := readSlot(idx)
-		n, _ := parseHexUint64("0x" + slot)
-		return n
+		return parseHexUint64("0x" + slot)
 	}
 
 	// The getAttestation return is wrapped in a dynamic tuple.
 	// Slot 0: offset to the tuple data (usually 0x20 = 32).
 	// Then the tuple fields follow sequentially from that offset.
 	offsetSlot := readSlot(0)
-	tupleOffset, _ := parseHexUint64("0x" + offsetSlot)
+	tupleOffset, err := parseHexUint64("0x" + offsetSlot)
+	if err != nil {
+		return nil, fmt.Errorf("parsing tuple offset: %w", err)
+	}
 	base := int(tupleOffset) / 32 // convert byte offset to slot index
 
 	// Now read the tuple fields relative to base.
 	uidHex := "0x" + readSlot(base+0)
 	schemaHex := "0x" + readSlot(base+1)
-	time_ := readUint64(base + 2)
-	expTime := readUint64(base + 3)
+	time_, err := readUint64(base + 2)
+	if err != nil {
+		return nil, fmt.Errorf("parsing attestation time: %w", err)
+	}
+	expTime, err := readUint64(base + 3)
+	if err != nil {
+		return nil, fmt.Errorf("parsing expiration time: %w", err)
+	}
 	// slot base+4: revocationTime (we don't expose this)
 	refUID := "0x" + readSlot(base+5)
 	recipient := readAddress(base + 6)
 	attester := readAddress(base + 7)
-	revocable := readUint64(base+8) != 0
+	revocableVal, err := readUint64(base + 8)
+	if err != nil {
+		return nil, fmt.Errorf("parsing revocable flag: %w", err)
+	}
+	revocable := revocableVal != 0
 
 	// Slot base+9: offset to the dynamic `bytes data` field (relative to base).
 	dataOffsetSlot := readSlot(base + 9)
-	dataByteOffset, _ := parseHexUint64("0x" + dataOffsetSlot)
+	dataByteOffset, err := parseHexUint64("0x" + dataOffsetSlot)
+	if err != nil {
+		return nil, fmt.Errorf("parsing data offset: %w", err)
+	}
 	// This offset is relative to the start of the tuple, so add base.
 	dataSlotBase := base + int(dataByteOffset)/32
 
 	// First slot at dataSlotBase is the length.
-	dataLen := readUint64(dataSlotBase)
+	dataLen, err := readUint64(dataSlotBase)
+	if err != nil {
+		return nil, fmt.Errorf("parsing data length: %w", err)
+	}
 	dataStart := (dataSlotBase + 1) * 64 // hex chars
 	dataEnd := dataStart + int(dataLen)*2
 	if dataEnd > len(hexData) {
-		dataEnd = len(hexData)
+		return nil, fmt.Errorf("attestation data truncated: declared %d bytes but only %d available",
+			dataLen, (len(hexData)-dataStart)/2)
 	}
 	var attData []byte
 	if dataStart < len(hexData) {

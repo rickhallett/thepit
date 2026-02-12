@@ -153,6 +153,42 @@ func TestCanonicalizeUnicodeSorting(t *testing.T) {
 	}
 }
 
+// ES6 Number → String edge cases per ECMA-262 §7.1.12.1.
+func TestCanonicalizeES6Numbers(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		// Negative zero → "0".
+		{`{"n":-0}`, `{"n":0}`},
+		{`{"n":-0.0}`, `{"n":0}`},
+		// Fixed notation boundaries (exp ∈ [−6, 20]).
+		{`{"n":1e6}`, `{"n":1000000}`},
+		{`{"n":1e20}`, `{"n":100000000000000000000}`},
+		{`{"n":1e-5}`, `{"n":0.00001}`},
+		{`{"n":1e-6}`, `{"n":0.000001}`},
+		// Scientific notation (exp < −6 or exp ≥ 21).
+		{`{"n":1e-7}`, `{"n":1e-7}`},
+		{`{"n":1e21}`, `{"n":1e+21}`},
+		// Fractional values.
+		{`{"n":0.5}`, `{"n":0.5}`},
+		{`{"n":1.5}`, `{"n":1.5}`},
+		{`{"n":3.14}`, `{"n":3.14}`},
+		// Negative values.
+		{`{"n":-42}`, `{"n":-42}`},
+		{`{"n":-3.14}`, `{"n":-3.14}`},
+	}
+	for _, tc := range tests {
+		got, err := Canonicalize([]byte(tc.input))
+		if err != nil {
+			t.Fatalf("Canonicalize(%s): %v", tc.input, err)
+		}
+		if string(got) != tc.want {
+			t.Errorf("Canonicalize(%s) = %s, want %s", tc.input, got, tc.want)
+		}
+	}
+}
+
 // Matches the pattern used by lib/agent-dna.ts for prompt hashing.
 func TestCanonicalizeSystemPromptPattern(t *testing.T) {
 	input := `{"systemPrompt":"You are a test agent."}`

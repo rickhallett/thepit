@@ -50,8 +50,9 @@ func RunSurvival(ds *dataset.Dataset, args []string) {
 		rank++
 
 		name := r.Name
-		if len(name) > 18 {
-			name = name[:15] + "..."
+		runes := []rune(name)
+		if len(runes) > 18 {
+			name = string(runes[:15]) + "..."
 		}
 
 		wrStyle := theme.Muted

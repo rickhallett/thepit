@@ -65,25 +65,31 @@ func RunSpar(args []string, cfg *config.Config) {
 	for i := 2; i < len(args); i++ {
 		switch args[i] {
 		case "--topic":
-			if i+1 < len(args) {
-				topic = args[i+1]
-				i++
+			if i+1 >= len(args) {
+				fmt.Fprintf(os.Stderr, "%s --topic requires a value\n", theme.Error.Render("error:"))
+				os.Exit(1)
 			}
+			topic = args[i+1]
+			i++
 		case "--turns":
-			if i+1 < len(args) {
-				n, err := strconv.Atoi(args[i+1])
-				if err != nil || n < 1 {
-					fmt.Fprintf(os.Stderr, "%s --turns must be a positive integer\n", theme.Error.Render("error:"))
-					os.Exit(1)
-				}
-				maxTurns = n
-				i++
+			if i+1 >= len(args) {
+				fmt.Fprintf(os.Stderr, "%s --turns requires a value\n", theme.Error.Render("error:"))
+				os.Exit(1)
 			}
+			n, err := strconv.Atoi(args[i+1])
+			if err != nil || n < 1 {
+				fmt.Fprintf(os.Stderr, "%s --turns must be a positive integer\n", theme.Error.Render("error:"))
+				os.Exit(1)
+			}
+			maxTurns = n
+			i++
 		case "--model":
-			if i+1 < len(args) {
-				model = args[i+1]
-				i++
+			if i+1 >= len(args) {
+				fmt.Fprintf(os.Stderr, "%s --model requires a value\n", theme.Error.Render("error:"))
+				os.Exit(1)
 			}
+			model = args[i+1]
+			i++
 		}
 	}
 
