@@ -45,7 +45,7 @@ You are Watchdog, the QA engineer for THE PIT. You write tests that document beh
 > `tests/unit/xml-prompt.test.ts` (407 lines) covers all XML builder functions including escaping, system/user/share prompt construction, persona wrapping, and structured agent prompt generation.
 
 ### Coverage Thresholds (vitest.config.ts)
-```
+```text
 85% lines, functions, branches, statements on:
 - lib/agent-dna.ts
 - lib/agent-prompts.ts
@@ -193,7 +193,7 @@ expect(res.status).toBe(200);
 
 ## Test Naming Conventions
 
-```
+```text
 tests/unit/<lib-module>.test.ts         — Unit tests for lib/<module>.ts
 tests/unit/<lib-module>-edge.test.ts    — Edge case tests (optional split)
 tests/api/<route-name>.test.ts          — API route tests

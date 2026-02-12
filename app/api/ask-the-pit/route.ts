@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, resolve, relative, isAbsolute } from 'node:path';
 
 import { streamText } from 'ai';
 
@@ -38,6 +38,7 @@ function stripSensitiveSections(text: string): string {
 // Cache loaded docs in module scope — they don't change at runtime,
 // and re-reading from filesystem on every request is unnecessary I/O.
 let cachedDocs: string | null = null;
+let cachedSystemPrompt: string | null = null;
 
 function loadDocs(): string {
   if (cachedDocs !== null) return cachedDocs;
@@ -46,7 +47,8 @@ function loadDocs(): string {
     try {
       const fullPath = resolve(join(root, docPath));
       // Prevent path traversal — resolved path must stay within the project root.
-      if (!fullPath.startsWith(root)) {
+      const rel = relative(root, fullPath);
+      if (rel.startsWith('..') || isAbsolute(rel)) {
         return `[Blocked: ${docPath}]`;
       }
       const content = readFileSync(fullPath, 'utf-8');
@@ -86,12 +88,14 @@ export async function POST(req: Request) {
   }
 
   const requestId = getRequestId(req);
-  const docs = loadDocs();
-  const systemPrompt = buildAskThePitSystem({
-    roleDescription: ASK_THE_PIT_ROLE,
-    rules: ASK_THE_PIT_RULES,
-    documentation: docs,
-  });
+  if (!cachedSystemPrompt) {
+    cachedSystemPrompt = buildAskThePitSystem({
+      roleDescription: ASK_THE_PIT_ROLE,
+      rules: ASK_THE_PIT_RULES,
+      documentation: loadDocs(),
+    });
+  }
+  const systemPrompt = cachedSystemPrompt;
 
   log.info('Ask The Pit request', { requestId, messageLength: message.length });
 

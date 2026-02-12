@@ -102,7 +102,8 @@ export function initActiveTimeTracking(): () => void {
 export type BoutEngagement = {
   turnsWatched: number;
   reactionsGiven: number;
-  votesCast: number;
+  /** Whether the user cast a winner vote during this bout session. */
+  votesCast: boolean;
 };
 
 /**
@@ -113,6 +114,6 @@ export function trackBoutEngagement(boutId: string, engagement: BoutEngagement):
     boutId,
     turnsWatched: engagement.turnsWatched,
     reactionsGiven: engagement.reactionsGiven,
-    votesCast: engagement.votesCast ? 1 : 0,
+    votesCast: engagement.votesCast,
   });
 }

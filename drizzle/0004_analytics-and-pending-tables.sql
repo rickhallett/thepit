@@ -37,9 +37,15 @@ CREATE TABLE IF NOT EXISTS "short_link_clicks" (
   "created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "short_link_clicks"
-  ADD CONSTRAINT "short_link_clicks_short_link_id_short_links_id_fk"
-  FOREIGN KEY ("short_link_id") REFERENCES "short_links"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'short_link_clicks_short_link_id_short_links_id_fk'
+  ) THEN
+    ALTER TABLE "short_link_clicks"
+      ADD CONSTRAINT "short_link_clicks_short_link_id_short_links_id_fk"
+      FOREIGN KEY ("short_link_id") REFERENCES "short_links"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+  END IF;
+END $$;
 
 --> statement-breakpoint
 

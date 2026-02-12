@@ -84,8 +84,9 @@ export const formatCredits = (micro: number) =>
 export const estimateTokensFromText = (text: string, min = 0) =>
   Math.max(min, Math.ceil(text.length / TOKEN_CHARS_PER));
 
-/** Default fallback pricing (haiku) for unrecognized model IDs. */
-const FALLBACK_MODEL_PRICING = DEFAULT_MODEL_PRICES_GBP['claude-haiku-4-5-20251001'];
+/** Default fallback pricing (haiku) for unrecognized model IDs.
+ *  Computed from the merged MODEL_PRICES_GBP map so env overrides apply. */
+const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP['claude-haiku-4-5-20251001'];
 
 export const getModelPricing = (modelId: string) => {
   const pricing = MODEL_PRICES_GBP[modelId];

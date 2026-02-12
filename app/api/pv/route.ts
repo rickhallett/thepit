@@ -44,9 +44,9 @@ export async function POST(req: Request) {
   if (payload.utm) {
     try {
       const utm = JSON.parse(payload.utm);
-      utmSource = utm.utm_source ?? null;
-      utmMedium = utm.utm_medium ?? null;
-      utmCampaign = utm.utm_campaign ?? null;
+      utmSource = typeof utm.utm_source === 'string' ? utm.utm_source : null;
+      utmMedium = typeof utm.utm_medium === 'string' ? utm.utm_medium : null;
+      utmCampaign = typeof utm.utm_campaign === 'string' ? utm.utm_campaign : null;
     } catch {
       // Malformed cookie — ignore
     }

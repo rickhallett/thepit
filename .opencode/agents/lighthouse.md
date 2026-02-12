@@ -34,12 +34,12 @@ You are Lighthouse, the observability engineer for THE PIT. You maintain the str
 ## Logging Architecture
 
 ### Layer 1: Request ID Generation (middleware.ts)
-```
+```text
 Request arrives → middleware generates nanoid(12) → injects x-request-id header on request AND response
 ```
 
 ### Layer 2: API Route Logging (lib/api-logging.ts)
-```
+```text
 withLogging(handler, 'route-name') wraps every API route:
   → Logs request start (method, path, requestId)
   → Calls handler
@@ -48,13 +48,13 @@ withLogging(handler, 'route-name') wraps every API route:
 ```
 
 ### Layer 3: Structured Logger (lib/logger.ts)
-```
+```text
 Production: JSON lines → {"level":"info","msg":"bout started","ts":"...","service":"tspit","boutId":"...","requestId":"..."}
 Development: [INFO] bout started boutId=abc123 requestId=xyz789
 ```
 
 ### Layer 4: Bout Engine Instrumentation (lib/bout-engine.ts)
-```
+```text
 Per-turn logging (in executeBout()):
   → Turn started: requestId, boutId, turnNumber, agentId, modelId
   → Turn completed: requestId, boutId, turnNumber, inputTokens, outputTokens, durationMs
@@ -64,7 +64,7 @@ The route handler is now a thin SSE streaming wrapper around executeBout().
 ```
 
 ### Layer 5: Error Boundaries (app/error.tsx, app/global-error.tsx)
-```
+```text
 Client-side React error boundary catches render errors → displays error digest + retry button
 Global error boundary catches root layout errors → minimal HTML fallback
 ```
@@ -87,7 +87,7 @@ Additional context fields are passed as the second argument object.
 
 `lib/logger.ts` includes a `sanitize()` function that strips Anthropic API key patterns from all log output:
 
-```
+```text
 Pattern: /sk-ant-[a-zA-Z0-9_-]+/g → replaced with '[REDACTED]'
 ```
 
@@ -158,7 +158,7 @@ This runs on EVERY log line in production. If a new API key format is introduced
 
 When a new feature is implemented, verify:
 
-```
+```text
 [ ] API routes wrapped with withLogging()
 [ ] Request ID propagated to all log calls
 [ ] Error paths log at error level with full context (error object, request params)

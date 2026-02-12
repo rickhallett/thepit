@@ -66,6 +66,9 @@ export function rateLimitResponse(
 /**
  * Parse a JSON request body with standardized error handling.
  * Returns a discriminated union: either the parsed data or an error Response.
+ *
+ * Note: The `T` cast is a type assertion without runtime validation.
+ * Callers must validate individual fields before trusting them.
  */
 export async function parseJsonBody<T>(
   req: Request,
