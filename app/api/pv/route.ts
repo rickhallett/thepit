@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     path?: string;
     sessionId?: string;
     clientIp?: string;
-    referer?: string;
+    referrer?: string;
     userAgent?: string;
     country?: string;
     utm?: string;
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     await db.insert(pageViews).values({
       path: path.slice(0, 512),
       sessionId: sessionId.slice(0, 32),
-      referrer: payload.referer?.slice(0, 1024) || null,
+      referrer: payload.referrer?.slice(0, 1024) || null,
       userAgent: payload.userAgent?.slice(0, 512) || null,
       ipHash,
       utmSource,
