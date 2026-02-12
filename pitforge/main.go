@@ -55,6 +55,19 @@ func main() {
 		return
 	}
 
+	// Validate command before loading config so unknown commands
+	// don't produce misleading config errors.
+	premium := map[string]bool{
+		"spar":    true,
+		"evolve":  true,
+		"lineage": true,
+	}
+	if !premium[args[0]] {
+		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
+		usage()
+		os.Exit(1)
+	}
+
 	// Commands that require config (DB access, API keys, etc.)
 	cfg, err := config.Load(*envPath)
 	if err != nil {
@@ -71,10 +84,6 @@ func main() {
 		cmd.RunEvolve(args[1:], cfg)
 	case "lineage":
 		cmd.RunLineage(args[1:], cfg)
-	default:
-		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
-		usage()
-		os.Exit(1)
 	}
 }
 

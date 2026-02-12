@@ -1,4 +1,4 @@
-.PHONY: gate build install test clean
+.PHONY: gate build install test coverage clean
 
 gate: build test
 	go vet ./...

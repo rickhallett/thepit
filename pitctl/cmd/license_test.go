@@ -12,10 +12,19 @@ import (
 
 func TestLicenseGenerateKeys(t *testing.T) {
 	// Run in temp dir so keys don't pollute the project.
-	orig, _ := os.Getwd()
+	orig, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("Getwd: %v", err)
+	}
 	dir := t.TempDir()
-	os.Chdir(dir)
-	defer os.Chdir(orig)
+	if err := os.Chdir(dir); err != nil {
+		t.Fatalf("Chdir: %v", err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(orig); err != nil {
+			t.Errorf("Chdir back: %v", err)
+		}
+	})
 
 	cfg := &config.Config{Vars: make(map[string]string)}
 	if err := RunLicenseGenerateKeys(cfg); err != nil {

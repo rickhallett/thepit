@@ -22,11 +22,6 @@ var testExportJSON = `{
     {"boutId":"b1","turnIndex":1,"reactionType":"skull","createdAt":"2026-01-14T08:02:00Z"},
     {"boutId":"b2","turnIndex":0,"reactionType":"fire","createdAt":"2026-01-14T09:01:00Z"}
   ],
-  "reactions": [
-    {"boutId":"b1","turnIndex":0,"reactionType":"fire","createdAt":"2026-01-14T08:01:00Z"},
-    {"boutId":"b1","turnIndex":1,"reactionType":"skull","createdAt":"2026-01-14T08:02:00Z"},
-    {"boutId":"b2","turnIndex":0,"reactionType":"fire","createdAt":"2026-01-14T09:01:00Z"}
-  ],
   "votes": [
     {"boutId":"b1","agentId":"agent-a","userId":"u1","createdAt":"2026-01-14T08:05:00Z"},
     {"boutId":"b1","agentId":"agent-a","userId":"u2","createdAt":"2026-01-14T08:06:00Z"},
@@ -59,6 +54,9 @@ func captureStdout(t *testing.T, fn func()) string {
 		t.Fatal(err)
 	}
 	os.Stdout = w
+	defer func() {
+		os.Stdout = oldStdout
+	}()
 
 	fn()
 
@@ -66,7 +64,9 @@ func captureStdout(t *testing.T, fn func()) string {
 	os.Stdout = oldStdout
 
 	var buf bytes.Buffer
-	io.Copy(&buf, r)
+	if _, err := io.Copy(&buf, r); err != nil {
+		t.Errorf("failed to read captured stdout: %v", err)
+	}
 	r.Close()
 	return buf.String()
 }

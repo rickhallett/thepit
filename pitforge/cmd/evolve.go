@@ -162,6 +162,7 @@ Signature Move: %s
 Weakness: %s
 Goal: %s
 Fears: %s
+Custom Instructions: %s
 
 Generate ablation variants by removing ONE structured field at a time.
 For each non-empty field, create a variant that is identical EXCEPT that field is cleared.
@@ -172,7 +173,8 @@ This helps identify which personality fields contribute most to debate performan
 Format each variant as a fenced YAML code block.`,
 		def.Name, sourcePrompt, def.Archetype, def.Tone,
 		strings.Join(def.Quirks, ", "), def.SpeechPattern,
-		def.OpeningMove, def.SignatureMove, def.Weakness, def.Goal, def.Fears)
+		def.OpeningMove, def.SignatureMove, def.Weakness, def.Goal, def.Fears,
+		def.CustomInstructions)
 }
 
 func countStructuredFields(def *agent.Definition) int {

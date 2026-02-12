@@ -57,9 +57,18 @@ func TestTemplatesPassValidation(t *testing.T) {
 
 func TestInitCreatesFile(t *testing.T) {
 	dir := t.TempDir()
-	orig, _ := os.Getwd()
-	os.Chdir(dir)
-	defer os.Chdir(orig)
+	orig, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if err := os.Chdir(orig); err != nil {
+			t.Errorf("failed to restore working directory: %v", err)
+		}
+	}()
 
 	// We can't call RunInit directly because it calls os.Exit.
 	// Instead, test the template application logic.
@@ -73,7 +82,7 @@ func TestInitCreatesFile(t *testing.T) {
 	slug := agent.Slugify(name)
 	filename := filepath.Join(dir, slug+".yaml")
 
-	err := agent.SaveToFile(filename, &def)
+	err = agent.SaveToFile(filename, &def)
 	if err != nil {
 		t.Fatalf("SaveToFile failed: %v", err)
 	}

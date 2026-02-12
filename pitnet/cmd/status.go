@@ -16,10 +16,12 @@ func RunStatus(args []string) {
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "--rpc", "-r":
-			if i+1 < len(args) {
-				rpcURL = args[i+1]
-				i++
+			if i+1 >= len(args) {
+				fmt.Fprintf(os.Stderr, "%s --rpc requires a value\n", theme.Error.Render("error:"))
+				os.Exit(1)
 			}
+			rpcURL = args[i+1]
+			i++
 		}
 	}
 

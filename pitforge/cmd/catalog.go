@@ -142,8 +142,9 @@ func showPresetDetail(presetsDir, id string, index *PresetIndex) {
 
 		// Show truncated system prompt.
 		sp := strings.ReplaceAll(a.SystemPrompt, "\n", " ")
-		if len(sp) > 100 {
-			sp = sp[:97] + "..."
+		runes := []rune(sp)
+		if len(runes) > 100 {
+			sp = string(runes[:97]) + "..."
 		}
 		fmt.Printf("    %-14s %s\n\n", theme.Muted.Render("prompt:"), sp)
 	}

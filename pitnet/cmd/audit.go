@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/lib/pq"
+
 	"github.com/rickhallett/thepit/pitnet/internal/abi"
 	"github.com/rickhallett/thepit/pitnet/internal/chain"
 	"github.com/rickhallett/thepit/shared/theme"
@@ -94,6 +96,10 @@ func RunAudit(args []string) {
 		}
 		agents = append(agents, a)
 	}
+	if err := rows.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "\n  %s scanning rows: %v\n\n", theme.Error.Render("error:"), err)
+		os.Exit(1)
+	}
 
 	if len(agents) == 0 {
 		fmt.Printf("\n  %s\n\n", theme.Muted.Render("No attested agents found."))
@@ -137,37 +143,44 @@ func RunAudit(args []string) {
 		}
 
 		// Decode on-chain data and verify hashes match.
-		if len(att.Data) > 0 {
-			decoded, err := abi.Decode(att.Data)
-			if err != nil {
-				fmt.Printf("  %-16s %-24s %s %s\n",
-					truncate(agent.AgentID, 14),
-					truncate(agent.Name, 22),
-					theme.Warning.Render("DECODE"),
-					"could not decode attestation data")
-				failed++
-				continue
-			}
+		if len(att.Data) == 0 {
+			fmt.Printf("  %-16s %-24s %s %s\n",
+				truncate(agent.AgentID, 14),
+				truncate(agent.Name, 22),
+				theme.Warning.Render("MISSING"),
+				"no attestation data")
+			failed++
+			continue
+		}
+		decoded, err := abi.Decode(att.Data)
+		if err != nil {
+			fmt.Printf("  %-16s %-24s %s %s\n",
+				truncate(agent.AgentID, 14),
+				truncate(agent.Name, 22),
+				theme.Warning.Render("DECODE"),
+				"could not decode attestation data")
+			failed++
+			continue
+		}
 
-			// Compare hashes.
-			if decoded.PromptHash != agent.PromptHash {
-				fmt.Printf("  %-16s %-24s %s %s\n",
-					truncate(agent.AgentID, 14),
-					truncate(agent.Name, 22),
-					theme.Error.Render("MISMATCH"),
-					"prompt hash differs")
-				failed++
-				continue
-			}
-			if decoded.ManifestHash != agent.ManifestHash {
-				fmt.Printf("  %-16s %-24s %s %s\n",
-					truncate(agent.AgentID, 14),
-					truncate(agent.Name, 22),
-					theme.Error.Render("MISMATCH"),
-					"manifest hash differs")
-				failed++
-				continue
-			}
+		// Compare hashes.
+		if decoded.PromptHash != agent.PromptHash {
+			fmt.Printf("  %-16s %-24s %s %s\n",
+				truncate(agent.AgentID, 14),
+				truncate(agent.Name, 22),
+				theme.Error.Render("MISMATCH"),
+				"prompt hash differs")
+			failed++
+			continue
+		}
+		if decoded.ManifestHash != agent.ManifestHash {
+			fmt.Printf("  %-16s %-24s %s %s\n",
+				truncate(agent.AgentID, 14),
+				truncate(agent.Name, 22),
+				theme.Error.Render("MISMATCH"),
+				"manifest hash differs")
+			failed++
+			continue
 		}
 
 		fmt.Printf("  %-16s %-24s %s\n",

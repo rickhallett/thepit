@@ -118,6 +118,9 @@ func RunLicenseVerify(cfg *config.Config) error {
 	if err != nil {
 		return fmt.Errorf("decoding LICENSE_SIGNING_KEY: %w", err)
 	}
+	if len(privBytes) != ed25519.PrivateKeySize {
+		return fmt.Errorf("invalid LICENSE_SIGNING_KEY: expected %d bytes, got %d", ed25519.PrivateKeySize, len(privBytes))
+	}
 	priv := ed25519.PrivateKey(privBytes)
 	pub := priv.Public().(ed25519.PublicKey)
 
