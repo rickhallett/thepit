@@ -1,9 +1,12 @@
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Node 21.2+ provides import.meta.dirname natively. Avoid the
+// fileURLToPath(import.meta.url) pattern because Next.js 16's config
+// compiler mishandles import.meta.url, producing "exports is not
+// defined in ES module scope".
+const __dirname = import.meta.dirname;
+const require = createRequire(import.meta.url);
 
 // Content-Security-Policy directives.
 // Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
@@ -58,8 +61,12 @@ const nextConfig: NextConfig = {
 };
 
 // Sentry wraps the Next.js config to enable source map uploads and
-// automatic instrumentation. When SENTRY_AUTH_TOKEN is not set (local dev),
-// this is effectively a no-op passthrough.
+// automatic instrumentation. Use createRequire to load the CJS package
+// — @sentry/nextjs resolves to CJS under the "node" condition but
+// Next.js 16 compiles next.config.ts as ESM, so a static import causes
+// "exports is not defined in ES module scope".
+const { withSentryConfig } = require('@sentry/nextjs');
+
 export default withSentryConfig(nextConfig, {
   // Upload source maps for readable stack traces in Sentry.
   // Requires SENTRY_AUTH_TOKEN and SENTRY_ORG/SENTRY_PROJECT env vars.
@@ -67,8 +74,10 @@ export default withSentryConfig(nextConfig, {
 
   // Treeshake Sentry debug logging from production bundles.
   // Note: only effective with webpack builds; Turbopack ignores this.
-  bundleSizeOptimizations: {
-    excludeDebugStatements: true,
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
   },
 
   // Opt out of Sentry's telemetry collection.
