@@ -47,6 +47,33 @@ interface RunOptions {
 }
 
 /**
+ * Check if the target server is reachable
+ */
+async function checkConnectivity(baseUrl: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
+
+    const response = await fetch(baseUrl, {
+      method: 'HEAD',
+      signal: controller.signal,
+    })
+    clearTimeout(timeout)
+
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    if (message.includes('ECONNREFUSED')) {
+      return { ok: false, error: `Server not running at ${baseUrl}` }
+    }
+    if (message.includes('abort')) {
+      return { ok: false, error: `Connection timeout to ${baseUrl}` }
+    }
+    return { ok: false, error: `Cannot connect to ${baseUrl}: ${message}` }
+  }
+}
+
+/**
  * Run QA tests based on options
  */
 async function runQA(options: RunOptions): Promise<void> {
@@ -67,6 +94,21 @@ async function runQA(options: RunOptions): Promise<void> {
     console.log('')
   }
 
+  // Check connectivity before running tests
+  console.log(`🔗 Checking connectivity to ${config.baseUrl}...`)
+  const connectivity = await checkConnectivity(config.baseUrl)
+
+  if (!connectivity.ok) {
+    console.error(`\n❌ ${connectivity.error}`)
+    console.error('\nTo run tests locally:')
+    console.error('  1. Start the dev server: npm run dev')
+    console.error('  2. Ensure QA_BASE_URL is set correctly in .env')
+    console.error(`     Current: QA_BASE_URL=${config.baseUrl}`)
+    process.exit(1)
+  }
+
+  console.log('✅ Server is reachable\n')
+
   // Parse QA report
   const reportPath = join(process.cwd(), 'docs', 'qa-report.md')
   const content = await readFile(reportPath, 'utf-8')
@@ -78,7 +120,34 @@ async function runQA(options: RunOptions): Promise<void> {
   let tests = allTests
 
   if (options.filter && options.filter.length > 0) {
-    tests = tests.filter((t) => options.filter!.includes(t.id))
+    // Support both exact match and prefix match (e.g., "SEC-" matches "SEC-AUTH-001")
+    tests = tests.filter((t) =>
+      options.filter!.some((f) => t.id === f || t.id.startsWith(f))
+    )
+
+    // Also include registered tests not in the report (e.g., security tests)
+    const registeredIds = Array.from(TEST_REGISTRY.keys())
+    const matchingRegistered = registeredIds.filter((id) =>
+      options.filter!.some((f) => id === f || id.startsWith(f))
+    )
+
+    // Add synthetic test entries for registered tests not in report
+    for (const id of matchingRegistered) {
+      if (!tests.some((t) => t.id === id)) {
+        tests.push({
+          id,
+          category: 'Security',
+          subcategory: id.split('-').slice(0, 2).join('-'),
+          description: `Security test: ${id}`,
+          expectedBehavior: '',
+          qa: false,
+          func: false,
+          broken: false,
+          lineNumber: 0,
+        })
+      }
+    }
+
     console.log(`🔍 Filtered to ${tests.length} tests by ID: ${options.filter.join(', ')}`)
   }
 
