@@ -55,7 +55,7 @@ export async function createBout(presetId: string, formData?: FormData) {
   if (CREDITS_ENABLED && !userId) {
     const poolStatus = await getIntroPoolStatus();
     if (poolStatus.exhausted) {
-      redirect('/sign-in?redirect_url=/arena');
+      redirect('/sign-in?redirect_url=/arena&reason=pool-exhausted');
     }
     // Intro pool has credits — allow anonymous bout creation
   }
@@ -108,7 +108,7 @@ export async function createArenaBout(formData: FormData) {
   if (CREDITS_ENABLED && !userId) {
     const poolStatus = await getIntroPoolStatus();
     if (poolStatus.exhausted) {
-      redirect('/sign-in?redirect_url=/arena/custom');
+      redirect('/sign-in?redirect_url=/arena/custom&reason=pool-exhausted');
     }
   }
 
