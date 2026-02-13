@@ -9,6 +9,7 @@ import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import { buildLineage } from '@/lib/agent-lineage';
+import { getAgentDisplayName } from '@/lib/agent-display-name';
 import type { PitLeaderboardEntry } from '@/lib/leaderboard';
 
 type SortKey = 'votes' | 'wins' | 'winRate' | 'bouts';
@@ -188,6 +189,7 @@ export function LeaderboardTable({
                 <button
                   type="button"
                   onClick={() => setActiveAgent(entry)}
+                  title={entry.name}
                   className="flex items-center gap-3 uppercase tracking-[0.2em] transition hover:text-accent"
                 >
                   <span
@@ -199,7 +201,7 @@ export function LeaderboardTable({
                   >
                     <AgentIcon avatar={entry.avatar} size={12} />
                   </span>
-                  <span>{entry.name}</span>
+                  <span>{getAgentDisplayName(entry.name)}</span>
                 </button>
               </div>
               <span className="text-xs uppercase tracking-[0.25em] text-muted">
