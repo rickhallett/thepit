@@ -8,6 +8,7 @@ import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 import { getRequestId, getClientIp, getUserAgent, getReferer } from '@/lib/request-context';
 import { checkAnomaly } from '@/lib/anomaly';
+import { requestStore } from '@/lib/async-context';
 
 type RouteHandler = (req: Request) => Promise<Response> | Response;
 
@@ -43,8 +44,24 @@ export function withLogging(
       referer: referer.slice(0, 200),
     });
 
+    // Wrap handler in AsyncLocalStorage context so downstream code can
+    // access requestId/clientIp/country/userAgent/path without explicit
+    // parameter threading.
+    const country = req.headers.get('x-vercel-ip-country') ?? undefined;
+    const runHandler = () =>
+      requestStore.run(
+        {
+          requestId,
+          clientIp,
+          country,
+          userAgent: userAgent.slice(0, 200),
+          path,
+        },
+        () => handler(req),
+      );
+
     try {
-      const response = await handler(req);
+      const response = await runHandler();
       const durationMs = Date.now() - start;
       const status = response.status;
 

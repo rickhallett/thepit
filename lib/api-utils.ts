@@ -5,6 +5,7 @@
 // use consistent wording, and include required headers (e.g. Retry-After).
 
 import type { RateLimitResult } from '@/lib/rate-limit';
+import { log } from '@/lib/logger';
 
 // ─── Standard error messages ────────────────────────────────────────────────
 
@@ -44,6 +45,9 @@ export function errorResponse(
 /**
  * Create a 429 rate-limit response with standard Retry-After and
  * X-RateLimit-* headers. Uses the RateLimitResult from lib/rate-limit.
+ *
+ * Also emits a `log.security` event for observability — every rate limit
+ * hit is automatically logged with request context from AsyncLocalStorage.
  */
 export function rateLimitResponse(
   result: RateLimitResult,
@@ -52,6 +56,12 @@ export function rateLimitResponse(
   const retryAfterSec = Math.ceil(
     Math.max(0, result.resetAt - Date.now()) / 1000,
   );
+
+  log.security('rate_limit_exceeded', {
+    retryAfterSec,
+    resetAt: result.resetAt,
+  });
+
   return errorResponse(message ?? API_ERRORS.RATE_LIMITED, 429, {
     headers: {
       'Retry-After': String(retryAfterSec),
