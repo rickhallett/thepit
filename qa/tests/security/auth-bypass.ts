@@ -299,7 +299,7 @@ registerTest({
     // Try various authorization header manipulations
     const manipulations = [
       { header: 'Authorization', value: 'Bearer fake-token' },
-      { header: 'Authorization', value: 'Basic YWRtaW46YWRtaW4=' }, // admin:admin
+      { header: 'Authorization', value: `Basic ${Buffer.from('admin:admin').toString('base64')}` },
       { header: 'X-User-Id', value: 'admin' },
       { header: 'X-Admin', value: 'true' },
       { header: 'Cookie', value: '__session=fake-session-token' },

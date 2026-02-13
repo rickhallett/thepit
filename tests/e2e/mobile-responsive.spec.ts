@@ -74,9 +74,9 @@ test.describe('Site header (mobile)', () => {
     const mobileNav = page.locator('header nav.md\\:hidden');
     await expect(mobileNav).toBeVisible();
 
-    // All 7 navigation links should be present
+    // All 8 navigation links should be present
     const links = mobileNav.locator('a');
-    await expect(links).toHaveCount(7);
+    await expect(links).toHaveCount(8);
   });
 
   test('clicking a nav link closes the menu and navigates', async ({
