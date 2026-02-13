@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
@@ -399,20 +400,20 @@ export function Arena({
                 {errorDetail?.message ?? 'The arena short-circuited.'}
               </p>
               {errorDetail?.code === 401 && (
-                <a
+                <Link
                   href="/sign-in?redirect_url=/arena"
                   className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
                 >
                   Sign in to continue
-                </a>
+                </Link>
               )}
               {errorDetail?.code === 402 && (
-                <a
+                <Link
                   href="/arena#credits"
                   className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
                 >
                   Get credits
-                </a>
+                </Link>
               )}
               <button
                 type="button"
