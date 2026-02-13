@@ -11,17 +11,13 @@
  * Set QA_BASE_URL env var to test against different environments.
  */
 
-import { beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { makeRequest, checkConnectivity, testTimingAttack } from './utils'
 
 // Skip all tests if server not reachable (CI without server)
 const serverReachable = await checkConnectivity()
 
 describe.skipIf(!serverReachable)('Security: Authorization Bypass', () => {
-  beforeAll(async () => {
-    // Server already verified reachable
-  })
-
   describe('IDOR Protection', () => {
     it('SEC-AUTH-001: rejects access to non-existent/unauthorized bout via API', async () => {
       // Test the API endpoint, not the page (Next.js pages render shell before checking data)
