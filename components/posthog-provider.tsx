@@ -28,7 +28,13 @@ if (typeof window !== 'undefined' && POSTHOG_KEY) {
     autocapture: true,
     capture_dead_clicks: true,
     disable_session_recording: false,
-    // Respect Do Not Track browser setting
+    // Respect Do Not Track browser setting.
+    // TRADEOFF: ~12-15% of browsers send the DNT header (Safari defaults it on,
+    // Firefox/Brave users enable it). These users will be completely invisible
+    // to PostHog — no events, no sessions, no funnels. This is an intentional
+    // privacy-first choice, but means analytics undercount real traffic.
+    // If accurate volume metrics are critical, consider setting this to false
+    // and relying on PostHog's own consent/opt-out mechanisms instead.
     respect_dnt: true,
   });
 

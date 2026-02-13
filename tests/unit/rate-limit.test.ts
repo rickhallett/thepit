@@ -88,11 +88,18 @@ describe('rate-limit', () => {
 });
 
 describe('getClientIdentifier', () => {
-  it('extracts IP from x-forwarded-for header', () => {
+  it('uses rightmost IP from x-forwarded-for (proxy-appended, not attacker-controlled)', () => {
     const req = new Request('http://localhost', {
       headers: { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
     });
-    expect(getClientIdentifier(req)).toBe('192.168.1.1');
+    expect(getClientIdentifier(req)).toBe('10.0.0.1');
+  });
+
+  it('uses single IP from x-forwarded-for', () => {
+    const req = new Request('http://localhost', {
+      headers: { 'x-forwarded-for': '1.2.3.4' },
+    });
+    expect(getClientIdentifier(req)).toBe('1.2.3.4');
   });
 
   it('extracts IP from x-real-ip header', () => {
@@ -105,6 +112,17 @@ describe('getClientIdentifier', () => {
   it('returns unknown when no IP headers present', () => {
     const req = new Request('http://localhost');
     expect(getClientIdentifier(req)).toBe('unknown');
+  });
+
+  it('prefers x-vercel-forwarded-for over x-forwarded-for', () => {
+    const req = new Request('http://localhost', {
+      headers: {
+        'x-vercel-forwarded-for': '9.8.7.6',
+        'x-forwarded-for': '1.2.3.4, 5.6.7.8',
+        'x-real-ip': '10.11.12.13',
+      },
+    });
+    expect(getClientIdentifier(req)).toBe('9.8.7.6');
   });
 
   it('prefers x-forwarded-for over x-real-ip', () => {
