@@ -73,6 +73,12 @@ export const bouts = pgTable('bouts', {
     .notNull(),
 }, (table) => ({
   createdAtIdx: index('bouts_created_at_idx').on(table.createdAt),
+  // FK added via foreignKey() because users is defined after bouts.
+  ownerFk: foreignKey({
+    columns: [table.ownerId],
+    foreignColumns: [users.id],
+    name: 'bouts_owner_id_users_id_fk',
+  }).onDelete('set null'),
 }));
 
 export const users = pgTable('users', {
@@ -102,7 +108,7 @@ export const users = pgTable('users', {
 }));
 
 export const credits = pgTable('credits', {
-  userId: varchar('user_id', { length: 128 }).primaryKey(),
+  userId: varchar('user_id', { length: 128 }).primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   balanceMicro: bigint('balance_micro', { mode: 'number' }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
@@ -114,7 +120,7 @@ export const credits = pgTable('credits', {
 
 export const creditTransactions = pgTable('credit_transactions', {
   id: serial('id').primaryKey(),
-  userId: varchar('user_id', { length: 128 }).notNull(),
+  userId: varchar('user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
   deltaMicro: bigint('delta_micro', { mode: 'number' }).notNull(),
   source: varchar('source', { length: 64 }).notNull(),
   referenceId: varchar('reference_id', { length: 128 }),
@@ -147,8 +153,8 @@ export const introPool = pgTable('intro_pool', {
 
 export const referrals = pgTable('referrals', {
   id: serial('id').primaryKey(),
-  referrerId: varchar('referrer_id', { length: 128 }).notNull(),
-  referredId: varchar('referred_id', { length: 128 }).notNull(),
+  referrerId: varchar('referrer_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  referredId: varchar('referred_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
   code: varchar('code', { length: 32 }).notNull(),
   credited: boolean('credited').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true })
@@ -158,10 +164,10 @@ export const referrals = pgTable('referrals', {
 
 export const reactions = pgTable('reactions', {
   id: serial('id').primaryKey(),
-  boutId: varchar('bout_id', { length: 21 }).notNull(),
+  boutId: varchar('bout_id', { length: 21 }).notNull().references(() => bouts.id, { onDelete: 'cascade' }),
   turnIndex: integer('turn_index').notNull(),
   reactionType: varchar('reaction_type', { length: 32 }).notNull(),
-  userId: varchar('user_id', { length: 128 }),
+  userId: varchar('user_id', { length: 128 }).references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -179,9 +185,9 @@ export const winnerVotes = pgTable(
   'winner_votes',
   {
     id: serial('id').primaryKey(),
-    boutId: varchar('bout_id', { length: 21 }).notNull(),
+    boutId: varchar('bout_id', { length: 21 }).notNull().references(() => bouts.id, { onDelete: 'cascade' }),
     agentId: varchar('agent_id', { length: 128 }).notNull(),
-    userId: varchar('user_id', { length: 128 }).notNull(),
+    userId: varchar('user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -227,7 +233,7 @@ export const agents = pgTable('agents', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-  ownerId: varchar('owner_id', { length: 128 }),
+  ownerId: varchar('owner_id', { length: 128 }).references(() => users.id, { onDelete: 'set null' }),
   parentId: varchar('parent_id', { length: 128 }),
   promptHash: varchar('prompt_hash', { length: 66 }).notNull(),
   manifestHash: varchar('manifest_hash', { length: 66 }).notNull(),
@@ -240,6 +246,11 @@ export const agents = pgTable('agents', {
     table.archived,
     table.createdAt,
   ),
+  parentFk: foreignKey({
+    columns: [table.parentId],
+    foreignColumns: [table.id],
+    name: 'agents_parent_id_agents_id_fk',
+  }).onDelete('set null'),
 }));
 
 export const freeBoutPool = pgTable('free_bout_pool', {
@@ -258,8 +269,8 @@ export const agentFlags = pgTable(
   'agent_flags',
   {
     id: serial('id').primaryKey(),
-    agentId: varchar('agent_id', { length: 128 }).notNull(),
-    userId: varchar('user_id', { length: 128 }).notNull(),
+    agentId: varchar('agent_id', { length: 128 }).notNull().references(() => agents.id, { onDelete: 'cascade' }),
+    userId: varchar('user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
     reason: varchar('reason', { length: 32 }).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
@@ -277,7 +288,7 @@ export const paperSubmissions = pgTable(
   'paper_submissions',
   {
     id: serial('id').primaryKey(),
-    userId: varchar('user_id', { length: 128 }).notNull(),
+    userId: varchar('user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
     arxivId: varchar('arxiv_id', { length: 32 }).notNull(),
     arxivUrl: varchar('arxiv_url', { length: 512 }).notNull(),
     title: varchar('title', { length: 500 }).notNull(),
@@ -304,7 +315,7 @@ export const featureRequests = pgTable(
   'feature_requests',
   {
     id: serial('id').primaryKey(),
-    userId: varchar('user_id', { length: 128 }).notNull(),
+    userId: varchar('user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 200 }).notNull(),
     description: text('description').notNull(),
     category: varchar('category', { length: 64 }).notNull(),
@@ -323,8 +334,8 @@ export const featureRequestVotes = pgTable(
   'feature_request_votes',
   {
     id: serial('id').primaryKey(),
-    featureRequestId: integer('feature_request_id').notNull(),
-    userId: varchar('user_id', { length: 128 }).notNull(),
+    featureRequestId: integer('feature_request_id').notNull().references(() => featureRequests.id, { onDelete: 'cascade' }),
+    userId: varchar('user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -372,8 +383,8 @@ export const pageViews = pgTable('page_views', {
 export const shortLinks = pgTable('short_links', {
   id: serial('id').primaryKey(),
   slug: varchar('slug', { length: 32 }).notNull(),
-  boutId: varchar('bout_id', { length: 21 }).notNull(),
-  createdByUserId: varchar('created_by_user_id', { length: 128 }),
+  boutId: varchar('bout_id', { length: 21 }).notNull().references(() => bouts.id, { onDelete: 'cascade' }),
+  createdByUserId: varchar('created_by_user_id', { length: 128 }).references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -389,7 +400,7 @@ export const shortLinks = pgTable('short_links', {
 export const shortLinkClicks = pgTable('short_link_clicks', {
   id: serial('id').primaryKey(),
   shortLinkId: integer('short_link_id').notNull(),
-  boutId: varchar('bout_id', { length: 21 }).notNull(),
+  boutId: varchar('bout_id', { length: 21 }).notNull().references(() => bouts.id, { onDelete: 'cascade' }),
   refCode: varchar('ref_code', { length: 64 }),
   utmSource: varchar('utm_source', { length: 128 }),
   utmMedium: varchar('utm_medium', { length: 128 }),
@@ -416,10 +427,10 @@ export const shortLinkClicks = pgTable('short_link_clicks', {
 
 export const remixEvents = pgTable('remix_events', {
   id: serial('id').primaryKey(),
-  sourceAgentId: varchar('source_agent_id', { length: 128 }).notNull(),
-  remixedAgentId: varchar('remixed_agent_id', { length: 128 }),
-  remixerUserId: varchar('remixer_user_id', { length: 128 }).notNull(),
-  sourceOwnerId: varchar('source_owner_id', { length: 128 }),
+  sourceAgentId: varchar('source_agent_id', { length: 128 }).notNull().references(() => agents.id),
+  remixedAgentId: varchar('remixed_agent_id', { length: 128 }).references(() => agents.id, { onDelete: 'set null' }),
+  remixerUserId: varchar('remixer_user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+  sourceOwnerId: varchar('source_owner_id', { length: 128 }).references(() => users.id, { onDelete: 'set null' }),
   outcome: varchar('outcome', { length: 32 }).notNull(),
   reason: varchar('reason', { length: 64 }),
   rewardRemixerMicro: bigint('reward_remixer_micro', { mode: 'number' })
