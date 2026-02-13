@@ -243,6 +243,69 @@ export const wrapPersona = (prompt: string): string => {
 };
 
 // ---------------------------------------------------------------------------
+// Token estimation
+// ---------------------------------------------------------------------------
+
+/**
+ * Estimate the token count of a string using the ~4 chars/token heuristic.
+ * This is intentionally conservative (overestimates) to prevent context overflow.
+ * Matches the estimation approach in lib/credits.ts.
+ */
+export const estimatePromptTokens = (text: string): number =>
+  Math.ceil(text.length / 4);
+
+/**
+ * Truncate a history array from the front to fit within a token budget.
+ *
+ * Returns a new array with the most recent turns preserved.
+ * Inserts a truncation marker as the first entry when turns are dropped.
+ *
+ * @param history - Array of "AgentName: text" strings (full bout history)
+ * @param systemContent - The system message (included in token budget)
+ * @param contextParts - Non-history portions of the user message (topic, instructions, etc.)
+ * @param tokenBudget - Maximum input tokens for the model
+ * @returns { truncatedHistory, turnsDropped }
+ */
+export function truncateHistoryToFit(
+  history: string[],
+  systemContent: string,
+  contextParts: string,
+  tokenBudget: number,
+): { truncatedHistory: string[]; turnsDropped: number } {
+  // Fixed overhead: system prompt + non-history user message parts + XML wrapping margin
+  const fixedTokens = estimatePromptTokens(systemContent) + estimatePromptTokens(contextParts) + 100;
+
+  const availableTokens = tokenBudget - fixedTokens;
+  if (availableTokens <= 0) {
+    // No room for any history — return empty with all turns dropped
+    return { truncatedHistory: [], turnsDropped: history.length };
+  }
+
+  // Work backwards from most recent, accumulating until budget exceeded
+  let accumulatedTokens = 0;
+  let keepFrom = history.length; // index to start keeping from
+
+  for (let i = history.length - 1; i >= 0; i--) {
+    const turnTokens = estimatePromptTokens(xmlEscape(history[i]));
+    if (accumulatedTokens + turnTokens > availableTokens) {
+      break;
+    }
+    accumulatedTokens += turnTokens;
+    keepFrom = i;
+  }
+
+  const turnsDropped = keepFrom;
+  const kept = history.slice(keepFrom);
+
+  if (turnsDropped > 0 && kept.length > 0) {
+    const marker = `[${turnsDropped} earlier turn${turnsDropped > 1 ? 's' : ''} truncated for context limit]`;
+    return { truncatedHistory: [marker, ...kept], turnsDropped };
+  }
+
+  return { truncatedHistory: kept, turnsDropped };
+}
+
+// ---------------------------------------------------------------------------
 // Structured agent prompt builder (XML version)
 // ---------------------------------------------------------------------------
 

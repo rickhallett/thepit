@@ -19,7 +19,7 @@ import { cookies } from 'next/headers';
 import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
-import { buildSystemMessage, buildUserMessage, buildSharePrompt } from '@/lib/xml-prompt';
+import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/app/api/byok-stash/route';
@@ -28,6 +28,7 @@ import {
   FREE_MODEL_ID,
   PREMIUM_MODEL_OPTIONS,
   getModel,
+  getInputTokenBudget,
 } from '@/lib/ai';
 import {
   ARENA_PRESET_ID,
@@ -475,16 +476,69 @@ export async function executeBout(
         format: formatConfig.instruction,
       });
 
+      // Context window budgeting: truncate history from the front if the
+      // full transcript would exceed the model's input token limit.
+      const resolvedModelId = modelId === 'byok' ? (process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID) : modelId;
+      const tokenBudget = getInputTokenBudget(resolvedModelId);
+      let historyForTurn = history;
+      if (history.length > 0) {
+        // Estimate the non-history portion of the user message (context, instruction tags)
+        const contextOverhead = buildUserMessage({
+          topic,
+          lengthLabel: lengthConfig.label,
+          lengthHint: lengthConfig.hint,
+          formatLabel: formatConfig.label,
+          formatHint: formatConfig.hint,
+          history: [],
+          agentName: agent.name,
+          isOpening: false,
+        });
+
+        const { truncatedHistory, turnsDropped } = truncateHistoryToFit(
+          history,
+          systemContent,
+          contextOverhead,
+          tokenBudget,
+        );
+        historyForTurn = truncatedHistory;
+
+        if (turnsDropped > 0) {
+          log.warn('Context window truncation applied', {
+            requestId,
+            boutId,
+            turn: i,
+            turnsDropped,
+            historySize: history.length,
+            keptTurns: truncatedHistory.length,
+            tokenBudget,
+          });
+        }
+      }
+
       const userContent = buildUserMessage({
         topic,
         lengthLabel: lengthConfig.label,
         lengthHint: lengthConfig.hint,
         formatLabel: formatConfig.label,
         formatHint: formatConfig.hint,
-        history,
+        history: historyForTurn,
         agentName: agent.name,
         isOpening: history.length === 0,
       });
+
+      // Hard guard: if even after truncation the prompt is too large, fail gracefully
+      const estimatedInputTokens = estimatePromptTokens(systemContent) + estimatePromptTokens(userContent);
+      if (estimatedInputTokens > tokenBudget) {
+        const msg = `Prompt exceeds model context limit (${estimatedInputTokens} estimated tokens > ${tokenBudget} budget). This may happen with very long system prompts.`;
+        log.error('Context limit hard guard triggered', new Error(msg), {
+          requestId,
+          boutId,
+          turn: i,
+          estimatedInputTokens,
+          tokenBudget,
+        });
+        throw new Error(msg);
+      }
 
       const turnStart = Date.now();
       const result = streamText({
@@ -498,7 +552,22 @@ export async function executeBout(
 
       let fullText = '';
       let estimatedOutputTokens = 0;
+      let ttftLogged = false;
       for await (const delta of result.textStream) {
+        // TTFT: Log slow provider responses (>2s to first token)
+        if (!ttftLogged) {
+          const ttft = Date.now() - turnStart;
+          if (ttft > 2000) {
+            log.warn('slow_provider_response', {
+              requestId,
+              boutId,
+              turn: i,
+              modelId,
+              ttft_ms: ttft,
+            });
+          }
+          ttftLogged = true;
+        }
         fullText += delta;
         estimatedOutputTokens += estimateTokensFromText(delta, 0);
         onEvent?.({ type: 'text-delta', id: turnId, delta });
@@ -603,6 +672,21 @@ export async function executeBout(
       const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
       const actualMicro = toMicroCredits(actualCost);
       const delta = actualMicro - preauthMicro;
+
+      // Financial telemetry: track estimation accuracy for margin health.
+      // Negative delta = overestimated (refund to user, safe).
+      // Positive delta = underestimated (charged more, margin leak).
+      log.info('financial_settlement', {
+        requestId,
+        boutId,
+        modelId,
+        estimated_micro: preauthMicro,
+        actual_micro: actualMicro,
+        delta_micro: delta,
+        estimated_cost_gbp: preauthMicro > 0 ? (preauthMicro / 100) * 0.01 : 0,
+        actual_cost_gbp: actualCost,
+        margin_health: delta <= 0 ? 'healthy' : 'leak',
+      });
 
       if (delta !== 0) {
         await settleCredits(userId, delta, 'settlement', {

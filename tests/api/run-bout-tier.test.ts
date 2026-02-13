@@ -85,6 +85,7 @@ vi.mock('@/lib/ai', () => ({
   ],
   DEFAULT_PREMIUM_MODEL_ID: 'claude-sonnet-4-5-20250929',
   getModel: vi.fn(() => 'mock-model'),
+  getInputTokenBudget: vi.fn(() => 170_000),
 }));
 
 vi.mock('@/lib/presets', () => ({

@@ -13,6 +13,8 @@
  * to reduce load on those DB checks.
  */
 
+import { resolveClientIp } from '@/lib/ip';
+
 type RateLimitEntry = {
   count: number;
   windowStart: number;
@@ -105,34 +107,10 @@ export function checkRateLimit(
 
 /**
  * Extract a client identifier from a request for rate limiting.
- * Uses IP address with fallback to a generic key.
  *
- * SECURITY: The leftmost entry in x-forwarded-for is attacker-controlled
- * (the client can set it to any value). The rightmost entry is appended by
- * the trusted edge proxy (Vercel) and represents the actual client IP.
- * We prefer x-vercel-forwarded-for when available since it's set by Vercel's
- * edge network and cannot be spoofed by the client.
+ * Delegates to the canonical resolveClientIp() from lib/ip.ts to ensure
+ * consistent IP resolution across middleware and rate limiting.
  */
 export function getClientIdentifier(req: Request): string {
-  // Prefer Vercel's trusted header — set at the edge, not spoofable by clients
-  const vercelForwarded = req.headers.get('x-vercel-forwarded-for');
-  if (vercelForwarded) {
-    return vercelForwarded.split(',')[0].trim();
-  }
-
-  // Fall back to x-forwarded-for — use the RIGHTMOST entry (appended by
-  // the trusted proxy), not the leftmost (attacker-controlled).
-  const forwarded = req.headers.get('x-forwarded-for');
-  if (forwarded) {
-    const parts = forwarded.split(',');
-    return parts[parts.length - 1].trim();
-  }
-
-  const realIp = req.headers.get('x-real-ip');
-  if (realIp) {
-    return realIp;
-  }
-
-  // Fallback - this shouldn't happen in production
-  return 'unknown';
+  return resolveClientIp(req.headers);
 }
