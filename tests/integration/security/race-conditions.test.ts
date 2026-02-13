@@ -14,7 +14,6 @@ import { makeRequest, checkConnectivity } from './utils'
 const serverReachable = await checkConnectivity()
 
 describe.skipIf(!serverReachable)('Security: Race Conditions', () => {
-
   describe('Credit Preauthorization', () => {
     it('SEC-RACE-001: handles concurrent preauth without double-spend', async () => {
       // Simulate two bout starts at the exact same moment
