@@ -59,6 +59,7 @@ vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: 'haiku',
   DEFAULT_PREMIUM_MODEL_ID: 'sonnet',
   PREMIUM_MODEL_OPTIONS: [],
+  getInputTokenBudget: vi.fn(() => 170_000),
 }));
 vi.mock('@/lib/presets', () => ({
   getPresetById: vi.fn(() => ({

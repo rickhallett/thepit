@@ -62,3 +62,37 @@ export const getModel = (modelId?: string, apiKey?: string) => {
     modelId === 'byok' ? BYOK_MODEL_ID : modelId ?? FREE_MODEL_ID;
   return provider(resolvedId);
 };
+
+// ---------------------------------------------------------------------------
+// Context window limits (tokens)
+// ---------------------------------------------------------------------------
+
+/**
+ * Maximum context window size for each model (in tokens).
+ * Used by the bout engine to enforce prompt budgets and prevent
+ * context overflow on long bouts.
+ */
+export const MODEL_CONTEXT_LIMITS: Record<string, number> = {
+  'claude-haiku-4-5-20251001': 200_000,
+  'claude-sonnet-4-5-20250929': 200_000,
+  'claude-opus-4-5-20251101': 200_000,
+  'claude-opus-4-6': 200_000,
+};
+
+/** Default context limit for unknown models. Conservative to prevent overflows. */
+export const DEFAULT_CONTEXT_LIMIT = 100_000;
+
+/**
+ * Fraction of the context window reserved for model output and safety margin.
+ * The remaining budget (1 - this ratio) is the maximum input prompt size.
+ */
+export const CONTEXT_SAFETY_MARGIN = 0.15;
+
+/**
+ * Get the maximum input token budget for a given model.
+ * Reserves CONTEXT_SAFETY_MARGIN of the window for output + safety.
+ */
+export function getInputTokenBudget(modelId: string): number {
+  const limit = MODEL_CONTEXT_LIMITS[modelId] ?? DEFAULT_CONTEXT_LIMIT;
+  return Math.floor(limit * (1 - CONTEXT_SAFETY_MARGIN));
+}

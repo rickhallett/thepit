@@ -1,6 +1,7 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
+import { resolveClientIp } from '@/lib/ip';
 
 const REFERRAL_RE = /^[A-Za-z0-9_-]{1,32}$/;
 
@@ -33,12 +34,11 @@ export default clerkMiddleware((_, req) => {
   const headers = new Headers(req.headers);
   headers.set('x-request-id', requestId);
 
-  // Propagate client IP for logging (not stored raw — hashed downstream)
-  const forwarded = req.headers.get('x-forwarded-for');
-  const clientIp = forwarded
-    ? forwarded.split(',')[0].trim()
-    : (req.headers.get('x-real-ip') ?? '');
-  if (clientIp) {
+  // Propagate client IP for logging (not stored raw — hashed downstream).
+  // Uses the canonical resolveClientIp() which prefers the trusted rightmost
+  // x-forwarded-for entry, consistent with rate limiting in lib/rate-limit.ts.
+  const clientIp = resolveClientIp(req.headers);
+  if (clientIp && clientIp !== 'unknown') {
     headers.set('x-client-ip', clientIp);
   }
 
