@@ -63,6 +63,11 @@ vi.mock('@/db/schema', () => ({
     shareGeneratedAt: 'share_generated_at',
     createdAt: 'created_at',
   },
+  introPool: {
+    id: 'id',
+    remainingMicro: 'remaining_micro',
+    exhausted: 'exhausted',
+  },
 }));
 
 vi.mock('@clerk/nextjs/server', () => ({ auth: authMock }));
@@ -77,6 +82,12 @@ vi.mock('@/lib/tier', () => ({
 
 vi.mock('@/lib/free-bout-pool', () => ({
   consumeFreeBout: vi.fn(),
+}));
+
+vi.mock('@/lib/intro-pool', () => ({
+  getIntroPoolStatus: vi.fn(() => Promise.resolve({ exhausted: true, remainingMicro: 0 })),
+  consumeIntroPoolAnonymous: vi.fn(() => Promise.resolve({ consumed: false })),
+  ensureIntroPool: vi.fn(),
 }));
 
 vi.mock('@/lib/ai', () => ({
