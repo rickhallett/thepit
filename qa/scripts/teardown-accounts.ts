@@ -22,9 +22,9 @@ import { users, credits } from '../../db/schema.js'
 // --------------------------------------------------------------------------
 
 const TEST_EMAILS = [
-  'qa-free@thepit.test',
-  'qa-premium@thepit.test',
-  'qa-exhausted@thepit.test',
+  'qa-standard@thepit.cloud',
+  'qa-premium@thepit.cloud',
+  'qa-exhausted@thepit.cloud',
 ]
 
 // --------------------------------------------------------------------------

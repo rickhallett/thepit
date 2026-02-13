@@ -34,15 +34,15 @@ interface AccountConfig {
 const TEST_ACCOUNTS: AccountConfig[] = [
   {
     key: 'standard',
-    email: 'qa-free@thepit.test',
+    email: 'qa-standard@thepit.cloud',
     firstName: 'QA',
-    lastName: 'Free',
+    lastName: 'Standard',
     tier: 'free',
     creditsMicro: 50000, // 500 credits
   },
   {
     key: 'premium',
-    email: 'qa-premium@thepit.test',
+    email: 'qa-premium@thepit.cloud',
     firstName: 'QA',
     lastName: 'Premium',
     tier: 'pass',
@@ -50,7 +50,7 @@ const TEST_ACCOUNTS: AccountConfig[] = [
   },
   {
     key: 'exhausted',
-    email: 'qa-exhausted@thepit.test',
+    email: 'qa-exhausted@thepit.cloud',
     firstName: 'QA',
     lastName: 'Exhausted',
     tier: 'free',
@@ -176,7 +176,17 @@ async function main() {
 
       results.push({ key: account.key, email: account.email, userId })
     } catch (error) {
-      console.error(`    ❌ Failed:`, error instanceof Error ? error.message : error)
+      // Clerk errors have additional details in the 'errors' array
+      if (error && typeof error === 'object' && 'errors' in error) {
+        const clerkError = error as { errors: Array<{ message: string; code: string; meta?: Record<string, unknown> }> }
+        console.error(`    ❌ Failed:`)
+        for (const err of clerkError.errors) {
+          console.error(`       - ${err.code}: ${err.message}`)
+          if (err.meta) console.error(`         ${JSON.stringify(err.meta)}`)
+        }
+      } else {
+        console.error(`    ❌ Failed:`, error instanceof Error ? error.message : error)
+      }
     }
   }
 
