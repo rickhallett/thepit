@@ -108,7 +108,9 @@ export function validateConfig(config: QAConfig): string[] {
 
   if (warnings.length > 0) {
     console.warn('Configuration warnings:')
-    warnings.forEach((w) => console.warn(`  ⚠️  ${w}`))
+    warnings.forEach((w) => {
+      console.warn(`  ⚠️  ${w}`)
+    })
   }
 
   return errors

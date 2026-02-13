@@ -10,6 +10,7 @@ This checklist must be verified before any production deployment.
 - [ ] `ANTHROPIC_API_KEY` - Production Anthropic API key
 - [ ] `STRIPE_SECRET_KEY` - Live Stripe secret key (not `sk_test_*`)
 - [ ] `STRIPE_WEBHOOK_SECRET` - Production webhook signing secret
+- [ ] `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Production Clerk publishable key
 - [ ] `CLERK_SECRET_KEY` - Production Clerk secret key
 - [ ] `ADMIN_SEED_TOKEN` - Strong token (32+ characters, random)
 

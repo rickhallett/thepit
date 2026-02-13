@@ -70,7 +70,7 @@ async function runZapScan(target: string, quick: boolean): Promise<ScanResult> {
       tool: 'OWASP ZAP',
       success: false,
       findings: [],
-      error: 'OWASP ZAP not installed. Install via Docker: docker pull owasp/zap2docker-stable',
+      error: 'OWASP ZAP not installed. Install via Docker: docker pull zaproxy/zap-stable',
       duration: Date.now() - startTime,
     }
   }
@@ -79,7 +79,7 @@ async function runZapScan(target: string, quick: boolean): Promise<ScanResult> {
 
   return new Promise((resolve) => {
     const args = hasDocker
-      ? ['run', '--rm', '-t', 'owasp/zap2docker-stable', 'zap-baseline.py', '-t', target, '-J', '/dev/stdout']
+      ? ['run', '--rm', '-t', 'zaproxy/zap-stable', 'zap-baseline.py', '-t', target, '-J', '/dev/stdout']
       : ['zap-baseline.py', '-t', target, '-J', '/dev/stdout']
 
     const cmd = hasDocker ? 'docker' : 'zap-baseline.py'

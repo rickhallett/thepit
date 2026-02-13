@@ -7,7 +7,7 @@
  *
  * Prerequisites:
  * - CLERK_SECRET_KEY must be set (development instance)
- * - DATABASE_URL must be set
+ * - QA_DATABASE_URL must be set (falls back to DATABASE_URL)
  */
 
 import { createClerkClient } from '@clerk/backend'
@@ -38,7 +38,8 @@ async function main() {
 
   // Validate environment
   const clerkSecretKey = process.env.CLERK_SECRET_KEY
-  const databaseUrl = process.env.DATABASE_URL
+  // Prefer QA_DATABASE_URL to avoid accidental production deletes
+  const databaseUrl = process.env.QA_DATABASE_URL || process.env.DATABASE_URL
 
   if (!clerkSecretKey) {
     console.error('❌ CLERK_SECRET_KEY is required')
@@ -46,8 +47,14 @@ async function main() {
   }
 
   if (!databaseUrl) {
-    console.error('❌ DATABASE_URL is required')
+    console.error('❌ QA_DATABASE_URL (or DATABASE_URL) is required')
     process.exit(1)
+  }
+
+  // Warn if using DATABASE_URL directly (might be production)
+  if (!process.env.QA_DATABASE_URL && process.env.DATABASE_URL) {
+    console.warn('⚠️  Using DATABASE_URL (QA_DATABASE_URL not set)')
+    console.warn('   Ensure this is NOT a production database!')
   }
 
   // Safety check

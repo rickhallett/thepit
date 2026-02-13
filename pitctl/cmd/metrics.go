@@ -125,9 +125,9 @@ func RunMetrics(cfg *config.Config, opts MetricsOpts) error {
 
 	// Credit metrics.
 	conn.QueryVal(ctx, &data.Credits.TotalSpent,
-		`SELECT COALESCE(SUM(ABS(amount)), 0) FROM credit_ledger WHERE amount < 0 AND created_at >= NOW() - $1::interval`, interval)
+		`SELECT COALESCE(SUM(ABS(delta_micro)), 0) FROM credit_transactions WHERE delta_micro < 0 AND created_at >= NOW() - $1::interval`, interval)
 	conn.QueryVal(ctx, &data.Credits.TotalGranted,
-		`SELECT COALESCE(SUM(amount), 0) FROM credit_ledger WHERE amount > 0 AND created_at >= NOW() - $1::interval`, interval)
+		`SELECT COALESCE(SUM(delta_micro), 0) FROM credit_transactions WHERE delta_micro > 0 AND created_at >= NOW() - $1::interval`, interval)
 	if hours > 0 {
 		data.Credits.AvgSpentPerHr = float64(data.Credits.TotalSpent) / hours
 	}

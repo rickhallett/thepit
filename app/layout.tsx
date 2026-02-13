@@ -28,6 +28,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@ThePitArena',
+    creator: '@ThePitArena',
     title: 'THE PIT — AI Battle Arena',
     description: 'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
   },

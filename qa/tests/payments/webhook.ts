@@ -54,6 +54,10 @@ registerTest({
       if (response.status === 200) {
         failures.push(`Accepted with signature: "${sig}"`)
       }
+      // Server errors during validation are also failures
+      if (response.status >= 500) {
+        failures.push(`Server error with signature: "${sig}"`)
+      }
     }
 
     // Test without any signature header

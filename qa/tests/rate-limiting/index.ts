@@ -32,9 +32,10 @@ registerTest({
     const responses = await Promise.all(requests)
     const statuses = responses.map(r => r.status)
 
-    // Check for rate limiting (429) or auth requirement (401)
+    // Check for rate limiting (429) or auth requirement (401/403)
     const hasRateLimit = statuses.includes(429)
-    const hasAuth = statuses.every(s => s === 401)
+    const hasAuth = statuses.every(s => s === 401 || s === 403)
+    const successCount = statuses.filter(s => s === 200).length
 
     // Rate limiting may be per-instance (in-memory), so 429 might not appear
     // But we should at least not get 500 errors
@@ -48,9 +49,18 @@ registerTest({
       }
     }
 
+    // Fail if all requests succeeded without any protection
+    if (successCount === statuses.length && !hasRateLimit && !hasAuth) {
+      return {
+        passed: false,
+        error: 'No rate limiting or auth protection on bout creation',
+        evidence: `All ${successCount} requests succeeded without protection`,
+      }
+    }
+
     return {
       passed: true,
-      evidence: `Rapid bout creation handled. ${hasRateLimit ? 'Rate limited' : 'Auth required'}. Statuses: ${[...new Set(statuses)].join(', ')}`,
+      evidence: `Rapid bout creation handled. ${hasRateLimit ? 'Rate limited' : hasAuth ? 'Auth required' : `${successCount} succeeded`}. Statuses: ${[...new Set(statuses)].join(', ')}`,
     }
   },
 })
@@ -335,11 +345,11 @@ registerTest({
       }
     }
 
-    const allSuccessful = responses.every(r => r.status === 200 || r.status === 401)
+    const allHandled = responses.every(r => r.status === 200 || r.status === 401)
 
     return {
       passed: true,
-      evidence: `Requests completed in ${duration}ms total (avg ${avgDuration}ms each)`,
+      evidence: `Requests completed in ${duration}ms total (avg ${avgDuration}ms each). All handled: ${allHandled}`,
     }
   },
 })

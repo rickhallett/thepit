@@ -190,8 +190,10 @@ export async function testTimingAttack(
   correctPrefix: string,
   iterations: number = 100
 ): Promise<SecurityTestResult> {
-  const wrongToken = 'x'.repeat(correctPrefix.length)
-  const partialToken = correctPrefix + 'x'.repeat(correctPrefix.length - correctPrefix.length)
+  const tokenLength = 32 // Typical admin token length
+  const wrongToken = 'x'.repeat(tokenLength)
+  // Partial token: starts with correct prefix, rest is wrong
+  const partialToken = correctPrefix + 'x'.repeat(Math.max(0, tokenLength - correctPrefix.length))
 
   const timings: { wrong: number[]; partial: number[] } = { wrong: [], partial: [] }
 

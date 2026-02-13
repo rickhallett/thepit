@@ -17,7 +17,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parseArgs } from 'node:util'
 
-import { parseQAReport, filterByPrefix, filterByCategory, summarize, type ParsedTest } from './parser.js'
+import { parseQAReport, filterByCategory, summarize, type ParsedTest } from './parser.js'
 import { writeResults, generateSummary, type TestResult } from './writer.js'
 import { loadConfig, validateConfig, printConfig, type QAConfig } from './config.js'
 import { AUTOMATION_TIERS, type AutomationTier } from './tiers.js'
@@ -47,6 +47,33 @@ interface RunOptions {
 }
 
 /**
+ * Check if the target server is reachable
+ */
+async function checkConnectivity(baseUrl: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
+
+    await fetch(baseUrl, {
+      method: 'HEAD',
+      signal: controller.signal,
+    })
+    clearTimeout(timeout)
+
+    return { ok: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    if (message.includes('ECONNREFUSED')) {
+      return { ok: false, error: `Server not running at ${baseUrl}` }
+    }
+    if (message.includes('abort')) {
+      return { ok: false, error: `Connection timeout to ${baseUrl}` }
+    }
+    return { ok: false, error: `Cannot connect to ${baseUrl}: ${message}` }
+  }
+}
+
+/**
  * Run QA tests based on options
  */
 async function runQA(options: RunOptions): Promise<void> {
@@ -58,13 +85,32 @@ async function runQA(options: RunOptions): Promise<void> {
 
   if (errors.length > 0) {
     console.error('Configuration errors:')
-    errors.forEach((e) => console.error(`  ❌ ${e}`))
+    errors.forEach((e) => {
+      console.error(`  ❌ ${e}`)
+    })
     process.exit(1)
   }
 
   if (options.verbose) {
     printConfig(config)
     console.log('')
+  }
+
+  // Check connectivity before running tests (skip for dry runs)
+  if (!options.dryRun) {
+    console.log(`🔗 Checking connectivity to ${config.baseUrl}...`)
+    const connectivity = await checkConnectivity(config.baseUrl)
+
+    if (!connectivity.ok) {
+      console.error(`\n❌ ${connectivity.error}`)
+      console.error('\nTo run tests locally:')
+      console.error('  1. Start the dev server: npm run dev')
+      console.error('  2. Ensure QA_BASE_URL is set correctly in .env')
+      console.error(`     Current: QA_BASE_URL=${config.baseUrl}`)
+      process.exit(1)
+    }
+
+    console.log('✅ Server is reachable\n')
   }
 
   // Parse QA report
@@ -78,7 +124,34 @@ async function runQA(options: RunOptions): Promise<void> {
   let tests = allTests
 
   if (options.filter && options.filter.length > 0) {
-    tests = tests.filter((t) => options.filter!.includes(t.id))
+    // Support both exact match and prefix match (e.g., "SEC-" matches "SEC-AUTH-001")
+    tests = tests.filter((t) =>
+      options.filter!.some((f) => t.id === f || t.id.startsWith(f))
+    )
+
+    // Also include registered tests not in the report (e.g., security tests)
+    const registeredIds = Array.from(TEST_REGISTRY.keys())
+    const matchingRegistered = registeredIds.filter((id) =>
+      options.filter!.some((f) => id === f || id.startsWith(f))
+    )
+
+    // Add synthetic test entries for registered tests not in report
+    for (const id of matchingRegistered) {
+      if (!tests.some((t) => t.id === id)) {
+        tests.push({
+          id,
+          category: 'Security',
+          subcategory: id.split('-').slice(0, 2).join('-'),
+          description: `Security test: ${id}`,
+          expectedBehavior: '',
+          qa: false,
+          func: false,
+          broken: false,
+          lineNumber: 0,
+        })
+      }
+    }
+
     console.log(`🔍 Filtered to ${tests.length} tests by ID: ${options.filter.join(', ')}`)
   }
 
@@ -140,21 +213,19 @@ async function runQA(options: RunOptions): Promise<void> {
     }
 
     const shortDesc = test.description.slice(0, 50)
-    console.log(`▶️  ${test.id}: ${shortDesc}...`)
+    console.log(`▶️  [${tier}] ${test.id}: ${shortDesc}...`)
 
     const startTime = Date.now()
+    let setupComplete = false
 
     try {
       if (impl.setup) {
         await impl.setup(ctx)
       }
+      setupComplete = true
 
       const result = await impl.run(ctx)
       result.duration = Date.now() - startTime
-
-      if (impl.teardown) {
-        await impl.teardown(ctx)
-      }
 
       results.push({
         id: test.id,
@@ -184,6 +255,15 @@ async function runQA(options: RunOptions): Promise<void> {
       })
 
       console.log(`❌ ${test.id} (${duration}ms): ${errorMsg}`)
+    } finally {
+      // Always run teardown if setup completed (prevents resource leaks)
+      if (setupComplete && impl.teardown) {
+        try {
+          await impl.teardown(ctx)
+        } catch (teardownErr) {
+          console.warn(`⚠️  Teardown failed for ${test.id}: ${teardownErr instanceof Error ? teardownErr.message : String(teardownErr)}`)
+        }
+      }
     }
   }
 
