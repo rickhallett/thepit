@@ -11,11 +11,11 @@ cd pitctl
 make install   # builds and installs to ~/go/bin/pitctl
 ```
 
-Requires Go 1.23+.
+Requires Go 1.25+.
 
 ## Configuration
 
-`pitctl` auto-detects the `.env` file by walking up from the pitctl directory to the tspit project root. Override with `--env`:
+`pitctl` auto-detects the `.env` file by walking up from the pitctl directory to the project root. Override with `--env`:
 
 ```bash
 pitctl --env /path/to/.env status
@@ -33,6 +33,7 @@ pitctl [flags] <command> [subcommand] [args...]
 |---------------|------------------------------------------------|
 | `--env <path>`| Path to `.env` file (default: auto-detect)     |
 | `--yes`       | Skip confirmation prompts for write operations |
+| `--json`      | Output as JSON where supported                 |
 
 ### Commands
 
@@ -47,7 +48,7 @@ Shows user/bout/agent counts, feature flags, free bout pool, and database size.
 #### `env` — Validate environment
 
 ```bash
-pitctl env                    # validate all 18 env vars are set
+pitctl env                    # validate all env vars are set
 pitctl env --check-connections  # also test DB and Stripe connectivity
 ```
 
@@ -69,7 +70,7 @@ pitctl users inspect <userId>             # full user detail
 pitctl --yes users set-tier <userId> pro  # change subscription tier
 ```
 
-Tiers: `free`, `pro`, `team`.
+Tiers: `free`, `pass`, `lab`.
 
 #### `credits` — Credit economy
 
@@ -106,6 +107,48 @@ pitctl --yes agents archive <agentId>     # soft-delete
 pitctl --yes agents restore <agentId>     # restore archived agent
 ```
 
+#### `alerts` — Health checks
+
+```bash
+pitctl alerts                             # run all health checks
+pitctl alerts --quiet                     # exit code only
+pitctl alerts --json                      # JSON output
+pitctl alerts --webhook <slack-url>       # send failures to Slack
+```
+
+Checks DB connectivity, HTTP health endpoint, error rate, stuck bouts, and free bout pool.
+
+#### `watch` — Continuous monitoring
+
+```bash
+pitctl watch                              # run alerts every 5 minutes
+pitctl watch --interval 1m                # custom interval (min 10s)
+pitctl watch --webhook <slack-url>        # send state changes to Slack
+pitctl watch --json                       # JSON output
+```
+
+Runs the full alert suite in a loop, printing state changes and sending Slack notifications on degradation.
+
+#### `metrics` — Time-series aggregations
+
+```bash
+pitctl metrics                            # default 24h window
+pitctl metrics 7d                         # last 7 days
+pitctl metrics 30d --json                 # last 30 days as JSON
+```
+
+Shows bouts, users, credits, errors, page views, and referrals over the specified window.
+
+#### `report` — Summary reports
+
+```bash
+pitctl report                             # daily report to stdout
+pitctl report weekly                      # weekly report
+pitctl report daily --webhook <slack-url> # send daily report to Slack
+```
+
+Combines statistics and current health checks into a single summary.
+
 #### `smoke` — HTTP health checks
 
 ```bash
@@ -125,6 +168,16 @@ pitctl export agents                      # export all agents as JSON
 
 Files are written to `pitctl/export/` (gitignored).
 
+#### `license` — Lab-tier license management
+
+```bash
+pitctl license generate-keys              # generate Ed25519 key pair
+pitctl --yes license issue <userId>       # issue license to lab-tier user
+pitctl license verify                     # verify license at ~/.pit/license.jwt
+```
+
+Keys are written to `keys/` directory. The signing key should be set as `LICENSE_SIGNING_KEY` in `.env`.
+
 #### `version`
 
 ```bash
@@ -133,20 +186,20 @@ pitctl version
 
 ## Safety
 
-Write operations (`set-tier`, `grant`, `archive`, `restore`, `purge-errors`) require the `--yes` flag. Without it, the command exits with an error reminding you to confirm. There are no interactive prompts.
+Write operations (`set-tier`, `grant`, `archive`, `restore`, `purge-errors`, `license issue`) require the `--yes` flag. Without it, the command exits with an error reminding you to confirm. There are no interactive prompts.
 
 ## Development
 
 ```bash
-make gate      # build + test + vet (the verification gate)
+make gate      # vet + build + test (the verification gate)
 make build     # compile binary
 make test      # run tests with verbose output
 make coverage  # generate coverage report
 make clean     # remove binary + coverage artifacts
 ```
 
-31 tests across 5 packages. `make gate` must exit 0 before committing.
+`make gate` must exit 0 before committing.
 
 ---
 
-[← Root](../README.md) · [App](../app/README.md) · [DB](../db/README.md) · [Scripts](../scripts/README.md)
+[← Root](../README.md) · [pitforge](../pitforge/README.md) · [pitbench](../pitbench/README.md) · [pitlab](../pitlab/README.md) · [pitnet](../pitnet/README.md) · [shared](../shared/README.md)
