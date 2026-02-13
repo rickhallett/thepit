@@ -18,6 +18,8 @@ const {
   computeCostGbpMock,
   toMicroCreditsMock,
   estimateTokensFromTextMock,
+  getIntroPoolStatusMock,
+  consumeIntroPoolAnonymousMock,
 } = vi.hoisted(() => {
   const db = {
     select: vi.fn(),
@@ -38,6 +40,8 @@ const {
     computeCostGbpMock: vi.fn(),
     toMicroCreditsMock: vi.fn(),
     estimateTokensFromTextMock: vi.fn(),
+    getIntroPoolStatusMock: vi.fn(),
+    consumeIntroPoolAnonymousMock: vi.fn(),
   };
 });
 
@@ -113,6 +117,11 @@ vi.mock('@/lib/credits', () => ({
   preauthorizeCredits: preauthorizeCreditsMock,
   settleCredits: settleCreditsMock,
   toMicroCredits: toMicroCreditsMock,
+}));
+
+vi.mock('@/lib/intro-pool', () => ({
+  getIntroPoolStatus: getIntroPoolStatusMock,
+  consumeIntroPoolAnonymous: consumeIntroPoolAnonymousMock,
 }));
 
 vi.mock('@/lib/response-lengths', () => ({
@@ -236,6 +245,18 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
     estimateBoutCostGbpMock.mockReturnValue(0.005);
     toMicroCreditsMock.mockReturnValue(5000);
     computeCostGbpMock.mockReturnValue(0.003);
+    getIntroPoolStatusMock.mockResolvedValue({
+      remainingMicro: 0,
+      remainingCredits: 0,
+      drainRatePerMinute: 1,
+      startedAt: new Date().toISOString(),
+      exhausted: true,
+    });
+    consumeIntroPoolAnonymousMock.mockResolvedValue({
+      consumed: false,
+      remainingMicro: 0,
+      exhausted: true,
+    });
     estimateTokensFromTextMock.mockReturnValue(0);
     preauthorizeCreditsMock.mockResolvedValue({ success: true });
     settleCreditsMock.mockResolvedValue({});
