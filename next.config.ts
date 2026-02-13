@@ -34,6 +34,24 @@ const cspDirectives = [
   "frame-ancestors 'none'",
 ];
 
+// Content-Security-Policy directives.
+// Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
+// api.stripe.com) are omitted since CSP only governs the browser.
+const cspDirectives = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://cdn.jsdelivr.net",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https://img.clerk.com https://images.clerk.dev",
+  "font-src 'self' data:",
+  "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://us.i.posthog.com https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com",
+  "frame-src 'self' https://checkout.stripe.com https://*.clerk.accounts.dev https://*.clerk.com",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+];
+
 const securityHeaders = [
   {
     key: 'Content-Security-Policy',
