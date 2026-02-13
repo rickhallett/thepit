@@ -1,13 +1,27 @@
 // Structured logging for The Pit.
 //
-// Zero external dependencies. Wraps console.* with structured JSON output
-// in production and human-readable output in development. Every log line
-// includes a timestamp, level, and optional context fields.
+// Zero external dependencies (except optional Sentry trace linking).
+// Wraps console.* with structured JSON output in production and
+// human-readable output in development. Every log line includes a
+// timestamp, level, and optional context fields.
+//
+// Semantic log methods:
+//   log.audit()    — credit settlements, tier changes, admin actions
+//   log.metric()   — token counts, latency, cost tracking
+//   log.security() — rate limit violations, auth failures, anomalies
 //
 // Usage:
 //   import { log } from '@/lib/logger';
 //   log.info('Bout started', { boutId, presetId });
 //   log.error('Stream failed', error, { boutId });
+//   log.audit('credit_settlement', { userId, delta });
+//   log.metric('turn_latency', { boutId, durationMs });
+//   log.security('rate_limit_exceeded', { clientIp, route });
+
+import { getContext } from '@/lib/async-context';
+
+/** Signal categories for structured log filtering. */
+export type LogSignal = 'audit' | 'metric' | 'security';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 type ConfigLevel = LogLevel | 'silent';
@@ -63,6 +77,27 @@ function sanitize(value: unknown): unknown {
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
+/**
+ * Attempt to read the active Sentry trace ID.
+ * Returns undefined when Sentry is not loaded or no span is active.
+ * Extracted as a named function for testability (vi.mock can intercept it).
+ */
+let _sentry: { getActiveSpan?: () => { spanContext: () => { traceId: string } } | undefined } | null = null;
+let _sentryLoaded = false;
+
+export function getSentryTraceId(): string | undefined {
+  if (!_sentryLoaded) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      _sentry = require('@sentry/nextjs');
+    } catch {
+      _sentry = null;
+    }
+    _sentryLoaded = true;
+  }
+  return _sentry?.getActiveSpan?.()?.spanContext?.()?.traceId;
+}
+
 function formatDev(level: LogLevel, msg: string, ctx?: LogContext): string {
   const levelTag = `[${level.toUpperCase()}]`.padEnd(7);
   const ctxStr = ctx && Object.keys(ctx).length
@@ -87,6 +122,24 @@ function emit(
     ctx = maybeCtx ?? {};
   } else if (errorOrCtx) {
     ctx = errorOrCtx;
+  }
+
+  // Auto-inject request context from AsyncLocalStorage if not explicitly provided.
+  // This means callers no longer need to manually pass { requestId } on every
+  // log call — it's automatically available from the request context.
+  const reqCtx = getContext();
+  if (reqCtx) {
+    if (reqCtx.requestId && !ctx.requestId) ctx.requestId = reqCtx.requestId;
+    if (reqCtx.clientIp && !ctx.clientIp) ctx.clientIp = reqCtx.clientIp;
+    if (reqCtx.country && !ctx.country) ctx.country = reqCtx.country;
+    if (reqCtx.path && !ctx.path) ctx.path = reqCtx.path;
+  }
+
+  // Inject Sentry trace ID when available — links structured logs to
+  // Sentry traces for cross-referencing in dashboards.
+  if (!ctx.traceId) {
+    const traceId = getSentryTraceId();
+    if (traceId) ctx.traceId = traceId;
   }
 
   const sanitizedCtx = sanitize(ctx) as LogContext;
@@ -138,5 +191,22 @@ export const log = {
   },
   error(msg: string, errorOrCtx?: Error | LogContext, ctx?: LogContext) {
     emit('error', msg, errorOrCtx, ctx);
+  },
+
+  // ─── Semantic log methods ───────────────────────────────────────────
+  // Each adds a `signal` field for structured filtering in log aggregators.
+  // Level mapping: audit→info, metric→info, security→warn.
+
+  /** Audit events: credit settlements, tier changes, admin actions. */
+  audit(msg: string, ctx?: LogContext) {
+    emit('info', msg, { ...ctx, signal: 'audit' as const });
+  },
+  /** Metric events: token counts, latency, cost tracking. */
+  metric(msg: string, ctx?: LogContext) {
+    emit('info', msg, { ...ctx, signal: 'metric' as const });
+  },
+  /** Security events: rate limit violations, auth failures, anomalies. */
+  security(msg: string, ctx?: LogContext) {
+    emit('warn', msg, { ...ctx, signal: 'security' as const });
   },
 };
