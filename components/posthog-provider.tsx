@@ -23,9 +23,12 @@ if (typeof window !== 'undefined' && POSTHOG_KEY) {
     api_host: POSTHOG_HOST,
     capture_pageview: false, // We capture manually for SPA navigation
     capture_pageleave: true,
-    persistence: 'localStorage+cookie',
+    persistence: 'localStorage', // Avoid third-party cookie warnings
     autocapture: true,
     capture_dead_clicks: true,
+    disable_session_recording: false,
+    // Respect Do Not Track browser setting
+    respect_dnt: true,
   });
 
   // Register UTM super properties from the pit_utm cookie so they persist
