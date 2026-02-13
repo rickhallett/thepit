@@ -101,6 +101,11 @@ vi.mock('@/lib/credits', () => ({
 vi.mock('@/lib/agent-prompts', () => ({
   composeSystemPrompt: vi.fn(() => 'prompt'),
 }));
+vi.mock('@/lib/intro-pool', () => ({
+  getIntroPoolStatus: vi.fn(),
+  consumeIntroPoolAnonymous: vi.fn(),
+}));
+
 vi.mock('@/lib/tier', () => ({
   SUBSCRIPTIONS_ENABLED: false,
   canRunBout: vi.fn(() => ({ allowed: true })),

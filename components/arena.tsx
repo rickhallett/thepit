@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
@@ -53,6 +54,7 @@ export function Arena({
   const {
     messages,
     status,
+    errorDetail,
     activeAgentId,
     activeMessageId,
     thinkingAgentId,
@@ -380,9 +382,40 @@ export function Arena({
         </header>
 
         <section className="flex flex-1 flex-col gap-6">
-          {messages.length === 0 && (
+          {messages.length === 0 && status !== 'error' && (
             <div className="border-2 border-dashed border-foreground/40 p-8 text-center text-sm text-muted">
               Awaiting first strike.
+            </div>
+          )}
+
+          {status === 'error' && (
+            <div className="flex flex-col items-center gap-4 border-2 border-red-400/60 p-8 text-center">
+              <p className="text-sm text-red-400">
+                {errorDetail?.message ?? 'The arena short-circuited.'}
+              </p>
+              {errorDetail?.code === 401 && (
+                <Link
+                  href="/sign-in?redirect_url=/arena"
+                  className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
+                >
+                  Sign in to continue
+                </Link>
+              )}
+              {errorDetail?.code === 402 && (
+                <Link
+                  href="/arena#credits"
+                  className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
+                >
+                  Get credits
+                </Link>
+              )}
+              <button
+                type="button"
+                onClick={() => window.location.assign('/arena')}
+                className="rounded-full border-2 border-foreground/50 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-foreground hover:text-foreground"
+              >
+                Try again
+              </button>
             </div>
           )}
 
