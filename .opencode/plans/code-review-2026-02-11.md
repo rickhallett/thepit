@@ -6,7 +6,7 @@ Current state: tsc clean, 1 ESLint error, 107/107 tests passing.
 
 ## Execution Strategy
 
-Batch into 7 sequential commits to avoid merge conflicts. Each commit is independently testable via `npm run test:ci`.
+Batch into 7 sequential commits to avoid merge conflicts. Each commit is independently testable via `pnpm run test:ci`.
 
 ---
 
@@ -336,7 +336,7 @@ Add `updatedAt` column to bouts table definition. Add `uniqueIndex` to `newslett
 
 After all batches:
 ```bash
-npm run lint && npm run typecheck && npm run test:unit && npm run test:integration
+pnpm run lint && pnpm run typecheck && pnpm run test:unit && pnpm run test:integration
 ```
 
 ## Parallel Execution Strategy

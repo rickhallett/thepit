@@ -145,11 +145,11 @@ Track these metrics across releases:
 
 | Metric | How to Measure | Target |
 |--------|---------------|--------|
-| Test count | `npm run test:unit 2>&1 \| grep 'Tests'` | Monotonically increasing |
-| Coverage | `npm run test:unit 2>&1 \| grep '%'` | >= 85% on critical modules |
-| Lint errors | `npm run lint 2>&1 \| grep 'error'` | 0 |
-| TypeScript errors | `npm run typecheck 2>&1 \| grep 'error'` | 0 |
-| Gate status | `npm run test:ci` | Exit 0 |
+| Test count | `pnpm run test:unit 2>&1 \| grep 'Tests'` | Monotonically increasing |
+| Coverage | `pnpm run test:unit 2>&1 \| grep '%'` | >= 85% on critical modules |
+| Lint errors | `pnpm run lint 2>&1 \| grep 'error'` | 0 |
+| TypeScript errors | `pnpm run typecheck 2>&1 \| grep 'error'` | 0 |
+| Gate status | `pnpm run test:ci` | Exit 0 |
 | Security findings | Count from latest release review | 0 critical, 0 high |
 | Doc drift score | Count of stale references across .md files | 0 |
 | Open PRs | `gh pr list --state open` | < 5 |
@@ -253,7 +253,7 @@ Proposed → Planned → In Progress → Completed
 ## Anti-Patterns
 
 - Do NOT ship with critical or high security findings unresolved
-- Do NOT merge PRs that fail the gate (`npm run test:ci`)
+- Do NOT merge PRs that fail the gate (`pnpm run test:ci`)
 - Do NOT create implementation plans without establishing a baseline first
 - Do NOT assign work to agents outside their ownership scope
 - Do NOT add features to ROADMAP.md that haven't been committed to

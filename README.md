@@ -86,7 +86,7 @@ cd thepit
 pnpm install
 cp .env.example .env
 # Fill required values (see Environment below)
-pnpm dev
+pnpm run dev
 ```
 
 ### Seed Agents
@@ -101,14 +101,14 @@ curl -X POST http://localhost:3000/api/admin/seed-agents \
 ## Commands
 
 ```bash
-pnpm dev              # Dev server (Turbopack)
-pnpm build            # Production build
-pnpm start            # Serve production build
-pnpm lint             # ESLint
-pnpm typecheck        # TypeScript type checking
-pnpm test:unit        # Unit + API tests (425 tests)
-pnpm test:ci          # Lint + typecheck + unit + integration
-pnpm test:e2e         # Playwright E2E (requires running server)
+pnpm run dev              # Dev server (Turbopack)
+pnpm run build            # Production build
+pnpm run start            # Serve production build
+pnpm run lint             # ESLint
+pnpm run typecheck        # TypeScript type checking
+pnpm run test:unit        # Unit + API tests (425 tests)
+pnpm run test:ci          # Lint + typecheck + unit + integration
+pnpm run test:e2e         # Playwright E2E (requires running server)
 ```
 
 ---
@@ -168,7 +168,7 @@ Copy `.env.example` to `.env`. Required variables:
 
 1. **Fork and branch** — Fork the repo, create a feature branch (`feat/your-feature`), and open a PR against `master`.
 2. **Conventional commits** — All commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, etc.).
-3. **Tests must pass** — Run `npm run test:ci` before opening a PR. PRs with failing tests will not be merged.
+3. **Tests must pass** — Run `pnpm run test:ci` before opening a PR. PRs with failing tests will not be merged.
 4. **PR expectations** — Include a clear summary of what changed and why. For visual changes, include screenshots.
 5. **Code style** — TypeScript strict mode, 2-space indentation, Tailwind for styling. Use `clsx` + `tailwind-merge` when combining class lists.
 

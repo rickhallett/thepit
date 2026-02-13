@@ -5,7 +5,7 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const MODE = process.env.TEST_MODE || 'fast';
 const COMMAND =
-  MODE === 'full' ? ['npm', ['run', 'test:ci']] : ['npm', ['run', 'test:unit']];
+  MODE === 'full' ? ['pnpm', ['run', 'test:ci']] : ['pnpm', ['run', 'test:unit']];
 
 const WATCH_DIRS = ['app', 'components', 'lib', 'db', 'tests', 'scripts'];
 

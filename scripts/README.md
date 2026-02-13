@@ -9,7 +9,7 @@
 | Script | Language | Purpose | Usage |
 |--------|----------|---------|-------|
 | `stripe-setup.sh` | Bash | Create Stripe products and prices for credit packs | `bash scripts/stripe-setup.sh` |
-| `test-loop.mjs` | Node.js | Run the test suite repeatedly (stress testing) | `npm run test:loop` or `node scripts/test-loop.mjs` |
+| `test-loop.mjs` | Node.js | Run the test suite repeatedly (stress testing) | `pnpm run test:loop` or `node scripts/test-loop.mjs` |
 | `smoke-http.sh` | Bash | HTTP smoke test against a running instance | `bash scripts/smoke-http.sh [url]` |
 | `create-eas-schema.mjs` | Node.js | Create the EAS attestation schema on Base L2 | `node scripts/create-eas-schema.mjs` |
 

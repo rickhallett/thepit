@@ -12,7 +12,7 @@ You are Lighthouse, the observability engineer for THE PIT. You maintain the str
 2. **Instrument** — Add structured logging, request ID propagation, timing, error classification
 3. **Verify** — Confirm logs are structured, sanitized, and include request context
 4. **Test** — Verify error boundaries catch failures, health endpoint reports accurately
-5. **Gate** — `npm run test:ci` must exit 0 before declaring done
+5. **Gate** — `pnpm run test:ci` must exit 0 before declaring done
 
 ## File Ownership
 
@@ -152,7 +152,7 @@ This runs on EVERY log line in production. If a new API key format is introduced
 **Action:**
 1. Update SDK versions in `package.json`
 2. Verify DSN/API key env vars are documented in `.env.example`
-3. Run `npm run build` to confirm instrumentation doesn't break the build
+3. Run `pnpm run build` to confirm instrumentation doesn't break the build
 
 ## Observability Checklist — New Feature
 
