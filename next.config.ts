@@ -11,14 +11,25 @@ const require = createRequire(import.meta.url);
 // Content-Security-Policy directives.
 // Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
 // api.stripe.com) are omitted since CSP only governs the browser.
+//
+// Clerk dev domains (*.clerk.accounts.dev) only included in development to avoid
+// console warnings about blocked requests in production.
+const isDev = process.env.NODE_ENV === 'development';
+const clerkDomains = isDev
+  ? 'https://*.clerk.accounts.dev https://*.clerk.com'
+  : 'https://*.clerk.com';
+const clerkImgDomains = isDev
+  ? 'https://img.clerk.com https://images.clerk.dev'
+  : 'https://img.clerk.com https://images.clerk.com';
+
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://cdn.jsdelivr.net",
+  `script-src 'self' 'unsafe-inline' ${clerkDomains} https://cdn.jsdelivr.net`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https://img.clerk.com https://images.clerk.dev",
+  `img-src 'self' data: ${clerkImgDomains}`,
   "font-src 'self' data:",
-  "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://us.i.posthog.com https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com",
-  "frame-src 'self' https://checkout.stripe.com https://*.clerk.accounts.dev https://*.clerk.com",
+  `connect-src 'self' ${clerkDomains} https://us.i.posthog.com https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com`,
+  `frame-src 'self' https://checkout.stripe.com ${clerkDomains}`,
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
