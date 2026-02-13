@@ -75,6 +75,9 @@ importers:
         specifier: ^3.4.0
         version: 3.4.0
     devDependencies:
+      '@clerk/backend':
+        specifier: ^2.30.1
+        version: 2.30.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@playwright/test':
         specifier: ^1.58.2
         version: 1.58.2
