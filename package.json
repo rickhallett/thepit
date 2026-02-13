@@ -70,5 +70,18 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@sentry/cli",
+      "core-js",
+      "esbuild",
+      "keccak",
+      "protobufjs",
+      "secp256k1",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }

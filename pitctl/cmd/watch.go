@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/rickhallett/thepit/pitctl/internal/alert"
-	"github.com/rickhallett/thepit/pitctl/internal/config"
-	"github.com/rickhallett/thepit/pitctl/internal/theme"
+	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/theme"
 )
 
 // WatchOpts configures the continuous monitoring loop.

@@ -1,0 +1,6 @@
+# Binary
+pitforge
+!pitforge/
+
+# Test output
+coverage.out

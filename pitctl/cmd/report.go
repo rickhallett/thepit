@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/rickhallett/thepit/pitctl/internal/alert"
-	"github.com/rickhallett/thepit/pitctl/internal/config"
-	"github.com/rickhallett/thepit/pitctl/internal/db"
-	"github.com/rickhallett/thepit/pitctl/internal/format"
-	"github.com/rickhallett/thepit/pitctl/internal/theme"
+	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/db"
+	"github.com/rickhallett/thepit/shared/format"
+	"github.com/rickhallett/thepit/shared/theme"
 )
 
 // RunReport generates a summary report for the given period and optionally sends to Slack.

@@ -1,0 +1,10 @@
+go 1.25.7
+
+use (
+	./pitbench
+	./pitctl
+	./pitforge
+	./pitlab
+	./pitnet
+	./shared
+)

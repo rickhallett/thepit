@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/rickhallett/thepit/pitctl/cmd"
-	"github.com/rickhallett/thepit/pitctl/internal/config"
-	"github.com/rickhallett/thepit/pitctl/internal/theme"
+	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/theme"
 )
 
 var version = "dev"
@@ -64,6 +64,8 @@ func main() {
 		must("smoke", cmd.RunSmoke(url))
 	case "export":
 		runExport(cfg, args[1:])
+	case "license":
+		runLicense(cfg, args[1:], *yes)
 	case "version":
 		fmt.Printf("pitctl %s\n", version)
 	default:
@@ -270,6 +272,25 @@ func runExport(cfg *config.Config, args []string) {
 	}
 }
 
+func runLicense(cfg *config.Config, args []string, confirmed bool) {
+	if len(args) == 0 {
+		fatalf("license", "specify a subcommand: generate-keys, issue, verify")
+	}
+	switch args[0] {
+	case "generate-keys":
+		must("license generate-keys", cmd.RunLicenseGenerateKeys(cfg))
+	case "issue":
+		if len(args) < 2 {
+			fatalf("license issue", "user ID required")
+		}
+		must("license issue", cmd.RunLicenseIssue(cfg, args[1], confirmed))
+	case "verify":
+		must("license verify", cmd.RunLicenseVerify(cfg))
+	default:
+		fatalf("license", "unknown subcommand %q", args[0])
+	}
+}
+
 // --- helpers ---
 
 func usage() {
@@ -291,6 +312,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  report [daily|weekly] [--webhook] Summary report\n")
 	fmt.Fprintf(os.Stderr, "  smoke [--url <url>]            HTTP health checks\n")
 	fmt.Fprintf(os.Stderr, "  export [bouts|agents]          Research data export\n")
+	fmt.Fprintf(os.Stderr, "  license [generate-keys|issue|verify]\n")
 	fmt.Fprintf(os.Stderr, "  version                        Show version\n\n")
 	fmt.Fprintf(os.Stderr, "Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --env <path>  Path to .env file (default: auto-detect)\n")

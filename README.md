@@ -52,7 +52,12 @@ Each directory has its own README documenting architecture, design decisions, an
 | [`scripts/`](scripts/README.md) | Utility scripts: Stripe setup, smoke tests, EAS schema creation |
 | [`drizzle/`](drizzle/README.md) | 3 SQL migrations, drizzle-kit workflow, snapshot metadata |
 | [`docs/`](docs/README.md) | Project documents: specs, code reviews, hardening changes, strategy |
-| [`pitctl/`](pitctl/README.md) | Go CLI for site admin: status, users, credits, bouts, agents, smoke tests, exports |
+| [`pitctl/`](pitctl/README.md) | Go CLI for site admin: status, users, credits, bouts, agents, alerts, metrics, reports, smoke tests, exports, licensing |
+| [`pitforge/`](pitforge/README.md) | Go CLI for agent engineering: init, validate, lint, hash, diff, catalog, spar (streaming debates), evolve (AI variants) |
+| [`pitbench/`](pitbench/README.md) | Go CLI for cost benchmarking: bout cost estimation, token pricing, platform margin verification |
+| [`pitlab/`](pitlab/README.md) | Go CLI for research analysis: survival analysis, position bias, engagement curves, dataset stats |
+| [`pitnet/`](pitnet/README.md) | Go CLI for on-chain provenance: EAS attestation verification, submission, auditing on Base L2 |
+| [`shared/`](shared/README.md) | Go shared packages: config, theme, format, db, license — used by all CLI tools |
 
 ### Root Documents
 
@@ -78,10 +83,10 @@ Each directory has its own README documenting architecture, design decisions, an
 ```bash
 git clone git@github.com:rickhallett/thepit.git
 cd thepit
-npm install
+pnpm install
 cp .env.example .env
 # Fill required values (see Environment below)
-npm run dev
+pnpm dev
 ```
 
 ### Seed Agents
@@ -96,14 +101,14 @@ curl -X POST http://localhost:3000/api/admin/seed-agents \
 ## Commands
 
 ```bash
-npm run dev              # Dev server (Turbopack)
-npm run build            # Production build
-npm run start            # Serve production build
-npm run lint             # ESLint
-npm run typecheck        # TypeScript type checking
-npm run test:unit        # Unit + API tests (425 tests)
-npm run test:ci          # Lint + typecheck + unit + integration
-npm run test:e2e         # Playwright E2E (requires running server)
+pnpm dev              # Dev server (Turbopack)
+pnpm build            # Production build
+pnpm start            # Serve production build
+pnpm lint             # ESLint
+pnpm typecheck        # TypeScript type checking
+pnpm test:unit        # Unit + API tests (425 tests)
+pnpm test:ci          # Lint + typecheck + unit + integration
+pnpm test:e2e         # Playwright E2E (requires running server)
 ```
 
 ---
@@ -155,7 +160,7 @@ Copy `.env.example` to `.env`. Required variables:
 | Analytics | PostHog + Vercel Analytics |
 | Hosting | Vercel |
 | Tests | Vitest (425) + Playwright |
-| Admin CLI | Go (`pitctl`) |
+| CLI Toolchain | Go (pitctl, pitforge, pitbench, pitlab, pitnet) |
 
 ---
 
