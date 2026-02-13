@@ -65,8 +65,16 @@ func RunCreditsGrant(cfg *config.Config, userID string, amount int64, confirmed 
 
 	microAmount := amount * 100 // 1 credit = 100 micro
 
+	// Wrap all three operations in a transaction to prevent orphaned data
+	// if the process crashes between balance update and transaction insert.
+	tx, err := conn.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("starting transaction: %w", err)
+	}
+	defer tx.Rollback() //nolint:errcheck // rollback is a no-op after commit
+
 	// Ensure credit account exists.
-	_, err = conn.DB.ExecContext(ctx, `
+	_, err = tx.ExecContext(ctx, `
 		INSERT INTO credits (user_id, balance_micro, created_at, updated_at)
 		VALUES ($1, 0, NOW(), NOW())
 		ON CONFLICT (user_id) DO NOTHING`, userID)
@@ -75,7 +83,7 @@ func RunCreditsGrant(cfg *config.Config, userID string, amount int64, confirmed 
 	}
 
 	// Update balance.
-	_, err = conn.DB.ExecContext(ctx, `
+	_, err = tx.ExecContext(ctx, `
 		UPDATE credits SET balance_micro = balance_micro + $1, updated_at = NOW()
 		WHERE user_id = $2`, microAmount, userID)
 	if err != nil {
@@ -83,12 +91,16 @@ func RunCreditsGrant(cfg *config.Config, userID string, amount int64, confirmed 
 	}
 
 	// Record transaction.
-	_, err = conn.DB.ExecContext(ctx, `
+	_, err = tx.ExecContext(ctx, `
 		INSERT INTO credit_transactions (user_id, delta_micro, source, metadata, created_at)
 		VALUES ($1, $2, 'admin_grant', '{"tool":"pitctl"}'::jsonb, NOW())`,
 		userID, microAmount)
 	if err != nil {
 		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("committing transaction: %w", err)
 	}
 
 	fmt.Printf("\n  %s\n\n",
