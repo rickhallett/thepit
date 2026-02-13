@@ -94,20 +94,22 @@ async function runQA(options: RunOptions): Promise<void> {
     console.log('')
   }
 
-  // Check connectivity before running tests
-  console.log(`🔗 Checking connectivity to ${config.baseUrl}...`)
-  const connectivity = await checkConnectivity(config.baseUrl)
+  // Check connectivity before running tests (skip for dry runs)
+  if (!options.dryRun) {
+    console.log(`🔗 Checking connectivity to ${config.baseUrl}...`)
+    const connectivity = await checkConnectivity(config.baseUrl)
 
-  if (!connectivity.ok) {
-    console.error(`\n❌ ${connectivity.error}`)
-    console.error('\nTo run tests locally:')
-    console.error('  1. Start the dev server: npm run dev')
-    console.error('  2. Ensure QA_BASE_URL is set correctly in .env')
-    console.error(`     Current: QA_BASE_URL=${config.baseUrl}`)
-    process.exit(1)
+    if (!connectivity.ok) {
+      console.error(`\n❌ ${connectivity.error}`)
+      console.error('\nTo run tests locally:')
+      console.error('  1. Start the dev server: npm run dev')
+      console.error('  2. Ensure QA_BASE_URL is set correctly in .env')
+      console.error(`     Current: QA_BASE_URL=${config.baseUrl}`)
+      process.exit(1)
+    }
+
+    console.log('✅ Server is reachable\n')
   }
-
-  console.log('✅ Server is reachable\n')
 
   // Parse QA report
   const reportPath = join(process.cwd(), 'docs', 'qa-report.md')
