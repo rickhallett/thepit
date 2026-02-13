@@ -222,6 +222,89 @@ export const AUTOMATION_TIERS: Record<string, AutomationTier> = {
   'API-021': 'api',
   'API-022': 'partial', // Mock signature
   'API-023': 'api',
+
+  // Security Tests - Authorization Bypass
+  'SEC-AUTH-001': 'api',
+  'SEC-AUTH-002': 'api',
+  'SEC-AUTH-003': 'api',
+  'SEC-AUTH-004': 'api',
+  'SEC-AUTH-005': 'api',
+  'SEC-AUTH-006': 'api',
+  'SEC-AUTH-007': 'api',
+  'SEC-AUTH-008': 'api',
+  'SEC-AUTH-009': 'api',
+  'SEC-AUTH-010': 'api',
+
+  // Security Tests - Injection
+  'SEC-INJ-001': 'api',
+  'SEC-INJ-002': 'api',
+  'SEC-INJ-003': 'api',
+  'SEC-INJ-004': 'api',
+  'SEC-INJ-005': 'api',
+  'SEC-INJ-006': 'api',
+  'SEC-INJ-007': 'api',
+  'SEC-INJ-008': 'api',
+  'SEC-INJ-009': 'api',
+  'SEC-INJ-010': 'api',
+
+  // Security Tests - IDOR
+  'SEC-IDOR-001': 'api',
+  'SEC-IDOR-002': 'api',
+  'SEC-IDOR-003': 'api',
+  'SEC-IDOR-004': 'api',
+  'SEC-IDOR-005': 'api',
+  'SEC-IDOR-006': 'api',
+  'SEC-IDOR-007': 'api',
+  'SEC-IDOR-008': 'api',
+
+  // Security Tests - Credits
+  'SEC-CRED-001': 'api',
+  'SEC-CRED-002': 'api',
+  'SEC-CRED-003': 'api',
+  'SEC-CRED-004': 'api',
+  'SEC-CRED-005': 'api',
+  'SEC-CRED-006': 'api',
+  'SEC-CRED-007': 'api',
+  'SEC-CRED-008': 'api',
+  'SEC-CRED-009': 'api',
+  'SEC-CRED-010': 'api',
+
+  // Security Tests - Race Conditions
+  'SEC-RACE-001': 'api',
+  'SEC-RACE-002': 'api',
+  'SEC-RACE-003': 'api',
+  'SEC-RACE-004': 'api',
+  'SEC-RACE-005': 'api',
+  'SEC-RACE-006': 'api',
+  'SEC-RACE-007': 'api',
+  'SEC-RACE-008': 'api',
+
+  // Security Tests - Payment/Webhook
+  'SEC-PAY-001': 'api',
+  'SEC-PAY-002': 'api',
+  'SEC-PAY-003': 'api',
+  'SEC-PAY-004': 'api',
+  'SEC-PAY-005': 'api',
+  'SEC-PAY-006': 'api',
+  'SEC-PAY-007': 'api',
+  'SEC-PAY-008': 'api',
+  'SEC-PAY-009': 'api',
+  'SEC-PAY-010': 'api',
+  'SEC-PAY-011': 'api',
+  'SEC-PAY-012': 'api',
+  'SEC-PAY-013': 'api',
+  'SEC-PAY-014': 'api',
+  'SEC-PAY-015': 'api',
+
+  // Security Tests - Rate Limiting
+  'SEC-RATE-001': 'api',
+  'SEC-RATE-002': 'api',
+  'SEC-RATE-003': 'api',
+  'SEC-RATE-004': 'api',
+  'SEC-RATE-005': 'api',
+  'SEC-RATE-006': 'api',
+  'SEC-RATE-007': 'api',
+  'SEC-RATE-008': 'api',
 }
 
 /**

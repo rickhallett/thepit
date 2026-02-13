@@ -27,7 +27,12 @@
     "qa:arena": "tsx qa/runner.ts --category Arena",
     "qa:single": "tsx qa/runner.ts --filter",
     "qa:setup": "tsx qa/scripts/setup-accounts.ts",
-    "qa:teardown": "tsx qa/scripts/teardown-accounts.ts"
+    "qa:teardown": "tsx qa/scripts/teardown-accounts.ts",
+    "qa:security": "tsx qa/runner.ts --filter SEC-",
+    "qa:credits": "tsx qa/runner.ts --filter SEC-CRED --filter SEC-RACE",
+    "qa:payments": "tsx qa/runner.ts --filter SEC-PAY",
+    "qa:rate-limit": "tsx qa/runner.ts --filter SEC-RATE",
+    "security:scan": "tsx qa/scripts/security-scan.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.37",

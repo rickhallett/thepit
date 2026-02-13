@@ -21,23 +21,22 @@ import { parseQAReport, filterByPrefix, filterByCategory, summarize, type Parsed
 import { writeResults, generateSummary, type TestResult } from './writer.js'
 import { loadConfig, validateConfig, printConfig, type QAConfig } from './config.js'
 import { AUTOMATION_TIERS, type AutomationTier } from './tiers.js'
+import {
+  TEST_REGISTRY,
+  registerTest,
+  getTest,
+  type TestContext,
+  type RunResult,
+  type TestImplementation,
+} from './registry.js'
 
-// Re-export types for test implementations
+// Import test implementations to register them
+import './tests/index.js'
+
+// Re-export types and functions for test implementations
 export type { ParsedTest, TestResult, QAConfig }
-
-export interface TestContext {
-  config: QAConfig
-  // Browser context will be added when Playwright MCP is integrated
-  // browser: PlaywrightPage
-}
-
-export interface TestImplementation {
-  id: string
-  tier: AutomationTier
-  setup?: (ctx: TestContext) => Promise<void>
-  run: (ctx: TestContext) => Promise<TestResult>
-  teardown?: (ctx: TestContext) => Promise<void>
-}
+export type { TestContext, RunResult, TestImplementation }
+export { registerTest, getTest }
 
 interface RunOptions {
   filter?: string[]
@@ -45,26 +44,6 @@ interface RunOptions {
   tier?: AutomationTier
   dryRun: boolean
   verbose: boolean
-}
-
-/**
- * Registry of test implementations
- * Tests are registered here as they are implemented
- */
-const TEST_REGISTRY: Map<string, TestImplementation> = new Map()
-
-/**
- * Register a test implementation
- */
-export function registerTest(impl: TestImplementation): void {
-  TEST_REGISTRY.set(impl.id, impl)
-}
-
-/**
- * Get registered test implementation
- */
-export function getTest(id: string): TestImplementation | undefined {
-  return TEST_REGISTRY.get(id)
 }
 
 /**
