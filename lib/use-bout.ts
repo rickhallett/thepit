@@ -31,6 +31,11 @@ export type BoutMessage = {
 
 type BoutStatus = 'idle' | 'streaming' | 'done' | 'error';
 
+export type ErrorDetail = {
+  code: number;
+  message: string;
+};
+
 type UseBoutOptions = {
   boutId: string;
   preset: Preset;
@@ -85,6 +90,7 @@ export function useBout({
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   const [thinkingAgentId, setThinkingAgentId] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<ErrorDetail | null>(null);
   // Refs for the thinking-delay state machine:
   // - activeMessageIdRef: the currently visible message receiving text-deltas
   // - pendingMessageRef:  a message buffering tokens before it becomes visible
@@ -142,6 +148,10 @@ export function useBout({
       agentName: string;
       color: string;
     }) => {
+      // Flush any existing pending message before scheduling the new one.
+      // Without this, fast turns (arriving before the thinking delay expires)
+      // silently discard the previous message's buffered text.
+      flushPendingMessage();
       pendingMessageRef.current = { ...pending, buffer: '' };
       setThinkingAgentId(pending.agentId);
       setActiveAgentId(null);
@@ -182,6 +192,12 @@ export function useBout({
       });
 
       if (!response.ok || !response.body) {
+        let detail: ErrorDetail = { code: response.status, message: 'The arena short-circuited.' };
+        try {
+          const body = await response.json();
+          if (body?.error) detail = { code: response.status, message: body.error };
+        } catch { /* non-JSON response */ }
+        setErrorDetail(detail);
         setStatus('error');
         return;
       }
@@ -190,6 +206,10 @@ export function useBout({
         if (!event || typeof event.type !== 'string') return;
 
         if (event.type === 'error') {
+          setErrorDetail({
+            code: 0,
+            message: event.data?.text ?? 'The arena short-circuited.',
+          });
           setStatus('error');
           return;
         }
@@ -271,6 +291,7 @@ export function useBout({
 
     run().catch(() => {
       if (!cancelled) {
+        setErrorDetail({ code: 0, message: 'The arena short-circuited.' });
         setStatus('error');
         setThinkingAgentId(null);
         trackEvent('bout_error', { presetId: preset.id, model: model ?? null });
@@ -288,6 +309,7 @@ export function useBout({
   return {
     messages,
     status,
+    errorDetail,
     activeAgentId,
     activeMessageId,
     thinkingAgentId,

@@ -5,17 +5,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev          # Start local development server
-npm run build        # Create production build
-npm run start        # Run production build locally
-npm run lint         # Run ESLint
-npm run test:e2e     # Run Playwright E2E tests (set BASE_URL for deployed instances)
+pnpm run dev          # Start local development server
+pnpm run build        # Create production build
+pnpm run start        # Run production build locally
+pnpm run lint         # Run ESLint
+pnpm run test:e2e     # Run Playwright E2E tests (set BASE_URL for deployed instances)
 ```
 
 Database migrations use Drizzle Kit:
 ```bash
-npx drizzle-kit generate --name migration_name   # Generate migration SQL
-npx drizzle-kit push                              # Apply migrations
+pnpm exec drizzle-kit generate --name migration_name   # Generate migration SQL
+pnpm exec drizzle-kit push                              # Apply migrations
 ```
 
 ## Architecture

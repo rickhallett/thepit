@@ -50,9 +50,9 @@ func RunReport(cfg *config.Config, period string, webhookURL string) error {
 	conn.QueryVal(ctx, &activeUsers,
 		`SELECT COUNT(DISTINCT owner_id) FROM bouts WHERE created_at >= NOW() - $1::interval`, interval)
 	conn.QueryVal(ctx, &creditsSpent,
-		`SELECT COALESCE(SUM(ABS(amount)), 0) FROM credit_ledger WHERE amount < 0 AND created_at >= NOW() - $1::interval`, interval)
+		`SELECT COALESCE(SUM(ABS(delta_micro)), 0) FROM credit_transactions WHERE delta_micro < 0 AND created_at >= NOW() - $1::interval`, interval)
 	conn.QueryVal(ctx, &creditsGranted,
-		`SELECT COALESCE(SUM(amount), 0) FROM credit_ledger WHERE amount > 0 AND created_at >= NOW() - $1::interval`, interval)
+		`SELECT COALESCE(SUM(delta_micro), 0) FROM credit_transactions WHERE delta_micro > 0 AND created_at >= NOW() - $1::interval`, interval)
 
 	// Current health check.
 	healthReport := runChecks(cfg)

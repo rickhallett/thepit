@@ -166,9 +166,12 @@ export default async function ArenaPage() {
                 credits left
               </span>
               {poolStatus.exhausted && (
-                <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
-                  Pool drained
-                </span>
+                <Link
+                  href="/sign-up?redirect_url=/arena"
+                  className="rounded-full border-2 border-accent/70 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-accent transition hover:bg-accent/10"
+                >
+                  Pool drained — sign up for credits
+                </Link>
               )}
             </div>
           )}

@@ -21,7 +21,7 @@ Custom JSON event stream (via `createUIMessageStream`):
 Client parsing happens in `lib/use-bout.ts` with `parseJsonEventStream`.
 
 ## Data Model (Drizzle)
-12 tables (see `db/schema.ts`):
+20 tables (see `db/schema.ts`):
 - `bouts` — status, transcript, owner, topic, response length, share line, updatedAt
 - `agents` — system prompt, tier, DNA hashes, lineage, archived flag
 - `credits` + `credit_transactions` — credit balance + append-only ledger
@@ -31,6 +31,12 @@ Client parsing happens in `lib/use-bout.ts` with `parseJsonEventStream`.
 - `newsletter_signups` — email list
 - `free_bout_pool` — daily free bout cap
 - `agent_flags` — community moderation
+- `paper_submissions` — arXiv paper submissions for research curation
+- `feature_requests` + `feature_request_votes` — community feature voting
+- `page_views` — server-side analytics (path, session, UTM, geo)
+- `short_links` + `short_link_clicks` — shareable bout URLs with click analytics
+- `remix_events` — agent clone/remix lineage with reward payouts
+- `research_exports` — anonymized dataset snapshots for research downloads
 
 ## Subscription Tiers
 Three user tiers controlled by `SUBSCRIPTIONS_ENABLED`:
@@ -39,6 +45,9 @@ Three user tiers controlled by `SUBSCRIPTIONS_ENABLED`:
 - **lab** — unlimited bouts, all models including opus
 
 Managed via Stripe subscriptions with webhook-driven tier updates.
+
+## Bout Engine
+The core bout execution logic lives in `lib/bout-engine.ts` (extracted from the API route). Two phases: `validateBoutRequest()` (parse, auth, tier, credits, idempotency) and `executeBout()` (turn loop, transcript persistence, share line generation, credit settlement). All LLM prompts are constructed via `lib/xml-prompt.ts` builders with XML safety boundaries.
 
 ## Presets + Agents
 Presets live in `presets/*.json` and are normalized in `lib/presets.ts`. Agents can be preset-backed or user-created. Each agent has a DNA manifest hash for lineage and verification.

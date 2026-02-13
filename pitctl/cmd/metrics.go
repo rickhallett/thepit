@@ -125,9 +125,9 @@ func RunMetrics(cfg *config.Config, opts MetricsOpts) error {
 
 	// Credit metrics.
 	conn.QueryVal(ctx, &data.Credits.TotalSpent,
-		`SELECT COALESCE(SUM(ABS(amount)), 0) FROM credit_ledger WHERE amount < 0 AND created_at >= NOW() - $1::interval`, interval)
+		`SELECT COALESCE(SUM(ABS(delta_micro)), 0) FROM credit_transactions WHERE delta_micro < 0 AND created_at >= NOW() - $1::interval`, interval)
 	conn.QueryVal(ctx, &data.Credits.TotalGranted,
-		`SELECT COALESCE(SUM(amount), 0) FROM credit_ledger WHERE amount > 0 AND created_at >= NOW() - $1::interval`, interval)
+		`SELECT COALESCE(SUM(delta_micro), 0) FROM credit_transactions WHERE delta_micro > 0 AND created_at >= NOW() - $1::interval`, interval)
 	if hours > 0 {
 		data.Credits.AvgSpentPerHr = float64(data.Credits.TotalSpent) / hours
 	}
@@ -138,10 +138,11 @@ func RunMetrics(cfg *config.Config, opts MetricsOpts) error {
 		data.Errors.ErrorRate = float64(data.Bouts.Errored) / float64(data.Bouts.Total) * 100
 	}
 
-	// Page view metrics (table may not exist yet — queries fail gracefully via QueryVal).
-	conn.QueryVal(ctx, &data.Pages.TotalViews,
+	// Page view metrics — errors intentionally ignored: table may not exist in
+	// older deployments, and QueryVal leaves the destination at its zero value on failure.
+	_ = conn.QueryVal(ctx, &data.Pages.TotalViews,
 		`SELECT COUNT(*) FROM page_views WHERE created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &data.Pages.UniqueVisitors,
+	_ = conn.QueryVal(ctx, &data.Pages.UniqueVisitors,
 		`SELECT COUNT(DISTINCT session_id) FROM page_views WHERE created_at >= NOW() - $1::interval`, interval)
 	if hours > 0 {
 		data.Pages.AvgPerHr = float64(data.Pages.TotalViews) / hours
@@ -162,10 +163,10 @@ func RunMetrics(cfg *config.Config, opts MetricsOpts) error {
 		}
 	}
 
-	// Referral funnel metrics.
-	conn.QueryVal(ctx, &data.Referrals.TotalReferrals,
+	// Referral funnel metrics — errors intentionally ignored (see page view comment above).
+	_ = conn.QueryVal(ctx, &data.Referrals.TotalReferrals,
 		`SELECT COUNT(*) FROM referrals WHERE created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &data.Referrals.CreditedReferrals,
+	_ = conn.QueryVal(ctx, &data.Referrals.CreditedReferrals,
 		`SELECT COUNT(*) FROM referrals WHERE credited = true AND created_at >= NOW() - $1::interval`, interval)
 	if data.Referrals.TotalReferrals > 0 {
 		data.Referrals.ConversionRate = float64(data.Referrals.CreditedReferrals) / float64(data.Referrals.TotalReferrals) * 100

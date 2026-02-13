@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
 import { trackEvent } from '@/lib/analytics';
+import { BRAND, buildShareLinks } from '@/lib/brand';
 import {
   initScrollDepthTracking,
   initActiveTimeTracking,
@@ -52,6 +54,7 @@ export function Arena({
   const {
     messages,
     status,
+    errorDetail,
     activeAgentId,
     activeMessageId,
     thinkingAgentId,
@@ -186,7 +189,7 @@ export function Arena({
     const headline =
       line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
 
-    return [headline, '', replayUrl, '', '🔴 #ThePitArena'].join('\n');
+    return [headline, '', replayUrl, '', `🔴 ${BRAND.hashtag}`].join('\n');
   }, [liveShareLine, preset.name, replayUrl, shareLine, transcript]);
 
   const messageSharePayloads = useMemo(() => {
@@ -214,18 +217,11 @@ export function Arena({
         '',
         `Replay: ${replayUrl}`,
         '',
-        '🔴 #ThePitArena',
+        `🔴 ${BRAND.hashtag}`,
       ].join('\n');
-      const encoded = encodeURIComponent(payload);
       return {
         payload,
-        links: {
-          x: `https://twitter.com/intent/tweet?text=${encoded}`,
-          whatsapp: `https://wa.me/?text=${encoded}`,
-          telegram: `https://t.me/share/url?url=${encodeURIComponent(
-            replayUrl,
-          )}&text=${encoded}`,
-        },
+        links: buildShareLinks(payload, replayUrl),
       };
     });
   }, [
@@ -386,9 +382,40 @@ export function Arena({
         </header>
 
         <section className="flex flex-1 flex-col gap-6">
-          {messages.length === 0 && (
+          {messages.length === 0 && status !== 'error' && (
             <div className="border-2 border-dashed border-foreground/40 p-8 text-center text-sm text-muted">
               Awaiting first strike.
+            </div>
+          )}
+
+          {status === 'error' && (
+            <div className="flex flex-col items-center gap-4 border-2 border-red-400/60 p-8 text-center">
+              <p className="text-sm text-red-400">
+                {errorDetail?.message ?? 'The arena short-circuited.'}
+              </p>
+              {errorDetail?.code === 401 && (
+                <Link
+                  href="/sign-in?redirect_url=/arena"
+                  className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
+                >
+                  Sign in to continue
+                </Link>
+              )}
+              {errorDetail?.code === 402 && (
+                <Link
+                  href="/arena#credits"
+                  className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
+                >
+                  Get credits
+                </Link>
+              )}
+              <button
+                type="button"
+                onClick={() => window.location.assign('/arena')}
+                className="rounded-full border-2 border-foreground/50 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-foreground hover:text-foreground"
+              >
+                Try again
+              </button>
             </div>
           )}
 
@@ -449,6 +476,22 @@ export function Arena({
                     className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
                   >
                     X
+                  </a>
+                  <a
+                    href={share.links.reddit}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    Reddit
+                  </a>
+                  <a
+                    href={share.links.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    LinkedIn
                   </a>
                   <a
                     href={share.links.whatsapp}

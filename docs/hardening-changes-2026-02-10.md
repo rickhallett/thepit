@@ -205,10 +205,10 @@ The following issues were identified but not addressed in this session:
 
 | Check | Result |
 |-------|--------|
-| TypeScript (`npm run typecheck`) | ✅ Pass |
-| ESLint (`npm run lint`) | ✅ Pass |
-| Unit Tests (`npm run test:unit`) | ✅ 87/87 pass |
-| Integration Tests (`npm run test:integration`) | ⏭️ 6 skipped (require DB) |
+| TypeScript (`pnpm run typecheck`) | ✅ Pass |
+| ESLint (`pnpm run lint`) | ✅ Pass |
+| Unit Tests (`pnpm run test:unit`) | ✅ 87/87 pass |
+| Integration Tests (`pnpm run test:integration`) | ⏭️ 6 skipped (require DB) |
 | Coverage | 100% statements, 98% branches |
 
 ---

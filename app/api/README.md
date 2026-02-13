@@ -9,15 +9,24 @@ REST and streaming API endpoints. All routes use the Node.js runtime (not Edge).
 | Method | Path | Auth | Rate Limit | Purpose |
 |--------|------|------|-----------|---------|
 | POST | `/api/run-bout` | Optional (required for credits) | 5/hr auth, 2/hr anon | Stream a multi-turn AI debate bout |
-| POST | `/api/agents` | Required | — | Create agent with DNA hashing + optional EAS attestation |
+| POST | `/api/v1/bout` | Required + Lab tier | 5/hr (shared) | Synchronous REST bout execution (non-streaming) |
+| POST | `/api/agents` | Required | 10/hr | Create agent with DNA hashing + optional EAS attestation |
 | POST | `/api/reactions` | Optional | 30/min | Heart/fire reactions per turn |
-| POST | `/api/winner-vote` | Required | — | One winner vote per user per bout |
+| POST | `/api/winner-vote` | Required | 30/min | One winner vote per user per bout |
 | POST | `/api/ask-the-pit` | Optional | 5/min | RAG-lite AI Q&A from platform docs |
-| POST | `/api/byok-stash` | Optional | — | Stash BYOK key in HTTP-only cookie (60s TTL) |
+| POST | `/api/byok-stash` | Required | 10/min | Stash BYOK key in HTTP-only cookie (60s TTL) |
 | POST | `/api/newsletter` | Optional | 5/hr | Email signup with dedup |
-| POST | `/api/contact` | Optional | 5/hr | Contact form via Resend email API |
+| POST | `/api/contact` | Optional | 5/hr | Contact form via email API |
+| POST | `/api/short-links` | Optional | 30/min | Create short link slug for bout sharing |
+| GET | `/api/openapi` | Required + Lab tier | 10/min | Serve OpenAPI 3.1 spec JSON |
+| GET/POST | `/api/feature-requests` | Optional (GET) / Required (POST) | 10/hr (POST) | Community feature request submissions + listing |
+| POST | `/api/feature-requests/vote` | Required | 30/min | Toggle vote on a feature request |
+| POST | `/api/paper-submissions` | Required | 5/hr | Submit arXiv paper for research relevance |
+| GET | `/api/research/export` | Optional | 5/hr | Download anonymized research export |
 | POST | `/api/credits/webhook` | Stripe signature | — | Stripe webhook (6 event types) |
+| POST | `/api/pv` | `x-pv-secret` header | — | Internal page-view recording (called by middleware) |
 | POST | `/api/admin/seed-agents` | `x-admin-token` header | — | Seed preset agents + optional EAS attestation |
+| POST | `/api/admin/research-export` | `x-admin-token` header | — | Generate a new research export snapshot |
 | GET | `/api/health` | None | — | Health check endpoint |
 
 ## Streaming Protocol
@@ -50,8 +59,8 @@ createBout()          POST /api/run-bout             Client (SSE)
                         Agent B → streamText          text-delta ×N
                         ...N turns...
                       Generate share line    →        data-share-line
-                      Settle credits                  bout-complete
-                      status:completed               Voting panel
+                       Settle credits
+                       status:completed               Voting panel
 ```
 
 ### Credit Preauthorization Flow
@@ -91,7 +100,7 @@ Processes 6 Stripe event types covering the full subscription lifecycle:
 | `invoice.payment_failed` | Immediate downgrade to free |
 | `invoice.payment_succeeded` | Restore tier after retry |
 
-All webhook processing uses uniform code paths to prevent timing-based oracle attacks.
+All webhook processing uses uniform code paths to prevent timing-based oracle attacks. The `checkout.session.completed` handler filters on `session.mode === 'payment'` to skip subscription checkout sessions. The `invoice.payment_failed` and `invoice.payment_succeeded` handlers include a `stripeCustomerId` DB fallback lookup when subscription metadata is not propagated on the invoice object.
 
 ## Observability
 
@@ -105,7 +114,7 @@ API routes use structured logging via `lib/logger.ts` and `lib/api-logging.ts`:
 - **Node.js runtime (not Edge)** — All routes use `runtime = 'nodejs'`. Edge has a 30s execution limit which is insufficient for multi-turn bouts (up to 120s). This means cold starts are slower but execution limits are adequate.
 - **In-memory rate limiting** — `lib/rate-limit.ts` uses a sliding window stored in process memory. Sufficient for single-instance Vercel deployments but would not survive horizontal scaling. A distributed rate limiter (Redis, Upstash) would be needed for multi-instance deployments.
 - **`maxDuration = 120`** — The bout streaming endpoint allows up to 2 minutes. This accommodates 12-turn bouts with premium models but means a single request can hold a serverless function for that duration.
-- **No GET endpoints for data** — All data fetching happens in server components, not via API routes. The API surface is purely for mutations and streaming.
+- **Minimal GET endpoints** — Most data fetching happens in server components. The API surface is primarily for mutations and streaming, with a few GET endpoints for specific use cases: `/api/feature-requests` (public listing), `/api/research/export` (dataset download), `/api/openapi` (API spec), and `/api/health`.
 
 ---
 

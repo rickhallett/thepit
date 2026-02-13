@@ -47,16 +47,30 @@ export async function ensureIntroPool() {
 
   if (existing) return existing;
 
-  const [created] = await db
-    .insert(introPool)
-    .values({
-      initialMicro: toMicro(INTRO_POOL_TOTAL_CREDITS),
-      claimedMicro: 0,
-      drainRateMicroPerMinute: toMicro(INTRO_POOL_DRAIN_PER_MIN),
-    })
-    .returning();
+  // Race condition: multiple concurrent cold-start requests may all reach
+  // this INSERT. We catch any error (including unique/constraint violations)
+  // and re-select, guaranteeing exactly one pool row is returned.
+  try {
+    const [created] = await db
+      .insert(introPool)
+      .values({
+        initialMicro: toMicro(INTRO_POOL_TOTAL_CREDITS),
+        claimedMicro: 0,
+        drainRateMicroPerMinute: toMicro(INTRO_POOL_DRAIN_PER_MIN),
+      })
+      .returning();
 
-  return created;
+    if (created) return created;
+  } catch {
+    // Another request likely inserted first — fall through to re-select
+  }
+
+  // Re-select: the winning request's row is now visible
+  const [raceWinner] = await db.select().from(introPool).limit(1);
+  if (!raceWinner) {
+    throw new Error('Failed to create or find intro pool');
+  }
+  return raceWinner;
 }
 
 export async function getIntroPoolStatus() {
@@ -205,4 +219,26 @@ export async function consumeIntroPoolAnonymous(microCredits: number): Promise<{
     remainingMicro: newRemaining,
     exhausted: newRemaining <= 0,
   };
+}
+
+/**
+ * Return credits to the intro pool after an anonymous bout fails.
+ *
+ * Atomically decrements claimedMicro so the credits become available again.
+ * Uses GREATEST to prevent claimedMicro from going below zero in edge cases
+ * (e.g. if a refund is accidentally issued twice).
+ */
+export async function refundIntroPool(microCredits: number): Promise<void> {
+  if (microCredits <= 0) return;
+
+  const db = requireDb();
+  const pool = await ensureIntroPool();
+
+  await db
+    .update(introPool)
+    .set({
+      claimedMicro: sql`GREATEST(0, ${introPool.claimedMicro} - ${microCredits})`,
+      updatedAt: new Date(),
+    })
+    .where(eq(introPool.id, pool.id));
 }

@@ -12,8 +12,8 @@ You are Watchdog, the QA engineer for THE PIT. You write tests that document beh
 2. **Map** — Identify all branches, error paths, edge cases, and race conditions
 3. **Mock** — Set up the mock hierarchy using `vi.hoisted()` + `vi.mock()` patterns
 4. **Write** — Implement tests with clear `describe`/`it` blocks and behavioral names
-5. **Execute** — Run `npm run test:unit` with coverage
-6. **Gate** — `npm run test:ci` must exit 0 before declaring done
+5. **Execute** — Run `pnpm run test:unit` with coverage
+6. **Gate** — `pnpm run test:ci` must exit 0 before declaring done
 
 ## File Ownership
 
@@ -34,6 +34,7 @@ You are Watchdog, the QA engineer for THE PIT. You write tests that document beh
 ## Test Architecture
 
 ### Test Inventory (current)
+
 | Type | Directory | Files | Approx Tests | Framework |
 |------|-----------|-------|-------------|-----------|
 | Unit | `tests/unit/` | ~46 | ~280 | Vitest |
@@ -151,7 +152,7 @@ expect(res.status).toBe(200);
 
 ## Self-Healing Triggers
 
-### Trigger: `npm run test:ci` fails
+### Trigger: `pnpm run test:ci` fails
 **Detection:** Any test failure in the CI gate
 **Action:**
 1. Read the test output to identify the failing test and error message
@@ -159,10 +160,10 @@ expect(res.status).toBe(200);
 3. If code regression: fix the code, not the test
 4. If mock issue: update the mock chain to match the new code structure
 5. If test bug: fix the test
-6. Re-run `npm run test:ci` to confirm
+6. Re-run `pnpm run test:ci` to confirm
 
 ### Trigger: Coverage drops below 85%
-**Detection:** `npm run test:unit` reports coverage below threshold
+**Detection:** `pnpm run test:unit` reports coverage below threshold
 **Action:**
 1. Identify uncovered branches in the coverage report (`coverage/index.html`)
 2. Write tests for the uncovered branches, prioritizing error paths and edge cases
@@ -232,8 +233,8 @@ tests/e2e/bout.spec.ts                  — Playwright browser tests
 ## Reference: Gate Command
 
 ```bash
-npm run test:ci
-# Expands to: npm run lint && npm run typecheck && npm run test:unit && npm run test:integration
+pnpm run test:ci
+# Expands to: pnpm run lint && pnpm run typecheck && pnpm run test:unit && pnpm run test:integration
 ```
 
 ## Reference: Coverage Expansion Candidates

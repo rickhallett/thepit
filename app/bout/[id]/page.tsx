@@ -76,6 +76,8 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@ThePitArena',
+      creator: '@ThePitArena',
       title,
       description: description.slice(0, 160),
     },

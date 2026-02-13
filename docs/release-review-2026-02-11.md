@@ -248,7 +248,7 @@ THE PIT is well-engineered for a pre-release product. Core financial operations 
 
 #### D-05: Commands section incomplete
 - **Location:** `README.md:166-173`
-- **Missing:** `npm run typecheck`, `npm run test:unit`, `npm run test:ci`
+- **Missing:** `pnpm run typecheck`, `pnpm run test:unit`, `pnpm run test:ci`
 
 ### P1 — Materially incomplete
 

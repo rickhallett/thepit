@@ -105,6 +105,11 @@ vi.mock('@/lib/credits', () => ({
   toMicroCredits: vi.fn(() => 0),
 }));
 
+vi.mock('@/lib/intro-pool', () => ({
+  getIntroPoolStatus: vi.fn(),
+  consumeIntroPoolAnonymous: vi.fn(),
+}));
+
 vi.mock('@/lib/response-lengths', () => ({
   resolveResponseLength: resolveResponseLengthMock,
 }));

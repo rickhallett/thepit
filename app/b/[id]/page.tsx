@@ -52,7 +52,9 @@ export async function generateMetadata({
       siteName: 'THE PIT',
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
+      site: '@ThePitArena',
+      creator: '@ThePitArena',
       title,
       description,
     },
