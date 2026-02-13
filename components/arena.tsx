@@ -6,16 +6,23 @@ import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
-import { trackEvent } from '@/lib/analytics';
-import { BRAND, buildShareLinks } from '@/lib/brand';
 import {
   initScrollDepthTracking,
   initActiveTimeTracking,
   trackBoutEngagement,
 } from '@/lib/engagement';
+import { useBoutReactions } from '@/lib/use-bout-reactions';
+import { useBoutVoting } from '@/lib/use-bout-voting';
+import { useBoutSharing } from '@/lib/use-bout-sharing';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
+import { PitButton } from '@/components/ui/button';
+import { PitBadge } from '@/components/ui/badge';
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 
 const STATUS_LABELS: Record<string, string> = {
   idle: 'Warming up',
@@ -23,6 +30,273 @@ const STATUS_LABELS: Record<string, string> = {
   done: 'Complete',
   error: 'Faulted',
 };
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function BoutHeader({
+  preset,
+  status,
+  estimatedCredits,
+  copied,
+  onCopyTranscript,
+}: {
+  preset: Preset;
+  status: string;
+  estimatedCredits?: string | null;
+  copied: boolean;
+  onCopyTranscript: () => void;
+}) {
+  const statusVariant =
+    status === 'streaming'
+      ? 'accent'
+      : status === 'error'
+        ? 'danger'
+        : 'default';
+
+  return (
+    <header className="flex flex-col gap-4 border-b-2 border-foreground/70 pb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.4em] text-accent">
+            THE PIT
+          </p>
+          <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
+            {preset.name}
+          </h1>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-3 text-xs uppercase tracking-[0.3em]">
+          <PitBadge variant={statusVariant}>
+            {STATUS_LABELS[status] ?? status}
+          </PitBadge>
+          {estimatedCredits && (
+            <PitBadge variant="muted">
+              Est {estimatedCredits} credits
+            </PitBadge>
+          )}
+          {status === 'done' && (
+            <PitButton variant="primary" size="md" onClick={onCopyTranscript}>
+              {copied ? 'Copied' : 'Share'}
+            </PitButton>
+          )}
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+        {preset.agents.map((agent) => (
+          <span
+            key={agent.id}
+            className="rounded-full border-2 px-3 py-1"
+            style={{ borderColor: agent.color, color: agent.color }}
+          >
+            {agent.name}
+          </span>
+        ))}
+      </div>
+    </header>
+  );
+}
+
+function BoutError({
+  errorDetail,
+}: {
+  errorDetail?: { message?: string; code?: number } | null;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4 border-2 border-red-400/60 p-8 text-center">
+      <p className="text-sm text-red-400">
+        {errorDetail?.message ?? 'The arena short-circuited.'}
+      </p>
+      {errorDetail?.code === 401 && (
+        <Link
+          href="/sign-in?redirect_url=/arena"
+          className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
+        >
+          Sign in to continue
+        </Link>
+      )}
+      {errorDetail?.code === 402 && (
+        <Link
+          href="/arena#credits"
+          className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
+        >
+          Get credits
+        </Link>
+      )}
+      <PitButton
+        variant="secondary"
+        size="lg"
+        onClick={() => window.location.assign('/arena')}
+      >
+        Try again
+      </PitButton>
+    </div>
+  );
+}
+
+function MessageCard({
+  message,
+  alignment,
+  isActiveStreaming,
+  reactions,
+  share,
+  copiedMessageId,
+  onReaction,
+  onCopyMessage,
+}: {
+  message: {
+    id: string;
+    turn: number;
+    agentId: string;
+    agentName: string;
+    text: string;
+    color: string;
+  };
+  alignment: string;
+  isActiveStreaming: boolean;
+  reactions: { heart: number; fire: number };
+  share?: {
+    payload: string;
+    links: { x: string; reddit: string; linkedin: string; whatsapp: string; telegram: string };
+  };
+  copiedMessageId: string | null;
+  onReaction: (turn: number, type: 'heart' | 'fire') => void;
+  onCopyMessage: (payload: string, messageId: string) => void;
+}) {
+  return (
+    <article
+      className={cn(
+        'w-full max-w-[560px] border-2 bg-black/60 p-5 shadow-[6px_6px_0_rgba(255,255,255,0.2)]',
+        alignment,
+      )}
+      style={{ borderColor: message.color }}
+    >
+      <header className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
+        <span style={{ color: message.color }}>{message.agentName}</span>
+        {isActiveStreaming && (
+          <span className="text-muted">Thinking...</span>
+        )}
+      </header>
+      <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
+        {message.text ? renderMessageText(message.text) : '...'}
+      </p>
+      <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-muted">
+        <PitButton variant="ghost" size="sm" onClick={() => onReaction(message.turn, 'heart')}>
+          ♥
+        </PitButton>
+        <span>{reactions.heart}</span>
+        <PitButton variant="ghost" size="sm" onClick={() => onReaction(message.turn, 'fire')}>
+          🔥
+        </PitButton>
+        <span>{reactions.fire}</span>
+      </div>
+      {share && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted">
+          <PitButton
+            variant="ghost"
+            size="sm"
+            onClick={() => onCopyMessage(share.payload, message.id)}
+          >
+            {copiedMessageId === message.id ? 'Copied' : 'Copy'}
+          </PitButton>
+          {(['x', 'reddit', 'linkedin', 'whatsapp', 'telegram'] as const).map(
+            (platform) => (
+              <a
+                key={platform}
+                href={share.links[platform]}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border-2 border-foreground/40 px-2 py-1 uppercase transition hover:border-accent hover:text-accent"
+              >
+                {platform === 'x' ? 'X' : platform.charAt(0).toUpperCase() + platform.slice(1)}
+              </a>
+            ),
+          )}
+        </div>
+      )}
+    </article>
+  );
+}
+
+function WinnerVotePanel({
+  agents,
+  winnerVotes,
+  userVote,
+  voteError,
+  votePending,
+  votedLabel,
+  onVote,
+}: {
+  agents: Preset['agents'];
+  winnerVotes: WinnerVoteCounts;
+  userVote: string | null;
+  voteError: string | null;
+  votePending: string | null;
+  votedLabel: string | null;
+  onVote: (agentId: string) => void;
+}) {
+  return (
+    <section className="mt-8 w-full border-2 border-foreground/60 bg-black/50 p-6">
+      <p className="text-xs uppercase tracking-[0.35em] text-muted">
+        Who won?
+      </p>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {agents.map((agent) => (
+          <button
+            key={agent.id}
+            type="button"
+            onClick={() => onVote(agent.id)}
+            disabled={Boolean(userVote) || votePending === agent.id}
+            className={cn(
+              'flex items-center justify-between border-2 border-foreground/50 bg-black/60 px-4 py-3 text-left text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent',
+              userVote === agent.id && 'border-accent text-accent',
+            )}
+          >
+            <span>{agent.name}</span>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
+              {winnerVotes[agent.id] ?? 0} votes
+            </span>
+          </button>
+        ))}
+      </div>
+      {userVote && (
+        <p className="mt-4 text-xs uppercase tracking-[0.3em] text-accent">
+          Vote locked: {votedLabel}
+        </p>
+      )}
+      {voteError && (
+        <p className="mt-4 text-xs uppercase tracking-[0.3em] text-red-400">
+          {voteError}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function renderMessageText(text: string) {
+  const parts = text.split(/(\*[^*]+\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('*') && part.endsWith('*') && part.length > 1) {
+      return (
+        <span
+          key={`action-${index}`}
+          className="ml-2 inline-block text-foreground/70 italic"
+        >
+          {part}
+        </span>
+      );
+    }
+    return <span key={`text-${index}`}>{part}</span>;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 
 export function Arena({
   boutId,
@@ -51,6 +325,7 @@ export function Arena({
   initialWinnerVotes?: WinnerVoteCounts;
   initialUserVote?: string | null;
 }) {
+  // --- Streaming state ---
   const {
     messages,
     status,
@@ -60,31 +335,43 @@ export function Arena({
     thinkingAgentId,
     shareLine: liveShareLine,
   } = useBout({
-      boutId,
-      preset,
-      topic: topic ?? undefined,
-      model: model ?? undefined,
-      length: length ?? undefined,
-      format: format ?? undefined,
-      initialTranscript,
-      initialShareLine: shareLine ?? null,
-    });
-  const [copied, setCopied] = useState(false);
+    boutId,
+    preset,
+    topic: topic ?? undefined,
+    model: model ?? undefined,
+    length: length ?? undefined,
+    format: format ?? undefined,
+    initialTranscript,
+    initialShareLine: shareLine ?? null,
+  });
+
+  // --- Extracted hooks ---
+  const { reactions, sendReaction, reactionsGivenRef } = useBoutReactions(
+    boutId,
+    initialReactions,
+  );
+  const { winnerVotes, userVote, voteError, votePending, castWinnerVote } =
+    useBoutVoting(boutId, initialWinnerVotes, initialUserVote);
+
+  const resolvedShareLine = liveShareLine ?? shareLine ?? null;
+  const {
+    copied,
+    copiedMessageId,
+    copyTranscript,
+    copyMessageShare,
+    messageSharePayloads,
+  } = useBoutSharing({
+    boutId,
+    preset,
+    topic,
+    format,
+    status,
+    messages,
+    shareLine: resolvedShareLine,
+  });
+
+  // --- Scroll management ---
   const [autoScroll, setAutoScroll] = useState(true);
-  const [shareUrl, setShareUrl] = useState('');
-  const [shortSlug, setShortSlug] = useState<string | null>(null);
-  const [reactions, setReactions] = useState<ReactionCountMap>(
-    initialReactions ?? {},
-  );
-  const [winnerVotes, setWinnerVotes] = useState<WinnerVoteCounts>(
-    initialWinnerVotes ?? {},
-  );
-  const [userVote, setUserVote] = useState<string | null>(
-    initialUserVote ?? null,
-  );
-  const [voteError, setVoteError] = useState<string | null>(null);
-  const [votePending, setVotePending] = useState<string | null>(null);
-  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -92,57 +379,11 @@ export function Arena({
       const threshold = 160;
       const scrollPosition = window.scrollY + window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
-      const nearBottom = docHeight - scrollPosition <= threshold;
-      setAutoScroll(nearBottom);
+      setAutoScroll(docHeight - scrollPosition <= threshold);
     };
-
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    setShareUrl(window.location.href);
-  }, []);
-
-  // Create/fetch short link when bout completes
-  useEffect(() => {
-    if (status !== 'done' || shortSlug) return;
-    fetch('/api/short-links', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ boutId }),
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.slug) setShortSlug(data.slug);
-      })
-      .catch(() => {
-        // Non-critical — fall back to /b/ URLs
-      });
-  }, [boutId, shortSlug, status]);
-
-  // Engagement tracking — scroll depth and active time.
-  // Store mutable values in refs to avoid stale closures in the unmount cleanup.
-  const reactionsGivenRef = useRef(0);
-  const turnsWatchedRef = useRef(messages.length);
-  const userVoteRef = useRef(userVote);
-  turnsWatchedRef.current = messages.length;
-  userVoteRef.current = userVote;
-  useEffect(() => {
-    const cleanupScroll = initScrollDepthTracking();
-    const cleanupTime = initActiveTimeTracking();
-    return () => {
-      cleanupScroll();
-      cleanupTime();
-      // Fire bout engagement depth on unmount
-      trackBoutEngagement(boutId, {
-        turnsWatched: turnsWatchedRef.current,
-        reactionsGiven: reactionsGivenRef.current,
-        votesCast: Boolean(userVoteRef.current),
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -155,158 +396,27 @@ export function Arena({
     setAutoScroll(true);
   };
 
-  const renderMessageText = (text: string) => {
-    const parts = text.split(/(\*[^*]+\*)/g);
-    return parts.map((part, index) => {
-      if (part.startsWith('*') && part.endsWith('*') && part.length > 1) {
-        return (
-          <span
-            key={`action-${index}`}
-            className="ml-2 inline-block text-foreground/70 italic"
-          >
-            {part}
-          </span>
-        );
-      }
-      return <span key={`text-${index}`}>{part}</span>;
-    });
-  };
-
-  const transcript = useMemo(() => {
-    return messages
-      .map((message) => `${message.agentName}: ${message.text}`)
-      .join('\n\n');
-  }, [messages]);
-
-  const replayUrl = useMemo(() => {
-    const origin = shareUrl ? new URL(shareUrl).origin : '';
-    return shortSlug ? `${origin}/s/${shortSlug}` : `${origin}/b/${boutId}`;
-  }, [boutId, shareUrl, shortSlug]);
-
-  const sharePayload = useMemo(() => {
-    if (!transcript && !liveShareLine && !shareLine) return '';
-    const line = (liveShareLine ?? shareLine ?? '').trim();
-    const headline =
-      line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
-
-    return [headline, '', replayUrl, '', `🔴 ${BRAND.hashtag}`].join('\n');
-  }, [liveShareLine, preset.name, replayUrl, shareLine, transcript]);
-
-  const messageSharePayloads = useMemo(() => {
-    if (messages.length === 0) return [];
-    const headline =
-      (liveShareLine ?? shareLine ?? '').trim() || `THE PIT — ${preset.name}`;
-    const header = [
-      headline,
-      topic ? `Topic: ${topic}` : null,
-      format ? `Format: ${format}` : null,
-    ]
-      .filter(Boolean)
-      .join('\n');
-    let runningTranscript = '';
-
-    return messages.map((message) => {
-      const line = `${message.agentName}: ${message.text}`;
-      runningTranscript = runningTranscript
-        ? `${runningTranscript}\n\n${line}`
-        : line;
-      const payload = [
-        header,
-        '',
-        runningTranscript,
-        '',
-        `Replay: ${replayUrl}`,
-        '',
-        `🔴 ${BRAND.hashtag}`,
-      ].join('\n');
-      return {
-        payload,
-        links: buildShareLinks(payload, replayUrl),
-      };
-    });
-  }, [
-    format,
-    liveShareLine,
-    messages,
-    preset.name,
-    replayUrl,
-    shareLine,
-    topic,
-  ]);
-
-  const copyTranscript = async () => {
-    if (!sharePayload) return;
-    await navigator.clipboard.writeText(sharePayload);
-    setCopied(true);
-    trackEvent('bout_shared', { boutId, method: 'copy_header' });
-    window.setTimeout(() => setCopied(false), 1600);
-  };
-
-  const copyMessageShare = async (payload: string, messageId: string) => {
-    await navigator.clipboard.writeText(payload);
-    setCopiedMessageId(messageId);
-    trackEvent('bout_shared', { boutId, method: 'copy_message' });
-    window.setTimeout(() => setCopiedMessageId(null), 1600);
-  };
-
-  const sendReaction = async (turn: number, reactionType: 'heart' | 'fire') => {
-    setReactions((prev) => {
-      const current = prev[turn] ?? { heart: 0, fire: 0 };
-      return {
-        ...prev,
-        [turn]: {
-          ...current,
-          [reactionType]: (current[reactionType] ?? 0) + 1,
-        },
-      };
-    });
-
-    try {
-      await fetch('/api/reactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          boutId,
-          turnIndex: turn,
-          reactionType,
-        }),
+  // --- Engagement tracking ---
+  const turnsWatchedRef = useRef(messages.length);
+  const userVoteRef = useRef(userVote);
+  turnsWatchedRef.current = messages.length;
+  userVoteRef.current = userVote;
+  useEffect(() => {
+    const cleanupScroll = initScrollDepthTracking();
+    const cleanupTime = initActiveTimeTracking();
+    return () => {
+      cleanupScroll();
+      cleanupTime();
+      trackBoutEngagement(boutId, {
+        turnsWatched: turnsWatchedRef.current,
+        reactionsGiven: reactionsGivenRef.current,
+        votesCast: Boolean(userVoteRef.current),
       });
-      trackEvent('reaction_submitted', { reactionType, turn });
-      reactionsGivenRef.current += 1;
-    } catch {
-      // swallow; reactions are best-effort
-    }
-  };
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const castWinnerVote = async (agentId: string) => {
-    if (userVote || votePending) return;
-    setVoteError(null);
-    setVotePending(agentId);
-    try {
-      const res = await fetch('/api/winner-vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ boutId, agentId }),
-      });
-      if (res.status === 401) {
-        setVoteError('Sign in to cast a winner vote.');
-        return;
-      }
-      if (!res.ok) {
-        setVoteError('Vote failed. Try again.');
-        return;
-      }
-      setUserVote(agentId);
-      setWinnerVotes((prev) => ({
-        ...prev,
-        [agentId]: (prev[agentId] ?? 0) + 1,
-      }));
-      trackEvent('winner_voted', { agentId });
-    } finally {
-      setVotePending(null);
-    }
-  };
-
+  // --- Derived data ---
   const alignmentMap = useMemo(() => {
     const positions = ['self-start', 'self-center', 'self-end'];
     const map = new Map<string, string>();
@@ -321,65 +431,25 @@ export function Arena({
 
   const thinkingAgent = useMemo(() => {
     if (!thinkingAgentId) return null;
-    return preset.agents.find((agent) => agent.id === thinkingAgentId) ?? null;
+    return preset.agents.find((a) => a.id === thinkingAgentId) ?? null;
   }, [preset.agents, thinkingAgentId]);
 
   const votedLabel = useMemo(() => {
     if (!userVote) return null;
-    return preset.agents.find((agent) => agent.id === userVote)?.name ?? userVote;
+    return preset.agents.find((a) => a.id === userVote)?.name ?? userVote;
   }, [preset.agents, userVote]);
 
+  // --- Render ---
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-6 py-10">
-        <header className="flex flex-col gap-4 border-b-2 border-foreground/70 pb-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-accent">
-                THE PIT
-              </p>
-              <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-                {preset.name}
-              </h1>
-            </div>
-            <div className="flex flex-wrap items-center justify-end gap-3 text-xs uppercase tracking-[0.3em]">
-              <span
-                className={cn(
-                  'rounded-full border-2 border-foreground/60 px-3 py-1',
-                    status === 'streaming' && 'border-accent text-accent',
-                    status === 'error' && 'border-red-400 text-red-400',
-                  )}
-                >
-                  {STATUS_LABELS[status] ?? status}
-                </span>
-                {estimatedCredits && (
-                  <span className="rounded-full border-2 border-foreground/50 px-3 py-1 text-muted">
-                    Est {estimatedCredits} credits
-                  </span>
-                )}
-                {status === 'done' && (
-                  <button
-                    type="button"
-                    onClick={copyTranscript}
-                    className="rounded-full border-2 border-foreground/70 px-3 py-1 transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
-                  >
-                    {copied ? 'Copied' : 'Share'}
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-            {preset.agents.map((agent) => (
-              <span
-                key={agent.id}
-                className="rounded-full border-2 px-3 py-1"
-                style={{ borderColor: agent.color, color: agent.color }}
-              >
-                {agent.name}
-              </span>
-            ))}
-          </div>
-        </header>
+        <BoutHeader
+          preset={preset}
+          status={status}
+          estimatedCredits={estimatedCredits}
+          copied={copied}
+          onCopyTranscript={copyTranscript}
+        />
 
         <section className="flex flex-1 flex-col gap-6">
           {messages.length === 0 && status !== 'error' && (
@@ -388,132 +458,26 @@ export function Arena({
             </div>
           )}
 
-          {status === 'error' && (
-            <div className="flex flex-col items-center gap-4 border-2 border-red-400/60 p-8 text-center">
-              <p className="text-sm text-red-400">
-                {errorDetail?.message ?? 'The arena short-circuited.'}
-              </p>
-              {errorDetail?.code === 401 && (
-                <Link
-                  href="/sign-in?redirect_url=/arena"
-                  className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
-                >
-                  Sign in to continue
-                </Link>
-              )}
-              {errorDetail?.code === 402 && (
-                <Link
-                  href="/arena#credits"
-                  className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
-                >
-                  Get credits
-                </Link>
-              )}
-              <button
-                type="button"
-                onClick={() => window.location.assign('/arena')}
-                className="rounded-full border-2 border-foreground/50 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-foreground hover:text-foreground"
-              >
-                Try again
-              </button>
-            </div>
-          )}
+          {status === 'error' && <BoutError errorDetail={errorDetail} />}
 
-          {messages.map((message, index) => {
-            const counts = reactions[message.turn] ?? { heart: 0, fire: 0 };
-            const share = messageSharePayloads[index];
-            return (
-            <article
+          {messages.map((message, index) => (
+            <MessageCard
               key={message.id}
-              className={cn(
-                'w-full max-w-[560px] border-2 bg-black/60 p-5 shadow-[6px_6px_0_rgba(255,255,255,0.2)]',
-                resolveAlignment(message.agentId),
-              )}
-              style={{ borderColor: message.color }}
-            >
-              <header className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
-                <span style={{ color: message.color }}>{message.agentName}</span>
-                {activeAgentId === message.agentId &&
-                  activeMessageId === message.id &&
-                  status === 'streaming' && (
-                  <span className="text-muted">Thinking...</span>
-                )}
-              </header>
-              <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-                {message.text ? renderMessageText(message.text) : '...'}
-              </p>
-              <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-muted">
-                <button
-                  type="button"
-                  onClick={() => sendReaction(message.turn, 'heart')}
-                  className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                >
-                  ♥
-                </button>
-                <span>{counts.heart}</span>
-                <button
-                  type="button"
-                  onClick={() => sendReaction(message.turn, 'fire')}
-                  className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                >
-                  🔥
-                </button>
-                <span>{counts.fire}</span>
-              </div>
-              {share && (
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted">
-                  <button
-                    type="button"
-                    onClick={() => copyMessageShare(share.payload, message.id)}
-                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                  >
-                    {copiedMessageId === message.id ? 'Copied' : 'Copy'}
-                  </button>
-                  <a
-                    href={share.links.x}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                  >
-                    X
-                  </a>
-                  <a
-                    href={share.links.reddit}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                  >
-                    Reddit
-                  </a>
-                  <a
-                    href={share.links.linkedin}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                  >
-                    LinkedIn
-                  </a>
-                  <a
-                    href={share.links.whatsapp}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                  >
-                    WhatsApp
-                  </a>
-                  <a
-                    href={share.links.telegram}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
-                  >
-                    Telegram
-                  </a>
-                </div>
-              )}
-            </article>
-          );
-          })}
+              message={message}
+              alignment={resolveAlignment(message.agentId)}
+              isActiveStreaming={
+                activeAgentId === message.agentId &&
+                activeMessageId === message.id &&
+                status === 'streaming'
+              }
+              reactions={reactions[message.turn] ?? { heart: 0, fire: 0 }}
+              share={messageSharePayloads[index]}
+              copiedMessageId={copiedMessageId}
+              onReaction={sendReaction}
+              onCopyMessage={copyMessageShare}
+            />
+          ))}
+
           {thinkingAgent && status === 'streaming' && (
             <article
               className={cn(
@@ -531,58 +495,35 @@ export function Arena({
               <p className="mt-4 text-sm italic text-foreground/60">...</p>
             </article>
           )}
+
           {status === 'done' && messages.length > 0 && (
-            <section className="mt-8 w-full border-2 border-foreground/60 bg-black/50 p-6">
-              <p className="text-xs uppercase tracking-[0.35em] text-muted">
-                Who won?
-              </p>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {preset.agents.map((agent) => (
-                  <button
-                    key={agent.id}
-                    type="button"
-                    onClick={() => castWinnerVote(agent.id)}
-                    disabled={Boolean(userVote) || votePending === agent.id}
-                    className={cn(
-                      'flex items-center justify-between border-2 border-foreground/50 bg-black/60 px-4 py-3 text-left text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent',
-                      userVote === agent.id &&
-                        'border-accent text-accent',
-                    )}
-                  >
-                    <span>{agent.name}</span>
-                    <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
-                      {winnerVotes[agent.id] ?? 0} votes
-                    </span>
-                  </button>
-                ))}
-              </div>
-              {userVote && (
-                <p className="mt-4 text-xs uppercase tracking-[0.3em] text-accent">
-                  Vote locked: {votedLabel}
-                </p>
-              )}
-              {voteError && (
-                <p className="mt-4 text-xs uppercase tracking-[0.3em] text-red-400">
-                  {voteError}
-                </p>
-              )}
-            </section>
+            <WinnerVotePanel
+              agents={preset.agents}
+              winnerVotes={winnerVotes}
+              userVote={userVote}
+              voteError={voteError}
+              votePending={votePending}
+              votedLabel={votedLabel}
+              onVote={castWinnerVote}
+            />
           )}
+
           <div ref={endRef} />
         </section>
 
         {!autoScroll && messages.length > 0 && (
-          <button
-            type="button"
+          <PitButton
+            variant="secondary"
+            size="md"
             onClick={jumpToLatest}
-            className="fixed bottom-6 left-6 inline-flex items-center gap-2 rounded-full border-2 border-foreground/60 bg-black/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-muted shadow-[6px_6px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
+            className="fixed bottom-6 left-6 bg-black/70 shadow-[6px_6px_0_rgba(255,255,255,0.15)]"
             aria-label="Jump to latest"
           >
             <span>Latest</span>
-            <span className="flex h-5 w-5 items-center justify-center rounded-full border border-foreground/60 text-[10px] text-muted">
+            <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full border border-foreground/60 text-[10px] text-muted">
               ˅
             </span>
-          </button>
+          </PitButton>
         )}
       </div>
     </main>
