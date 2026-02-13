@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-const TARGET = new Date('2026-02-12T00:00:00Z').getTime();
+const TARGET = new Date('2026-02-13T11:55:00Z').getTime();
 
 type Countdown = {
   days: number;
