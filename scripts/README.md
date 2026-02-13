@@ -2,7 +2,7 @@
 
 # scripts/
 
-5 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
+6 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
 
 ## Inventory
 
@@ -13,6 +13,7 @@
 | `smoke-http.sh` | Bash | HTTP smoke test against a running instance | `bash scripts/smoke-http.sh [url]` |
 | `sanity-check.sh` | Bash | Comprehensive route + middleware sanity check (auto-starts dev server) | `bash scripts/sanity-check.sh [--url URL]` |
 | `create-eas-schema.mjs` | Node.js | Create the EAS attestation schema on Base L2 | `node scripts/create-eas-schema.mjs` |
+| `reset-prod-data.ts` | TypeScript | Reset production data (admin only). Clears bout, reaction, vote, and analytics data. | `pnpm tsx scripts/reset-prod-data.ts` |
 
 ### `stripe-setup.sh`
 
@@ -33,6 +34,10 @@ Comprehensive sanity check that tests 25+ routes and middleware behaviors. Optio
 ### `create-eas-schema.mjs`
 
 One-time infrastructure script that registers the agent attestation schema on Ethereum Attestation Service (Base L2). Requires `EAS_PRIVATE_KEY` and Base RPC configuration.
+
+### `reset-prod-data.ts`
+
+Admin-only data reset script for production. Clears bouts, reactions, votes, short links, and analytics data while preserving user accounts, agents, and credit balances. Run with `pnpm tsx scripts/reset-prod-data.ts`. Requires `DATABASE_URL`.
 
 ---
 

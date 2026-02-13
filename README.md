@@ -16,7 +16,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/tests-636%20passing-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-668%20passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/Anthropic-Claude-orange" alt="Claude" />
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
@@ -44,11 +44,11 @@ Each directory has its own README documenting architecture, design decisions, an
 |-----------|-------------|
 | [`app/`](app/README.md) | Next.js App Router: routes, server actions, data fetching, auth patterns |
 | [`app/api/`](app/api/README.md) | 20 API endpoints: streaming bout engine, REST API, CRUD, webhooks, credit preauth flow |
-| [`components/`](components/README.md) | 26 React components: composition hierarchy, state management, styling conventions |
-| [`lib/`](lib/README.md) | 51 utility modules across 11 domains: AI, agents, bouts, credits, users, engagement, research, blockchain, infra |
+| [`components/`](components/README.md) | 27 React components: composition hierarchy, state management, styling conventions |
+| [`lib/`](lib/README.md) | 53 utility modules across 11 domains: AI, agents, bouts, credits, users, engagement, research, blockchain, infra |
 | [`db/`](db/README.md) | Drizzle ORM schema (20 tables, 3 enums), data design patterns, Neon client |
 | [`presets/`](presets/README.md) | 22 JSON debate presets, loading pipeline, format spec |
-| [`tests/`](tests/README.md) | 85 test files: Vitest (unit + API) + Playwright (E2E), 85% coverage thresholds |
+| [`tests/`](tests/README.md) | 88 test files: Vitest (unit + API + integration) + Playwright (E2E), 85% coverage thresholds, CI via GitHub Actions |
 | [`scripts/`](scripts/README.md) | Utility scripts: Stripe setup, sanity checks, smoke tests, EAS schema creation |
 | [`drizzle/`](drizzle/README.md) | 5 SQL migrations, drizzle-kit workflow, snapshot metadata |
 | [`docs/`](docs/README.md) | Project documents: specs, code reviews, hardening changes, strategy |
@@ -106,7 +106,7 @@ pnpm run build            # Production build
 pnpm run start            # Serve production build
 pnpm run lint             # ESLint
 pnpm run typecheck        # TypeScript type checking
-pnpm run test:unit        # Unit + API tests (636 tests)
+pnpm run test:unit        # Unit + API tests (668 tests)
 pnpm run test:ci          # Lint + typecheck + unit + integration
 pnpm run test:e2e         # Playwright E2E (requires running server)
 ```
@@ -165,10 +165,24 @@ Copy `.env.example` to `.env`. Required variables:
 | Error Tracking | Sentry |
 | Analytics | PostHog + Vercel Analytics |
 | Hosting | Vercel |
-| Tests | Vitest (636) + Playwright |
+| Tests | Vitest (668) + Playwright (18 specs) |
 | CLI Toolchain | Go (pitctl, pitforge, pitbench, pitlab, pitnet) |
 
 ---
+
+## CI/CD
+
+Two GitHub Actions workflows enforce quality on every push and PR:
+
+- **`ci.yml`** (gate) — `pnpm install --frozen-lockfile` then lint, typecheck, and unit tests. Integration tests run in a parallel job with `TEST_DATABASE_URL` from secrets. Concurrency control cancels in-progress PR runs.
+- **`e2e.yml`** — Playwright runs against Vercel preview deployments. Triggered by `deployment_status` events. Uploads reports as artifacts on failure.
+
+## Privacy & Compliance
+
+- **Cookie consent banner** — Analytics cookies (PostHog, session tracking, UTM attribution) are gated behind explicit user consent via `components/cookie-consent.tsx`. Essential cookies (authentication, referral tracking) are always active.
+- **UK GDPR compliance** — Full privacy policy at `/privacy` covering 9 third-party processors, data retention, data subject rights, and BYOK data handling.
+- **IP anonymization** — Raw IP addresses are never stored. All IP data is salted and hashed before persistence.
+- **Research anonymization** — User IDs in research exports are replaced with salted SHA-256 hashes. The salt is a per-deployment secret that prevents cross-dataset de-anonymization.
 
 ## Contributing
 

@@ -3,8 +3,9 @@
 // PostHog analytics provider.
 //
 // Wraps the app in a PostHog context for automatic page view tracking
-// and custom event capture. Only initializes when NEXT_PUBLIC_POSTHOG_KEY
-// is set — completely inert in development or when unconfigured.
+// and custom event capture. Only initializes when:
+//   1. NEXT_PUBLIC_POSTHOG_KEY is set
+//   2. The user has accepted analytics cookies (pit_consent=accepted)
 //
 // UTM parameters from the pit_utm cookie are registered as super properties
 // so they persist across all events in the session.
@@ -15,11 +16,21 @@ import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
+import { getConsentState } from '@/components/cookie-consent';
+
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
   process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
 
-if (typeof window !== 'undefined' && POSTHOG_KEY) {
+/**
+ * Initialize PostHog only when the user has consented to analytics cookies.
+ * Called once on mount and guards against double-init.
+ */
+function initPostHog() {
+  if (typeof window === 'undefined' || !POSTHOG_KEY) return;
+  if (getConsentState() !== 'accepted') return;
+  if (posthog.__loaded) return;
+
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
     capture_pageview: false, // We capture manually for SPA navigation
@@ -94,7 +105,11 @@ function PostHogPageView() {
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  if (!POSTHOG_KEY) {
+  useEffect(() => {
+    initPostHog();
+  }, []);
+
+  if (!POSTHOG_KEY || (typeof window !== 'undefined' && getConsentState() !== 'accepted')) {
     return <>{children}</>;
   }
 

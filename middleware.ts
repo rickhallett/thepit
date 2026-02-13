@@ -64,9 +64,17 @@ export default clerkMiddleware((_, req) => {
   }
 
   // ---------------------------------------------------------------------------
-  // UTM cookie — first-touch campaign attribution
+  // Analytics consent gate
   // ---------------------------------------------------------------------------
-  if (!req.cookies.get(UTM_COOKIE)) {
+  // Analytics cookies (pit_utm, pit_sid) and page view recording are only
+  // active when the user has accepted analytics cookies via the consent banner.
+  // Essential cookies (pit_ref for referral attribution, Clerk auth) are always set.
+  const hasAnalyticsConsent = req.cookies.get('pit_consent')?.value === 'accepted';
+
+  // ---------------------------------------------------------------------------
+  // UTM cookie — first-touch campaign attribution (requires consent)
+  // ---------------------------------------------------------------------------
+  if (hasAnalyticsConsent && !req.cookies.get(UTM_COOKIE)) {
     const utmValues: Record<string, string> = {};
     let hasUtm = false;
     for (const param of UTM_PARAMS) {
@@ -87,27 +95,29 @@ export default clerkMiddleware((_, req) => {
   }
 
   // ---------------------------------------------------------------------------
-  // Session cookie — rolling 30-min session for page view grouping
+  // Session cookie — rolling 30-min session for page view grouping (requires consent)
   // ---------------------------------------------------------------------------
   let sessionId = req.cookies.get(SESSION_COOKIE)?.value;
-  if (!sessionId) {
-    sessionId = nanoid(16);
+  if (hasAnalyticsConsent) {
+    if (!sessionId) {
+      sessionId = nanoid(16);
+    }
+    // Always re-set to extend the rolling TTL
+    response.cookies.set(SESSION_COOKIE, sessionId, {
+      maxAge: SESSION_MAX_AGE,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      httpOnly: true,
+    });
   }
-  // Always re-set to extend the rolling TTL
-  response.cookies.set(SESSION_COOKIE, sessionId, {
-    maxAge: SESSION_MAX_AGE,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    httpOnly: true,
-  });
 
   // ---------------------------------------------------------------------------
-  // Page view recording — fire-and-forget to /api/pv internal endpoint
+  // Page view recording — fire-and-forget to /api/pv internal endpoint (requires consent)
   // ---------------------------------------------------------------------------
   const pathname = req.nextUrl.pathname;
   const pvSecret = process.env.PV_INTERNAL_SECRET;
-  if (pvSecret && !SKIP_PAGE_VIEW_RE.test(pathname) && req.method === 'GET') {
+  if (hasAnalyticsConsent && pvSecret && !SKIP_PAGE_VIEW_RE.test(pathname) && req.method === 'GET') {
     // We record page views via a lightweight internal API endpoint rather than
     // importing DB code into edge middleware (which has runtime constraints).
     const pvUrl = new URL('/api/pv', req.url);
