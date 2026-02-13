@@ -117,7 +117,9 @@ if [[ "${1:-}" == "--url" && -n "${2:-}" ]]; then
   echo -e "${BOLD}Using existing server at ${BASE_URL}${RESET}"
 else
   # Check if something is already running on port 3000
-  if curl -s -o /dev/null --max-time 2 "${BASE_URL}/api/health" 2>/dev/null; then
+  health_status=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 \
+    "${BASE_URL}/api/health" 2>/dev/null || echo "000")
+  if [[ "$health_status" == "200" ]]; then
     echo -e "${BOLD}Server already running at ${BASE_URL}${RESET}"
   else
     echo -e "${BOLD}Starting dev server...${RESET}"

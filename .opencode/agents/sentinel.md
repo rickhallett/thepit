@@ -70,7 +70,7 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 [ ] Input validation: Are all user inputs length-checked and type-validated?
 [ ] Injection: Are text inputs checked against `UNSAFE_PATTERN`?
 [ ] XML safety: Are user-supplied values passed through `xmlEscape()` before embedding in LLM prompts?
-[ ] Error responses: Do errors use plain text, not JSON with internal details?
+[ ] Error responses: Do errors use standardized JSON format (`{ error: message }`) without internal details?
 [ ] Status codes: 400 validation, 401 unauthed, 402 payment, 403 forbidden, 429 rate limited?
 [ ] Logging: Does it use `withLogging()` wrapper? (defer to Lighthouse if missing)
 [ ] Credit operations: If touching credits, is the SQL atomic (conditional UPDATE, not SELECT+UPDATE)?

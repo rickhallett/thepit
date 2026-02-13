@@ -37,7 +37,9 @@ const MIN_LEVEL: ConfigLevel = (() => {
 /** Strip API key patterns from any string value to prevent secret leakage. */
 function sanitize(value: unknown): unknown {
   if (typeof value === 'string') {
-    return value.replace(/sk-ant-[A-Za-z0-9_-]+/g, '[REDACTED]');
+    return value
+      .replace(/sk-ant-[A-Za-z0-9_-]+/g, '[REDACTED]')
+      .replace(/sk_(live|test)_[A-Za-z0-9]+/g, '[REDACTED]');
   }
   if (value instanceof Error) {
     return {

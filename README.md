@@ -16,7 +16,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/tests-425%20passing-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-636%20passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/Anthropic-Claude-orange" alt="Claude" />
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
@@ -43,14 +43,14 @@ Each directory has its own README documenting architecture, design decisions, an
 | Directory | Description |
 |-----------|-------------|
 | [`app/`](app/README.md) | Next.js App Router: routes, server actions, data fetching, auth patterns |
-| [`app/api/`](app/api/README.md) | 11 API endpoints: streaming bout engine, CRUD, webhooks, credit preauth flow |
-| [`components/`](components/README.md) | 21 React components: composition hierarchy, state management, styling conventions |
-| [`lib/`](lib/README.md) | 34 utility modules across 8 domains: AI, agents, credits, users, engagement, blockchain, infra |
-| [`db/`](db/README.md) | Drizzle ORM schema (12 tables, 3 enums), data design patterns, Neon client |
+| [`app/api/`](app/api/README.md) | 20 API endpoints: streaming bout engine, REST API, CRUD, webhooks, credit preauth flow |
+| [`components/`](components/README.md) | 26 React components: composition hierarchy, state management, styling conventions |
+| [`lib/`](lib/README.md) | 51 utility modules across 11 domains: AI, agents, bouts, credits, users, engagement, research, blockchain, infra |
+| [`db/`](db/README.md) | Drizzle ORM schema (20 tables, 3 enums), data design patterns, Neon client |
 | [`presets/`](presets/README.md) | 22 JSON debate presets, loading pipeline, format spec |
-| [`tests/`](tests/README.md) | 63 test files: Vitest (unit + API) + Playwright (E2E), 85% coverage thresholds |
-| [`scripts/`](scripts/README.md) | Utility scripts: Stripe setup, smoke tests, EAS schema creation |
-| [`drizzle/`](drizzle/README.md) | 3 SQL migrations, drizzle-kit workflow, snapshot metadata |
+| [`tests/`](tests/README.md) | 85 test files: Vitest (unit + API) + Playwright (E2E), 85% coverage thresholds |
+| [`scripts/`](scripts/README.md) | Utility scripts: Stripe setup, sanity checks, smoke tests, EAS schema creation |
+| [`drizzle/`](drizzle/README.md) | 5 SQL migrations, drizzle-kit workflow, snapshot metadata |
 | [`docs/`](docs/README.md) | Project documents: specs, code reviews, hardening changes, strategy |
 | [`pitctl/`](pitctl/README.md) | Go CLI for site admin: status, users, credits, bouts, agents, alerts, metrics, reports, smoke tests, exports, licensing |
 | [`pitforge/`](pitforge/README.md) | Go CLI for agent engineering: init, validate, lint, hash, diff, catalog, spar (streaming debates), evolve (AI variants) |
@@ -73,7 +73,7 @@ Each directory has its own README documenting architecture, design decisions, an
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 24+
 - A [Neon](https://neon.tech) PostgreSQL database
 - An [Anthropic](https://console.anthropic.com) API key
 - A [Clerk](https://clerk.com) application (auth)
@@ -106,7 +106,7 @@ pnpm run build            # Production build
 pnpm run start            # Serve production build
 pnpm run lint             # ESLint
 pnpm run typecheck        # TypeScript type checking
-pnpm run test:unit        # Unit + API tests (425 tests)
+pnpm run test:unit        # Unit + API tests (636 tests)
 pnpm run test:ci          # Lint + typecheck + unit + integration
 pnpm run test:e2e         # Playwright E2E (requires running server)
 ```
@@ -142,6 +142,11 @@ Copy `.env.example` to `.env`. Required variables:
 | `ADMIN_SEED_TOKEN` | Auth for `/api/admin/seed-agents` | — |
 | `ADMIN_USER_IDS` | Comma-separated admin user IDs | — |
 | `NEXT_PUBLIC_POSTHOG_KEY` | PostHog analytics | — |
+| `SENTRY_DSN` | Sentry error tracking | — |
+| `HELICONE_API_KEY` | Helicone AI observability | — |
+| `LOG_LEVEL` | Structured log level | `info` |
+
+> See `.env.example` for the full list of 50+ configurable environment variables including credit economy tuning, EAS blockchain config, and Stripe price IDs.
 
 ---
 
@@ -157,9 +162,10 @@ Copy `.env.example` to `.env`. Required variables:
 | Payments | Stripe |
 | Attestations | Ethereum Attestation Service (Base L2) |
 | Email | Resend |
+| Error Tracking | Sentry |
 | Analytics | PostHog + Vercel Analytics |
 | Hosting | Vercel |
-| Tests | Vitest (425) + Playwright |
+| Tests | Vitest (636) + Playwright |
 | CLI Toolchain | Go (pitctl, pitforge, pitbench, pitlab, pitnet) |
 
 ---

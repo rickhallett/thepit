@@ -2,7 +2,7 @@
 
 # lib/
 
-34 shared utility modules organized in a flat directory. Types are co-located with their modules rather than in a separate types file. The modules cluster into 8 functional domains.
+51 shared utility modules organized in a flat directory. Types are co-located with their modules rather than in a separate types file. The modules cluster into 11 functional domains.
 
 ## Module Inventory
 
@@ -11,9 +11,17 @@
 | File | Purpose |
 |------|---------|
 | `ai.ts` | Anthropic provider setup. Exports `FREE_MODEL_ID`, `PREMIUM_MODEL_OPTIONS`, `getModel()`. Three tiers: free (Haiku), premium (Sonnet/Opus), BYOK (user key). |
+| `xml-prompt.ts` | XML prompt builder for all LLM-facing prompts. Safety boundaries (`<safety>`), system/user/share message builders, `xmlEscape()`, legacy `wrapPersona()` for backwards compatibility. ~300 lines. |
 | `presets.ts` | Loads 11 free + 11 premium presets from JSON, normalizes snake_case to camelCase. Exports `ALL_PRESETS`, `PRESET_BY_ID` (O(1) Map), `getPresetById()`. Core `Preset` and `Agent` types. |
 | `response-lengths.ts` | Three length options (short/standard/long) with `maxOutputTokens` caps. |
 | `response-formats.ts` | Four format options (plain/spaced/markdown/json) with system prompt instructions. |
+
+### Bout Execution
+
+| File | Purpose |
+|------|---------|
+| `bout-engine.ts` | Core bout execution engine (~640 lines). Two phases: `validateBoutRequest()` (parse, auth, tier, credits, idempotency) and `executeBout()` (turn loop, transcript, share line, DB persist, credit settlement). Emits `TurnEvent` union for SSE. |
+| `bout-lineup.ts` | Arena lineup reconstruction from bout JSONB data. `buildArenaPresetFromLineup()` for replay pages and bout engine. |
 
 ### Agent System
 
@@ -23,6 +31,8 @@
 | `agent-prompts.ts` | Structured prompt composition from typed fields (archetype, tone, quirks, etc.) via `buildStructuredPrompt()`. |
 | `agent-dna.ts` | Deterministic identity: SHA-256 hashing of RFC 8785 canonicalized manifests and prompts. `hashAgentPrompt()`, `hashAgentManifest()`, `buildAgentManifest()`. |
 | `agent-detail.ts` | Agent detail fetching with lineage resolution (up to 4 generations). |
+| `agent-lineage.ts` | Shared lineage resolution: walks parent chains using pre-built lookup maps, produces `{ id, name }` entries for UI display. |
+| `agent-mapper.ts` | Agent row-to-snapshot mapping: single source of truth for converting Drizzle agent rows to `AgentSnapshot` objects. |
 | `agent-links.ts` | URL encoding for agent IDs containing colons: `encodeAgentId()`, `decodeAgentId()`. |
 
 ### Credit Economy
@@ -40,7 +50,8 @@
 |------|---------|
 | `users.ts` | Clerk-to-DB bridge: syncs profiles (lazy 24h refresh), `getAuthUserId()`, `requireUserId()`, `ensureUserRecord()`, `maskEmail()`. |
 | `tier.ts` | Subscription tiers (free/pass/lab): bout limits, model access, agent slots. `canRunBout()`, `canAccessModel()`, `getAvailableModels()`. |
-| `admin.ts` | Admin authorization via `ADMIN_USER_IDS` env var. |
+| `admin.ts` | Admin authorization via `ADMIN_USER_IDS` env var. Checks user identity for server actions. |
+| `admin-auth.ts` | Admin API route auth via timing-safe token comparison against `ADMIN_SEED_TOKEN` env var. Used by `/api/admin/*` endpoints. |
 | `onboarding.ts` | New-user session init: user record, referral, credit account, bonuses. In-memory cache (1h TTL). |
 | `referrals.ts` | Referral system: 8-char nanoid codes, bonus credits from intro pool. |
 
@@ -51,6 +62,16 @@
 | `reactions.ts` | Per-turn reaction counts with SQL GROUP BY aggregation. |
 | `winner-votes.ts` | Winner voting: one vote per user per bout, vote tallies. |
 | `leaderboard.ts` | Full aggregation across 3 time ranges (all/week/day) for agents and players. In-memory cache (5min TTL). |
+| `short-links.ts` | Short link CRUD for shareable bout URLs: 8-char nanoid slugs, idempotent creation, resolution, click analytics. |
+| `remix-events.ts` | Remix event recording and querying: tracks agent clones/remixes with lineage, outcomes, and optional credit reward payouts. |
+
+### Research
+
+| File | Purpose |
+|------|---------|
+| `research-anonymize.ts` | Anonymization utilities for research exports: replaces PII (user IDs) with salted SHA-256 hashes. |
+| `research-exports.ts` | Research dataset export generation: aggregates completed bouts, reactions, votes, agents into anonymized JSON payloads. |
+| `arxiv.ts` | arXiv URL parsing and metadata extraction: parses paper IDs from various URL formats, fetches title/authors/abstract from the arXiv Atom API. |
 
 ### Blockchain & Attestation
 
@@ -69,6 +90,11 @@
 | `logger.ts` | Structured logging: JSON in production, human-readable in dev. Sanitizes API key patterns. |
 | `api-logging.ts` | API route wrapper: automatic request/response logging with timing. |
 | `request-context.ts` | Extracts `x-request-id` from headers for log correlation. |
+| `anomaly.ts` | Lightweight server-side anomaly detection: burst traffic, credential probing, error rate spikes. In-memory sliding windows, log-only. |
+| `api-utils.ts` | Shared API route utilities: standardized JSON error responses (`errorResponse()`), `parseJsonBody()`, `API_ERRORS` constants. |
+| `errors.ts` | Shared error utilities: `toErrorMessage()` for safe extraction from unknown catch values, `toError()` for wrapping. |
+| `validation.ts` | Shared input validation: `UNSAFE_PATTERN` regex for URLs, script tags, event handlers, data URIs. |
+| `openapi.ts` | OpenAPI 3.1 specification for The Pit's public API. Served from `/api/openapi` for Lab-tier subscribers. |
 | `cn.ts` | `clsx` + `tailwind-merge` class composition. |
 | `form-utils.ts` | `getFormString()` for safe FormData extraction. |
 
@@ -78,6 +104,7 @@
 |------|---------|
 | `use-bout.ts` | SSE streaming hook. Connects to `/api/run-bout`, parses JSON event stream, implements "pending message" state machine (2-4s random thinking delay). Returns `{ messages, status, activeAgentId, shareLine }`. |
 | `analytics.ts` | Typed `trackEvent()` for PostHog. Silent no-op when unconfigured. |
+| `engagement.ts` | Client-side engagement tracking: scroll depth milestones, active time measurement, bout engagement depth. Fires events to PostHog via `trackEvent()`. |
 
 ### Feature Config
 
@@ -130,7 +157,7 @@ Used exclusively by the `Arena` component.
 - **In-memory rate limiting** — `rate-limit.ts` uses process-scoped sliding windows. This is a deliberate simplicity choice: Vercel typically runs a single instance, and the rate limiter is "best effort" rather than strict. For multi-instance deployments, this would need to be replaced with Redis/Upstash. The automatic cleanup prevents memory leaks.
 - **In-memory caching (leaderboard, onboarding)** — Both modules use module-scoped caches with TTLs (5min for leaderboard, 1h for onboarding). Same single-instance assumption. Cache invalidation is time-based only — no event-driven invalidation.
 - **Type co-location** — Types are exported from their owning module (`Preset` from `presets.ts`, `BoutMessage` from `use-bout.ts`, etc.) rather than centralized in a `types/` directory. This keeps types close to their implementation and avoids circular imports. The tradeoff is that consuming modules must know which module exports which type.
-- **Flat directory** — 34 files in one folder. The naming convention creates implicit groupings (`agent-*`, `credit-*`, `response-*`). At the current scale this is navigable, but a subdirectory split by domain would improve discoverability if the module count grows past ~45.
+- **Flat directory** — 51 files in one folder. The naming convention creates implicit groupings (`agent-*`, `credit-*`, `response-*`, `research-*`). At the current scale this is approaching the threshold where a subdirectory split by domain would improve discoverability.
 
 ---
 

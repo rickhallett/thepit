@@ -63,6 +63,7 @@ const systemContent = buildSystemMessage({ safety: SAFETY_TEXT, persona: agent.s
 When the same logic appears in 2+ files, extract to a shared utility.
 
 **Known duplications identified in release review:**
+
 | Duplication | Files | Extraction Target |
 |---|---|---|
 | BYOK key stashing (~35 lines) | `components/preset-card.tsx`, `components/arena-builder.tsx` | `useByokStash()` hook |
