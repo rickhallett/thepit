@@ -51,6 +51,10 @@ import {
   BYOK_ENABLED,
 } from '@/lib/credits';
 import {
+  getIntroPoolStatus,
+  consumeIntroPoolAnonymous,
+} from '@/lib/intro-pool';
+import {
   SUBSCRIPTIONS_ENABLED,
   getUserTier,
   canRunBout,
@@ -317,10 +321,8 @@ export async function validateBoutRequest(
 
   // Credit pre-authorization
   let preauthMicro = 0;
+  let isIntroPoolBout = false;
   if (CREDITS_ENABLED) {
-    if (!userId) {
-      return { error: errorResponse(API_ERRORS.AUTH_REQUIRED, 401) };
-    }
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
       modelId,
@@ -328,16 +330,35 @@ export async function validateBoutRequest(
     );
     preauthMicro = toMicroCredits(estimatedCost);
 
-    const preauth = await preauthorizeCredits(userId, preauthMicro, 'preauth', {
-      presetId,
-      boutId,
-      modelId,
-      estimatedCostGbp: estimatedCost,
-      referenceId: boutId,
-    });
+    if (!userId) {
+      // Anonymous user — check if intro pool has credits
+      const poolStatus = await getIntroPoolStatus();
+      if (poolStatus.exhausted || poolStatus.remainingMicro < preauthMicro) {
+        return { error: errorResponse(API_ERRORS.AUTH_REQUIRED, 401) };
+      }
 
-    if (!preauth.success) {
-      return { error: errorResponse('Insufficient credits.', 402) };
+      // Consume from intro pool for anonymous bout
+      const poolConsume = await consumeIntroPoolAnonymous(preauthMicro);
+      if (!poolConsume.consumed) {
+        return { error: errorResponse('Intro pool exhausted. Sign in to continue.', 402) };
+      }
+
+      isIntroPoolBout = true;
+      preauthMicro = 0; // No user-level preauth for anonymous bouts
+      log.info('Intro pool bout created', { boutId, presetId, isIntroPoolBout });
+    } else {
+      // Authenticated user — preauthorize from user credits
+      const preauth = await preauthorizeCredits(userId, preauthMicro, 'preauth', {
+        presetId,
+        boutId,
+        modelId,
+        estimatedCostGbp: estimatedCost,
+        referenceId: boutId,
+      });
+
+      if (!preauth.success) {
+        return { error: errorResponse('Insufficient credits.', 402) };
+      }
     }
   }
 

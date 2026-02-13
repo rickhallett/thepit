@@ -149,3 +149,60 @@ export async function claimIntroCredits(params: {
     exhausted: newRemaining <= 0,
   };
 }
+
+/**
+ * Atomically consume credits from the intro pool for anonymous bouts.
+ *
+ * Unlike claimIntroCredits, this does not credit a user account — it simply
+ * deducts from the shared pool. Used for anonymous users during the intro
+ * pool phase when authentication is not required.
+ */
+export async function consumeIntroPoolAnonymous(microCredits: number): Promise<{
+  consumed: boolean;
+  remainingMicro: number;
+  exhausted: boolean;
+}> {
+  const db = requireDb();
+  const pool = await ensureIntroPool();
+
+  // Pre-check: is the pool likely exhausted?
+  const preCheckRemaining = computeRemainingMicro(pool);
+  if (preCheckRemaining < microCredits) {
+    return { consumed: false, remainingMicro: preCheckRemaining, exhausted: preCheckRemaining <= 0 };
+  }
+
+  // Atomic consumption: only increment claimed if sufficient credits remain
+  const [result] = await db
+    .update(introPool)
+    .set({
+      claimedMicro: sql`${introPool.claimedMicro} + CASE
+        WHEN (
+          ${introPool.initialMicro} - ${introPool.claimedMicro} -
+          (EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / 60)::bigint * ${introPool.drainRateMicroPerMinute}
+        ) >= ${microCredits}
+        THEN ${microCredits}
+        ELSE 0
+      END`,
+      updatedAt: new Date(),
+    })
+    .where(eq(introPool.id, pool.id))
+    .returning({
+      claimedMicro: introPool.claimedMicro,
+      initialMicro: introPool.initialMicro,
+      startedAt: introPool.startedAt,
+      drainRateMicroPerMinute: introPool.drainRateMicroPerMinute,
+    });
+
+  if (!result) {
+    return { consumed: false, remainingMicro: 0, exhausted: true };
+  }
+
+  const actualConsumed = result.claimedMicro - pool.claimedMicro;
+  const newRemaining = computeRemainingMicro(result);
+
+  return {
+    consumed: actualConsumed >= microCredits,
+    remainingMicro: newRemaining,
+    exhausted: newRemaining <= 0,
+  };
+}

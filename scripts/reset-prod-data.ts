@@ -24,6 +24,8 @@ if (!connectionString) {
   console.error('ERROR: DATABASE_URL environment variable is required');
   process.exit(1);
 }
+// TypeScript doesn't know process.exit() doesn't return, so we assert the type
+const dbUrl: string = connectionString;
 
 const isDryRun = process.argv.includes('--dry-run');
 
@@ -35,7 +37,7 @@ async function main() {
   console.log(`Intro pool will be set to: ${INTRO_POOL_CREDITS} credits`);
   console.log('');
 
-  const db = drizzle(neon(connectionString));
+  const db = drizzle(neon(dbUrl));
 
   // Tables to truncate (all activity data)
   const tablesToTruncate = [
