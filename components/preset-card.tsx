@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, type FormEvent } from 'react';
+import { useFormStatus } from 'react-dom';
 
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { trackEvent } from '@/lib/analytics';
@@ -19,6 +20,19 @@ import {
   DEFAULT_RESPONSE_FORMAT,
   RESPONSE_FORMATS,
 } from '@/lib/response-formats';
+
+function SubmitButton({ locked }: { locked: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={locked || pending}
+      className="rounded-full border-2 border-foreground/70 px-4 py-2 text-xs uppercase tracking-[0.3em] transition hover:border-accent hover:text-accent disabled:opacity-50"
+    >
+      {locked ? 'Locked' : pending ? 'Starting...' : 'Enter'}
+    </button>
+  );
+}
 
 export function PresetCard({
   preset,
@@ -148,13 +162,7 @@ export function PresetCard({
             </p>
           )}
         </div>
-        <button
-          type="submit"
-          disabled={locked}
-          className="rounded-full border-2 border-foreground/70 px-4 py-2 text-xs uppercase tracking-[0.3em] transition hover:border-accent hover:text-accent"
-        >
-          {locked ? 'Locked' : 'Enter'}
-        </button>
+        <SubmitButton locked={locked} />
       </div>
 
       {locked && isPremium && (

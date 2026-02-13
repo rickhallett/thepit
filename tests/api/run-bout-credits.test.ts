@@ -574,3 +574,85 @@ describe('run-bout credit flow (CREDITS_ENABLED=true)', () => {
     expect(applyCreditDeltaMock).not.toHaveBeenCalled();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Anonymous intro-pool bout tests
+// ---------------------------------------------------------------------------
+
+describe('run-bout anonymous intro-pool flow (CREDITS_ENABLED=true)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    authMock.mockResolvedValue({ userId: null });
+    getPresetByIdMock.mockReturnValue(MINIMAL_PRESET);
+    setupDbSelect();
+    setupDbInsert();
+    setupDbUpdate();
+    setupStreamMocks();
+    estimateBoutCostGbpMock.mockReturnValue(0.005);
+    toMicroCreditsMock.mockReturnValue(5000);
+    computeCostGbpMock.mockReturnValue(0.003);
+    estimateTokensFromTextMock.mockReturnValue(0);
+    preauthorizeCreditsMock.mockResolvedValue({ success: true });
+    settleCreditsMock.mockResolvedValue({});
+    applyCreditDeltaMock.mockResolvedValue({});
+    streamTextMock.mockReturnValue({
+      textStream: (async function* () {
+        yield 'hello';
+      })(),
+      usage: Promise.resolve({ inputTokens: 10, outputTokens: 20 }),
+    });
+  });
+
+  it('allows anonymous bout when intro pool has credits', async () => {
+    const { getIntroPoolStatus, consumeIntroPoolAnonymous } =
+      await import('@/lib/intro-pool');
+    vi.mocked(getIntroPoolStatus).mockResolvedValue({
+      remainingMicro: 999999,
+      remainingCredits: 9999,
+      drainRatePerMinute: 1,
+      startedAt: new Date().toISOString(),
+      exhausted: false,
+    });
+    vi.mocked(consumeIntroPoolAnonymous).mockResolvedValue({
+      consumed: true,
+      remainingMicro: 994999,
+      exhausted: false,
+    });
+
+    const res = await POST(
+      makeRequest({ boutId: 'anon-1', presetId: 'darwin-special' }),
+    );
+    expect(res.status).toBe(200);
+
+    // Anonymous bouts skip user-level preauth
+    expect(preauthorizeCreditsMock).not.toHaveBeenCalled();
+    // Pool credits were consumed
+    expect(consumeIntroPoolAnonymous).toHaveBeenCalledWith(5000);
+  });
+
+  it('returns 402 when intro pool consumption fails mid-race', async () => {
+    const { getIntroPoolStatus, consumeIntroPoolAnonymous } =
+      await import('@/lib/intro-pool');
+    vi.mocked(getIntroPoolStatus).mockResolvedValue({
+      remainingMicro: 999999,
+      remainingCredits: 9999,
+      drainRatePerMinute: 1,
+      startedAt: new Date().toISOString(),
+      exhausted: false,
+    });
+    // Pool check passes but atomic consume fails (race condition)
+    vi.mocked(consumeIntroPoolAnonymous).mockResolvedValue({
+      consumed: false,
+      remainingMicro: 0,
+      exhausted: true,
+    });
+
+    const res = await POST(
+      makeRequest({ boutId: 'anon-2', presetId: 'darwin-special' }),
+    );
+    expect(res.status).toBe(402);
+    expect(await res.json()).toEqual({
+      error: 'Intro pool exhausted. Sign in to continue.',
+    });
+  });
+});
