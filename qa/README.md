@@ -74,7 +74,7 @@ Copy `.env.test.example` to `.env.test` and fill in the generated values:
 # Base URL for testing
 QA_BASE_URL=http://localhost:3000
 
-# Database connection
+# Database connection (QA_DATABASE_URL preferred, falls back to DATABASE_URL)
 QA_DATABASE_URL=postgresql://...
 
 # Shared password for test accounts
@@ -105,7 +105,7 @@ pnpm run qa:teardown --yes
 
 ## Directory Structure
 
-```
+```text
 qa/
 ├── README.md               # This file
 ├── runner.ts               # Main test runner CLI
@@ -190,7 +190,7 @@ After running tests:
 
 ## Human Testing Checklist
 
-These tests require manual verification:
+These 7 tests require manual verification:
 
 - [ ] AUTH-004: Google OAuth flow
 - [ ] CREDIT-006: Purchase Starter pack (real Stripe)
@@ -211,5 +211,7 @@ Add to GitHub Actions:
   run: pnpm run qa:api
   env:
     QA_BASE_URL: ${{ secrets.STAGING_URL }}
-    DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    QA_DATABASE_URL: ${{ secrets.QA_DATABASE_URL }}
 ```
+
+Note: Use `QA_DATABASE_URL` to explicitly target the test database.

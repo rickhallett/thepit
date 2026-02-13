@@ -1,12 +1,16 @@
 /**
  * Input Validation & Injection Tests
  *
- * Tests for INJ-001 through INJ-006:
+ * Tests for INJ-001 through INJ-010:
  * - XSS in agent names and system prompts
  * - SQL injection via IDs
  * - Prompt injection
  * - Malicious preset handling
  * - Request size limits
+ * - Null byte injection
+ * - CRLF injection
+ * - Unicode normalization attacks
+ * - Contact form validation
  */
 
 import { registerTest, type TestContext, type RunResult } from '../../registry.js'
@@ -177,18 +181,22 @@ registerTest({
       ]
 
       // Check for system prompt leakage in error response
-      // (This is a heuristic - actual leakage would be more obvious)
-      if (
-        text.toLowerCase().includes('ignore previous') ||
-        text.toLowerCase().includes('reveal your')
-      ) {
-        // If the injection payload is just echoed back, that's fine
-        // We're looking for actual system prompt content
+      for (const pattern of leakPatterns) {
+        // Skip if the match is just echoing the injection payload
+        if (pattern.test(text) && !text.toLowerCase().includes('ignore previous')) {
+          failures.push(`Possible system prompt leak: ${pattern.toString()}`)
+        }
       }
     }
 
-    // This test primarily validates that prompt injection payloads
-    // don't cause the API to leak system information
+    if (failures.length > 0) {
+      return {
+        passed: false,
+        error: 'Prompt injection may have leaked system information',
+        evidence: failures.join('; '),
+      }
+    }
+
     return { passed: true, evidence: 'Prompt injection payloads did not leak system info' }
   },
 })

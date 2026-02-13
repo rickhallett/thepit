@@ -1,13 +1,15 @@
 /**
  * Credit System Edge Case Tests
  *
- * Tests for CRED-001 through CRED-008:
+ * Tests for CRED-001 through CRED-010:
  * - Concurrent preauthorization
  * - Settlement at zero balance
  * - Partial refunds
  * - Webhook idempotency
  * - Referral system
  * - Intro pool exhaustion
+ * - Free bout pool exhaustion
+ * - Transaction atomicity
  */
 
 import { registerTest, type TestContext, type RunResult } from '../../registry.js'
@@ -40,10 +42,6 @@ registerTest({
     // Send all requests concurrently
     const responses = await Promise.all(requests.map(fn => fn()))
     const statuses = responses.map(r => r.status)
-
-    // Without auth, all should fail with 401
-    // With auth on exhausted account, at most one should succeed
-    const successCount = statuses.filter(s => s === 200).length
 
     // For unauthenticated requests, this validates the endpoint exists
     // and handles concurrent requests without crashing

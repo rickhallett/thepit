@@ -533,6 +533,6 @@ The following 7 tests **cannot** be automated and require manual verification:
 
 ### Summary
 
-- **Full Auto (API + Browser):** 155 tests (85%)
-- **Partial Auto:** 21 tests (12%)
-- **Human Required:** 6 tests (3%)
+- **Full Auto (API + Browser):** 154 tests (85%)
+- **Partial Auto:** 21 tests (11%)
+- **Human Required:** 7 tests (4%)

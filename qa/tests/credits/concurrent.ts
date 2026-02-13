@@ -43,6 +43,15 @@ registerTest({
       }
     }
 
+    // If both succeeded, that's a race condition bug (double-spend)
+    if (successCount > 1) {
+      return {
+        passed: false,
+        error: 'Race condition allowed double preauthorization',
+        evidence: `Both concurrent requests succeeded (${successCount} successes)`,
+      }
+    }
+
     return {
       passed: true,
       evidence: `Race condition handled. Statuses: ${res1.status}, ${res2.status}`,

@@ -30,6 +30,11 @@ function updateStatusFlags(
   line: string,
   result: TestResult
 ): string {
+  // Don't modify flags for human-required tests - they weren't actually tested
+  if (result.error === 'HUMAN_REQUIRED') {
+    return line
+  }
+
   const qa = 'x' // We tested it
   const func = result.functional ? 'x' : '_'
   const broken = result.passed ? '_' : 'x'

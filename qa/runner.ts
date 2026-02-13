@@ -17,7 +17,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parseArgs } from 'node:util'
 
-import { parseQAReport, filterByPrefix, filterByCategory, summarize, type ParsedTest } from './parser.js'
+import { parseQAReport, filterByCategory, summarize, type ParsedTest } from './parser.js'
 import { writeResults, generateSummary, type TestResult } from './writer.js'
 import { loadConfig, validateConfig, printConfig, type QAConfig } from './config.js'
 import { AUTOMATION_TIERS, type AutomationTier } from './tiers.js'
@@ -54,7 +54,7 @@ async function checkConnectivity(baseUrl: string): Promise<{ ok: boolean; error?
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 5000)
 
-    const response = await fetch(baseUrl, {
+    await fetch(baseUrl, {
       method: 'HEAD',
       signal: controller.signal,
     })
@@ -85,7 +85,9 @@ async function runQA(options: RunOptions): Promise<void> {
 
   if (errors.length > 0) {
     console.error('Configuration errors:')
-    errors.forEach((e) => console.error(`  ❌ ${e}`))
+    errors.forEach((e) => {
+      console.error(`  ❌ ${e}`)
+    })
     process.exit(1)
   }
 
@@ -211,21 +213,19 @@ async function runQA(options: RunOptions): Promise<void> {
     }
 
     const shortDesc = test.description.slice(0, 50)
-    console.log(`▶️  ${test.id}: ${shortDesc}...`)
+    console.log(`▶️  [${tier}] ${test.id}: ${shortDesc}...`)
 
     const startTime = Date.now()
+    let setupComplete = false
 
     try {
       if (impl.setup) {
         await impl.setup(ctx)
       }
+      setupComplete = true
 
       const result = await impl.run(ctx)
       result.duration = Date.now() - startTime
-
-      if (impl.teardown) {
-        await impl.teardown(ctx)
-      }
 
       results.push({
         id: test.id,
@@ -255,6 +255,15 @@ async function runQA(options: RunOptions): Promise<void> {
       })
 
       console.log(`❌ ${test.id} (${duration}ms): ${errorMsg}`)
+    } finally {
+      // Always run teardown if setup completed (prevents resource leaks)
+      if (setupComplete && impl.teardown) {
+        try {
+          await impl.teardown(ctx)
+        } catch (teardownErr) {
+          console.warn(`⚠️  Teardown failed for ${test.id}: ${teardownErr instanceof Error ? teardownErr.message : String(teardownErr)}`)
+        }
+      }
     }
   }
 
