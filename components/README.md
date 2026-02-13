@@ -2,7 +2,7 @@
 
 # components/
 
-26 React components in a flat directory. All but two (`SiteFooter`, `AgentIcon`) are marked `'use client'`. There are no subdirectories and no shared UI primitive layer — styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
+27 React components in a flat directory. All but two (`SiteFooter`, `AgentIcon`) are marked `'use client'`. There are no subdirectories and no shared UI primitive layer — styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
 
 ## Component Inventory
 
@@ -48,7 +48,7 @@
 | `checkout-banner.tsx` | `CheckoutBanner` | Post-checkout banner (success/cancel), auto-dismisses 6s |
 | `free-bout-counter.tsx` | `FreeBoutCounter` | Daily free bout pool progress bar |
 | `intro-pool-counter.tsx` | `IntroPoolCounter` | Live-ticking community credit pool, accounts for drain rate |
-| `darwin-countdown.tsx` | `DarwinCountdown` | Countdown timer to Darwin Day launch |
+| `darwin-countdown.tsx` | `DarwinCountdown` | Darwin Day launch state: shows "WE'RE LIVE" post-launch, countdown pre-launch |
 
 ### Community
 
@@ -65,18 +65,21 @@
 | `ask-the-pit.tsx` | `AskThePit` | Floating chat FAB for AI Q&A via streaming |
 | `ask-the-pit-lazy.tsx` | `AskThePitLazy` | Lazy-loading wrapper via `next/dynamic` with `ssr: false`. Used by RootLayout. |
 | `newsletter-signup.tsx` | `NewsletterSignup` | Email signup form |
-| `posthog-provider.tsx` | `PostHogProvider` | PostHog analytics context provider |
+| `cookie-consent.tsx` | `CookieConsent` | GDPR cookie consent banner. Gates PostHog and analytics cookies behind explicit user consent. |
+| `posthog-provider.tsx` | `PostHogProvider` | PostHog analytics context provider. Only initializes when user has accepted analytics cookies. |
 
 ## Composition Hierarchy
 
 ```
 RootLayout (server)
+  ├── Skip-to-content link (accessibility)
   ├── SiteHeader
   │   └── AuthControls
-  ├── [page content]
+  ├── <main> [page content]
   ├── SiteFooter
   ├── AskThePitLazy → (lazy) AskThePit
-  └── PostHogProvider (wraps all)
+  ├── CookieConsent (GDPR banner)
+  └── PostHogProvider (wraps all, consent-gated)
 
 LeaderboardDashboard
   ├── LeaderboardTable
@@ -127,7 +130,7 @@ All components use Tailwind CSS v4 directly. The `cn()` utility (`clsx` + `tailw
 
 ## Design Decisions & Trade-offs
 
-- **No shared UI primitive layer** — There's no `ui/button.tsx` or `ui/input.tsx`. Every component applies Tailwind classes directly. This works well at the current scale (26 components) because the design vocabulary is tight and consistent. If the component count grows past ~35 or if a second contributor joins, extracting shared primitives (Button, Input, Card, Modal) would reduce duplication and enforce consistency.
+- **No shared UI primitive layer** — There's no `ui/button.tsx` or `ui/input.tsx`. Every component applies Tailwind classes directly. This works well at the current scale (27 components) because the design vocabulary is tight and consistent. If the component count grows past ~35 or if a second contributor joins, extracting shared primitives (Button, Input, Card, Modal) would reduce duplication and enforce consistency.
 - **Flat directory** — No subdirectories. Components are grouped by naming convention (e.g., `agent-*`, `leaderboard-*`, `feature-request-*`). Consider introducing subdirectories if component count doubles.
 - **Nearly all client components** — All but two (`SiteFooter`, `AgentIcon`) are `'use client'`. This is appropriate: the components handle user interaction (forms, streaming, modals, counters). Server components are the page-level files in `app/`.
 

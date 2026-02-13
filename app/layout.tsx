@@ -9,6 +9,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { AskThePitLazy } from '@/components/ask-the-pit-lazy';
+import { CookieConsent } from '@/components/cookie-consent';
 import { PostHogProvider } from '@/components/posthog-provider';
 import { initializeUserSession } from '@/lib/onboarding';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
@@ -51,12 +52,19 @@ export default async function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className="bg-background text-foreground antialiased">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border-2 focus:border-accent focus:bg-background focus:px-4 focus:py-2 focus:text-xs focus:uppercase focus:tracking-[0.3em] focus:text-accent"
+          >
+            Skip to content
+          </a>
           <PostHogProvider>
             <div className="flex min-h-screen flex-col">
               <SiteHeader />
-              <div className="flex-1">{children}</div>
+              <main id="main-content" className="flex-1">{children}</main>
               <SiteFooter />
               <AskThePitLazy enabled={ASK_THE_PIT_ENABLED} />
+              <CookieConsent />
             </div>
             <Analytics />
           </PostHogProvider>

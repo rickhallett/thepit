@@ -34,13 +34,28 @@ import {
 import { getFormString } from '@/lib/form-utils';
 import { log } from '@/lib/logger';
 
-/** Resolve the app URL for redirects (e.g. Stripe checkout success/cancel). */
+/**
+ * Resolve the app URL for redirects (e.g. Stripe checkout success/cancel).
+ *
+ * Falls back to localhost only in development. In production, a missing
+ * URL configuration is a deployment error — fail fast rather than
+ * redirecting Stripe customers to localhost.
+ */
 function getAppUrl(): string {
-  return (
+  const url =
     process.env.NEXT_PUBLIC_APP_URL ??
     process.env.APP_URL ??
-    'http://localhost:3000'
-  );
+    process.env.NEXT_PUBLIC_SITE_URL;
+
+  if (url) return url;
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'Missing app URL configuration. Set NEXT_PUBLIC_APP_URL, APP_URL, or NEXT_PUBLIC_SITE_URL.',
+    );
+  }
+
+  return 'http://localhost:3000';
 }
 
 /** Create a bout record and redirect to its streaming page. */

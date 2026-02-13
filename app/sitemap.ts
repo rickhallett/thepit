@@ -8,6 +8,7 @@ import { desc, eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { bouts } from '@/db/schema';
+import { log } from '@/lib/logger';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thepit.cloud';
 
@@ -78,7 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.4,
     }));
   } catch (error) {
-    console.error('[sitemap] Failed to fetch bouts:', error);
+    log.error('[sitemap] Failed to fetch bouts', error instanceof Error ? error : undefined);
     // DB unavailable — return static routes only
   }
 

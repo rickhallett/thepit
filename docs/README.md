@@ -19,13 +19,13 @@ Project documentation organized by purpose. These are operational and planning d
 | [code-review-2026-02-10.md](code-review-2026-02-10.md) | Feb 10, 2026 | Adversarial code review findings and tracking table |
 | [hardening-changes-2026-02-10.md](hardening-changes-2026-02-10.md) | Feb 10, 2026 | Implementation details for security hardening changes |
 | [release-review-2026-02-11.md](release-review-2026-02-11.md) | Feb 11, 2026 | Pre-release review and sign-off |
+| [launch-hardening-report-2026-02-13.md](launch-hardening-report-2026-02-13.md) | Feb 13, 2026 | Launch hardening: GDPR consent, security fixes, accessibility, documentation audit |
 
 ## Strategy & Marketing
 
 | Document | Description |
 |----------|-------------|
-| [press-release-strategy.md](press-release-strategy.md) | Press release plan and distribution strategy |
-| [criticism-playbook.md](criticism-playbook.md) | Anticipated criticisms and response playbook |
+| [social-content-playbook.md](social-content-playbook.md) | Platform bios, channel strategy, and posting plan for X, Reddit, Discord |
 | [landing-draft-v1.md](landing-draft-v1.md) | Initial landing page copy draft |
 | [landing-v3-final.md](landing-v3-final.md) | Final landing page copy |
 
@@ -40,13 +40,23 @@ Project documentation organized by purpose. These are operational and planning d
 
 | Document | Date | Description |
 |----------|------|-------------|
-| [typescript-architecture-review-2026-02-12.md](typescript-architecture-review-2026-02-12.md) | Feb 12, 2026 | TypeScript architecture review and recommendations |
+| [typescript-architecture-review-2026-02-11.md](typescript-architecture-review-2026-02-11.md) | Feb 11, 2026 | TypeScript architecture review (initial) |
+| [typescript-architecture-review-2026-02-12.md](typescript-architecture-review-2026-02-12.md) | Feb 12, 2026 | TypeScript architecture review (follow-up recommendations) |
+
+## Quality Assurance
+
+| Document | Description |
+|----------|-------------|
+| [code-review-prompt.md](code-review-prompt.md) | Exhaustive codebase review prompt for first-time reviewers (all dimensions: engineering, product, CLI toolchain) |
+| [qa-report.md](qa-report.md) | QA test results and coverage report |
+| [security-checklist.md](security-checklist.md) | Security audit checklist and findings |
 
 ## Specs
 
 | Document | Description |
 |----------|-------------|
 | [specs/reduce-deps.md](specs/reduce-deps.md) | Dependency reduction specification |
+| [specs/llm-qa-automation.md](specs/llm-qa-automation.md) | LLM-driven QA automation framework specification |
 
 ## What Goes Where
 

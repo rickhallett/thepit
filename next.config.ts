@@ -12,8 +12,9 @@ const require = createRequire(import.meta.url);
 // Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
 // api.stripe.com) are omitted since CSP only governs the browser.
 //
-// Note: Clerk dev domains (*.clerk.accounts.dev) included because production
-// currently uses a Clerk dev key. Remove when migrating to pk_live_ key.
+// Clerk domains: In production with a pk_live_ key only *.clerk.com is needed.
+// The *.clerk.accounts.dev domain is included for development/staging with pk_test_ keys.
+// TODO(launch): Once pk_live_ key is deployed, remove *.clerk.accounts.dev for a tighter CSP.
 const clerkDomains = 'https://*.clerk.accounts.dev https://*.clerk.com';
 const clerkImgDomains = 'https://img.clerk.com https://images.clerk.dev https://images.clerk.com';
 // PostHog uses both us.i.posthog.com (ingest) and us-assets.i.posthog.com (assets/config)

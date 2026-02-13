@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
-const TARGET = new Date('2026-02-13T11:55:00Z').getTime();
+const LAUNCH_DATE = new Date('2026-02-13T11:55:00Z');
 
 type Countdown = {
   days: number;
@@ -11,23 +11,61 @@ type Countdown = {
   seconds: number;
 };
 
-const calculate = (): Countdown => {
-  const diff = Math.max(0, TARGET - Date.now());
+const ZERO: Countdown = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+function calculate(): Countdown {
+  const diff = Math.max(0, LAUNCH_DATE.getTime() - Date.now());
   const totalSeconds = Math.floor(diff / 1000);
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   return { days, hours, minutes, seconds };
-};
+}
 
+function getIsLive(): boolean {
+  return Date.now() >= LAUNCH_DATE.getTime();
+}
+
+function subscribeToTime(callback: () => void): () => void {
+  const id = setInterval(callback, 1000);
+  return () => clearInterval(id);
+}
+
+/**
+ * Post-launch banner replacing the countdown timer.
+ *
+ * Shows "WE'RE LIVE" when the launch date has passed,
+ * otherwise shows a countdown to launch.
+ */
 export function DarwinCountdown() {
-  const [time, setTime] = useState<Countdown>(calculate());
+  const isLive = useSyncExternalStore(subscribeToTime, getIsLive, () => false);
 
-  useEffect(() => {
-    const id = window.setInterval(() => setTime(calculate()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
+  if (isLive) {
+    return (
+      <div className="border-2 border-accent bg-black/50 p-6">
+        <div className="flex items-center gap-3">
+          <span className="inline-block h-3 w-3 animate-pulse rounded-full bg-accent" />
+          <p className="text-xs uppercase tracking-[0.4em] text-accent">
+            Darwin Day
+          </p>
+        </div>
+        <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
+          We&apos;re live.
+        </h2>
+        <p className="mt-3 text-sm text-muted">
+          THE PIT launched on Darwin Day 2026. Pick a preset and enter the arena.
+        </p>
+      </div>
+    );
+  }
+
+  return <CountdownDisplay />;
+}
+
+/** Renders the countdown timer with a 1-second tick. */
+function CountdownDisplay() {
+  const time = useSyncExternalStore(subscribeToTime, calculate, () => ZERO);
 
   return (
     <div className="border-2 border-foreground/60 bg-black/50 p-6">

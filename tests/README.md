@@ -2,16 +2,18 @@
 
 # tests/
 
-85 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on critical lib modules.
+88 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
 
 ## Directory Structure
 
 ```
 tests/
-├── unit/          49 test files — pure function tests, mocked DB/external deps
-├── api/           32 test files — API route handler tests with mocked deps
-├── integration/    1 test file  — real DB connection via TEST_DATABASE_URL
-└── e2e/            3 test files — Playwright browser tests
+├── unit/               50 test files — pure function tests, mocked DB/external deps
+├── api/                32 test files — API route handler tests with mocked deps
+├── integration/         3 test files — real DB + security integration tests
+│   ├── db.test.ts                    — real DB operations via TEST_DATABASE_URL
+│   └── security/                     — auth bypass and race condition tests
+└── e2e/                 3 test files — Playwright browser tests
 ```
 
 ## Running Tests
@@ -26,7 +28,7 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 
 ## Test Coverage by Domain
 
-### Unit Tests (49 files in `tests/unit/`)
+### Unit Tests (50 files in `tests/unit/`)
 
 | Domain | Files | What's Tested |
 |--------|-------|---------------|
@@ -40,6 +42,7 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 | Blockchain | `eas.test.ts`, `eas-errors.test.ts`, `attestation-links.test.ts` | EAS attestation, bytes32 validation, URL building |
 | Bout & social | `bout-lineup.test.ts`, `short-links.test.ts`, `remix-events.test.ts` | Arena preset construction, short link creation/resolution, remix event recording |
 | Research | `research-anonymize.test.ts`, `arxiv.test.ts` | User ID anonymization, arXiv URL parsing, metadata fetching |
+| Brand & social | `brand.test.ts` | Brand constants, social link configuration, share text generation |
 | Utilities | `hash.test.ts`, `form-utils.test.ts`, `rate-limit.test.ts`, `response-formats.test.ts`, `response-lengths.test.ts`, `presets.test.ts`, `winner-votes-lib.test.ts`, `reactions-lib.test.ts`, `api-utils.test.ts`, `errors.test.ts`, `validation.test.ts` | Hashing, form data, rate limiting, response config, preset integrity, API utils, error handling, input validation |
 
 ### API Tests (32 files in `tests/api/`)
@@ -58,9 +61,13 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 | Billing | `webhook-subscription.test.ts`, `webhook-edge-cases.test.ts` | Subscription lifecycle, idempotency, edge cases |
 | Security | `security-topic-length.test.ts`, `security-contact-validation.test.ts`, `security-admin-auth.test.ts` | Input bounds, validation, admin auth |
 
-### Integration Tests (1 file)
+### Integration Tests (3 files)
 
-`tests/integration/db.test.ts` — Requires `TEST_DATABASE_URL` env var; skipped when absent. Tests real DB operations: credit ledger, intro pool, referral credits. Includes full cleanup (deletes test rows in `afterAll`).
+| File | Description |
+|------|-------------|
+| `db.test.ts` | Real DB operations: credit ledger, intro pool, referral credits. Requires `TEST_DATABASE_URL`; skipped when absent. Full cleanup in `afterAll`. |
+| `security/auth-bypass.test.ts` | Authorization bypass testing: endpoint protection, token validation, timing-safe comparisons. |
+| `security/race-conditions.test.ts` | Concurrent request handling: reaction deduplication, credit race conditions. |
 
 ### E2E Tests (3 files)
 
@@ -115,9 +122,9 @@ Common mock helpers (`setupSelect()`, `setupInsert()`, `setupUpdate()`) are defi
 
 ## Design Decisions & Trade-offs
 
-- **No shared test utilities** — Mock setup helpers are duplicated across ~85 test files. This maximizes isolation (no hidden shared state) but increases maintenance cost when DB mock patterns change. Extracting a `tests/helpers/` module with shared mock factories would reduce duplication. This is the most impactful improvement opportunity in the test layer.
-- **No CI/CD pipeline** — The `test:ci` pnpm script defines the gate (`lint + typecheck + unit + integration`) but there are no `.github/workflows/` or equivalent config files. Tests run via Vercel's build pipeline implicitly. Adding a GitHub Actions workflow would provide pre-merge CI and branch protection.
-- **Coverage targets are selective** — Only 6 critical lib modules have enforced 85% coverage. Other modules have no minimum. This focuses coverage enforcement on the highest-risk code (credits, hashing, rate limiting) without creating busywork for UI-adjacent modules.
+- **No shared test utilities** — Mock setup helpers are duplicated across ~88 test files. This maximizes isolation (no hidden shared state) but increases maintenance cost when DB mock patterns change. Extracting a `tests/helpers/` module with shared mock factories would reduce duplication. This is the most impactful improvement opportunity in the test layer.
+- **CI enforced via GitHub Actions** — `.github/workflows/ci.yml` runs the full gate (lint + typecheck + unit + integration) on every push and PR. `.github/workflows/e2e.yml` runs Playwright against Vercel preview deployments on `deployment_status` events.
+- **Coverage targets are selective** — 11 critical lib modules have enforced 85% coverage (agent-dna, agent-prompts, agent-registry, credits, free-bout-pool, rate-limit, referrals, response-formats, response-lengths, tier, validation). Other modules have no minimum. This focuses coverage enforcement on the highest-risk code without creating busywork for UI-adjacent modules.
 - **Three E2E tests** — Playwright specs cover the core bout flow, citation validation, and mobile responsiveness. This is appropriate for the current scale but leaves some rendering regressions uncovered. Additional E2E specs for agent creation, leaderboard, and replay viewing would improve confidence.
 
 ---
