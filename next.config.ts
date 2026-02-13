@@ -12,15 +12,12 @@ const require = createRequire(import.meta.url);
 // Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
 // api.stripe.com) are omitted since CSP only governs the browser.
 //
-// Clerk dev domains (*.clerk.accounts.dev) only included in development to avoid
-// console warnings about blocked requests in production.
-const isDev = process.env.NODE_ENV === 'development';
-const clerkDomains = isDev
-  ? 'https://*.clerk.accounts.dev https://*.clerk.com'
-  : 'https://*.clerk.com';
-const clerkImgDomains = isDev
-  ? 'https://img.clerk.com https://images.clerk.dev'
-  : 'https://img.clerk.com https://images.clerk.com';
+// Note: Clerk dev domains (*.clerk.accounts.dev) included because production
+// currently uses a Clerk dev key. Remove when migrating to pk_live_ key.
+const clerkDomains = 'https://*.clerk.accounts.dev https://*.clerk.com';
+const clerkImgDomains = 'https://img.clerk.com https://images.clerk.dev https://images.clerk.com';
+// PostHog uses both us.i.posthog.com (ingest) and us-assets.i.posthog.com (assets/config)
+const posthogDomains = 'https://us.i.posthog.com https://us-assets.i.posthog.com';
 
 const cspDirectives = [
   "default-src 'self'",
@@ -28,7 +25,7 @@ const cspDirectives = [
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: ${clerkImgDomains}`,
   "font-src 'self' data:",
-  `connect-src 'self' ${clerkDomains} https://us.i.posthog.com https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com`,
+  `connect-src 'self' ${clerkDomains} ${posthogDomains} https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com`,
   `frame-src 'self' https://checkout.stripe.com ${clerkDomains}`,
   "worker-src 'self' blob:",
   "object-src 'none'",

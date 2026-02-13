@@ -51,7 +51,8 @@ export function SiteHeader({ className }: { className?: string }) {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <AuthControls />
+          {/* Desktop auth controls - hidden on mobile, shown in drawer instead */}
+          <AuthControls className="hidden md:flex" />
           {/* Hamburger toggle */}
           <button
             type="button"
@@ -101,6 +102,10 @@ export function SiteHeader({ className }: { className?: string }) {
               {link.label}
             </Link>
           ))}
+          {/* Mobile auth controls */}
+          <div className="mt-3 border-t border-foreground/20 pt-3">
+            <AuthControls className="justify-start" />
+          </div>
         </nav>
       )}
     </header>

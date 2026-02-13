@@ -22,6 +22,7 @@ import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
 import { getAgentSnapshots } from '@/lib/agent-registry';
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
+import { getIntroPoolStatus } from '@/lib/intro-pool';
 import {
   DEFAULT_RESPONSE_LENGTH,
   resolveResponseLength,
@@ -49,8 +50,14 @@ export async function createBout(presetId: string, formData?: FormData) {
   }
 
   const { userId } = await auth();
+
+  // Allow anonymous bouts during intro pool phase
   if (CREDITS_ENABLED && !userId) {
-    redirect('/sign-in?redirect_url=/arena');
+    const poolStatus = await getIntroPoolStatus();
+    if (poolStatus.exhausted) {
+      redirect('/sign-in?redirect_url=/arena');
+    }
+    // Intro pool has credits — allow anonymous bout creation
   }
 
   const db = requireDb();
@@ -96,8 +103,13 @@ export async function createBout(presetId: string, formData?: FormData) {
 /** Create an arena-mode bout with a custom agent lineup and redirect to the bout page. */
 export async function createArenaBout(formData: FormData) {
   const { userId } = await auth();
+
+  // Allow anonymous arena bouts during intro pool phase
   if (CREDITS_ENABLED && !userId) {
-    redirect('/sign-in?redirect_url=/arena/custom');
+    const poolStatus = await getIntroPoolStatus();
+    if (poolStatus.exhausted) {
+      redirect('/sign-in?redirect_url=/arena/custom');
+    }
   }
 
   const agentIds = formData.getAll('agentIds').filter(Boolean) as string[];
