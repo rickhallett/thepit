@@ -6,6 +6,7 @@ import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
 import { trackEvent } from '@/lib/analytics';
+import { BRAND, buildShareLinks } from '@/lib/brand';
 import {
   initScrollDepthTracking,
   initActiveTimeTracking,
@@ -186,7 +187,7 @@ export function Arena({
     const headline =
       line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
 
-    return [headline, '', replayUrl, '', '🔴 #ThePitArena'].join('\n');
+    return [headline, '', replayUrl, '', `🔴 ${BRAND.hashtag}`].join('\n');
   }, [liveShareLine, preset.name, replayUrl, shareLine, transcript]);
 
   const messageSharePayloads = useMemo(() => {
@@ -214,18 +215,11 @@ export function Arena({
         '',
         `Replay: ${replayUrl}`,
         '',
-        '🔴 #ThePitArena',
+        `🔴 ${BRAND.hashtag}`,
       ].join('\n');
-      const encoded = encodeURIComponent(payload);
       return {
         payload,
-        links: {
-          x: `https://twitter.com/intent/tweet?text=${encoded}`,
-          whatsapp: `https://wa.me/?text=${encoded}`,
-          telegram: `https://t.me/share/url?url=${encodeURIComponent(
-            replayUrl,
-          )}&text=${encoded}`,
-        },
+        links: buildShareLinks(payload, replayUrl),
       };
     });
   }, [
@@ -449,6 +443,22 @@ export function Arena({
                     className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
                   >
                     X
+                  </a>
+                  <a
+                    href={share.links.reddit}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    Reddit
+                  </a>
+                  <a
+                    href={share.links.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border-2 border-foreground/40 px-2 py-1 transition hover:border-accent hover:text-accent"
+                  >
+                    LinkedIn
                   </a>
                   <a
                     href={share.links.whatsapp}

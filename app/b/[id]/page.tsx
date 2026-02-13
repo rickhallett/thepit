@@ -53,6 +53,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: 'summary',
+      site: '@ThePitArena',
+      creator: '@ThePitArena',
       title,
       description,
     },
