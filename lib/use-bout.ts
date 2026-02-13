@@ -142,6 +142,10 @@ export function useBout({
       agentName: string;
       color: string;
     }) => {
+      // Flush any existing pending message before scheduling the new one.
+      // Without this, fast turns (arriving before the thinking delay expires)
+      // silently discard the previous message's buffered text.
+      flushPendingMessage();
       pendingMessageRef.current = { ...pending, buffer: '' };
       setThinkingAgentId(pending.agentId);
       setActiveAgentId(null);

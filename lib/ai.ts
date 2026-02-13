@@ -16,11 +16,14 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 const HELICONE_API_KEY = process.env.HELICONE_API_KEY;
-const HELICONE_BASE_URL = 'https://anthropic.helicone.ai';
+const HELICONE_ENABLED = process.env.HELICONE_ENABLED === 'true';
+const HELICONE_BASE_URL = 'https://anthropic.helicone.ai/v1';
+
+const useHelicone = HELICONE_ENABLED && !!HELICONE_API_KEY;
 
 const defaultAnthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  ...(HELICONE_API_KEY
+  ...(useHelicone
     ? {
         baseURL: HELICONE_BASE_URL,
         headers: {

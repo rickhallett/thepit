@@ -153,10 +153,6 @@ export async function validateBoutRequest(
     return { error: errorResponse(API_ERRORS.UNSAFE_CONTENT, 400) };
   }
 
-  if (UNSAFE_PATTERN.test(topic)) {
-    return { error: new Response('Topic contains disallowed content.', { status: 400 }) };
-  }
-
   let db: ReturnType<typeof requireDb>;
   try {
     db = requireDb();

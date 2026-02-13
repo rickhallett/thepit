@@ -176,38 +176,4 @@ describe('run-bout topic validation', () => {
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Input contains disallowed content.' });
   });
-
-  it('rejects topic containing a URL (UNSAFE_PATTERN)', async () => {
-    const { POST } = await import('@/app/api/run-bout/route');
-    const req = new Request('http://localhost/api/run-bout', {
-      method: 'POST',
-      body: JSON.stringify({
-        boutId: 'test-bout-12345678901',
-        presetId: 'test',
-        topic: 'Check out https://evil.com for details',
-      }),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Topic contains disallowed content.');
-  });
-
-  it('rejects topic containing a script tag (UNSAFE_PATTERN)', async () => {
-    const { POST } = await import('@/app/api/run-bout/route');
-    const req = new Request('http://localhost/api/run-bout', {
-      method: 'POST',
-      body: JSON.stringify({
-        boutId: 'test-bout-12345678901',
-        presetId: 'test',
-        topic: 'Debate about <script>alert(1)</script>',
-      }),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    expect(await res.text()).toBe('Topic contains disallowed content.');
-  });
 });

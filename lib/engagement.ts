@@ -73,7 +73,10 @@ export function initActiveTimeTracking(): () => void {
     isVisible = !document.hidden;
   };
 
-  const onBeforeUnload = () => {
+  let flushed = false;
+  const flushActiveTime = () => {
+    if (flushed) return;
+    flushed = true;
     if (isVisible) {
       activeMs += Date.now() - lastActiveAt;
     }
@@ -87,11 +90,13 @@ export function initActiveTimeTracking(): () => void {
   };
 
   document.addEventListener('visibilitychange', onVisibilityChange);
-  window.addEventListener('beforeunload', onBeforeUnload);
+  window.addEventListener('beforeunload', flushActiveTime);
 
   return () => {
+    // Flush on SPA navigation (beforeunload does not fire on client-side route changes)
+    flushActiveTime();
     document.removeEventListener('visibilitychange', onVisibilityChange);
-    window.removeEventListener('beforeunload', onBeforeUnload);
+    window.removeEventListener('beforeunload', flushActiveTime);
   };
 }
 

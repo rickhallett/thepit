@@ -155,8 +155,9 @@ export function checkAnomaly(input: AnomalyInput): void {
   }
 
   // 4. Suspicious user-agent — missing UA or very short UA
+  const ua = userAgent ?? '';
   if (!userAgent || userAgent.length < 10) {
-    const isBot = BENIGN_BOTS.some((bot) => userAgent.toLowerCase().includes(bot));
+    const isBot = BENIGN_BOTS.some((bot) => ua.toLowerCase().includes(bot));
     if (!isBot) {
       reportOnce('suspicious_ua', clientIp, {
         ip: clientIp,
