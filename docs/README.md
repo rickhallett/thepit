@@ -34,6 +34,19 @@ Project documentation organized by purpose. These are operational and planning d
 | Document | Description |
 |----------|-------------|
 | [research-page-v1.md](research-page-v1.md) | Content for the public research explainer page |
+| [research-citations.md](research-citations.md) | Literature review and academic citations |
+
+## Technical Reviews
+
+| Document | Date | Description |
+|----------|------|-------------|
+| [typescript-architecture-review-2026-02-12.md](typescript-architecture-review-2026-02-12.md) | Feb 12, 2026 | TypeScript architecture review and recommendations |
+
+## Specs
+
+| Document | Description |
+|----------|-------------|
+| [specs/reduce-deps.md](specs/reduce-deps.md) | Dependency reduction specification |
 
 ## What Goes Where
 

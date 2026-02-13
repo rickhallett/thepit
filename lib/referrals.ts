@@ -8,6 +8,7 @@ import { eq } from 'drizzle-orm';
 import { requireDb } from '@/db';
 import { referrals, users } from '@/db/schema';
 import { claimIntroCredits, INTRO_REFERRAL_CREDITS } from '@/lib/intro-pool';
+import { log } from '@/lib/logger';
 
 export async function ensureReferralCode(userId: string) {
   const db = requireDb();
@@ -18,7 +19,8 @@ export async function ensureReferralCode(userId: string) {
     .limit(1);
 
   if (!existing) {
-    throw new Error(`User not found: ${userId}`);
+    log.error('referral code generation failed: user not found', { userId });
+    throw new Error('User not found');
   }
 
   if (existing.referralCode) {

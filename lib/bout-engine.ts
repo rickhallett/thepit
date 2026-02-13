@@ -53,6 +53,7 @@ import {
 import {
   getIntroPoolStatus,
   consumeIntroPoolAnonymous,
+  refundIntroPool,
 } from '@/lib/intro-pool';
 import {
   SUBSCRIPTIONS_ENABLED,
@@ -79,6 +80,8 @@ export type BoutContext = {
   byokKey: string;
   userId: string | null;
   preauthMicro: number;
+  /** Micro-credits consumed from the intro pool for anonymous bouts. Zero for authenticated bouts. */
+  introPoolConsumedMicro: number;
   requestId: string;
   db: ReturnType<typeof requireDb>;
 };
@@ -321,7 +324,7 @@ export async function validateBoutRequest(
 
   // Credit pre-authorization
   let preauthMicro = 0;
-  let isIntroPoolBout = false;
+  let introPoolConsumedMicro = 0;
   if (CREDITS_ENABLED) {
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
@@ -343,9 +346,9 @@ export async function validateBoutRequest(
         return { error: errorResponse('Intro pool exhausted. Sign in to continue.', 402) };
       }
 
-      isIntroPoolBout = true;
+      introPoolConsumedMicro = preauthMicro;
       preauthMicro = 0; // No user-level preauth for anonymous bouts
-      log.info('Intro pool bout created', { boutId, presetId, isIntroPoolBout });
+      log.info('Intro pool bout created', { boutId, presetId, introPoolConsumedMicro });
     } else {
       // Authenticated user — preauthorize from user credits
       const preauth = await preauthorizeCredits(userId, preauthMicro, 'preauth', {
@@ -393,6 +396,7 @@ export async function validateBoutRequest(
       byokKey,
       userId,
       preauthMicro,
+      introPoolConsumedMicro,
       requestId,
       db,
     },
@@ -414,7 +418,7 @@ export async function executeBout(
   ctx: BoutContext,
   onEvent?: (event: TurnEvent) => void,
 ): Promise<BoutResult> {
-  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokKey, userId, preauthMicro, requestId, db } = ctx;
+  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokKey, userId, preauthMicro, introPoolConsumedMicro, requestId, db } = ctx;
 
   const boutStartTime = Date.now();
   log.info('Bout stream starting', {
@@ -653,6 +657,14 @@ export async function executeBout(
           referenceId: boutId,
         });
       }
+    }
+
+    // Error-path intro pool refund: return consumed credits to the shared pool.
+    // Without this, an attacker could drain the intro pool by triggering errors
+    // on anonymous bouts — the credits would be consumed but never used or returned.
+    if (introPoolConsumedMicro > 0) {
+      log.info('Refunding intro pool on error', { boutId, introPoolConsumedMicro });
+      await refundIntroPool(introPoolConsumedMicro);
     }
 
     throw error;

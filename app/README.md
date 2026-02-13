@@ -8,35 +8,45 @@ Next.js App Router layer. All routes, layouts, server actions, and API handlers 
 
 ```
 app/
-├── layout.tsx              Root layout (Clerk, PostHog, header/footer, session init)
+├── layout.tsx              Root layout (Clerk, PostHog, AskThePitLazy, header/footer, session init)
 ├── page.tsx                Landing page
-├── loading.tsx             Root loading state
+├── global-error.tsx        Global error boundary
 ├── error.tsx               Root error boundary ('use client')
 ├── not-found.tsx           Custom 404
 ├── actions.ts              Server actions (8 exported functions)
 ├── globals.css             Tailwind v4 entrypoint
+├── sitemap.ts              Dynamic sitemap generator
+├── robots.ts               Dynamic robots.txt generator
 │
 ├── arena/
 │   ├── page.tsx            Preset grid with tier/credits dashboard
+│   ├── loading.tsx         Arena loading state
 │   └── custom/
 │       └── page.tsx        Custom lineup builder (ArenaBuilder component)
 │
 ├── bout/[id]/
-│   └── page.tsx            Live streaming bout (force-dynamic)
+│   ├── page.tsx            Live streaming bout (force-dynamic)
+│   └── loading.tsx         Bout loading state
 │
 ├── b/[id]/
-│   └── page.tsx            Read-only replay viewer (force-dynamic)
+│   ├── page.tsx            Read-only replay viewer (force-dynamic, generateMetadata for OG tags)
+│   └── loading.tsx         Replay loading state
 │
 ├── agents/
 │   ├── page.tsx            Agent catalog grid
+│   ├── loading.tsx         Agents loading state
 │   ├── [id]/page.tsx       Agent detail / DNA page
 │   ├── new/page.tsx        Agent builder form
 │   └── clone/page.tsx      Clone agent with prefill (?source=...)
 │
 ├── leaderboard/
-│   └── page.tsx            PIT + PLAYER rankings (revalidate=30s)
+│   ├── page.tsx            PIT + PLAYER rankings (revalidate=30s)
+│   └── loading.tsx         Leaderboard loading state
 │
-├── research/page.tsx       Research explainer
+├── feedback/page.tsx       Feature request submission + voting
+├── research/
+│   ├── page.tsx            Research explainer
+│   └── citations/page.tsx  Literature review + paper submission form
 ├── roadmap/page.tsx        Three-lane public roadmap
 ├── contact/page.tsx        Contact form ('use client')
 ├── sign-in/[[...sign-in]]  Clerk catch-all sign-in
@@ -45,6 +55,9 @@ app/
 ├── terms/page.tsx          Terms of service (static)
 ├── privacy/page.tsx        Privacy policy (static)
 ├── disclaimer/page.tsx     AI disclaimer (static)
+│
+├── s/[slug]/route.ts       Short link resolver (302 redirect to /b/:boutId)
+├── docs/api/route.ts       Scalar-powered API reference page
 │
 └── api/                    → See [app/api/README.md](api/README.md)
 ```
@@ -58,16 +71,17 @@ app/
 | `[id]` | `/agents/[id]` | Agent detail; `id` is URL-decoded via `decodeAgentId()` |
 | `[[...sign-in]]` | `/sign-in/*` | Clerk catch-all (handles multi-step auth flows) |
 | `[[...sign-up]]` | `/sign-up/*` | Clerk catch-all for registration |
+| `[slug]` | `/s/[slug]` | Short link resolver; 302 redirects to `/b/:boutId` |
 
 ## Data Fetching Strategy
 
 **Server components dominate.** Nearly every page is an async Server Component that queries the database directly at render time:
 
-- **`/arena`** — Heavy tier-aware loading: `auth()` + `getUserTier()` + `getCreditBalanceMicro()` + `getCreditTransactions()` + `getIntroPoolStatus()` + `getFreeBoutPoolStatus()`
-- **`/bout/[id]`** — DB query for bout record + `Promise.all([getReactionCounts, getWinnerVoteCounts, getUserWinnerVote])`. Marked `force-dynamic`.
-- **`/b/[id]`** — Same as bout but read-only. Also `force-dynamic`.
+- **`/arena`** — Heavy tier-aware loading: `auth()` + `getUserTier()` + `getCreditBalanceMicro()` + `getCreditTransactions()` + `getIntroPoolStatus()` + `getFreeBoutPoolStatus()` + `getAvailableModels()` + `getFreeBoutsUsed()`
+- **`/bout/[id]`** — `auth()` + DB query for bout record + `resolveResponseLength()` + `estimateBoutCostGbp()` + `Promise.all([getReactionCounts, getWinnerVoteCounts, getUserWinnerVote])`. Marked `force-dynamic`.
+- **`/b/[id]`** — `auth()` + DB query for bout record + `Promise.all([getReactionCounts, getWinnerVoteCounts, getUserWinnerVote])`. Also `force-dynamic`. Includes `generateMetadata()` for OG/Twitter meta tags (differs from `/bout/[id]` which does not).
 - **`/agents`** — `getAgentSnapshots()` loads full agent catalog.
-- **`/agents/[id]`** — `getAgentDetail(id, 4)` with 4-generation lineage depth.
+- **`/agents/[id]`** — `Promise.all([getAgentDetail(id, 4), auth(), getRemixStats(id)])` with 4-generation lineage depth and remix statistics.
 - **`/leaderboard`** — `getLeaderboardData()` with `revalidate = 30` (ISR, 30-second cache).
 
 **Client components** are used only for: the contact form, the error boundary (required by Next.js), and interactive components imported into server pages (Arena, ArenaBuilder, AgentBuilder, etc.).
@@ -124,7 +138,7 @@ Three distinct patterns:
 - **Single server actions file** — All 8 actions in one file centralizes mutation logic but could grow unwieldy as features expand. If action count exceeds ~15, consider splitting by domain (e.g., `actions/bout.ts`, `actions/billing.ts`).
 - **Dual bout URLs** — `/bout/[id]` is the live page with `searchParams` for configuration; `/b/[id]` is the clean replay URL. Both render the same `<Arena>` component with different data strategies. The tradeoff is a marginal increase in route surface area for significantly cleaner share URLs.
 - **No middleware-level auth** — Authentication is checked per-route rather than in middleware. This is intentional: most pages (landing, legal, research, roadmap) are public. Gating at middleware would require maintaining an allow-list.
-- **No route groups** — The flat structure keeps URLs predictable and avoids the cognitive overhead of parenthesized groups. This works well at the current route count (~15 pages) but may need revisiting if the route tree grows significantly.
+- **No route groups** — The flat structure keeps URLs predictable and avoids the cognitive overhead of parenthesized groups. This works well at the current route count (~21 pages) but may need revisiting if the route tree grows significantly.
 
 ---
 

@@ -106,12 +106,26 @@ export function checkRateLimit(
 /**
  * Extract a client identifier from a request for rate limiting.
  * Uses IP address with fallback to a generic key.
+ *
+ * SECURITY: The leftmost entry in x-forwarded-for is attacker-controlled
+ * (the client can set it to any value). The rightmost entry is appended by
+ * the trusted edge proxy (Vercel) and represents the actual client IP.
+ * We prefer x-vercel-forwarded-for when available since it's set by Vercel's
+ * edge network and cannot be spoofed by the client.
  */
 export function getClientIdentifier(req: Request): string {
-  // Try various headers for IP address
+  // Prefer Vercel's trusted header — set at the edge, not spoofable by clients
+  const vercelForwarded = req.headers.get('x-vercel-forwarded-for');
+  if (vercelForwarded) {
+    return vercelForwarded.split(',')[0].trim();
+  }
+
+  // Fall back to x-forwarded-for — use the RIGHTMOST entry (appended by
+  // the trusted proxy), not the leftmost (attacker-controlled).
   const forwarded = req.headers.get('x-forwarded-for');
   if (forwarded) {
-    return forwarded.split(',')[0].trim();
+    const parts = forwarded.split(',');
+    return parts[parts.length - 1].trim();
   }
 
   const realIp = req.headers.get('x-real-ip');

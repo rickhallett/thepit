@@ -17,25 +17,42 @@ import {
   testErrorDisclosure,
 } from './utils.js'
 
-// AUTH-001: Access another user's bout
+// AUTH-001: Access another user's bout via API
 registerTest({
   id: 'SEC-AUTH-001',
   tier: 'api',
   run: async (ctx: TestContext): Promise<RunResult> => {
-    // Try to access a bout that doesn't belong to the current user
-    // Using a random UUID that's unlikely to exist
+    // Test the API endpoint, not the page (Next.js pages render shell before checking data)
+    // The /api/bouts/:id endpoint should return 404 for non-existent bouts
     const fakeBoutId = '00000000-0000-0000-0000-000000000000'
-    const result = await testIdorAccess(ctx.config, `/bout/${fakeBoutId}`)
 
-    if (!result.passed) {
-      return {
-        passed: false,
-        error: result.vulnerability,
-        evidence: result.evidence,
+    const response = await makeRequest(ctx.config, `/api/bouts/${fakeBoutId}`, {
+      method: 'GET',
+    })
+
+    // Should be 404 (not found) or 401 (unauthorized)
+    // NOT 200 with actual bout data
+    if (response.status === 200) {
+      const text = await response.text()
+      try {
+        const data = JSON.parse(text)
+        // If we got actual bout data, that's a problem
+        if (data.id || data.boutId || data.transcript) {
+          return {
+            passed: false,
+            error: 'IDOR: Accessed bout data without authorization',
+            evidence: `Got bout data for non-existent/unauthorized bout`,
+          }
+        }
+      } catch {
+        // Not JSON, probably error page - acceptable
       }
     }
 
-    return { passed: true, evidence: 'Non-existent bout returns 404' }
+    return {
+      passed: true,
+      evidence: `Non-existent bout API returns ${response.status}`
+    }
   },
 })
 

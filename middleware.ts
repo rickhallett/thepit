@@ -111,7 +111,7 @@ export default clerkMiddleware((_, req) => {
     // We record page views via a lightweight internal API endpoint rather than
     // importing DB code into edge middleware (which has runtime constraints).
     const pvUrl = new URL('/api/pv', req.url);
-    const referer = req.headers.get('referer') ?? '';
+    const referrer = req.headers.get('referer') ?? ''; // HTTP header is historically misspelled
     const userAgent = req.headers.get('user-agent') ?? '';
     const utmCookie = req.cookies.get(UTM_COOKIE)?.value ?? '';
 
@@ -131,7 +131,7 @@ export default clerkMiddleware((_, req) => {
         path: pathname,
         sessionId,
         clientIp,
-        referer,
+        referrer,
         userAgent,
         country,
         utm: utmCookie,

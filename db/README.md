@@ -8,7 +8,7 @@ Database layer: Drizzle ORM schema and Neon serverless client. Two files total �
 
 | File | Purpose |
 |------|---------|
-| `schema.ts` | Drizzle ORM table definitions (12 tables, 3 enums), exported TypeScript types |
+| `schema.ts` | Drizzle ORM table definitions (20 tables, 3 enums), exported TypeScript types |
 | `index.ts` | Neon HTTP client instantiation, `requireDb()` guard, schema re-exports |
 
 ## Client Setup
@@ -43,6 +43,14 @@ All modules that touch the database import `requireDb` from `@/db` and table/enu
 | `agents` | `varchar(128)` | Agent definitions: personality fields, dual hashes, EAS attestation, lineage |
 | `free_bout_pool` | `serial` | Global daily free bout limit (unique per date) |
 | `agent_flags` | `serial` | User-submitted moderation flags (unique per agent per user) |
+| `paper_submissions` | `serial` | ArXiv paper submissions with moderation status |
+| `feature_requests` | `serial` | User feature request submissions with admin review |
+| `feature_request_votes` | `serial` | Votes on feature requests (unique per user per request) |
+| `page_views` | `serial` | Server-side page view analytics (path, session, UTM, geo) |
+| `short_links` | `serial` | Shareable short-link slugs that resolve to bouts |
+| `short_link_clicks` | `serial` | Click analytics for short links (UTM, referrer, IP hash) |
+| `remix_events` | `serial` | Agent remix/clone lineage tracking with reward payouts |
+| `research_exports` | `serial` | Snapshot payloads for anonymized research dataset downloads |
 
 ### Custom TypeScript Types
 
@@ -67,6 +75,15 @@ ArenaAgent = { id: string; name: string; systemPrompt: string; color?: string; a
 | `agents` | `(archived, created_at)` | composite |
 | `free_bout_pool` | `date` | unique |
 | `agent_flags` | `(agent_id, user_id)` | unique |
+| `paper_submissions` | `user_id` | btree |
+| `paper_submissions` | `(user_id, arxiv_id)` | unique |
+| `feature_requests` | `created_at` | btree |
+| `feature_request_votes` | `(feature_request_id, user_id)` | unique |
+| `page_views` | `(path, created_at)` | composite |
+| `page_views` | `session_id` | btree |
+| `page_views` | `created_at` | btree |
+| `short_links` | `bout_id` | unique |
+| `short_links` | `slug` | unique |
 
 ## Data Design Patterns
 
@@ -76,6 +93,8 @@ ArenaAgent = { id: string; name: string; systemPrompt: string; color?: string; a
 - **`bouts.agentLineup`** — `ArenaAgent[]`. Arena-mode lineups are ephemeral, user-composed, and only meaningful in the bout context.
 - **`agents.quirks`** — `string[]`. Small array of personality quirks, not queried independently.
 - **`credit_transactions.metadata`** — `Record<string, unknown>`. Flexible metadata for different transaction types.
+- **`remix_events.metadata`** — `Record<string, unknown>`. Flexible context for remix/clone events.
+- **`research_exports.payload`** — `Record<string, unknown>`. Full anonymized dataset snapshot.
 
 ### Micro-Credit Accounting
 
@@ -91,7 +110,7 @@ ArenaAgent = { id: string; name: string; systemPrompt: string; color?: string; a
 
 ## Design Decisions & Trade-offs
 
-- **No foreign key constraints** — The schema defines no FK constraints in Drizzle. Referential integrity is enforced at the application layer. This simplifies migrations and avoids cascade-deletion surprises, but means orphaned rows are possible if application code has bugs. A migration adding FK constraints would improve safety at the cost of stricter insert ordering.
+- **Minimal foreign key constraints** — The schema defines one FK constraint: `short_link_clicks.shortLinkId` references `short_links.id`. All other referential integrity is enforced at the application layer. This simplifies migrations and avoids cascade-deletion surprises, but means orphaned rows are possible if application code has bugs.
 - **No Drizzle relations** — Queries use raw `select().from().where()` patterns rather than Drizzle's relational query API. This keeps queries explicit but means join logic is scattered across `lib/` modules.
 - **Nanoid for bout IDs** — 21-character IDs are URL-safe and avoid sequential ID enumeration. The tradeoff is slightly larger index sizes vs. integer PKs.
 - **Clerk IDs as user PK** — `users.id` uses the Clerk-issued ID (`varchar(128)`) directly. This avoids a mapping table but couples the schema to Clerk. A migration to a different auth provider would require a PK migration.

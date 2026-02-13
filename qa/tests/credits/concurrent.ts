@@ -230,7 +230,8 @@ registerTest({
   run: async (ctx: TestContext): Promise<RunResult> => {
     const boutId = 'bout-reaction-race-test'
 
-    // Multiple reactions simultaneously
+    // Multiple reactions simultaneously using only valid types ('heart', 'fire')
+    const validReactionTypes = ['heart', 'fire']
     const reactionRequests = Array(20).fill(null).map((_, i) => async () => {
       return makeRequest(ctx.config, '/api/reactions', {
         method: 'POST',
@@ -238,7 +239,7 @@ registerTest({
         body: JSON.stringify({
           boutId,
           turnIndex: i % 5,
-          reactionType: ['fire', 'mic-drop', 'brain', 'eye-roll'][i % 4],
+          reactionType: validReactionTypes[i % 2],
         }),
       })
     })

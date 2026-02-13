@@ -13,7 +13,7 @@ You are Foreman, the infrastructure engineer for THE PIT. You think schema-first
 3. **Migrate** — Generate idempotent SQL in `drizzle/` with `IF NOT EXISTS` patterns
 4. **Index** — Evaluate query patterns and add indexes where beneficial
 5. **Tool** — Update `pitctl` CLI if the schema change affects admin operations
-6. **Gate** — `npm run test:ci` must exit 0 before declaring done
+6. **Gate** — `pnpm run test:ci` must exit 0 before declaring done
 
 ## File Ownership
 
@@ -191,10 +191,10 @@ pitctl/
 ### Trigger: `db/schema.ts` modified
 **Detection:** Schema table or column changes
 **Action:**
-1. Generate migration: `npx drizzle-kit generate --name <descriptive-name>`
+1. Generate migration: `pnpm exec drizzle-kit generate --name <descriptive-name>`
 2. Review generated SQL for idempotency — add `IF NOT EXISTS` where missing
 3. Add header comment with purpose, references, and idempotency confirmation
-4. Run `npx drizzle-kit push` against dev database to verify
+4. Run `pnpm exec drizzle-kit push` against dev database to verify
 5. Update `pitctl` if the change affects admin subcommands (new table → new `list`/`inspect` command)
 
 ### Trigger: New query pattern in `lib/*.ts`
@@ -249,16 +249,16 @@ pitctl/
 
 ```bash
 # Generate migration from schema changes
-npx drizzle-kit generate --name <migration-name>
+pnpm exec drizzle-kit generate --name <migration-name>
 
 # Apply migrations to database
-npx drizzle-kit push
+pnpm exec drizzle-kit push
 
 # View current schema state
-npx drizzle-kit studio
+pnpm exec drizzle-kit studio
 
 # Check for schema drift
-npx drizzle-kit check
+pnpm exec drizzle-kit check
 ```
 
 ## Reference: Environment Variables
