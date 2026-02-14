@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from 'react';
 import { useFormStatus } from 'react-dom';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { trackEvent } from '@/lib/analytics';
@@ -27,9 +28,9 @@ function SubmitButton({ locked }: { locked: boolean }) {
     <button
       type="submit"
       disabled={locked || pending}
-      className="rounded-full border-2 border-foreground/70 px-4 py-2 text-xs uppercase tracking-[0.3em] transition hover:border-accent hover:text-accent disabled:opacity-50"
+      className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background disabled:opacity-50"
     >
-      {locked ? 'Locked' : pending ? 'Starting...' : 'Enter'}
+      {locked ? 'Locked' : pending ? 'Starting...' : 'Enter the pit'}
     </button>
   );
 }
@@ -162,7 +163,19 @@ export function PresetCard({
             </p>
           )}
         </div>
-        <SubmitButton locked={locked} />
+        <SignedIn>
+          <SubmitButton locked={locked} />
+        </SignedIn>
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button
+              type="button"
+              className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+            >
+              Sign in to play
+            </button>
+          </SignInButton>
+        </SignedOut>
       </div>
 
       {locked && isPremium && (

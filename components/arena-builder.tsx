@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState, type FormEvent } from 'react';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { AgentIcon } from '@/components/agent-icon';
 import { trackEvent } from '@/lib/analytics';
@@ -231,18 +232,30 @@ export function ArenaBuilder({
         {selected.map((id) => (
           <input key={id} type="hidden" name="agentIds" value={id} />
         ))}
-        <button
-          type="submit"
-          disabled={selected.length < 2}
-          className={cn(
-            'rounded-full border-2 px-4 py-3 text-xs uppercase tracking-[0.3em] transition',
-            selected.length < 2
-              ? 'border-foreground/30 text-muted'
-              : 'border-accent text-accent hover:bg-accent hover:text-background',
-          )}
-        >
-          Launch arena bout
-        </button>
+        <SignedIn>
+          <button
+            type="submit"
+            disabled={selected.length < 2}
+            className={cn(
+              'rounded-full border-2 px-4 py-3 text-xs uppercase tracking-[0.3em] transition',
+              selected.length < 2
+                ? 'border-foreground/30 text-muted'
+                : 'border-accent text-accent hover:bg-accent hover:text-background',
+            )}
+          >
+            Launch arena bout
+          </button>
+        </SignedIn>
+        <SignedOut>
+          <SignInButton mode="modal">
+            <button
+              type="button"
+              className="rounded-full border-2 border-accent/70 px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+            >
+              Sign in to launch
+            </button>
+          </SignInButton>
+        </SignedOut>
       </section>
 
       <section className="border-2 border-foreground/60 bg-black/50 p-6">

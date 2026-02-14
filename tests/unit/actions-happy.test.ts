@@ -385,21 +385,18 @@ describe('createBout', () => {
     expect(mockDb.insert).toHaveBeenCalled();
   });
 
-  it('creates bout for unauthenticated user when credits disabled', async () => {
+  it('redirects unauthenticated user to sign-in', async () => {
     authMock.mockResolvedValue({ userId: null });
-
-    // CREDITS_ENABLED is already false in our mock
 
     mockGetFormString.mockReturnValue('');
 
     await expectRedirect(
       () => createBout('darwin-special'),
-      /\/bout\/fixed-nanoid-1234567/,
+      /\/sign-in/,
     );
 
-    // Verify insert was called (bout created with null ownerId)
-    expect(mockDb.insert).toHaveBeenCalled();
-    // ensureUserRecord should NOT be called for null userId
+    // No bout should be created for unauthenticated users
+    expect(mockDb.insert).not.toHaveBeenCalled();
     expect(mockEnsureUserRecord).not.toHaveBeenCalled();
   });
 });
