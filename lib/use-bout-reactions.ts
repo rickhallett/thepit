@@ -69,34 +69,37 @@ export function useBoutReactions(
         body: JSON.stringify({ boutId, turnIndex: turn, reactionType }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        // Reconcile with server response
-        if (data.action === 'added' && isRemoving) {
-          // Server added but we expected remove — re-sync
-          setUserReactions((prev) => new Set(prev).add(key));
-          setReactions((prev) => {
-            const current = prev[turn] ?? { heart: 0, fire: 0 };
-            return {
-              ...prev,
-              [turn]: { ...current, [reactionType]: (current[reactionType] ?? 0) + 1 },
-            };
-          });
-        } else if (data.action === 'removed' && !isRemoving) {
-          // Server removed but we expected add — re-sync
-          setUserReactions((prev) => {
-            const next = new Set(prev);
-            next.delete(key);
-            return next;
-          });
-          setReactions((prev) => {
-            const current = prev[turn] ?? { heart: 0, fire: 0 };
-            return {
-              ...prev,
-              [turn]: { ...current, [reactionType]: Math.max(0, (current[reactionType] ?? 0) - 1) },
-            };
-          });
-        }
+      if (!res.ok) {
+        // Non-OK response (rate limited, bad request, etc.) — revert optimistic update
+        throw new Error(`API returned ${res.status}`);
+      }
+
+      const data = await res.json();
+      // Reconcile with server response
+      if (data.action === 'added' && isRemoving) {
+        // Server added but we expected remove — re-sync
+        setUserReactions((prev) => new Set(prev).add(key));
+        setReactions((prev) => {
+          const current = prev[turn] ?? { heart: 0, fire: 0 };
+          return {
+            ...prev,
+            [turn]: { ...current, [reactionType]: (current[reactionType] ?? 0) + 1 },
+          };
+        });
+      } else if (data.action === 'removed' && !isRemoving) {
+        // Server removed but we expected add — re-sync
+        setUserReactions((prev) => {
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
+        setReactions((prev) => {
+          const current = prev[turn] ?? { heart: 0, fire: 0 };
+          return {
+            ...prev,
+            [turn]: { ...current, [reactionType]: Math.max(0, (current[reactionType] ?? 0) - 1) },
+          };
+        });
       }
 
       trackEvent('reaction_submitted', { reactionType, turn, action: isRemoving ? 'removed' : 'added' });

@@ -29,6 +29,10 @@ type ReactionPayload = {
 function validatePayload(payload: ReactionPayload):
   | { error: Response }
   | { boutId: string; turnIndex: number; reactionType: string } {
+  if (!payload || typeof payload !== 'object') {
+    return { error: errorResponse('Invalid request body.', 400) };
+  }
+
   const boutId =
     typeof payload.boutId === 'string' ? payload.boutId.trim() : '';
   const reactionType =
