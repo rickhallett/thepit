@@ -14,7 +14,6 @@ import {
   applyCreditDelta,
   CREDITS_ADMIN_ENABLED,
   CREDITS_ADMIN_GRANT,
-  CREDITS_ENABLED,
   MICRO_PER_CREDIT,
 } from '@/lib/credits';
 import { ensureUserRecord } from '@/lib/users';
@@ -22,7 +21,6 @@ import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
 import { getAgentSnapshots } from '@/lib/agent-registry';
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
-import { getIntroPoolStatus } from '@/lib/intro-pool';
 import {
   DEFAULT_RESPONSE_LENGTH,
   resolveResponseLength,
@@ -66,13 +64,10 @@ export async function createBout(presetId: string, formData?: FormData) {
 
   const { userId } = await auth();
 
-  // Allow anonymous bouts during intro pool phase
-  if (CREDITS_ENABLED && !userId) {
-    const poolStatus = await getIntroPoolStatus();
-    if (poolStatus.exhausted) {
-      redirect('/sign-in?redirect_url=/arena&reason=pool-exhausted');
-    }
-    // Intro pool has credits — allow anonymous bout creation
+  // Require authentication for all bouts — captures every user for the
+  // first-bout Opus promotion and prevents anonymous free-pool drain.
+  if (!userId) {
+    redirect('/sign-in?redirect_url=/arena');
   }
 
   const db = requireDb();
@@ -84,16 +79,14 @@ export async function createBout(presetId: string, formData?: FormData) {
   const lengthConfig = resolveResponseLength(length);
   const formatConfig = resolveResponseFormat(format);
 
-  if (userId) {
-    await ensureUserRecord(userId);
-  }
+  await ensureUserRecord(userId);
 
   await db.insert(bouts).values({
     id,
     presetId,
     status: 'running',
     transcript: [],
-    ownerId: userId ?? null,
+    ownerId: userId,
     topic: topic ?? null,
     responseLength: lengthConfig.id,
     responseFormat: formatConfig.id,
@@ -119,12 +112,9 @@ export async function createBout(presetId: string, formData?: FormData) {
 export async function createArenaBout(formData: FormData) {
   const { userId } = await auth();
 
-  // Allow anonymous arena bouts during intro pool phase
-  if (CREDITS_ENABLED && !userId) {
-    const poolStatus = await getIntroPoolStatus();
-    if (poolStatus.exhausted) {
-      redirect('/sign-in?redirect_url=/arena/custom&reason=pool-exhausted');
-    }
+  // Require authentication for all bouts.
+  if (!userId) {
+    redirect('/sign-in?redirect_url=/arena/custom');
   }
 
   const agentIds = formData.getAll('agentIds').filter(Boolean) as string[];
@@ -155,9 +145,7 @@ export async function createArenaBout(formData: FormData) {
     throw new Error('One or more agents could not be found.');
   }
 
-  if (userId) {
-    await ensureUserRecord(userId);
-  }
+  await ensureUserRecord(userId);
 
   const db = requireDb();
   const id = nanoid();
@@ -166,7 +154,7 @@ export async function createArenaBout(formData: FormData) {
     presetId: ARENA_PRESET_ID,
     status: 'running',
     transcript: [],
-    ownerId: userId ?? null,
+    ownerId: userId,
     topic: topic || null,
     responseLength: lengthConfig.id,
     responseFormat: formatConfig.id,
