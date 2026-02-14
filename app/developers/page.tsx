@@ -97,7 +97,7 @@ export default function DevelopersPage() {
             </p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Five CLIs. One mission.
+            Four CLIs. One mission.
           </h2>
           <div className="mt-12 grid gap-8 md:grid-cols-2">
             {TOOLS.map((tool) => (

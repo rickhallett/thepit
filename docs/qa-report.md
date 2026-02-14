@@ -1,821 +1,397 @@
-# THE PIT - Comprehensive QA Report
+# THE PIT - Launch QA Report
 
 ```yaml
 ---
-version: "1.0.0"
-generated: "2026-02-13"
+version: "2.0.0"
+generated: "2026-02-14"
 application: "THE PIT - AI Battle Arena"
-total_categories: 13
+url: "https://thepit.cloud"
+estimated_time: "2-3 hours"
 legend:
-  qa: "x = tested, _ = not tested"
-  func: "x = working, _ = not verified"
-  broken: "x = broken, _ = not broken"
-pattern: "- [ ] `[qa:_][func:_][broken:_]` **{ID}**: {story}"
+  "[ ]": "Not tested"
+  "[x]": "Pass"
+  "[FAIL]": "Failed — note the issue, keep going, triage at end"
+priority:
+  P0: "Blocker — fix before launch (payments, crashes, security)"
+  P1: "Critical — fix before launch (broken layout, mobile unusable)"
+  P2: "Polish — can launch with (typos, animation jitter)"
+  P3: "Nice-to-have — post-launch (empty states, minor copy)"
 ---
 ```
 
----
-
-## 1. Navigation & Layout
-
-### 1.1 Site Header
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-001**: As a user, I can see the site logo "THE PIT" which links to home page
-  - Expected: Logo visible in header, clicking navigates to `/`
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-002**: As a user, I can see navigation links: Home, Arena, All agents, Leaderboard, Research, Roadmap, Contact, Feedback
-  - Expected: 8 navigation links visible in desktop header
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-003**: As a user, I can see the current page highlighted in the navigation
-  - Expected: Active page link has accent color border
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-004**: As a mobile user, I can tap hamburger menu to open navigation drawer
-  - Expected: Menu icon visible on mobile, opens drawer with all nav links
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-005**: As a mobile user, I can see auth controls (sign in/out) in the mobile drawer
-  - Expected: Sign in/Sign up buttons visible in mobile drawer when not authenticated
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-006**: As a mobile user, tapping a nav link closes the drawer
-  - Expected: Drawer closes after navigation link click
-
-### 1.2 Site Footer
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-007**: As a user, I can access Privacy, Terms, Disclaimer, Security links from footer
-  - Expected: Footer contains links to legal pages
-
-- [ ] `[qa:_][func:_][broken:_]` **NAV-008**: As a user, I can see copyright notice in footer
-  - Expected: Copyright text displayed
+**Instructions:**
+1. Execute every line. Do not skip.
+2. If a line fails, mark `[FAIL]`, write a note, keep going. Do not fix inline.
+3. Finish the full list. Then triage: fix P0s and P1s. Ignore P2s and P3s.
+4. When every P0 and P1 is resolved, launch.
 
 ---
 
-## 2. Authentication
+## 0. Pre-Flight (5 mins)
 
-### 2.1 Sign In
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-001**: As an anonymous user, I can see "Sign In" button in header
-  - Expected: Sign In button visible when not authenticated
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-002**: As an anonymous user, I can click Sign In to open Clerk modal
-  - Expected: Clerk sign-in modal opens on click
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-003**: As a user, I can sign in with email/password
-  - Expected: Email/password authentication works
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-004**: As a user, I can sign in with Google OAuth
-  - Expected: Google SSO redirects and authenticates
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-005**: As a user, after signing in I am redirected to my original page
-  - Expected: `redirect_url` parameter honored after auth
-
-### 2.2 Sign Up
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-006**: As an anonymous user, I can see "Sign Up" button in header
-  - Expected: Sign Up button visible when not authenticated
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-007**: As a new user, I can create account with email
-  - Expected: Email registration creates new account
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-008**: As a new user, my profile is synced to local database
-  - Expected: `users` table contains email, displayName, imageUrl after signup
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-009**: As a new user with referral code, the code is tracked
-  - Expected: `?ref=CODE` sets `pit_ref` cookie for 30 days
-
-### 2.3 Session Management
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-010**: As an authenticated user, I can see my avatar/user button in header
-  - Expected: Clerk UserButton replaces Sign In/Up buttons
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-011**: As an authenticated user, I can click avatar to see account menu
-  - Expected: Dropdown shows profile, settings, sign out options
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-012**: As an authenticated user, I can sign out
-  - Expected: Clicking sign out clears session, redirects to home
-
-- [ ] `[qa:_][func:_][broken:_]` **AUTH-013**: As a user, my session persists across page refreshes
-  - Expected: Clerk JWT maintains session state
+- [ ] **PRE-001:** Open `https://thepit.cloud` in Chrome Incognito (desktop).
+- [ ] **PRE-002:** Open DevTools Console. Note any red errors on initial load.
+  - _Ignore: generic hydration warnings. Watch for: 404s, failed fetches, Clerk errors._
+- [ ] **PRE-003:** Open `https://thepit.cloud` on your physical phone (Safari/Chrome).
+- [ ] **PRE-004:** Verify HTTPS padlock is present (no mixed content warnings).
+- [ ] **PRE-005:** Check `https://thepit.cloud/api/health` returns 200 with DB latency.
 
 ---
 
-## 3. Home Page
+## 1. Navigation & Layout (10 mins)
 
-### 3.1 Hero Section
+### Desktop
+- [ ] **NAV-001:** Site Header logo "THE PIT" links to `/`.
+- [ ] **NAV-002:** All 9 desktop nav links work: Home, Arena, All agents, Leaderboard, Research, Developers, Roadmap, Contact, Feedback.
+- [ ] **NAV-003:** Current page link is highlighted with accent color.
+- [ ] **NAV-004:** "Developers" link is visible in the header nav (newly added).
 
-- [ ] `[qa:_][func:_][broken:_]` **HOME-001**: As a visitor, I see the hero title "Where agents collide"
-  - Expected: Large hero text visible above fold
+### Mobile
+- [ ] **NAV-005:** Hamburger menu button appears on mobile viewport.
+- [ ] **NAV-006:** Hamburger opens/closes smoothly (no layout jump).
+- [ ] **NAV-007:** Clicking a menu link closes the menu AND navigates.
+- [ ] **NAV-008:** "Developers" link appears in the mobile menu.
 
-- [ ] `[qa:_][func:_][broken:_]` **HOME-002**: As a visitor, I can click "Enter the Arena" CTA
-  - Expected: Button navigates to `/arena`
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-003**: As a visitor, I can click "How It Works" link
-  - Expected: Scrolls to or navigates to explanation section
-
-### 3.2 How It Works
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-004**: As a visitor, I can see 4-step journey: Pick, Watch, Decide, Clone
-  - Expected: 4 cards explaining the user journey
-
-### 3.3 Featured Presets
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-005**: As a visitor, I can see featured preset highlights
-  - Expected: Grid shows Darwin Special, Roast Battle, Last Supper, On the Couch
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-006**: As a visitor, I can click a featured preset to launch it
-  - Expected: Clicking preset card navigates to arena or launches bout
-
-### 3.4 Pricing Section
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-007**: As a visitor, I can see 3-tier pricing: Free, Pit Pass, Pit Lab
-  - Expected: Pricing cards show £0, £3/mo, £10/mo
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-008**: As a visitor, I can see feature comparison between tiers
-  - Expected: Bouts/day, models, agents listed per tier
-
-### 3.5 Newsletter
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-009**: As a visitor, I can enter email to subscribe to newsletter
-  - Expected: Email input field with "Notify me" button
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-010**: As a visitor, submitting email shows success message
-  - Expected: "You're on the list" confirmation after valid email
-
-- [ ] `[qa:_][func:_][broken:_]` **HOME-011**: As a visitor, submitting invalid email shows error
-  - Expected: Validation error for malformed email
+### Footer
+- [ ] **NAV-009:** Footer renders with copyright.
+- [ ] **NAV-010:** "Developers" link appears in footer (newly added).
+- [ ] **NAV-011:** "Privacy" link loads `/privacy` with content.
+- [ ] **NAV-012:** "Terms" link loads `/terms` with content.
+- [ ] **NAV-013:** "Security" link loads `/security` with content.
+- [ ] **NAV-014:** "Disclaimer" link loads `/disclaimer` with content.
+- [ ] **NAV-015:** Social links render only if enabled (env-gated). If shown, they open in new tabs.
 
 ---
 
-## 4. Arena Page
+## 2. Home Page — The "5-Second Test" (10 mins)
 
-### 4.1 Header & Status
+_Goal: A stranger can understand what this product does in 5 seconds._
 
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-001**: As an authenticated user, I see my tier badge (Free/Pit Pass/Pit Lab)
-  - Expected: Badge shows current subscription tier
+### Hero
+- [ ] **HOME-001:** Hero text loads instantly without layout shift.
+- [ ] **HOME-002:** "Enter the Arena" CTA is visible above the fold.
+- [ ] **HOME-003:** CTA links to `/arena` (or `/sign-up?redirect_url=/arena` for guests).
 
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-002**: As a free tier user, I see "X of 15 lifetime bouts remaining"
-  - Expected: Lifetime bout counter visible for free tier
+### How It Works
+- [ ] **HOME-004:** 3-step section renders (Pick, Watch, Vote or similar).
 
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-003**: As an authenticated user, I see my credit balance
-  - Expected: Credits displayed in header when CREDITS_ENABLED
+### Featured Presets
+- [ ] **HOME-005:** Preset cards render with names and descriptions.
 
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-004**: As a user, I see the intro pool counter with drain rate
-  - Expected: "Intro pool: X credits left" with live countdown
+### Research Layer
+- [ ] **HOME-006:** Research section renders with headline and body copy.
 
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-005**: As a user, I see the free bout pool counter (X of Y daily)
-  - Expected: FreeBoutCounter shows used/max bouts
+### Builder Showcase (NEW)
+- [ ] **HOME-007:** Terminal-styled showcase renders between Research and Pricing.
+- [ ] **HOME-008:** Left column: headline, body copy, 2 CTAs visible.
+- [ ] **HOME-009:** "API Reference" CTA links to `/docs/api`.
+- [ ] **HOME-010:** "CLI Toolchain" CTA links to `/developers`.
+- [ ] **HOME-011:** Right column: fake terminal renders `pitforge` commands.
+- [ ] **HOME-012:** **MOBILE:** Terminal does NOT overflow horizontally. Code is readable.
+- [ ] **HOME-013:** **MOBILE:** The entire showcase section is usable without horizontal scroll.
 
-### 4.2 Preset Cards
+### Pricing
+- [ ] **HOME-014:** 3 pricing cards render: Free / Pit Pass / Pit Lab.
+- [ ] **HOME-015:** Free tier shows correct features.
+- [ ] **HOME-016:** Pit Lab shows "Headless API access" and "CLI toolchain (pitforge)" (newly added).
+- [ ] **HOME-017:** Prices are correct (verify against Stripe dashboard).
 
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-006**: As a user, I can see all available presets in a grid
-  - Expected: 22+ preset cards displayed in 2-column grid
+### Intro Pool Counter
+- [ ] **HOME-018:** Counter is visible and ticking down.
+- [ ] **HOME-019:** Counter decrements roughly every second.
+- [ ] **HOME-020:** If pool is exhausted, shows "Pool drained" message with sign-up link.
 
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-007**: As a user, I can see preset name, description, and agent colors
-  - Expected: Each card shows preset metadata
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-008**: As a user, I can see "Premium" badge on premium presets
-  - Expected: Premium tier presets have accent-colored badge
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-009**: As a user, I can enter an optional topic for the bout
-  - Expected: Topic input field in preset card
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-010**: As a user, I can select response length (short/standard/long)
-  - Expected: Dropdown with 3 length options
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-011**: As a user, I can select response format (plain/verse/roast)
-  - Expected: Dropdown with 3 format options
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-012**: As a premium user, I can select model (Haiku/Sonnet/Opus)
-  - Expected: Model dropdown shows available models per tier
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-013**: As a BYOK user, I can enter my Anthropic API key
-  - Expected: Password input appears when BYOK model selected
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-014**: As a user, I can see estimated credit cost per model
-  - Expected: Credit cost badges show "Haiku X cr, Sonnet Y cr"
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-015**: As a user, clicking "Enter" button launches the bout
-  - Expected: Form submits, redirects to `/bout/[id]`
-
-### 4.3 Custom Arena Link
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-016**: As a user, I can click "Build your own lineup" card
-  - Expected: Card navigates to `/arena/custom`
-
-### 4.4 Subscription Section
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-017**: As an unauthenticated user, I see "Sign up to subscribe" links
-  - Expected: Links point to `/sign-up?redirect_url=/arena#upgrade`
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-018**: As a free tier user, I see "Subscribe" buttons for Pass and Lab
-  - Expected: Two subscription cards with pricing
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-019**: As a paid user, I see "Manage subscription" link
-  - Expected: Link opens Stripe billing portal
-
-### 4.5 Credit Packs
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-020**: As a user, I can see credit pack options with prices
-  - Expected: Starter (£3/300cr), Plus (£8/800cr) cards
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-021**: As an authenticated user, clicking "Buy" opens Stripe checkout
-  - Expected: Redirect to Stripe payment page
-
-### 4.6 Credit History
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-022**: As an authenticated user, I can see my last 12 credit transactions
-  - Expected: Table shows date, source, delta, reference
-
-### 4.7 Anonymous Bout Flow
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-023**: As an anonymous user during intro pool, I can launch a bout
-  - Expected: Bout creation succeeds without sign-in when pool has credits
-
-- [ ] `[qa:_][func:_][broken:_]` **ARENA-024**: As an anonymous user when intro pool exhausted, I am redirected to sign-in
-  - Expected: Redirect to `/sign-in?redirect_url=/arena`
+### Newsletter
+- [ ] **HOME-021:** Newsletter signup form renders.
+- [ ] **HOME-022:** Submit a test email. Confirm no error. (Check Resend dashboard for delivery.)
 
 ---
 
-## 5. Bout Streaming
+## 3. The Developers Page (NEW) (10 mins)
 
-### 5.1 Bout Initialization
+_Goal: An AI engineer visiting from HN finds this page credible and useful._
 
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-001**: As a user, navigating to `/bout/[id]` shows "Warming up" status
-  - Expected: Status badge shows "Warming up" initially
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-002**: As a user, the bout automatically starts streaming
-  - Expected: `useBout` hook initiates fetch to `/api/run-bout`
-
-### 5.2 Live Streaming
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-003**: As a user, I see agent turns appear in sequence
-  - Expected: Each turn shows agent name, color badge, then streaming text
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-004**: As a user, I see text stream character-by-character
-  - Expected: Text deltas render progressively, not all at once
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-005**: As a user, the active agent is highlighted
-  - Expected: Current speaker has visual emphasis
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-006**: As a user, the page auto-scrolls to follow new content
-  - Expected: Viewport scrolls as new text appears
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-007**: As a user, I can toggle auto-scroll off
-  - Expected: Toggle button disables auto-scroll behavior
-
-### 5.3 Bout Completion
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-008**: As a user, when bout completes I see "Complete" status
-  - Expected: Status badge changes to "Complete"
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-009**: As a user, I see the share line quote generated
-  - Expected: AI-generated quote appears (max 140 chars)
-
-### 5.4 Reactions
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-010**: As a user, I can click heart ❤️ reaction on any turn
-  - Expected: Heart icon clickable, count increments
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-011**: As a user, I can click fire 🔥 reaction on any turn
-  - Expected: Fire icon clickable, count increments
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-012**: As a user, I can only react once per type per turn
-  - Expected: Duplicate reactions ignored (onConflictDoNothing)
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-013**: As a user, I can see total reaction counts per turn
-  - Expected: Reaction badges show aggregate counts
-
-### 5.5 Winner Voting
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-014**: As an authenticated user, I can vote for the winning agent
-  - Expected: Click agent to cast vote
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-015**: As a user, I can see vote counts per agent
-  - Expected: Vote totals displayed per agent
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-016**: As a user, I can only vote once per bout
-  - Expected: Second vote attempt ignored
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-017**: As a user, my vote is visually highlighted
-  - Expected: Voted agent shows "Your vote" indicator
-
-### 5.6 Sharing
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-018**: As a user, I can click "Copy link" to copy bout URL
-  - Expected: Permalink copied to clipboard
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-019**: As a user, copying shows visual confirmation
-  - Expected: Button text changes to "Copied!" briefly
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-020**: As a user, I can share via short link `/s/[slug]`
-  - Expected: Short link resolves to full bout URL
-
-### 5.7 Error States
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-021**: As a user, if bout times out I see timeout error
-  - Expected: "The bout timed out" message displayed
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-022**: As a user, if rate limited I see rate limit error
-  - Expected: "API rate limited" message displayed
-
-- [ ] `[qa:_][func:_][broken:_]` **BOUT-023**: As a user, if bout fails I see "Faulted" status
-  - Expected: Status badge shows "Faulted" with error message
+- [ ] **DEV-001:** Navigate to `/developers`.
+- [ ] **DEV-002:** Hero section: "The Arena is an API." headline renders.
+- [ ] **DEV-003:** Toolchain grid: 4 cards (pitforge, pitbench, pitnet, pitlab).
+- [ ] **DEV-004:** Heading says "Four CLIs. One mission." (not "Five").
+- [ ] **DEV-005:** Each card has a code snippet that is legible.
+- [ ] **DEV-006:** Each "View source" link opens GitHub in a new tab.
+- [ ] **DEV-007:** Verify all 4 GitHub links resolve (not 404):
+  - [ ] `github.com/rickhallett/thepit/tree/master/pitforge`
+  - [ ] `github.com/rickhallett/thepit/tree/master/pitbench`
+  - [ ] `github.com/rickhallett/thepit/tree/master/pitnet`
+  - [ ] `github.com/rickhallett/thepit/tree/master/pitlab`
+- [ ] **DEV-008:** Workflow section: 3 numbered steps with CLI commands.
+- [ ] **DEV-009:** "Get Lab Access" CTA links to `/arena#upgrade`.
+- [ ] **DEV-010:** "API Reference" CTA links to `/docs/api`.
+- [ ] **DEV-011:** **MOBILE:** Page is readable. Code blocks do not overflow.
 
 ---
 
-## 6. Custom Arena Builder
+## 4. API Documentation (10 mins)
 
-### 6.1 Agent Selection
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-001**: As a user, I can search agents by name
-  - Expected: Search input filters agent list in real-time
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-002**: As a user, I can select 2-6 agents for the lineup
-  - Expected: Checkbox selection with min 2, max 6 enforcement
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-003**: As a user, I see selected agents in lineup preview
-  - Expected: Selected agents shown with color badges
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-004**: As a user, I can remove agents from selection
-  - Expected: X button removes agent from lineup
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-005**: As a user, I see selection count "X/6 selected"
-  - Expected: Counter updates as agents selected/removed
-
-### 6.2 Bout Configuration
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-006**: As a user, I can enter a topic for the custom bout
-  - Expected: Topic input field with 500 char limit
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-007**: As a user, I can select model for custom bout
-  - Expected: Model dropdown shows available options per tier
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-008**: As a user, I can select response length and format
-  - Expected: Dropdowns for length (3 options) and format (3 options)
-
-### 6.3 Submission
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-009**: As a user, clicking "Launch" with <2 agents shows error
-  - Expected: "Select between 2 and 6 agents" error
-
-- [ ] `[qa:_][func:_][broken:_]` **CUSTOM-010**: As a user, valid submission creates bout and redirects
-  - Expected: Navigates to `/bout/[id]` with custom lineup
+- [ ] **DOCS-001:** Navigate to `/docs/api`.
+- [ ] **DOCS-002:** Scalar API reference page loads (not blank, not error).
+- [ ] **DOCS-003:** Endpoint definitions are visible and readable.
+- [ ] **DOCS-004:** Try "Send Request" on a public endpoint (e.g., GET /api/health). Does it work?
+- [ ] **DOCS-005:** This page works **without** being logged in (spec is now public).
 
 ---
 
-## 7. Agents
+## 5. Authentication (Clerk) (10 mins)
 
-### 7.1 Agents Catalog
+_Use a fresh Incognito window for this section._
 
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-001**: As a user, I can see all agents in a grid
-  - Expected: 2-column grid of agent cards
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-002**: As a user, I can search agents by name, preset, or ID
-  - Expected: Search filters agents in real-time
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-003**: As a user, I can filter by preset dropdown
-  - Expected: Dropdown lists all presets, selecting filters grid
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-004**: As a user, I can filter by tier (Free/Premium/Custom)
-  - Expected: Tier dropdown filters agent list
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-005**: As a user, I see agent count "X ranked"
-  - Expected: Count updates based on filters
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-006**: As a user, clicking agent card opens details modal
-  - Expected: Modal shows full agent information
-
-### 7.2 Agent Details Page
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-007**: As a user, I can see agent name and preset association
-  - Expected: Header shows name and preset name
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-008**: As a user, I can see tier, response length, format badges
-  - Expected: Badges show agent configuration
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-009**: As a user, I can see agent lineage (parent chain)
-  - Expected: Clickable ancestor links if agent has parentId
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-010**: As a user, I can see full system prompt ("Prompt DNA")
-  - Expected: Scrollable code block with prompt text
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-011**: As a user, I can see structured DNA fields
-  - Expected: Archetype, tone, quirks, speech pattern, moves, weakness, goal, fears
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-012**: As a user, I can see on-chain hashes and attestation link
-  - Expected: promptHash, manifestHash, EAS attestation URL if attested
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-013**: As a user, I can click "Clone & remix" button
-  - Expected: Navigates to `/agents/clone?source=[id]`
-
-### 7.3 Agent Creation
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-014**: As an authenticated user, I can click "Create agent" button
-  - Expected: Button navigates to `/agents/new`
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-015**: As a user, I see tabbed form: Basics, Personality, Tactics, Advanced
-  - Expected: 4-tab navigation in builder
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-016**: As a user, I can enter agent name (1-80 chars)
-  - Expected: Name input with validation
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-017**: As a user, I can set archetype, tone, quirks
-  - Expected: Personality tab has these inputs
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-018**: As a user, I can add up to 10 quirks
-  - Expected: Add/remove buttons, max 10 items
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-019**: As a user, I can set opening move, signature move, weakness, goal, fears
-  - Expected: Tactics tab has these textareas
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-020**: As a user, I can set custom instructions (max 5000 chars)
-  - Expected: Advanced tab has custom instructions textarea
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-021**: As a user, I see live prompt preview updating as I type
-  - Expected: Preview panel shows generated system prompt
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-022**: As a user, submitting creates agent and shows success
-  - Expected: Agent ID returned, success feedback shown
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-023**: As a free tier user with 1 agent, creation fails
-  - Expected: "No agent slots available" error (402)
-
-### 7.4 Agent Cloning
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-024**: As a user, clone form pre-populates with source agent data
-  - Expected: All fields filled from parent agent
-
-- [ ] `[qa:_][func:_][broken:_]` **AGENT-025**: As a user, cloned agent shows parentId in lineage
-  - Expected: New agent linked to original via parentId
+- [ ] **AUTH-001:** Click "Sign In" in header. Redirects to Clerk sign-in page.
+- [ ] **AUTH-002:** Clerk page loads without errors (no CSP blocks, no blank page).
+- [ ] **AUTH-003:** Sign up with a new test email (e.g., `test+launch@yourdomain.com`).
+- [ ] **AUTH-004:** Email verification (if enabled) works — check inbox.
+- [ ] **AUTH-005:** After sign-up, redirects back to the app (not stuck on Clerk).
+- [ ] **AUTH-006:** User avatar/name appears in header after login.
+- [ ] **AUTH-007:** Intro bonus credits appear (check header balance — should be ~500-600).
+- [ ] **AUTH-008:** Sign out. Session clears. Header reverts to "Sign In" button.
+- [ ] **AUTH-009:** Sign back in. Session restores correctly.
 
 ---
 
-## 8. Leaderboard
+## 6. The Core Loop — Free Tier Bout (20 mins)
 
-### 8.1 View Modes
+_This is the main value proposition. Test on both desktop AND mobile._
 
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-001**: As a user, I can toggle between PIT and PLAYER views
-  - Expected: Toggle switches between agent rankings and creator rankings
+### Bout Start
+- [ ] **BOUT-001:** Go to `/arena`. Preset cards render in a grid.
+- [ ] **BOUT-002:** Click a Free preset (e.g., "Roast Battle").
+- [ ] **BOUT-003:** Redirects to `/bout/[id]`.
+- [ ] **BOUT-004:** Status shows "Warming Up" initially.
+- [ ] **BOUT-005:** Status transitions to "Live" when streaming starts.
 
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-002**: As a user, I can filter by time range: All time, This week, Today
-  - Expected: Time toggle updates leaderboard data
+### The Stream
+- [ ] **BOUT-006:** Text streams visibly (not dumped all at once).
+- [ ] **BOUT-007:** "Thinking..." indicator appears between turns (2-4s delay).
+- [ ] **BOUT-008:** Auto-scroll keeps the latest text in view as it streams.
+- [ ] **BOUT-009:** Scroll UP manually. Auto-scroll pauses.
+- [ ] **BOUT-010:** "Jump to Latest" button appears when scrolled up.
+- [ ] **BOUT-011:** Click "Jump to Latest". Scrolls back to bottom, auto-scroll resumes.
+- [ ] **BOUT-012:** Watch the entire bout to completion.
+- [ ] **BOUT-013:** Status changes to "Complete".
 
-### 8.2 Agent Leaderboard (PIT)
+### Post-Bout
+- [ ] **BOUT-014:** "Share Line" (AI summary) appears at the bottom.
+- [ ] **BOUT-015:** Vote panel appears. Cast a vote for a winner.
+- [ ] **BOUT-016:** UI updates to "Vote Locked" (cannot change vote).
+- [ ] **BOUT-017:** Refresh the page. Full transcript loads instantly (replay mode, not re-streamed).
 
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-003**: As a user, I see agents ranked by votes
-  - Expected: Table sorted by vote count descending
-
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-004**: As a user, I can see agent name, preset, bouts, wins, win%, votes
-  - Expected: 7-column table with these metrics
-
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-005**: As a user, I can click column headers to sort
-  - Expected: Clicking Wins, Win%, Votes sorts table
-
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-006**: As a user, I can click agent name to see details
-  - Expected: Opens agent details modal
-
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-007**: As a user, I can click "Replay" link to watch best bout
-  - Expected: Navigates to `/b/[bestBoutId]`
-
-### 8.3 Creator Leaderboard (PLAYER)
-
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-008**: As a user, I see creators ranked by total votes
-  - Expected: Table sorted by vote count descending
-
-- [ ] `[qa:_][func:_][broken:_]` **LEADER-009**: As a user, I can see creator name, agents created, total credits earned
-  - Expected: Creator metrics displayed
+### Mobile Streaming (repeat on phone)
+- [ ] **BOUT-018:** **PHONE:** Start a bout. Does it load?
+- [ ] **BOUT-019:** **PHONE:** Does auto-scroll work? Text stays pinned to bottom?
+- [ ] **BOUT-020:** **PHONE:** Does the page wiggle horizontally? (Overflow test)
 
 ---
 
-## 9. Research
+## 7. Engagement & Sharing (10 mins)
 
-### 9.1 Research Overview
+- [ ] **SOC-001:** Click "Heart" reaction on a message. Counter increments by 1.
+- [ ] **SOC-002:** Click "Heart" again. Does it toggle off, or stay? (Document behavior.)
+- [ ] **SOC-003:** Click "Fire" reaction. Counter increments.
+- [ ] **SOC-004:** Rapid-click a reaction 20 times. Does the UI crash? Does rate limiting trigger gracefully?
+- [ ] **SOC-005:** Click "Share" button. Link is copied to clipboard (toast or "Copied" text).
+- [ ] **SOC-006:** Paste the shared link in a new Incognito window. Replay page (`/b/[id]`) loads.
+- [ ] **SOC-007:** Replay shows full transcript without streaming.
+- [ ] **SOC-008:** Replay page shows OG metadata (check page title in browser tab).
 
-- [ ] `[qa:_][func:_][broken:_]` **RESEARCH-001**: As a user, I can read about data collection practices
-  - Expected: "What we study" and "Data handling" sections
-
-- [ ] `[qa:_][func:_][broken:_]` **RESEARCH-002**: As a user, I can click to view full literature review
-  - Expected: Link to `/research/citations`
-
-### 9.2 Citations Page
-
-- [ ] `[qa:_][func:_][broken:_]` **RESEARCH-003**: As a user, I can see 18 cited research papers
-  - Expected: Literature review with paper titles, authors, links
-
-### 9.3 Data Export
-
-- [ ] `[qa:_][func:_][broken:_]` **RESEARCH-004**: As a user, I can see latest export metadata
-  - Expected: Version, date, record counts displayed
-
-- [ ] `[qa:_][func:_][broken:_]` **RESEARCH-005**: As a user, I can download research dataset JSON
-  - Expected: Click triggers `thepit-research-export-[id].json` download
+### OG Card / Social Unfurl
+- [ ] **SOC-009:** Paste a bout URL into Slack/Discord. Does an OG card render with title and image?
+- [ ] **SOC-010:** Paste `https://thepit.cloud` into Slack/Discord. Does the homepage OG card render?
+- [ ] **SOC-011:** (Optional) Use https://cards-dev.twitter.com/validator or similar to verify Twitter card.
 
 ---
 
-## 10. Feedback
+## 8. Custom Arena — Builder Flow (10 mins)
 
-### 10.1 Feature Request Submission
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-001**: As an authenticated user, I can submit a feature request
-  - Expected: Form with title, description, category
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-002**: As a user, title must be 5-200 characters
-  - Expected: Validation error if outside range
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-003**: As a user, description must be 20-3000 characters
-  - Expected: Validation error if outside range
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-004**: As a user, I can select category: Agents, Arena, Presets, Research, UI, Other
-  - Expected: 6 category options in dropdown
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-005**: As an unauthenticated user, I see sign-in prompt
-  - Expected: Cannot submit without authentication
-
-### 10.2 Community Voting
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-006**: As a user, I can see all feature requests sorted by votes
-  - Expected: Requests listed with vote counts
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-007**: As an authenticated user, I can vote for a request
-  - Expected: Vote button increments count
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-008**: As a user, I can only vote once per request
-  - Expected: Second vote toggles off (unvote)
-
-- [ ] `[qa:_][func:_][broken:_]` **FEEDBACK-009**: As a user, I can see which requests I've voted for
-  - Expected: Visual indicator on voted requests
+- [ ] **BUILD-001:** Navigate to `/arena/custom`.
+- [ ] **BUILD-002:** Search for an agent (e.g., "Socrates").
+- [ ] **BUILD-003:** Select 2 agents. "Launch" button becomes active.
+- [ ] **BUILD-004:** Select a 7th agent. UI prevents selection (max 6 cap).
+- [ ] **BUILD-005:** Enter a custom topic.
+- [ ] **BUILD-006:** Launch the bout. Custom bout runs with selected agents and topic.
+- [ ] **BUILD-007:** Bout completes successfully.
 
 ---
 
-## 11. Contact
+## 9. Credits & Payments — Real Money (15 mins)
 
-- [ ] `[qa:_][func:_][broken:_]` **CONTACT-001**: As a user, I can fill out contact form with name, email, message
-  - Expected: 3 input fields visible
+_**WARNING:** This uses real Stripe in live mode. Use a real card._
 
-- [ ] `[qa:_][func:_][broken:_]` **CONTACT-002**: As a user, submitting sends email via Resend
-  - Expected: Form submits, shows loading state
+- [ ] **PAY-001:** Check current credit balance in header.
+- [ ] **PAY-002:** Click "Buy Credits" / upgrade CTA.
+- [ ] **PAY-003:** Stripe Checkout page loads (correct amount, correct currency).
+- [ ] **PAY-004:** Complete payment with real card.
+- [ ] **PAY-005:** Redirects back to `/arena` (not stuck on Stripe, not a blank page).
+- [ ] **PAY-006:** Credit balance in header updates (confirms webhook hit the DB).
+- [ ] **PAY-007:** Run a premium bout. Verify credits deduct by expected amount.
+- [ ] **PAY-008:** Check credit history section in `/arena`. Transaction appears.
 
-- [ ] `[qa:_][func:_][broken:_]` **CONTACT-003**: As a user, successful submission shows confirmation
-  - Expected: Success message displayed
-
-- [ ] `[qa:_][func:_][broken:_]` **CONTACT-004**: As a user, invalid email shows validation error
-  - Expected: Email format validated
-
-- [ ] `[qa:_][func:_][broken:_]` **CONTACT-005**: As a user, message has 5000 char limit
-  - Expected: Validation error if exceeded
-
----
-
-## 12. Credits & Billing
-
-### 12.1 Credit Balance
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-001**: As a new user, I start with 500 credits
-  - Expected: Initial balance from CREDITS_STARTING_CREDITS
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-002**: As a user, credit balance displays on arena page
-  - Expected: "Credits: X.XX" visible in header
-
-### 12.2 Intro Pool
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-003**: As a new user, I receive 100 credits from intro pool
-  - Expected: Signup bonus from shared pool
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-004**: As a user, intro pool drains 1 credit/minute over time
-  - Expected: Counter decreases even without claims
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-005**: As a referrer, I receive 50 credits when referral signs up
-  - Expected: Referral bonus credited
-
-### 12.3 Credit Purchases
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-006**: As a user, I can purchase Starter pack (£3/300 credits)
-  - Expected: Stripe checkout completes, credits added
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-007**: As a user, I can purchase Plus pack (£8/800 credits)
-  - Expected: Stripe checkout completes, credits added
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-008**: As a user, after purchase I see success banner
-  - Expected: "Credits added to your account" message
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-009**: As a user, cancelled checkout shows cancel message
-  - Expected: "Checkout cancelled" message
-
-### 12.4 Credit Consumption
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-010**: As a user, bout preauthorizes estimated credits
-  - Expected: Balance decreases at bout start
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-011**: As a user, actual cost settles after bout completes
-  - Expected: Refund if actual < estimate, charge if actual > estimate
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-012**: As a user with insufficient credits, bout creation fails
-  - Expected: "Insufficient credits" error (402)
-
-### 12.5 Subscriptions
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-013**: As a user, I can subscribe to Pit Pass (£3/mo)
-  - Expected: Stripe subscription checkout, tier upgraded
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-014**: As a user, I can subscribe to Pit Lab (£10/mo)
-  - Expected: Stripe subscription checkout, tier upgraded
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-015**: As a subscriber, I can manage subscription via billing portal
-  - Expected: Stripe portal opens for upgrade/downgrade/cancel
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-016**: As a user with failed payment, I am downgraded to free
-  - Expected: Webhook handles invoice.payment_failed
-
-- [ ] `[qa:_][func:_][broken:_]` **CREDIT-017**: As a user who cancels, subscription ends at period end
-  - Expected: Tier reverts to free when period expires
+### Stripe Edge Cases
+- [ ] **PAY-009:** Start checkout. Hit browser "Back" button before completing. Return to site. No crash, no phantom credits.
+- [ ] **PAY-010:** (If subscriptions enabled) Verify Pit Pass / Pit Lab pricing and checkout flow.
 
 ---
 
-## 13. API Endpoints
+## 10. BYOK — Bring Your Own Key (10 mins)
 
-### 13.1 Bout API
+_Requires a valid Anthropic API key (`sk-ant-...`)._
 
-- [ ] `[qa:_][func:_][broken:_]` **API-001**: POST /api/run-bout returns streaming event response
-  - Expected: SSE stream with start, data-turn, text-delta, text-end events
-
-- [ ] `[qa:_][func:_][broken:_]` **API-002**: POST /api/v1/bout returns JSON bout result (Lab tier only)
-  - Expected: `{ boutId, status, transcript, shareLine, agents, usage }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-003**: Bout API rate limits to 5/hour for authenticated, 2/hour for anon
-  - Expected: 429 response after limit exceeded
-
-### 13.2 Agent API
-
-- [ ] `[qa:_][func:_][broken:_]` **API-004**: POST /api/agents creates agent with validation
-  - Expected: `{ agentId, promptHash, manifestHash }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-005**: Agent API rejects names with URLs
-  - Expected: 400 response for URL/script patterns
-
-- [ ] `[qa:_][func:_][broken:_]` **API-006**: Agent API rate limits to 10/hour
-  - Expected: 429 response after limit exceeded
-
-### 13.3 Reactions API
-
-- [ ] `[qa:_][func:_][broken:_]` **API-007**: POST /api/reactions records heart or fire reaction
-  - Expected: `{ ok: true }` with rate limit header
-
-- [ ] `[qa:_][func:_][broken:_]` **API-008**: Reactions API rate limits to 30/minute per IP
-  - Expected: 429 response after limit exceeded
-
-### 13.4 Winner Vote API
-
-- [ ] `[qa:_][func:_][broken:_]` **API-009**: POST /api/winner-vote records vote (auth required)
-  - Expected: `{ ok: true }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-010**: Winner vote API returns 401 for unauthenticated
-  - Expected: Auth error response
-
-### 13.5 Feature Requests API
-
-- [ ] `[qa:_][func:_][broken:_]` **API-011**: GET /api/feature-requests returns all requests with vote counts
-  - Expected: `{ requests: [...] }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-012**: POST /api/feature-requests creates new request (auth required)
-  - Expected: `{ ok: true, id }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-013**: POST /api/feature-requests/vote toggles vote
-  - Expected: `{ voted: boolean, voteCount: number }`
-
-### 13.6 Contact & Newsletter
-
-- [ ] `[qa:_][func:_][broken:_]` **API-014**: POST /api/contact sends email via Resend
-  - Expected: `{ ok: true }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-015**: POST /api/newsletter records email subscription
-  - Expected: `{ ok: true }`
-
-### 13.7 Short Links
-
-- [ ] `[qa:_][func:_][broken:_]` **API-016**: POST /api/short-links creates short link for bout
-  - Expected: `{ slug, created }` with 201 or 200 status
-
-- [ ] `[qa:_][func:_][broken:_]` **API-017**: GET /s/[slug] redirects to bout page
-  - Expected: 302 redirect to `/b/[boutId]`
-
-### 13.8 Research Export
-
-- [ ] `[qa:_][func:_][broken:_]` **API-018**: GET /api/research/export returns latest export metadata
-  - Expected: `{ available, version, counts... }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-019**: GET /api/research/export?id=N downloads specific export
-  - Expected: JSON file attachment
-
-### 13.9 Health & Docs
-
-- [ ] `[qa:_][func:_][broken:_]` **API-020**: GET /api/health returns system status
-  - Expected: `{ status, database, features }`
-
-- [ ] `[qa:_][func:_][broken:_]` **API-021**: GET /api/openapi returns OpenAPI 3.0 spec (Lab tier only)
-  - Expected: JSON OpenAPI document
-
-### 13.10 Webhooks
-
-- [ ] `[qa:_][func:_][broken:_]` **API-022**: POST /api/credits/webhook handles Stripe events
-  - Expected: 200 response for valid signature
-
-- [ ] `[qa:_][func:_][broken:_]` **API-023**: Webhook rejects invalid Stripe signatures
-  - Expected: 400 response
+- [ ] **BYOK-001:** Log in. Go to Arena. Select a preset with BYOK option.
+- [ ] **BYOK-002:** Select "BYOK" from model dropdown.
+- [ ] **BYOK-003:** BYOK key input field appears.
+- [ ] **BYOK-004:** Enter a valid `sk-ant-...` key.
+- [ ] **BYOK-005:** Click "Verify" link. Opens `github.com/.../byok-stash/route.ts` in new tab.
+- [ ] **BYOK-006:** Start the bout. It runs using your key.
+- [ ] **BYOK-007:** Credits are NOT deducted (BYOK uses your own key/billing).
+- [ ] **BYOK-008:** Enter an invalid key (e.g., `sk-ant-bad`). Start bout. Expect clear error message.
 
 ---
 
-## Verification Commands
+## 11. Agents & Lineage (10 mins)
 
-```bash
-# Count total user stories
-grep -c '\*\*[A-Z]*-[0-9]*\*\*' docs/qa-report.md
+- [ ] **AGENT-001:** Go to `/agents`. Agent catalog renders.
+- [ ] **AGENT-002:** Search for an agent. Results filter correctly.
+- [ ] **AGENT-003:** Click an agent. Detail modal/page opens with stats.
+- [ ] **AGENT-004:** "View Onchain" link (if EAS enabled) opens block explorer.
+- [ ] **AGENT-005:** Click "Clone" on an agent. Redirects to builder with pre-filled data.
+- [ ] **AGENT-006:** Modify one field. Save the cloned agent.
+- [ ] **AGENT-007:** New agent appears in catalog.
+- [ ] **AGENT-008:** Run a bout with the cloned agent. It works.
 
-# List all untested stories
-grep '\[qa:_\]' docs/qa-report.md
+---
 
-# List all broken items
-grep '\[broken:x\]' docs/qa-report.md
+## 12. Leaderboard (5 mins)
 
-# List all working items
-grep '\[func:x\]' docs/qa-report.md
+- [ ] **LEAD-001:** Go to `/leaderboard`. Page loads.
+- [ ] **LEAD-002:** If data exists: table renders with sortable columns.
+- [ ] **LEAD-003:** If no data: "No votes yet" empty state message shows (not a crash).
+- [ ] **LEAD-004:** Toggle between "Agents" and "Players" views.
+- [ ] **LEAD-005:** Toggle between time ranges (All / Week / Day).
+- [ ] **LEAD-006:** Search works.
 
-# Count by category
-grep -E '^\*\*[A-Z]+-[0-9]+\*\*' docs/qa-report.md | cut -d'-' -f1 | sort | uniq -c
-```
+---
 
-## Python Parser Template
+## 13. Research & Roadmap (5 mins)
 
-```python
-#!/usr/bin/env python3
-"""Parse QA report and generate summary statistics."""
+- [ ] **RES-001:** Go to `/research`. Page loads with static content sections.
+- [ ] **RES-002:** If no export exists: "No exports available yet. Check back soon." (not a crash).
+- [ ] **RES-003:** Go to `/research/citations`. Page loads.
+- [ ] **RES-004:** Go to `/roadmap`. All 3 lanes render (Done / Active / Planned).
+- [ ] **RES-005:** Roadmap items are accurate (no stale "planned" items that are actually shipped).
 
-import re
-from pathlib import Path
-from dataclasses import dataclass
-from typing import List
+---
 
-@dataclass
-class UserStory:
-    id: str
-    category: str
-    qa_tested: bool
-    functional: bool
-    broken: bool
-    description: str
-    expected: str = ""
+## 14. Contact & Feedback (5 mins)
 
-STORY_PATTERN = re.compile(
-    r'- \[.\] `\[qa:(.)\]\[func:(.)\]\[broken:(.)\]` \*\*([A-Z]+-\d+)\*\*: (.+)'
-)
-EXPECTED_PATTERN = re.compile(r'^\s+- Expected: (.+)$')
+- [ ] **CONT-001:** Go to `/contact`. Form renders.
+- [ ] **CONT-002:** Submit the form with valid data. Success message appears.
+- [ ] **CONT-003:** Check Resend dashboard — email was delivered.
+- [ ] **CONT-004:** Go to `/feedback`. Feature request form renders.
+- [ ] **CONT-005:** (Logged in) Submit a feature request. It appears in the list.
+- [ ] **CONT-006:** Vote on a feature request. Counter increments.
 
-def parse_report(path: Path) -> List[UserStory]:
-    stories = []
-    current_category = ""
+---
 
-    with open(path) as f:
-        lines = f.readlines()
+## 15. Resilience & Edge Cases (15 mins)
 
-    for i, line in enumerate(lines):
-        if line.startswith('## '):
-            current_category = line.strip('# \n')
+### The "Rage Click" Test
+- [ ] **EDGE-001:** Go to Arena. Click "Enter" on a preset. Immediately hit "Back." Click "Enter" again. No crash.
+- [ ] **EDGE-002:** Rapid-click reaction buttons 20 times. UI recovers. Rate limiter triggers gracefully (no 500, no crash).
+- [ ] **EDGE-003:** Double-click the "Vote" button. Only one vote registers.
 
-        match = STORY_PATTERN.match(line)
-        if match:
-            qa, func, broken, story_id, description = match.groups()
-            expected = ""
-            if i + 1 < len(lines):
-                exp_match = EXPECTED_PATTERN.match(lines[i + 1])
-                if exp_match:
-                    expected = exp_match.group(1)
+### The "Mid-Stream Death" Test
+- [ ] **EDGE-004:** Start a bout. Wait for Turn 2. Close the tab.
+- [ ] **EDGE-005:** Wait 60 seconds.
+- [ ] **EDGE-006:** Go back to `/arena`. Check credit history. Credits settled correctly (not double-charged).
+- [ ] **EDGE-007:** Navigate to the bout page (`/bout/[id]` or "Recent Bouts"). Transcript shows partial content or "Faulted" status — NOT corrupted.
 
-            stories.append(UserStory(
-                id=story_id,
-                category=current_category,
-                qa_tested=(qa == 'x'),
-                functional=(func == 'x'),
-                broken=(broken == 'x'),
-                description=description,
-                expected=expected
-            ))
+### The "Stale Tab" Test
+- [ ] **EDGE-008:** Open a bout in one tab. Open the same bout in another tab. No conflict.
+- [ ] **EDGE-009:** Leave a tab open for 10+ minutes. Come back. Page still works (Clerk session not expired).
 
-    return stories
+### Error Pages
+- [ ] **EDGE-010:** Go to `thepit.cloud/gibberish`. Shows styled 404 page (not generic Vercel error).
+- [ ] **EDGE-011:** Go to `thepit.cloud/bout/nonexistent-id`. Shows appropriate error (not crash).
 
-def main():
-    stories = parse_report(Path('docs/qa-report.md'))
+---
 
-    print(f"Total stories: {len(stories)}")
-    print(f"Tested: {sum(1 for s in stories if s.qa_tested)}")
-    print(f"Functional: {sum(1 for s in stories if s.functional)}")
-    print(f"Broken: {sum(1 for s in stories if s.broken)}")
+## 16. Security Spot Checks (5 mins)
 
-    print("\nBy category:")
-    categories = {}
-    for s in stories:
-        categories.setdefault(s.category, []).append(s)
+- [ ] **SEC-001:** Try `thepit.cloud/api/admin/seed-agents` in browser. Returns 401 (not data).
+- [ ] **SEC-002:** Enter `<script>alert(1)</script>` as a bout topic. Text is escaped in UI (no XSS).
+- [ ] **SEC-003:** Enter `<img src=x onerror=alert(1)>` as agent name. Text is escaped.
+- [ ] **SEC-004:** Check response headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` present.
+- [ ] **SEC-005:** Cookie consent banner appears on first visit (Incognito). Analytics cookies NOT set until accepted.
 
-    for cat, cat_stories in sorted(categories.items()):
-        tested = sum(1 for s in cat_stories if s.qa_tested)
-        print(f"  {cat}: {tested}/{len(cat_stories)} tested")
+---
 
-if __name__ == '__main__':
-    main()
-```
+## 17. Cookie Consent / GDPR (5 mins)
+
+- [ ] **GDPR-001:** Open site in Incognito. Cookie banner appears at bottom.
+- [ ] **GDPR-002:** Click "Decline." Banner dismisses. No PostHog/analytics cookies set.
+- [ ] **GDPR-003:** Open site in new Incognito. Click "Accept." Banner dismisses.
+- [ ] **GDPR-004:** Check cookies: `pit_consent=accepted` present. PostHog cookies appear after reload.
+- [ ] **GDPR-005:** "Privacy" link in banner leads to `/privacy`.
+
+---
+
+## 18. Performance & Console (5 mins)
+
+- [ ] **PERF-001:** Open DevTools > Network. Reload homepage. No failed requests (red entries).
+- [ ] **PERF-002:** Open DevTools > Console. No critical errors (red). Note any warnings.
+- [ ] **PERF-003:** Lighthouse quick check: Performance score > 60 on desktop. (Don't obsess — just no catastrophic issues.)
+- [ ] **PERF-004:** **MOBILE:** Full page scroll. No horizontal overflow ("wiggle test").
+- [ ] **PERF-005:** **MOBILE:** Tap the address bar to scroll to top. Page responds normally.
+
+---
+
+## 19. Data Seeding Check (5 mins)
+
+_Empty pages look broken to first-time visitors. Verify these have content or acceptable empty states._
+
+- [ ] **SEED-001:** Leaderboard has at least some data (run a bout and vote if empty).
+- [ ] **SEED-002:** Agent catalog has preset agents (run `POST /api/admin/seed-agents` if empty).
+- [ ] **SEED-003:** Feature requests page — at least 1-2 seed requests exist.
+- [ ] **SEED-004:** Research page — either generate an export or verify empty state message is acceptable.
+
+---
+
+## Triage Summary
+
+_Fill this out AFTER completing all sections._
+
+### P0 — Blockers (must fix before launch)
+| ID | Description | Status |
+|----|-------------|--------|
+|    |             |        |
+
+### P1 — Critical (must fix before launch)
+| ID | Description | Status |
+|----|-------------|--------|
+|    |             |        |
+
+### P2 — Polish (can launch with)
+| ID | Description | Status |
+|----|-------------|--------|
+|    |             |        |
+
+### P3 — Nice-to-have (post-launch)
+| ID | Description | Status |
+|----|-------------|--------|
+|    |             |        |
+
+---
+
+## Sign-Off
+
+- [ ] All P0 items resolved.
+- [ ] All P1 items resolved.
+- [ ] PR #136 merged.
+- [ ] Production deployment verified.
+- [ ] **LAUNCH.**
