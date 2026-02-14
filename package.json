@@ -38,6 +38,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.37",
     "@clerk/nextjs": "^6.37.3",
+    "@clerk/themes": "^2.4.52",
     "@ethereum-attestation-service/eas-sdk": "^2.9.0",
     "@fontsource/ibm-plex-mono": "^5.2.7",
     "@fontsource/space-grotesk": "^5.2.10",
