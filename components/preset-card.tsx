@@ -252,7 +252,7 @@ export function PresetCard({
             Your key is sent directly to Anthropic&apos;s API over HTTPS. It is
             never stored, logged, or visible to platform operators.{' '}
             <a
-              href="https://github.com/rickhallett/thepit/blob/master/app/api/run-bout/route.ts"
+              href="https://github.com/rickhallett/thepit/blob/master/app/api/byok-stash/route.ts"
               target="_blank"
               rel="noreferrer"
               className="underline transition hover:text-accent"
