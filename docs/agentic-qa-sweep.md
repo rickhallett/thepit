@@ -6,7 +6,7 @@ created: "2026-02-14"
 target: "https://thepit.cloud" # (redirects to https://www.thepit.cloud)
 tool: "Kernel MCP (v0.14.9) + curl"
 auth_strategy: "Login via Clerk UI in Kernel browser"
-test_account: "qa-standard@thepit.cloud / QaTest123!"
+test_account: "qa-standard@thepit.cloud / <QA_TEST_PASSWORD from env>"
 status: "in_progress — restart needed to load Kernel MCP tools"
 ---
 ```
@@ -147,11 +147,19 @@ Results will be written to `docs/agentic-qa-results.md` after execution.
 
 - **Clerk mode:** Development (`pk_test_` / `sk_test_`)
 - **Test accounts** (from `qa/scripts/setup-accounts.ts`):
-  - `qa-standard@thepit.cloud` — Free tier, 500 credits, password: `QaTest123!`
-  - `qa-premium@thepit.cloud` — Pit Pass, 1000 credits, password: `QaTest123!`
-  - `qa-exhausted@thepit.cloud` — Free tier, 0 credits, password: `QaTest123!`
+  - `qa-standard@thepit.cloud` — Free tier, 500 credits
+  - `qa-premium@thepit.cloud` — Pit Pass, 1000 credits
+  - `qa-exhausted@thepit.cloud` — Free tier, 0 credits
+- **Credentials:** All test account passwords are stored in the `QA_TEST_PASSWORD`
+  environment variable. Set this in your local `.env` (gitignored) or retrieve it
+  from your team's secret store. Never hardcode credentials in documentation or code.
+  ```bash
+  # .env (gitignored)
+  QA_TEST_PASSWORD=<password from secrets manager or team vault>
+  ```
 - **Auth mechanism:** Cookie-based (`__session` JWT cookie)
-- **Login strategy:** Navigate to `/sign-in`, fill email/password via Kernel Playwright, submit
+- **Login strategy:** Navigate to `/sign-in`, fill email/password via Kernel Playwright, submit.
+  Credentials are read from `process.env.QA_TEST_PASSWORD` at runtime.
 - **Admin endpoints:** Use `x-admin-token` header (separate from Clerk)
 
 ## Key URLs
