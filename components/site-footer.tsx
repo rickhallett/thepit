@@ -36,6 +36,12 @@ export function SiteFooter() {
               Research
             </Link>
             <Link
+              href="/developers"
+              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+            >
+              Developers
+            </Link>
+            <Link
               href="/contact"
               className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
             >

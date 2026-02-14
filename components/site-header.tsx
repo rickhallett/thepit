@@ -13,6 +13,7 @@ const LINKS = [
   { href: '/agents', label: 'All agents' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/research', label: 'Research' },
+  { href: '/developers', label: 'Developers' },
   { href: '/roadmap', label: 'Roadmap' },
   { href: '/contact', label: 'Contact' },
   { href: '/feedback', label: 'Feedback' },
