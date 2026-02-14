@@ -41,7 +41,7 @@ export const FREE_MODEL_ID =
 
 const premiumModelEnv =
   process.env.ANTHROPIC_PREMIUM_MODELS ??
-  'claude-sonnet-4-5-20250929,claude-opus-4-5-20251101';
+  'claude-sonnet-4-5-20250929,claude-opus-4-5-20251101,claude-opus-4-6';
 
 export const PREMIUM_MODEL_OPTIONS = premiumModelEnv
   .split(',')
