@@ -12,9 +12,27 @@ export const metadata = {
   description: 'Build a custom arena bout from the agent roster.',
 };
 
-export default async function ArenaBuilderPage() {
+export default async function ArenaBuilderPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    agent?: string | string[];
+    topic?: string;
+    from?: string;
+  }>;
+}) {
   const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const agents = await getAgentSnapshots();
+  const resolved = await searchParams;
+
+  // Support pre-selection from re-roll links
+  const agentParam = resolved?.agent;
+  const initialAgentIds = Array.isArray(agentParam)
+    ? agentParam
+    : agentParam
+      ? [agentParam]
+      : [];
+  const initialTopic = resolved?.topic ?? '';
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -24,10 +42,12 @@ export default async function ArenaBuilderPage() {
             Arena Builder
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Build your own bout
+            {resolved?.from ? 'Re-roll bout' : 'Build your own bout'}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted">
-            Select 2–6 agents from the roster, set a topic, and unleash them.
+            {resolved?.from
+              ? 'Same lineup, new settings. Adjust and re-run.'
+              : 'Select 2–6 agents from the roster, set a topic, and unleash them.'}
           </p>
         </header>
 
@@ -44,6 +64,8 @@ export default async function ArenaBuilderPage() {
           premiumModels={PREMIUM_MODEL_OPTIONS}
           defaultPremiumModel={DEFAULT_PREMIUM_MODEL_ID}
           byokEnabled={BYOK_ENABLED}
+          initialAgentIds={initialAgentIds}
+          initialTopic={initialTopic}
         />
 
         <footer className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground/70 pt-8 text-xs uppercase tracking-[0.3em] text-muted">

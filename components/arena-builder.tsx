@@ -30,6 +30,8 @@ export function ArenaBuilder({
   premiumModels = [],
   defaultPremiumModel,
   byokEnabled = false,
+  initialAgentIds = [],
+  initialTopic = '',
 }: {
   agents: ArenaAgentOption[];
   action: (formData: FormData) => Promise<void>;
@@ -37,9 +39,14 @@ export function ArenaBuilder({
   premiumModels?: string[];
   defaultPremiumModel?: string;
   byokEnabled?: boolean;
+  initialAgentIds?: string[];
+  initialTopic?: string;
 }) {
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>(
+    // Only pre-select agents that actually exist in the pool
+    initialAgentIds.filter((id) => agents.some((a) => a.id === id)),
+  );
   const [selectedModel, setSelectedModel] = useState(
     defaultPremiumModel ?? premiumModels[0] ?? FREE_MODEL_ID,
   );
@@ -148,6 +155,7 @@ export function ArenaBuilder({
           <input
             name="topic"
             type="text"
+            defaultValue={initialTopic}
             placeholder="What should they fight about?"
             className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
           />
