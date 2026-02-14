@@ -285,6 +285,44 @@ function WinnerVotePanel({
   );
 }
 
+function RerollPanel({
+  preset,
+  topic,
+  boutId,
+}: {
+  preset: Preset;
+  topic?: string | null;
+  boutId: string;
+}) {
+  const params = new URLSearchParams();
+  preset.agents.forEach((agent) => {
+    params.append('agent', agent.id);
+  });
+  if (topic) {
+    params.set('topic', topic);
+  }
+  params.set('from', boutId);
+
+  return (
+    <section className="mt-4 w-full border-2 border-foreground/40 bg-black/40 p-6">
+      <p className="text-xs uppercase tracking-[0.35em] text-muted">
+        Re-roll
+      </p>
+      <p className="mt-2 text-xs text-muted">
+        Run the same lineup again with different settings.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <a
+          href={`/arena/custom?${params.toString()}`}
+          className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent/10"
+        >
+          Tweak &amp; re-run
+        </a>
+      </div>
+    </section>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -521,6 +559,10 @@ export function Arena({
               votedLabel={votedLabel}
               onVote={castWinnerVote}
             />
+          )}
+
+          {status === 'done' && messages.length > 0 && (
+            <RerollPanel preset={preset} topic={topic} boutId={boutId} />
           )}
 
           <div ref={endRef} />
