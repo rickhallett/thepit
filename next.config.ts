@@ -22,7 +22,7 @@ const posthogDomains = 'https://us.i.posthog.com https://us-assets.i.posthog.com
 
 const cspDirectives = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${clerkDomains} https://cdn.jsdelivr.net`,
+  `script-src 'self' 'unsafe-inline' ${clerkDomains} ${posthogDomains} https://cdn.jsdelivr.net`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: ${clerkImgDomains}`,
   "font-src 'self' data:",

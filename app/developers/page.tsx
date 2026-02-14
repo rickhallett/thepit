@@ -116,9 +116,9 @@ export default function DevelopersPage() {
                 <p className="text-sm leading-relaxed text-muted">
                   {tool.description}
                 </p>
-                <div className="mt-auto rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
+                <code className="mt-auto block rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
                   $ {tool.snippet}
-                </div>
+                </code>
                 <a
                   href={tool.href}
                   target="_blank"
@@ -159,9 +159,9 @@ export default function DevelopersPage() {
                   <h3 className="font-sans text-lg uppercase tracking-tight">
                     {s.verb}
                   </h3>
-                  <div className="rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
+                  <code className="block rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
                     $ {s.command}
-                  </div>
+                  </code>
                   <p className="text-sm leading-relaxed text-muted">
                     {s.detail}
                   </p>

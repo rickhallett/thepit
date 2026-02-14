@@ -144,95 +144,127 @@ export function LeaderboardTable({
       ) : (
         <div className="relative">
           <div className="overflow-x-auto border-2 border-foreground/60">
-          <div className="grid min-w-[820px] grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_70px_80px_70px_90px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
-            <span>Agent</span>
-            <span>Preset</span>
-            <button
-              type="button"
-              onClick={() => toggleSort('bouts')}
-              className="text-right transition hover:text-foreground"
-            >
-              Bouts
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleSort('wins')}
-              className="text-right transition hover:text-foreground"
-            >
-              Wins
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleSort('winRate')}
-              className="text-right transition hover:text-foreground"
-            >
-              Win %
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleSort('votes')}
-              className="text-right transition hover:text-foreground"
-            >
-              Votes
-            </button>
-            <span className="text-right">Best bout</span>
-          </div>
-          {filtered.map((entry, index) => (
-            <div
-              key={`${entry.presetId}-${entry.id}`}
-              className="grid min-w-[820px] grid-cols-[minmax(0,2fr)_minmax(0,1fr)_80px_70px_80px_70px_90px] gap-4 border-b border-foreground/40 px-4 py-3 text-left text-sm transition hover:bg-black/50"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-xs uppercase tracking-[0.25em] text-muted">
-                  {index + 1}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setActiveAgent(entry)}
-                  title={entry.name}
-                  className="flex items-center gap-3 uppercase tracking-[0.2em] transition hover:text-accent"
+          <table className="min-w-[820px] w-full border-collapse text-left">
+            <thead>
+              <tr className="border-b-2 border-foreground/60 bg-black/60 text-[10px] uppercase tracking-[0.3em] text-muted">
+                <th scope="col" className="px-4 py-3 font-normal">Agent</th>
+                <th scope="col" className="px-4 py-3 font-normal">Preset</th>
+                <th
+                  scope="col"
+                  className="w-[80px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'bouts' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
                 >
-                  <span
-                    className="flex items-center justify-center rounded-full border-2 px-2 py-0.5"
-                    style={{
-                      borderColor: entry.color ?? DEFAULT_AGENT_COLOR,
-                      color: entry.color ?? DEFAULT_AGENT_COLOR,
-                    }}
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('bouts')}
+                    className="transition hover:text-foreground"
                   >
-                    <AgentIcon avatar={entry.avatar} size={12} />
-                  </span>
-                  <span>{getAgentDisplayName(entry.name)}</span>
-                </button>
-              </div>
-              <span className="text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.presetName ?? 'Custom'}
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.bouts}
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.wins}
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {Math.round(entry.winRate * 100)}%
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.votes}
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.bestBoutId ? (
-                  <Link
-                    href={`/b/${entry.bestBoutId}`}
-                    className="text-accent underline"
+                    Bouts
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="w-[70px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'wins' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('wins')}
+                    className="transition hover:text-foreground"
                   >
-                    Replay
-                  </Link>
-                ) : (
-                  '-'
-                )}
-              </span>
-            </div>
-          ))}
+                    Wins
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="w-[80px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'winRate' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('winRate')}
+                    className="transition hover:text-foreground"
+                  >
+                    Win %
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="w-[70px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'votes' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('votes')}
+                    className="transition hover:text-foreground"
+                  >
+                    Votes
+                  </button>
+                </th>
+                <th scope="col" className="w-[90px] px-4 py-3 font-normal text-right">Best bout</th>
+              </tr>
+            </thead>
+            <tbody>
+            {filtered.map((entry, index) => (
+              <tr
+                key={`${entry.presetId}-${entry.id}`}
+                className="border-b border-foreground/40 text-sm transition hover:bg-black/50"
+              >
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs uppercase tracking-[0.25em] text-muted">
+                      {index + 1}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setActiveAgent(entry)}
+                      title={entry.name}
+                      className="flex items-center gap-3 uppercase tracking-[0.2em] transition hover:text-accent"
+                    >
+                      <span
+                        className="flex items-center justify-center rounded-full border-2 px-2 py-0.5"
+                        style={{
+                          borderColor: entry.color ?? DEFAULT_AGENT_COLOR,
+                          color: entry.color ?? DEFAULT_AGENT_COLOR,
+                        }}
+                      >
+                        <AgentIcon avatar={entry.avatar} size={12} />
+                      </span>
+                      <span>{getAgentDisplayName(entry.name)}</span>
+                    </button>
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.presetName ?? 'Custom'}
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.bouts}
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.wins}
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {Math.round(entry.winRate * 100)}%
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.votes}
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.bestBoutId ? (
+                    <Link
+                      href={`/b/${entry.bestBoutId}`}
+                      className="text-accent underline"
+                    >
+                      Replay
+                    </Link>
+                  ) : (
+                    '-'
+                  )}
+                </td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
           </div>
           <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden" />
         </div>

@@ -8,7 +8,7 @@
  * Prerequisites:
  * - CLERK_SECRET_KEY must be set (development instance)
  * - DATABASE_URL must be set
- * - QA_TEST_PASSWORD should be set (or uses default)
+ * - QA_TEST_PASSWORD must be set (no default — see .env)
  */
 
 import { createClerkClient } from '@clerk/backend'
@@ -70,7 +70,7 @@ async function main() {
   // Validate environment
   const clerkSecretKey = process.env.CLERK_SECRET_KEY
   const databaseUrl = process.env.DATABASE_URL
-  const testPassword = process.env.QA_TEST_PASSWORD || 'QaTest123!'
+  const testPassword = process.env.QA_TEST_PASSWORD
 
   if (!clerkSecretKey) {
     console.error('❌ CLERK_SECRET_KEY is required')
@@ -79,6 +79,11 @@ async function main() {
 
   if (!databaseUrl) {
     console.error('❌ DATABASE_URL is required')
+    process.exit(1)
+  }
+
+  if (!testPassword) {
+    console.error('❌ QA_TEST_PASSWORD is required (set in .env or environment)')
     process.exit(1)
   }
 
