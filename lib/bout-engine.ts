@@ -62,6 +62,7 @@ import {
   canRunBout,
   canAccessModel,
   incrementFreeBoutsUsed,
+  getFreeBoutsUsed,
 } from '@/lib/tier';
 import { consumeFreeBout } from '@/lib/free-bout-pool';
 import { UNSAFE_PATTERN } from '@/lib/validation';
@@ -288,6 +289,22 @@ export async function validateBoutRequest(
     } else if (preset.tier === 'premium' || preset.id === ARENA_PRESET_ID) {
       const allowed = PREMIUM_MODEL_OPTIONS.filter((m) => canAccessModel(tier, m));
       modelId = allowed[0] ?? FREE_MODEL_ID;
+    }
+
+    // First-bout promotion: give free-tier users Opus on their very first
+    // bout so they experience the best model quality and are motivated to
+    // upgrade. Only applies to non-BYOK, non-explicit-model requests.
+    if (
+      !isByok &&
+      tier === 'free' &&
+      modelId === FREE_MODEL_ID &&
+      !requestedModel
+    ) {
+      const used = await getFreeBoutsUsed(userId);
+      if (used === 0) {
+        modelId = 'claude-opus-4-6';
+        log.info('First-bout promotion: upgraded to Opus', { userId });
+      }
     }
 
     if (!isByok && tier === 'free') {
