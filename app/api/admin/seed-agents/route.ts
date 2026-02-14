@@ -8,9 +8,13 @@ import {
   buildPresetAgentId,
   registerPresetAgent,
 } from '@/lib/agent-registry';
+import { hashAgentPrompt, hashAgentManifest, buildAgentManifest } from '@/lib/agent-dna';
 import { attestAgent, EAS_ENABLED } from '@/lib/eas';
 import { requireAdmin } from '@/lib/admin-auth';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
+import { SEED_AGENTS, buildSeedAgentPrompt } from '@/lib/seed-agents';
+import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
+import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
 
 export const runtime = 'nodejs';
 
@@ -117,6 +121,65 @@ export async function POST(req: Request) {
     }
   }
 
-  log.info('audit', { action: 'seed_agents', created, attested, errors: errors.length });
-  return Response.json({ created, attested, errors: errors.length });
+  // Seed high-DNA standalone agents for arena selection
+  let dnaCreated = 0;
+  for (const seedAgent of SEED_AGENTS) {
+    const agentId = `dna:${seedAgent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+    const [existing] = await db
+      .select()
+      .from(agents)
+      .where(eq(agents.id, agentId))
+      .limit(1);
+
+    if (!existing) {
+      try {
+        const systemPrompt = buildSeedAgentPrompt(seedAgent);
+        const manifest = buildAgentManifest({
+          agentId,
+          name: seedAgent.name,
+          systemPrompt,
+          presetId: null,
+          tier: 'custom',
+          responseLength: DEFAULT_RESPONSE_LENGTH,
+          responseFormat: DEFAULT_RESPONSE_FORMAT,
+        });
+        const [promptHash, manifestHash] = await Promise.all([
+          hashAgentPrompt(systemPrompt),
+          hashAgentManifest(manifest),
+        ]);
+
+        await db.insert(agents).values({
+          id: agentId,
+          name: seedAgent.name,
+          systemPrompt,
+          presetId: null,
+          tier: 'custom',
+          model: null,
+          responseLength: DEFAULT_RESPONSE_LENGTH,
+          responseFormat: DEFAULT_RESPONSE_FORMAT,
+          archetype: seedAgent.archetype,
+          tone: seedAgent.tone,
+          quirks: seedAgent.quirks,
+          speechPattern: seedAgent.speechPattern,
+          openingMove: seedAgent.openingMove,
+          signatureMove: seedAgent.signatureMove,
+          weakness: seedAgent.weakness,
+          goal: seedAgent.goal,
+          fears: seedAgent.fears,
+          customInstructions: seedAgent.customInstructions,
+          promptHash,
+          manifestHash,
+          ownerId: null,
+          parentId: null,
+        });
+        dnaCreated += 1;
+      } catch (error) {
+        log.error('Seed DNA agent error', error instanceof Error ? error : new Error(String(error)), { agentId });
+        errors.push(agentId);
+      }
+    }
+  }
+
+  log.info('audit', { action: 'seed_agents', created, dnaCreated, attested, errors: errors.length });
+  return Response.json({ created, dnaCreated, attested, errors: errors.length });
 }
