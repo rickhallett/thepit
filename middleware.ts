@@ -21,7 +21,7 @@ const UTM_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
  */
 const SKIP_PAGE_VIEW_RE = /^\/(api|trpc|_next|s)\//;
 
-export default clerkMiddleware((_, req) => {
+export default clerkMiddleware(async (clerkAuth, req) => {
   // Generate a unique request ID for tracing across logs.
   // Propagated to route handlers via the x-request-id header.
   const requestId = nanoid(12);
@@ -125,6 +125,11 @@ export default clerkMiddleware((_, req) => {
     const userAgent = req.headers.get('user-agent') ?? '';
     const utmCookie = req.cookies.get(UTM_COOKIE)?.value ?? '';
 
+    // Resolve userId from Clerk session — Clerk has already authenticated by
+    // this point so this is a fast synchronous-ish lookup (no network call).
+    const authState = await clerkAuth();
+    const pvUserId = authState.userId ?? undefined;
+
     // Fire-and-forget — do not await, do not block the response.
     // AbortController ensures the fetch does not hang indefinitely.
     const pvAbort = new AbortController();
@@ -145,6 +150,7 @@ export default clerkMiddleware((_, req) => {
         userAgent,
         country,
         utm: utmCookie,
+        userId: pvUserId,
       }),
     }).catch(() => {
       // Silently drop — page views are best-effort analytics
