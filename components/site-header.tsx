@@ -42,6 +42,12 @@ export function SiteHeader({ className }: { className?: string }) {
     return () => document.removeEventListener('mousedown', handler);
   }, [moreOpen]);
 
+  // Close dropdowns on route change
+  useEffect(() => {
+    setMoreOpen(false);
+    setMenuOpen(false);
+  }, [pathname]);
+
   const isOverflowActive = OVERFLOW_LINKS.some((l) => pathname === l.href);
 
   return (
