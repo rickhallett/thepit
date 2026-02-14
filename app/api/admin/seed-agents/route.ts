@@ -139,7 +139,7 @@ export async function POST(req: Request) {
           name: seedAgent.name,
           systemPrompt,
           presetId: null,
-          tier: 'free',
+          tier: 'custom',
           responseLength: DEFAULT_RESPONSE_LENGTH,
           responseFormat: DEFAULT_RESPONSE_FORMAT,
         });
