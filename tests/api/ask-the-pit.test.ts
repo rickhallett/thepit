@@ -11,19 +11,29 @@ const {
   getModelMock,
   readFileSyncMock,
   pitConfig,
-} = vi.hoisted(() => ({
-  checkRateLimitMock: vi.fn(),
-  getClientIdentifierMock: vi.fn(),
-  streamTextMock: vi.fn(),
-  getModelMock: vi.fn(),
-  readFileSyncMock: vi.fn(),
-  pitConfig: {
-    ASK_THE_PIT_ENABLED: true,
-    ASK_THE_PIT_DOCS: ['README.md'],
-    ASK_THE_PIT_MODEL: 'claude-haiku-4-5-20251001',
-    ASK_THE_PIT_MAX_TOKENS: 2000,
-  },
-}));
+  MODELS,
+} = vi.hoisted(() => {
+  const MODELS = {
+    HAIKU: 'claude-haiku-4-5-20251001',
+    SONNET: 'claude-sonnet-4-5-20250929',
+    OPUS_45: 'claude-opus-4-5-20251101',
+    OPUS_46: 'claude-opus-4-6',
+  } as const;
+  return {
+    checkRateLimitMock: vi.fn(),
+    getClientIdentifierMock: vi.fn(),
+    streamTextMock: vi.fn(),
+    getModelMock: vi.fn(),
+    readFileSyncMock: vi.fn(),
+    pitConfig: {
+      ASK_THE_PIT_ENABLED: true,
+      ASK_THE_PIT_DOCS: ['README.md'],
+      ASK_THE_PIT_MODEL: MODELS.HAIKU,
+      ASK_THE_PIT_MAX_TOKENS: 2000,
+    },
+    MODELS,
+  };
+});
 
 vi.mock('@/lib/rate-limit', () => ({
   checkRateLimit: checkRateLimitMock,
@@ -38,7 +48,7 @@ vi.mock('ai', () => ({
 
 vi.mock('@/lib/ai', () => ({
   getModel: getModelMock,
-  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
+  FREE_MODEL_ID: MODELS.HAIKU,
 }));
 
 vi.mock('node:fs', () => ({
@@ -63,7 +73,7 @@ describe('ask-the-pit route', () => {
     pitConfig.ASK_THE_PIT_ENABLED = true;
 
     readFileSyncMock.mockReturnValue('test documentation content');
-    getModelMock.mockReturnValue({ modelId: 'claude-haiku-4-5-20251001' });
+    getModelMock.mockReturnValue({ modelId: MODELS.HAIKU });
     streamTextMock.mockReturnValue({
       toTextStreamResponse: () =>
         new Response('streamed text', { status: 200 }),
@@ -142,6 +152,6 @@ describe('ask-the-pit route', () => {
     ]);
 
     // Verify getModel was called with the configured model
-    expect(getModelMock).toHaveBeenCalledWith('claude-haiku-4-5-20251001');
+    expect(getModelMock).toHaveBeenCalledWith(MODELS.HAIKU);
   });
 });

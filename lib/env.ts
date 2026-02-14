@@ -16,6 +16,12 @@
 
 import { z } from 'zod/v4';
 
+import {
+  DEFAULT_FREE_MODEL,
+  DEFAULT_PREMIUM_MODEL,
+  DEFAULT_PREMIUM_MODELS,
+} from '@/lib/models';
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -41,9 +47,9 @@ const serverEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).optional().default('development'),
 
   // --- Model configuration ---
-  ANTHROPIC_FREE_MODEL: z.string().optional().default('claude-haiku-4-5-20251001'),
-  ANTHROPIC_PREMIUM_MODEL: z.string().optional().default('claude-sonnet-4-5-20250929'),
-  ANTHROPIC_PREMIUM_MODELS: z.string().optional().default('claude-sonnet-4-5-20250929,claude-opus-4-5-20251101,claude-opus-4-6'),
+  ANTHROPIC_FREE_MODEL: z.string().optional().default(DEFAULT_FREE_MODEL),
+  ANTHROPIC_PREMIUM_MODEL: z.string().optional().default(DEFAULT_PREMIUM_MODEL),
+  ANTHROPIC_PREMIUM_MODELS: z.string().optional().default(DEFAULT_PREMIUM_MODELS),
   ANTHROPIC_BYOK_MODEL: z.string().optional(),
   ANTHROPIC_MODEL: z.string().optional(),
   ASK_THE_PIT_MODEL: z.string().optional(),

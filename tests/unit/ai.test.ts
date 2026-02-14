@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { MODEL_IDS } from '@/lib/models';
+
 vi.mock('@ai-sdk/anthropic', () => ({
   createAnthropic: vi.fn(() => vi.fn((modelId: string) => ({ modelId }))),
 }));
@@ -16,7 +18,7 @@ describe('lib/ai', () => {
 
   it('FREE_MODEL_ID defaults to haiku model', async () => {
     const { FREE_MODEL_ID } = await import('@/lib/ai');
-    expect(FREE_MODEL_ID).toBe('claude-haiku-4-5-20251001');
+    expect(FREE_MODEL_ID).toBe(MODEL_IDS.HAIKU);
   });
 
   it('PREMIUM_MODEL_OPTIONS is an array of model IDs', async () => {

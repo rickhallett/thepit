@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { MODEL_IDS } from '@/lib/models';
 
 // ─── Hoisted mocks ───────────────────────────────────────────────────
 
@@ -68,7 +69,7 @@ const mockContext = {
   topic: 'evolution',
   lengthConfig: { id: 'standard', label: 'Standard', hint: '3-5 sentences', maxOutputTokens: 200, outputTokensPerTurn: 120 },
   formatConfig: { id: 'plain', label: 'Plain text', hint: 'no markup', instruction: 'Respond in plain text.' },
-  modelId: 'claude-haiku-4-5-20251001',
+  modelId: MODEL_IDS.HAIKU,
   byokKey: '',
   userId: 'user_123',
   preauthMicro: 0,

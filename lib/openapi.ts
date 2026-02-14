@@ -4,6 +4,8 @@
 // It is served from GET /api/openapi (gated behind Lab tier auth)
 // and rendered by Scalar at /docs/api (public browsing).
 
+import { MODEL_IDS } from '@/lib/models';
+
 export const spec = {
   openapi: '3.1.0',
   info: {
@@ -57,7 +59,7 @@ export const spec = {
                   model: {
                     type: 'string',
                     description: 'Model to use. Options depend on your tier: free tier gets Haiku, Pass gets Sonnet, Lab gets all models including Opus. Use "byok" for your own API key.',
-                    example: 'claude-sonnet-4-5-20250929',
+                    example: MODEL_IDS.SONNET,
                   },
                   length: {
                     type: 'string',

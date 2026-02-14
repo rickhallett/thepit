@@ -65,6 +65,7 @@ import {
   getFreeBoutsUsed,
 } from '@/lib/tier';
 import { consumeFreeBout } from '@/lib/free-bout-pool';
+import { FIRST_BOUT_PROMOTION_MODEL } from '@/lib/models';
 import { UNSAFE_PATTERN } from '@/lib/validation';
 import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
 import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
@@ -303,7 +304,7 @@ export async function validateBoutRequest(
     ) {
       const used = await getFreeBoutsUsed(userId);
       if (used === 0) {
-        modelId = 'claude-opus-4-6';
+        modelId = FIRST_BOUT_PROMOTION_MODEL;
         log.info('First-bout promotion: upgraded to Opus', { userId });
       }
     }
