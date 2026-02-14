@@ -10,6 +10,8 @@ type MessageSharePayload = {
   links: ReturnType<typeof buildShareLinks>;
 };
 
+const DELIMITER = '─────────────────────────';
+
 /**
  * Hook for managing bout sharing state: share URL, short links,
  * share text generation, and clipboard operations.
@@ -60,38 +62,40 @@ export function useBoutSharing({
     return shortSlug ? `${origin}/s/${shortSlug}` : `${origin}/b/${boutId}`;
   }, [boutId, shareUrl, shortSlug]);
 
-  const transcript = useMemo(() => {
-    return messages
-      .map((message) => `${message.agentName}: ${message.text}`)
-      .join('\n\n');
-  }, [messages]);
-
   const sharePayload = useMemo(() => {
-    if (!transcript && !shareLine) return '';
+    if (messages.length === 0 && !shareLine) return '';
     const line = (shareLine ?? '').trim();
     const headline =
       line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
     return [headline, '', replayUrl, '', `🔴 ${BRAND.hashtag}`].join('\n');
-  }, [shareLine, preset.name, replayUrl, transcript]);
+  }, [shareLine, preset.name, replayUrl, messages.length]);
 
   const messageSharePayloads: MessageSharePayload[] = useMemo(() => {
     if (messages.length === 0) return [];
     const headline =
       (shareLine ?? '').trim() || `THE PIT — ${preset.name}`;
-    const header = [
-      headline,
-      topic ? `Topic: ${topic}` : null,
-      format ? `Format: ${format}` : null,
-    ]
-      .filter(Boolean)
-      .join('\n');
+
+    // Build formatted header
+    const headerLines = [`🏟️ ${headline}`];
+    if (topic) {
+      headerLines.push('');
+      headerLines.push(`    Topic: ${topic}`);
+    }
+    const header = headerLines.join('\n');
+
     let runningTranscript = '';
 
     return messages.map((message) => {
-      const line = `${message.agentName}: ${message.text}`;
+      const formattedTurn = [
+        DELIMITER,
+        `*${message.agentName}*`,
+        message.text,
+      ].join('\n');
+
       runningTranscript = runningTranscript
-        ? `${runningTranscript}\n\n${line}`
-        : line;
+        ? `${runningTranscript}\n\n${formattedTurn}`
+        : formattedTurn;
+
       const payload = [
         header,
         '',
@@ -106,7 +110,7 @@ export function useBoutSharing({
         links: buildShareLinks(payload, replayUrl),
       };
     });
-  }, [format, messages, preset.name, replayUrl, shareLine, topic]);
+  }, [messages, preset.name, replayUrl, shareLine, topic]);
 
   const copyTranscript = async () => {
     if (!sharePayload) return;
