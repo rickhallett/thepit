@@ -20,7 +20,6 @@ export function useBoutSharing({
   boutId,
   preset,
   topic,
-  format,
   status,
   messages,
   shareLine,
@@ -28,7 +27,6 @@ export function useBoutSharing({
   boutId: string;
   preset: Preset;
   topic?: string | null;
-  format?: string | null;
   status: string;
   messages: { id: string; agentName: string; text: string }[];
   shareLine: string | null;
