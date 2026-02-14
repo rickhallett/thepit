@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { BuilderShowcase } from '@/components/builder-showcase';
 import { DarwinCountdown } from '@/components/darwin-countdown';
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
 import { NewsletterSignup } from '@/components/newsletter-signup';
@@ -202,6 +203,9 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* ── For Builders ──────────────────────────────────────────── */}
+      <BuilderShowcase />
+
       {/* ── Pricing ──────────────────────────────────────────────── */}
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-5xl px-6 py-20">
@@ -255,7 +259,8 @@ export default async function LandingPage() {
                 '100 bouts/day',
                 'All models (incl. Opus)',
                 'Unlimited agents',
-                'API access',
+                'Headless API access',
+                'CLI toolchain (pitforge)',
                 'Agent analytics',
                 'BYOK unlimited',
               ]}
