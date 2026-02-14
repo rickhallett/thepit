@@ -43,6 +43,9 @@ app/
 │   ├── page.tsx            PIT + PLAYER rankings (revalidate=30s)
 │   └── loading.tsx         Leaderboard loading state
 │
+├── recent/
+│   └── page.tsx            Public feed of recently completed bouts
+│
 ├── feedback/page.tsx       Feature request submission + voting
 ├── research/
 │   ├── page.tsx            Research explainer

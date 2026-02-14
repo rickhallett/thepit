@@ -4,20 +4,44 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 /* Hoisted mocks                                                       */
 /* ------------------------------------------------------------------ */
 
-const { checkRateLimitMock, getClientIdentifierMock, authMock, mockInsert, mockValues, mockOnConflict } =
-  vi.hoisted(() => {
-    const mockOnConflict = vi.fn().mockResolvedValue(undefined);
-    const mockValues = vi.fn().mockReturnValue({ onConflictDoNothing: mockOnConflict });
-    const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
-    return {
-      checkRateLimitMock: vi.fn(),
-      getClientIdentifierMock: vi.fn(),
-      authMock: vi.fn(),
-      mockInsert,
-      mockValues,
-      mockOnConflict,
-    };
-  });
+const {
+  checkRateLimitMock,
+  getClientIdentifierMock,
+  authMock,
+  mockInsert,
+  mockValues,
+  mockOnConflict,
+  mockSelect,
+  mockSelectResult,
+  mockDelete,
+} = vi.hoisted(() => {
+  const mockOnConflict = vi.fn().mockResolvedValue(undefined);
+  const mockValues = vi.fn().mockReturnValue({ onConflictDoNothing: mockOnConflict });
+  const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
+
+  // select().from().where().limit() chain — defaults to empty (no existing reaction)
+  const mockSelectResult: { id: number }[] = [];
+  const mockLimit = vi.fn().mockImplementation(() => Promise.resolve(mockSelectResult));
+  const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });
+  const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+  const mockSelect = vi.fn().mockReturnValue({ from: mockFrom });
+
+  // delete().where() chain
+  const mockDeleteWhere = vi.fn().mockResolvedValue(undefined);
+  const mockDelete = vi.fn().mockReturnValue({ where: mockDeleteWhere });
+
+  return {
+    checkRateLimitMock: vi.fn(),
+    getClientIdentifierMock: vi.fn(),
+    authMock: vi.fn(),
+    mockInsert,
+    mockValues,
+    mockOnConflict,
+    mockSelect,
+    mockSelectResult,
+    mockDelete,
+  };
+});
 
 vi.mock('@/lib/rate-limit', () => ({
   checkRateLimit: checkRateLimitMock,
@@ -29,11 +53,20 @@ vi.mock('@clerk/nextjs/server', () => ({
 }));
 
 vi.mock('@/db', () => ({
-  requireDb: () => ({ insert: mockInsert }),
+  requireDb: () => ({
+    select: mockSelect,
+    insert: mockInsert,
+    delete: mockDelete,
+  }),
 }));
 
 vi.mock('@/db/schema', () => ({
-  reactions: Symbol('reactions'),
+  reactions: { id: Symbol('reactions.id') },
+}));
+
+vi.mock('drizzle-orm', () => ({
+  and: vi.fn((...args: unknown[]) => args),
+  eq: vi.fn((a: unknown, b: unknown) => [a, b]),
 }));
 
 /* ------------------------------------------------------------------ */
@@ -50,6 +83,12 @@ describe('reactions success paths', () => {
       resetAt: Date.now() + 60_000,
     });
     authMock.mockResolvedValue({ userId: null });
+
+    // Reset select chain for each test (default: no existing reaction → insert path)
+    const mockLimit = vi.fn().mockResolvedValue([]);
+    const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });
+    const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+    mockSelect.mockReturnValue({ from: mockFrom });
   });
 
   function makeReq(body: unknown) {
@@ -60,7 +99,7 @@ describe('reactions success paths', () => {
     });
   }
 
-  it('H1: valid heart reaction with authenticated user → 200 { ok: true }', async () => {
+  it('H1: valid heart reaction with authenticated user → 200 { ok: true, action: added }', async () => {
     authMock.mockResolvedValue({ userId: 'user_abc' });
 
     const res = await POST(
@@ -68,7 +107,9 @@ describe('reactions success paths', () => {
     );
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.action).toBe('added');
 
     // Verify insert was called with correct values including userId
     expect(mockValues).toHaveBeenCalledWith({
@@ -80,7 +121,7 @@ describe('reactions success paths', () => {
     expect(mockOnConflict).toHaveBeenCalled();
   });
 
-  it('H2: valid fire reaction without authentication → 200 { ok: true }, userId=null', async () => {
+  it('H2: valid fire reaction without authentication → 200 { ok: true, action: added }, userId=anon', async () => {
     authMock.mockResolvedValue({ userId: null });
 
     const res = await POST(
@@ -88,7 +129,9 @@ describe('reactions success paths', () => {
     );
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.action).toBe('added');
 
     // Anonymous users get an IP-based deduplication ID
     expect(mockValues).toHaveBeenCalledWith({

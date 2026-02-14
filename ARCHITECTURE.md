@@ -50,7 +50,13 @@ Managed via Stripe subscriptions with webhook-driven tier updates.
 The core bout execution logic lives in `lib/bout-engine.ts` (extracted from the API route). Two phases: `validateBoutRequest()` (parse, auth, tier, credits, idempotency) and `executeBout()` (turn loop, transcript persistence, share line generation, credit settlement). All LLM prompts are constructed via `lib/xml-prompt.ts` builders with XML safety boundaries.
 
 ## Presets + Agents
-Presets live in `presets/*.json` and are normalized in `lib/presets.ts`. Agents can be preset-backed or user-created. Each agent has a DNA manifest hash (`lib/agent-dna.ts`) for lineage and verification. Optionally, agents can be attested on-chain via EAS (see below).
+Presets live in `presets/*.json` and are normalized in `lib/presets.ts`. Agents can be preset-backed or user-created. Each agent has a DNA manifest hash (`lib/agent-dna.ts`) for lineage and verification. Optionally, agents can be attested on-chain via EAS (see below). 12 high-DNA standalone agents are available for arena selection, seeded via `/api/admin/seed-agents` using definitions from `lib/seed-agents.ts`.
+
+## Refusal Detection
+Lightweight agent refusal detection in `lib/refusal-detection.ts`. Some models break character during bout execution, refusing to roleplay on ethical grounds. The module matches response text against scoped marker phrases (with Unicode quote normalization) and logs structured metadata for data collection. Integrated into the bout engine for turn-level detection.
+
+## Public Bout Feed
+The `/recent` page displays a paginated feed of recently completed bouts. `lib/recent-bouts.ts` queries completed bouts with LEFT JOIN aggregated reaction counts. `components/bout-card.tsx` renders preview cards with agent names, topic, reaction count, and relative timestamps.
 
 ## Credits + Pricing
 Credits are env-gated (`CREDITS_ENABLED`). Costs are estimated per bout and settled once the transcript is complete. Atomic preauthorization via conditional SQL `UPDATE WHERE balance >= amount` prevents races. BYOK keys are stashed in short-lived HTTP-only cookies via `/api/byok-stash`.

@@ -2,7 +2,7 @@
 
 # components/
 
-27 React components in a flat directory. All but two (`SiteFooter`, `AgentIcon`) are marked `'use client'`. There are no subdirectories and no shared UI primitive layer — styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
+29 React components in a flat directory. All but two (`SiteFooter`, `AgentIcon`) are marked `'use client'`. There are no subdirectories and no shared UI primitive layer — styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
 
 ## Component Inventory
 
@@ -31,6 +31,13 @@
 | `leaderboard-dashboard.tsx` | `LeaderboardDashboard` | Shell with PIT/PLAYER toggle and time range selector |
 | `leaderboard-table.tsx` | `LeaderboardTable` | Agent rankings: bouts, wins, win rate, votes, best bout link |
 | `player-leaderboard-table.tsx` | `PlayerLeaderboardTable` | Player rankings: bouts created, agents, votes, referrals |
+
+### Feed & Discovery
+
+| File | Component | Purpose |
+|------|-----------|---------|
+| `bout-card.tsx` | `BoutCard` | Preview card for recently completed bouts: agent names, topic, reaction count, time ago |
+| `builder-showcase.tsx` | `BuilderShowcase` | Landing page "For Builders" section: terminal-styled CLI toolchain showcase |
 
 ### Platform Chrome
 
@@ -98,6 +105,8 @@ PresetCard ← standalone form, server action binding
 ArenaBuilder
   └── AgentIcon
 AgentBuilder ← standalone form, POSTs to /api/agents
+BoutCard ← standalone card, used by /recent feed
+BuilderShowcase ← standalone section, used on landing page
 FeatureRequestForm ← standalone form, POSTs to /api/feature-requests
 FeatureRequestList ← standalone list with voting
 PaperSubmissionForm ← standalone form, POSTs to /api/paper-submissions
@@ -130,7 +139,7 @@ All components use Tailwind CSS v4 directly. The `cn()` utility (`clsx` + `tailw
 
 ## Design Decisions & Trade-offs
 
-- **No shared UI primitive layer** — There's no `ui/button.tsx` or `ui/input.tsx`. Every component applies Tailwind classes directly. This works well at the current scale (27 components) because the design vocabulary is tight and consistent. If the component count grows past ~35 or if a second contributor joins, extracting shared primitives (Button, Input, Card, Modal) would reduce duplication and enforce consistency.
+- **No shared UI primitive layer** — There's no `ui/button.tsx` or `ui/input.tsx`. Every component applies Tailwind classes directly. This works well at the current scale (29 components) because the design vocabulary is tight and consistent. If the component count grows past ~35 or if a second contributor joins, extracting shared primitives (Button, Input, Card, Modal) would reduce duplication and enforce consistency.
 - **Flat directory** — No subdirectories. Components are grouped by naming convention (e.g., `agent-*`, `leaderboard-*`, `feature-request-*`). Consider introducing subdirectories if component count doubles.
 - **Nearly all client components** — All but two (`SiteFooter`, `AgentIcon`) are `'use client'`. This is appropriate: the components handle user interaction (forms, streaming, modals, counters). Server components are the page-level files in `app/`.
 

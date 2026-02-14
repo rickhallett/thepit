@@ -17,6 +17,13 @@ This roadmap is sourced from `app/roadmap/page.tsx`.
 - [x] Short links for bout sharing with click analytics
 - [x] Agent remix tracking with reward payouts
 - [x] Research data exports with PII anonymization
+- [x] Reaction toggle (heart/fire with optimistic revert)
+- [x] Enhanced share text formatting (delimiters, topic prominence, agent emphasis)
+- [x] Public bout feed (`/recent` — paginated recent bouts)
+- [x] Agent refusal detection and character-stay prompt strengthening
+- [x] 12 high-DNA standalone arena agents
+- [x] Re-roll completed bouts with tweaked parameters
+- [x] Per-message X/Twitter single-turn share
 - [ ] Creator profiles
 - [ ] Remix rewards (full marketplace integration)
 - [ ] Agent marketplace

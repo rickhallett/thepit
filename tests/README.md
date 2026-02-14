@@ -2,13 +2,13 @@
 
 # tests/
 
-88 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
+90 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
 
 ## Directory Structure
 
 ```
 tests/
-├── unit/               50 test files — pure function tests, mocked DB/external deps
+├── unit/               55 test files — pure function tests, mocked DB/external deps
 ├── api/                32 test files — API route handler tests with mocked deps
 ├── integration/         3 test files — real DB + security integration tests
 │   ├── db.test.ts                    — real DB operations via TEST_DATABASE_URL
@@ -28,7 +28,7 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 
 ## Test Coverage by Domain
 
-### Unit Tests (50 files in `tests/unit/`)
+### Unit Tests (55 files in `tests/unit/`)
 
 | Domain | Files | What's Tested |
 |--------|-------|---------------|
@@ -43,6 +43,7 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 | Bout & social | `bout-lineup.test.ts`, `short-links.test.ts`, `remix-events.test.ts` | Arena preset construction, short link creation/resolution, remix event recording |
 | Research | `research-anonymize.test.ts`, `arxiv.test.ts` | User ID anonymization, arXiv URL parsing, metadata fetching |
 | Brand & social | `brand.test.ts` | Brand constants, social link configuration, share text generation |
+| Infrastructure | `async-context.test.ts`, `env.test.ts`, `ip.test.ts`, `logger.test.ts`, `context-budget.test.ts` | AsyncLocalStorage context, env validation, IP resolution, structured logging, context budget tracking |
 | Utilities | `hash.test.ts`, `form-utils.test.ts`, `rate-limit.test.ts`, `response-formats.test.ts`, `response-lengths.test.ts`, `presets.test.ts`, `winner-votes-lib.test.ts`, `reactions-lib.test.ts`, `api-utils.test.ts`, `errors.test.ts`, `validation.test.ts` | Hashing, form data, rate limiting, response config, preset integrity, API utils, error handling, input validation |
 
 ### API Tests (32 files in `tests/api/`)

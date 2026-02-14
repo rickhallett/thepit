@@ -2,7 +2,7 @@
 
 # lib/
 
-53 shared utility modules organized in a flat directory. Types are co-located with their modules rather than in a separate types file. The modules cluster into 11 functional domains.
+62 shared utility modules organized in a flat directory. Types are co-located with their modules rather than in a separate types file. The modules cluster into 11 functional domains.
 
 ## Module Inventory
 
@@ -22,6 +22,9 @@
 |------|---------|
 | `bout-engine.ts` | Core bout execution engine (~640 lines). Two phases: `validateBoutRequest()` (parse, auth, tier, credits, idempotency) and `executeBout()` (turn loop, transcript, share line, DB persist, credit settlement). Emits `TurnEvent` union for SSE. |
 | `bout-lineup.ts` | Arena lineup reconstruction from bout JSONB data. `buildArenaPresetFromLineup()` for replay pages and bout engine. |
+| `recent-bouts.ts` | Paginated listing of recently completed bouts for the `/recent` public feed. LEFT JOIN aggregation for reaction counts. |
+| `refusal-detection.ts` | Lightweight refusal detection for agent bout responses. Normalizes Unicode quotes and matches against scoped marker phrases. Logs refusal events for data collection. |
+| `seed-agents.ts` | 12 high-DNA standalone agent definitions for arena selection. Exports `SEED_AGENTS` array and `buildSeedAgentPrompt()`. |
 
 ### Agent System
 
@@ -91,6 +94,9 @@
 | `api-logging.ts` | API route wrapper: automatic request/response logging with timing. |
 | `request-context.ts` | Extracts `x-request-id` from headers for log correlation. |
 | `anomaly.ts` | Lightweight server-side anomaly detection: burst traffic, credential probing, error rate spikes. In-memory sliding windows, log-only. |
+| `async-context.ts` | Request-scoped context via `AsyncLocalStorage`. Provides implicit access to request metadata (requestId, clientIp, userId) without manual parameter threading. |
+| `env.ts` | Centralized environment variable validation using Zod. Fail-fast on missing required vars, sensible defaults for optional. Server-side only. |
+| `ip.ts` | Canonical client IP resolution. Single source of truth using `x-vercel-forwarded-for` (Vercel) or rightmost `x-forwarded-for` (proxies). |
 | `api-utils.ts` | Shared API route utilities: standardized JSON error responses (`errorResponse()`), `parseJsonBody()`, `API_ERRORS` constants. |
 | `errors.ts` | Shared error utilities: `toErrorMessage()` for safe extraction from unknown catch values, `toError()` for wrapping. |
 | `validation.ts` | Shared input validation: `UNSAFE_PATTERN` regex for URLs, script tags, event handlers, data URIs. |
@@ -103,6 +109,9 @@
 | File | Purpose |
 |------|---------|
 | `use-bout.ts` | SSE streaming hook. Connects to `/api/run-bout`, parses JSON event stream, implements "pending message" state machine (2-4s random thinking delay). Returns `{ messages, status, activeAgentId, shareLine }`. |
+| `use-bout-reactions.ts` | Client-side reaction hook. Optimistic toggle with server reconciliation. Reverts on non-OK responses (rate limits, errors). |
+| `use-bout-sharing.ts` | Client-side sharing hook. Generates formatted share payloads per-message with cumulative transcripts, short links, and social platform URLs. |
+| `use-bout-voting.ts` | Client-side winner voting hook. Manages optimistic vote state and submission. |
 | `analytics.ts` | Typed `trackEvent()` for PostHog. Silent no-op when unconfigured. |
 | `engagement.ts` | Client-side engagement tracking: scroll depth milestones, active time measurement, bout engagement depth. Fires events to PostHog via `trackEvent()`. |
 
@@ -142,9 +151,13 @@ api-logging.ts → logger.ts, request-context.ts
 
 **All DB-touching modules** import from `@/db` and `@/db/schema` rather than constructing queries directly. The `requireDb()` guard ensures no operations run without a database connection.
 
-## Custom Hook: `useBout`
+## Custom Hooks
 
-The only custom React hook in the codebase. It manages the SSE streaming lifecycle:
+Four custom React hooks manage bout interactivity. `useBout` handles SSE streaming; the other three (`useBoutReactions`, `useBoutSharing`, `useBoutVoting`) were extracted from the `Arena` component to separate concerns.
+
+### `useBout`
+
+Manages the SSE streaming lifecycle:
 
 1. Client calls `POST /api/run-bout` via `fetch`
 2. Response is parsed via `parseJsonEventStream`
@@ -154,12 +167,24 @@ The only custom React hook in the codebase. It manages the SSE streaming lifecyc
 
 Used exclusively by the `Arena` component.
 
+### `useBoutReactions`
+
+Manages heart/fire reactions with optimistic UI. Toggles via `POST /api/reactions`, reconciles server state, and reverts on non-OK responses (rate limits, errors).
+
+### `useBoutSharing`
+
+Generates formatted share payloads with cumulative transcripts, short link creation, and social platform URLs (`buildShareLinks`). Per-message share supports X/Twitter single-turn sharing.
+
+### `useBoutVoting`
+
+Manages winner vote state and submission. Optimistic updates with error rollback. One vote per user per bout.
+
 ## Design Decisions & Trade-offs
 
 - **In-memory rate limiting** — `rate-limit.ts` uses process-scoped sliding windows. This is a deliberate simplicity choice: Vercel typically runs a single instance, and the rate limiter is "best effort" rather than strict. For multi-instance deployments, this would need to be replaced with Redis/Upstash. The automatic cleanup prevents memory leaks.
 - **In-memory caching (leaderboard, onboarding)** — Both modules use module-scoped caches with TTLs (5min for leaderboard, 1h for onboarding). Same single-instance assumption. Cache invalidation is time-based only — no event-driven invalidation.
 - **Type co-location** — Types are exported from their owning module (`Preset` from `presets.ts`, `BoutMessage` from `use-bout.ts`, etc.) rather than centralized in a `types/` directory. This keeps types close to their implementation and avoids circular imports. The tradeoff is that consuming modules must know which module exports which type.
-- **Flat directory** — 53 files in one folder. The naming convention creates implicit groupings (`agent-*`, `credit-*`, `response-*`, `research-*`). At the current scale this is approaching the threshold where a subdirectory split by domain would improve discoverability.
+- **Flat directory** — 62 files in one folder. The naming convention creates implicit groupings (`agent-*`, `credit-*`, `response-*`, `research-*`). At the current scale this is approaching the threshold where a subdirectory split by domain would improve discoverability.
 
 ---
 
