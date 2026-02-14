@@ -59,7 +59,7 @@ export default async function RootLayout({
             Skip to content
           </a>
           <PostHogProvider>
-            <div className="flex min-h-screen flex-col">
+            <div className="mx-auto flex min-h-screen max-w-[1920px] flex-col">
               <SiteHeader />
               <main id="main-content" className="flex-1">{children}</main>
               <SiteFooter />

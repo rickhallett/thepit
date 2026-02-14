@@ -26,7 +26,8 @@ export const POST = withLogging(async function POST(req: Request) {
   if (!email) {
     return errorResponse('Email required.', 400);
   }
-  if (!EMAIL_RE.test(email) || email.length > 256) {
+  // FINDING-009: Reject emails containing angle brackets or other HTML characters
+  if (!EMAIL_RE.test(email) || email.length > 256 || /[<>"']/.test(email)) {
     return errorResponse('Invalid email address.', 400);
   }
 

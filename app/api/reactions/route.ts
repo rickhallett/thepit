@@ -47,6 +47,16 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse('Missing boutId or turnIndex.', 400);
   }
 
+  // FINDING-007: Validate boutId format (nanoid: alphanumeric + _ + -, 10-30 chars)
+  if (!/^[\w-]{10,30}$/.test(boutId)) {
+    return errorResponse('Invalid boutId format.', 400);
+  }
+
+  // FINDING-007: Validate turnIndex is a non-negative integer
+  if (!Number.isInteger(payload.turnIndex) || payload.turnIndex < 0) {
+    return errorResponse('turnIndex must be a non-negative integer.', 400);
+  }
+
   if (!['heart', 'fire'].includes(reactionType)) {
     return errorResponse('Invalid reaction type.', 400);
   }

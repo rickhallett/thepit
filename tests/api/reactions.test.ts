@@ -49,7 +49,7 @@ describe('reactions api', () => {
     const req = new Request('http://localhost/api/reactions', {
       method: 'POST',
       body: JSON.stringify({
-        boutId: 'bout-1',
+        boutId: 'bout-test-react01',
         turnIndex: 1,
         reactionType: 'lol',
       }),
