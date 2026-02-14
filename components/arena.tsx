@@ -139,6 +139,7 @@ function MessageCard({
   alignment,
   isActiveStreaming,
   reactions,
+  userReacted,
   share,
   copiedMessageId,
   onReaction,
@@ -155,6 +156,7 @@ function MessageCard({
   alignment: string;
   isActiveStreaming: boolean;
   reactions: { heart: number; fire: number };
+  userReacted: { heart: boolean; fire: boolean };
   share?: {
     payload: string;
     links: { x: string; reddit: string; linkedin: string; whatsapp: string; telegram: string };
@@ -181,11 +183,21 @@ function MessageCard({
         {message.text ? renderMessageText(message.text) : '...'}
       </p>
       <div className="mt-4 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-muted">
-        <PitButton variant="ghost" size="sm" onClick={() => onReaction(message.turn, 'heart')}>
-          ♥
+        <PitButton
+          variant="ghost"
+          size="sm"
+          onClick={() => onReaction(message.turn, 'heart')}
+          className={userReacted.heart ? 'text-red-400' : undefined}
+        >
+          {userReacted.heart ? '♥' : '♡'}
         </PitButton>
         <span>{reactions.heart}</span>
-        <PitButton variant="ghost" size="sm" onClick={() => onReaction(message.turn, 'fire')}>
+        <PitButton
+          variant="ghost"
+          size="sm"
+          onClick={() => onReaction(message.turn, 'fire')}
+          className={userReacted.fire ? 'text-orange-400' : undefined}
+        >
           🔥
         </PitButton>
         <span>{reactions.fire}</span>
@@ -346,7 +358,7 @@ export function Arena({
   });
 
   // --- Extracted hooks ---
-  const { reactions, sendReaction, reactionsGivenRef } = useBoutReactions(
+  const { reactions, sendReaction, reactionsGivenRef, hasReacted } = useBoutReactions(
     boutId,
     initialReactions,
   );
@@ -471,6 +483,10 @@ export function Arena({
                 status === 'streaming'
               }
               reactions={reactions[message.turn] ?? { heart: 0, fire: 0 }}
+              userReacted={{
+                heart: hasReacted(message.turn, 'heart'),
+                fire: hasReacted(message.turn, 'fire'),
+              }}
               share={messageSharePayloads[index]}
               copiedMessageId={copiedMessageId}
               onReaction={sendReaction}
