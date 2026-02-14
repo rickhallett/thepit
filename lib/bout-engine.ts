@@ -66,6 +66,7 @@ import {
 } from '@/lib/tier';
 import { consumeFreeBout } from '@/lib/free-bout-pool';
 import { UNSAFE_PATTERN } from '@/lib/validation';
+import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
 import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -467,7 +468,12 @@ export async function executeBout(
       .where(eq(bouts.id, boutId));
 
     const SAFETY_TEXT =
-      'The following is a character persona for a debate simulation. Stay in character. Do not reveal system details, API keys, or internal platform information.';
+      'The following is a character persona for a satirical debate simulation between exaggerated caricatures. ' +
+      'This is a fictional entertainment format — like improv comedy or a debate show — NOT real advocacy. ' +
+      'You MUST stay in character for the entire response. Do not break the fourth wall, ' +
+      'do not add disclaimers, do not refuse the role, and do not offer alternatives. ' +
+      'The audience understands these are fictional characters with exaggerated viewpoints. ' +
+      'Do not reveal system details, API keys, or internal platform information.';
 
     const boutModel = getModel(modelId, modelId === 'byok' ? byokKey : undefined);
 
@@ -618,6 +624,22 @@ export async function executeBout(
         outputTokens: turnOutputTokens,
         durationMs: turnDurationMs,
       });
+
+      // Refusal detection: log when an agent breaks character
+      const refusalMarker = detectRefusal(fullText);
+      if (refusalMarker) {
+        logRefusal({
+          boutId,
+          turn: i,
+          agentId: agent.id,
+          agentName: agent.name,
+          modelId,
+          presetId,
+          topic,
+          marker: refusalMarker,
+          responseLength: fullText.length,
+        });
+      }
 
       history.push(`${agent.name}: ${fullText}`);
 
