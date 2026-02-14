@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 
 import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
+import { dark } from '@clerk/themes';
 
 import { Analytics } from '@vercel/analytics/react';
 
@@ -49,7 +50,19 @@ export default async function RootLayout({
   }
 
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: '#7aa2f7',
+          colorBackground: '#1a1b26',
+          colorInputBackground: '#24283b',
+          colorText: '#c0caf5',
+          colorTextSecondary: '#565f89',
+          fontFamily: '"IBM Plex Mono", monospace',
+        },
+      }}
+    >
       <html lang="en">
         <body className="bg-background text-foreground antialiased">
           <a
