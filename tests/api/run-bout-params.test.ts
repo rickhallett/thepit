@@ -174,8 +174,8 @@ const CONCISE_LENGTH = {
 };
 
 const MARKDOWN_FORMAT = {
-  id: 'markdown',
-  label: 'Markdown',
+  id: 'spaced',
+  label: 'Text + spacing',
   hint: 'rich formatting',
   instruction: 'Respond in Markdown.',
 };

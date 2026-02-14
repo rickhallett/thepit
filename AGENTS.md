@@ -40,3 +40,22 @@
 - Local secrets live in `.env` (do not commit).
 - Required env vars include `DATABASE_URL`, `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, and `CLERK_SECRET_KEY`.
 - When rotating keys, update local `.env` and deployment envs consistently.
+
+### CRITICAL: Piping Values to CLI Tools
+**NEVER use `echo` to pipe values to CLI tools** (e.g., `vercel env add`, `gh secret set`). `echo` appends a trailing newline (`\n`) that silently corrupts the value. This breaks API keys, secrets, DB connection strings, boolean flags, and any value compared with `===`.
+
+**ALWAYS use `printf` instead:**
+```bash
+# WRONG — value becomes "true\n", which !== "true"
+echo "true" | vercel env add MY_FLAG production
+
+# CORRECT — value is exactly "true"
+printf 'true' | vercel env add MY_FLAG production
+```
+
+After setting env vars, **always verify** they are clean:
+```bash
+vercel env pull .env.check --environment production
+grep '\\n"' .env.check
+rm .env.check
+```

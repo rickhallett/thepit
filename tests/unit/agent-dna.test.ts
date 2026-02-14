@@ -42,7 +42,7 @@ describe('agent dna helpers', () => {
       systemPrompt: 'Observe.',
       tier: 'premium',
       responseLength: 'long',
-      responseFormat: 'markdown',
+      responseFormat: 'spaced',
       createdAt: '2026-02-08T00:00:00.000Z',
       presetId: 'darwin-special',
     });

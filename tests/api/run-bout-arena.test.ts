@@ -121,8 +121,8 @@ vi.mock('@/lib/response-lengths', () => ({
 
 vi.mock('@/lib/response-formats', () => ({
   resolveResponseFormat: vi.fn(() => ({
-    id: 'markdown',
-    label: 'Markdown',
+    id: 'spaced',
+    label: 'Text + spacing',
     hint: 'rich formatting',
     instruction: 'Respond in Markdown.',
   })),
@@ -255,7 +255,7 @@ describe('run-bout arena mode', () => {
                 agentLineup: ARENA_LINEUP,
                 topic: 'AI ethics',
                 responseLength: 'standard',
-                responseFormat: 'markdown',
+                responseFormat: 'spaced',
               },
             ];
           },

@@ -196,7 +196,7 @@ const authBoutTests: TestDef[] = [
           presetId: 'gloves-off',
           topic: 'Is consciousness an emergent property of sufficient computational complexity, or does it require a fundamentally different substrate?',
           length: 'long',
-          format: 'markdown',
+          format: 'spaced',
         },
         auth: true,
         timeout: 180_000,

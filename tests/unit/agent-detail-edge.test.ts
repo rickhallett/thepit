@@ -37,7 +37,7 @@ vi.mock('@/lib/response-lengths', () => ({
 }));
 
 vi.mock('@/lib/response-formats', () => ({
-  DEFAULT_RESPONSE_FORMAT: 'markdown',
+  DEFAULT_RESPONSE_FORMAT: 'spaced',
 }));
 
 import { getAgentDetail } from '@/lib/agent-detail';
@@ -53,7 +53,7 @@ const makeAgentRow = (
   tier: 'custom',
   systemPrompt: `I am ${name}`,
   responseLength: 'standard',
-  responseFormat: 'markdown',
+  responseFormat: 'spaced',
   archetype: null,
   tone: null,
   quirks: null,

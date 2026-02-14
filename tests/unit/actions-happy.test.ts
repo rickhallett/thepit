@@ -162,10 +162,10 @@ vi.mock('@/lib/response-lengths', () => ({
 }));
 
 vi.mock('@/lib/response-formats', () => ({
-  DEFAULT_RESPONSE_FORMAT: 'markdown',
+  DEFAULT_RESPONSE_FORMAT: 'spaced',
   resolveResponseFormat: vi.fn().mockReturnValue({
-    id: 'markdown',
-    label: 'Markdown',
+    id: 'spaced',
+    label: 'Text + spacing',
     hint: '',
     instruction: '',
   }),
@@ -359,7 +359,7 @@ describe('createBout', () => {
           topic: 'AI ethics',
           model: 'gpt-4',
           length: 'long',
-          format: 'markdown',
+          format: 'spaced',
         };
         return values[key] ?? '';
       },
@@ -369,7 +369,7 @@ describe('createBout', () => {
       topic: 'AI ethics',
       model: 'gpt-4',
       length: 'long',
-      format: 'markdown',
+      format: 'spaced',
     });
 
     const url = await expectRedirect(
@@ -381,7 +381,7 @@ describe('createBout', () => {
     expect(url).toContain('topic=AI+ethics');
     expect(url).toContain('model=gpt-4');
     expect(url).toContain('length=long');
-    expect(url).toContain('format=markdown');
+    expect(url).toContain('format=spaced');
     expect(mockDb.insert).toHaveBeenCalled();
   });
 
@@ -426,7 +426,7 @@ describe('createArenaBout', () => {
         const values: Record<string, string> = {
           topic: 'Debate night',
           length: 'standard',
-          format: 'markdown',
+          format: 'spaced',
           model: '',
         };
         return values[key] ?? '';
@@ -437,7 +437,7 @@ describe('createArenaBout', () => {
       agentIds,
       topic: 'Debate night',
       length: 'standard',
-      format: 'markdown',
+      format: 'spaced',
     });
 
     await expectRedirect(

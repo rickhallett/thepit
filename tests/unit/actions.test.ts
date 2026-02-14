@@ -159,8 +159,8 @@ vi.mock('@/lib/response-lengths', () => ({
 }));
 
 vi.mock('@/lib/response-formats', () => ({
-  DEFAULT_RESPONSE_FORMAT: 'markdown',
-  resolveResponseFormat: vi.fn().mockReturnValue({ id: 'markdown', label: 'Markdown', hint: '', instruction: '' }),
+  DEFAULT_RESPONSE_FORMAT: 'spaced',
+  resolveResponseFormat: vi.fn().mockReturnValue({ id: 'spaced', label: 'Text + spacing', hint: '', instruction: '' }),
 }));
 
 vi.mock('@/lib/form-utils', () => ({

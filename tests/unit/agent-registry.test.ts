@@ -79,7 +79,7 @@ const mockBuildAgentManifest = vi.fn().mockReturnValue({
   tier: 'free',
   model: null,
   responseLength: 'standard',
-  responseFormat: 'markdown',
+  responseFormat: 'spaced',
   createdAt: '2026-01-01T00:00:00.000Z',
   parentId: null,
   ownerId: null,
@@ -101,7 +101,7 @@ vi.mock('@/lib/presets', () => ({
 }));
 
 vi.mock('@/lib/response-formats', () => ({
-  DEFAULT_RESPONSE_FORMAT: 'markdown',
+  DEFAULT_RESPONSE_FORMAT: 'spaced',
 }));
 
 vi.mock('@/lib/response-lengths', () => ({
@@ -190,7 +190,7 @@ describe('agent-registry', () => {
           tier: 'free',
           systemPrompt: 'You are a roast battle judge.',
           responseLength: 'standard',
-          responseFormat: 'markdown',
+          responseFormat: 'spaced',
           archetype: null,
           tone: null,
           quirks: null,
@@ -271,7 +271,7 @@ describe('agent-registry', () => {
         presetId: 'roast-battle',
         tier: 'free',
         responseLength: 'standard',
-        responseFormat: 'markdown',
+        responseFormat: 'spaced',
         createdAt: '2026-01-01T00:00:00.000Z',
       });
     });
