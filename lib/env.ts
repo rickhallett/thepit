@@ -43,7 +43,7 @@ const serverEnvSchema = z.object({
   // --- Model configuration ---
   ANTHROPIC_FREE_MODEL: z.string().optional().default('claude-haiku-4-5-20251001'),
   ANTHROPIC_PREMIUM_MODEL: z.string().optional().default('claude-sonnet-4-5-20250929'),
-  ANTHROPIC_PREMIUM_MODELS: z.string().optional().default('claude-sonnet-4-5-20250929,claude-opus-4-5-20251101'),
+  ANTHROPIC_PREMIUM_MODELS: z.string().optional().default('claude-sonnet-4-5-20250929,claude-opus-4-5-20251101,claude-opus-4-6'),
   ANTHROPIC_BYOK_MODEL: z.string().optional(),
   ANTHROPIC_MODEL: z.string().optional(),
   ASK_THE_PIT_MODEL: z.string().optional(),
