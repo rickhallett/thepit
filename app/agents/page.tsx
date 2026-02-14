@@ -12,7 +12,7 @@ export default async function AgentsPage() {
   }));
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen overflow-x-hidden bg-background text-foreground">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-10">
         <header className="border-b-2 border-foreground/70 pb-6">
           <div className="flex flex-wrap items-start justify-between gap-4">

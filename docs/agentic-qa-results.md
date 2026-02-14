@@ -351,9 +351,9 @@ Replay base URL: `https://proxy.iad-nervous-jackson.onkernel.com:8443/browser/re
 | Console Errors | 1 | 1 | 0 | 0 | Zero JS errors across all pages (post-CSP fix) |
 | Double-Click Abuse | 1 | 1 | 0 | 0 | Double-click Enter creates one bout (not two) |
 | Contact Form (FINDING-006 re-test) | 1 | 1 | 0 | 0 | Now returns 200 after Resend domain fix |
-| **TOTAL** | **78** | **70** | **2** | **4** | |
+| **TOTAL** | **78** | **70** | **2** | **6** | |
 
-**Hostile sweep pass rate: 90% (70/78)**
+**Hostile sweep pass rate: 90% (70/78, 6 warnings)**
 
 ---
 
