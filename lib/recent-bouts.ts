@@ -29,6 +29,17 @@ export async function getRecentBouts(
 ): Promise<RecentBout[]> {
   const db = requireDb();
 
+  // Aggregate reaction counts in a subquery, then LEFT JOIN to avoid
+  // a correlated subquery that runs per-row (N+1).
+  const reactionCounts = db
+    .select({
+      boutId: reactions.boutId,
+      count: sql<number>`cast(count(*) as int)`.as('reaction_count'),
+    })
+    .from(reactions)
+    .groupBy(reactions.boutId)
+    .as('rc');
+
   const rows = await db
     .select({
       id: bouts.id,
@@ -38,14 +49,10 @@ export async function getRecentBouts(
       transcript: bouts.transcript,
       shareLine: bouts.shareLine,
       createdAt: bouts.createdAt,
-      reactionCount: sql<number>`coalesce(${
-        db
-          .select({ count: sql`count(*)` })
-          .from(reactions)
-          .where(eq(reactions.boutId, bouts.id))
-      }, 0)`,
+      reactionCount: sql<number>`coalesce(${reactionCounts.count}, 0)`,
     })
     .from(bouts)
+    .leftJoin(reactionCounts, eq(bouts.id, reactionCounts.boutId))
     .where(eq(bouts.status, 'completed'))
     .orderBy(desc(bouts.createdAt))
     .limit(limit)
