@@ -90,6 +90,10 @@ export const POST = withLogging(async function POST(req: Request) {
   if (/https?:\/\/|www\./i.test(name)) {
     return errorResponse('Name must not contain URLs.', 400);
   }
+  // FINDING-008: Apply UNSAFE_PATTERN to name for defense-in-depth against stored XSS
+  if (UNSAFE_PATTERN.test(name)) {
+    return errorResponse('Name must not contain URLs or scripts.', 400);
+  }
 
   // Validate all structured text fields for length and unsafe patterns
   for (const [field, limit] of Object.entries(TEXT_FIELD_LIMITS)) {

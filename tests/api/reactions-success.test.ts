@@ -64,7 +64,7 @@ describe('reactions success paths', () => {
     authMock.mockResolvedValue({ userId: 'user_abc' });
 
     const res = await POST(
-      makeReq({ boutId: 'bout-1', turnIndex: 0, reactionType: 'heart' }),
+      makeReq({ boutId: 'bout-test-abc12', turnIndex: 0, reactionType: 'heart' }),
     );
 
     expect(res.status).toBe(200);
@@ -72,7 +72,7 @@ describe('reactions success paths', () => {
 
     // Verify insert was called with correct values including userId
     expect(mockValues).toHaveBeenCalledWith({
-      boutId: 'bout-1',
+      boutId: 'bout-test-abc12',
       turnIndex: 0,
       reactionType: 'heart',
       userId: 'user_abc',
@@ -84,7 +84,7 @@ describe('reactions success paths', () => {
     authMock.mockResolvedValue({ userId: null });
 
     const res = await POST(
-      makeReq({ boutId: 'bout-2', turnIndex: 3, reactionType: 'fire' }),
+      makeReq({ boutId: 'bout-test-def34', turnIndex: 3, reactionType: 'fire' }),
     );
 
     expect(res.status).toBe(200);
@@ -92,7 +92,7 @@ describe('reactions success paths', () => {
 
     // Anonymous users get an IP-based deduplication ID
     expect(mockValues).toHaveBeenCalledWith({
-      boutId: 'bout-2',
+      boutId: 'bout-test-def34',
       turnIndex: 3,
       reactionType: 'fire',
       userId: 'anon:127.0.0.1',
@@ -108,7 +108,7 @@ describe('reactions success paths', () => {
     });
 
     const res = await POST(
-      makeReq({ boutId: 'bout-1', turnIndex: 1, reactionType: 'heart' }),
+      makeReq({ boutId: 'bout-test-ghi56', turnIndex: 1, reactionType: 'heart' }),
     );
 
     expect(res.status).toBe(200);
@@ -119,7 +119,7 @@ describe('reactions success paths', () => {
 
   it('U1: turnIndex as string instead of number → 400', async () => {
     const res = await POST(
-      makeReq({ boutId: 'bout-1', turnIndex: '0', reactionType: 'heart' }),
+      makeReq({ boutId: 'bout-test-jkl78', turnIndex: '0', reactionType: 'heart' }),
     );
 
     expect(res.status).toBe(400);
