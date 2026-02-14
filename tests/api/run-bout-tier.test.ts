@@ -11,6 +11,7 @@ const {
   canRunBoutMock,
   canAccessModelMock,
   incrementFreeBoutsUsedMock,
+  getFreeBoutsUsedMock,
   consumeFreeBoutMock,
   getPresetByIdMock,
   streamTextMock,
@@ -30,6 +31,7 @@ const {
     canRunBoutMock: vi.fn(),
     canAccessModelMock: vi.fn(),
     incrementFreeBoutsUsedMock: vi.fn(),
+    getFreeBoutsUsedMock: vi.fn(),
     consumeFreeBoutMock: vi.fn(),
     getPresetByIdMock: vi.fn(),
     streamTextMock: vi.fn(),
@@ -71,6 +73,7 @@ vi.mock('@/lib/tier', () => ({
   canRunBout: canRunBoutMock,
   canAccessModel: canAccessModelMock,
   incrementFreeBoutsUsed: incrementFreeBoutsUsedMock,
+  getFreeBoutsUsed: getFreeBoutsUsedMock,
 }));
 
 vi.mock('@/lib/free-bout-pool', () => ({
@@ -255,6 +258,7 @@ describe('run-bout tier-based access control', () => {
     canAccessModelMock.mockReturnValue(true);
     consumeFreeBoutMock.mockResolvedValue({ consumed: true, remaining: 99 });
     incrementFreeBoutsUsedMock.mockResolvedValue(1);
+    getFreeBoutsUsedMock.mockResolvedValue(1); // default: not first bout
     readAndClearByokKeyMock.mockReturnValue(null);
     // streamText mock for the streaming execute path
     streamTextMock.mockReturnValue({
@@ -379,7 +383,33 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 8. Legacy path: SUBSCRIPTIONS_ENABLED=false with premium preset
+  // 8. First-bout Opus promotion: freeBoutsUsed === 0 → upgraded to Opus
+  // -------------------------------------------------------------------------
+  it('promotes first-bout free-tier user to Opus', async () => {
+    getUserTierMock.mockResolvedValue('free');
+    getFreeBoutsUsedMock.mockResolvedValue(0);
+
+    const res = await POST(makeRequest({ boutId: 'b8a', presetId: 'darwin-special' }));
+    expect(res.status).toBe(200);
+    // getFreeBoutsUsed should have been called to check promotion eligibility
+    expect(getFreeBoutsUsedMock).toHaveBeenCalledWith('user-1');
+  });
+
+  // -------------------------------------------------------------------------
+  // 9. No Opus promotion when freeBoutsUsed > 0
+  // -------------------------------------------------------------------------
+  it('does not promote when user has already used free bouts', async () => {
+    getUserTierMock.mockResolvedValue('free');
+    getFreeBoutsUsedMock.mockResolvedValue(3);
+
+    const res = await POST(makeRequest({ boutId: 'b8b', presetId: 'darwin-special' }));
+    expect(res.status).toBe(200);
+    // getFreeBoutsUsed should still have been called
+    expect(getFreeBoutsUsedMock).toHaveBeenCalledWith('user-1');
+  });
+
+  // -------------------------------------------------------------------------
+  // 10. Legacy path: SUBSCRIPTIONS_ENABLED=false with premium preset
   // -------------------------------------------------------------------------
   it('returns 402 on legacy path when premium preset and PREMIUM_ENABLED not set', async () => {
     // To test the legacy path we need SUBSCRIPTIONS_ENABLED=false.
@@ -390,6 +420,7 @@ describe('run-bout tier-based access control', () => {
       canRunBout: canRunBoutMock,
       canAccessModel: canAccessModelMock,
       incrementFreeBoutsUsed: incrementFreeBoutsUsedMock,
+      getFreeBoutsUsed: getFreeBoutsUsedMock,
     }));
 
     // Ensure PREMIUM_ENABLED is not set
