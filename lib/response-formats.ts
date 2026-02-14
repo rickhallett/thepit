@@ -1,7 +1,7 @@
 // Response format options that control how agents structure their output.
 // Each format includes an instruction string appended to the system prompt.
 
-export type ResponseFormatId = 'plain' | 'spaced' | 'markdown' | 'json';
+export type ResponseFormatId = 'plain' | 'spaced' | 'json';
 
 export type ResponseFormat = {
   id: ResponseFormatId;
@@ -12,12 +12,6 @@ export type ResponseFormat = {
 
 export const RESPONSE_FORMATS: ResponseFormat[] = [
   {
-    id: 'plain',
-    label: 'Plain text',
-    hint: 'no markup',
-    instruction: 'Respond in plain text only. Do not use markdown or JSON.',
-  },
-  {
     id: 'spaced',
     label: 'Text + spacing',
     hint: 'airier paragraphs',
@@ -25,10 +19,10 @@ export const RESPONSE_FORMATS: ResponseFormat[] = [
       'Respond in plain text. Use short paragraphs and insert blank lines between them.',
   },
   {
-    id: 'markdown',
-    label: 'Markdown',
-    hint: 'rich formatting',
-    instruction: 'Respond in Markdown. Use formatting where it helps clarity.',
+    id: 'plain',
+    label: 'Plain text',
+    hint: 'no markup',
+    instruction: 'Respond in plain text only. Do not use markdown or JSON.',
   },
   {
     id: 'json',
@@ -39,14 +33,16 @@ export const RESPONSE_FORMATS: ResponseFormat[] = [
   },
 ];
 
-export const DEFAULT_RESPONSE_FORMAT: ResponseFormatId = 'markdown';
+export const DEFAULT_RESPONSE_FORMAT: ResponseFormatId = 'spaced';
 
-const DEFAULT_FORMAT = RESPONSE_FORMATS.find((f) => f.id === 'markdown')!;
+const DEFAULT_FORMAT = RESPONSE_FORMATS.find((f) => f.id === 'spaced')!;
 
 export const resolveResponseFormat = (
   value?: string | null,
 ): ResponseFormat => {
   if (!value) return DEFAULT_FORMAT;
   const match = RESPONSE_FORMATS.find((format) => format.id === value);
+  // Legacy 'markdown' values in DB resolve to spaced text
+  if (!match && value === 'markdown') return DEFAULT_FORMAT;
   return match ?? DEFAULT_FORMAT;
 };

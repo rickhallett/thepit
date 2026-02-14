@@ -119,8 +119,8 @@ vi.mock('@/lib/response-lengths', () => ({
 
 vi.mock('@/lib/response-formats', () => ({
   resolveResponseFormat: vi.fn(() => ({
-    id: 'markdown',
-    label: 'Markdown',
+    id: 'spaced',
+    label: 'Text + spacing',
     hint: 'rich formatting',
     instruction: 'Respond in Markdown.',
   })),

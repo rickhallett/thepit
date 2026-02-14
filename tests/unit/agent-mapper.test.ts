@@ -9,7 +9,7 @@ describe('rowToSnapshot', () => {
     tier: 'free' as const,
     systemPrompt: 'You are a test agent.',
     responseLength: 'standard',
-    responseFormat: 'markdown',
+    responseFormat: 'spaced',
     archetype: 'tester',
     tone: 'serious',
     quirks: ['tests everything'],

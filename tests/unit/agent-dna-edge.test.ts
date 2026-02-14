@@ -16,7 +16,7 @@ describe('agent-dna edge cases', () => {
       tier: 'premium',
       model: 'claude-sonnet-4-5-20250929',
       responseLength: 'long',
-      responseFormat: 'markdown',
+      responseFormat: 'spaced',
       createdAt: '2026-02-08T12:00:00.000Z',
       parentId: 'parent-agent-1',
       ownerId: 'user-owner-1',

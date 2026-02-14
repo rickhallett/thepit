@@ -67,9 +67,9 @@ export const spec = {
                   },
                   format: {
                     type: 'string',
-                    enum: ['plain', 'spaced', 'markdown', 'json'],
-                    description: 'Response format. Plain: no markup. Spaced: paragraphs. Markdown: rich formatting. JSON: structured output.',
-                    default: 'plain',
+                    enum: ['plain', 'spaced', 'json'],
+                    description: 'Response format. Spaced: paragraphs with spacing (default). Plain: no markup. JSON: structured output.',
+                    default: 'spaced',
                   },
                 },
               },

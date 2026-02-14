@@ -37,7 +37,7 @@ vi.mock('@/lib/response-lengths', () => ({
 }));
 
 vi.mock('@/lib/response-formats', () => ({
-  DEFAULT_RESPONSE_FORMAT: 'markdown',
+  DEFAULT_RESPONSE_FORMAT: 'spaced',
 }));
 
 import { getAgentDetail } from '@/lib/agent-detail';
@@ -56,7 +56,7 @@ describe('agent-detail', () => {
       tier: 'custom',
       systemPrompt: 'Be helpful.',
       responseLength: 'standard',
-      responseFormat: 'markdown',
+      responseFormat: 'spaced',
       archetype: null,
       tone: null,
       quirks: null,
@@ -106,7 +106,7 @@ describe('agent-detail', () => {
       tier: 'custom',
       systemPrompt: 'I am the child.',
       responseLength: 'standard',
-      responseFormat: 'markdown',
+      responseFormat: 'spaced',
       archetype: null,
       tone: null,
       quirks: null,
@@ -146,7 +146,7 @@ describe('agent-detail', () => {
       tier: 'custom',
       systemPrompt: 'I have a missing parent.',
       responseLength: 'standard',
-      responseFormat: 'markdown',
+      responseFormat: 'spaced',
       archetype: null,
       tone: null,
       quirks: null,
