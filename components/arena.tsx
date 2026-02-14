@@ -376,7 +376,6 @@ export function Arena({
     boutId,
     preset,
     topic,
-    format,
     status,
     messages,
     shareLine: resolvedShareLine,
