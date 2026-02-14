@@ -12,10 +12,10 @@ const require = createRequire(import.meta.url);
 // Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
 // api.stripe.com) are omitted since CSP only governs the browser.
 //
-// Clerk domains: In production with a pk_live_ key only *.clerk.com is needed.
-// The *.clerk.accounts.dev domain is included for development/staging with pk_test_ keys.
-// TODO(launch): Once pk_live_ key is deployed, remove *.clerk.accounts.dev for a tighter CSP.
-const clerkDomains = 'https://*.clerk.accounts.dev https://*.clerk.com';
+// Clerk domains: production uses clerk.thepit.cloud (Frontend API) and
+// accounts.thepit.cloud (account portal). The *.clerk.accounts.dev and
+// *.clerk.com domains are kept for development/staging with pk_test_ keys.
+const clerkDomains = 'https://clerk.thepit.cloud https://accounts.thepit.cloud https://*.clerk.accounts.dev https://*.clerk.com';
 const clerkImgDomains = 'https://img.clerk.com https://images.clerk.dev https://images.clerk.com';
 // PostHog uses both us.i.posthog.com (ingest) and us-assets.i.posthog.com (assets/config)
 const posthogDomains = 'https://us.i.posthog.com https://us-assets.i.posthog.com';
