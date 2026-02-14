@@ -94,14 +94,19 @@ export interface ShareLinks {
  * Build platform share URLs for a given text payload and replay URL.
  * Returns all links regardless of channel enabled state — the UI layer
  * decides which to render based on `SOCIAL_CHANNELS`.
+ *
+ * @param text - Full share text (used for Reddit, WhatsApp, Telegram, LinkedIn)
+ * @param replayUrl - Replay URL for the bout
+ * @param xText - Optional shorter text for X/Twitter (280 char limit). Falls back to `text` if omitted.
  */
-export function buildShareLinks(text: string, replayUrl: string): ShareLinks {
+export function buildShareLinks(text: string, replayUrl: string, xText?: string): ShareLinks {
   const encoded = encodeURIComponent(text);
   const encodedUrl = encodeURIComponent(replayUrl);
   const title = encodeURIComponent(`THE PIT — AI Battle Arena`);
+  const xEncoded = encodeURIComponent(xText ?? text);
 
   return {
-    x: `https://twitter.com/intent/tweet?text=${encoded}`,
+    x: `https://twitter.com/intent/tweet?text=${xEncoded}`,
     reddit: `https://reddit.com/submit?url=${encodedUrl}&title=${title}`,
     whatsapp: `https://wa.me/?text=${encoded}`,
     telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encoded}`,
