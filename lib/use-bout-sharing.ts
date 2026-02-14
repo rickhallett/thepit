@@ -13,6 +13,33 @@ type MessageSharePayload = {
 const DELIMITER = '─────────────────────────';
 
 /**
+ * Build a concise single-turn share text for X/Twitter (280 char limit).
+ * Includes agent name, a snippet of their text, topic, and replay link.
+ */
+function buildXShareText({
+  agentName,
+  text,
+  presetName,
+  topic,
+  replayUrl,
+}: {
+  agentName: string;
+  text: string;
+  presetName: string;
+  topic?: string;
+  replayUrl: string;
+}): string {
+  const header = `${agentName} (${presetName}):`;
+  const footer = `\n\n${topic ? `Topic: ${topic}\n` : ''}${replayUrl}`;
+  // Reserve space for header + footer + quotes + newlines
+  const overhead = header.length + footer.length + 6; // 6 for quotes + newlines
+  const maxQuote = Math.max(280 - overhead, 40);
+  const snippet =
+    text.length > maxQuote ? `${text.slice(0, maxQuote - 3).trimEnd()}...` : text;
+  return `${header}\n"${snippet}"${footer}`;
+}
+
+/**
  * Hook for managing bout sharing state: share URL, short links,
  * share text generation, and clipboard operations.
  */
@@ -103,9 +130,19 @@ export function useBoutSharing({
         '',
         `🔴 ${BRAND.hashtag}`,
       ].join('\n');
+
+      // Twitter/X gets a single-turn version due to 280 char limit
+      const xText = buildXShareText({
+        agentName: message.agentName,
+        text: message.text,
+        presetName: preset.name,
+        topic: topic ?? undefined,
+        replayUrl,
+      });
+
       return {
         payload,
-        links: buildShareLinks(payload, replayUrl),
+        links: buildShareLinks(payload, replayUrl, xText),
       };
     });
   }, [messages, preset.name, replayUrl, shareLine, topic]);
