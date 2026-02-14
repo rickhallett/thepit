@@ -67,62 +67,94 @@ export function PlayerLeaderboardTable({
       ) : (
         <div className="relative">
           <div className="overflow-x-auto border-2 border-foreground/60">
-          <div className="grid min-w-[640px] grid-cols-[minmax(0,2fr)_90px_90px_90px_90px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
-            <span>Player</span>
-            <button
-              type="button"
-              onClick={() => toggleSort('boutsCreated')}
-              className="text-right transition hover:text-foreground"
-            >
-              Bouts
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleSort('agentsCreated')}
-              className="text-right transition hover:text-foreground"
-            >
-              Agents
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleSort('votesCast')}
-              className="text-right transition hover:text-foreground"
-            >
-              Votes
-            </button>
-            <button
-              type="button"
-              onClick={() => toggleSort('referrals')}
-              className="text-right transition hover:text-foreground"
-            >
-              Referrals
-            </button>
-          </div>
-          {filtered.map((entry, index) => (
-            <div
-              key={entry.id}
-              className="grid min-w-[640px] grid-cols-[minmax(0,2fr)_90px_90px_90px_90px] gap-4 border-b border-foreground/40 px-4 py-3 text-left text-sm transition hover:bg-black/50"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-xs uppercase tracking-[0.25em] text-muted">
-                  {index + 1}
-                </span>
-                <span className="uppercase tracking-[0.2em]">{entry.name}</span>
-              </div>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.boutsCreated}
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.agentsCreated}
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.votesCast}
-              </span>
-              <span className="text-right text-xs uppercase tracking-[0.25em] text-muted">
-                {entry.referrals}
-              </span>
-            </div>
-          ))}
+          <table className="min-w-[640px] w-full border-collapse text-left">
+            <thead>
+              <tr className="border-b-2 border-foreground/60 bg-black/60 text-[10px] uppercase tracking-[0.3em] text-muted">
+                <th scope="col" className="px-4 py-3 font-normal">Player</th>
+                <th
+                  scope="col"
+                  className="w-[90px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'boutsCreated' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('boutsCreated')}
+                    className="transition hover:text-foreground"
+                  >
+                    Bouts
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="w-[90px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'agentsCreated' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('agentsCreated')}
+                    className="transition hover:text-foreground"
+                  >
+                    Agents
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="w-[90px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'votesCast' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('votesCast')}
+                    className="transition hover:text-foreground"
+                  >
+                    Votes
+                  </button>
+                </th>
+                <th
+                  scope="col"
+                  className="w-[90px] px-4 py-3 font-normal text-right"
+                  aria-sort={sortKey === 'referrals' ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleSort('referrals')}
+                    className="transition hover:text-foreground"
+                  >
+                    Referrals
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+            {filtered.map((entry, index) => (
+              <tr
+                key={entry.id}
+                className="border-b border-foreground/40 text-sm transition hover:bg-black/50"
+              >
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs uppercase tracking-[0.25em] text-muted">
+                      {index + 1}
+                    </span>
+                    <span className="uppercase tracking-[0.2em]">{entry.name}</span>
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.boutsCreated}
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.agentsCreated}
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.votesCast}
+                </td>
+                <td className="px-4 py-3 text-right text-xs uppercase tracking-[0.25em] text-muted">
+                  {entry.referrals}
+                </td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
           </div>
           <div className="pointer-events-none absolute bottom-0 right-0 top-0 w-8 bg-gradient-to-l from-background to-transparent md:hidden" />
         </div>
