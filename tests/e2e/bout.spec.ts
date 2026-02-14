@@ -8,8 +8,10 @@ test.skip(
 );
 
 test('streams a bout with real text', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Enter' }).first().click();
+  await page.goto('/arena');
+  const enterButton = page.getByRole('button', { name: 'Enter' }).first();
+  await expect(enterButton).toBeVisible({ timeout: 30_000 });
+  await enterButton.click();
   await expect(page).toHaveURL(/\/bout\//);
 
   const messageLocator = page.locator('article p');
