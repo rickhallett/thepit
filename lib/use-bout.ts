@@ -34,6 +34,14 @@ type BoutStatus = 'idle' | 'streaming' | 'done' | 'error';
 export type ErrorDetail = {
   code: number;
   message: string;
+  /** Rate limit metadata — present only on 429 responses. */
+  rateLimit?: {
+    remaining: number;
+    resetAt: number;
+    limit?: number;
+    currentTier?: string;
+    upgradeTiers?: Array<{ tier: string; limit: number | null; url: string }>;
+  };
 };
 
 type UseBoutOptions = {
@@ -196,6 +204,16 @@ export function useBout({
         try {
           const body = await response.json();
           if (body?.error) detail = { code: response.status, message: body.error };
+          // Extract structured rate limit metadata from 429 responses.
+          if (response.status === 429 && body?.code === 'RATE_LIMITED') {
+            detail.rateLimit = {
+              remaining: body.remaining ?? 0,
+              resetAt: body.resetAt ?? 0,
+              limit: body.limit,
+              currentTier: body.currentTier,
+              upgradeTiers: body.upgradeTiers,
+            };
+          }
         } catch { /* non-JSON response */ }
         setErrorDetail(detail);
         setStatus('error');

@@ -252,12 +252,33 @@ export async function validateBoutRequest(
 
   // Rate limiting
   const rateLimitId = userId ?? getClientIdentifier(req);
+  const boutMaxRequests = userId ? 5 : 2;
   const boutRateCheck = checkRateLimit(
-    { name: 'bout-creation', maxRequests: userId ? 5 : 2, windowMs: 60 * 60 * 1000 },
+    { name: 'bout-creation', maxRequests: boutMaxRequests, windowMs: 60 * 60 * 1000 },
     rateLimitId,
   );
   if (!boutRateCheck.success) {
-    return { error: rateLimitResponse(boutRateCheck) };
+    // Look up tier for upgrade context (cheap — single DB read, cached).
+    const currentTier = userId
+      ? await getUserTier(userId)
+      : ('anonymous' as const);
+
+    return {
+      error: rateLimitResponse(boutRateCheck, {
+        message: `Rate limit exceeded. Max ${boutMaxRequests} bouts per hour.`,
+        limit: boutMaxRequests,
+        currentTier,
+        upgradeTiers:
+          currentTier === 'lab'
+            ? [] // Lab users see no upgrade prompt — just the timer.
+            : [
+                ...(currentTier !== 'pass'
+                  ? [{ tier: 'pass', limit: 15, url: '/sign-up?redirect_url=/arena#upgrade' }]
+                  : []),
+                { tier: 'lab', limit: null, url: '/sign-up?redirect_url=/arena#upgrade' },
+              ],
+      }),
+    };
   }
 
   // Tier-based access control

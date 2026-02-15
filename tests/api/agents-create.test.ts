@@ -74,6 +74,7 @@ vi.mock('@clerk/nextjs/server', () => ({ auth: authMock }));
 vi.mock('@/lib/tier', () => ({
   SUBSCRIPTIONS_ENABLED: true,
   canCreateAgent: canCreateAgentMock,
+  getUserTier: vi.fn(async () => 'free'),
 }));
 
 vi.mock('@/lib/eas', () => ({
@@ -684,8 +685,12 @@ describe('POST /api/agents — auth & rate limiting', () => {
       makeRequest({ name: 'Bot', systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({
+    const body = await res.json();
+    expect(body).toMatchObject({
       error: 'Rate limit exceeded. Max 10 agents per hour.',
+      code: 'RATE_LIMITED',
     });
+    expect(body.currentTier).toBe('free');
+    expect(body.upgradeTiers).toBeDefined();
   });
 });

@@ -42,17 +42,43 @@ export function errorResponse(
   });
 }
 
+/** Upgrade tier metadata included in 429 responses. */
+export type UpgradeTier = {
+  tier: string;
+  limit: number | null;
+  url: string;
+};
+
+/** Options for enriching rate-limit responses with upgrade context. */
+export type RateLimitResponseOptions = {
+  message?: string;
+  /** Max requests allowed in the current window. */
+  limit?: number;
+  /** User's current subscription tier. */
+  currentTier?: string;
+  /** Available upgrade tiers with their limits. */
+  upgradeTiers?: UpgradeTier[];
+};
+
 /**
  * Create a 429 rate-limit response with standard Retry-After and
  * X-RateLimit-* headers. Uses the RateLimitResult from lib/rate-limit.
+ *
+ * When `currentTier` and `upgradeTiers` are provided, the response body
+ * includes structured metadata the frontend can use to show a contextual
+ * upgrade prompt instead of a generic error message.
  *
  * Also emits a `log.security` event for observability — every rate limit
  * hit is automatically logged with request context from AsyncLocalStorage.
  */
 export function rateLimitResponse(
   result: RateLimitResult,
-  message?: string,
+  options?: string | RateLimitResponseOptions,
 ): Response {
+  // Backward compat: accept a plain string as the message.
+  const opts: RateLimitResponseOptions =
+    typeof options === 'string' ? { message: options } : (options ?? {});
+
   const retryAfterSec = Math.ceil(
     Math.max(0, result.resetAt - Date.now()) / 1000,
   );
@@ -60,9 +86,24 @@ export function rateLimitResponse(
   log.security('rate_limit_exceeded', {
     retryAfterSec,
     resetAt: result.resetAt,
+    currentTier: opts.currentTier,
   });
 
-  return errorResponse(message ?? API_ERRORS.RATE_LIMITED, 429, {
+  const body: Record<string, unknown> = {
+    error: opts.message ?? API_ERRORS.RATE_LIMITED,
+    code: 'RATE_LIMITED',
+    remaining: result.remaining,
+    resetAt: result.resetAt,
+  };
+
+  if (opts.limit !== undefined) body.limit = opts.limit;
+  if (opts.currentTier) body.currentTier = opts.currentTier;
+  if (opts.upgradeTiers && opts.upgradeTiers.length > 0) {
+    body.upgradeTiers = opts.upgradeTiers;
+  }
+
+  return Response.json(body, {
+    status: 429,
     headers: {
       'Retry-After': String(retryAfterSec),
       'X-RateLimit-Remaining': String(result.remaining),

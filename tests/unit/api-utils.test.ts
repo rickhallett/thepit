@@ -93,7 +93,7 @@ describe('rateLimitResponse', () => {
     expect(response.headers.get('X-RateLimit-Reset')).toBe(String(result.resetAt));
   });
 
-  it('uses custom message when provided', async () => {
+  it('uses custom message when provided as a string (backward compat)', async () => {
     const result = { success: false, remaining: 0, resetAt: Date.now() + 5000 };
     const response = rateLimitResponse(result, 'Custom rate limit message.');
     const body = await response.json();
@@ -104,6 +104,79 @@ describe('rateLimitResponse', () => {
     const result = { success: false, remaining: 0, resetAt: Date.now() - 1000 };
     const response = rateLimitResponse(result);
     expect(Number(response.headers.get('Retry-After'))).toBe(0);
+  });
+
+  it('includes RATE_LIMITED code and structured metadata in body', async () => {
+    const resetAt = Date.now() + 60_000;
+    const result = { success: false, remaining: 0, resetAt };
+    const response = rateLimitResponse(result);
+    const body = await response.json();
+
+    expect(body.code).toBe('RATE_LIMITED');
+    expect(body.remaining).toBe(0);
+    expect(body.resetAt).toBe(resetAt);
+  });
+
+  it('includes limit and tier context when provided via options object', async () => {
+    const resetAt = Date.now() + 60_000;
+    const result = { success: false, remaining: 0, resetAt };
+    const response = rateLimitResponse(result, {
+      message: 'Rate limit exceeded. Max 5 bouts per hour.',
+      limit: 5,
+      currentTier: 'free',
+      upgradeTiers: [
+        { tier: 'pass', limit: 15, url: '/sign-up?redirect_url=/arena#upgrade' },
+        { tier: 'lab', limit: null, url: '/sign-up?redirect_url=/arena#upgrade' },
+      ],
+    });
+    const body = await response.json();
+
+    expect(body.error).toBe('Rate limit exceeded. Max 5 bouts per hour.');
+    expect(body.code).toBe('RATE_LIMITED');
+    expect(body.limit).toBe(5);
+    expect(body.currentTier).toBe('free');
+    expect(body.upgradeTiers).toHaveLength(2);
+    expect(body.upgradeTiers[0]).toEqual({
+      tier: 'pass',
+      limit: 15,
+      url: '/sign-up?redirect_url=/arena#upgrade',
+    });
+    expect(body.upgradeTiers[1]).toEqual({
+      tier: 'lab',
+      limit: null,
+      url: '/sign-up?redirect_url=/arena#upgrade',
+    });
+  });
+
+  it('omits optional fields when not provided', async () => {
+    const result = { success: false, remaining: 0, resetAt: Date.now() + 5000 };
+    const response = rateLimitResponse(result);
+    const body = await response.json();
+
+    expect(body.limit).toBeUndefined();
+    expect(body.currentTier).toBeUndefined();
+    expect(body.upgradeTiers).toBeUndefined();
+  });
+
+  it('omits upgradeTiers when array is empty', async () => {
+    const result = { success: false, remaining: 0, resetAt: Date.now() + 5000 };
+    const response = rateLimitResponse(result, {
+      currentTier: 'lab',
+      upgradeTiers: [],
+    });
+    const body = await response.json();
+
+    expect(body.currentTier).toBe('lab');
+    expect(body.upgradeTiers).toBeUndefined();
+  });
+
+  it('uses default message when options object has no message', async () => {
+    const result = { success: false, remaining: 0, resetAt: Date.now() + 5000 };
+    const response = rateLimitResponse(result, { limit: 10 });
+    const body = await response.json();
+
+    expect(body.error).toBe(API_ERRORS.RATE_LIMITED);
+    expect(body.limit).toBe(10);
   });
 });
 

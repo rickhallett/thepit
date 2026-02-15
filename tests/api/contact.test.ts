@@ -155,7 +155,7 @@ describe('contact form', () => {
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
+    expect(await res.json()).toMatchObject({ error: 'Rate limit exceeded.', code: 'RATE_LIMITED' });
   });
 
   it('U9: HTML special chars in fields are escaped in email body', async () => {

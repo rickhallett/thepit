@@ -19,6 +19,8 @@ import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
 import { PitButton } from '@/components/ui/button';
 import { PitBadge } from '@/components/ui/badge';
+import { RateLimitUpgradePrompt } from '@/components/rate-limit-upgrade-prompt';
+import type { ErrorDetail } from '@/lib/use-bout';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -100,8 +102,18 @@ function BoutHeader({
 function BoutError({
   errorDetail,
 }: {
-  errorDetail?: { message?: string; code?: number } | null;
+  errorDetail?: ErrorDetail | null;
 }) {
+  // Rate-limited with structured metadata → contextual upgrade prompt.
+  if (errorDetail?.code === 429 && errorDetail.rateLimit) {
+    return (
+      <RateLimitUpgradePrompt
+        rateLimit={errorDetail.rateLimit}
+        errorMessage={errorDetail.message}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col items-center gap-4 border-2 border-red-400/60 p-8 text-center">
       <p className="text-sm text-red-400">
