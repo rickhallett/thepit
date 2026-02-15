@@ -38,6 +38,7 @@ export async function POST(req: Request) {
     country?: string;
     utm?: string;
     userId?: string;
+    copyVariant?: string;
   }>(req);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
@@ -69,6 +70,7 @@ export async function POST(req: Request) {
   }
 
   const userId = typeof payload.userId === 'string' ? payload.userId.slice(0, 128) : null;
+  const copyVariant = typeof payload.copyVariant === 'string' ? payload.copyVariant.slice(0, 32) : null;
 
   const ipHash = payload.clientIp ? await sha256Hex(payload.clientIp) : null;
 
@@ -87,6 +89,7 @@ export async function POST(req: Request) {
       utmTerm,
       utmContent,
       country: payload.country?.slice(0, 2) || null,
+      copyVariant,
     });
   } catch (error) {
     // Best-effort — don't fail the page load

@@ -70,6 +70,22 @@ function initPostHog() {
   } catch {
     // Malformed cookie — ignore
   }
+
+  // Register copy A/B variant as a super property so every PostHog event
+  // (page views, bout starts, votes, engagement) is tagged with the variant.
+  try {
+    const variantCookie = document.cookie
+      .split('; ')
+      .find((c) => c.startsWith('pit_variant='));
+    if (variantCookie) {
+      const variant = variantCookie.split('=')[1];
+      if (variant) {
+        posthog.register({ copy_variant: variant });
+      }
+    }
+  } catch {
+    // Malformed cookie — ignore
+  }
 }
 
 /** Sync Clerk auth state with PostHog identity. */

@@ -370,6 +370,8 @@ export const pageViews = pgTable('page_views', {
   utmTerm: varchar('utm_term', { length: 128 }),
   utmContent: varchar('utm_content', { length: 128 }),
   country: varchar('country', { length: 2 }),
+  /** Active copy A/B test variant for this page view (e.g. 'control', 'hype'). */
+  copyVariant: varchar('copy_variant', { length: 32 }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

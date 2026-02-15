@@ -57,6 +57,13 @@
       "when": 1771156800000,
       "tag": "0007_bouts-status-index",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771243200000,
+      "tag": "0008_page-views-copy-variant",
+      "breakpoints": true
     }
   ]
 }

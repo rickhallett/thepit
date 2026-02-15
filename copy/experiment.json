@@ -1,0 +1,9 @@
+{
+  "active": false,
+  "defaultVariant": "control",
+  "variants": {
+    "control": { "weight": 100, "file": "control.json" }
+  },
+  "excludePaths": [],
+  "startedAt": null
+}
