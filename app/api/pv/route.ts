@@ -58,11 +58,11 @@ export async function POST(req: Request) {
   if (payload.utm) {
     try {
       const utm = JSON.parse(payload.utm);
-      utmSource = typeof utm.utm_source === 'string' ? utm.utm_source : null;
-      utmMedium = typeof utm.utm_medium === 'string' ? utm.utm_medium : null;
-      utmCampaign = typeof utm.utm_campaign === 'string' ? utm.utm_campaign : null;
-      utmTerm = typeof utm.utm_term === 'string' ? utm.utm_term : null;
-      utmContent = typeof utm.utm_content === 'string' ? utm.utm_content : null;
+      utmSource = typeof utm.utm_source === 'string' ? utm.utm_source.slice(0, 128) : null;
+      utmMedium = typeof utm.utm_medium === 'string' ? utm.utm_medium.slice(0, 128) : null;
+      utmCampaign = typeof utm.utm_campaign === 'string' ? utm.utm_campaign.slice(0, 128) : null;
+      utmTerm = typeof utm.utm_term === 'string' ? utm.utm_term.slice(0, 128) : null;
+      utmContent = typeof utm.utm_content === 'string' ? utm.utm_content.slice(0, 128) : null;
     } catch {
       // Malformed cookie — ignore
     }
