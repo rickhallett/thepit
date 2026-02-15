@@ -362,6 +362,39 @@ _Empty pages look broken to first-time visitors. Verify these have content or ac
 
 ---
 
+## 20. Go CLI Toolchain Verification (PR #181)
+
+_Automated test results from `make gate` across all 5 Go tools._
+
+### Test Coverage Summary (199 tests, all passing)
+
+| Tool | Tests | Coverage Highlights |
+|------|-------|-------------------|
+| pitforge | 79 | prompt: 100%, agent: 96%, anthropic: 87.8%, canon: 84.1%, dna: 77.8%, cmd: 19.8% |
+| pitbench | 31 | pricing: 100%, cmd: 94.3% |
+| pitctl | 34 | alert: 97.7%, cmd: 6.4% |
+| pitlab | 28 | analysis: 100%, dataset: 100%, cmd: 94.1% |
+| pitnet | 27 | abi: 91.3%, chain: 81.2%, cmd: 23.4% |
+
+### Cross-Implementation Parity (Go vs TypeScript)
+- [x] **CLI-001:** DNA prompt hashing (SHA-256 + RFC 8785) — 3 golden values byte-identical with `lib/agent-dna.ts`
+- [x] **CLI-002:** DNA manifest hashing — 2 golden values byte-identical with `lib/agent-dna.ts`
+- [x] **CLI-003:** RFC 8785 canonicalization — 11 cases byte-identical with npm `canonicalize`
+- [x] **CLI-004:** Credit cost calculations — 6 models verified against `lib/credits.ts`
+- [x] **CLI-005:** Bout estimation — 3 scenarios verified against `lib/credits.ts`
+- [x] **CLI-006:** BYOK fee calculation — 3 scenarios including min charge, verified against `lib/credits.ts`
+- [x] **CLI-007:** ABI encode/decode round-trip with real DNA hashes
+- [x] **CLI-008:** Model pricing tables (4 models) match `lib/credits.ts`
+
+### Bug Fixes Verified
+- [x] **CLI-009:** pitforge `DefaultModel` updated from deprecated `claude-3-5-haiku-latest`
+- [x] **CLI-010:** pitbench estimate/cost default model updated from deprecated ID
+- [x] **CLI-011:** pitnet `lib/pq` dependency added to go.mod
+- [x] **CLI-012:** pitctl smoke `--strict` flag wired through main.go dispatch
+- [x] **CLI-013:** pitctl 37 silent `QueryVal` error drops replaced with `queryWarn()` stderr warnings
+
+---
+
 ## Triage Summary
 
 _Fill this out AFTER completing all sections._

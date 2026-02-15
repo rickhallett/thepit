@@ -39,19 +39,19 @@ func RunReport(cfg *config.Config, period string, webhookURL string) error {
 	var newUsers, activeUsers int64
 	var creditsSpent, creditsGranted int64
 
-	conn.QueryVal(ctx, &totalBouts,
+	queryWarn(ctx, conn, &totalBouts,
 		`SELECT COUNT(*) FROM bouts WHERE created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &completedBouts,
+	queryWarn(ctx, conn, &completedBouts,
 		`SELECT COUNT(*) FROM bouts WHERE status = 'completed' AND created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &erroredBouts,
+	queryWarn(ctx, conn, &erroredBouts,
 		`SELECT COUNT(*) FROM bouts WHERE status = 'error' AND created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &newUsers,
+	queryWarn(ctx, conn, &newUsers,
 		`SELECT COUNT(*) FROM users WHERE created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &activeUsers,
+	queryWarn(ctx, conn, &activeUsers,
 		`SELECT COUNT(DISTINCT owner_id) FROM bouts WHERE created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &creditsSpent,
+	queryWarn(ctx, conn, &creditsSpent,
 		`SELECT COALESCE(SUM(ABS(delta_micro)), 0) FROM credit_transactions WHERE delta_micro < 0 AND created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &creditsGranted,
+	queryWarn(ctx, conn, &creditsGranted,
 		`SELECT COALESCE(SUM(delta_micro), 0) FROM credit_transactions WHERE delta_micro > 0 AND created_at >= NOW() - $1::interval`, interval)
 
 	// Current health check.

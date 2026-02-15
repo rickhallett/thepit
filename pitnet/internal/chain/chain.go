@@ -430,6 +430,8 @@ func padLeft(b []byte, size int) []byte {
 }
 
 // isValidBytes32 validates a 0x-prefixed 32-byte hex string.
+// NOTE: intentionally duplicated from internal/abi.IsValidBytes32 to avoid
+// coupling chain→abi. Both are trivial (4 lines) and tested independently.
 func isValidBytes32(s string) bool {
 	if len(s) != 66 || !strings.HasPrefix(s, "0x") {
 		return false

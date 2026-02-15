@@ -61,7 +61,7 @@ func main() {
 		if u := flagVal(args[1:], "--url"); u != "" {
 			url = u
 		}
-		must("smoke", cmd.RunSmoke(url))
+		must("smoke", cmd.RunSmoke(url, hasFlag(args[1:], "--strict")))
 	case "export":
 		runExport(cfg, args[1:])
 	case "license":
@@ -310,7 +310,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  watch [--interval 5m] [--webhook] Continuous monitoring loop\n")
 	fmt.Fprintf(os.Stderr, "  metrics [24h|7d|30d]           Time-series aggregations\n")
 	fmt.Fprintf(os.Stderr, "  report [daily|weekly] [--webhook] Summary report\n")
-	fmt.Fprintf(os.Stderr, "  smoke [--url <url>]            HTTP health checks\n")
+	fmt.Fprintf(os.Stderr, "  smoke [--url <url>] [--strict] HTTP health checks\n")
 	fmt.Fprintf(os.Stderr, "  export [bouts|agents]          Research data export\n")
 	fmt.Fprintf(os.Stderr, "  license [generate-keys|issue|verify]\n")
 	fmt.Fprintf(os.Stderr, "  version                        Show version\n\n")
