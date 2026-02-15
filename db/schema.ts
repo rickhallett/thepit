@@ -73,6 +73,10 @@ export const bouts = pgTable('bouts', {
     .notNull(),
 }, (table) => ({
   createdAtIdx: index('bouts_created_at_idx').on(table.createdAt),
+  statusCreatedAtIdx: index('bouts_status_created_at_idx').on(
+    table.status,
+    table.createdAt,
+  ),
   // FK added via foreignKey() because users is defined after bouts.
   ownerFk: foreignKey({
     columns: [table.ownerId],
