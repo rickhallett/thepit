@@ -107,26 +107,26 @@ func RunMetrics(cfg *config.Config, opts MetricsOpts) error {
 	}
 
 	// Bout metrics.
-	conn.QueryVal(ctx, &data.Bouts.Total,
+	queryWarn(ctx, conn, &data.Bouts.Total,
 		`SELECT COUNT(*) FROM bouts WHERE created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &data.Bouts.Completed,
+	queryWarn(ctx, conn, &data.Bouts.Completed,
 		`SELECT COUNT(*) FROM bouts WHERE status = 'completed' AND created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &data.Bouts.Errored,
+	queryWarn(ctx, conn, &data.Bouts.Errored,
 		`SELECT COUNT(*) FROM bouts WHERE status = 'error' AND created_at >= NOW() - $1::interval`, interval)
 	if hours > 0 {
 		data.Bouts.AvgPerHr = float64(data.Bouts.Total) / hours
 	}
 
 	// User metrics.
-	conn.QueryVal(ctx, &data.Users.NewSignups,
+	queryWarn(ctx, conn, &data.Users.NewSignups,
 		`SELECT COUNT(*) FROM users WHERE created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &data.Users.Active,
+	queryWarn(ctx, conn, &data.Users.Active,
 		`SELECT COUNT(DISTINCT owner_id) FROM bouts WHERE created_at >= NOW() - $1::interval`, interval)
 
 	// Credit metrics.
-	conn.QueryVal(ctx, &data.Credits.TotalSpent,
+	queryWarn(ctx, conn, &data.Credits.TotalSpent,
 		`SELECT COALESCE(SUM(ABS(delta_micro)), 0) FROM credit_transactions WHERE delta_micro < 0 AND created_at >= NOW() - $1::interval`, interval)
-	conn.QueryVal(ctx, &data.Credits.TotalGranted,
+	queryWarn(ctx, conn, &data.Credits.TotalGranted,
 		`SELECT COALESCE(SUM(delta_micro), 0) FROM credit_transactions WHERE delta_micro > 0 AND created_at >= NOW() - $1::interval`, interval)
 	if hours > 0 {
 		data.Credits.AvgSpentPerHr = float64(data.Credits.TotalSpent) / hours

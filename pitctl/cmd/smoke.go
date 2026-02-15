@@ -27,7 +27,8 @@ var SmokeRoutes = []string{
 }
 
 // RunSmoke performs HTTP health checks against the application.
-func RunSmoke(baseURL string) error {
+// When strict is true, returns an error if any route is not 2xx/3xx.
+func RunSmoke(baseURL string, strict ...bool) error {
 	fmt.Println()
 	fmt.Println(theme.Title.Render(fmt.Sprintf("smoke test")))
 	fmt.Println(theme.Subtitle.Render(baseURL))
@@ -116,6 +117,10 @@ func RunSmoke(baseURL string) error {
 		fmt.Println(theme.Error.Render(summary))
 	}
 	fmt.Println()
+
+	if len(strict) > 0 && strict[0] && okCount < len(SmokeRoutes) {
+		return fmt.Errorf("%d/%d routes failed", len(SmokeRoutes)-okCount, len(SmokeRoutes))
+	}
 
 	return nil
 }

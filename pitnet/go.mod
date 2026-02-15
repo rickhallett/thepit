@@ -2,7 +2,10 @@ module github.com/rickhallett/thepit/pitnet
 
 go 1.25.7
 
-require github.com/rickhallett/thepit/shared v0.0.0
+require (
+	github.com/lib/pq v1.11.2
+	github.com/rickhallett/thepit/shared v0.0.0-00010101000000-000000000000
+)
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect

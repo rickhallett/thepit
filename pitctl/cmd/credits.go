@@ -198,13 +198,13 @@ func RunCreditsSummary(cfg *config.Config) error {
 	var totalBalance, totalGranted, totalSpent int64
 	var zeroBalance int64
 
-	conn.QueryVal(ctx, &totalAccounts, `SELECT COUNT(*) FROM credits`)
-	conn.QueryVal(ctx, &totalBalance, `SELECT COALESCE(SUM(balance_micro), 0) FROM credits`)
-	conn.QueryVal(ctx, &totalGranted,
+	queryWarn(ctx, conn, &totalAccounts, `SELECT COUNT(*) FROM credits`)
+	queryWarn(ctx, conn, &totalBalance, `SELECT COALESCE(SUM(balance_micro), 0) FROM credits`)
+	queryWarn(ctx, conn, &totalGranted,
 		`SELECT COALESCE(SUM(delta_micro), 0) FROM credit_transactions WHERE delta_micro > 0`)
-	conn.QueryVal(ctx, &totalSpent,
+	queryWarn(ctx, conn, &totalSpent,
 		`SELECT COALESCE(ABS(SUM(delta_micro)), 0) FROM credit_transactions WHERE delta_micro < 0`)
-	conn.QueryVal(ctx, &zeroBalance, `SELECT COUNT(*) FROM credits WHERE balance_micro <= 0`)
+	queryWarn(ctx, conn, &zeroBalance, `SELECT COUNT(*) FROM credits WHERE balance_micro <= 0`)
 
 	avgBalance := int64(0)
 	if totalAccounts > 0 {

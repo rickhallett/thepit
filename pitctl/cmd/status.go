@@ -82,11 +82,11 @@ func RunStatus(cfg *config.Config) error {
 	}
 	var totalUsers, freeUsers, passUsers, labUsers, todayUsers int64
 
-	conn.QueryVal(ctx, &totalUsers, `SELECT COUNT(*) FROM users`)
-	conn.QueryVal(ctx, &freeUsers, `SELECT COUNT(*) FROM users WHERE subscription_tier = 'free'`)
-	conn.QueryVal(ctx, &passUsers, `SELECT COUNT(*) FROM users WHERE subscription_tier = 'pass'`)
-	conn.QueryVal(ctx, &labUsers, `SELECT COUNT(*) FROM users WHERE subscription_tier = 'lab'`)
-	conn.QueryVal(ctx, &todayUsers, `SELECT COUNT(*) FROM users WHERE created_at >= CURRENT_DATE`)
+	queryWarn(ctx, conn, &totalUsers, `SELECT COUNT(*) FROM users`)
+	queryWarn(ctx, conn, &freeUsers, `SELECT COUNT(*) FROM users WHERE subscription_tier = 'free'`)
+	queryWarn(ctx, conn, &passUsers, `SELECT COUNT(*) FROM users WHERE subscription_tier = 'pass'`)
+	queryWarn(ctx, conn, &labUsers, `SELECT COUNT(*) FROM users WHERE subscription_tier = 'lab'`)
+	queryWarn(ctx, conn, &todayUsers, `SELECT COUNT(*) FROM users WHERE created_at >= CURRENT_DATE`)
 
 	userRows := [][]string{
 		{"Total", format.Num(totalUsers)},
@@ -99,11 +99,11 @@ func RunStatus(cfg *config.Config) error {
 	// Bout stats.
 	var totalBouts, runningBouts, completeBouts, errorBouts, todayBouts int64
 
-	conn.QueryVal(ctx, &totalBouts, `SELECT COUNT(*) FROM bouts`)
-	conn.QueryVal(ctx, &runningBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'running'`)
-	conn.QueryVal(ctx, &completeBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'completed'`)
-	conn.QueryVal(ctx, &errorBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'error'`)
-	conn.QueryVal(ctx, &todayBouts, `SELECT COUNT(*) FROM bouts WHERE created_at >= CURRENT_DATE`)
+	queryWarn(ctx, conn, &totalBouts, `SELECT COUNT(*) FROM bouts`)
+	queryWarn(ctx, conn, &runningBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'running'`)
+	queryWarn(ctx, conn, &completeBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'completed'`)
+	queryWarn(ctx, conn, &errorBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'error'`)
+	queryWarn(ctx, conn, &todayBouts, `SELECT COUNT(*) FROM bouts WHERE created_at >= CURRENT_DATE`)
 
 	boutRows := [][]string{
 		{"Total", format.Num(totalBouts)},
@@ -116,12 +116,12 @@ func RunStatus(cfg *config.Config) error {
 	// Agent stats.
 	var totalAgents, freeAgents, premiumAgents, customAgents, archivedAgents, flaggedAgents int64
 
-	conn.QueryVal(ctx, &totalAgents, `SELECT COUNT(*) FROM agents`)
-	conn.QueryVal(ctx, &freeAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'free' AND NOT archived`)
-	conn.QueryVal(ctx, &premiumAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'premium' AND NOT archived`)
-	conn.QueryVal(ctx, &customAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'custom' AND NOT archived`)
-	conn.QueryVal(ctx, &archivedAgents, `SELECT COUNT(*) FROM agents WHERE archived`)
-	conn.QueryVal(ctx, &flaggedAgents,
+	queryWarn(ctx, conn, &totalAgents, `SELECT COUNT(*) FROM agents`)
+	queryWarn(ctx, conn, &freeAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'free' AND NOT archived`)
+	queryWarn(ctx, conn, &premiumAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'premium' AND NOT archived`)
+	queryWarn(ctx, conn, &customAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'custom' AND NOT archived`)
+	queryWarn(ctx, conn, &archivedAgents, `SELECT COUNT(*) FROM agents WHERE archived`)
+	queryWarn(ctx, conn, &flaggedAgents,
 		`SELECT COUNT(DISTINCT agent_id) FROM agent_flags`)
 
 	agentRows := [][]string{

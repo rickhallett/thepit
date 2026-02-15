@@ -18,7 +18,8 @@ const (
 	APIVersion      = "2023-06-01"
 
 	// Default model matching the free tier in the web app.
-	DefaultModel = "claude-3-5-haiku-latest"
+	// Must stay in sync with MODEL_IDS.HAIKU in lib/models.ts.
+	DefaultModel = "claude-haiku-4-5-20251001"
 )
 
 // Client wraps the Anthropic Messages API.

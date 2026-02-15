@@ -189,12 +189,12 @@ func RunBoutsStats(cfg *config.Config) error {
 	var totalBouts, completedBouts, errorBouts, todayBouts, weekBouts int64
 	var uniquePlayers int64
 
-	conn.QueryVal(ctx, &totalBouts, `SELECT COUNT(*) FROM bouts`)
-	conn.QueryVal(ctx, &completedBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'completed'`)
-	conn.QueryVal(ctx, &errorBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'error'`)
-	conn.QueryVal(ctx, &todayBouts, `SELECT COUNT(*) FROM bouts WHERE created_at >= CURRENT_DATE`)
-	conn.QueryVal(ctx, &weekBouts, `SELECT COUNT(*) FROM bouts WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'`)
-	conn.QueryVal(ctx, &uniquePlayers, `SELECT COUNT(DISTINCT owner_id) FROM bouts WHERE owner_id IS NOT NULL`)
+	queryWarn(ctx, conn, &totalBouts, `SELECT COUNT(*) FROM bouts`)
+	queryWarn(ctx, conn, &completedBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'completed'`)
+	queryWarn(ctx, conn, &errorBouts, `SELECT COUNT(*) FROM bouts WHERE status = 'error'`)
+	queryWarn(ctx, conn, &todayBouts, `SELECT COUNT(*) FROM bouts WHERE created_at >= CURRENT_DATE`)
+	queryWarn(ctx, conn, &weekBouts, `SELECT COUNT(*) FROM bouts WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'`)
+	queryWarn(ctx, conn, &uniquePlayers, `SELECT COUNT(DISTINCT owner_id) FROM bouts WHERE owner_id IS NOT NULL`)
 
 	completionRate := format.Percent(completedBouts, totalBouts)
 

@@ -11,7 +11,7 @@ import (
 
 // RunEstimate implements the "estimate" command.
 func RunEstimate(args []string) {
-	model := "claude-3-5-haiku-latest"
+	model := "claude-haiku-4-5-20251001" // sync with lib/models.ts MODEL_IDS.HAIKU
 	turns := 12
 	length := "standard"
 
@@ -66,7 +66,7 @@ func printCostBreakdown(cost pricing.CostBreakdown) {
 
 // RunCost implements the "cost" command — cost for specific token counts.
 func RunCost(args []string) {
-	model := "claude-3-5-haiku-latest"
+	model := "claude-haiku-4-5-20251001" // sync with lib/models.ts MODEL_IDS.HAIKU
 	inputTokens := 0
 	outputTokens := 0
 
