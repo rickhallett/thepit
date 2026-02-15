@@ -88,10 +88,10 @@ func RunSmoke(baseURL string, strict ...bool) error {
 				return base.Foreground(theme.ColorCyan)
 			}
 			if col == 1 {
-				// Color status by value.
+				// Color status by value — use the same 2xx/3xx range as okCount.
 				if row >= 0 && row < len(tableRows) {
 					s := tableRows[row][1]
-					if s == "200" || s == "301" || s == "302" || s == "307" || s == "308" {
+					if code := parseStatusCode(s); code >= 200 && code < 400 {
 						return base.Foreground(theme.ColorGreen).Align(lipgloss.Right)
 					}
 					return base.Foreground(theme.ColorRed).Align(lipgloss.Right)
@@ -123,6 +123,18 @@ func RunSmoke(baseURL string, strict ...bool) error {
 	}
 
 	return nil
+}
+
+// parseStatusCode converts a status string to an int, returning 0 for non-numeric values like "ERR".
+func parseStatusCode(s string) int {
+	code := 0
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return 0
+		}
+		code = code*10 + int(c-'0')
+	}
+	return code
 }
 
 func checkTLS(baseURL string) {

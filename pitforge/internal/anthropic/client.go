@@ -18,7 +18,7 @@ const (
 	APIVersion      = "2023-06-01"
 
 	// Default model matching the free tier in the web app.
-	// Must stay in sync with MODEL_IDS.HAIKU in lib/models.ts.
+	// Must stay in sync with MODEL_IDS.HAIKU in the TypeScript codebase (lib/models.ts).
 	DefaultModel = "claude-haiku-4-5-20251001"
 )
 

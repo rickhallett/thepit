@@ -38,6 +38,11 @@ func TestEncodeDecodeWithRealHashes(t *testing.T) {
 		t.Errorf("encoded length %d is not a multiple of 32", len(encoded))
 	}
 
+	// Guard: encoded must be at least 192 bytes to contain both hash slots.
+	if len(encoded) < 192 {
+		t.Fatalf("encoded length %d is too short (need at least 192 bytes for hash slots)", len(encoded))
+	}
+
 	// Verify the bytes32 fields are at the correct positions.
 	promptHashSlot := encoded[128:160]
 	manifestHashSlot := encoded[160:192]
