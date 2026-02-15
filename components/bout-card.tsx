@@ -1,19 +1,21 @@
 import Link from 'next/link';
 
 import type { RecentBout } from '@/lib/recent-bouts';
+import { getCopy } from '@/lib/copy';
 
-function timeAgo(date: Date): string {
+function timeAgo(date: Date, copy: { justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string }): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return 'just now';
+  if (seconds < 60) return copy.justNow;
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return copy.minutesAgo.replace('{n}', String(minutes));
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return copy.hoursAgo.replace('{n}', String(hours));
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return copy.daysAgo.replace('{n}', String(days));
 }
 
-export function BoutCard({ bout }: { bout: RecentBout }) {
+export async function BoutCard({ bout }: { bout: RecentBout }) {
+  const c = await getCopy();
   const agentList =
     bout.agentNames.length > 4
       ? `${bout.agentNames.slice(0, 3).join(', ')} +${bout.agentNames.length - 3}`
@@ -29,7 +31,7 @@ export function BoutCard({ bout }: { bout: RecentBout }) {
           {bout.presetName}
         </p>
         <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
-          {timeAgo(bout.createdAt)}
+          {timeAgo(bout.createdAt, c.boutCard.timeAgo)}
         </span>
       </div>
 
@@ -39,7 +41,7 @@ export function BoutCard({ bout }: { bout: RecentBout }) {
 
       {bout.topic && (
         <p className="text-xs text-foreground/80">
-          Topic: {bout.topic}
+          {c.boutCard.topic} {bout.topic}
         </p>
       )}
 
@@ -47,7 +49,7 @@ export function BoutCard({ bout }: { bout: RecentBout }) {
         {bout.reactionCount > 0 && (
           <span>🔥 {bout.reactionCount}</span>
         )}
-        <span>{bout.turnCount} turns</span>
+        <span>{c.boutCard.turns.replace('{n}', String(bout.turnCount))}</span>
       </div>
 
       {bout.shareLine && (
@@ -59,7 +61,7 @@ export function BoutCard({ bout }: { bout: RecentBout }) {
       )}
 
       <span className="mt-auto text-[10px] uppercase tracking-[0.3em] text-accent opacity-0 transition group-hover:opacity-100">
-        Watch replay →
+        {c.boutCard.watchReplay}
       </span>
     </Link>
   );

@@ -14,6 +14,7 @@ import { CookieConsent } from '@/components/cookie-consent';
 import { PostHogProvider } from '@/components/posthog-provider';
 import { initializeUserSession } from '@/lib/onboarding';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
+import { getCopy, CopyProvider } from '@/lib/copy';
 
 import './globals.css';
 
@@ -42,7 +43,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [{ userId }, cookieStore] = await Promise.all([auth(), cookies()]);
+  const [{ userId }, cookieStore, copy] = await Promise.all([auth(), cookies(), getCopy()]);
   const referralCode = cookieStore.get('pit_ref')?.value ?? null;
 
   if (userId) {
@@ -69,17 +70,19 @@ export default async function RootLayout({
             href="#main-content"
             className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border-2 focus:border-accent focus:bg-background focus:px-4 focus:py-2 focus:text-xs focus:uppercase focus:tracking-[0.3em] focus:text-accent"
           >
-            Skip to content
+            {copy.nav.skipToContent}
           </a>
           <PostHogProvider>
-            <div className="mx-auto flex min-h-screen max-w-[1920px] flex-col">
-              <SiteHeader />
-              <main id="main-content" className="flex-1">{children}</main>
-              <SiteFooter />
-              <AskThePitLazy enabled={ASK_THE_PIT_ENABLED} />
-              <CookieConsent />
-            </div>
-            <Analytics />
+            <CopyProvider copy={copy}>
+              <div className="mx-auto flex min-h-screen max-w-[1920px] flex-col">
+                <SiteHeader />
+                <main id="main-content" className="flex-1">{children}</main>
+                <SiteFooter />
+                <AskThePitLazy enabled={ASK_THE_PIT_ENABLED} />
+                <CookieConsent />
+              </div>
+              <Analytics />
+            </CopyProvider>
           </PostHogProvider>
         </body>
       </html>

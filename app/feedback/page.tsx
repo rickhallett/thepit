@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { FeatureRequestForm } from '@/components/feature-request-form';
 import { FeatureRequestList } from '@/components/feature-request-list';
+import { getCopy } from '@/lib/copy';
 
 export const metadata = {
   title: 'Feedback — THE PIT',
@@ -9,20 +10,20 @@ export const metadata = {
     'Submit feature requests and vote on ideas to shape the future of The Pit.',
 };
 
-export default function FeedbackPage() {
+export default async function FeedbackPage() {
+  const c = await getCopy();
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Hero */}
       <section className="mx-auto max-w-4xl px-6 py-20">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Feedback
+          {c.feedback.label}
         </p>
         <h1 className="mt-6 font-sans text-4xl uppercase tracking-tight md:text-5xl">
-          Shape The Pit
+          {c.feedback.title}
         </h1>
         <p className="mt-6 text-lg text-muted">
-          Submit ideas, vote on what matters, and help us build what you
-          actually want.
+          {c.feedback.description}
         </p>
       </section>
 
@@ -30,10 +31,10 @@ export default function FeedbackPage() {
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-16">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Submit a request
+            {c.feedback.submitSection.title}
           </p>
           <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
-            What should we build next?
+            {c.feedback.submitSection.placeholder}
           </h2>
           <div className="mt-8">
             <FeatureRequestForm />
@@ -44,14 +45,13 @@ export default function FeedbackPage() {
       {/* Public request list */}
       <section className="mx-auto max-w-4xl px-6 py-16">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Community requests
+          {c.feedback.communitySection.title}
         </p>
         <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
-          What the crowd wants
+          {c.feedback.communitySection.subtitle}
         </h2>
         <p className="mt-4 text-sm text-muted">
-          Vote on requests to signal what matters most. Higher-voted requests
-          get prioritised.
+          {c.feedback.communitySection.description}
         </p>
         <div className="mt-8">
           <FeatureRequestList />
@@ -64,7 +64,7 @@ export default function FeedbackPage() {
           href="/"
           className="text-xs uppercase tracking-[0.3em] text-muted transition hover:text-accent"
         >
-          &larr; Back to The Pit
+          {c.feedback.backToThePit}
         </Link>
       </section>
     </main>

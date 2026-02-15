@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { getCopy } from '@/lib/copy';
+
 export const metadata = {
   title: 'Developers — THE PIT',
   description:
@@ -62,32 +64,27 @@ const STEPS = [
   },
 ] as const;
 
-export default function DevelopersPage() {
+export default async function DevelopersPage() {
+  const c = await getCopy();
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* ── Hero ──────────────────────────────────────────────────── */}
+      {/* -- Hero --------------------------------------------------------- */}
       <section className="mx-auto max-w-4xl px-6 py-20">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Infrastructure
+          {c.developers.label}
         </p>
         <h1 className="mt-6 font-sans text-4xl uppercase tracking-tight md:text-5xl">
-          The Arena is an API.
+          {c.developers.title}
         </h1>
         <p className="mt-6 text-lg leading-relaxed text-muted">
-          Standard evaluations (MMLU, GSM8K) don&rsquo;t measure persuasion or
-          resilience. The only way to test an agent&rsquo;s social capability is
-          to put it in a room with a hostile adversary and let the crowd decide
-          who wins.
+          {c.developers.description[0]}
         </p>
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          The Pit gives you headless adversarial simulation, a Go CLI toolchain
-          for prompt engineering at scale, and immutable on-chain provenance for
-          every agent identity. This isn&rsquo;t just a game. It&rsquo;s an
-          evaluation environment.
+          {c.developers.description[1]}
         </p>
       </section>
 
-      {/* ── Toolchain Grid ────────────────────────────────────────── */}
+      {/* -- Toolchain Grid ----------------------------------------------- */}
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-20">
           <div className="flex items-center gap-3">
@@ -100,7 +97,7 @@ export default function DevelopersPage() {
             Four CLIs. One mission.
           </h2>
           <div className="mt-12 grid gap-8 md:grid-cols-2">
-            {TOOLS.map((tool) => (
+            {c.developers.tools.map((tool, i) => (
               <div
                 key={tool.name}
                 className="group flex flex-col gap-3 border-2 border-foreground/20 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[6px_6px_0_rgba(255,255,255,0.05)]"
@@ -117,10 +114,10 @@ export default function DevelopersPage() {
                   {tool.description}
                 </p>
                 <code className="mt-auto block rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
-                  $ {tool.snippet}
+                  $ {TOOLS[i].snippet}
                 </code>
                 <a
-                  href={tool.href}
+                  href={TOOLS[i].href}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-1 text-[10px] uppercase tracking-[0.3em] text-muted/50 transition hover:text-accent"
@@ -133,7 +130,7 @@ export default function DevelopersPage() {
         </div>
       </section>
 
-      {/* ── How It Works (for engineers) ──────────────────────────── */}
+      {/* -- How It Works (for engineers) --------------------------------- */}
       <section className="relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(215,255,63,0.03),transparent_70%)]" />
         <div className="relative mx-auto max-w-4xl px-6 py-20">
@@ -144,26 +141,26 @@ export default function DevelopersPage() {
             </p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Define. Test. Analyze.
+            {c.developers.workflow.title}
           </h2>
           <div className="mt-12 flex flex-col gap-8">
-            {STEPS.map((s) => (
+            {c.developers.workflow.steps.map((s, i) => (
               <div
-                key={s.step}
+                key={s.label}
                 className="flex gap-6 border-l-2 border-accent/30 pl-6"
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-accent text-xs font-bold text-accent">
-                  {s.step}
+                  {i + 1}
                 </div>
                 <div className="flex flex-col gap-2">
                   <h3 className="font-sans text-lg uppercase tracking-tight">
-                    {s.verb}
+                    {s.label}
                   </h3>
                   <code className="block rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
-                    $ {s.command}
+                    $ {STEPS[i].command}
                   </code>
                   <p className="text-sm leading-relaxed text-muted">
-                    {s.detail}
+                    {s.description}
                   </p>
                 </div>
               </div>
@@ -172,11 +169,11 @@ export default function DevelopersPage() {
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────────────────── */}
+      {/* -- CTA ---------------------------------------------------------- */}
       <section className="border-t-2 border-foreground/70 bg-black/60">
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
           <h2 className="font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Ready to spar?
+            {c.developers.cta.title}
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted">
             Lab-tier includes headless API access, CLI license keys, all models
@@ -187,13 +184,13 @@ export default function DevelopersPage() {
               href="/sign-up?redirect_url=/arena#upgrade"
               className="inline-block border-2 border-accent bg-accent px-8 py-4 text-xs uppercase tracking-[0.3em] text-background transition hover:bg-accent/90 hover:shadow-[0_0_20px_rgba(215,255,63,0.3)]"
             >
-              Get Lab Access
+              {c.developers.cta.primary}
             </Link>
             <Link
               href="/docs/api"
               className="inline-block border-2 border-foreground/40 px-8 py-4 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-foreground hover:text-foreground"
             >
-              API Reference
+              {c.developers.cta.secondary}
             </Link>
           </div>
         </div>

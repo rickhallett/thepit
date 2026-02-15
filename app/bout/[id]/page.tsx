@@ -19,6 +19,7 @@ import {
   formatCredits,
   toMicroCredits,
 } from '@/lib/credits';
+import { getCopy } from '@/lib/copy';
 import { PRESETS, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
 import { resolveResponseLength } from '@/lib/response-lengths';
@@ -32,6 +33,7 @@ type MetadataProps = {
 };
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
+  const c = await getCopy();
   const { id } = await params;
 
   let bout: (typeof bouts.$inferSelect) | null = null;
@@ -61,10 +63,10 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       ? agentNames.join(', ') + (resolvedPreset && resolvedPreset.agents.length > 3 ? ' & more' : '')
       : '';
 
-  const title = `${presetName} — THE PIT`;
+  const title = `${presetName} ${c.meta.bout.titleSuffix}`;
   const description = agentList
-    ? `Watch ${agentList} clash in real-time debate. ${resolvedPreset?.description ?? ''}`
-    : `Watch AI agents clash in real-time debate on THE PIT.`;
+    ? `${c.meta.bout.descriptionTemplate.replace('{agents}', agentList)} ${resolvedPreset?.description ?? ''}`
+    : c.meta.bout.descriptionTemplate.replace('{agents}', 'AI agents');
 
   return {
     title,

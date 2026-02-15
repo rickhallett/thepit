@@ -4,6 +4,7 @@ import { ArenaBuilder } from '@/components/arena-builder';
 import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { BYOK_ENABLED } from '@/lib/credits';
 import { getAgentSnapshots } from '@/lib/agent-registry';
+import { getCopy } from '@/lib/copy';
 
 import { createArenaBout } from '../../actions';
 
@@ -21,6 +22,7 @@ export default async function ArenaBuilderPage({
     from?: string;
   }>;
 }) {
+  const c = await getCopy();
   const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const agents = await getAgentSnapshots();
   const resolved = await searchParams;
@@ -39,15 +41,15 @@ export default async function ArenaBuilderPage({
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-10">
         <header className="border-b-2 border-foreground/70 pb-6">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Arena Builder
+            {c.arenaBuilderPage.label}
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            {resolved?.from ? 'Re-roll bout' : 'Build your own bout'}
+            {resolved?.from ? c.arenaBuilderPage.titleReroll : c.arenaBuilderPage.titleNew}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted">
             {resolved?.from
-              ? 'Same lineup, new settings. Adjust and re-run.'
-              : 'Select 2–6 agents from the roster, set a topic, and unleash them.'}
+              ? c.arenaBuilderPage.descriptionReroll
+              : c.arenaBuilderPage.descriptionNew}
           </p>
         </header>
 
@@ -69,9 +71,9 @@ export default async function ArenaBuilderPage({
         />
 
         <footer className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground/70 pt-8 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>Assemble the chaos. Share the winners.</span>
+          <span>{c.arenaBuilderPage.footerTagline}</span>
           <Link href="/arena" className="transition hover:text-accent">
-            ← Back to presets
+            {c.arenaBuilderPage.backToPresets}
           </Link>
         </footer>
       </div>

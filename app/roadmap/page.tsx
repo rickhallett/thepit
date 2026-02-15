@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { getCopy } from '@/lib/copy';
+
 export const metadata = {
   title: 'Roadmap — THE PIT',
   description: 'Three tracks of development for The Pit: Platform, Community, and Research.',
@@ -78,24 +80,6 @@ const LANES: Lane[] = [
   },
 ];
 
-const STATUS_CONFIG: Record<ItemStatus, { icon: string; label: string; className: string }> = {
-  done: {
-    icon: '\u2713',
-    label: 'Shipped',
-    className: 'border-foreground/30 text-foreground/70',
-  },
-  active: {
-    icon: '\u25CF',
-    label: 'In Progress',
-    className: 'border-accent text-accent',
-  },
-  planned: {
-    icon: '\u25CB',
-    label: 'Planned',
-    className: 'border-foreground/20 text-foreground/40',
-  },
-};
-
 function LaneHeader({ lane }: { lane: Lane }) {
   const doneCount = lane.items.filter((i) => i.status === 'done').length;
   const total = lane.items.length;
@@ -138,11 +122,31 @@ function RoadmapItemRow({
   item,
   laneColor,
   isLast,
+  statusLabels,
 }: {
   item: RoadmapItem;
   laneColor: string;
   isLast: boolean;
+  statusLabels: { shipped: string; building: string; planned: string };
 }) {
+  const STATUS_CONFIG: Record<ItemStatus, { icon: string; label: string; className: string }> = {
+    done: {
+      icon: '\u2713',
+      label: statusLabels.shipped,
+      className: 'border-foreground/30 text-foreground/70',
+    },
+    active: {
+      icon: '\u25CF',
+      label: statusLabels.building,
+      className: 'border-accent text-accent',
+    },
+    planned: {
+      icon: '\u25CB',
+      label: statusLabels.planned,
+      className: 'border-foreground/20 text-foreground/40',
+    },
+  };
+
   const config = STATUS_CONFIG[item.status];
   const isActive = item.status === 'active';
   const isDone = item.status === 'done';
@@ -198,7 +202,7 @@ function RoadmapItemRow({
                 border: `1px solid ${laneColor}40`,
               }}
             >
-              Building
+              {statusLabels.building}
             </span>
           )}
         </div>
@@ -212,7 +216,7 @@ function RoadmapItemRow({
   );
 }
 
-function LaneColumn({ lane }: { lane: Lane }) {
+function LaneColumn({ lane, statusLabels }: { lane: Lane; statusLabels: { shipped: string; building: string; planned: string } }) {
   return (
     <div className="flex flex-col gap-6">
       <LaneHeader lane={lane} />
@@ -223,6 +227,7 @@ function LaneColumn({ lane }: { lane: Lane }) {
             item={item}
             laneColor={lane.color}
             isLast={index === lane.items.length - 1}
+            statusLabels={statusLabels}
           />
         ))}
       </div>
@@ -230,7 +235,27 @@ function LaneColumn({ lane }: { lane: Lane }) {
   );
 }
 
-export default function RoadmapPage() {
+export default async function RoadmapPage() {
+  const c = await getCopy();
+
+  const STATUS_CONFIG: Record<ItemStatus, { icon: string; label: string; className: string }> = {
+    done: {
+      icon: '\u2713',
+      label: c.roadmap.statusLabels.shipped,
+      className: 'border-foreground/30 text-foreground/70',
+    },
+    active: {
+      icon: '\u25CF',
+      label: c.roadmap.statusLabels.building,
+      className: 'border-accent text-accent',
+    },
+    planned: {
+      icon: '\u25CB',
+      label: c.roadmap.statusLabels.planned,
+      className: 'border-foreground/20 text-foreground/40',
+    },
+  };
+
   const totalDone = LANES.reduce(
     (acc, lane) => acc + lane.items.filter((i) => i.status === 'done').length,
     0,
@@ -246,15 +271,13 @@ export default function RoadmapPage() {
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-6 py-20">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Roadmap
+          {c.roadmap.label}
         </p>
         <h1 className="mt-6 font-sans text-4xl uppercase tracking-tight md:text-5xl">
-          Three lines of attack
+          {c.roadmap.title}
         </h1>
         <p className="mt-6 max-w-2xl text-sm text-muted">
-          Platform. Community. Research. Three parallel tracks shipping
-          simultaneously. Items move from planned to active to shipped as we
-          build in the open.
+          {c.roadmap.description}
         </p>
 
         {/* Stats bar */}
@@ -262,7 +285,7 @@ export default function RoadmapPage() {
           <div className="flex items-center gap-2">
             <span className="text-2xl font-bold text-accent">{totalDone}</span>
             <span className="text-[10px] uppercase tracking-[0.3em] text-muted">
-              Shipped
+              {c.roadmap.statusLabels.shipped}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -270,7 +293,7 @@ export default function RoadmapPage() {
               {totalActive}
             </span>
             <span className="text-[10px] uppercase tracking-[0.3em] text-muted">
-              Building
+              {c.roadmap.statusLabels.building}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -278,7 +301,7 @@ export default function RoadmapPage() {
               {totalItems - totalDone - totalActive}
             </span>
             <span className="text-[10px] uppercase tracking-[0.3em] text-muted">
-              Planned
+              {c.roadmap.statusLabels.planned}
             </span>
           </div>
         </div>
@@ -304,7 +327,7 @@ export default function RoadmapPage() {
       <section className="bg-black/40">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-3 md:gap-8 lg:gap-12">
           {LANES.map((lane) => (
-            <LaneColumn key={lane.id} lane={lane} />
+            <LaneColumn key={lane.id} lane={lane} statusLabels={c.roadmap.statusLabels} />
           ))}
         </div>
       </section>
@@ -313,27 +336,27 @@ export default function RoadmapPage() {
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="flex flex-col items-center gap-6 text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
-            Want to shape the roadmap?
+            {c.roadmap.closingCta}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/arena"
               className="border-2 border-accent bg-accent px-8 py-3 text-xs uppercase tracking-[0.3em] text-background transition hover:bg-accent/90"
             >
-              Enter the Arena
+              {c.roadmap.enterArena}
             </Link>
             <Link
               href="/contact"
               className="border-2 border-foreground/50 px-8 py-3 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
             >
-              Get in Touch
+              {c.roadmap.getInTouch}
             </Link>
           </div>
           <Link
             href="/"
             className="mt-4 text-xs uppercase tracking-[0.3em] text-muted transition hover:text-accent"
           >
-            &larr; Back to The Pit
+            {c.roadmap.backToThePit}
           </Link>
         </div>
       </section>

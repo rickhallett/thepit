@@ -4,19 +4,14 @@ import { useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
+import { useCopy } from '@/lib/copy';
 
-const CATEGORIES = [
-  { value: 'agents', label: 'Agents' },
-  { value: 'arena', label: 'Arena' },
-  { value: 'presets', label: 'Presets' },
-  { value: 'research', label: 'Research' },
-  { value: 'ui', label: 'UI' },
-  { value: 'other', label: 'Other' },
-] as const;
+const CATEGORY_VALUES = ['agents', 'arena', 'presets', 'research', 'ui', 'other'] as const;
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
 export function FeatureRequestForm() {
+  const c = useCopy();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -45,7 +40,7 @@ export function FeatureRequestForm() {
       setStatus('success');
       trackEvent('feature_request_submitted', { category });
     } catch {
-      setErrorMessage('Something went wrong. Try again.');
+      setErrorMessage(c.featureRequest.form.error);
       setStatus('error');
     }
   };
@@ -54,11 +49,10 @@ export function FeatureRequestForm() {
     return (
       <div className="border-2 border-accent/40 bg-black/40 p-6">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Request submitted
+          {c.featureRequest.form.success}
         </p>
         <p className="mt-4 text-sm text-muted">
-          Your feature request is now visible to the community. Others can vote
-          on it to signal demand.
+          {c.featureRequest.form.successDescription}
         </p>
         <button
           type="button"
@@ -70,7 +64,7 @@ export function FeatureRequestForm() {
           }}
           className="mt-4 text-xs uppercase tracking-[0.3em] text-accent transition hover:underline"
         >
-          Submit another request
+          {c.featureRequest.form.submitAnother}
         </button>
       </div>
     );
@@ -81,7 +75,7 @@ export function FeatureRequestForm() {
       <SignedOut>
         <div className="border-2 border-foreground/40 bg-black/40 p-6">
           <p className="text-sm text-muted">
-            Sign in to submit a feature request.
+            {c.featureRequest.form.signInPrompt}
           </p>
           <SignInButton mode="modal">
             <button
@@ -98,7 +92,7 @@ export function FeatureRequestForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-xs uppercase tracking-[0.3em] text-muted">
-              Title
+              {c.featureRequest.form.fields.title}
             </label>
             <input
               type="text"
@@ -114,7 +108,7 @@ export function FeatureRequestForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-xs uppercase tracking-[0.3em] text-muted">
-              Category
+              {c.featureRequest.form.fields.category}
             </label>
             <select
               value={category}
@@ -123,11 +117,11 @@ export function FeatureRequestForm() {
               className="border-2 border-foreground/70 bg-black/60 px-4 py-3 pr-10 text-sm text-foreground focus:border-accent focus:outline-none"
             >
               <option value="" disabled>
-                Select a category...
+                {c.featureRequest.form.fields.categoryPlaceholder}
               </option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
+              {CATEGORY_VALUES.map((value, i) => (
+                <option key={value} value={value}>
+                  {c.featureRequest.form.categories[i]}
                 </option>
               ))}
             </select>
@@ -135,7 +129,7 @@ export function FeatureRequestForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-xs uppercase tracking-[0.3em] text-muted">
-              Description
+              {c.featureRequest.form.fields.description}
             </label>
             <textarea
               rows={5}
@@ -157,12 +151,12 @@ export function FeatureRequestForm() {
             disabled={status === 'loading'}
             className="border-2 border-accent bg-accent/10 px-8 py-4 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background disabled:opacity-50"
           >
-            {status === 'loading' ? 'Submitting...' : 'Submit request'}
+            {status === 'loading' ? c.featureRequest.form.submitting : c.featureRequest.form.submit}
           </button>
 
           {status === 'error' && (
             <p className="text-xs uppercase tracking-[0.3em] text-red-400">
-              {errorMessage || 'Something went wrong. Try again.'}
+              {errorMessage || c.featureRequest.form.error}
             </p>
           )}
         </form>

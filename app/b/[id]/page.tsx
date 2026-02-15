@@ -6,6 +6,7 @@ import { auth } from '@clerk/nextjs/server';
 import { Arena } from '@/components/arena';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
+import { getCopy } from '@/lib/copy';
 import { ALL_PRESETS, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
 import { getReactionCounts } from '@/lib/reactions';
@@ -18,6 +19,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }> | { id: string };
 }): Promise<Metadata> {
+  const c = await getCopy();
   const db = requireDb();
   const resolved = await params;
   const [bout] = await db
@@ -31,16 +33,16 @@ export async function generateMetadata({
     .limit(1);
 
   if (!bout) {
-    return { title: 'Bout Not Found — THE PIT' };
+    return { title: c.meta.bout.notFoundTitle };
   }
 
   const preset = ALL_PRESETS.find((p) => p.id === bout.presetId);
   const presetName = preset?.name ?? 'Arena Mode';
   const agents = preset?.agents.map((a) => a.name).join(' vs ') ?? '';
-  const title = `${presetName} — THE PIT`;
+  const title = `${presetName} ${c.meta.bout.titleSuffix}`;
   const description =
     bout.shareLine ??
-    (agents ? `${agents} battle it out in The Pit.` : 'Watch the replay.');
+    (agents ? c.meta.shortLink.descriptionTemplate.replace('{agents}', agents) : 'Watch the replay.');
 
   return {
     title,

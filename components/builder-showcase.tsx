@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getCopy } from '@/lib/copy';
 
 /**
  * "For Builders" section on the landing page.
@@ -10,7 +11,8 @@ import Link from 'next/link';
  * Placed between the Research Layer and Pricing sections to create demand
  * before the pricing card answers it.
  */
-export function BuilderShowcase() {
+export async function BuilderShowcase() {
+  const c = await getCopy();
   return (
     <section className="relative border-y-2 border-foreground/70 bg-black/80 py-20">
       {/* Background grid accent */}
@@ -22,22 +24,19 @@ export function BuilderShowcase() {
           <div className="flex items-center gap-3">
             <div className="h-px w-8 bg-accent" />
             <p className="text-xs uppercase tracking-[0.4em] text-accent">
-              For Builders
+              {c.builderShowcase.label}
             </p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Stop guessing.
+            {c.builderShowcase.titleLine1}
             <br />
-            Start sparring.
+            {c.builderShowcase.titleLine2}
           </h2>
           <p className="mt-6 text-lg text-muted">
-            Unit tests pass, but does your prompt hold up under pressure?
+            {c.builderShowcase.subtitle}
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted">
-            We built an industrial-grade toolchain for adversarial evaluation.
-            Script 50 bouts against a hostile Red Team agent. Analyze win-rates.
-            Run ablation studies on personality traits. Trace prompt lineage
-            across generations.
+            {c.builderShowcase.description}
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -45,7 +44,7 @@ export function BuilderShowcase() {
               href="/docs/api"
               className="group flex items-center justify-center gap-2 border-2 border-accent bg-accent/10 px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
             >
-              <span>API Reference</span>
+              <span>{c.builderShowcase.ctaPrimary}</span>
               <span className="transition-transform group-hover:translate-x-1">
                 &rarr;
               </span>
@@ -54,7 +53,7 @@ export function BuilderShowcase() {
               href="/developers"
               className="flex items-center justify-center gap-2 border-2 border-foreground/40 px-6 py-3 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-foreground hover:text-foreground"
             >
-              <span>CLI Toolchain</span>
+              <span>{c.builderShowcase.ctaSecondary}</span>
             </Link>
           </div>
         </div>

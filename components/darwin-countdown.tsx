@@ -1,6 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import { useCopy } from '@/lib/copy';
 
 const LAUNCH_DATE = new Date('2026-02-13T11:55:00Z');
 
@@ -39,6 +40,7 @@ function subscribeToTime(callback: () => void): () => void {
  * otherwise shows a countdown to launch.
  */
 export function DarwinCountdown() {
+  const c = useCopy();
   const isLive = useSyncExternalStore(subscribeToTime, getIsLive, () => false);
 
   if (isLive) {
@@ -47,14 +49,14 @@ export function DarwinCountdown() {
         <div className="flex items-center gap-3">
           <span className="inline-block h-3 w-3 animate-pulse rounded-full bg-accent" />
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Darwin Day
+            {c.darwinCountdown.label}
           </p>
         </div>
         <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
-          We&apos;re live.
+          {c.darwinCountdown.liveTitle}
         </h2>
         <p className="mt-3 text-sm text-muted">
-          THE PIT launched on Darwin Day 2026. Pick a preset and enter the arena.
+          {c.darwinCountdown.liveDescription}
         </p>
       </div>
     );
@@ -65,21 +67,22 @@ export function DarwinCountdown() {
 
 /** Renders the countdown timer with a 1-second tick. */
 function CountdownDisplay() {
+  const c = useCopy();
   const time = useSyncExternalStore(subscribeToTime, calculate, () => ZERO);
 
   return (
     <div className="border-2 border-foreground/60 bg-black/50 p-6">
       <p className="text-xs uppercase tracking-[0.4em] text-accent">
-        Darwin Day
+        {c.darwinCountdown.label}
       </p>
       <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight">
-        Countdown to launch
+        {c.darwinCountdown.countdownTitle}
       </h2>
       <div className="mt-6 grid grid-cols-4 gap-4 text-center">
-        <CountdownCell label="Days" value={time.days} />
-        <CountdownCell label="Hours" value={time.hours} />
-        <CountdownCell label="Minutes" value={time.minutes} />
-        <CountdownCell label="Seconds" value={time.seconds} />
+        <CountdownCell label={c.darwinCountdown.days} value={time.days} />
+        <CountdownCell label={c.darwinCountdown.hours} value={time.hours} />
+        <CountdownCell label={c.darwinCountdown.minutes} value={time.minutes} />
+        <CountdownCell label={c.darwinCountdown.seconds} value={time.seconds} />
       </div>
     </div>
   );

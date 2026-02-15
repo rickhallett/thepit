@@ -6,6 +6,7 @@ import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { trackEvent } from '@/lib/analytics';
+import { useCopy } from '@/lib/copy';
 import {
   CREDITS_ENABLED,
   estimateBoutCostGbp,
@@ -24,13 +25,14 @@ import {
 
 function SubmitButton({ locked }: { locked: boolean }) {
   const { pending } = useFormStatus();
+  const c = useCopy();
   return (
     <button
       type="submit"
       disabled={locked || pending}
       className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background disabled:opacity-50"
     >
-      {locked ? 'Locked' : pending ? 'Starting...' : 'Enter the pit'}
+      {locked ? c.presetCard.locked : pending ? c.presetCard.starting : c.presetCard.enterThePit}
     </button>
   );
 }
@@ -52,6 +54,7 @@ export function PresetCard({
   defaultPremiumModel?: string;
   byokEnabled?: boolean;
 }) {
+  const c = useCopy();
   const showInput = Boolean(preset.requiresInput || preset.inputLabel);
   const isPremium = preset.tier === 'premium';
   const showModelSelector =
@@ -105,7 +108,7 @@ export function PresetCard({
       const trimmed = byokKey.trim();
       if (!trimmed) {
         event.preventDefault();
-        setByokError('BYOK key required.');
+        setByokError(c.presetCard.byokRequired);
         return;
       }
       // Stash key in HTTP-only cookie (eliminates sessionStorage XSS window)
@@ -117,11 +120,11 @@ export function PresetCard({
           body: JSON.stringify({ key: trimmed }),
         });
         if (!res.ok) {
-          setByokError('Failed to prepare key.');
+          setByokError(c.presetCard.byokFailed);
           return;
         }
       } catch {
-        setByokError('Failed to prepare key.');
+        setByokError(c.presetCard.byokFailed);
         return;
       }
       // Re-submit the form now that the key is stashed
@@ -149,7 +152,7 @@ export function PresetCard({
           </h3>
           {isPremium && (
             <span className="mt-3 inline-flex items-center rounded-full border-2 border-accent/70 px-3 py-1 text-[10px] uppercase tracking-[0.35em] text-accent">
-              Premium
+              {c.presetCard.premium}
             </span>
           )}
           {preset.description && (
@@ -172,7 +175,7 @@ export function PresetCard({
               type="button"
               className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
             >
-              Sign in to play
+              {c.presetCard.signInToPlay}
             </button>
           </SignInButton>
         </SignedOut>
@@ -180,17 +183,17 @@ export function PresetCard({
 
       {locked && isPremium && (
         <div className="rounded border border-accent/50 px-3 py-2 text-xs uppercase tracking-[0.3em] text-accent/80">
-          Premium required
+          {c.presetCard.premiumRequired}
         </div>
       )}
 
       {showInput && (
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>{preset.inputLabel ?? 'Enter topic'}</span>
+          <span>{preset.inputLabel ?? c.presetCard.topicLabel}</span>
           <input
             name="topic"
             type="text"
-            placeholder={preset.inputExamples?.[0] ?? 'Your topic here'}
+            placeholder={preset.inputExamples?.[0] ?? c.presetCard.topicPlaceholder}
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm uppercase tracking-[0.15em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
             required={preset.requiresInput}
             disabled={locked}
@@ -199,7 +202,7 @@ export function PresetCard({
       )}
 
       <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-        <span>Response length</span>
+        <span>{c.presetCard.responseLength}</span>
         <select
           name="length"
           defaultValue={DEFAULT_RESPONSE_LENGTH}
@@ -215,7 +218,7 @@ export function PresetCard({
       </label>
 
       <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-        <span>Response format</span>
+        <span>{c.presetCard.responseFormat}</span>
         <select
           name="format"
           defaultValue={DEFAULT_RESPONSE_FORMAT}
@@ -232,7 +235,7 @@ export function PresetCard({
 
       {showModelSelector && (
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>Model</span>
+          <span>{c.presetCard.model}</span>
           <select
             name="model"
             value={selectedModel}
@@ -250,13 +253,13 @@ export function PresetCard({
       )}
       {showModelSelector && selectedModel === 'byok' && (
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>BYOK API key</span>
+          <span>{c.presetCard.byokLabel}</span>
           <input
             type="password"
             autoComplete="off"
             value={byokKey}
             onChange={(event) => setByokKey(event.target.value)}
-            placeholder="sk-ant-..."
+            placeholder={c.presetCard.byokPlaceholder}
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
             disabled={locked}
             required
@@ -270,7 +273,7 @@ export function PresetCard({
               rel="noreferrer"
               className="underline transition hover:text-accent"
             >
-              Verify
+              {c.presetCard.verify}
             </a>
           </span>
           {byokError && (
@@ -310,7 +313,7 @@ export function PresetCard({
       </div>
 
       <p className="text-sm text-muted">
-        Max turns: <span className="text-foreground">{preset.maxTurns}</span>
+        {c.presetCard.maxTurns.replace('{n}', String(preset.maxTurns))}
       </p>
     </form>
   );

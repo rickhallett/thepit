@@ -6,6 +6,7 @@ import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 import { AgentIcon } from '@/components/agent-icon';
 import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
+import { useCopy } from '@/lib/copy';
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {
@@ -43,6 +44,7 @@ export function ArenaBuilder({
   initialAgentIds?: string[];
   initialTopic?: string;
 }) {
+  const c = useCopy();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string[]>(
     // Only pre-select agents that actually exist in the pool
@@ -95,7 +97,7 @@ export function ArenaBuilder({
       const trimmed = byokKey.trim();
       if (!trimmed) {
         event.preventDefault();
-        setByokError('BYOK key required.');
+        setByokError(c.presetCard.byokRequired);
         return;
       }
       event.preventDefault();
@@ -106,11 +108,11 @@ export function ArenaBuilder({
           body: JSON.stringify({ key: trimmed }),
         });
         if (!res.ok) {
-          setByokError('Failed to prepare key.');
+          setByokError(c.presetCard.byokFailed);
           return;
         }
       } catch {
-        setByokError('Failed to prepare key.');
+        setByokError(c.presetCard.byokFailed);
         return;
       }
       byokStashedRef.current = true;
@@ -125,11 +127,11 @@ export function ArenaBuilder({
     <form action={action} onSubmit={handleSubmit} className="flex flex-col gap-8">
       <section className="border-2 border-foreground/60 bg-black/50 p-6">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Lineup ({selected.length}/6)
+          {c.arenaBuilderComponent.lineup.replace('{n}', String(selected.length))}
         </p>
         {selected.length === 0 ? (
           <p className="mt-4 text-sm text-muted">
-            Pick 2-6 agents to enter the arena.
+            {c.arenaBuilderComponent.pickPrompt}
           </p>
         ) : (
           <div className="mt-4 flex flex-wrap gap-2">
@@ -152,17 +154,17 @@ export function ArenaBuilder({
 
       <section className="flex flex-col gap-6 border-2 border-foreground/60 bg-black/50 p-6">
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>Topic (optional)</span>
+          <span>{c.arenaBuilderComponent.topicLabel}</span>
           <input
             name="topic"
             type="text"
             defaultValue={initialTopic}
-            placeholder="What should they fight about?"
+            placeholder={c.arenaBuilderComponent.topicPlaceholder}
             className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
           />
         </label>
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>Response length</span>
+          <span>{c.arenaBuilderComponent.responseLength}</span>
           <select
             name="length"
             defaultValue={DEFAULT_RESPONSE_LENGTH}
@@ -176,7 +178,7 @@ export function ArenaBuilder({
           </select>
         </label>
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>Response format</span>
+          <span>{c.arenaBuilderComponent.responseFormat}</span>
           <select
             name="format"
             defaultValue={DEFAULT_RESPONSE_FORMAT}
@@ -191,7 +193,7 @@ export function ArenaBuilder({
         </label>
         {showModelSelector && (
           <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-            <span>Model</span>
+            <span>{c.arenaBuilderComponent.model}</span>
             <select
               name="model"
               value={selectedModel}
@@ -208,13 +210,13 @@ export function ArenaBuilder({
         )}
         {showModelSelector && selectedModel === 'byok' && (
           <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-            <span>BYOK API key</span>
+            <span>{c.arenaBuilderComponent.byokLabel}</span>
             <input
               type="password"
               autoComplete="off"
               value={byokKey}
               onChange={(event) => setByokKey(event.target.value)}
-              placeholder="sk-ant-..."
+              placeholder={c.presetCard.byokPlaceholder}
               className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
               required
             />
@@ -227,7 +229,7 @@ export function ArenaBuilder({
                 rel="noreferrer"
                 className="underline transition hover:text-accent"
               >
-                Verify
+                {c.presetCard.verify}
               </a>
             </span>
             {byokError && (
@@ -251,7 +253,7 @@ export function ArenaBuilder({
                 : 'border-accent text-accent hover:bg-accent hover:text-background',
             )}
           >
-            Launch arena bout
+            {c.arenaBuilderComponent.launchBout}
           </button>
         </SignedIn>
         <SignedOut>
@@ -260,7 +262,7 @@ export function ArenaBuilder({
               type="button"
               className="rounded-full border-2 border-accent/70 px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
             >
-              Sign in to launch
+              {c.arenaBuilderComponent.signInToLaunch}
             </button>
           </SignInButton>
         </SignedOut>
@@ -273,12 +275,12 @@ export function ArenaBuilder({
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Name, preset, id"
+              placeholder={c.arenaBuilderComponent.searchPlaceholder}
               className="w-64 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
             />
           </label>
           <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-muted">
-            {filtered.length} agents
+            {c.arenaBuilderComponent.agentsCount.replace('{n}', String(filtered.length))}
           </span>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -300,7 +302,7 @@ export function ArenaBuilder({
                     {agent.name}
                 </p>
                   <p className="mt-2 text-[10px] uppercase tracking-[0.3em] text-muted">
-                    {agent.presetName ?? 'Custom'}
+                    {agent.presetName ?? c.arenaBuilderComponent.custom}
                   </p>
                 </div>
                 <span
@@ -310,7 +312,7 @@ export function ArenaBuilder({
                     color: agent.color ?? DEFAULT_AGENT_COLOR,
                   }}
                 >
-                  {isSelected ? 'Selected' : 'Pick'}
+                  {isSelected ? c.arenaBuilderComponent.selected : c.arenaBuilderComponent.pick}
                 </span>
               </button>
             );

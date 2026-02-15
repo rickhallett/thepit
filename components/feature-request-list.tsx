@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
+import { useCopy } from '@/lib/copy';
 
 type FeatureRequest = {
   id: number;
@@ -26,11 +27,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: 'Other',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  planned: 'Planned',
-  shipped: 'Shipped',
-  reviewed: 'Reviewed',
-};
+const getStatusLabels = (c: ReturnType<typeof useCopy>): Record<string, string> => ({
+  planned: c.featureRequest.list.statusLabels.planned,
+  shipped: c.featureRequest.list.statusLabels.shipped,
+  reviewed: c.featureRequest.list.statusLabels.reviewed,
+});
 
 function timeAgo(dateStr: string): string {
   const ms = Date.now() - new Date(dateStr).getTime();
@@ -44,6 +45,8 @@ function timeAgo(dateStr: string): string {
 }
 
 export function FeatureRequestList() {
+  const c = useCopy();
+  const STATUS_LABELS = getStatusLabels(c);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -106,7 +109,7 @@ export function FeatureRequestList() {
   if (loading) {
     return (
       <p className="text-xs uppercase tracking-[0.3em] text-muted">
-        Loading requests...
+        {c.featureRequest.list.loading}
       </p>
     );
   }
@@ -114,7 +117,7 @@ export function FeatureRequestList() {
   if (requests.length === 0) {
     return (
       <p className="text-sm text-muted">
-        No feature requests yet. Be the first to submit one above.
+        {c.featureRequest.list.empty}
       </p>
     );
   }

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 
 import { cn } from '@/lib/cn';
+import { useCopy } from '@/lib/copy';
 import { buildAgentDetailHref } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
 import { CloneAgentButton } from '@/components/clone-agent-button';
@@ -35,6 +36,8 @@ export function AgentDetailsModal({
   onClose: () => void;
   className?: string;
 }) {
+  const c = useCopy();
+
   useEffect(() => {
     if (!agent) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -61,7 +64,7 @@ export function AgentDetailsModal({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.35em] text-muted">
-              Agent DNA
+              {c.agentDetail.dnaTitle}
             </p>
             <h2 className="mt-2 text-2xl uppercase tracking-tight">
               {agent.name}
@@ -84,31 +87,31 @@ export function AgentDetailsModal({
         <div className="mt-6 grid gap-3 text-xs uppercase tracking-[0.25em] text-muted">
           <div className="flex flex-wrap gap-3">
             <span className="rounded-full border border-foreground/40 px-3 py-1">
-              Tier: {agent.tier}
+              {c.agentDetail.fields.tier} {agent.tier}
             </span>
             {agent.responseLength && (
               <span className="rounded-full border border-foreground/40 px-3 py-1">
-                Length: {agent.responseLength}
+                {c.agentDetail.fields.length} {agent.responseLength}
               </span>
             )}
             {agent.responseFormat && (
               <span className="rounded-full border border-foreground/40 px-3 py-1">
-                Format: {agent.responseFormat}
+                {c.agentDetail.fields.format} {agent.responseFormat}
               </span>
             )}
             {agent.createdAt && (
               <span className="rounded-full border border-foreground/40 px-3 py-1">
-                Created: {new Date(agent.createdAt).toLocaleString()}
+                {c.agentDetail.fields.created} {new Date(agent.createdAt).toLocaleString()}
               </span>
             )}
           </div>
-          {agent.ownerId && <div>Owner: {agent.ownerId}</div>}
+          {agent.ownerId && <div>{c.agentDetail.fields.owner} {agent.ownerId}</div>}
         </div>
 
         {agent.lineage && agent.lineage.length > 0 && (
           <div className="mt-5">
             <p className="text-xs uppercase tracking-[0.3em] text-muted">
-              Lineage
+              {c.agentDetail.lineage}
             </p>
             <div className="mt-3 flex flex-wrap gap-3 text-xs uppercase tracking-[0.25em]">
               {agent.lineage.map((ancestor) => (
@@ -126,7 +129,7 @@ export function AgentDetailsModal({
 
         <div className="mt-6">
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
-            Prompt DNA
+            {c.agentDetail.promptDna}
           </p>
           <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap border-2 border-foreground/60 bg-black/70 p-4 text-sm text-foreground/90">
             {agent.systemPrompt}
@@ -135,19 +138,19 @@ export function AgentDetailsModal({
 
         <div className="mt-6 grid gap-2 text-xs text-muted">
           <div>
-            Prompt hash:{' '}
+            {c.agentDetail.onChainIdentity.promptHash}{' '}
             <span className="text-foreground">
-              {agent.promptHash ?? 'Pending'}
+              {agent.promptHash ?? c.agentDetail.onChainIdentity.pending}
             </span>
           </div>
           <div>
-            Manifest hash:{' '}
+            {c.agentDetail.onChainIdentity.manifestHash}{' '}
             <span className="text-foreground">
-              {agent.manifestHash ?? 'Pending'}
+              {agent.manifestHash ?? c.agentDetail.onChainIdentity.pending}
             </span>
           </div>
           <div>
-            Attestation:{' '}
+            {c.agentDetail.onChainIdentity.attestation}{' '}
             {attestationUrl ? (
               <a
                 href={attestationUrl}
@@ -155,10 +158,10 @@ export function AgentDetailsModal({
                 rel="noreferrer"
                 className="text-accent underline"
               >
-                View onchain
+                {c.agentDetail.onChainIdentity.viewOnchain}
               </a>
             ) : (
-              <span className="text-foreground">Pending</span>
+              <span className="text-foreground">{c.agentDetail.onChainIdentity.pending}</span>
             )}
           </div>
         </div>
