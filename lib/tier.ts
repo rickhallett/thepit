@@ -15,6 +15,7 @@ import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
 import { bouts, users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
+import { MODEL_FAMILY } from '@/lib/models';
 
 export type UserTier = 'free' | 'pass' | 'lab';
 
@@ -78,13 +79,7 @@ export const TIER_CONFIG: Record<UserTier, TierConfig> = {
   },
 };
 
-/** Map model IDs to their tier family for access checks. */
-const MODEL_FAMILY: Record<string, 'haiku' | 'sonnet' | 'opus'> = {
-  'claude-haiku-4-5-20251001': 'haiku',
-  'claude-sonnet-4-5-20250929': 'sonnet',
-  'claude-opus-4-5-20251101': 'opus',
-  'claude-opus-4-6': 'opus',
-};
+// MODEL_FAMILY imported from @/lib/models (centralized model registry).
 
 /**
  * Resolve a user's effective tier.
@@ -237,7 +232,7 @@ export function canAccessModel(
 ): boolean {
   if (modelId === 'byok') return true;
 
-  const family = MODEL_FAMILY[modelId];
+  const family = MODEL_FAMILY[modelId as keyof typeof MODEL_FAMILY];
   if (!family) return false; // Unknown models default to denied (fail-closed)
 
   return TIER_CONFIG[tier].models.includes(family);

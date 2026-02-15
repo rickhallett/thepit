@@ -21,12 +21,19 @@ const {
   getIntroPoolStatusMock,
   consumeIntroPoolAnonymousMock,
   refundIntroPoolMock,
+  MODELS,
 } = vi.hoisted(() => {
   const db = {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
   };
+  const MODELS = {
+    HAIKU: 'claude-haiku-4-5-20251001',
+    SONNET: 'claude-sonnet-4-5-20250929',
+    OPUS_45: 'claude-opus-4-5-20251101',
+    OPUS_46: 'claude-opus-4-6',
+  } as const;
   return {
     mockDb: db,
     authMock: vi.fn(),
@@ -44,6 +51,7 @@ const {
     getIntroPoolStatusMock: vi.fn(),
     consumeIntroPoolAnonymousMock: vi.fn(),
     refundIntroPoolMock: vi.fn(),
+    MODELS,
   };
 });
 
@@ -98,12 +106,12 @@ vi.mock('@/lib/intro-pool', () => ({
 }));
 
 vi.mock('@/lib/ai', () => ({
-  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
+  FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    'claude-sonnet-4-5-20250929',
-    'claude-opus-4-5-20251101',
+    MODELS.SONNET,
+    MODELS.OPUS_45,
   ],
-  DEFAULT_PREMIUM_MODEL_ID: 'claude-sonnet-4-5-20250929',
+  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));

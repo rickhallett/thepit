@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { MODEL_IDS } from '@/lib/models';
+
 describe('lib/ask-the-pit-config', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -24,7 +26,7 @@ describe('lib/ask-the-pit-config', () => {
     const config = await import('@/lib/ask-the-pit-config');
     expect(config.ASK_THE_PIT_ENABLED).toBe(false);
     expect(config.ASK_THE_PIT_DOCS).toEqual(['README.md', 'AGENTS.md']);
-    expect(config.ASK_THE_PIT_MODEL).toBe('claude-haiku-4-5-20251001');
+    expect(config.ASK_THE_PIT_MODEL).toBe(MODEL_IDS.HAIKU);
     expect(config.ASK_THE_PIT_MAX_TOKENS).toBe(2_000);
   });
 });

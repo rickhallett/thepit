@@ -15,6 +15,13 @@
 
 import { createAnthropic } from '@ai-sdk/anthropic';
 
+import {
+  MODEL_IDS,
+  DEFAULT_FREE_MODEL,
+  DEFAULT_PREMIUM_MODELS,
+  DEFAULT_PREMIUM_MODEL,
+} from '@/lib/models';
+
 const HELICONE_API_KEY = process.env.HELICONE_API_KEY;
 const HELICONE_ENABLED = process.env.HELICONE_ENABLED === 'true';
 const HELICONE_BASE_URL = 'https://anthropic.helicone.ai/v1';
@@ -37,21 +44,35 @@ const defaultAnthropic = createAnthropic({
 export const FREE_MODEL_ID =
   process.env.ANTHROPIC_FREE_MODEL ??
   process.env.ANTHROPIC_MODEL ??
-  'claude-haiku-4-5-20251001';
+  DEFAULT_FREE_MODEL;
 
 const premiumModelEnv =
-  process.env.ANTHROPIC_PREMIUM_MODELS ??
-  'claude-sonnet-4-5-20250929,claude-opus-4-5-20251101,claude-opus-4-6';
+  process.env.ANTHROPIC_PREMIUM_MODELS ?? DEFAULT_PREMIUM_MODELS;
 
-export const PREMIUM_MODEL_OPTIONS = premiumModelEnv
+const parsedPremiumModels = premiumModelEnv
   .split(',')
   .map((model) => model.trim())
   .filter(Boolean);
 
+if (
+  process.env.ANTHROPIC_PREMIUM_MODELS &&
+  parsedPremiumModels.length === 0
+) {
+  console.warn(
+    '[ai] ANTHROPIC_PREMIUM_MODELS is set but parsed to an empty list. ' +
+      `Falling back to DEFAULT_PREMIUM_MODEL (${DEFAULT_PREMIUM_MODEL}).`,
+  );
+}
+
+export const PREMIUM_MODEL_OPTIONS =
+  parsedPremiumModels.length > 0
+    ? parsedPremiumModels
+    : [DEFAULT_PREMIUM_MODEL];
+
 export const DEFAULT_PREMIUM_MODEL_ID =
   process.env.ANTHROPIC_PREMIUM_MODEL ??
   PREMIUM_MODEL_OPTIONS[0] ??
-  FREE_MODEL_ID;
+  DEFAULT_PREMIUM_MODEL;
 
 export const BYOK_MODEL_ID =
   process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID;
@@ -73,10 +94,10 @@ export const getModel = (modelId?: string, apiKey?: string) => {
  * context overflow on long bouts.
  */
 export const MODEL_CONTEXT_LIMITS: Record<string, number> = {
-  'claude-haiku-4-5-20251001': 200_000,
-  'claude-sonnet-4-5-20250929': 200_000,
-  'claude-opus-4-5-20251101': 200_000,
-  'claude-opus-4-6': 200_000,
+  [MODEL_IDS.HAIKU]: 200_000,
+  [MODEL_IDS.SONNET]: 200_000,
+  [MODEL_IDS.OPUS_45]: 200_000,
+  [MODEL_IDS.OPUS_46]: 200_000,
 };
 
 /** Default context limit for unknown models. Conservative to prevent overflows. */

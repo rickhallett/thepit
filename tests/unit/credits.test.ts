@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MODEL_IDS } from '@/lib/models';
 
 const { mockDb, creditsTable, creditTransactionsTable } = vi.hoisted(() => {
   const credits = {
@@ -113,7 +114,7 @@ describe('credits helpers', () => {
 
   it('returns positive costs for known models', async () => {
     const { estimateBoutCostGbp } = await loadCredits();
-    const cost = estimateBoutCostGbp(12, 'claude-haiku-4-5-20251001', 120);
+    const cost = estimateBoutCostGbp(12, MODEL_IDS.HAIKU, 120);
     expect(cost).toBeGreaterThan(0);
   });
 
@@ -121,7 +122,7 @@ describe('credits helpers', () => {
     const { estimateBoutCostGbp, computeCostGbp, getModelPricing } = await loadCredits();
 
     // Unknown model should fall back to haiku pricing
-    const haikuPricing = getModelPricing('claude-haiku-4-5-20251001');
+    const haikuPricing = getModelPricing(MODEL_IDS.HAIKU);
     const unknownPricing = getModelPricing('unknown-model');
     expect(unknownPricing).toEqual(haikuPricing);
 
@@ -166,13 +167,13 @@ describe('credits helpers', () => {
   it('handles missing pricing env gracefully', async () => {
     delete process.env.MODEL_PRICES_GBP_JSON;
     const { getModelPricing } = await loadCredits();
-    expect(getModelPricing('claude-haiku-4-5-20251001')).toEqual({ in: 0.732, out: 3.66 });
+    expect(getModelPricing(MODEL_IDS.HAIKU)).toEqual({ in: 0.732, out: 3.66 });
   });
 
   it('falls back to defaults when pricing env is invalid', async () => {
     process.env.MODEL_PRICES_GBP_JSON = '{bad-json';
     const { getModelPricing } = await loadCredits();
-    expect(getModelPricing('claude-haiku-4-5-20251001')).toEqual({
+    expect(getModelPricing(MODEL_IDS.HAIKU)).toEqual({
       in: 0.732,
       out: 3.66,
     });
@@ -186,7 +187,7 @@ describe('credits helpers', () => {
 
   it('computes costs from token counts', async () => {
     const { computeCostGbp } = await loadCredits();
-    const cost = computeCostGbp(1000, 2000, 'claude-haiku-4-5-20251001');
+    const cost = computeCostGbp(1000, 2000, MODEL_IDS.HAIKU);
     expect(cost).toBeGreaterThan(0);
   });
 

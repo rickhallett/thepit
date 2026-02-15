@@ -18,12 +18,20 @@ const {
   createUIMessageStreamMock,
   createUIMessageStreamResponseMock,
   readAndClearByokKeyMock,
+  MODELS,
 } = vi.hoisted(() => {
   const db = {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
   };
+  // Mirror MODEL_IDS from @/lib/models for use inside mock factories.
+  const MODELS = {
+    HAIKU: 'claude-haiku-4-5-20251001',
+    SONNET: 'claude-sonnet-4-5-20250929',
+    OPUS_45: 'claude-opus-4-5-20251101',
+    OPUS_46: 'claude-opus-4-6',
+  } as const;
   return {
     mockDb: db,
     authMock: vi.fn(),
@@ -38,6 +46,7 @@ const {
     createUIMessageStreamMock: vi.fn(),
     createUIMessageStreamResponseMock: vi.fn(),
     readAndClearByokKeyMock: vi.fn(),
+    MODELS,
   };
 });
 
@@ -81,12 +90,12 @@ vi.mock('@/lib/free-bout-pool', () => ({
 }));
 
 vi.mock('@/lib/ai', () => ({
-  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
+  FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    'claude-sonnet-4-5-20250929',
-    'claude-opus-4-5-20251101',
+    MODELS.SONNET,
+    MODELS.OPUS_45,
   ],
-  DEFAULT_PREMIUM_MODEL_ID: 'claude-sonnet-4-5-20250929',
+  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));
@@ -293,7 +302,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b2',
         presetId: 'darwin-special',
-        model: 'claude-sonnet-4-5-20250929',
+        model: MODELS.SONNET,
       }),
     );
     expect(res.status).toBe(402);
@@ -354,7 +363,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b6',
         presetId: 'darwin-special',
-        model: 'claude-sonnet-4-5-20250929',
+        model: MODELS.SONNET,
       }),
     );
     expect(res.status).toBe(200);
@@ -374,7 +383,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b7',
         presetId: 'darwin-special',
-        model: 'claude-sonnet-4-5-20250929',
+        model: MODELS.SONNET,
       }),
     );
     expect(res.status).toBe(402);
@@ -459,12 +468,12 @@ describe('run-bout tier-based access control', () => {
       consumeFreeBout: consumeFreeBoutMock,
     }));
     vi.doMock('@/lib/ai', () => ({
-      FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
+      FREE_MODEL_ID: MODELS.HAIKU,
       PREMIUM_MODEL_OPTIONS: [
-        'claude-sonnet-4-5-20250929',
-        'claude-opus-4-5-20251101',
+        MODELS.SONNET,
+        MODELS.OPUS_45,
       ],
-      DEFAULT_PREMIUM_MODEL_ID: 'claude-sonnet-4-5-20250929',
+      DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
       getModel: vi.fn(() => 'mock-model'),
     }));
     vi.doMock('@/lib/presets', () => ({

@@ -17,6 +17,7 @@ import { desc, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { creditTransactions, credits } from '@/db/schema';
+import { MODEL_IDS } from '@/lib/models';
 
 export const CREDIT_VALUE_GBP = Number(
   process.env.CREDIT_VALUE_GBP ?? '0.01',
@@ -52,10 +53,10 @@ export const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
 // Combined with CREDIT_PLATFORM_MARGIN (default 10%), these yield ~10% margin
 // over actual Anthropic API costs.
 const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
-  'claude-haiku-4-5-20251001': { in: 0.732, out: 3.66 },
-  'claude-sonnet-4-5-20250929': { in: 2.196, out: 10.98 },
-  'claude-opus-4-5-20251101': { in: 3.66, out: 18.3 },
-  'claude-opus-4-6': { in: 3.66, out: 18.3 },
+  [MODEL_IDS.HAIKU]: { in: 0.732, out: 3.66 },
+  [MODEL_IDS.SONNET]: { in: 2.196, out: 10.98 },
+  [MODEL_IDS.OPUS_45]: { in: 3.66, out: 18.3 },
+  [MODEL_IDS.OPUS_46]: { in: 3.66, out: 18.3 },
 };
 
 const ENV_MODEL_PRICES = (() => {
@@ -86,7 +87,7 @@ export const estimateTokensFromText = (text: string, min = 0) =>
 
 /** Default fallback pricing (haiku) for unrecognized model IDs.
  *  Computed from the merged MODEL_PRICES_GBP map so env overrides apply. */
-const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP['claude-haiku-4-5-20251001'];
+const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP[MODEL_IDS.HAIKU];
 
 export const getModelPricing = (modelId: string) => {
   const pricing = MODEL_PRICES_GBP[modelId];

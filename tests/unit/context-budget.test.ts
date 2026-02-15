@@ -12,6 +12,8 @@ import {
   getInputTokenBudget,
 } from '@/lib/ai';
 
+import { MODEL_IDS } from '@/lib/models';
+
 // ---------------------------------------------------------------------------
 // estimatePromptTokens
 // ---------------------------------------------------------------------------
@@ -39,7 +41,7 @@ describe('estimatePromptTokens', () => {
 
 describe('getInputTokenBudget', () => {
   it('returns correct budget for known models', () => {
-    const budget = getInputTokenBudget('claude-haiku-4-5-20251001');
+    const budget = getInputTokenBudget(MODEL_IDS.HAIKU);
     const expected = Math.floor(200_000 * (1 - CONTEXT_SAFETY_MARGIN));
     expect(budget).toBe(expected);
   });
