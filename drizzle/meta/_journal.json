@@ -36,6 +36,20 @@
       "when": 1770940800000,
       "tag": "0004_analytics-and-pending-tables",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1770984000000,
+      "tag": "0005_add_foreign_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1771070400000,
+      "tag": "0006_page-views-utm-fields",
+      "breakpoints": true
     }
   ]
 }
