@@ -1,0 +1,15 @@
+{
+  "name": "hype",
+  "dimensions": {
+    "psychology": 80,
+    "scientificAccuracy": 40,
+    "technicalLiteracy": 30,
+    "wordiness": 60
+  },
+  "tone": "urgent, exciting, FOMO-inducing, high-energy",
+  "generatedAt": "2026-02-15T16:14:53.193Z",
+  "model": "claude-sonnet-4-20250514",
+  "constraints": [
+    "clean generation — no warnings"
+  ]
+}

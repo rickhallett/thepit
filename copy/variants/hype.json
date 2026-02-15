@@ -1,0 +1,907 @@
+{
+  "meta": {
+    "landing": {
+      "title": "THE PIT — AI Battle Arena",
+      "description": "Where AI personalities CLASH! Pick your fighters, watch epic battles unfold, vote for champions!"
+    },
+    "arena": {
+      "title": "Arena — THE PIT",
+      "description": "Choose your combatants and witness AI personalities battle for supremacy in real time!"
+    },
+    "arenaBuilder": {
+      "title": "Arena Builder — THE PIT",
+      "description": "Craft the ultimate AI showdown from our elite roster of digital warriors!"
+    },
+    "bout": {
+      "titleSuffix": "— THE PIT",
+      "descriptionTemplate": "Watch {agents} battle it out in this EPIC real-time showdown!",
+      "notFoundTitle": "Bout Not Found — THE PIT"
+    },
+    "shortLink": {
+      "titleSuffix": "— THE PIT",
+      "descriptionTemplate": "{agents} throw down in The Pit's most intense battle yet!"
+    },
+    "recent": {
+      "title": "Recent Bouts — THE PIT",
+      "description": "Relive the most INTENSE AI battles! Watch champion-level debates and legendary showdowns!"
+    },
+    "leaderboard": {
+      "title": "Leaderboard — THE PIT",
+      "description": "Who's DOMINATING the crowd? See which AI warriors are crushing the competition!"
+    },
+    "agents": {
+      "title": "Agents — THE PIT",
+      "description": "Meet every digital warrior ready to battle in the arena!"
+    },
+    "agentDetail": {
+      "title": "Agent DNA — THE PIT"
+    },
+    "agentNew": {
+      "title": "Agent Lab — THE PIT",
+      "description": "Engineer your own AI warrior with precision-crafted personality DNA!"
+    },
+    "agentClone": {
+      "title": "Clone Agent — THE PIT",
+      "description": "Steal the champion's secrets! Clone and customize any agent to create your ultimate fighter!"
+    },
+    "research": {
+      "title": "Research — THE PIT",
+      "description": "How The Pit transforms chaotic AI battles into groundbreaking research insights!"
+    },
+    "citations": {
+      "title": "Research Foundations — THE PIT",
+      "description": "Deep dive into multi-agent debate research, evaluation bias studies, and persona engineering breakthroughs!"
+    },
+    "roadmap": {
+      "title": "Roadmap — THE PIT",
+      "description": "Three explosive development tracks: Platform domination, Community growth, and Research breakthroughs!"
+    },
+    "developers": {
+      "title": "Developers — THE PIT",
+      "description": "Industrial-strength adversarial testing for AI engineers! CLI tools, headless API, blockchain-verified provenance!"
+    },
+    "feedback": {
+      "title": "Feedback — THE PIT",
+      "description": "Shape The Pit's future! Submit killer feature ideas and vote on what gets built next!"
+    },
+    "contact": {
+      "title": "Contact — THE PIT",
+      "description": "Questions, collaborations, or feedback — we're ready to hear from you!"
+    },
+    "privacy": {
+      "title": "Privacy Policy — THE PIT"
+    },
+    "terms": {
+      "title": "Terms of Service — THE PIT"
+    },
+    "disclaimer": {
+      "title": "Disclaimer — THE PIT"
+    },
+    "security": {
+      "title": "Security — THE PIT"
+    }
+  },
+  "hero": {
+    "badge": "THE PIT",
+    "headline": "Where digital warriors COLLIDE!",
+    "subheadline": "Choose your fighters. Watch AI personalities battle for supremacy in real time. Vote for champions. Share the epic chaos with everyone!",
+    "ctaPrimary": "ENTER THE ARENA",
+    "ctaSecondary": "See How It Works",
+    "introPool": {
+      "label": "Intro pool",
+      "remaining": "credits remaining",
+      "drainRate": "drains 1 credit/min",
+      "drained": "Pool DRAINED — sign up for credits NOW!"
+    }
+  },
+  "howItWorks": {
+    "label": "How It Works",
+    "title": "Four steps to arena domination",
+    "steps": [
+      {
+        "title": "Pick",
+        "heading": "Choose your fighters",
+        "description": "Philosophers, comedians, therapists, cats — our roster is designed for maximum entertainment and explosive confrontations!"
+      },
+      {
+        "title": "Watch",
+        "heading": "Live streaming battles",
+        "description": "Turn-by-turn combat. Each agent brings unique personality, cunning strategy, and absolutely zero mercy in their quest for victory!"
+      },
+      {
+        "title": "Decide",
+        "heading": "Vote and share the chaos",
+        "description": "React to the most savage lines. Crown your champion. Share the epic replay link and watch your friends get hooked!"
+      },
+      {
+        "title": "Clone",
+        "heading": "Steal the winners' secrets",
+        "description": "Clone any agent — champion or underdog. Hack their personality DNA, tweak their tactics and quirks. Build from scratch or fork a proven winner and make it even deadlier!"
+      }
+    ]
+  },
+  "featuredPresets": {
+    "label": "Featured Battles",
+    "presets": [
+      {
+        "name": "The Darwin Special",
+        "description": "Evolution meets its fiercest critics — plus one supremely smug house cat ready to judge them all!",
+        "agentCount": 3,
+        "tags": [
+          "Philosophy",
+          "Science"
+        ]
+      },
+      {
+        "name": "Roast Battle",
+        "description": "Two savage comedians, zero mercy, maximum destruction. Only the audience can save you now!",
+        "agentCount": 2,
+        "tags": [
+          "Comedy",
+          "Competition"
+        ]
+      },
+      {
+        "name": "The Last Supper",
+        "description": "Socrates, Nietzsche, Ayn Rand, and Buddha share one final explosive meal before philosophical apocalypse!",
+        "agentCount": 4,
+        "tags": [
+          "Philosophy",
+          "History"
+        ]
+      },
+      {
+        "name": "On The Couch",
+        "description": "Therapy session gone completely wrong! Prepare for maximum oversharing and psychological warfare!",
+        "agentCount": 2,
+        "tags": [
+          "Psychology",
+          "Drama"
+        ]
+      }
+    ],
+    "viewAll": "See ALL battles",
+    "count": "22 explosive presets available NOW!"
+  },
+  "researchLayer": {
+    "label": "Research Layer",
+    "title": "Entertainment for you. BREAKTHROUGH DATA for everyone!",
+    "description": "Every single battle creates groundbreaking multi-agent conversation data plus crowd feedback gold! We analyze which personalities dominate, which tactics win, and how agents evolve under pressure. Transcripts, reactions, and votes feed our revolutionary research datasets!",
+    "stats": [
+      {
+        "label": "Data points",
+        "value": "Transcripts",
+        "detail": "Turn-level behavioral capture"
+      },
+      {
+        "label": "Crowd signal",
+        "value": "Reactions",
+        "detail": "Heart + fire per turn"
+      },
+      {
+        "label": "Outcome",
+        "value": "Winner votes",
+        "detail": "Per-bout crowd consensus"
+      }
+    ],
+    "cta": "Discover the research breakthrough"
+  },
+  "pricing": {
+    "label": "Pricing",
+    "title": "Plans for every arena warrior",
+    "description": "Start FREE with 15 lifetime battles! Upgrade for more epic showdowns, premium AI models, and unlimited agent creation. BYOK users get unlimited battles forever!",
+    "plans": [
+      {
+        "name": "Free",
+        "cta": "Start Fighting",
+        "features": [
+          "3 battles/day (15 lifetime)",
+          "Haiku model",
+          "1 custom agent",
+          "BYOK unlimited"
+        ]
+      },
+      {
+        "name": "Pit Pass",
+        "cta": "Join the Elite",
+        "features": [
+          "15 battles/day",
+          "Haiku + Sonnet",
+          "5 custom agents",
+          "Agent analytics",
+          "BYOK unlimited"
+        ]
+      },
+      {
+        "name": "Pit Lab",
+        "cta": "Go Professional",
+        "features": [
+          "100 battles/day",
+          "All models (incl. Opus)",
+          "Unlimited agents",
+          "Headless API access",
+          "CLI toolchain (pitforge)",
+          "Agent analytics",
+          "BYOK unlimited"
+        ]
+      }
+    ],
+    "mostPopular": "CROWD FAVORITE",
+    "creditPacks": {
+      "label": "Need MORE battles? Power up with credit packs — don't miss out!",
+      "byokNote": "Or bring your own API key — BYOK battles are ALWAYS free and unlimited!"
+    }
+  },
+  "arena": {
+    "title": "AI Battle Arena",
+    "description": "Choose your preset and watch the arena explode with round-robin debate chaos! Pure entertainment, zero complexity — just pick your fighters and let the battle rage!",
+    "credits": {
+      "label": "Credits:",
+      "rateLabel": "1 credit = £{rate}",
+      "addCredits": "Add credits (test)",
+      "signInPrompt": "Sign in NOW to track credits and battle history!",
+      "introPoolLabel": "Intro pool",
+      "creditsLeft": "credits left",
+      "poolDrained": "Pool DRAINED — sign up for credits NOW!"
+    },
+    "tier": {
+      "pitLab": "Pit Lab",
+      "pitPass": "Pit Pass",
+      "free": "Free",
+      "boutsRemaining": "ONLY {remaining} of {total} lifetime battles remaining!",
+      "manageSubscription": "Manage subscription",
+      "upgradePlan": "UPGRADE NOW"
+    },
+    "customBout": {
+      "label": "Arena Mode",
+      "title": "Build your ultimate lineup",
+      "description": "Select 2–6 warriors, set the battleground topic, and unleash custom chaos like never before!",
+      "cta": "Start building →"
+    },
+    "upgrade": {
+      "upgradeTitle": "UPGRADE Your Battle Plan",
+      "chooseTitle": "Choose Your Warrior Tier",
+      "signUpToSubscribe": "Sign up to join the elite",
+      "subscribe": "Join Now",
+      "passDescription": "15 battles/day, Haiku + Sonnet, 5 agents, analytics",
+      "labDescription": "100 battles/day, all models incl. Opus, unlimited agents, API access"
+    },
+    "creditPacks": {
+      "label": "Credit Packs"
+    },
+    "creditHistory": {
+      "label": "Credit History",
+      "empty": "No credit activity yet.",
+      "columns": {
+        "when": "When",
+        "source": "Source",
+        "delta": "Delta",
+        "reference": "Reference"
+      }
+    },
+    "tagline": "Zero complexity. Zero limits. PURE SPECTACLE!"
+  },
+  "arenaBuilderPage": {
+    "label": "Arena Builder",
+    "titleNew": "Build your ULTIMATE showdown",
+    "titleReroll": "Re-roll this epic battle",
+    "descriptionNew": "Select 2–6 warriors from our elite roster, set the battlefield topic, and unleash them in glorious combat!",
+    "descriptionReroll": "Same legendary lineup, fresh settings. Adjust and re-run for maximum chaos!",
+    "footerTagline": "Assemble the chaos. Share the champions.",
+    "backToPresets": "← Back to presets"
+  },
+  "arenaComponent": {
+    "statusLabels": {
+      "idle": "Warming up",
+      "streaming": "LIVE BATTLE",
+      "done": "Victory Achieved",
+      "error": "Battle Faulted"
+    },
+    "header": {
+      "badge": "THE PIT",
+      "estCredits": "Est {credits} credits",
+      "copied": "Copied",
+      "share": "Share"
+    },
+    "error": {
+      "defaultMessage": "The arena short-circuited!",
+      "signIn": "Sign in to continue the battle",
+      "getCredits": "Get credits NOW",
+      "tryAgain": "Try again"
+    },
+    "messages": {
+      "thinking": "Thinking...",
+      "awaitingFirst": "Awaiting first strike...",
+      "copyLabel": "Copy",
+      "copiedLabel": "Copied"
+    },
+    "voting": {
+      "whoWon": "Who DOMINATED?",
+      "votesLabel": "{count} votes",
+      "voteLocked": "Vote locked: {name}"
+    },
+    "reroll": {
+      "label": "Re-roll",
+      "description": "Run the same epic lineup again with different battle settings!",
+      "tweakAndRerun": "Tweak & re-run"
+    },
+    "latest": "Latest"
+  },
+  "nav": {
+    "brand": "THE PIT",
+    "primary": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Arena",
+        "href": "/arena"
+      },
+      {
+        "label": "All agents",
+        "href": "/agents"
+      },
+      {
+        "label": "Leaderboard",
+        "href": "/leaderboard"
+      }
+    ],
+    "overflow": [
+      {
+        "label": "Research",
+        "href": "/research"
+      },
+      {
+        "label": "Developers",
+        "href": "/developers"
+      },
+      {
+        "label": "Roadmap",
+        "href": "/roadmap"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "Feedback",
+        "href": "/feedback"
+      }
+    ],
+    "more": "More",
+    "footer": {
+      "copyright": "© THE PIT",
+      "links": [
+        {
+          "label": "Research",
+          "href": "/research"
+        },
+        {
+          "label": "Developers",
+          "href": "/developers"
+        },
+        {
+          "label": "Contact",
+          "href": "/contact"
+        },
+        {
+          "label": "Feedback",
+          "href": "/feedback"
+        },
+        {
+          "label": "Security",
+          "href": "/security"
+        },
+        {
+          "label": "Disclaimer",
+          "href": "/disclaimer"
+        },
+        {
+          "label": "Privacy",
+          "href": "/privacy"
+        },
+        {
+          "label": "Terms",
+          "href": "/terms"
+        }
+      ]
+    },
+    "skipToContent": "Skip to content"
+  },
+  "cookieConsent": {
+    "message": "We use analytics cookies to understand how THE PIT is used and make the experience even MORE addictive!",
+    "essential": "Essential cookies (authentication, referral tracking) are always active.",
+    "privacyLink": "Privacy policy",
+    "decline": "Decline",
+    "accept": "Accept"
+  },
+  "newsletter": {
+    "label": "Early Access",
+    "title": "Get Darwin Day LAUNCH updates",
+    "description": "We'll send you exclusive launch updates, new battle presets, and major milestone announcements!",
+    "placeholder": "you@example.com",
+    "loading": "Sending…",
+    "submit": "Notify me",
+    "success": "You're on the VIP list!",
+    "error": "Something went wrong. Try again!"
+  },
+  "builderShowcase": {
+    "label": "For Builders",
+    "titleLine1": "Stop guessing.",
+    "titleLine2": "Start DOMINATING.",
+    "subtitle": "Unit tests pass, but does your prompt survive a hostile adversary trying to destroy it?",
+    "description": "We built industrial-grade toolchain for adversarial evaluation that will revolutionize your workflow! Script 50 battles against ruthless Red Team agents. Analyze win-rates with surgical precision. Run ablation studies on personality traits. Trace prompt lineage across generations with blockchain-level accuracy!",
+    "ctaPrimary": "API Reference",
+    "ctaSecondary": "CLI Toolchain"
+  },
+  "darwinCountdown": {
+    "label": "Darwin Day",
+    "liveTitle": "WE'RE LIVE!",
+    "liveDescription": "THE PIT launched on Darwin Day 2026! Choose your preset and ENTER THE ARENA NOW!",
+    "countdownTitle": "Countdown to LAUNCH",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds"
+  },
+  "rateLimit": {
+    "defaultError": "You've hit the rate limit!",
+    "resetsIn": "Resets in",
+    "signInHint": "Sign in for higher limits and MORE epic features!",
+    "signInCta": "Sign in to continue",
+    "wantMore": "Want MORE battles?",
+    "tierLabels": {
+      "anonymous": "Anonymous",
+      "free": "Free",
+      "pass": "Pit Pass",
+      "lab": "Pit Lab"
+    },
+    "tierBenefits": {
+      "pass": "All presets + agent analytics",
+      "lab": "API access + CLI tools + unlimited agents"
+    },
+    "unlimited": "Unlimited",
+    "perHour": "{limit}/hr",
+    "remindLater": "Remind me later",
+    "tryAgain": "Try again"
+  },
+  "presetCard": {
+    "locked": "Locked",
+    "starting": "Starting...",
+    "enterThePit": "ENTER THE PIT",
+    "signInToPlay": "Sign in to battle",
+    "premium": "Premium",
+    "premiumRequired": "Premium required",
+    "topicPlaceholder": "Your battle topic here",
+    "topicLabel": "Enter topic",
+    "responseLength": "Response length",
+    "responseFormat": "Response format",
+    "model": "Model",
+    "byokLabel": "BYOK API key",
+    "byokPlaceholder": "sk-ant-...",
+    "byokRequired": "BYOK key required.",
+    "byokFailed": "Failed to prepare key.",
+    "maxTurns": "Max turns: {n}",
+    "verify": "Verify"
+  },
+  "arenaBuilderComponent": {
+    "lineup": "Lineup ({n}/6)",
+    "pickPrompt": "Pick 2-6 warriors to enter the arena and battle for supremacy!",
+    "topicLabel": "Topic (optional)",
+    "topicPlaceholder": "What should they battle about?",
+    "responseLength": "Response length",
+    "responseFormat": "Response format",
+    "model": "Model",
+    "byokLabel": "BYOK API key",
+    "launchBout": "LAUNCH ARENA BATTLE",
+    "signInToLaunch": "Sign in to launch",
+    "searchPlaceholder": "Name, preset, id",
+    "agentsCount": "{n} agents",
+    "custom": "Custom",
+    "selected": "Selected",
+    "pick": "Pick"
+  },
+  "agentBuilder": {
+    "tabs": {
+      "basics": "Basics",
+      "personality": "Personality",
+      "tactics": "Tactics",
+      "advanced": "Advanced"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Agent name",
+      "archetype": "Archetype",
+      "archetypePlaceholder": "Philosopher, Comedian, Therapist...",
+      "goal": "Goal",
+      "goalPlaceholder": "What do they want to achieve?",
+      "tone": "Tone",
+      "tonePlaceholder": "Sardonic, earnest, aggressive...",
+      "speechPattern": "Speech pattern",
+      "speechPatternPlaceholder": "Speaks in questions, uses corporate jargon...",
+      "quirks": "Quirks",
+      "quirksPlaceholder": "Add a quirk",
+      "openingMove": "Opening move",
+      "openingMovePlaceholder": "How do they start a bout?",
+      "signatureMove": "Signature move",
+      "signatureMovePlaceholder": "Their go-to tactic or punchline",
+      "weakness": "Weakness",
+      "weaknessPlaceholder": "What beats them?",
+      "fears": "Fears",
+      "fearsPlaceholder": "What do they avoid or fear?",
+      "customInstructions": "Custom instructions",
+      "customInstructionsPlaceholder": "Freeform instructions for power users",
+      "responseLength": "Response length",
+      "responseFormat": "Response format"
+    },
+    "addButton": "Add",
+    "validation": {
+      "nameRequired": "Add a name for your warrior!",
+      "personalityRequired": "Add at least one personality or tactical detail to make them battle-ready!"
+    },
+    "submit": {
+      "creating": "Creating...",
+      "cloning": "Cloning...",
+      "create": "Create agent",
+      "clone": "Clone agent"
+    },
+    "warnings": {
+      "cloneLineage": "Cloned agents inherit lineage from the source.",
+      "immutable": "Saved agents become immutable on creation."
+    },
+    "promptPreview": {
+      "title": "Prompt preview",
+      "empty": "Start building to see the composed prompt."
+    }
+  },
+  "agents": {
+    "title": "Agents",
+    "pageTitle": "All Warriors",
+    "description": "Browse every digital warrior available in the arena RIGHT NOW! Filter by preset or tier when you want a tighter shortlist of champions!",
+    "createAgent": "Create agent",
+    "searchPlaceholder": "Agent, preset, id",
+    "presetFilter": "All presets",
+    "tierFilter": {
+      "all": "All",
+      "free": "Free",
+      "premium": "Premium",
+      "custom": "Custom"
+    },
+    "noMatch": "No agents match those filters.",
+    "agentsCount": "{n} agents"
+  },
+  "agentDetail": {
+    "dnaTitle": "Agent DNA",
+    "cloneRemix": "Clone & remix",
+    "archiveAgent": "Archive agent",
+    "restoreAgent": "Restore agent",
+    "archivedNotice": "This agent is archived",
+    "fields": {
+      "tier": "Tier:",
+      "length": "Length:",
+      "format": "Format:",
+      "created": "Created:",
+      "owner": "Owner:"
+    },
+    "lineage": "Lineage",
+    "remixImpact": "Remix Impact",
+    "remixCount": "Remixed {n} time(s)",
+    "creditsEarned": "{n} credits earned",
+    "promptDna": "Prompt DNA",
+    "structuredDna": "Structured DNA",
+    "onChainIdentity": {
+      "title": "On-chain Identity",
+      "description": "Every agent's DNA is hashed and can be attested on-chain via the Ethereum Attestation Service on Base L2, creating an immutable record of identity and lineage.",
+      "promptHash": "Prompt hash:",
+      "manifestHash": "Manifest hash:",
+      "attestation": "Attestation:",
+      "viewOnchain": "View onchain",
+      "pending": "Pending"
+    }
+  },
+  "agentNew": {
+    "label": "Agent Lab",
+    "title": "Build a Warrior",
+    "description": "Shape your agent with precision-crafted DNA! Every field contributes to the final prompt, and the preview updates as you engineer your champion!"
+  },
+  "agentClone": {
+    "label": "Agent Lab",
+    "title": "Clone Warrior",
+    "descriptionTemplate": "Cloning {name}! Tweak any field to make it YOUR ultimate champion. The new agent will inherit lineage from the original!",
+    "source": "Source:",
+    "preset": "Preset:",
+    "lineagePreserved": "Lineage preserved"
+  },
+  "recentBouts": {
+    "title": "Recent Battles",
+    "description": "The latest EPIC debates from the arena! Click any battle to watch the full replay and relive the glory!",
+    "empty": "No completed battles yet. Head to the arena to start the first epic showdown!",
+    "showing": "Showing the {n} most recent completed battles!"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "description": "Who's DOMINATING the crowd votes? See which AI warriors are crushing the competition and which creators are shaping arena history!",
+    "tabs": {
+      "pit": "PIT",
+      "player": "PLAYER"
+    },
+    "ranges": {
+      "allTime": "All time",
+      "thisWeek": "This week",
+      "today": "Today"
+    },
+    "search": "Search",
+    "presetFilter": "All presets",
+    "sourceFilter": {
+      "all": "All",
+      "preset": "Preset",
+      "custom": "Custom"
+    },
+    "ranked": "{n} ranked",
+    "empty": "No votes yet! Leaderboard will EXPLODE once audiences start voting on champions!",
+    "columns": {
+      "agent": "Agent",
+      "preset": "Preset",
+      "bouts": "Bouts",
+      "wins": "Wins",
+      "winRate": "Win %",
+      "votes": "Votes",
+      "bestBout": "Best bout"
+    },
+    "replay": "Replay"
+  },
+  "researchPage": {
+    "label": "Research",
+    "title": "Crowdsourced AI behavior research revolution",
+    "subtitle": "The Pit is entertainment. The data is the BREAKTHROUGH experiment.",
+    "whatWeStudy": {
+      "title": "What we study",
+      "bullets": [
+        "Which personalities persuade or entertain most effectively in high-pressure scenarios",
+        "How agents react under intense pressure and hostile contradiction",
+        "What the crowd rewards and shares most passionately",
+        "How prompts evolve when cloned and remixed across generations"
+      ]
+    },
+    "dataHandling": {
+      "title": "Data handling",
+      "description": "We store battle transcripts, reactions, and winner votes with military-grade security. We NEVER sell user data. Any public research output is aggregated and anonymized."
+    },
+    "litReview": {
+      "title": "Literature review",
+      "subtitle": "Research foundations",
+      "description": "Our design decisions are informed by cutting-edge literature on multi-agent debate, LLM evaluation bias, persona prompting, and context window degradation. We maintain a formal review of 18 cited works mapping published findings to The Pit's architecture, identifying breakthrough opportunities and competitive advantages!",
+      "cta": "Read the literature review →"
+    },
+    "onChain": {
+      "title": "On-chain provenance",
+      "subtitle": "Why agents live on-chain",
+      "bullets": [
+        "Tamper detection — SHA-256 hashes of agent prompts and manifests make unauthorized modifications instantly detectable!",
+        "Lineage verification — Parent-child relationships between cloned agents are preserved on-chain, enabling complete provenance tracking across remix chains!",
+        "Immutable identity — Once attested on Base L2, an agent's identity record cannot be altered or deleted by ANYONE, including the Platform!"
+      ]
+    },
+    "datasets": {
+      "title": "Dataset downloads",
+      "subtitle": "Research-grade data goldmine",
+      "description": "Anonymized exports of battle transcripts, crowd reactions, winner votes, and agent metadata. All user IDs are replaced with salted SHA-256 hashes. Perfect for academic research into multi-agent debate dynamics, persona effectiveness, and crowd evaluation patterns!",
+      "downloadCta": "Download JSON dataset",
+      "empty": "No exports available yet. Check back soon for groundbreaking data!"
+    },
+    "collaborate": {
+      "title": "Collaborate with us",
+      "cta": "Get in touch NOW"
+    },
+    "backToThePit": "← Back to The Pit"
+  },
+  "developers": {
+    "label": "Infrastructure",
+    "title": "The Arena is an API that will REVOLUTIONIZE your workflow!",
+    "description": [
+      "Standard evaluations (MMLU, GSM8K) don't measure persuasion or resilience under pressure! The ONLY way to test an agent's social capability is to put it in a room with a hostile adversary and let the crowd decide who dominates!",
+      "The Pit gives you headless adversarial simulation, a Go CLI toolchain for prompt engineering at scale, and immutable on-chain provenance for every agent identity. This isn't just a game — it's a complete evaluation environment that will transform how you build AI!"
+    ],
+    "tools": [
+      {
+        "name": "pitforge",
+        "tagline": "Agent Engineering CLI",
+        "description": "Scaffold personas with precision, lint system prompts for anti-patterns, run local streaming battles, and generate ablation variants using cutting-edge LLMs!"
+      },
+      {
+        "name": "pitbench",
+        "tagline": "Cost & Performance",
+        "description": "Calculate exact token costs, platform margins, and latency for multi-turn conversations before you spend a single credit — never get surprised again!"
+      },
+      {
+        "name": "pitnet",
+        "tagline": "On-Chain Provenance",
+        "description": "Verify agent identity hashes against the Ethereum Attestation Service on Base L2. Ensure the prompt hasn't drifted and maintain perfect integrity!"
+      },
+      {
+        "name": "pitlab",
+        "tagline": "Research Analysis",
+        "description": "Win-rate survival analysis, first-mover bias detection, engagement curves, and reaction distribution from exported datasets — unlock hidden insights!"
+      }
+    ],
+    "workflow": {
+      "title": "Define. Test. Dominate.",
+      "steps": [
+        {
+          "label": "Define",
+          "title": "Scaffold an agent definition",
+          "description": "Scaffold a YAML agent definition with structured personality fields, battle tactics, and strategic constraints for maximum effectiveness!"
+        },
+        {
+          "label": "Test",
+          "title": "Run a live streaming battle",
+          "description": "Run a live streaming battle via the Anthropic API. Watch your agent defend its position against a ruthless hostile adversary in real time!"
+        },
+        {
+          "label": "Analyze",
+          "title": "Compute win-rates and detect bias",
+          "description": "Compute win-rates with surgical precision, detect position bias, and identify which personality traits drive crowd preference and engagement!"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to dominate?",
+      "primary": "Get Lab Access NOW",
+      "secondary": "API Reference"
+    }
+  },
+  "roadmap": {
+    "label": "Roadmap",
+    "title": "Three explosive lines of attack",
+    "description": "Platform domination. Community growth. Research breakthroughs. Three parallel tracks shipping simultaneously and revolutionizing the space! Items move from planned to active to shipped as we build in the open!",
+    "statusLabels": {
+      "shipped": "Shipped",
+      "building": "Building NOW",
+      "planned": "Planned"
+    },
+    "closingCta": "Want to shape the roadmap and influence our direction?",
+    "enterArena": "Enter the Arena",
+    "getInTouch": "Get in Touch",
+    "backToThePit": "← Back to The Pit"
+  },
+  "feedback": {
+    "label": "Feedback",
+    "title": "Shape The Pit's Future",
+    "description": "Submit killer ideas, vote on what matters most, and help us build exactly what you want to see! Your voice shapes our direction!",
+    "submitSection": {
+      "title": "Submit a game-changing request",
+      "placeholder": "What should we build next to blow your mind?"
+    },
+    "communitySection": {
+      "title": "Community requests",
+      "subtitle": "What the crowd DEMANDS",
+      "description": "Vote on requests to signal what matters most to you! Higher-voted requests get fast-tracked to the top of our priority list!"
+    },
+    "backToThePit": "← Back to The Pit"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Get in touch with us",
+    "description": "Questions, collaborations, or feedback — we're listening and ready to respond fast!",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "sending": "Sending...",
+      "send": "Send message",
+      "error": "Something went wrong. Try again!"
+    },
+    "success": {
+      "title": "Message sent successfully!",
+      "subtitle": "We'll be in touch ASAP!",
+      "description": "Thanks for reaching out! We'll reply as soon as possible with the info you need!"
+    },
+    "backToThePit": "← Back to The Pit"
+  },
+  "boutCard": {
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{n}m ago",
+      "hoursAgo": "{n}h ago",
+      "daysAgo": "{n}d ago"
+    },
+    "topic": "Topic:",
+    "turns": "{n} turns",
+    "watchReplay": "Watch epic replay →"
+  },
+  "authControls": {
+    "signIn": "Sign in",
+    "signUp": "Join NOW",
+    "manageSubscription": "Manage subscription"
+  },
+  "featureRequest": {
+    "form": {
+      "categories": [
+        "Agents",
+        "Arena",
+        "Presets",
+        "Research",
+        "UI",
+        "Other"
+      ],
+      "success": "Request submitted successfully!",
+      "successDescription": "Your feature request is now visible to the community! Others can vote on it to signal massive demand!",
+      "submitAnother": "Submit another request",
+      "signInPrompt": "Sign in to submit a feature request and join the community!",
+      "fields": {
+        "title": "Title",
+        "category": "Category",
+        "categoryPlaceholder": "Select a category...",
+        "description": "Description"
+      },
+      "submitting": "Submitting...",
+      "submit": "Submit request",
+      "error": "Something went wrong. Try again!"
+    },
+    "list": {
+      "statusLabels": {
+        "planned": "Planned",
+        "shipped": "Shipped",
+        "reviewed": "Reviewed"
+      },
+      "loading": "Loading requests...",
+      "empty": "No feature requests yet. Be the FIRST to submit one above and lead the community!"
+    }
+  },
+  "paperSubmission": {
+    "relevanceAreas": [
+      "Agent Interaction",
+      "Evaluation & Bias",
+      "Persona & Behaviour",
+      "Context Windows",
+      "Prompt Engineering",
+      "Other"
+    ],
+    "success": "Submitted for review successfully!",
+    "successDescription": "Thank you for contributing to our research foundations! Submissions are reviewed by our expert team and added to the citations page when accepted!",
+    "submitAnother": "Submit another breakthrough paper",
+    "signInPrompt": "Sign in to suggest a paper for review and contribute to cutting-edge research!",
+    "fields": {
+      "arxivUrl": "arXiv URL",
+      "relevanceArea": "Relevance area",
+      "areaPlaceholder": "Select an area...",
+      "whyItMatters": "Why it matters for The Pit"
+    },
+    "validating": "Validating...",
+    "submit": "Submit paper"
+  },
+  "checkout": {
+    "creditsAdded": "Credits successfully added to your account!",
+    "checkoutCancelled": "Checkout cancelled.",
+    "processing": "Processing...",
+    "buyCredits": "Buy credits NOW"
+  },
+  "common": {
+    "backToThePit": "← Back to The Pit",
+    "signIn": "Sign in",
+    "signUp": "Join NOW",
+    "loading": "Loading...",
+    "error": "Something went wrong. Try again!",
+    "agents": "agents",
+    "unknownError": "Unknown error"
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "disclaimer": {
+      "title": "Disclaimer",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "security": {
+      "title": "Security & Transparency",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    }
+  }
+}

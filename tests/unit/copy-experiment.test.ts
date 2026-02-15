@@ -29,9 +29,25 @@ describe('Experiment Config', () => {
     expect(config.defaultVariant).toBe('control');
   });
 
-  it('has at least one configured variant', () => {
+  it('has all three configured variants', () => {
     const config = getExperimentConfig();
-    expect(Object.keys(config.variants).length).toBeGreaterThan(0);
+    expect(Object.keys(config.variants)).toContain('control');
+    expect(Object.keys(config.variants)).toContain('hype');
+    expect(Object.keys(config.variants)).toContain('precise');
+  });
+
+  it('experiment is active', () => {
+    const config = getExperimentConfig();
+    expect(config.active).toBe(true);
+  });
+
+  it('weights sum to 100', () => {
+    const config = getExperimentConfig();
+    const totalWeight = Object.values(config.variants).reduce(
+      (sum, v) => sum + v.weight,
+      0,
+    );
+    expect(totalWeight).toBe(100);
   });
 
   it('variant weights are non-negative numbers', () => {
@@ -48,13 +64,11 @@ describe('Variant Selection', () => {
     _resetVariantCache();
   });
 
-  it('returns default variant when experiment is inactive', () => {
-    // Current config has active: false, so should always return default
+  it('returns a configured variant when experiment is active', () => {
     const config = getExperimentConfig();
-    if (!config.active) {
-      const variant = selectVariant();
-      expect(variant).toBe(config.defaultVariant);
-    }
+    const variant = selectVariant();
+    const validNames = Object.keys(config.variants);
+    expect(validNames).toContain(variant);
   });
 
   it('returns a valid variant name', () => {
@@ -137,10 +151,23 @@ describe('Statistical Distribution', () => {
 });
 
 describe('Path Exclusion', () => {
-  it('returns false for normal paths when no exclusions configured', () => {
+  it('returns false for normal paths', () => {
     expect(isExcludedPath('/')).toBe(false);
     expect(isExcludedPath('/arena')).toBe(false);
     expect(isExcludedPath('/agents')).toBe(false);
+  });
+
+  it('returns true for excluded paths', () => {
+    const config = getExperimentConfig();
+    for (const excluded of config.excludePaths) {
+      expect(isExcludedPath(excluded)).toBe(true);
+    }
+  });
+
+  it('returns true for sub-paths of excluded paths', () => {
+    expect(isExcludedPath('/api/pv')).toBe(true);
+    expect(isExcludedPath('/sign-in/callback')).toBe(true);
+    expect(isExcludedPath('/sign-up/sso')).toBe(true);
   });
 });
 

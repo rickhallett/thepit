@@ -134,6 +134,70 @@ describe('Copy Schema Validation', () => {
     });
   }
 
+  // Validate template variables are preserved in all variants
+  const templatePattern = /\{[a-zA-Z_]+\}/g;
+
+  function collectTemplateVars(
+    obj: Record<string, unknown>,
+    prefix = '',
+  ): Array<[string, string[]]> {
+    const results: Array<[string, string[]]> = [];
+    for (const [key, value] of Object.entries(obj)) {
+      const p = prefix ? `${prefix}.${key}` : key;
+      if (typeof value === 'string') {
+        const vars = value.match(templatePattern);
+        if (vars && vars.length > 0) {
+          results.push([p, vars]);
+        }
+      } else if (Array.isArray(value)) {
+        value.forEach((item, i) => {
+          if (typeof item === 'object' && item !== null) {
+            results.push(
+              ...collectTemplateVars(item as Record<string, unknown>, `${p}[${i}]`),
+            );
+          }
+        });
+      } else if (typeof value === 'object' && value !== null) {
+        results.push(
+          ...collectTemplateVars(value as Record<string, unknown>, p),
+        );
+      }
+    }
+    return results;
+  }
+
+  const baseTemplateVars = collectTemplateVars(base as unknown as Record<string, unknown>);
+
+  for (const file of variantFiles) {
+    if (file === 'control.json') continue; // control === base, already tested
+
+    describe(`variant template vars: ${file}`, () => {
+      const variant = loadJson(join(VARIANTS_DIR, file)) as Record<string, unknown>;
+
+      for (const [keyPath, expectedVars] of baseTemplateVars) {
+        it(`preserves template vars at ${keyPath}`, () => {
+          // Navigate to the value in the variant
+          const parts = keyPath.split(/\.|\[|\]/).filter(Boolean);
+          let current: unknown = variant;
+          for (const part of parts) {
+            if (current === undefined || current === null) break;
+            current = (current as Record<string, unknown>)[part];
+          }
+
+          if (typeof current !== 'string') {
+            // Key missing — structural test covers this
+            return;
+          }
+
+          const actualVars = current.match(templatePattern) ?? [];
+          for (const v of expectedVars) {
+            expect(actualVars).toContain(v);
+          }
+        });
+      }
+    });
+  }
+
   // Validate meta files
   const metaFiles = readdirSync(VARIANTS_DIR)
     .filter((f) => f.endsWith('.meta.json'));

@@ -1,9 +1,11 @@
 {
-  "active": false,
+  "active": true,
   "defaultVariant": "control",
   "variants": {
-    "control": { "weight": 100, "file": "control.json" }
+    "control": { "weight": 40, "file": "control.json" },
+    "hype": { "weight": 30, "file": "hype.json" },
+    "precise": { "weight": 30, "file": "precise.json" }
   },
-  "excludePaths": [],
-  "startedAt": null
+  "excludePaths": ["/api/", "/sign-in", "/sign-up"],
+  "startedAt": "2026-02-15T16:00:00Z"
 }
