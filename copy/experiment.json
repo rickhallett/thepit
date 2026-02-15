@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "defaultVariant": "control",
   "variants": {
     "control": { "weight": 40, "file": "control.json" },

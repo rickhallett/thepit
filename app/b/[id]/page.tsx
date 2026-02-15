@@ -42,7 +42,7 @@ export async function generateMetadata({
   const title = `${presetName} ${c.meta.bout.titleSuffix}`;
   const description =
     bout.shareLine ??
-    (agents ? c.meta.shortLink.descriptionTemplate.replace('{agents}', agents) : 'Watch the replay.');
+    (agents ? c.meta.shortLink.descriptionTemplate.replace('{agents}', agents) : c.meta.shortLink.fallbackDescription);
 
   return {
     title,

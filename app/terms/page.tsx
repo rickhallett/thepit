@@ -7,7 +7,7 @@ export default async function TermsPage() {
       <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-6 py-12">
         <header className="border-b-2 border-foreground/70 pb-4">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            {c.legal.terms.title}
+            {c.legal.terms.label}
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight">
             {c.legal.terms.title}

@@ -73,13 +73,16 @@ function initPostHog() {
 
   // Register copy A/B variant as a super property so every PostHog event
   // (page views, bout starts, votes, engagement) is tagged with the variant.
+  // Only register if the experiment is active and the cookie value is a known
+  // variant — prevents stale/tampered cookies from polluting analytics.
   try {
     const variantCookie = document.cookie
       .split('; ')
       .find((c) => c.startsWith('pit_variant='));
     if (variantCookie) {
-      const variant = variantCookie.split('=')[1];
-      if (variant) {
+      const raw = variantCookie.substring(variantCookie.indexOf('=') + 1);
+      const variant = decodeURIComponent(raw).trim();
+      if (variant && /^[a-z0-9-]{1,32}$/.test(variant)) {
         posthog.register({ copy_variant: variant });
       }
     }

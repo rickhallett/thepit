@@ -119,9 +119,9 @@ export function FeatureRequestForm() {
               <option value="" disabled>
                 {c.featureRequest.form.fields.categoryPlaceholder}
               </option>
-              {CATEGORY_VALUES.map((value, i) => (
+              {CATEGORY_VALUES.map((value) => (
                 <option key={value} value={value}>
-                  {c.featureRequest.form.categories[i]}
+                  {c.featureRequest.form.categories[value]}
                 </option>
               ))}
             </select>

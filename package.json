@@ -36,7 +36,7 @@
     "security:scan": "tsx qa/scripts/security-scan.ts",
     "sim": "tsx tests/simulation/run.ts",
     "sim:dry": "tsx tests/simulation/run.ts --dry-run",
-    "copy:generate": "tsx scripts/copy-generate.ts"
+    "copy:generate": "tsx scripts/copyGenerate.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.37",

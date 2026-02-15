@@ -9,6 +9,28 @@ export const metadata = {
 
 type ItemStatus = 'done' | 'active' | 'planned';
 
+type StatusLabels = { shipped: string; building: string; planned: string };
+
+function buildStatusConfig(statusLabels: StatusLabels): Record<ItemStatus, { icon: string; label: string; className: string }> {
+  return {
+    done: {
+      icon: '\u2713',
+      label: statusLabels.shipped,
+      className: 'border-foreground/30 text-foreground/70',
+    },
+    active: {
+      icon: '\u25CF',
+      label: statusLabels.building,
+      className: 'border-accent text-accent',
+    },
+    planned: {
+      icon: '\u25CB',
+      label: statusLabels.planned,
+      className: 'border-foreground/20 text-foreground/40',
+    },
+  };
+}
+
 type RoadmapItem = {
   label: string;
   status: ItemStatus;
@@ -127,26 +149,9 @@ function RoadmapItemRow({
   item: RoadmapItem;
   laneColor: string;
   isLast: boolean;
-  statusLabels: { shipped: string; building: string; planned: string };
+  statusLabels: StatusLabels;
 }) {
-  const STATUS_CONFIG: Record<ItemStatus, { icon: string; label: string; className: string }> = {
-    done: {
-      icon: '\u2713',
-      label: statusLabels.shipped,
-      className: 'border-foreground/30 text-foreground/70',
-    },
-    active: {
-      icon: '\u25CF',
-      label: statusLabels.building,
-      className: 'border-accent text-accent',
-    },
-    planned: {
-      icon: '\u25CB',
-      label: statusLabels.planned,
-      className: 'border-foreground/20 text-foreground/40',
-    },
-  };
-
+  const STATUS_CONFIG = buildStatusConfig(statusLabels);
   const config = STATUS_CONFIG[item.status];
   const isActive = item.status === 'active';
   const isDone = item.status === 'done';
@@ -216,7 +221,7 @@ function RoadmapItemRow({
   );
 }
 
-function LaneColumn({ lane, statusLabels }: { lane: Lane; statusLabels: { shipped: string; building: string; planned: string } }) {
+function LaneColumn({ lane, statusLabels }: { lane: Lane; statusLabels: StatusLabels }) {
   return (
     <div className="flex flex-col gap-6">
       <LaneHeader lane={lane} />
@@ -238,23 +243,7 @@ function LaneColumn({ lane, statusLabels }: { lane: Lane; statusLabels: { shippe
 export default async function RoadmapPage() {
   const c = await getCopy();
 
-  const STATUS_CONFIG: Record<ItemStatus, { icon: string; label: string; className: string }> = {
-    done: {
-      icon: '\u2713',
-      label: c.roadmap.statusLabels.shipped,
-      className: 'border-foreground/30 text-foreground/70',
-    },
-    active: {
-      icon: '\u25CF',
-      label: c.roadmap.statusLabels.building,
-      className: 'border-accent text-accent',
-    },
-    planned: {
-      icon: '\u25CB',
-      label: c.roadmap.statusLabels.planned,
-      className: 'border-foreground/20 text-foreground/40',
-    },
-  };
+  const STATUS_CONFIG = buildStatusConfig(c.roadmap.statusLabels);
 
   const totalDone = LANES.reduce(
     (acc, lane) => acc + lane.items.filter((i) => i.status === 'done').length,

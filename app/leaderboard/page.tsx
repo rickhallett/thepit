@@ -12,7 +12,7 @@ export default async function LeaderboardPage() {
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-10">
         <header className="border-b-2 border-foreground/70 pb-6">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            {c.leaderboard.title}
+            {c.leaderboard.label}
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
             {c.leaderboard.title}

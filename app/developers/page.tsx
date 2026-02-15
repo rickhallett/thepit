@@ -97,7 +97,7 @@ export default async function DevelopersPage() {
             Four CLIs. One mission.
           </h2>
           <div className="mt-12 grid gap-8 md:grid-cols-2">
-            {c.developers.tools.map((tool, i) => (
+            {c.developers.tools.slice(0, TOOLS.length).map((tool, i) => (
               <div
                 key={tool.name}
                 className="group flex flex-col gap-3 border-2 border-foreground/20 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[6px_6px_0_rgba(255,255,255,0.05)]"
@@ -144,7 +144,7 @@ export default async function DevelopersPage() {
             {c.developers.workflow.title}
           </h2>
           <div className="mt-12 flex flex-col gap-8">
-            {c.developers.workflow.steps.map((s, i) => (
+            {c.developers.workflow.steps.slice(0, STEPS.length).map((s, i) => (
               <div
                 key={s.label}
                 className="flex gap-6 border-l-2 border-accent/30 pl-6"

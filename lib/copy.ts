@@ -24,6 +24,21 @@ import { cache } from 'react';
 import type { CopySchema } from '@/copy/schema';
 
 // ---------------------------------------------------------------------------
+// Re-export edge-safe utilities so consumers can import from a single path.
+// These live in lib/copy-edge.ts to avoid pulling next/headers + React cache
+// into Edge Middleware.
+// ---------------------------------------------------------------------------
+
+export {
+  COPY_VARIANT_HEADER,
+  VARIANT_COOKIE,
+  selectVariant,
+  getExperimentConfig,
+  isExcludedPath,
+} from '@/lib/copy-edge';
+export type { ExperimentConfig } from '@/lib/copy-edge';
+
+// ---------------------------------------------------------------------------
 // Variant loading — parsed once at module init, cached per variant
 // ---------------------------------------------------------------------------
 
@@ -127,85 +142,13 @@ for (const name of configuredVariants) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Experiment assignment
-// ---------------------------------------------------------------------------
-
-export interface ExperimentConfig {
-  active: boolean;
-  defaultVariant: string;
-  variants: Record<string, { weight: number; file: string }>;
-  excludePaths: string[];
-  startedAt: string | null;
-}
-
-/**
- * Get the current experiment configuration.
- * Loaded from copy/experiment.json at module init.
- */
-export function getExperimentConfig(): ExperimentConfig {
-  return experimentConfig as ExperimentConfig;
-}
-
-/**
- * Select a variant name based on weighted random assignment.
- *
- * Uses the traffic weights defined in experiment.json. The algorithm
- * normalizes weights to sum to 100, then picks based on a random number.
- *
- * @param randomValue - Optional 0-1 random value for deterministic testing.
- * @returns The name of the selected variant.
- */
-export function selectVariant(randomValue?: number): string {
-  const config = getExperimentConfig();
-
-  if (!config.active) {
-    return config.defaultVariant;
-  }
-
-  const entries = Object.entries(config.variants);
-  if (entries.length === 0) {
-    return config.defaultVariant;
-  }
-
-  // Filter out zero-weight variants
-  const weighted = entries.filter(([, v]) => v.weight > 0);
-  if (weighted.length === 0) {
-    return config.defaultVariant;
-  }
-
-  const totalWeight = weighted.reduce((sum, [, v]) => sum + v.weight, 0);
-  const rand = (randomValue ?? Math.random()) * totalWeight;
-
-  let cumulative = 0;
-  for (const [name, { weight }] of weighted) {
-    cumulative += weight;
-    if (rand < cumulative) {
-      return name;
-    }
-  }
-
-  // Edge case: floating point — return last variant.
-  return weighted[weighted.length - 1][0];
-}
-
-/**
- * Check whether a path is excluded from the experiment.
- */
-export function isExcludedPath(path: string): boolean {
-  const config = getExperimentConfig();
-  return config.excludePaths.some((pattern) => path.startsWith(pattern));
-}
+// Edge-safe experiment utilities are defined in lib/copy-edge.ts and
+// re-exported above. Import COPY_VARIANT_HEADER locally for getCopy().
+import { COPY_VARIANT_HEADER } from '@/lib/copy-edge';
 
 // ---------------------------------------------------------------------------
 // Server-side copy resolution
 // ---------------------------------------------------------------------------
-
-/** Header name used to propagate variant from middleware to server components. */
-export const COPY_VARIANT_HEADER = 'x-copy-variant';
-
-/** Cookie name for sticky variant assignment. */
-export const VARIANT_COOKIE = 'pit_variant';
 
 /**
  * Get the copy object for a specific variant.
@@ -271,5 +214,5 @@ export { CopyProvider, useCopy } from '@/lib/copy-client';
 export function _resetVariantCache(): void {
   variantCache.clear();
   variantCache.set('control', controlData as unknown as CopySchema);
-  deepFreeze(controlData as unknown as Record<string, unknown>);
+  // controlData is already frozen at module load — no need to re-freeze.
 }

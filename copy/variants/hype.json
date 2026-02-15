@@ -19,7 +19,8 @@
     },
     "shortLink": {
       "titleSuffix": "— THE PIT",
-      "descriptionTemplate": "{agents} throw down in The Pit's most intense battle yet!"
+      "descriptionTemplate": "{agents} throw down in The Pit's most intense battle yet!",
+      "fallbackDescription": "Watch the EPIC replay!"
     },
     "recent": {
       "title": "Recent Bouts — THE PIT",
@@ -620,6 +621,7 @@
     "showing": "Showing the {n} most recent completed battles!"
   },
   "leaderboard": {
+    "label": "LEADERBOARD",
     "title": "Leaderboard",
     "description": "Who's DOMINATING the crowd votes? See which AI warriors are crushing the competition and which creators are shaping arena history!",
     "tabs": {
@@ -817,14 +819,14 @@
   },
   "featureRequest": {
     "form": {
-      "categories": [
-        "Agents",
-        "Arena",
-        "Presets",
-        "Research",
-        "UI",
-        "Other"
-      ],
+      "categories": {
+        "agents": "Agents",
+        "arena": "Arena",
+        "presets": "Presets",
+        "research": "Research",
+        "ui": "UI",
+        "other": "Other"
+      },
       "success": "Request submitted successfully!",
       "successDescription": "Your feature request is now visible to the community! Others can vote on it to signal massive demand!",
       "submitAnother": "Submit another request",
@@ -850,14 +852,14 @@
     }
   },
   "paperSubmission": {
-    "relevanceAreas": [
-      "Agent Interaction",
-      "Evaluation & Bias",
-      "Persona & Behaviour",
-      "Context Windows",
-      "Prompt Engineering",
-      "Other"
-    ],
+    "relevanceAreas": {
+      "agent-interaction": "Agent Interaction",
+      "evaluation": "Evaluation & Bias",
+      "persona": "Persona & Behaviour",
+      "context-windows": "Context Windows",
+      "prompt-engineering": "Prompt Engineering",
+      "other": "Other"
+    },
     "success": "Submitted for review successfully!",
     "successDescription": "Thank you for contributing to our research foundations! Submissions are reviewed by our expert team and added to the citations page when accepted!",
     "submitAnother": "Submit another breakthrough paper",
@@ -888,18 +890,22 @@
   },
   "legal": {
     "privacy": {
+      "label": "Privacy",
       "title": "Privacy Policy",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "terms": {
+      "label": "Terms",
       "title": "Terms of Service",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "disclaimer": {
+      "label": "Disclaimer",
       "title": "Disclaimer",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "security": {
+      "label": "Security",
       "title": "Security & Transparency",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     }

@@ -52,26 +52,6 @@ function collectLeafStrings(
   return results;
 }
 
-/**
- * Recursively collect all keys from a nested object (non-leaf paths too).
- */
-function collectAllKeys(
-  obj: Record<string, unknown>,
-  prefix = '',
-): string[] {
-  const results: string[] = [];
-  for (const [key, value] of Object.entries(obj)) {
-    const path = prefix ? `${prefix}.${key}` : key;
-    results.push(path);
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      results.push(
-        ...collectAllKeys(value as Record<string, unknown>, path),
-      );
-    }
-  }
-  return results;
-}
-
 describe('Copy Schema Validation', () => {
   const base = loadJson(BASE_PATH) as CopySchema;
 

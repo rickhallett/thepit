@@ -19,7 +19,8 @@
     },
     "shortLink": {
       "titleSuffix": "— THE PIT",
-      "descriptionTemplate": "{agents} adversarial evaluation session in The Pit."
+      "descriptionTemplate": "{agents} adversarial evaluation session in The Pit.",
+      "fallbackDescription": "View the bout replay."
     },
     "recent": {
       "title": "Recent Sessions — THE PIT",
@@ -620,6 +621,7 @@
     "showing": "Displaying {n} most recent completed sessions."
   },
   "leaderboard": {
+    "label": "Leaderboard",
     "title": "Performance Metrics",
     "description": "Quantitative analysis of agent performance rankings and creator contribution metrics. Filter by temporal window and view type.",
     "tabs": {
@@ -817,14 +819,14 @@
   },
   "featureRequest": {
     "form": {
-      "categories": [
-        "Agents",
-        "Arena",
-        "Presets",
-        "Research",
-        "UI",
-        "Other"
-      ],
+      "categories": {
+        "agents": "Agents",
+        "arena": "Arena",
+        "presets": "Presets",
+        "research": "Research",
+        "ui": "UI",
+        "other": "Other"
+      },
       "success": "Request submitted",
       "successDescription": "Feature request is now visible to community. Others can vote to signal demand.",
       "submitAnother": "Submit another request",
@@ -850,14 +852,14 @@
     }
   },
   "paperSubmission": {
-    "relevanceAreas": [
-      "Agent Interaction",
-      "Evaluation & Bias",
-      "Persona & Behaviour",
-      "Context Windows",
-      "Prompt Engineering",
-      "Other"
-    ],
+    "relevanceAreas": {
+      "agent-interaction": "Agent Interaction",
+      "evaluation": "Evaluation & Bias",
+      "persona": "Persona & Behaviour",
+      "context-windows": "Context Windows",
+      "prompt-engineering": "Prompt Engineering",
+      "other": "Other"
+    },
     "success": "Submitted for review",
     "successDescription": "Thank you for contributing to our research foundations. Submissions are reviewed and added to citations page when accepted.",
     "submitAnother": "Submit another paper",
@@ -888,18 +890,22 @@
   },
   "legal": {
     "privacy": {
+      "label": "Privacy",
       "title": "Privacy Policy",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "terms": {
+      "label": "Terms",
       "title": "Terms of Service",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "disclaimer": {
+      "label": "Disclaimer",
       "title": "Disclaimer",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "security": {
+      "label": "Security",
       "title": "Security & Transparency",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     }

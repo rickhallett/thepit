@@ -133,9 +133,9 @@ export function PaperSubmissionForm() {
               <option value="" disabled>
                 {c.paperSubmission.fields.areaPlaceholder}
               </option>
-              {RELEVANCE_VALUES.map((value, i) => (
+              {RELEVANCE_VALUES.map((value) => (
                 <option key={value} value={value}>
-                  {c.paperSubmission.relevanceAreas[i]}
+                  {c.paperSubmission.relevanceAreas[value]}
                 </option>
               ))}
             </select>

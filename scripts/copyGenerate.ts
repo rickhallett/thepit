@@ -54,6 +54,15 @@ function parseArgs(): CliArgs {
     return args[idx + 1] ?? fallback;
   };
   const has = (flag: string): boolean => args.includes(flag);
+  const parseDimension = (flag: string, fallback: string): number => {
+    const raw = get(flag, fallback);
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value < 0 || value > 100) {
+      console.error(`Error: ${flag} must be a number between 0 and 100 (got "${raw}").`);
+      process.exit(1);
+    }
+    return value;
+  };
 
   const name = get('--name');
   if (!name) {
@@ -79,10 +88,10 @@ function parseArgs(): CliArgs {
 
   return {
     name,
-    psychology: Number(get('--psychology', '50')),
-    scientificAccuracy: Number(get('--scientific-accuracy', '70')),
-    technicalLiteracy: Number(get('--technical-literacy', '60')),
-    wordiness: Number(get('--wordiness', '50')),
+    psychology: parseDimension('--psychology', '50'),
+    scientificAccuracy: parseDimension('--scientific-accuracy', '70'),
+    technicalLiteracy: parseDimension('--technical-literacy', '60'),
+    wordiness: parseDimension('--wordiness', '50'),
     tone: get('--tone', 'balanced, professional, direct') ?? 'balanced, professional, direct',
     apiKey: apiKey ?? '',
     model: get('--model', 'claude-sonnet-4-20250514') ?? 'claude-sonnet-4-20250514',
@@ -230,10 +239,40 @@ function validateOutput(
     for (const key of Object.keys(baseObj)) {
       if (!(key in outputObj)) {
         errors.push(`Missing key: ${path}.${key}`);
+      } else if (Array.isArray(baseObj[key])) {
+        // Array validation: check type and length match
+        if (!Array.isArray(outputObj[key])) {
+          errors.push(`Expected array: ${path}.${key}`);
+        } else {
+          const baseArr = baseObj[key] as unknown[];
+          const outArr = outputObj[key] as unknown[];
+          if (baseArr.length !== outArr.length) {
+            errors.push(`Array length mismatch: ${path}.${key} (expected ${baseArr.length}, got ${outArr.length})`);
+          }
+          // Recurse into array elements that are objects
+          const minLen = Math.min(baseArr.length, outArr.length);
+          for (let idx = 0; idx < minLen; idx++) {
+            if (
+              typeof baseArr[idx] === 'object' &&
+              baseArr[idx] !== null &&
+              !Array.isArray(baseArr[idx]) &&
+              typeof outArr[idx] === 'object' &&
+              outArr[idx] !== null &&
+              !Array.isArray(outArr[idx])
+            ) {
+              checkKeys(
+                outArr[idx] as Record<string, unknown>,
+                baseArr[idx] as Record<string, unknown>,
+                `${path}.${key}[${idx}]`,
+              );
+            } else if (typeof baseArr[idx] !== typeof outArr[idx]) {
+              errors.push(`Array element type mismatch: ${path}.${key}[${idx}]`);
+            }
+          }
+        }
       } else if (
         typeof baseObj[key] === 'object' &&
         baseObj[key] !== null &&
-        !Array.isArray(baseObj[key]) &&
         typeof outputObj[key] === 'object' &&
         outputObj[key] !== null &&
         !Array.isArray(outputObj[key])

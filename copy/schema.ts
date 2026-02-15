@@ -21,7 +21,7 @@ export interface MetaCopy {
   arena: { title: string; description: string };
   arenaBuilder: { title: string; description: string };
   bout: { titleSuffix: string; descriptionTemplate: string; notFoundTitle: string };
-  shortLink: { titleSuffix: string; descriptionTemplate: string };
+  shortLink: { titleSuffix: string; descriptionTemplate: string; fallbackDescription: string };
   recent: { title: string; description: string };
   leaderboard: { title: string; description: string };
   agents: { title: string; description: string };
@@ -501,6 +501,7 @@ export interface RecentBoutsCopy {
 // ---------------------------------------------------------------------------
 
 export interface LeaderboardCopy {
+  label: string;
   title: string;
   description: string;
   tabs: { pit: string; player: string };
@@ -686,7 +687,7 @@ export interface AuthControlsCopy {
 
 export interface FeatureRequestCopy {
   form: {
-    categories: string[];
+    categories: Record<string, string>;
     success: string;
     successDescription: string;
     submitAnother: string;
@@ -717,7 +718,7 @@ export interface FeatureRequestCopy {
 // ---------------------------------------------------------------------------
 
 export interface PaperSubmissionCopy {
-  relevanceAreas: string[];
+  relevanceAreas: Record<string, string>;
   success: string;
   successDescription: string;
   submitAnother: string;
@@ -769,18 +770,22 @@ export interface CommonCopy {
  */
 export interface LegalCopy {
   privacy: {
+    label: string;
     title: string;
     content: string;
   };
   terms: {
+    label: string;
     title: string;
     content: string;
   };
   disclaimer: {
+    label: string;
     title: string;
     content: string;
   };
   security: {
+    label: string;
     title: string;
     content: string;
   };

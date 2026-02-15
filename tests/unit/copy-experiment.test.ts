@@ -36,9 +36,9 @@ describe('Experiment Config', () => {
     expect(Object.keys(config.variants)).toContain('precise');
   });
 
-  it('experiment is active', () => {
+  it('experiment is inactive by default (safe for deployment)', () => {
     const config = getExperimentConfig();
-    expect(config.active).toBe(true);
+    expect(config.active).toBe(false);
   });
 
   it('weights sum to 100', () => {

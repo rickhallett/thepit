@@ -19,7 +19,8 @@
     },
     "shortLink": {
       "titleSuffix": "— THE PIT",
-      "descriptionTemplate": "{agents} battle it out in The Pit."
+      "descriptionTemplate": "{agents} battle it out in The Pit.",
+      "fallbackDescription": "Watch the replay."
     },
     "recent": {
       "title": "Recent Bouts — THE PIT",
@@ -127,25 +128,37 @@
         "name": "The Darwin Special",
         "description": "Evolution meets its critics — and a smug house cat.",
         "agentCount": 3,
-        "tags": ["Philosophy", "Science"]
+        "tags": [
+          "Philosophy",
+          "Science"
+        ]
       },
       {
         "name": "Roast Battle",
         "description": "Two comics, zero mercy. Audience decides the winner.",
         "agentCount": 2,
-        "tags": ["Comedy", "Competition"]
+        "tags": [
+          "Comedy",
+          "Competition"
+        ]
       },
       {
         "name": "The Last Supper",
         "description": "Socrates, Nietzsche, Ayn Rand, and Buddha share a final meal.",
         "agentCount": 4,
-        "tags": ["Philosophy", "History"]
+        "tags": [
+          "Philosophy",
+          "History"
+        ]
       },
       {
         "name": "On The Couch",
         "description": "Therapy gone wrong. Oversharing optional.",
         "agentCount": 2,
-        "tags": ["Psychology", "Drama"]
+        "tags": [
+          "Psychology",
+          "Drama"
+        ]
       }
     ],
     "viewAll": "View all presets",
@@ -318,30 +331,81 @@
   "nav": {
     "brand": "THE PIT",
     "primary": [
-      { "label": "Home", "href": "/" },
-      { "label": "Arena", "href": "/arena" },
-      { "label": "All agents", "href": "/agents" },
-      { "label": "Leaderboard", "href": "/leaderboard" }
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Arena",
+        "href": "/arena"
+      },
+      {
+        "label": "All agents",
+        "href": "/agents"
+      },
+      {
+        "label": "Leaderboard",
+        "href": "/leaderboard"
+      }
     ],
     "overflow": [
-      { "label": "Research", "href": "/research" },
-      { "label": "Developers", "href": "/developers" },
-      { "label": "Roadmap", "href": "/roadmap" },
-      { "label": "Contact", "href": "/contact" },
-      { "label": "Feedback", "href": "/feedback" }
+      {
+        "label": "Research",
+        "href": "/research"
+      },
+      {
+        "label": "Developers",
+        "href": "/developers"
+      },
+      {
+        "label": "Roadmap",
+        "href": "/roadmap"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "Feedback",
+        "href": "/feedback"
+      }
     ],
     "more": "More",
     "footer": {
       "copyright": "© THE PIT",
       "links": [
-        { "label": "Research", "href": "/research" },
-        { "label": "Developers", "href": "/developers" },
-        { "label": "Contact", "href": "/contact" },
-        { "label": "Feedback", "href": "/feedback" },
-        { "label": "Security", "href": "/security" },
-        { "label": "Disclaimer", "href": "/disclaimer" },
-        { "label": "Privacy", "href": "/privacy" },
-        { "label": "Terms", "href": "/terms" }
+        {
+          "label": "Research",
+          "href": "/research"
+        },
+        {
+          "label": "Developers",
+          "href": "/developers"
+        },
+        {
+          "label": "Contact",
+          "href": "/contact"
+        },
+        {
+          "label": "Feedback",
+          "href": "/feedback"
+        },
+        {
+          "label": "Security",
+          "href": "/security"
+        },
+        {
+          "label": "Disclaimer",
+          "href": "/disclaimer"
+        },
+        {
+          "label": "Privacy",
+          "href": "/privacy"
+        },
+        {
+          "label": "Terms",
+          "href": "/terms"
+        }
       ]
     },
     "skipToContent": "Skip to content"
@@ -557,6 +621,7 @@
     "showing": "Showing the {n} most recent completed bouts."
   },
   "leaderboard": {
+    "label": "Leaderboard",
     "title": "Leaderboard",
     "description": "Track who is winning crowd votes and which creators are shaping the arena. Filter by time window and switch between PIT and PLAYER views.",
     "tabs": {
@@ -754,7 +819,14 @@
   },
   "featureRequest": {
     "form": {
-      "categories": ["Agents", "Arena", "Presets", "Research", "UI", "Other"],
+      "categories": {
+        "agents": "Agents",
+        "arena": "Arena",
+        "presets": "Presets",
+        "research": "Research",
+        "ui": "UI",
+        "other": "Other"
+      },
       "success": "Request submitted",
       "successDescription": "Your feature request is now visible to the community. Others can vote on it to signal demand.",
       "submitAnother": "Submit another request",
@@ -780,14 +852,14 @@
     }
   },
   "paperSubmission": {
-    "relevanceAreas": [
-      "Agent Interaction",
-      "Evaluation & Bias",
-      "Persona & Behaviour",
-      "Context Windows",
-      "Prompt Engineering",
-      "Other"
-    ],
+    "relevanceAreas": {
+      "agent-interaction": "Agent Interaction",
+      "evaluation": "Evaluation & Bias",
+      "persona": "Persona & Behaviour",
+      "context-windows": "Context Windows",
+      "prompt-engineering": "Prompt Engineering",
+      "other": "Other"
+    },
     "success": "Submitted for review",
     "successDescription": "Thank you for contributing to our research foundations. Submissions are reviewed by our team and added to the citations page when accepted.",
     "submitAnother": "Submit another paper",
@@ -818,18 +890,22 @@
   },
   "legal": {
     "privacy": {
+      "label": "Privacy",
       "title": "Privacy Policy",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "terms": {
+      "label": "Terms",
       "title": "Terms of Service",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "disclaimer": {
+      "label": "Disclaimer",
       "title": "Disclaimer",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "security": {
+      "label": "Security",
       "title": "Security & Transparency",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     }

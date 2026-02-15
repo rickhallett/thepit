@@ -8,7 +8,7 @@ import {
   selectVariant,
   getExperimentConfig,
   isExcludedPath,
-} from '@/lib/copy';
+} from '@/lib/copy-edge';
 
 const REFERRAL_RE = /^[A-Za-z0-9_-]{1,32}$/;
 
@@ -63,8 +63,59 @@ export default clerkMiddleware(async (clerkAuth, req) => {
 
   const pathname = req.nextUrl.pathname;
 
+  // ---------------------------------------------------------------------------
+  // Copy variant assignment — A/B testing
+  // ---------------------------------------------------------------------------
+  // Assigns a copy variant to each visitor via sticky cookie. The variant
+  // determines which JSON copy file is used for all user-facing text.
+  //
+  // Assignment priority:
+  //   1. ?variant=xyz query param (QA override, takes precedence)
+  //   2. Existing pit_variant cookie (sticky assignment)
+  //   3. Weighted random assignment from experiment.json
+  //
+  // IMPORTANT: The variant header MUST be set on the request headers BEFORE
+  // calling NextResponse.next(), because Next.js serializes request headers
+  // at that point. Cookie writes happen on the response object after.
+  const experimentConfig = getExperimentConfig();
+  let copyVariant: string;
+  let variantCookieToSet: string | null = null;
+
+  // Priority 1: URL override for QA/testing
+  const variantOverride = req.nextUrl.searchParams.get('variant');
+  if (variantOverride && VARIANT_RE.test(variantOverride) && variantOverride in experimentConfig.variants) {
+    copyVariant = variantOverride;
+    variantCookieToSet = copyVariant;
+  } else {
+    // Priority 2: Existing cookie
+    const existingVariant = req.cookies.get(VARIANT_COOKIE)?.value;
+    if (existingVariant && VARIANT_RE.test(existingVariant) && existingVariant in experimentConfig.variants) {
+      copyVariant = existingVariant;
+    } else if (experimentConfig.active && !isExcludedPath(pathname)) {
+      // Priority 3: Weighted random assignment
+      copyVariant = selectVariant();
+      variantCookieToSet = copyVariant;
+    } else {
+      copyVariant = experimentConfig.defaultVariant;
+    }
+  }
+
+  // Propagate variant to server components via request header.
+  // This MUST happen before NextResponse.next() — headers are captured at that point.
+  headers.set(COPY_VARIANT_HEADER, copyVariant);
+
   const response = NextResponse.next({ request: { headers } });
   response.headers.set('x-request-id', requestId);
+
+  // Write variant cookie on the response (only when assignment changed).
+  if (variantCookieToSet) {
+    response.cookies.set(VARIANT_COOKIE, variantCookieToSet, {
+      maxAge: VARIANT_MAX_AGE,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Referral cookie — first-touch attribution
@@ -77,54 +128,6 @@ export default clerkMiddleware(async (clerkAuth, req) => {
       path: '/',
     });
   }
-
-  // ---------------------------------------------------------------------------
-  // Copy variant assignment — A/B testing
-  // ---------------------------------------------------------------------------
-  // Assigns a copy variant to each visitor via sticky cookie. The variant
-  // determines which JSON copy file is used for all user-facing text.
-  //
-  // Assignment priority:
-  //   1. ?variant=xyz query param (QA override, takes precedence)
-  //   2. Existing pit_variant cookie (sticky assignment)
-  //   3. Weighted random assignment from experiment.json
-  //
-  // The variant is propagated to server components via the x-copy-variant
-  // header and included in page view recording for analytics.
-  const experimentConfig = getExperimentConfig();
-  let copyVariant: string;
-
-  // Priority 1: URL override for QA/testing
-  const variantOverride = req.nextUrl.searchParams.get('variant');
-  if (variantOverride && VARIANT_RE.test(variantOverride) && variantOverride in experimentConfig.variants) {
-    copyVariant = variantOverride;
-    response.cookies.set(VARIANT_COOKIE, copyVariant, {
-      maxAge: VARIANT_MAX_AGE,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-    });
-  } else {
-    // Priority 2: Existing cookie
-    const existingVariant = req.cookies.get(VARIANT_COOKIE)?.value;
-    if (existingVariant && VARIANT_RE.test(existingVariant) && existingVariant in experimentConfig.variants) {
-      copyVariant = existingVariant;
-    } else if (experimentConfig.active && !isExcludedPath(pathname)) {
-      // Priority 3: Weighted random assignment
-      copyVariant = selectVariant();
-      response.cookies.set(VARIANT_COOKIE, copyVariant, {
-        maxAge: VARIANT_MAX_AGE,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-      });
-    } else {
-      copyVariant = experimentConfig.defaultVariant;
-    }
-  }
-
-  // Propagate variant to server components via request header
-  headers.set(COPY_VARIANT_HEADER, copyVariant);
 
   // ---------------------------------------------------------------------------
   // Analytics consent gate
