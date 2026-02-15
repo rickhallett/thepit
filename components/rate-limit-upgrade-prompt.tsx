@@ -76,21 +76,20 @@ function formatCountdown(totalSeconds: number): string {
 // ---------------------------------------------------------------------------
 
 function useCountdown(resetAt: number): number {
-  const [secondsLeft, setSecondsLeft] = useState(() =>
-    Math.max(0, Math.ceil((resetAt - Date.now()) / 1000)),
-  );
+  const calcRemaining = () =>
+    Math.max(0, Math.ceil((resetAt - Date.now()) / 1000));
+
+  const [secondsLeft, setSecondsLeft] = useState(calcRemaining);
 
   useEffect(() => {
-    // Recalculate in case resetAt changed.
-    setSecondsLeft(Math.max(0, Math.ceil((resetAt - Date.now()) / 1000)));
-
     const interval = setInterval(() => {
-      const remaining = Math.max(0, Math.ceil((resetAt - Date.now()) / 1000));
+      const remaining = calcRemaining();
       setSecondsLeft(remaining);
       if (remaining <= 0) clearInterval(interval);
     }, 1000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetAt]);
 
   return secondsLeft;
