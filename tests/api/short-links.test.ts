@@ -129,6 +129,6 @@ describe('POST /api/short-links', () => {
 
     const res = await POST(makeReq({ boutId: 'bout_123' }));
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
+    expect(await res.json()).toMatchObject({ error: 'Rate limit exceeded.', code: 'RATE_LIMITED' });
   });
 });

@@ -20,7 +20,7 @@ import { recordRemixEvent } from '@/lib/remix-events';
 import { resolveResponseFormat } from '@/lib/response-formats';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { ensureUserRecord } from '@/lib/users';
-import { SUBSCRIPTIONS_ENABLED, canCreateAgent } from '@/lib/tier';
+import { SUBSCRIPTIONS_ENABLED, canCreateAgent, getUserTier } from '@/lib/tier';
 import { UNSAFE_PATTERN } from '@/lib/validation';
 
 export const runtime = 'nodejs';
@@ -193,7 +193,16 @@ export const POST = withLogging(async function POST(req: Request) {
     userId,
   );
   if (!rateCheck.success) {
-    return rateLimitResponse(rateCheck, 'Rate limit exceeded. Max 10 agents per hour.');
+    const currentTier = await getUserTier(userId);
+    return rateLimitResponse(rateCheck, {
+      message: 'Rate limit exceeded. Max 10 agents per hour.',
+      limit: 10,
+      currentTier,
+      upgradeTiers:
+        currentTier === 'lab'
+          ? []
+          : [{ tier: 'lab', limit: null, url: '/sign-up?redirect_url=/agents#upgrade' }],
+    });
   }
 
   await ensureUserRecord(userId);

@@ -228,7 +228,7 @@ describe('paper-submissions api', () => {
       }),
     );
     expect(res.status).toBe(429);
-    expect(await res.json()).toEqual({ error: 'Rate limit exceeded.' });
+    expect(await res.json()).toMatchObject({ error: 'Rate limit exceeded.', code: 'RATE_LIMITED' });
   });
 
   it('U9: paper not found on arXiv returns 400', async () => {
