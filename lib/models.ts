@@ -108,7 +108,7 @@ function validateModelEnvVars(): void {
   ] as const;
 
   for (const envVar of envVars) {
-    const value = process.env[envVar];
+    const value = process.env[envVar]?.trim();
     if (value) {
       assertNotDeprecated(value, `env.${envVar}`);
     }

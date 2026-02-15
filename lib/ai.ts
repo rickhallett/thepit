@@ -54,6 +54,16 @@ export const PREMIUM_MODEL_OPTIONS = premiumModelEnv
   .map((model) => model.trim())
   .filter(Boolean);
 
+if (
+  process.env.ANTHROPIC_PREMIUM_MODELS &&
+  PREMIUM_MODEL_OPTIONS.length === 0
+) {
+  console.warn(
+    '[ai] ANTHROPIC_PREMIUM_MODELS is set but parsed to an empty list. ' +
+      `Falling back to DEFAULT_PREMIUM_MODEL (${DEFAULT_PREMIUM_MODEL}).`,
+  );
+}
+
 export const DEFAULT_PREMIUM_MODEL_ID =
   process.env.ANTHROPIC_PREMIUM_MODEL ??
   PREMIUM_MODEL_OPTIONS[0] ??
