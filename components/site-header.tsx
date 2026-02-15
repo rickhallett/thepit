@@ -25,28 +25,32 @@ const OVERFLOW_LINKS = [
 const ALL_LINKS = [...PRIMARY_LINKS, ...OVERFLOW_LINKS];
 
 export function SiteHeader({ className }: { className?: string }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
+  // Track which pathname the dropdowns were opened on.
+  // When pathname changes, the dropdowns auto-close because the derived
+  // booleans below resolve to false. No effect + setState needed.
+  const [menuOpenOn, setMenuOpenOn] = useState<string | null>(null);
+  const [moreOpenOn, setMoreOpenOn] = useState<string | null>(null);
   const pathname = usePathname();
   const moreRef = useRef<HTMLDivElement>(null);
+
+  const menuOpen = menuOpenOn === pathname;
+  const moreOpen = moreOpenOn === pathname;
+  const setMenuOpen = (open: boolean) =>
+    setMenuOpenOn(open ? pathname : null);
+  const setMoreOpen = (open: boolean) =>
+    setMoreOpenOn(open ? pathname : null);
 
   // Close "More" dropdown on outside click
   useEffect(() => {
     if (!moreOpen) return;
     const handler = (e: MouseEvent) => {
       if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false);
+        setMoreOpenOn(null);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [moreOpen]);
-
-  // Close dropdowns on route change
-  useEffect(() => {
-    setMoreOpen(false);
-    setMenuOpen(false);
-  }, [pathname]);
 
   const isOverflowActive = OVERFLOW_LINKS.some((l) => pathname === l.href);
 
@@ -80,7 +84,7 @@ export function SiteHeader({ className }: { className?: string }) {
             <div ref={moreRef} className="relative">
               <button
                 type="button"
-                onClick={() => setMoreOpen((prev) => !prev)}
+                onClick={() => setMoreOpen(!moreOpen)}
                 className={cn(
                   'rounded-full border-2 border-foreground/40 px-2.5 py-1 text-[10px] tracking-[0.15em] transition hover:border-accent hover:text-accent',
                   (moreOpen || isOverflowActive) && 'border-accent text-accent',
@@ -125,7 +129,7 @@ export function SiteHeader({ className }: { className?: string }) {
           {/* Hamburger toggle */}
           <button
             type="button"
-            onClick={() => setMenuOpen((prev) => !prev)}
+            onClick={() => setMenuOpen(!menuOpen)}
             className="flex h-8 w-8 items-center justify-center rounded border-2 border-foreground/40 transition hover:border-accent hover:text-accent lg:hidden"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
