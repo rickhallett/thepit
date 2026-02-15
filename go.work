@@ -6,5 +6,6 @@ use (
 	./pitforge
 	./pitlab
 	./pitnet
+	./pitstorm
 	./shared
 )

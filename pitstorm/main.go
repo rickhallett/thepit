@@ -1,0 +1,79 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+
+	"github.com/rickhallett/thepit/shared/theme"
+)
+
+var version = "dev"
+
+func main() {
+	flag.Usage = usage
+	flag.Parse()
+
+	args := flag.Args()
+	if len(args) == 0 {
+		usage()
+		os.Exit(0)
+	}
+
+	switch args[0] {
+	case "version":
+		fmt.Printf("pitstorm %s\n", version)
+		return
+	case "run":
+		runCmd(args[1:])
+	case "plan":
+		planCmd(args[1:])
+	case "setup":
+		setupCmd(args[1:])
+	case "verify":
+		verifyCmd(args[1:])
+	case "report":
+		reportCmd(args[1:])
+	default:
+		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
+		usage()
+		os.Exit(1)
+	}
+}
+
+func usage() {
+	fmt.Fprintf(os.Stderr, "\n%s\n\n",
+		theme.Title.Render("pitstorm — release traffic simulator for THE PIT"))
+	fmt.Fprintf(os.Stderr, "Usage:\n")
+	fmt.Fprintf(os.Stderr, "  pitstorm <command> [flags]\n\n")
+	fmt.Fprintf(os.Stderr, "Commands:\n")
+	fmt.Fprintf(os.Stderr, "  run [flags]    Execute traffic simulation\n")
+	fmt.Fprintf(os.Stderr, "  plan [flags]   Dry run — estimate cost and show execution plan\n")
+	fmt.Fprintf(os.Stderr, "  setup [flags]  Provision test accounts in Clerk + DB\n")
+	fmt.Fprintf(os.Stderr, "  verify         Validate account credentials and API connectivity\n")
+	fmt.Fprintf(os.Stderr, "  report <file>  Parse JSON output into a summary report\n")
+	fmt.Fprintf(os.Stderr, "  version        Show version\n\n")
+	fmt.Fprintf(os.Stderr, "Run Flags:\n")
+	fmt.Fprintf(os.Stderr, "  --target <url>       Target URL (default: https://www.thepit.cloud)\n")
+	fmt.Fprintf(os.Stderr, "  --accounts <path>    Path to accounts.json (default: ./accounts.json)\n")
+	fmt.Fprintf(os.Stderr, "  --profile <name>     Traffic profile: trickle|steady|ramp|spike|viral (default: steady)\n")
+	fmt.Fprintf(os.Stderr, "  --rate <n>           Target peak req/s (default: 5)\n")
+	fmt.Fprintf(os.Stderr, "  --duration <dur>     Simulation duration (default: 10m)\n")
+	fmt.Fprintf(os.Stderr, "  --budget <gbp>       Max spend in GBP (default: 10.0)\n")
+	fmt.Fprintf(os.Stderr, "  --workers <n>        Concurrent worker goroutines (default: 16)\n")
+	fmt.Fprintf(os.Stderr, "  --personas <list>    Persona mix: all|free-only|paid-only|stress or comma-separated (default: all)\n")
+	fmt.Fprintf(os.Stderr, "  --instance <n/m>     Instance partitioning, e.g. 1/3 (default: 1/1)\n")
+	fmt.Fprintf(os.Stderr, "  --output <path>      JSON output file (default: stdout)\n")
+	fmt.Fprintf(os.Stderr, "  --verbose            Log every request\n")
+	fmt.Fprintf(os.Stderr, "  --env <path>         Path to .env file\n\n")
+}
+
+func fatal(ctx string, err error) {
+	fmt.Fprintf(os.Stderr, "\n  %s %v\n\n", theme.Error.Render(ctx+":"), err)
+	os.Exit(1)
+}
+
+func fatalf(ctx string, format string, args ...any) {
+	fmt.Fprintf(os.Stderr, "\n  %s %s\n\n", theme.Error.Render(ctx+":"), fmt.Sprintf(format, args...))
+	os.Exit(1)
+}

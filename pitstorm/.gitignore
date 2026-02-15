@@ -1,0 +1,6 @@
+# Binary
+pitstorm
+!pitstorm/
+
+# Test output
+coverage.out
