@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid';
 import { requireDb } from '@/db';
 import { shortLinks, shortLinkClicks } from '@/db/schema';
 import { sha256Hex } from '@/lib/hash';
+import { resolveClientIp } from '@/lib/ip';
 
 const SLUG_LENGTH = 8;
 
@@ -103,9 +104,10 @@ export async function recordClick(
   const db = requireDb();
   const url = new URL(req.url);
 
-  // Hash IP for privacy (never store raw IPs)
-  const forwarded = req.headers.get('x-forwarded-for');
-  const rawIp = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
+  // Hash IP for privacy (never store raw IPs).
+  // Use canonical resolveClientIp() which prefers the trusted rightmost
+  // x-forwarded-for entry, consistent with middleware and rate limiting.
+  const rawIp = resolveClientIp(req.headers);
   const ipHash = await sha256Hex(rawIp);
 
   await db.insert(shortLinkClicks).values({

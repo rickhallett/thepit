@@ -363,6 +363,8 @@ export const pageViews = pgTable('page_views', {
   utmSource: varchar('utm_source', { length: 128 }),
   utmMedium: varchar('utm_medium', { length: 128 }),
   utmCampaign: varchar('utm_campaign', { length: 128 }),
+  utmTerm: varchar('utm_term', { length: 128 }),
+  utmContent: varchar('utm_content', { length: 128 }),
   country: varchar('country', { length: 2 }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()

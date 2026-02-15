@@ -37,6 +37,7 @@ export async function POST(req: Request) {
     userAgent?: string;
     country?: string;
     utm?: string;
+    userId?: string;
   }>(req);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
@@ -48,20 +49,26 @@ export async function POST(req: Request) {
     return errorResponse('Missing path or sessionId.', 400);
   }
 
-  // Parse UTM from cookie JSON
+  // Parse UTM from cookie JSON — extract all 5 standard UTM params
   let utmSource: string | null = null;
   let utmMedium: string | null = null;
   let utmCampaign: string | null = null;
+  let utmTerm: string | null = null;
+  let utmContent: string | null = null;
   if (payload.utm) {
     try {
       const utm = JSON.parse(payload.utm);
-      utmSource = typeof utm.utm_source === 'string' ? utm.utm_source : null;
-      utmMedium = typeof utm.utm_medium === 'string' ? utm.utm_medium : null;
-      utmCampaign = typeof utm.utm_campaign === 'string' ? utm.utm_campaign : null;
+      utmSource = typeof utm.utm_source === 'string' ? utm.utm_source.slice(0, 128) : null;
+      utmMedium = typeof utm.utm_medium === 'string' ? utm.utm_medium.slice(0, 128) : null;
+      utmCampaign = typeof utm.utm_campaign === 'string' ? utm.utm_campaign.slice(0, 128) : null;
+      utmTerm = typeof utm.utm_term === 'string' ? utm.utm_term.slice(0, 128) : null;
+      utmContent = typeof utm.utm_content === 'string' ? utm.utm_content.slice(0, 128) : null;
     } catch {
       // Malformed cookie — ignore
     }
   }
+
+  const userId = typeof payload.userId === 'string' ? payload.userId.slice(0, 128) : null;
 
   const ipHash = payload.clientIp ? await sha256Hex(payload.clientIp) : null;
 
@@ -69,6 +76,7 @@ export async function POST(req: Request) {
     const db = requireDb();
     await db.insert(pageViews).values({
       path: path.slice(0, 512),
+      userId,
       sessionId: sessionId.slice(0, 32),
       referrer: payload.referrer?.slice(0, 1024) || null,
       userAgent: payload.userAgent?.slice(0, 512) || null,
@@ -76,6 +84,8 @@ export async function POST(req: Request) {
       utmSource,
       utmMedium,
       utmCampaign,
+      utmTerm,
+      utmContent,
       country: payload.country?.slice(0, 2) || null,
     });
   } catch (error) {
