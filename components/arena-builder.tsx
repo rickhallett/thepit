@@ -8,6 +8,14 @@ import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { useCopy } from '@/lib/copy-client';
 import { FREE_MODEL_ID } from '@/lib/ai';
+import {
+  ALL_MODEL_IDS,
+  ALL_OPENROUTER_MODEL_IDS,
+  type ByokProvider,
+  detectProvider,
+  OPENROUTER_MODEL_LABELS,
+  type OpenRouterModelId,
+} from '@/lib/models';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {
   RESPONSE_LENGTHS,
@@ -54,8 +62,35 @@ export function ArenaBuilder({
     defaultPremiumModel ?? premiumModels[0] ?? FREE_MODEL_ID,
   );
   const [byokKey, setByokKey] = useState('');
+  const [byokModel, setByokModel] = useState('');
   const [byokError, setByokError] = useState<string | null>(null);
   const byokStashedRef = useRef(false);
+
+  const labelForModel = (modelId: string) => {
+    if (modelId.includes('haiku')) return 'Haiku';
+    if (modelId.includes('sonnet')) return 'Sonnet';
+    if (modelId.includes('opus')) return 'Opus';
+    return modelId;
+  };
+
+  // Detect provider from key prefix as user types
+  const detectedProvider: ByokProvider | undefined = byokKey.trim()
+    ? detectProvider(byokKey.trim())
+    : undefined;
+
+  // Model options for the detected BYOK provider
+  const byokModelOptions: { id: string; label: string }[] =
+    detectedProvider === 'openrouter'
+      ? ALL_OPENROUTER_MODEL_IDS.map((id) => ({
+          id,
+          label: OPENROUTER_MODEL_LABELS[id as OpenRouterModelId],
+        }))
+      : detectedProvider === 'anthropic'
+        ? ALL_MODEL_IDS.map((id) => ({
+            id,
+            label: labelForModel(id),
+          }))
+        : [];
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -105,7 +140,10 @@ export function ArenaBuilder({
         const res = await fetch('/api/byok-stash', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key: trimmed }),
+          body: JSON.stringify({
+            key: trimmed,
+            ...(byokModel ? { model: byokModel } : {}),
+          }),
         });
         if (!res.ok) {
           setByokError(c.presetCard.byokFailed);
@@ -209,35 +247,59 @@ export function ArenaBuilder({
           </label>
         )}
         {showModelSelector && selectedModel === 'byok' && (
-          <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-            <span>{c.arenaBuilderComponent.byokLabel}</span>
-            <input
-              type="password"
-              autoComplete="off"
-              value={byokKey}
-              onChange={(event) => setByokKey(event.target.value)}
-              placeholder={c.presetCard.byokPlaceholder}
-              className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
-              required
-            />
-            <span className="text-[10px] normal-case tracking-normal text-muted/70">
-              Your key is sent directly to Anthropic&apos;s API over HTTPS. It is
-              never stored, logged, or visible to platform operators.{' '}
-              <a
-                href="https://github.com/rickhallett/thepit/blob/master/app/api/run-bout/route.ts"
-                target="_blank"
-                rel="noreferrer"
-                className="underline transition hover:text-accent"
-              >
-                {c.presetCard.verify}
-              </a>
-            </span>
-            {byokError && (
-              <span className="text-[10px] uppercase tracking-[0.25em] text-red-400">
-                {byokError}
+          <div className="flex flex-col gap-4">
+            <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+              <span>{c.arenaBuilderComponent.byokLabel}</span>
+              <input
+                type="password"
+                autoComplete="off"
+                value={byokKey}
+                onChange={(event) => {
+                  setByokKey(event.target.value);
+                  const newProvider = detectProvider(event.target.value.trim());
+                  if (newProvider !== detectedProvider) {
+                    setByokModel('');
+                  }
+                }}
+                placeholder={c.presetCard.byokPlaceholder}
+                className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+                required
+              />
+              <span className="text-[10px] normal-case tracking-normal text-muted/70">
+                {c.presetCard.byokPrivacy}{' '}
+                <a
+                  href="https://github.com/rickhallett/thepit/blob/master/app/api/byok-stash/route.ts"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline transition hover:text-accent"
+                >
+                  {c.presetCard.verify}
+                </a>
               </span>
+              {byokError && (
+                <span className="text-[10px] uppercase tracking-[0.25em] text-red-400">
+                  {byokError}
+                </span>
+              )}
+            </label>
+            {byokModelOptions.length > 0 && (
+              <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+                <span>{c.presetCard.byokModelLabel}</span>
+                <select
+                  value={byokModel}
+                  onChange={(event) => setByokModel(event.target.value)}
+                  className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+                >
+                  <option value="">{c.presetCard.byokModelDefault}</option>
+                  {byokModelOptions.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             )}
-          </label>
+          </div>
         )}
         {selected.map((id) => (
           <input key={id} type="hidden" name="agentIds" value={id} />

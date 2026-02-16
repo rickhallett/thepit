@@ -481,9 +481,12 @@
     "responseFormat": "Response format",
     "model": "Model",
     "byokLabel": "BYOK API key",
-    "byokPlaceholder": "sk-ant-...",
+    "byokPlaceholder": "sk-ant-... or sk-or-v1-...",
     "byokRequired": "BYOK key required.",
     "byokFailed": "Failed to prepare key.",
+    "byokPrivacy": "Your key is sent directly to your AI provider over HTTPS. It is never stored, logged, or visible to platform operators.",
+    "byokModelLabel": "BYOK model",
+    "byokModelDefault": "Provider default",
     "maxTurns": "Max turns: {n}",
     "verify": "Verify"
   },
