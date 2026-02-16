@@ -5,6 +5,7 @@ use (
 	./pitctl
 	./pitforge
 	./pitlab
+	./pitlinear
 	./pitnet
 	./pitstorm
 	./shared
