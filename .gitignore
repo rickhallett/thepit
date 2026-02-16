@@ -57,3 +57,16 @@ qa/results/
 
 # pitstorm credentials (contains plaintext passwords and session tokens)
 accounts.json
+
+# editor/tool config
+.gemini/
+.vscode/
+
+# local archives
+archive-mPIpSK/
+
+# accidental browser saves
+Manage*.html
+
+# security audit scratch
+.security-audit/
