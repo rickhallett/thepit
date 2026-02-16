@@ -14,7 +14,7 @@
 - `pnpm run start` runs the production build locally.
 - `pnpm run lint` runs ESLint.
 - `pnpm run typecheck` runs TypeScript type checking.
-- `pnpm run test:unit` runs unit + API tests (699 tests).
+- `pnpm run test:unit` runs unit + API tests (788 tests).
 - `pnpm run test:ci` runs lint + typecheck + unit + integration.
 - `pnpm run test:e2e` runs Playwright tests. Set `BASE_URL` to target a deployed instance.
 
