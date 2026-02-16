@@ -11,7 +11,7 @@
 // The streaming route passes an onTurnEvent callback to write SSE events.
 // The sync route omits it and gets the final result directly.
 
-import { streamText } from 'ai';
+import { tracedStreamText, untracedStreamText } from '@/lib/langsmith';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
@@ -602,7 +602,10 @@ export async function executeBout(
       }
 
       const turnStart = Date.now();
-      const result = streamText({
+      // BYOK calls use the untraced variant — user API keys must not be
+      // logged to our LangSmith project. Platform calls get full tracing.
+      const streamFn = byokData ? untracedStreamText : tracedStreamText;
+      const result = streamFn({
         model: boutModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
         messages: [
@@ -697,7 +700,8 @@ export async function executeBout(
       const clippedTranscript = transcriptText.slice(-2000);
       const shareContent = buildSharePrompt(clippedTranscript);
 
-      const shareResult = streamText({
+      // Share line is always platform-funded (Haiku) — use traced variant.
+      const shareResult = tracedStreamText({
         model: getModel(FREE_MODEL_ID),
         maxOutputTokens: 80,
         messages: [{ role: 'user', content: shareContent }],
