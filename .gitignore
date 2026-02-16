@@ -76,3 +76,6 @@ research-exports/
 
 # backup exports (from pre-destructive-guard.sh)
 backups/
+
+# auto-generated doc bundles
+docs/architecture-bundle.md
