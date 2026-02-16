@@ -21,8 +21,17 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Smoke test
+        run: bash scripts/smoke-http.sh
+        env:
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
       - run: pnpm exec playwright install chromium --with-deps
       - run: pnpm exec playwright test
+        env:
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
+      - name: Sanity check
+        if: success()
+        run: bash scripts/sanity-check.sh --url "$BASE_URL"
         env:
           BASE_URL: ${{ github.event.deployment_status.target_url }}
       - uses: actions/upload-artifact@v4
