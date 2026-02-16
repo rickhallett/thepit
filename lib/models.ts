@@ -9,9 +9,45 @@
 //      the new value automatically.
 //   3. Update MODEL_PRICES_GBP in lib/credits.ts and MODEL_CONTEXT_LIMITS
 //      in lib/ai.ts if pricing or context windows changed.
+//
+// Multi-provider BYOK:
+//   Users can supply keys from Anthropic (sk-ant-*) or OpenRouter (sk-or-v1-*).
+//   The provider is detected from the key prefix. OpenRouter keys unlock
+//   access to a curated subset of 300+ models via OPENROUTER_MODELS below.
 
 // ---------------------------------------------------------------------------
-// Canonical model IDs
+// Provider types
+// ---------------------------------------------------------------------------
+
+/** BYOK-supported providers. Detected from API key prefix. */
+export type ByokProvider = 'anthropic' | 'openrouter';
+
+/** Key prefix → provider mapping. */
+export const KEY_PREFIXES: Record<string, ByokProvider> = {
+  'sk-ant-': 'anthropic',
+  'sk-or-v1-': 'openrouter',
+};
+
+/**
+ * Detect the provider from an API key prefix.
+ * Returns undefined if the key doesn't match any known provider.
+ */
+export function detectProvider(apiKey: string): ByokProvider | undefined {
+  for (const [prefix, provider] of Object.entries(KEY_PREFIXES)) {
+    if (apiKey.startsWith(prefix)) return provider;
+  }
+  return undefined;
+}
+
+/**
+ * Check whether an API key is from a known BYOK provider.
+ */
+export function isValidByokKey(apiKey: string): boolean {
+  return detectProvider(apiKey) !== undefined;
+}
+
+// ---------------------------------------------------------------------------
+// Canonical Anthropic model IDs
 // ---------------------------------------------------------------------------
 
 export const MODEL_IDS = {
@@ -23,8 +59,75 @@ export const MODEL_IDS = {
 
 export type ModelId = (typeof MODEL_IDS)[keyof typeof MODEL_IDS];
 
-/** All known model IDs as an array (useful for validation loops). */
+/** All known Anthropic model IDs as an array (useful for validation loops). */
 export const ALL_MODEL_IDS: ModelId[] = Object.values(MODEL_IDS);
+
+// ---------------------------------------------------------------------------
+// Curated OpenRouter models
+// ---------------------------------------------------------------------------
+
+/**
+ * Curated list of OpenRouter models available for BYOK users.
+ * These are high-quality models suitable for debate/argumentation.
+ * Model IDs use OpenRouter's provider/model format.
+ *
+ * To add a model: add an entry here and in OPENROUTER_MODEL_CONTEXT_LIMITS
+ * in lib/ai.ts if the context window differs from the default.
+ */
+export const OPENROUTER_MODELS = {
+  // OpenAI
+  GPT_4O: 'openai/gpt-4o',
+  GPT_4O_MINI: 'openai/gpt-4o-mini',
+  GPT_4_1: 'openai/gpt-4.1',
+  O4_MINI: 'openai/o4-mini',
+  // Google
+  GEMINI_2_5_PRO: 'google/gemini-2.5-pro-preview',
+  GEMINI_2_5_FLASH: 'google/gemini-2.5-flash-preview',
+  // Meta
+  LLAMA_4_MAVERICK: 'meta-llama/llama-4-maverick',
+  LLAMA_4_SCOUT: 'meta-llama/llama-4-scout',
+  // Anthropic (via OpenRouter)
+  CLAUDE_SONNET_4: 'anthropic/claude-sonnet-4',
+  CLAUDE_HAIKU_4: 'anthropic/claude-haiku-4',
+  // DeepSeek
+  DEEPSEEK_R1: 'deepseek/deepseek-r1',
+  DEEPSEEK_V3: 'deepseek/deepseek-chat-v3-0324',
+  // Mistral
+  MISTRAL_LARGE: 'mistralai/mistral-large-2411',
+} as const;
+
+export type OpenRouterModelId =
+  (typeof OPENROUTER_MODELS)[keyof typeof OPENROUTER_MODELS];
+
+/** All curated OpenRouter model IDs as an array. */
+export const ALL_OPENROUTER_MODEL_IDS: OpenRouterModelId[] =
+  Object.values(OPENROUTER_MODELS);
+
+/**
+ * Human-readable labels for OpenRouter models (used in UI pickers).
+ */
+export const OPENROUTER_MODEL_LABELS: Record<OpenRouterModelId, string> = {
+  [OPENROUTER_MODELS.GPT_4O]: 'GPT-4o',
+  [OPENROUTER_MODELS.GPT_4O_MINI]: 'GPT-4o Mini',
+  [OPENROUTER_MODELS.GPT_4_1]: 'GPT-4.1',
+  [OPENROUTER_MODELS.O4_MINI]: 'o4 Mini',
+  [OPENROUTER_MODELS.GEMINI_2_5_PRO]: 'Gemini 2.5 Pro',
+  [OPENROUTER_MODELS.GEMINI_2_5_FLASH]: 'Gemini 2.5 Flash',
+  [OPENROUTER_MODELS.LLAMA_4_MAVERICK]: 'Llama 4 Maverick',
+  [OPENROUTER_MODELS.LLAMA_4_SCOUT]: 'Llama 4 Scout',
+  [OPENROUTER_MODELS.CLAUDE_SONNET_4]: 'Claude Sonnet 4',
+  [OPENROUTER_MODELS.CLAUDE_HAIKU_4]: 'Claude Haiku 4',
+  [OPENROUTER_MODELS.DEEPSEEK_R1]: 'DeepSeek R1',
+  [OPENROUTER_MODELS.DEEPSEEK_V3]: 'DeepSeek V3',
+  [OPENROUTER_MODELS.MISTRAL_LARGE]: 'Mistral Large',
+};
+
+/**
+ * Check whether a model ID is a known curated OpenRouter model.
+ */
+export function isOpenRouterModel(modelId: string): boolean {
+  return ALL_OPENROUTER_MODEL_IDS.includes(modelId as OpenRouterModelId);
+}
 
 // ---------------------------------------------------------------------------
 // Model families (for tier access checks)

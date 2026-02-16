@@ -53,6 +53,7 @@ function sanitize(value: unknown): unknown {
   if (typeof value === 'string') {
     return value
       .replace(/sk-ant-[A-Za-z0-9_-]+/g, '[REDACTED]')
+      .replace(/sk-or-v1-[A-Za-z0-9_-]+/g, '[REDACTED]')
       .replace(/sk_(live|test)_[A-Za-z0-9]+/g, '[REDACTED]');
   }
   if (value instanceof Error) {

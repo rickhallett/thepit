@@ -327,7 +327,7 @@ describe('run-bout tier-based access control', () => {
   // 4. BYOK bouts bypass tier restrictions
   // -------------------------------------------------------------------------
   it('allows BYOK bouts regardless of tier', async () => {
-    readAndClearByokKeyMock.mockReturnValue('sk-ant-test-key');
+    readAndClearByokKeyMock.mockReturnValue({ provider: 'anthropic', modelId: undefined, key: 'sk-ant-test-key' });
     canRunBoutMock.mockResolvedValue({ allowed: true });
 
     const res = await POST(

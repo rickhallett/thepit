@@ -74,10 +74,11 @@ describe('byok-stash', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'Invalid key format.' });
+    const body = await res.json();
+    expect(body.error).toContain('Invalid key format');
   });
 
-  it('POST sets cookie and returns { ok: true }', async () => {
+  it('POST sets cookie and returns { ok: true } for Anthropic key', async () => {
     const req = new Request('http://localhost/api/byok-stash', {
       method: 'POST',
       body: JSON.stringify({ key: 'sk-ant-test-123' }),
@@ -87,22 +88,75 @@ describe('byok-stash', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.ok).toBe(true);
+    expect(json.provider).toBe('anthropic');
+    // Cookie value is now encoded: provider:||:model:||:key
     expect(cookieStore.set).toHaveBeenCalledWith(
       'pit_byok',
-      'sk-ant-test-123',
+      'anthropic:||::||:sk-ant-test-123',
       expect.objectContaining({ httpOnly: true }),
     );
   });
 
-  it('readAndClearByokKey returns key and deletes cookie', () => {
-    cookieStore._store.set('pit_byok', { name: 'pit_byok', value: 'sk-test-456' });
-    const key = readAndClearByokKey(cookieStore as never);
-    expect(key).toBe('sk-test-456');
+  it('POST sets cookie and returns { ok: true } for OpenRouter key', async () => {
+    const req = new Request('http://localhost/api/byok-stash', {
+      method: 'POST',
+      body: JSON.stringify({ key: 'sk-or-v1-test-456', model: 'openai/gpt-4o' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.ok).toBe(true);
+    expect(json.provider).toBe('openrouter');
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      'pit_byok',
+      'openrouter:||:openai/gpt-4o:||:sk-or-v1-test-456',
+      expect.objectContaining({ httpOnly: true }),
+    );
+  });
+
+  it('POST returns 400 for unsupported OpenRouter model', async () => {
+    const req = new Request('http://localhost/api/byok-stash', {
+      method: 'POST',
+      body: JSON.stringify({ key: 'sk-or-v1-test-456', model: 'unknown/bad-model' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain('Unsupported OpenRouter model');
+  });
+
+  it('readAndClearByokKey decodes encoded cookie (new format)', () => {
+    cookieStore._store.set('pit_byok', {
+      name: 'pit_byok',
+      value: 'openrouter:||:openai/gpt-4o:||:sk-or-v1-test-456',
+    });
+    const result = readAndClearByokKey(cookieStore as never);
+    expect(result).toEqual({
+      provider: 'openrouter',
+      modelId: 'openai/gpt-4o',
+      key: 'sk-or-v1-test-456',
+    });
+    expect(cookieStore.delete).toHaveBeenCalledWith('pit_byok');
+  });
+
+  it('readAndClearByokKey handles legacy format (raw Anthropic key)', () => {
+    cookieStore._store.set('pit_byok', {
+      name: 'pit_byok',
+      value: 'sk-ant-legacy-key-789',
+    });
+    const result = readAndClearByokKey(cookieStore as never);
+    expect(result).toEqual({
+      provider: 'anthropic',
+      modelId: undefined,
+      key: 'sk-ant-legacy-key-789',
+    });
     expect(cookieStore.delete).toHaveBeenCalledWith('pit_byok');
   });
 
   it('readAndClearByokKey returns null when no cookie', () => {
-    const key = readAndClearByokKey(cookieStore as never);
-    expect(key).toBeNull();
+    const result = readAndClearByokKey(cookieStore as never);
+    expect(result).toBeNull();
   });
 });

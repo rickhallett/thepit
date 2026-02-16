@@ -100,6 +100,36 @@ describe('logger', () => {
     });
   });
 
+  describe('API key redaction', () => {
+    it('redacts Anthropic API keys (sk-ant-*) in context', () => {
+      log.info('auth attempt', { apiKey: 'sk-ant-api03-abc123xyz' });
+      const output = consoleSpy.mock.calls[0][0] as string;
+      expect(output).toContain('[REDACTED]');
+      expect(output).not.toContain('sk-ant-api03-abc123xyz');
+    });
+
+    it('redacts OpenRouter API keys (sk-or-v1-*) in context', () => {
+      log.info('auth attempt', { apiKey: 'sk-or-v1-abc123xyz-def456' });
+      const output = consoleSpy.mock.calls[0][0] as string;
+      expect(output).toContain('[REDACTED]');
+      expect(output).not.toContain('sk-or-v1-abc123xyz-def456');
+    });
+
+    it('redacts Stripe keys (sk_live_* / sk_test_*) in context', () => {
+      log.info('payment', { stripeKey: 'sk_live_abc123' });
+      const output = consoleSpy.mock.calls[0][0] as string;
+      expect(output).toContain('[REDACTED]');
+      expect(output).not.toContain('sk_live_abc123');
+    });
+
+    it('redacts keys in nested context objects', () => {
+      log.info('nested', { config: { apiKey: 'sk-or-v1-secret-key-789' } });
+      const output = consoleSpy.mock.calls[0][0] as string;
+      expect(output).toContain('[REDACTED]');
+      expect(output).not.toContain('sk-or-v1-secret-key-789');
+    });
+  });
+
   describe('Sentry trace linking', () => {
     it('getSentryTraceId is exported and callable', async () => {
       const { getSentryTraceId } = await import('@/lib/logger');

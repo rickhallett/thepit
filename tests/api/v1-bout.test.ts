@@ -70,7 +70,7 @@ const mockContext = {
   lengthConfig: { id: 'standard', label: 'Standard', hint: '3-5 sentences', maxOutputTokens: 200, outputTokensPerTurn: 120 },
   formatConfig: { id: 'plain', label: 'Plain text', hint: 'no markup', instruction: 'Respond in plain text.' },
   modelId: MODEL_IDS.HAIKU,
-  byokKey: '',
+  byokData: null,
   userId: 'user_123',
   preauthMicro: 0,
   requestId: 'req-abc',
