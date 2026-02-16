@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 type FeatureRequest = {
   id: number;
@@ -16,15 +16,6 @@ type FeatureRequest = {
   displayName: string;
   voteCount: number;
   userVoted: boolean;
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  agents: 'Agents',
-  arena: 'Arena',
-  presets: 'Presets',
-  research: 'Research',
-  ui: 'UI',
-  other: 'Other',
 };
 
 const getStatusLabels = (c: ReturnType<typeof useCopy>): Record<string, string> => ({
@@ -136,7 +127,7 @@ export function FeatureRequestList() {
                   {r.title}
                 </h3>
                 <span className="rounded bg-foreground/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-muted">
-                  {CATEGORY_LABELS[r.category] ?? r.category}
+                  {c.featureRequest.form.categories[r.category] ?? r.category}
                 </span>
                 {STATUS_LABELS[r.status] && (
                   <span className="rounded bg-accent/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-accent">

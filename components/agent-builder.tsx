@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/cn';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 import { trackEvent } from '@/lib/analytics';
 import { buildStructuredPrompt } from '@/lib/agent-prompts';
 import {

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 export default function ContactPage() {
   const c = useCopy();

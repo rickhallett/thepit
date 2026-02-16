@@ -17,6 +17,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
 import { getConsentState } from '@/components/cookie-consent';
+import { getExperimentConfig } from '@/lib/copy-edge';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
@@ -76,14 +77,17 @@ function initPostHog() {
   // Only register if the experiment is active and the cookie value is a known
   // variant — prevents stale/tampered cookies from polluting analytics.
   try {
-    const variantCookie = document.cookie
-      .split('; ')
-      .find((c) => c.startsWith('pit_variant='));
-    if (variantCookie) {
-      const raw = variantCookie.substring(variantCookie.indexOf('=') + 1);
-      const variant = decodeURIComponent(raw).trim();
-      if (variant && /^[a-z0-9-]{1,32}$/.test(variant)) {
-        posthog.register({ copy_variant: variant });
+    const expConfig = getExperimentConfig();
+    if (expConfig.active) {
+      const variantCookie = document.cookie
+        .split('; ')
+        .find((c) => c.startsWith('pit_variant='));
+      if (variantCookie) {
+        const raw = variantCookie.substring(variantCookie.indexOf('=') + 1);
+        const variant = decodeURIComponent(raw).trim();
+        if (variant && variant in expConfig.variants) {
+          posthog.register({ copy_variant: variant });
+        }
       }
     }
   } catch {

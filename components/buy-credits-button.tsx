@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { trackEvent } from '@/lib/analytics';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 function SubmitButton() {
   const c = useCopy();

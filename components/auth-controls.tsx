@@ -9,7 +9,7 @@ import {
 } from '@clerk/nextjs';
 
 import { cn } from '@/lib/cn';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 /** Icon for the subscription menu item inside the UserButton dropdown. */
 function SubscriptionIcon() {

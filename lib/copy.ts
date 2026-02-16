@@ -4,8 +4,8 @@
  * Resolves variant-specific copy from pre-built JSON files. The active
  * variant is determined by the `x-copy-variant` header set by middleware.
  *
- * Server components:  const c = getCopy();
- * Client components:  const c = useCopy();
+ * Server components:  import { getCopy } from '@/lib/copy';
+ * Client components:  import { useCopy } from '@/lib/copy-client';
  *
  * Architecture:
  * - Variant JSONs are loaded once at module init and cached in a Map
@@ -28,6 +28,8 @@ import type { CopySchema } from '@/copy/schema';
 // These live in lib/copy-edge.ts to avoid pulling next/headers + React cache
 // into Edge Middleware.
 // ---------------------------------------------------------------------------
+
+import { COPY_VARIANT_HEADER } from '@/lib/copy-edge';
 
 export {
   COPY_VARIANT_HEADER,
@@ -142,10 +144,6 @@ for (const name of configuredVariants) {
   }
 }
 
-// Edge-safe experiment utilities are defined in lib/copy-edge.ts and
-// re-exported above. Import COPY_VARIANT_HEADER locally for getCopy().
-import { COPY_VARIANT_HEADER } from '@/lib/copy-edge';
-
 // ---------------------------------------------------------------------------
 // Server-side copy resolution
 // ---------------------------------------------------------------------------
@@ -203,8 +201,9 @@ export const getActiveVariant = cache(async (): Promise<string> => {
 // ---------------------------------------------------------------------------
 // Client-side copy resolution
 // ---------------------------------------------------------------------------
-
-export { CopyProvider, useCopy } from '@/lib/copy-client';
+// CopyProvider and useCopy are exported from '@/lib/copy-client' directly.
+// Client components must import from '@/lib/copy-client' to avoid pulling
+// next/headers and React cache() into the client bundle.
 
 // ---------------------------------------------------------------------------
 // Test helpers (not exported from the main module in production)

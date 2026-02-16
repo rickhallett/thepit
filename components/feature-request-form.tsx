@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 const CATEGORY_VALUES = ['agents', 'arena', 'presets', 'research', 'ui', 'other'] as const;
 
@@ -82,7 +82,7 @@ export function FeatureRequestForm() {
               type="button"
               className="mt-4 border-2 border-accent bg-accent/10 px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
             >
-              Sign in
+              {c.common.signIn}
             </button>
           </SignInButton>
         </div>

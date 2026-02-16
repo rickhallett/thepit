@@ -1,7 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 const LAUNCH_DATE = new Date('2026-02-13T11:55:00Z');
 

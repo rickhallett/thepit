@@ -139,13 +139,29 @@ describe('Statistical Distribution', () => {
   });
 
   it('zero-weight variants are never selected', () => {
-    // We can test this by confirming that selectVariant never returns
-    // a variant name that isn't in the config
-    for (let i = 0; i < 100; i++) {
+    const config = getExperimentConfig();
+    // Identify any zero-weight variants in the config
+    const zeroWeightNames = Object.entries(config.variants)
+      .filter(([, v]) => v.weight === 0)
+      .map(([name]) => name);
+
+    if (zeroWeightNames.length === 0) {
+      // No zero-weight variants configured — verify the selection logic
+      // still filters correctly by testing with deterministic endpoints
+      for (let i = 0; i < 100; i++) {
+        const variant = selectVariant(Math.random());
+        const validNames = [config.defaultVariant, ...Object.keys(config.variants)];
+        expect(validNames).toContain(variant);
+      }
+      return;
+    }
+
+    // Run many selections and verify zero-weight variants are never returned
+    for (let i = 0; i < 1000; i++) {
       const variant = selectVariant(Math.random());
-      const config = getExperimentConfig();
-      const validNames = [config.defaultVariant, ...Object.keys(config.variants)];
-      expect(validNames).toContain(variant);
+      for (const zeroName of zeroWeightNames) {
+        expect(variant).not.toBe(zeroName);
+      }
     }
   });
 });

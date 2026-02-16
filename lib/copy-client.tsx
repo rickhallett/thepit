@@ -7,7 +7,7 @@
  *
  * Usage:
  *   // In a client component:
- *   import { useCopy } from '@/lib/copy';
+ *   import { useCopy } from '@/lib/copy-client';
  *   const c = useCopy();
  *   <button>{c.hero.ctaPrimary}</button>
  */

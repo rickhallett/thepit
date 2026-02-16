@@ -230,7 +230,7 @@ export default async function ArenaPage() {
             </p>
             {!userId && (
               <p className="text-xs text-muted">
-                {c.arena.upgrade.signUpToSubscribe}
+                {c.arena.upgrade.signUpDescription}
               </p>
             )}
             <div className="grid gap-4 md:grid-cols-2">

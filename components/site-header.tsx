@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { AuthControls } from '@/components/auth-controls';
 import { cn } from '@/lib/cn';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 export function SiteHeader({ className }: { className?: string }) {
   const c = useCopy();

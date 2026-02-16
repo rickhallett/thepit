@@ -146,6 +146,7 @@ export interface ArenaCopy {
     upgradeTitle: string;
     chooseTitle: string;
     signUpToSubscribe: string;
+    signUpDescription: string;
     subscribe: string;
     passDescription: string;
     labDescription: string;

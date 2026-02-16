@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import { buildLineage } from '@/lib/agent-lineage';
 import { getAgentDisplayName } from '@/lib/agent-display-name';

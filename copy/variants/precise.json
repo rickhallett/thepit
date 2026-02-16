@@ -265,7 +265,8 @@
       "signUpToSubscribe": "Authenticate to subscribe",
       "subscribe": "Subscribe",
       "passDescription": "15 evaluations/day, Haiku + Sonnet, 5 agents, analytics",
-      "labDescription": "100 evaluations/day, all models including Opus, unlimited agents, API access"
+      "labDescription": "100 evaluations/day, all models including Opus, unlimited agents, API access",
+      "signUpDescription": "Authenticate to access premium evaluation models, increased evaluation quotas, and comprehensive analytics."
     },
     "creditPacks": {
       "label": "Credit Packages"
@@ -587,7 +588,7 @@
     },
     "lineage": "Configuration Lineage",
     "remixImpact": "Derivative Impact",
-    "remixCount": "Cloned {n} time(s)",
+    "remixCount": "Cloned {n} times",
     "creditsEarned": "{n} credits generated",
     "promptDna": "Prompt Configuration",
     "structuredDna": "Structured Parameters",
@@ -901,7 +902,7 @@
     },
     "disclaimer": {
       "label": "Disclaimer",
-      "title": "Disclaimer",
+      "title": "Use at Your Own Risk",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "security": {

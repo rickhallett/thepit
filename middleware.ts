@@ -81,17 +81,21 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   let copyVariant: string;
   let variantCookieToSet: string | null = null;
 
-  // Priority 1: URL override for QA/testing
+  // Priority 1: URL override for QA/testing (always allowed, even when inactive)
   const variantOverride = req.nextUrl.searchParams.get('variant');
   if (variantOverride && VARIANT_RE.test(variantOverride) && variantOverride in experimentConfig.variants) {
     copyVariant = variantOverride;
     variantCookieToSet = copyVariant;
+  } else if (!experimentConfig.active) {
+    // Experiment disabled — always use the default variant. Ignore any
+    // stale pit_variant cookies so returning visitors are normalized.
+    copyVariant = experimentConfig.defaultVariant;
   } else {
-    // Priority 2: Existing cookie
+    // Priority 2: Existing cookie (only when experiment is active)
     const existingVariant = req.cookies.get(VARIANT_COOKIE)?.value;
     if (existingVariant && VARIANT_RE.test(existingVariant) && existingVariant in experimentConfig.variants) {
       copyVariant = existingVariant;
-    } else if (experimentConfig.active && !isExcludedPath(pathname)) {
+    } else if (!isExcludedPath(pathname)) {
       // Priority 3: Weighted random assignment
       copyVariant = selectVariant();
       variantCookieToSet = copyVariant;

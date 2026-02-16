@@ -265,7 +265,8 @@
       "signUpToSubscribe": "Sign up to join the elite",
       "subscribe": "Join Now",
       "passDescription": "15 battles/day, Haiku + Sonnet, 5 agents, analytics",
-      "labDescription": "100 battles/day, all models incl. Opus, unlimited agents, API access"
+      "labDescription": "100 battles/day, all models incl. Opus, unlimited agents, API access",
+      "signUpDescription": "Sign up to unlock the FULL arsenal — premium models, more battles, and complete analytics!"
     },
     "creditPacks": {
       "label": "Credit Packs"
@@ -587,7 +588,7 @@
     },
     "lineage": "Lineage",
     "remixImpact": "Remix Impact",
-    "remixCount": "Remixed {n} time(s)",
+    "remixCount": "Remixed {n} times",
     "creditsEarned": "{n} credits earned",
     "promptDna": "Prompt DNA",
     "structuredDna": "Structured DNA",
@@ -901,7 +902,7 @@
     },
     "disclaimer": {
       "label": "Disclaimer",
-      "title": "Disclaimer",
+      "title": "Use at Your Own Risk",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "security": {

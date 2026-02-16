@@ -6,7 +6,7 @@ import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 import { AgentIcon } from '@/components/agent-icon';
 import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {

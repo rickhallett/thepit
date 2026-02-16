@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore, useCallback, useState } from 'react';
 import Link from 'next/link';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 /** Cookie name storing the user's analytics consent choice. */
 export const CONSENT_COOKIE = 'pit_consent';

@@ -73,9 +73,17 @@ export default async function ResearchPage() {
             independently.
           </p>
           <ul className="mt-6 flex flex-col gap-3 text-sm text-muted">
-            {c.researchPage.onChain.bullets.map((bullet) => (
-              <li key={bullet}>{bullet}</li>
-            ))}
+            {c.researchPage.onChain.bullets.map((bullet) => {
+              const dashIdx = bullet.indexOf(' — ');
+              if (dashIdx === -1) return <li key={bullet}>{bullet}</li>;
+              return (
+                <li key={bullet}>
+                  <strong className="text-foreground">{bullet.slice(0, dashIdx)}</strong>
+                  {' — '}
+                  {bullet.slice(dashIdx + 3)}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </section>

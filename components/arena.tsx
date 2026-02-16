@@ -14,7 +14,7 @@ import {
 import { useBoutReactions } from '@/lib/use-bout-reactions';
 import { useBoutVoting } from '@/lib/use-bout-voting';
 import { useBoutSharing } from '@/lib/use-bout-sharing';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';

@@ -145,14 +145,15 @@ function RoadmapItemRow({
   laneColor,
   isLast,
   statusLabels,
+  statusConfig,
 }: {
   item: RoadmapItem;
   laneColor: string;
   isLast: boolean;
   statusLabels: StatusLabels;
+  statusConfig: Record<ItemStatus, { icon: string; label: string; className: string }>;
 }) {
-  const STATUS_CONFIG = buildStatusConfig(statusLabels);
-  const config = STATUS_CONFIG[item.status];
+  const config = statusConfig[item.status];
   const isActive = item.status === 'active';
   const isDone = item.status === 'done';
 
@@ -221,7 +222,7 @@ function RoadmapItemRow({
   );
 }
 
-function LaneColumn({ lane, statusLabels }: { lane: Lane; statusLabels: StatusLabels }) {
+function LaneColumn({ lane, statusLabels, statusConfig }: { lane: Lane; statusLabels: StatusLabels; statusConfig: Record<ItemStatus, { icon: string; label: string; className: string }> }) {
   return (
     <div className="flex flex-col gap-6">
       <LaneHeader lane={lane} />
@@ -233,6 +234,7 @@ function LaneColumn({ lane, statusLabels }: { lane: Lane; statusLabels: StatusLa
             laneColor={lane.color}
             isLast={index === lane.items.length - 1}
             statusLabels={statusLabels}
+            statusConfig={statusConfig}
           />
         ))}
       </div>
@@ -316,7 +318,7 @@ export default async function RoadmapPage() {
       <section className="bg-black/40">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-3 md:gap-8 lg:gap-12">
           {LANES.map((lane) => (
-            <LaneColumn key={lane.id} lane={lane} statusLabels={c.roadmap.statusLabels} />
+            <LaneColumn key={lane.id} lane={lane} statusLabels={c.roadmap.statusLabels} statusConfig={STATUS_CONFIG} />
           ))}
         </div>
       </section>

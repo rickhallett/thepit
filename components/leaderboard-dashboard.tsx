@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { LeaderboardTable } from '@/components/leaderboard-table';
 import { PlayerLeaderboardTable } from '@/components/player-leaderboard-table';
 import { cn } from '@/lib/cn';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 import type { LeaderboardData, LeaderboardRange } from '@/lib/leaderboard';
 
 const getRangeLabels = (c: ReturnType<typeof useCopy>): Record<LeaderboardRange, string> => ({

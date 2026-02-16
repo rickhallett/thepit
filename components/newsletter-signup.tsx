@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 export function NewsletterSignup() {
   const c = useCopy();

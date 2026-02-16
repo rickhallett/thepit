@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 
 import { cn } from '@/lib/cn';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 import { buildAgentDetailHref } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
 import { CloneAgentButton } from '@/components/clone-agent-button';

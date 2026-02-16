@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 
 const RELEVANCE_VALUES = [
   'agent-interaction',
@@ -98,7 +98,7 @@ export function PaperSubmissionForm() {
               type="button"
               className="mt-4 border-2 border-accent bg-accent/10 px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
             >
-              Sign in
+              {c.common.signIn}
             </button>
           </SignInButton>
         </div>
@@ -170,7 +170,7 @@ export function PaperSubmissionForm() {
 
           {status === 'error' && (
             <p className="text-xs uppercase tracking-[0.3em] text-red-400">
-              {errorMessage || 'Something went wrong. Try again.'}
+              {errorMessage || c.common.error}
             </p>
           )}
         </form>

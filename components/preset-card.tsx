@@ -6,7 +6,7 @@ import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { FREE_MODEL_ID } from '@/lib/ai';
 import { trackEvent } from '@/lib/analytics';
-import { useCopy } from '@/lib/copy';
+import { useCopy } from '@/lib/copy-client';
 import {
   CREDITS_ENABLED,
   estimateBoutCostGbp,

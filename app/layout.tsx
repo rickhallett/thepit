@@ -14,7 +14,8 @@ import { CookieConsent } from '@/components/cookie-consent';
 import { PostHogProvider } from '@/components/posthog-provider';
 import { initializeUserSession } from '@/lib/onboarding';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
-import { getCopy, CopyProvider } from '@/lib/copy';
+import { getCopy } from '@/lib/copy';
+import { CopyProvider } from '@/lib/copy-client';
 
 import './globals.css';
 

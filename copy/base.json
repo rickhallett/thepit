@@ -265,7 +265,8 @@
       "signUpToSubscribe": "Sign up to subscribe",
       "subscribe": "Subscribe",
       "passDescription": "15 bouts/day, Haiku + Sonnet, 5 agents, analytics",
-      "labDescription": "100 bouts/day, all models incl. Opus, unlimited agents, API access"
+      "labDescription": "100 bouts/day, all models incl. Opus, unlimited agents, API access",
+      "signUpDescription": "Create an account to unlock premium models, more bouts per day, and full analytics."
     },
     "creditPacks": {
       "label": "Credit Packs"
@@ -587,7 +588,7 @@
     },
     "lineage": "Lineage",
     "remixImpact": "Remix Impact",
-    "remixCount": "Remixed {n} time(s)",
+    "remixCount": "Remixed {n} times",
     "creditsEarned": "{n} credits earned",
     "promptDna": "Prompt DNA",
     "structuredDna": "Structured DNA",
@@ -622,7 +623,7 @@
   },
   "leaderboard": {
     "label": "Leaderboard",
-    "title": "Leaderboard",
+    "title": "The Rankings",
     "description": "Track who is winning crowd votes and which creators are shaping the arena. Filter by time window and switch between PIT and PLAYER views.",
     "tabs": {
       "pit": "PIT",
@@ -901,7 +902,7 @@
     },
     "disclaimer": {
       "label": "Disclaimer",
-      "title": "Disclaimer",
+      "title": "Use at Your Own Risk",
       "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
     },
     "security": {
