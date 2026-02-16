@@ -70,3 +70,6 @@ Manage*.html
 
 # security audit scratch
 .security-audit/
+
+# research pipeline exports
+research-exports/

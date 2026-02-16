@@ -37,6 +37,7 @@
     "security:scan": "tsx qa/scripts/security-scan.ts",
     "sim": "tsx tests/simulation/run.ts",
     "sim:dry": "tsx tests/simulation/run.ts --dry-run",
+    "research:export": "bash scripts/research-pipeline.sh",
     "copy:generate": "tsx scripts/copyGenerate.ts"
   },
   "dependencies": {
