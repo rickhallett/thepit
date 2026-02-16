@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
 
-import { streamText } from 'ai';
+import { tracedStreamText } from '@/lib/langsmith';
 
 import {
   ASK_THE_PIT_ENABLED,
@@ -102,7 +102,7 @@ async function rawPOST(req: Request) {
 
   try {
     const start = Date.now();
-    const result = streamText({
+    const result = tracedStreamText({
       model: getModel(ASK_THE_PIT_MODEL),
       maxOutputTokens: ASK_THE_PIT_MAX_TOKENS,
       messages: [
