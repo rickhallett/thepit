@@ -83,7 +83,11 @@ function getWrappedAI(): typeof ai {
 
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { wrapAISDK } = require('langsmith/experimental/vercel') as typeof import('langsmith/experimental/vercel');
+  // Pass the shared client so wrapAISDK traces use the same batching queue
+  // as our explicit traceable() calls. Without this, awaitPendingTraceBatches()
+  // on the shared client would not flush traces from wrapAISDK.
   _wrapped = wrapAISDK(ai, {
+    client: getLangSmithClient() ?? undefined,
     metadata: { service: 'tspit' },
   });
   log.info('AI SDK wrapped with LangSmith tracing');
