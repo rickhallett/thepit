@@ -11,7 +11,7 @@
 // The streaming route passes an onTurnEvent callback to write SSE events.
 // The sync route omits it and gets the final result directly.
 
-import { tracedStreamText, untracedStreamText } from '@/lib/langsmith';
+import { tracedStreamText, untracedStreamText, withTracing } from '@/lib/langsmith';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
@@ -462,8 +462,49 @@ export async function validateBoutRequest(
  *
  * On error, persists partial transcript with status='error' and refunds credits.
  * Throws the original error after cleanup so callers can handle it.
+ *
+ * When LangSmith is enabled, the entire bout appears as a single parent trace
+ * with child LLM spans for each turn (via wrapAISDK) and the share line call.
  */
 export async function executeBout(
+  ctx: BoutContext,
+  onEvent?: (event: TurnEvent) => void,
+): Promise<BoutResult> {
+  // Wrap the inner logic with LangSmith tracing. The trace name includes
+  // the boutId for easy search, and metadata enables filtering by preset,
+  // model, topic, etc. in the LangSmith dashboard.
+  //
+  // Wrapped in try-catch so tracing initialization failures (e.g. broken
+  // langsmith install) never bypass _executeBoutInner's error cleanup
+  // (credit refund, DB status update, intro pool refund).
+  let fn = _executeBoutInner;
+  try {
+    fn = withTracing(_executeBoutInner, {
+      name: `bout:${ctx.boutId}`,
+      run_type: 'chain',
+      metadata: {
+        boutId: ctx.boutId,
+        presetId: ctx.presetId,
+        model: ctx.modelId,
+        agentCount: ctx.preset.agents.length,
+        topic: ctx.topic || undefined,
+        responseLength: ctx.lengthConfig.id,
+        responseFormat: ctx.formatConfig.id,
+        isByok: !!ctx.byokData,
+      },
+      tags: ['bout', ctx.presetId, ctx.modelId].filter(Boolean),
+    });
+  } catch (err) {
+    log.warn('LangSmith tracing setup failed, continuing without tracing', {
+      error: err instanceof Error ? err.message : String(err),
+      boutId: ctx.boutId,
+    });
+  }
+  return fn(ctx, onEvent);
+}
+
+/** Inner bout execution logic, wrapped by executeBout with tracing. */
+async function _executeBoutInner(
   ctx: BoutContext,
   onEvent?: (event: TurnEvent) => void,
 ): Promise<BoutResult> {
@@ -604,7 +645,7 @@ export async function executeBout(
       const turnStart = Date.now();
       // BYOK calls use the untraced variant — user API keys must not be
       // logged to our LangSmith project. Platform calls get full tracing.
-      const streamFn = byokData ? untracedStreamText : tracedStreamText;
+      const streamFn = modelId === 'byok' ? untracedStreamText : tracedStreamText;
       const result = streamFn({
         model: boutModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
