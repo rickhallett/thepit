@@ -7,6 +7,14 @@
 - `db/` contains Drizzle schema and client setup.
 - `tests/e2e/` contains Playwright end-to-end tests.
 - `public/` is for static assets.
+- `shared/` is the Go shared library (config, theme) used by all pit* CLIs.
+- `pitctl/` — site administration CLI (users, credits, bouts, agents, alerts, metrics).
+- `pitforge/` — agent creation and management CLI.
+- `pitlab/` — experiment and analysis CLI.
+- `pitlinear/` — Linear issue tracker CLI (see below).
+- `pitnet/` — network and deployment CLI.
+- `pitstorm/` — traffic simulation CLI.
+- `pitbench/` — benchmarking CLI.
 
 ## Build, Test, and Development Commands
 - `pnpm run dev` starts the local dev server.
@@ -35,6 +43,50 @@
 - Commit messages must follow Conventional Commits (e.g., `feat: ...`, `fix: ...`, `chore: ...`).
 - Do not add LLM attribution or co-authorship lines in commit messages.
 - PRs should include a clear summary, test evidence, and UI screenshots for visual changes.
+
+## Go CLI Tools (pit* family)
+
+All Go CLIs live in the workspace root (`go.work`) and share `shared/config` (env loading) and `shared/theme` (lipgloss Tokyo Night styling). They use Go 1.25.7, stdlib `flag` + hand-rolled switch dispatch (no cobra), and follow the pattern in `pitctl/main.go`.
+
+### pitlinear — Linear Issue Management
+
+**When to use:** Any task involving Linear issues — creating, updating, listing, commenting, or linking issues. Use `pitlinear` instead of raw GraphQL or curl against the Linear API.
+
+**Environment:** Requires `LINEAR_API_KEY` (in `.env.local` or exported). Optional `LINEAR_TEAM_NAME` sets the default team key (e.g. `Oceanheartai`).
+
+**Quick reference:**
+```bash
+# List / filter issues
+pitlinear issues list --state Todo --limit 10
+pitlinear issues --label Bug                     # implicit list
+
+# CRUD
+pitlinear issues create --title "Fix X" --priority urgent --label Bug --state Todo
+pitlinear issues get OCE-22                      # by identifier or UUID
+pitlinear issues update OCE-22 --state "In Progress"
+pitlinear issues delete OCE-22
+
+# Hierarchy
+pitlinear issues set-parent OCE-22 OCE-35        # link child to parent
+
+# Comments
+pitlinear comments add OCE-22 --body "Starting work"
+pitlinear comments list OCE-22
+
+# Metadata
+pitlinear teams                                  # list teams
+pitlinear states                                 # list workflow states
+pitlinear labels                                 # list labels
+
+# Agent-friendly
+pitlinear --json issues get OCE-22               # JSON output
+printf 'long description' | pitlinear issues create --title "T" --desc -  # stdin
+```
+
+**Build/test:**
+```bash
+cd pitlinear && go vet ./... && go test ./... && go build .
+```
 
 ## Security & Configuration Tips
 - Local secrets live in `.env` (do not commit).

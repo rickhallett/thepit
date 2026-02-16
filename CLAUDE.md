@@ -113,6 +113,43 @@ BASE_URL=https://preview.vercel.app ./scripts/smoke-http.sh  # Against a deploye
 - Tests that require authentication (bout streaming) are skipped on preview via `BASE_URL` check
 - The `bout.spec.ts` streaming test only runs against localhost or production domain
 
+## Go CLI Tools (pit* family)
+
+Seven Go CLIs live in the workspace root (`go.work`), sharing `shared/config` and `shared/theme`. All use Go 1.25.7, stdlib `flag`, hand-rolled switch dispatch (no cobra).
+
+| CLI | Purpose |
+|-----|---------|
+| `pitctl` | Site administration (users, credits, bouts, agents, alerts, metrics) |
+| `pitforge` | Agent creation and management |
+| `pitlab` | Experiment and analysis |
+| `pitlinear` | Linear issue tracker (see below) |
+| `pitnet` | Network and deployment |
+| `pitstorm` | Traffic simulation |
+| `pitbench` | Benchmarking |
+
+### pitlinear — Linear Issue Management
+
+Use `pitlinear` for **all Linear issue operations** instead of raw GraphQL or curl. Requires `LINEAR_API_KEY` (in `.env.local` or exported). Optional `LINEAR_TEAM_NAME` for default team.
+
+```bash
+pitlinear issues list --state Todo --limit 10    # list with filters
+pitlinear issues --label Bug                     # implicit list
+pitlinear issues create --title "Fix X" --priority urgent --label Bug --state Todo
+pitlinear issues get OCE-22                      # by identifier or UUID
+pitlinear issues update OCE-22 --state "In Progress"
+pitlinear issues delete OCE-22
+pitlinear issues set-parent OCE-22 OCE-35        # link child to parent
+pitlinear comments add OCE-22 --body "Starting work"
+pitlinear comments list OCE-22
+pitlinear teams                                  # list teams
+pitlinear states                                 # list workflow states
+pitlinear labels                                 # list labels
+pitlinear --json issues get OCE-22               # JSON output for agents
+printf 'long desc' | pitlinear issues create --title "T" --desc -  # stdin
+```
+
+Build/test: `cd pitlinear && go vet ./... && go test ./... && go build .`
+
 ## Architecture
 
 TSPIT ("THE PIT — AI Battle Arena") is a Next.js 16 application where AI agents (Claude models) engage in multi-turn conversations based on preset scenarios.
@@ -133,6 +170,8 @@ TSPIT ("THE PIT — AI Battle Arena") is a Next.js 16 application where AI agent
 - `db/` - Drizzle schema and client (Neon serverless PostgreSQL)
 - `copy/` - A/B testing copy system (schema, base JSON, variant JSONs)
 - `scripts/` - Operational scripts (preview-e2e, sanity-check, smoke-http, etc.)
+- `pitctl/`, `pitforge/`, `pitlab/`, `pitlinear/`, `pitnet/`, `pitstorm/`, `pitbench/` - Go CLI tools
+- `shared/` - Go shared library (config, theme) for pit* CLIs
 - `tests/e2e/` - Playwright E2E tests
 - `tests/unit/` - Vitest unit tests
 - `tests/integration/` - Vitest integration tests (require DB)
@@ -229,6 +268,8 @@ Custom event stream (not standard SSE):
 - `NEXT_PUBLIC_APP_URL` / `APP_URL` - Redirect URLs for checkout
 - `NEXT_PUBLIC_POSTHOG_KEY` - PostHog analytics
 - `PV_INTERNAL_SECRET` - Page view recording middleware secret
+- `LINEAR_API_KEY` - Linear API key (in `.env.local`, used by pitlinear)
+- `LINEAR_TEAM_NAME` - Default Linear team name/key (in `.env.local`, used by pitlinear)
 
 ### CRITICAL: Piping Values to CLI Tools
 **NEVER use `echo` to pipe values to CLI tools.** `echo` appends a trailing newline that silently corrupts values.
