@@ -12,12 +12,14 @@ import (
 
 	"github.com/rickhallett/thepit/pitstorm/internal/account"
 	"github.com/rickhallett/thepit/pitstorm/internal/action"
+	"github.com/rickhallett/thepit/pitstorm/internal/auth"
 	"github.com/rickhallett/thepit/pitstorm/internal/budget"
 	"github.com/rickhallett/thepit/pitstorm/internal/client"
 	"github.com/rickhallett/thepit/pitstorm/internal/engine"
 	"github.com/rickhallett/thepit/pitstorm/internal/metrics"
 	"github.com/rickhallett/thepit/pitstorm/internal/persona"
 	"github.com/rickhallett/thepit/pitstorm/internal/profile"
+	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -389,8 +391,154 @@ func setupCmd(args []string) {
 	fmt.Printf("  Written to %s\n\n", outputPath)
 	fmt.Printf("%s\n\n", account.Summary(f))
 	fmt.Printf("  %s Accounts have no session tokens yet.\n", theme.Warning.Render("note:"))
-	fmt.Printf("  Run %s to obtain tokens from Clerk.\n\n",
-		theme.Accent.Render("pitstorm verify --accounts "+outputPath))
+	fmt.Printf("  Run %s to sign in and obtain tokens from Clerk.\n\n",
+		theme.Accent.Render("pitstorm login --accounts "+outputPath))
+}
+
+func loginCmd(args []string) {
+	fmt.Printf("\n%s\n\n", theme.Title.Render("pitstorm — login"))
+
+	// Parse login-specific flags.
+	accountsPath := "./accounts.json"
+	publishableKey := ""
+	envPath := ""
+
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--accounts":
+			if i+1 >= len(args) {
+				fatalf("login", "--accounts requires a value")
+			}
+			i++
+			accountsPath = args[i]
+		case "--key":
+			if i+1 >= len(args) {
+				fatalf("login", "--key requires a value")
+			}
+			i++
+			publishableKey = args[i]
+		case "--env":
+			if i+1 >= len(args) {
+				fatalf("login", "--env requires a value")
+			}
+			i++
+			envPath = args[i]
+		default:
+			fatalf("login", "unknown flag %q", args[i])
+		}
+	}
+
+	// Load accounts file.
+	f, err := account.Load(accountsPath)
+	if err != nil {
+		fatal("login", err)
+	}
+	if err := f.Validate(); err != nil {
+		fatal("login", err)
+	}
+
+	// Resolve publishable key from flag, env, or config file.
+	if publishableKey == "" {
+		publishableKey = os.Getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+	}
+	if publishableKey == "" {
+		cfg, cfgErr := config.Load(envPath)
+		if cfgErr == nil {
+			publishableKey = cfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+		}
+	}
+	if publishableKey == "" {
+		fatalf("login", "Clerk publishable key not found. Set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY or use --key")
+	}
+
+	// Create auth client.
+	authClient, err := auth.NewClient(publishableKey)
+	if err != nil {
+		fatal("login", err)
+	}
+
+	fapiURL, _ := auth.DecodeFAPIURL(publishableKey)
+	fmt.Printf("  Accounts:   %s\n", accountsPath)
+	fmt.Printf("  FAPI:       %s\n", fapiURL)
+	fmt.Printf("  Accounts:   %d total (%d authenticated)\n\n",
+		len(f.Accounts), countAuthenticated(f))
+
+	// Sign in each non-anon account.
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	passed := 0
+	failed := 0
+
+	for i := range f.Accounts {
+		acct := &f.Accounts[i]
+
+		// Skip anon accounts — they don't authenticate.
+		if acct.Tier == account.TierAnon {
+			fmt.Printf("  %-30s %s (anon)\n", acct.ID, theme.Muted.Render("SKIP"))
+			continue
+		}
+
+		// Sign in via Clerk FAPI.
+		result, signInErr := authClient.SignIn(ctx, acct.Email, acct.Password)
+		if signInErr != nil {
+			fmt.Printf("  %-30s %s %v\n", acct.ID, theme.Error.Render("FAIL"), signInErr)
+			failed++
+			continue
+		}
+
+		// Update account with session data.
+		acct.SessionToken = result.Token
+		acct.TokenExpiresAt = result.ExpiresAt
+		if result.UserID != "" {
+			acct.ClerkUserID = result.UserID
+		}
+		acct.CreatedAt = time.Now().UTC()
+
+		fmt.Printf("  %-30s %s user=%s expires=%s\n",
+			acct.ID, theme.Success.Render("OK"),
+			truncateID(result.UserID), result.ExpiresAt.Format(time.RFC3339))
+		passed++
+	}
+
+	fmt.Printf("\n  Results: %d passed, %d failed, %d skipped\n\n",
+		passed, failed, len(f.Accounts)-passed-failed)
+
+	// Save updated accounts file.
+	if passed > 0 {
+		if saveErr := account.Save(accountsPath, f); saveErr != nil {
+			fmt.Printf("  %s failed to save accounts: %v\n\n",
+				theme.Error.Render("error:"), saveErr)
+		} else {
+			fmt.Printf("  %s tokens written to %s\n\n",
+				theme.Success.Render("saved:"), accountsPath)
+		}
+	}
+
+	if failed > 0 {
+		fmt.Printf("  %s %d accounts failed to authenticate.\n", theme.Warning.Render("warning:"), failed)
+		fmt.Printf("  Ensure accounts exist in Clerk with the correct email/password.\n\n")
+		os.Exit(1)
+	}
+}
+
+// countAuthenticated returns the number of non-anon accounts.
+func countAuthenticated(f *account.File) int {
+	n := 0
+	for _, a := range f.Accounts {
+		if a.Tier != account.TierAnon {
+			n++
+		}
+	}
+	return n
+}
+
+// truncateID shortens a Clerk user ID for display.
+func truncateID(id string) string {
+	if len(id) <= 16 {
+		return id
+	}
+	return id[:16] + "..."
 }
 
 func verifyCmd(args []string) {

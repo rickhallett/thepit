@@ -30,6 +30,8 @@ func main() {
 		planCmd(args[1:])
 	case "setup":
 		setupCmd(args[1:])
+	case "login":
+		loginCmd(args[1:])
 	case "verify":
 		verifyCmd(args[1:])
 	case "report":
@@ -50,9 +52,14 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  run [flags]    Execute traffic simulation\n")
 	fmt.Fprintf(os.Stderr, "  plan [flags]   Dry run — estimate cost and show execution plan\n")
 	fmt.Fprintf(os.Stderr, "  setup [flags]  Provision test accounts in Clerk + DB\n")
+	fmt.Fprintf(os.Stderr, "  login [flags]  Sign in all accounts via Clerk and obtain session tokens\n")
 	fmt.Fprintf(os.Stderr, "  verify         Validate account credentials and API connectivity\n")
 	fmt.Fprintf(os.Stderr, "  report <file>  Parse JSON output into a summary report\n")
 	fmt.Fprintf(os.Stderr, "  version        Show version\n\n")
+	fmt.Fprintf(os.Stderr, "Login Flags:\n")
+	fmt.Fprintf(os.Stderr, "  --accounts <path>    Path to accounts.json (default: ./accounts.json)\n")
+	fmt.Fprintf(os.Stderr, "  --key <pk_...>       Clerk publishable key (default: from env/config)\n")
+	fmt.Fprintf(os.Stderr, "  --env <path>         Path to .env file (auto-resolved if omitted)\n\n")
 	fmt.Fprintf(os.Stderr, "Run Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --target <url>       Target URL (default: https://www.thepit.cloud)\n")
 	fmt.Fprintf(os.Stderr, "  --accounts <path>    Path to accounts.json (default: ./accounts.json)\n")
