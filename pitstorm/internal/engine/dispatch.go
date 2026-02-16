@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand/v2"
+	"sync"
 
 	"github.com/rickhallett/thepit/pitstorm/internal/action"
 	"github.com/rickhallett/thepit/pitstorm/internal/budget"
@@ -12,6 +13,24 @@ import (
 	"github.com/rickhallett/thepit/pitstorm/internal/persona"
 )
 
+// validPresetIDs are the free-tier preset IDs that pitstorm can use for bout creation.
+var validPresetIDs = []string{
+	"gloves-off", "roast-battle", "flatshare", "summit", "shark-pit",
+	"mansion", "on-the-couch", "writers-room", "first-contact",
+	"last-supper", "darwin-special",
+}
+
+// featureCategories are the valid category values for feature-request submissions.
+var featureCategories = []string{
+	"agents", "arena", "presets", "research", "ui", "other",
+}
+
+// relevanceAreas are the valid relevanceArea values for paper submissions.
+var relevanceAreas = []string{
+	"agent-interaction", "evaluation", "persona", "context-windows",
+	"prompt-engineering", "other",
+}
+
 // Dispatcher translates persona actions into actual API calls,
 // recording metrics and budget charges along the way.
 type Dispatcher struct {
@@ -19,6 +38,11 @@ type Dispatcher struct {
 	metrics *metrics.Collector
 	budget  *budget.Gate
 	logf    func(string, ...any)
+
+	// boutIDs tracks bout IDs created during this run so that
+	// reactions, votes, and short-links can reference real bouts.
+	boutMu  sync.Mutex
+	boutIDs []string
 }
 
 // NewDispatcher creates a Dispatcher.
@@ -99,6 +123,24 @@ func accountID(spec *persona.Spec) string {
 	return "account-" + spec.ID
 }
 
+// trackBout records a bout ID so other actions can reference it.
+func (d *Dispatcher) trackBout(id string) {
+	d.boutMu.Lock()
+	d.boutIDs = append(d.boutIDs, id)
+	d.boutMu.Unlock()
+}
+
+// randomBoutID returns a random bout ID from previously created bouts,
+// or empty string if no bouts have been created yet.
+func (d *Dispatcher) randomBoutID() string {
+	d.boutMu.Lock()
+	defer d.boutMu.Unlock()
+	if len(d.boutIDs) == 0 {
+		return ""
+	}
+	return d.boutIDs[intn(len(d.boutIDs))]
+}
+
 // ---------- Action handlers ----------
 
 func (d *Dispatcher) doBrowse(ctx context.Context, spec *persona.Spec) {
@@ -132,11 +174,16 @@ func (d *Dispatcher) doRunBout(ctx context.Context, workerID int, spec *persona.
 		return
 	}
 
+	boutID := action.GenerateID(21)
+	presetID := validPresetIDs[intn(len(validPresetIDs))]
+
 	d.metrics.RecordBoutStart()
 	handle, err := d.actor.RunBoutStream(ctx, accountID(spec), action.RunBoutRequest{
-		Topic: spec.PickTopic(),
-		Turns: spec.MaxTurns,
-		Model: model,
+		BoutID:   boutID,
+		PresetID: presetID,
+		Topic:    spec.PickTopic(),
+		Turns:    spec.MaxTurns,
+		Model:    model,
 	})
 	if err != nil {
 		d.metrics.RecordError("/api/run-bout")
@@ -145,6 +192,15 @@ func (d *Dispatcher) doRunBout(ctx context.Context, workerID int, spec *persona.
 	defer handle.Close()
 
 	d.metrics.RecordStatus(handle.StatusCode)
+
+	if handle.StatusCode >= 400 {
+		d.metrics.RecordError("/api/run-bout")
+		d.metrics.RecordLatency("/api/run-bout", handle.Duration)
+		return
+	}
+
+	// Track the bout so reactions/votes/short-links can reference it.
+	d.trackBout(boutID)
 
 	// Parse the SSE stream.
 	result, err := client.ParseSSEStream(handle.Body, nil)
@@ -174,11 +230,16 @@ func (d *Dispatcher) doAPIBout(ctx context.Context, workerID int, spec *persona.
 		return
 	}
 
+	boutID := action.GenerateID(21)
+	presetID := validPresetIDs[intn(len(validPresetIDs))]
+
 	d.metrics.RecordBoutStart()
 	result, err := d.actor.APIBout(ctx, accountID(spec), action.APIBoutRequest{
-		Topic: spec.PickTopic(),
-		Turns: spec.MaxTurns,
-		Model: model,
+		BoutID:   boutID,
+		PresetID: presetID,
+		Topic:    spec.PickTopic(),
+		Turns:    spec.MaxTurns,
+		Model:    model,
 	})
 	if err != nil {
 		d.metrics.RecordError("/api/v1/bout")
@@ -193,6 +254,7 @@ func (d *Dispatcher) doAPIBout(ctx context.Context, workerID int, spec *persona.
 	}
 
 	if result.StatusCode >= 200 && result.StatusCode < 300 {
+		d.trackBout(boutID)
 		d.metrics.RecordBoutDone()
 		d.metrics.RecordSuccess()
 		d.budget.ChargeTokens(model, spec.MaxTurns*660, spec.MaxTurns*120) // estimated
@@ -203,34 +265,49 @@ func (d *Dispatcher) doAPIBout(ctx context.Context, workerID int, spec *persona.
 
 func (d *Dispatcher) doCreateAgent(ctx context.Context, spec *persona.Spec) {
 	result, err := d.actor.CreateAgent(ctx, accountID(spec), action.CreateAgentRequest{
-		Name:        fmt.Sprintf("StormAgent-%d", intn(10000)),
-		Description: "Auto-generated agent for load testing",
-		System:      "You are a debater. Argue your position with conviction.",
+		Name:         fmt.Sprintf("StormAgent-%d", intn(10000)),
+		SystemPrompt: "You are a debater created by pitstorm load testing. Argue your position with conviction and rhetorical flair.",
 	})
 	d.recordSimpleResult("/api/agents", result, err)
 }
 
 func (d *Dispatcher) doReaction(ctx context.Context, spec *persona.Spec) {
+	boutID := d.randomBoutID()
+	if boutID == "" {
+		// No bouts created yet — generate a format-valid but non-existent ID.
+		// Reactions don't validate bout existence, just format.
+		boutID = action.GenerateID(21)
+	}
 	reactions := []string{"heart", "fire"}
 	result, err := d.actor.ToggleReaction(ctx, accountID(spec), action.ReactionRequest{
-		BoutID:   fmt.Sprintf("bout-%d", intn(1000)),
-		TurnID:   fmt.Sprintf("turn-%d", intn(10)),
-		Reaction: reactions[intn(len(reactions))],
+		BoutID:       boutID,
+		TurnIndex:    intn(10),
+		ReactionType: reactions[intn(len(reactions))],
 	})
 	d.recordSimpleResult("/api/reactions", result, err)
 }
 
 func (d *Dispatcher) doVote(ctx context.Context, spec *persona.Spec) {
+	boutID := d.randomBoutID()
+	if boutID == "" {
+		// No bouts exist yet — skip rather than send an invalid request.
+		return
+	}
 	result, err := d.actor.CastWinnerVote(ctx, accountID(spec), action.WinnerVoteRequest{
-		BoutID:  fmt.Sprintf("bout-%d", intn(1000)),
+		BoutID:  boutID,
 		AgentID: "socrates",
 	})
 	d.recordSimpleResult("/api/winner-vote", result, err)
 }
 
 func (d *Dispatcher) doShortLink(ctx context.Context) {
+	boutID := d.randomBoutID()
+	if boutID == "" {
+		// No bouts exist yet — skip.
+		return
+	}
 	result, err := d.actor.CreateShortLink(ctx, action.ShortLinkRequest{
-		BoutID: fmt.Sprintf("bout-%d", intn(1000)),
+		BoutID: boutID,
 	})
 	d.recordSimpleResult("/api/short-links", result, err)
 }
@@ -242,23 +319,25 @@ func (d *Dispatcher) doListFeatures(ctx context.Context) {
 
 func (d *Dispatcher) doSubmitFeature(ctx context.Context, spec *persona.Spec) {
 	result, err := d.actor.SubmitFeature(ctx, accountID(spec), action.SubmitFeatureRequest{
-		Title:       fmt.Sprintf("Feature request #%d", intn(10000)),
-		Description: "Auto-generated feature request for load testing",
+		Title:       fmt.Sprintf("Storm feature request %d", intn(10000)),
+		Description: "This is an auto-generated feature request from pitstorm load testing. It tests the feature submission pipeline under load.",
+		Category:    featureCategories[intn(len(featureCategories))],
 	})
 	d.recordSimpleResult("/api/feature-requests", result, err)
 }
 
 func (d *Dispatcher) doVoteFeature(ctx context.Context, spec *persona.Spec) {
 	result, err := d.actor.VoteFeature(ctx, accountID(spec), action.FeatureVoteRequest{
-		FeatureID: fmt.Sprintf("fr-%d", intn(100)),
+		FeatureRequestID: 1 + intn(100),
 	})
 	d.recordSimpleResult("/api/feature-requests/vote", result, err)
 }
 
 func (d *Dispatcher) doSubmitPaper(ctx context.Context, spec *persona.Spec) {
 	result, err := d.actor.SubmitPaper(ctx, accountID(spec), action.PaperSubmissionRequest{
-		ArxivURL: fmt.Sprintf("https://arxiv.org/abs/2401.%05d", intn(99999)),
-		Title:    "Auto-generated paper submission",
+		ArxivURL:      fmt.Sprintf("https://arxiv.org/abs/2401.%05d", intn(99999)),
+		Justification: "This paper is relevant to AI agent interaction and debate evaluation. Submitted via pitstorm load testing to verify the submission pipeline.",
+		RelevanceArea: relevanceAreas[intn(len(relevanceAreas))],
 	})
 	d.recordSimpleResult("/api/paper-submissions", result, err)
 }

@@ -139,9 +139,8 @@ func TestCreateAgent(t *testing.T) {
 	defer cleanup()
 
 	res, err := actor.CreateAgent(context.Background(), "user-1", CreateAgentRequest{
-		Name:        "Test Agent",
-		Description: "A test agent",
-		System:      "You are a test agent.",
+		Name:         "Test Agent",
+		SystemPrompt: "You are a test agent.",
 	})
 	if err != nil {
 		t.Fatalf("CreateAgent: %v", err)
@@ -161,8 +160,8 @@ func TestToggleReaction(t *testing.T) {
 		}
 		var req ReactionRequest
 		json.NewDecoder(r.Body).Decode(&req)
-		if req.Reaction != "fire" {
-			t.Errorf("reaction = %q, want fire", req.Reaction)
+		if req.ReactionType != "fire" {
+			t.Errorf("reactionType = %q, want fire", req.ReactionType)
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"toggled":true}`))
@@ -170,9 +169,9 @@ func TestToggleReaction(t *testing.T) {
 	defer cleanup()
 
 	res, err := actor.ToggleReaction(context.Background(), "user-1", ReactionRequest{
-		BoutID:   "bout-1",
-		TurnID:   "turn-1",
-		Reaction: "fire",
+		BoutID:       "bout-1",
+		TurnIndex:    1,
+		ReactionType: "fire",
 	})
 	if err != nil {
 		t.Fatalf("ToggleReaction: %v", err)
@@ -264,7 +263,8 @@ func TestSubmitFeature(t *testing.T) {
 
 	res, err := actor.SubmitFeature(context.Background(), "user-1", SubmitFeatureRequest{
 		Title:       "Add dark mode",
-		Description: "Please add a dark mode toggle",
+		Description: "Please add a dark mode toggle to the settings page for better readability.",
+		Category:    "ui",
 	})
 	if err != nil {
 		t.Fatalf("SubmitFeature: %v", err)
@@ -285,7 +285,7 @@ func TestVoteFeature(t *testing.T) {
 	defer cleanup()
 
 	res, err := actor.VoteFeature(context.Background(), "user-1", FeatureVoteRequest{
-		FeatureID: "fr-1",
+		FeatureRequestID: 1,
 	})
 	if err != nil {
 		t.Fatalf("VoteFeature: %v", err)
@@ -311,8 +311,9 @@ func TestSubmitPaper(t *testing.T) {
 	defer cleanup()
 
 	res, err := actor.SubmitPaper(context.Background(), "user-1", PaperSubmissionRequest{
-		ArxivURL: "https://arxiv.org/abs/2401.12345",
-		Title:    "Test Paper",
+		ArxivURL:      "https://arxiv.org/abs/2401.12345",
+		Justification: "This paper is highly relevant to agent debate evaluation and benchmarking.",
+		RelevanceArea: "evaluation",
 	})
 	if err != nil {
 		t.Fatalf("SubmitPaper: %v", err)
