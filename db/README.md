@@ -106,11 +106,11 @@ ArenaAgent = { id: string; name: string; systemPrompt: string; color?: string; a
 
 ### Lineage via `parentId`
 
-`agents.parentId` creates a linked-list lineage chain for cloned agents. `lib/agent-detail.ts` walks this chain up to 4 generations. No FK constraint enforces this — it's application-level.
+`agents.parentId` creates a linked-list lineage chain for cloned agents. `lib/agent-detail.ts` walks this chain up to 4 generations. A self-referential FK constraint (`agents.parentId` → `agents.id`) enforces this at the database level.
 
 ## Design Decisions & Trade-offs
 
-- **Minimal foreign key constraints** — The schema defines one FK constraint: `short_link_clicks.shortLinkId` references `short_links.id`. All other referential integrity is enforced at the application layer. This simplifies migrations and avoids cascade-deletion surprises, but means orphaned rows are possible if application code has bugs.
+- **Extensive foreign key constraints** — The schema defines 22 `.references()` calls and 4 `foreignKey()` declarations, covering all major relationships (bouts→users, credits→users, reactions→bouts, agents→users, etc.). This ensures referential integrity at the database level. Migration 0005 (`add_foreign_keys`) retroactively added FK constraints that were initially application-level only.
 - **No Drizzle relations** — Queries use raw `select().from().where()` patterns rather than Drizzle's relational query API. This keeps queries explicit but means join logic is scattered across `lib/` modules.
 - **Nanoid for bout IDs** — 21-character IDs are URL-safe and avoid sequential ID enumeration. The tradeoff is slightly larger index sizes vs. integer PKs.
 - **Clerk IDs as user PK** — `users.id` uses the Clerk-issued ID (`varchar(128)`) directly. This avoids a mapping table but couples the schema to Clerk. A migration to a different auth provider would require a PK migration.

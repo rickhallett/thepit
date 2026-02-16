@@ -2,7 +2,7 @@
 
 # lib/
 
-62 shared utility modules organized in a flat directory. Types are co-located with their modules rather than in a separate types file. The modules cluster into 11 functional domains.
+66 shared utility modules organized in a flat directory. Types are co-located with their modules rather than in a separate types file. The modules cluster into 11 functional domains.
 
 ## Module Inventory
 
@@ -184,7 +184,7 @@ Manages winner vote state and submission. Optimistic updates with error rollback
 - **In-memory rate limiting** — `rate-limit.ts` uses process-scoped sliding windows. This is a deliberate simplicity choice: Vercel typically runs a single instance, and the rate limiter is "best effort" rather than strict. For multi-instance deployments, this would need to be replaced with Redis/Upstash. The automatic cleanup prevents memory leaks.
 - **In-memory caching (leaderboard, onboarding)** — Both modules use module-scoped caches with TTLs (5min for leaderboard, 1h for onboarding). Same single-instance assumption. Cache invalidation is time-based only — no event-driven invalidation.
 - **Type co-location** — Types are exported from their owning module (`Preset` from `presets.ts`, `BoutMessage` from `use-bout.ts`, etc.) rather than centralized in a `types/` directory. This keeps types close to their implementation and avoids circular imports. The tradeoff is that consuming modules must know which module exports which type.
-- **Flat directory** — 62 files in one folder. The naming convention creates implicit groupings (`agent-*`, `credit-*`, `response-*`, `research-*`). At the current scale this is approaching the threshold where a subdirectory split by domain would improve discoverability.
+- **Flat directory** — 66 files in one folder. The naming convention creates implicit groupings (`agent-*`, `credit-*`, `response-*`, `research-*`). At the current scale this is approaching the threshold where a subdirectory split by domain would improve discoverability.
 
 ---
 

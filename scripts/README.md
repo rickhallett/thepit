@@ -2,7 +2,7 @@
 
 # scripts/
 
-6 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
+8 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
 
 ## Inventory
 
@@ -14,6 +14,8 @@
 | `sanity-check.sh` | Bash | Comprehensive route + middleware sanity check (auto-starts dev server) | `bash scripts/sanity-check.sh [--url URL]` |
 | `create-eas-schema.mjs` | Node.js | Create the EAS attestation schema on Base L2 | `node scripts/create-eas-schema.mjs` |
 | `reset-prod-data.ts` | TypeScript | Reset production data (admin only). Clears bout, reaction, vote, and analytics data. | `pnpm tsx scripts/reset-prod-data.ts` |
+| `copyGenerate.ts` | TypeScript | LLM-powered copy variant generation for A/B testing | `pnpm run copy:generate` |
+| `preview-e2e.sh` | Bash | Push, wait for Vercel preview deployment, run Playwright E2E against it | `./scripts/preview-e2e.sh [--url] [--skip-push]` |
 
 ### `stripe-setup.sh`
 

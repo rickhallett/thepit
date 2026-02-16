@@ -2,13 +2,13 @@
 
 # tests/
 
-90 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
+96 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
 
 ## Directory Structure
 
 ```
 tests/
-├── unit/               55 test files — pure function tests, mocked DB/external deps
+├── unit/               58 test files — pure function tests, mocked DB/external deps
 ├── api/                32 test files — API route handler tests with mocked deps
 ├── integration/         3 test files — real DB + security integration tests
 │   ├── db.test.ts                    — real DB operations via TEST_DATABASE_URL

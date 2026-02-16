@@ -245,4 +245,4 @@ printf 'true' | vercel env add MY_FLAG production
 
 - **Phantom LSP errors**: `app/page.tsx`, `app/recent/page.tsx`, `app/research/page.tsx`, `app/developers/page.tsx`, `tests/unit/rate-limit.test.ts`, `components/site-footer.tsx` show LSP errors that do not appear in `pnpm run typecheck`. Ignore them.
 - **Clerk on preview domains**: Clerk auth only hydrates on `thepit.cloud`. On Vercel preview URLs (`*.vercel.app`), `<SignedIn>/<SignedOut>` wrappers never render their children. This is expected.
-- **Untracked files**: `.gemini/`, `.vscode/`, `archive-mPIpSK/`, `pitstorm/` are intentionally not committed.
+- **Untracked files**: `.gemini/`, `.vscode/`, `archive-mPIpSK/` are intentionally not committed.
