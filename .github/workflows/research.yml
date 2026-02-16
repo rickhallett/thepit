@@ -1,0 +1,57 @@
+name: Research
+
+on:
+  schedule:
+    # Run every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'Export period (e.g., 7d, 30d, all)'
+        required: false
+        default: '7d'
+
+concurrency:
+  group: research
+  cancel-in-progress: false
+
+jobs:
+  export-and-analyze:
+    name: export-and-analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.7'
+          cache-dependency-path: '*/go.sum'
+
+      - name: Build pitctl
+        run: make -C pitctl build
+
+      - name: Export data
+        run: |
+          SINCE="${{ github.event.inputs.since || '7d' }}"
+          ./pitctl/pitctl export bouts --since "$SINCE"
+          ./pitctl/pitctl export agents
+          echo "Export complete — files in export/"
+          ls -la export/
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Generate report
+        run: |
+          ./pitctl/pitctl report weekly > weekly-report.txt 2>&1 || true
+          cat weekly-report.txt
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-export-${{ github.run_number }}
+          path: |
+            export/
+            weekly-report.txt
+          retention-days: 90
