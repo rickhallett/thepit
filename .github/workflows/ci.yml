@@ -39,3 +39,25 @@ jobs:
       - run: pnpm run test:integration
         env:
           TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+
+  go-gate:
+    name: go-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.7"
+          cache-dependency-path: "*/go.sum"
+      - run: make gate
+        working-directory: pitctl
+      - run: make gate
+        working-directory: pitforge
+      - run: make gate
+        working-directory: pitlab
+      - run: make gate
+        working-directory: pitbench
+      - run: make gate
+        working-directory: pitnet
+      - run: make gate
+        working-directory: pitstorm
