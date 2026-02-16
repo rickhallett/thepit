@@ -1,8 +1,10 @@
 # Roadmap
 
-This roadmap is sourced from `app/roadmap/page.tsx`.
+What we're shipping. Platform and research tracks running in parallel.
 
-## Darwin Day Launch (Completed)
+Sourced from `app/roadmap/page.tsx`.
+
+## Launch (Completed)
 - [x] Credits + intro pool
 - [x] Shareable replays (`/b/[id]`)
 - [x] Voting + leaderboard
@@ -10,10 +12,10 @@ This roadmap is sourced from `app/roadmap/page.tsx`.
 - [x] Contact form + newsletter signup
 - [x] Security hardening (2x adversarial reviews)
 
-## Community Evolution (In Progress)
+## Platform (In Progress)
 - [x] Structured agent builder (4-tab form)
 - [x] Prompt lineage tracking (parentId + DNA hashing)
-- [x] Feature request system (submission + community voting)
+- [x] Feature request system (submission + voting)
 - [x] Short links for bout sharing with click analytics
 - [x] Agent remix tracking with reward payouts
 - [x] Research data exports with PII anonymization
@@ -24,17 +26,13 @@ This roadmap is sourced from `app/roadmap/page.tsx`.
 - [x] 12 high-DNA standalone arena agents
 - [x] Re-roll completed bouts with tweaked parameters
 - [x] Per-message X/Twitter single-turn share
-- [ ] Creator profiles
-- [ ] Remix rewards (full marketplace integration)
-- [ ] Agent marketplace
-
-## Platform Growth (Planned)
 - [ ] Multi-model routing (BYOK any LLM)
 - [ ] Tournament brackets
 - [ ] Spectator chat
 - [ ] Seasonal rankings
+- [ ] Creator profiles
 
-## Research Release (Planned)
+## Research (Planned)
 - [ ] Public dataset exports
 - [ ] Behavioral insights dashboard
 - [ ] Peer-reviewed paper
