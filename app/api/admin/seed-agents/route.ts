@@ -12,13 +12,14 @@ import { hashAgentPrompt, hashAgentManifest, buildAgentManifest } from '@/lib/ag
 import { attestAgent, EAS_ENABLED } from '@/lib/eas';
 import { requireAdmin } from '@/lib/admin-auth';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
+import { withLogging } from '@/lib/api-logging';
 import { SEED_AGENTS, buildSeedAgentPrompt } from '@/lib/seed-agents';
 import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
 import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
 
 export const runtime = 'nodejs';
 
-export async function POST(req: Request) {
+async function rawPOST(req: Request) {
   try {
     requireAdmin(req);
   } catch {
@@ -183,3 +184,5 @@ export async function POST(req: Request) {
   log.info('audit', { action: 'seed_agents', created, dnaCreated, attested, errors: errors.length });
   return Response.json({ created, dnaCreated, attested, errors: errors.length });
 }
+
+export const POST = withLogging(rawPOST, 'seed-agents');

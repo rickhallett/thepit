@@ -4,6 +4,7 @@ import { log } from '@/lib/logger';
 import { validateBoutRequest, executeBout } from '@/lib/bout-engine';
 import { getUserTier, SUBSCRIPTIONS_ENABLED, TIER_CONFIG } from '@/lib/tier';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
@@ -19,7 +20,7 @@ export const maxDuration = 120;
  * This endpoint shares all validation, tier gating, credit accounting,
  * and execution logic with the streaming POST /api/run-bout endpoint.
  */
-export async function POST(req: Request) {
+async function rawPOST(req: Request) {
   // Lab tier gate: check before running validation (which may consume credits)
   const { userId } = await auth();
   if (!userId) {
@@ -78,3 +79,5 @@ export async function POST(req: Request) {
     return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 }
+
+export const POST = withLogging(rawPOST, 'v1-bout');
