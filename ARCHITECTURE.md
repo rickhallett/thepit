@@ -146,7 +146,7 @@ When `HELICONE_ENABLED=true`, platform-funded AI calls proxy through `https://an
 Web Vitals reporting via `vitals.vercel-insights.com`.
 
 ## Go CLI Toolchain
-Five CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). Premium commands require a Lab-tier Ed25519 license token (`~/.pit/license.jwt`).
+Six CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). Premium commands require a Lab-tier Ed25519 license token (`~/.pit/license.jwt`).
 
 ### shared/ (Library)
 Consumed by all tools. Modules: `config/` (.env parsing, env var schema), `db/` (PostgreSQL via `lib/pq`), `license/` (Ed25519 JWT-like token create/verify, 7-day expiry), `format/` (number/time/credit formatting), `theme/` (Tokyo Night palette via `charmbracelet/lipgloss`).
@@ -162,6 +162,9 @@ Statistical analysis of exported bout data. Commands: `summary` (dataset overvie
 
 ### pitnet/ (On-Chain Provenance)
 EAS attestation verification on Base L2. Free: `status` (connectivity check). Premium: `submit` (encode attestation payload), `verify <uid>` (on-chain verification), `audit` (cross-reference all attested agents). Uses raw JSON-RPC over HTTP (no heavy Ethereum libs).
+
+### pitstorm/ (Traffic Simulation)
+Release traffic simulator. Commands: `run` (execute traffic simulation with configurable profiles), `plan` (dry run — estimate cost and show execution plan), `setup` (provision test accounts), `login` (obtain session tokens), `verify` (validate credentials and connectivity), `report` (parse JSON output into summary). Supports traffic profiles: trickle, steady, ramp, spike, viral. Budget-capped with GBP spend limits.
 
 ### pitbench/ (Cost Benchmarking)
 AI model cost and performance analysis. Free: `models` (pricing comparison table). Premium: `estimate` (hypothetical bout cost), `cost` (exact token cost), `margin` (platform margin verification).
