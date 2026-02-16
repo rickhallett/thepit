@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -105,7 +106,9 @@ func Load(path string) (*File, error) {
 	return &f, nil
 }
 
-// Save writes the accounts file to disk with pretty-printed JSON.
+// Save writes the accounts file to disk atomically with pretty-printed JSON.
+// It writes to a temporary file in the same directory, then renames to avoid
+// data corruption from interrupted writes.
 func Save(path string, f *File) error {
 	f.GeneratedAt = time.Now().UTC()
 
@@ -115,10 +118,42 @@ func Save(path string, f *File) error {
 	}
 
 	data = append(data, '\n')
-	if err := os.WriteFile(path, data, 0600); err != nil {
-		return fmt.Errorf("write accounts file: %w", err)
+
+	// Write to a temp file in the same directory so os.Rename is atomic.
+	dir := filepath.Dir(path)
+	tmp, err := os.CreateTemp(dir, ".accounts-*.tmp")
+	if err != nil {
+		return fmt.Errorf("create temp file: %w", err)
+	}
+	tmpPath := tmp.Name()
+
+	// Clean up on any failure path.
+	defer func() {
+		if tmpPath != "" {
+			os.Remove(tmpPath)
+		}
+	}()
+
+	if err := tmp.Chmod(0600); err != nil {
+		tmp.Close()
+		return fmt.Errorf("chmod temp file: %w", err)
 	}
 
+	if _, err := tmp.Write(data); err != nil {
+		tmp.Close()
+		return fmt.Errorf("write temp file: %w", err)
+	}
+
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("close temp file: %w", err)
+	}
+
+	if err := os.Rename(tmpPath, path); err != nil {
+		return fmt.Errorf("rename temp file: %w", err)
+	}
+
+	// Rename succeeded — prevent deferred cleanup.
+	tmpPath = ""
 	return nil
 }
 
@@ -341,6 +376,17 @@ func (v *Verifier) VerifyAll(ctx context.Context, f *File) []VerifyResult {
 	}
 
 	for i := range f.Accounts {
+		// Skip anonymous accounts — they have no tokens by design.
+		if f.Accounts[i].Tier == TierAnon {
+			results = append(results, VerifyResult{
+				AccountID: f.Accounts[i].ID,
+				OK:        true,
+				Error:     "skipped (anon)",
+			})
+			v.logf("  %s: skipped (anon tier)", f.Accounts[i].ID)
+			continue
+		}
+
 		result := v.CheckAccount(ctx, &f.Accounts[i])
 		results = append(results, *result)
 		v.logf("  %s: ok=%v status=%d latency=%s",
@@ -401,7 +447,7 @@ func DefaultAccounts(target string) *File {
 				ID:       "account-viral-sharer",
 				Email:    fmt.Sprintf("storm-viral@%s", domain),
 				Password: generatePassword("viral"),
-				Tier:     TierFree,
+				Tier:     TierPass,
 			},
 			{
 				ID:       "account-churner",
@@ -508,7 +554,7 @@ func FormatVerifyResults(results []VerifyResult) string {
 			passed++
 		}
 
-		if r.Latency > 0 {
+		if r.Latency > 0 && r.StatusCode > 0 {
 			fmt.Fprintf(&b, "  %-30s %s  %3d  %s\n", r.AccountID, status, r.StatusCode, r.Latency.Truncate(time.Millisecond))
 		} else if r.Error != "" {
 			fmt.Fprintf(&b, "  %-30s %s  %s\n", r.AccountID, status, r.Error)

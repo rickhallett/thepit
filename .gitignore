@@ -54,3 +54,6 @@ next-env.d.ts
 
 # QA test results
 qa/results/
+
+# pitstorm credentials (contains plaintext passwords and session tokens)
+accounts.json
