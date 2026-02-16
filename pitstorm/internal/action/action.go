@@ -5,13 +5,33 @@ package action
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"time"
 
 	"github.com/rickhallett/thepit/pitstorm/internal/client"
 )
+
+// nanoid alphabet matching the nanoid npm package default.
+const nanoidAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+
+// GenerateID produces a cryptographically random nanoid-compatible string
+// of the given length (default 21 to match the JS nanoid() default).
+func GenerateID(length int) string {
+	if length <= 0 {
+		length = 21
+	}
+	b := make([]byte, length)
+	max := big.NewInt(int64(len(nanoidAlphabet)))
+	for i := range b {
+		n, _ := rand.Int(rand.Reader, max)
+		b[i] = nanoidAlphabet[n.Int64()]
+	}
+	return string(b)
+}
 
 // Actor wraps a client.Client and provides typed API methods.
 type Actor struct {
@@ -75,11 +95,12 @@ func (a *Actor) Health(ctx context.Context) (*Result, error) {
 
 // RunBoutRequest is the payload for POST /api/run-bout.
 type RunBoutRequest struct {
-	Topic  string   `json:"topic"`
-	Agents []string `json:"agents,omitempty"`
-	Preset string   `json:"preset,omitempty"`
-	Turns  int      `json:"turns,omitempty"`
-	Model  string   `json:"model,omitempty"`
+	BoutID   string   `json:"boutId"`
+	PresetID string   `json:"presetId"`
+	Topic    string   `json:"topic,omitempty"`
+	Agents   []string `json:"agents,omitempty"`
+	Turns    int      `json:"turns,omitempty"`
+	Model    string   `json:"model,omitempty"`
 }
 
 // RunBoutStream starts a streaming bout via POST /api/run-bout.
@@ -100,10 +121,12 @@ func (a *Actor) RunBoutStream(ctx context.Context, accountID string, req RunBout
 
 // APIBoutRequest is the payload for POST /api/v1/bout (Lab tier, synchronous).
 type APIBoutRequest struct {
-	Topic  string   `json:"topic"`
-	Agents []string `json:"agents,omitempty"`
-	Turns  int      `json:"turns,omitempty"`
-	Model  string   `json:"model,omitempty"`
+	BoutID   string   `json:"boutId"`
+	PresetID string   `json:"presetId"`
+	Topic    string   `json:"topic,omitempty"`
+	Agents   []string `json:"agents,omitempty"`
+	Turns    int      `json:"turns,omitempty"`
+	Model    string   `json:"model,omitempty"`
 }
 
 // APIBout calls the synchronous POST /api/v1/bout endpoint.
@@ -119,9 +142,8 @@ func (a *Actor) APIBout(ctx context.Context, accountID string, req APIBoutReques
 
 // CreateAgentRequest is the payload for POST /api/agents.
 type CreateAgentRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	System      string `json:"system,omitempty"`
+	Name         string `json:"name"`
+	SystemPrompt string `json:"systemPrompt"`
 }
 
 // CreateAgent creates a custom agent via POST /api/agents.
@@ -137,9 +159,9 @@ func (a *Actor) CreateAgent(ctx context.Context, accountID string, req CreateAge
 
 // ReactionRequest is the payload for POST /api/reactions.
 type ReactionRequest struct {
-	BoutID   string `json:"boutId"`
-	TurnID   string `json:"turnId"`
-	Reaction string `json:"reaction"` // "heart" or "fire"
+	BoutID       string `json:"boutId"`
+	TurnIndex    int    `json:"turnIndex"`
+	ReactionType string `json:"reactionType"` // "heart" or "fire"
 }
 
 // ToggleReaction toggles a reaction on a bout turn via POST /api/reactions.
@@ -199,6 +221,7 @@ func (a *Actor) ListFeatureRequests(ctx context.Context) (*Result, error) {
 type SubmitFeatureRequest struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Category    string `json:"category"`
 }
 
 // SubmitFeature submits a feature request via POST /api/feature-requests.
@@ -212,7 +235,7 @@ func (a *Actor) SubmitFeature(ctx context.Context, accountID string, req SubmitF
 
 // FeatureVoteRequest is the payload for POST /api/feature-requests/vote.
 type FeatureVoteRequest struct {
-	FeatureID string `json:"featureId"`
+	FeatureRequestID int `json:"featureRequestId"`
 }
 
 // VoteFeature toggles a vote on a feature request via POST /api/feature-requests/vote.
@@ -228,9 +251,9 @@ func (a *Actor) VoteFeature(ctx context.Context, accountID string, req FeatureVo
 
 // PaperSubmissionRequest is the payload for POST /api/paper-submissions.
 type PaperSubmissionRequest struct {
-	ArxivURL    string `json:"arxivUrl"`
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
+	ArxivURL      string `json:"arxivUrl"`
+	Justification string `json:"justification"`
+	RelevanceArea string `json:"relevanceArea"`
 }
 
 // SubmitPaper submits an arXiv paper via POST /api/paper-submissions.
