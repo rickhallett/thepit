@@ -1,25 +1,34 @@
-// Anthropic model provider configuration and resolution.
+// AI model provider configuration and resolution.
 //
 // Three model tiers:
 //   - Free:    Haiku (cheapest, used for free-tier presets and share line generation)
 //   - Premium: Sonnet/Opus (used for premium presets and arena mode)
-//   - BYOK:    User-supplied API key with platform's chosen model
+//   - BYOK:    User-supplied API key — Anthropic (sk-ant-*) or OpenRouter (sk-or-v1-*)
 //
 // The getModel() function resolves a model ID + optional API key into a
-// provider instance. When modelId is 'byok', it creates a fresh Anthropic
-// provider using the user's key instead of the platform's default.
+// provider instance. For BYOK, the key prefix determines the provider:
+//   - sk-ant-*   → Anthropic directly (backward compatible)
+//   - sk-or-v1-* → OpenRouter (300+ models via curated subset)
+//
+// Platform-funded calls always use Anthropic directly. OpenRouter is
+// BYOK-only — the platform never routes its own calls through OpenRouter.
 //
 // When HELICONE_API_KEY is set, all platform-funded AI calls are routed
 // through Helicone's proxy for cost/latency/token analytics. BYOK calls
 // bypass Helicone since we don't proxy user-supplied keys.
 
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 import {
   MODEL_IDS,
+  ALL_MODEL_IDS,
+  OPENROUTER_MODELS,
+  ALL_OPENROUTER_MODEL_IDS,
   DEFAULT_FREE_MODEL,
   DEFAULT_PREMIUM_MODELS,
   DEFAULT_PREMIUM_MODEL,
+  detectProvider,
 } from '@/lib/models';
 
 const HELICONE_API_KEY = process.env.HELICONE_API_KEY;
@@ -77,12 +86,62 @@ export const DEFAULT_PREMIUM_MODEL_ID =
 export const BYOK_MODEL_ID =
   process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID;
 
-export const getModel = (modelId?: string, apiKey?: string) => {
-  const provider = apiKey ? createAnthropic({ apiKey }) : defaultAnthropic;
+/** Default OpenRouter model when an OpenRouter key is supplied without a model selection. */
+export const DEFAULT_OPENROUTER_MODEL = OPENROUTER_MODELS.GPT_4O;
+
+/**
+ * Resolve a model ID + optional API key into a provider instance.
+ *
+ * Provider routing for BYOK:
+ *   - No apiKey → platform Anthropic (default or Helicone-proxied)
+ *   - sk-ant-* apiKey → direct Anthropic with user's key
+ *   - sk-or-v1-* apiKey → OpenRouter with user's key
+ *
+ * @param modelId  - The model to use. 'byok' resolves based on provider.
+ * @param apiKey   - Optional user-supplied API key (BYOK).
+ * @param byokModelId - Optional model ID chosen by the user for BYOK (e.g. 'openai/gpt-4o').
+ *                       Only used when apiKey is present.
+ */
+export const getModel = (
+  modelId?: string,
+  apiKey?: string,
+  byokModelId?: string,
+) => {
+  // Platform-funded call (no user key)
+  if (!apiKey) {
+    const resolvedId =
+      modelId === 'byok' ? BYOK_MODEL_ID : modelId ?? FREE_MODEL_ID;
+    return defaultAnthropic(resolvedId);
+  }
+
+  // BYOK call — detect provider from key prefix
+  const provider = detectProvider(apiKey);
+
+  if (provider === 'openrouter') {
+    const orProvider = createOpenRouter({ apiKey });
+    // Use user-selected model, or default OpenRouter model
+    const orModelId =
+      byokModelId && ALL_OPENROUTER_MODEL_IDS.includes(byokModelId as typeof ALL_OPENROUTER_MODEL_IDS[number])
+        ? byokModelId
+        : DEFAULT_OPENROUTER_MODEL;
+    return orProvider.chat(orModelId);
+  }
+
+  // Anthropic BYOK (default for sk-ant-* or unknown prefixes)
+  const anthropicProvider = createAnthropic({ apiKey });
+  // Validate the model ID against known Anthropic models, falling back to BYOK default.
+  // This prevents invalid model IDs (e.g. OpenRouter IDs) from reaching the Anthropic API.
   const resolvedId =
-    modelId === 'byok' ? BYOK_MODEL_ID : modelId ?? FREE_MODEL_ID;
-  return provider(resolvedId);
+    byokModelId && ALL_MODEL_IDS.includes(byokModelId as typeof ALL_MODEL_IDS[number])
+      ? byokModelId
+      : BYOK_MODEL_ID;
+  return anthropicProvider(resolvedId);
 };
+
+// Re-export provider utilities for consumers that import from lib/ai.
+// Consumers that need model data should import from @/lib/models directly.
+export type { ByokProvider, OpenRouterModelId } from '@/lib/models';
+export { isValidByokKey, isOpenRouterModel, OPENROUTER_MODEL_LABELS } from '@/lib/models';
 
 // ---------------------------------------------------------------------------
 // Context window limits (tokens)
@@ -94,10 +153,25 @@ export const getModel = (modelId?: string, apiKey?: string) => {
  * context overflow on long bouts.
  */
 export const MODEL_CONTEXT_LIMITS: Record<string, number> = {
+  // Anthropic (direct)
   [MODEL_IDS.HAIKU]: 200_000,
   [MODEL_IDS.SONNET]: 200_000,
   [MODEL_IDS.OPUS_45]: 200_000,
   [MODEL_IDS.OPUS_46]: 200_000,
+  // OpenRouter curated models
+  [OPENROUTER_MODELS.GPT_4O]: 128_000,
+  [OPENROUTER_MODELS.GPT_4O_MINI]: 128_000,
+  [OPENROUTER_MODELS.GPT_4_1]: 1_047_576,
+  [OPENROUTER_MODELS.O4_MINI]: 200_000,
+  [OPENROUTER_MODELS.GEMINI_2_5_PRO]: 1_048_576,
+  [OPENROUTER_MODELS.GEMINI_2_5_FLASH]: 1_048_576,
+  [OPENROUTER_MODELS.LLAMA_4_MAVERICK]: 1_048_576,
+  [OPENROUTER_MODELS.LLAMA_4_SCOUT]: 512_000,
+  [OPENROUTER_MODELS.CLAUDE_SONNET_4]: 200_000,
+  [OPENROUTER_MODELS.CLAUDE_HAIKU_4]: 200_000,
+  [OPENROUTER_MODELS.DEEPSEEK_R1]: 128_000,
+  [OPENROUTER_MODELS.DEEPSEEK_V3]: 128_000,
+  [OPENROUTER_MODELS.MISTRAL_LARGE]: 128_000,
 };
 
 /** Default context limit for unknown models. Conservative to prevent overflows. */

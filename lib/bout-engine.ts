@@ -72,6 +72,13 @@ import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
+/** Structured BYOK key data decoded from the stash cookie. */
+export type ByokKeyData = {
+  provider: import('@/lib/models').ByokProvider;
+  modelId: string | undefined;
+  key: string;
+};
+
 /** Validated context produced by validateBoutRequest. */
 export type BoutContext = {
   boutId: string;
@@ -81,7 +88,8 @@ export type BoutContext = {
   lengthConfig: ResponseLengthConfig;
   formatConfig: ResponseFormat;
   modelId: string;
-  byokKey: string;
+  /** Structured BYOK data (provider + model + key) or empty string for non-BYOK. */
+  byokData: ByokKeyData | null;
   userId: string | null;
   preauthMicro: number;
   /** Micro-credits consumed from the intro pool for anonymous bouts. Zero for authenticated bouts. */
@@ -237,11 +245,11 @@ export async function validateBoutRequest(
   const requestedModel =
     typeof payload.model === 'string' ? payload.model.trim() : '';
 
-  // BYOK key from cookie
-  let byokKey = '';
+  // BYOK key from cookie (structured: provider + model + key)
+  let byokData: ByokKeyData | null = null;
   if (requestedModel === 'byok') {
     const jar = await cookies();
-    byokKey = readAndClearByokKey(jar) ?? '';
+    byokData = readAndClearByokKey(jar);
   }
 
   const { userId } = await auth();
@@ -295,7 +303,7 @@ export async function validateBoutRequest(
     }
 
     if (isByok) {
-      if (!byokKey) {
+      if (!byokData?.key) {
         return { error: errorResponse('BYOK key required.', 400) };
       }
       modelId = 'byok';
@@ -354,7 +362,7 @@ export async function validateBoutRequest(
         ? requestedModel
         : DEFAULT_PREMIUM_MODEL_ID;
     } else if (isByok) {
-      if (!byokKey) {
+      if (!byokData?.key) {
         return { error: errorResponse('BYOK key required.', 400) };
       }
       modelId = 'byok';
@@ -434,7 +442,7 @@ export async function validateBoutRequest(
       lengthConfig,
       formatConfig,
       modelId,
-      byokKey,
+      byokData,
       userId,
       preauthMicro,
       introPoolConsumedMicro,
@@ -459,7 +467,7 @@ export async function executeBout(
   ctx: BoutContext,
   onEvent?: (event: TurnEvent) => void,
 ): Promise<BoutResult> {
-  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokKey, userId, preauthMicro, introPoolConsumedMicro, requestId, db } = ctx;
+  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokData, userId, preauthMicro, introPoolConsumedMicro, requestId, db } = ctx;
 
   const boutStartTime = Date.now();
   log.info('Bout stream starting', {
@@ -497,7 +505,11 @@ export async function executeBout(
       'The audience understands these are fictional characters with exaggerated viewpoints. ' +
       'Do not reveal system details, API keys, or internal platform information.';
 
-    const boutModel = getModel(modelId, modelId === 'byok' ? byokKey : undefined);
+    const boutModel = getModel(
+      modelId,
+      modelId === 'byok' ? byokData?.key : undefined,
+      modelId === 'byok' ? byokData?.modelId : undefined,
+    );
 
     for (let i = 0; i < preset.maxTurns; i += 1) {
       const agent = preset.agents[i % preset.agents.length];
@@ -523,7 +535,11 @@ export async function executeBout(
 
       // Context window budgeting: truncate history from the front if the
       // full transcript would exceed the model's input token limit.
-      const resolvedModelId = modelId === 'byok' ? (process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID) : modelId;
+      // For BYOK, use the user-selected model ID (OpenRouter or Anthropic)
+      // to look up the correct context window, falling back to the platform default.
+      const resolvedModelId = modelId === 'byok'
+        ? (byokData?.modelId ?? process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID)
+        : modelId;
       const tokenBudget = getInputTokenBudget(resolvedModelId);
       let historyForTurn = history;
       if (history.length > 0) {
