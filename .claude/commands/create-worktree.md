@@ -17,7 +17,7 @@ The argument `$ARGUMENTS` specifies Linear issue identifiers or a worktree name.
   <principle>Every branch starts from master. No branch-from-branch. This ensures the simplest possible merge strategy and avoids cascading conflicts.</principle>
   <principle>One issue = one branch = one PR. Never mix issues in a single branch. If two issues overlap, implement them sequentially and rebase the second after merging the first.</principle>
   <principle>Worktree isolation protects master. The worktree is a separate checkout. You can freely switch branches, rebase, and force-push without affecting the main working tree.</principle>
-  <principle>Symlink hidden files. Gitignored files (.env, .env.local, .vercel/, etc.) must be symlinked into the worktree — they will not exist otherwise.</principle>
+  <principle>Copy hidden files. Gitignored files (.env, .env.local, .vercel/, etc.) must be copied into the worktree — they will not exist otherwise. Use cp, not ln -s: symlinks break Vercel CLI deploys, leak into git status, and can be accidentally committed.</principle>
   <principle>Install deps once. Run pnpm install --frozen-lockfile once after creating the worktree. Only re-run if package.json changes between branches.</principle>
   <principle>Clean up when done. Remove the worktree with git worktree remove after all PRs are merged.</principle>
 </principles>
@@ -68,30 +68,30 @@ git worktree add "$WORKTREE_PATH" master
     </commands>
   </phase>
 
-  <phase name="Symlink Hidden Files" number="3">
-    <description>Gitignored files do not exist in worktrees. Symlink them from the main repo.</description>
+  <phase name="Copy Hidden Files" number="3">
+    <description>Gitignored files do not exist in worktrees. Copy them from the main repo. Do NOT symlink — symlinks break Vercel CLI, show as untracked in git status, and can be accidentally committed.</description>
     <commands>
 ```bash
 MAIN_REPO="/home/mrkai/code/tspit"
 
-# Required env files
+# Required env files (flat copy)
 for f in .env .env.local .env.test .env.sentry-build-plugin; do
-  [ -f "$MAIN_REPO/$f" ] && ln -sf "$MAIN_REPO/$f" "$WORKTREE_PATH/$f"
+  [ -f "$MAIN_REPO/$f" ] && cp "$MAIN_REPO/$f" "$WORKTREE_PATH/$f"
 done
 
-# Required directories
+# Required directories (recursive copy)
 for d in .vercel .vscode; do
-  [ -d "$MAIN_REPO/$d" ] && ln -sf "$MAIN_REPO/$d" "$WORKTREE_PATH/$d"
+  [ -d "$MAIN_REPO/$d" ] && cp -r "$MAIN_REPO/$d" "$WORKTREE_PATH/$d"
 done
 
 # Other gitignored dotfiles/dirs
 for item in .gemini .ruff_cache .security-audit; do
-  [ -e "$MAIN_REPO/$item" ] && ln -sf "$MAIN_REPO/$item" "$WORKTREE_PATH/$item"
+  [ -e "$MAIN_REPO/$item" ] && cp -r "$MAIN_REPO/$item" "$WORKTREE_PATH/$item"
 done
 ```
 
 ```bash
-# Verify symlinks
+# Verify copies exist (should show regular files, NOT symlinks)
 ls -la "$WORKTREE_PATH"/.env* "$WORKTREE_PATH"/.vercel 2>/dev/null
 ```
     </commands>
