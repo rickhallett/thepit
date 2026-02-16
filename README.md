@@ -44,7 +44,7 @@ Each directory has its own README documenting architecture, design decisions, an
 |-----------|-------------|
 | [`app/`](app/README.md) | Next.js App Router: routes, server actions, data fetching, auth patterns |
 | [`app/api/`](app/api/README.md) | 20 API endpoints: streaming bout engine, REST API, CRUD, webhooks, credit preauth flow |
-| [`components/`](components/README.md) | 30 React components: composition hierarchy, state management, styling conventions |
+| [`components/`](components/README.md) | 32 React components: composition hierarchy, state management, styling conventions |
 | [`lib/`](lib/README.md) | 66 utility modules across 11 domains: AI, agents, bouts, credits, users, engagement, research, blockchain, infra |
 | [`db/`](db/README.md) | Drizzle ORM schema (20 tables, 3 enums), data design patterns, Neon client |
 | [`presets/`](presets/README.md) | 22 JSON debate presets, loading pipeline, format spec |
