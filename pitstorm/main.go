@@ -59,6 +59,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "Login Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --accounts <path>    Path to accounts.json (default: ./accounts.json)\n")
 	fmt.Fprintf(os.Stderr, "  --key <pk_...>       Clerk publishable key (default: from env/config)\n")
+	fmt.Fprintf(os.Stderr, "  --secret <sk_...>    Clerk secret key for ticket flow (default: from env/config)\n")
 	fmt.Fprintf(os.Stderr, "  --env <path>         Path to .env file (auto-resolved if omitted)\n\n")
 	fmt.Fprintf(os.Stderr, "Run Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --target <url>       Target URL (default: https://www.thepit.cloud)\n")

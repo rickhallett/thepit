@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"strings"
 	"sync"
@@ -58,18 +59,29 @@ func DecodeFAPIURL(publishableKey string) (string, error) {
 	}
 
 	encoded := parts[2]
-	// The key ends with $ which is not part of the base64 content.
+	// Some keys have a trailing $ delimiter; strip it before decoding.
 	encoded = strings.TrimSuffix(encoded, "$")
 
-	decoded, err := base64.StdEncoding.DecodeString(encoded)
-	if err != nil {
-		// Try URL-safe base64 as fallback.
-		decoded, err = base64.URLEncoding.DecodeString(encoded)
-		if err != nil {
-			return "", fmt.Errorf("decode publishable key: %w", err)
+	// Clerk keys use standard base64 but may omit padding. Try with
+	// padding first, then without (RawStdEncoding), then URL-safe variants.
+	var decoded []byte
+	var err error
+	for _, enc := range [](*base64.Encoding){
+		base64.StdEncoding,
+		base64.RawStdEncoding,
+		base64.URLEncoding,
+		base64.RawURLEncoding,
+	} {
+		decoded, err = enc.DecodeString(encoded)
+		if err == nil {
+			break
 		}
 	}
+	if err != nil {
+		return "", fmt.Errorf("decode publishable key: %w", err)
+	}
 
+	// The decoded domain may have a trailing $ from Clerk's encoding.
 	domain := strings.TrimSuffix(string(decoded), "$")
 	if domain == "" {
 		return "", fmt.Errorf("empty domain in publishable key")
@@ -138,6 +150,243 @@ func (c *Client) RefreshToken(ctx context.Context, sessionID string) (string, ti
 	return resp.JWT, time.Unix(resp.ExpiresAt, 0), nil
 }
 
+// ---------- Backend API (requires secret key) ----------
+
+// BackendClient uses the Clerk Backend API (secret key) for operations
+// that cannot be done via the Frontend API alone, such as creating
+// sign-in tokens to bypass phone verification on production instances.
+type BackendClient struct {
+	httpClient *http.Client
+	secretKey  string
+	apiURL     string // default: "https://api.clerk.com"
+}
+
+// NewBackendClient creates a Backend API client with the given secret key.
+func NewBackendClient(secretKey string) *BackendClient {
+	return &BackendClient{
+		httpClient: &http.Client{Timeout: 30 * time.Second},
+		secretKey:  secretKey,
+		apiURL:     "https://api.clerk.com",
+	}
+}
+
+// NewBackendClientWithURL creates a Backend API client with a custom base URL.
+// Useful for testing with httptest.
+func NewBackendClientWithURL(secretKey, apiURL string) *BackendClient {
+	return &BackendClient{
+		httpClient: &http.Client{Timeout: 30 * time.Second},
+		secretKey:  secretKey,
+		apiURL:     strings.TrimRight(apiURL, "/"),
+	}
+}
+
+// signInTokenResponse is the Backend API response for creating a sign-in token.
+type signInTokenResponse struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+	Token  string `json:"token"`
+	Status string `json:"status"`
+	URL    string `json:"url"`
+}
+
+// CreateSignInToken creates a one-time sign-in token for the given user.
+// This token can be redeemed via the FAPI to create a session, bypassing
+// the normal sign-in flow (including phone verification / 2FA).
+func (b *BackendClient) CreateSignInToken(ctx context.Context, userID string) (*signInTokenResponse, error) {
+	body := fmt.Sprintf(`{"user_id":%q}`, userID)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		b.apiURL+"/v1/sign_in_tokens", strings.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+b.secretKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "pitstorm/1.0")
+
+	resp, err := b.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("create sign-in token failed: HTTP %d: %s",
+			resp.StatusCode, truncate(string(respBody), 200))
+	}
+
+	var result signInTokenResponse
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return nil, fmt.Errorf("parse response: %w", err)
+	}
+	if result.Token == "" {
+		return nil, fmt.Errorf("empty token in sign-in token response")
+	}
+
+	return &result, nil
+}
+
+// LookupUserByEmail finds a Clerk user by email address via the Backend API.
+// Returns the user ID or an error if not found.
+func (b *BackendClient) LookupUserByEmail(ctx context.Context, email string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+		b.apiURL+"/v1/users?email_address="+url.QueryEscape(email)+"&limit=1", nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Authorization", "Bearer "+b.secretKey)
+	req.Header.Set("User-Agent", "pitstorm/1.0")
+
+	resp, err := b.httpClient.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("lookup failed: HTTP %d: %s",
+			resp.StatusCode, truncate(string(respBody), 200))
+	}
+
+	var users []struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(respBody, &users); err != nil {
+		return "", fmt.Errorf("parse response: %w", err)
+	}
+	if len(users) == 0 {
+		return "", fmt.Errorf("no user found with email %q", email)
+	}
+
+	return users[0].ID, nil
+}
+
+// SignInWithTicket performs ticket-based sign-in via the Clerk Frontend API.
+// This is a two-step process:
+//  1. POST /v1/client/sign_ins with strategy=ticket and ticket=<token>
+//  2. POST /v1/client/sessions/{id}/tokens — mint a JWT from the session
+//
+// This flow bypasses email+password and phone verification requirements.
+func (c *Client) SignInWithTicket(ctx context.Context, ticket string, userID string) (*SignInResult, error) {
+	// Create sign-in with ticket strategy.
+	signInResp, _, err := c.createSignInWithTicket(ctx, ticket)
+	if err != nil {
+		return nil, fmt.Errorf("ticket sign-in: %w", err)
+	}
+
+	if signInResp.Status != "complete" {
+		return nil, fmt.Errorf("ticket sign-in not complete: status=%q", signInResp.Status)
+	}
+
+	sessionID := signInResp.CreatedSessionID
+	if sessionID == "" {
+		return nil, fmt.Errorf("ticket sign-in complete but no session ID returned")
+	}
+
+	// The FAPI response includes the JWT in the session's last_active_token.
+	jwt := signInResp.SessionJWT
+	if jwt == "" {
+		return nil, fmt.Errorf("ticket sign-in complete but no JWT in session response")
+	}
+
+	// Try to extract user ID from response, fall back to provided userID.
+	resolvedUserID := userID
+	if signInResp.UserID != "" {
+		resolvedUserID = signInResp.UserID
+	}
+
+	expiresAt := extractJWTExpiry(jwt)
+
+	return &SignInResult{
+		SessionID: sessionID,
+		UserID:    resolvedUserID,
+		Token:     jwt,
+		ExpiresAt: time.Unix(expiresAt, 0),
+	}, nil
+}
+
+// newCookieClient creates an HTTP client with a cookie jar for stateful FAPI requests.
+// The Clerk FAPI uses cookies to track client state between sign-in and token mint.
+func newCookieClient() *http.Client {
+	jar, _ := cookiejar.New(nil) // error is only non-nil if options are invalid
+	return &http.Client{
+		Timeout: 30 * time.Second,
+		Jar:     jar,
+	}
+}
+
+func (c *Client) createSignInWithTicket(ctx context.Context, ticket string) (*signInResponse, *http.Client, error) {
+	// Use a fresh cookie-aware client — the FAPI requires cookies to link
+	// the sign-in response to subsequent token mint requests.
+	cl := newCookieClient()
+
+	form := url.Values{}
+	form.Set("strategy", "ticket")
+	form.Set("ticket", ticket)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		c.fapiURL+"/v1/client/sign_ins", strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "pitstorm/1.0")
+
+	resp, err := cl.Do(req)
+	if err != nil {
+		return nil, nil, fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, nil, fmt.Errorf("sign-in failed: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
+	}
+
+	var envelope clerkResponse
+	if err := json.Unmarshal(body, &envelope); err != nil {
+		return nil, nil, fmt.Errorf("parse response envelope: %w", err)
+	}
+
+	var signIn signInResponse
+	if err := json.Unmarshal(envelope.Response, &signIn); err != nil {
+		return nil, nil, fmt.Errorf("parse sign-in response: %w", err)
+	}
+
+	// Extract user ID and JWT from the client sessions.
+	if len(envelope.Client) > 0 {
+		var clientResp clerkClientResponse
+		if err := json.Unmarshal(envelope.Client, &clientResp); err == nil {
+			for _, s := range clientResp.Sessions {
+				if s.ID == signIn.CreatedSessionID {
+					if s.User.ID != "" {
+						signIn.UserID = s.User.ID
+					}
+					if s.LastActiveToken != nil && s.LastActiveToken.JWT != "" {
+						signIn.SessionJWT = s.LastActiveToken.JWT
+					}
+					break
+				}
+			}
+		}
+	}
+
+	return &signIn, cl, nil
+}
+
 // ---------- Internal API calls ----------
 
 // signInResponse represents the relevant fields from the Clerk sign-in API response.
@@ -146,6 +395,7 @@ type signInResponse struct {
 	Status           string `json:"status"`
 	CreatedSessionID string `json:"created_session_id"`
 	UserID           string `json:"-"` // Extracted from nested structure.
+	SessionJWT       string `json:"-"` // Extracted from client.sessions[].last_active_token.jwt.
 }
 
 // clerkResponse wraps the standard Clerk FAPI response envelope.
@@ -161,10 +411,17 @@ type clerkClientResponse struct {
 
 // clerkSessionRef is a minimal session reference within the client response.
 type clerkSessionRef struct {
-	ID     string       `json:"id"`
-	Status string       `json:"status"`
-	User   clerkUserRef `json:"user"`
-	Object string       `json:"object"`
+	ID              string           `json:"id"`
+	Status          string           `json:"status"`
+	User            clerkUserRef     `json:"user"`
+	Object          string           `json:"object"`
+	LastActiveToken *clerkTokenInner `json:"last_active_token"`
+}
+
+// clerkTokenInner is the embedded token in a session reference.
+type clerkTokenInner struct {
+	Object string `json:"object"`
+	JWT    string `json:"jwt"`
 }
 
 // clerkUserRef is a minimal user reference.
@@ -225,13 +482,18 @@ func (c *Client) createSignIn(ctx context.Context, email, password string) (*sig
 		return nil, fmt.Errorf("parse sign-in response: %w", err)
 	}
 
-	// Try to extract user ID from the client sessions.
+	// Extract user ID and JWT from the client sessions.
 	if len(envelope.Client) > 0 {
 		var clientResp clerkClientResponse
 		if err := json.Unmarshal(envelope.Client, &clientResp); err == nil {
 			for _, s := range clientResp.Sessions {
-				if s.ID == signIn.CreatedSessionID && s.User.ID != "" {
-					signIn.UserID = s.User.ID
+				if s.ID == signIn.CreatedSessionID {
+					if s.User.ID != "" {
+						signIn.UserID = s.User.ID
+					}
+					if s.LastActiveToken != nil && s.LastActiveToken.JWT != "" {
+						signIn.SessionJWT = s.LastActiveToken.JWT
+					}
 					break
 				}
 			}
@@ -242,6 +504,10 @@ func (c *Client) createSignIn(ctx context.Context, email, password string) (*sig
 }
 
 func (c *Client) mintToken(ctx context.Context, sessionID string) (*tokenResponse, error) {
+	return c.mintTokenWithClient(ctx, sessionID, c.httpClient)
+}
+
+func (c *Client) mintTokenWithClient(ctx context.Context, sessionID string, cl *http.Client) (*tokenResponse, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
 		c.fapiURL+"/v1/client/sessions/"+sessionID+"/tokens", nil)
 	if err != nil {
@@ -249,7 +515,7 @@ func (c *Client) mintToken(ctx context.Context, sessionID string) (*tokenRespons
 	}
 	req.Header.Set("User-Agent", "pitstorm/1.0")
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := cl.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("HTTP request failed: %w", err)
 	}
