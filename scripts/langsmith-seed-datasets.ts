@@ -621,16 +621,20 @@ async function getOrCreateDataset(
   client: Client,
   name: string,
   description: string,
-): Promise<string> {
+): Promise<{ id: string; alreadyExisted: boolean }> {
   try {
     const exists = await client.hasDataset({ datasetName: name });
     if (exists) {
       const dataset = await client.readDataset({ datasetName: name });
       console.log(`  Dataset "${name}" already exists (id: ${dataset.id})`);
-      return dataset.id;
+      return { id: dataset.id, alreadyExisted: true };
     }
-  } catch {
-    // hasDataset may throw if API is unreachable — fall through to create
+  } catch (err: unknown) {
+    // Only swallow "not found" errors — rethrow auth/network failures
+    const message = err instanceof Error ? err.message : String(err);
+    if (!message.toLowerCase().includes('not found')) {
+      throw err;
+    }
   }
 
   const dataset = await client.createDataset(name, {
@@ -638,7 +642,7 @@ async function getOrCreateDataset(
     dataType: 'kv',
   });
   console.log(`  Created dataset "${name}" (id: ${dataset.id})`);
-  return dataset.id;
+  return { id: dataset.id, alreadyExisted: false };
 }
 
 async function seedDataset(
@@ -661,7 +665,12 @@ async function seedDataset(
     return;
   }
 
-  const datasetId = await getOrCreateDataset(client, name, description);
+  const { id: datasetId, alreadyExisted } = await getOrCreateDataset(client, name, description);
+
+  if (alreadyExisted) {
+    console.log(`  Skipping example upload — dataset already seeded. Delete dataset to re-seed.`);
+    return;
+  }
 
   const uploads: ExampleCreate[] = examples.map((ex) => ({
     dataset_id: datasetId,

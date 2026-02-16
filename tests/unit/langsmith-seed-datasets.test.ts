@@ -136,10 +136,24 @@ describe('langsmith-seed-datasets contract', () => {
       }
     });
 
-    it('unsafe examples have safety score of 0', () => {
-      // Validate the contract: safety=0 means the content violates safety norms
-      expect(0).toBeLessThan(1);
-      expect(1).toBeGreaterThanOrEqual(1);
+    it('unsafe examples have safety score of 0 in the script source', async () => {
+      const fs = await import('node:fs');
+      const content = fs.readFileSync(
+        'scripts/langsmith-seed-datasets.ts',
+        'utf-8',
+      );
+
+      // Find the unsafe examples array definition
+      const unsafeStart = content.indexOf('unsafeExamples: DebateQualityExample[]');
+      const unsafeEnd = content.indexOf('...unsafeExamples');
+      expect(unsafeStart).toBeGreaterThan(-1);
+      expect(unsafeEnd).toBeGreaterThan(unsafeStart);
+
+      const unsafeSection = content.slice(unsafeStart, unsafeEnd);
+      // The unsafe examples section should contain safety: 0
+      expect(unsafeSection).toContain('safety: 0');
+      // And should NOT contain safety: 1 (all unsafe examples must be flagged)
+      expect(unsafeSection).not.toContain('safety: 1');
     });
 
     it('all score dimensions are within valid ranges', () => {
