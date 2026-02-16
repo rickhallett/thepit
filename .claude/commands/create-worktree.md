@@ -13,26 +13,31 @@ Create an isolated git worktree for implementing one or more Linear issues as se
 
 The argument `$ARGUMENTS` specifies Linear issue identifiers or a worktree name. If issue IDs are provided, fetch their details from Linear to populate branch names and PR descriptions.
 
-## Principles
+<principles>
+  <principle>Every branch starts from master. No branch-from-branch. This ensures the simplest possible merge strategy and avoids cascading conflicts.</principle>
+  <principle>One issue = one branch = one PR. Never mix issues in a single branch. If two issues overlap, implement them sequentially and rebase the second after merging the first.</principle>
+  <principle>Worktree isolation protects master. The worktree is a separate checkout. You can freely switch branches, rebase, and force-push without affecting the main working tree.</principle>
+  <principle>Symlink hidden files. Gitignored files (.env, .env.local, .vercel/, etc.) must be symlinked into the worktree — they will not exist otherwise.</principle>
+  <principle>Install deps once. Run pnpm install --frozen-lockfile once after creating the worktree. Only re-run if package.json changes between branches.</principle>
+  <principle>Clean up when done. Remove the worktree with git worktree remove after all PRs are merged.</principle>
+</principles>
 
-1. **Every branch starts from master.** No branch-from-branch. This ensures the simplest possible merge strategy and avoids cascading conflicts.
-2. **One issue = one branch = one PR.** Never mix issues in a single branch. If two issues overlap, implement them sequentially and rebase the second after merging the first.
-3. **Worktree isolation protects master.** The worktree is a separate checkout. You can freely switch branches, rebase, and force-push without affecting the main working tree.
-4. **Symlink hidden files.** Gitignored files (`.env`, `.env.local`, `.vercel/`, etc.) must be symlinked into the worktree — they won't exist otherwise.
-5. **Install deps once.** Run `pnpm install --frozen-lockfile` once after creating the worktree. Only re-run if `package.json` changes between branches.
-6. **Clean up when done.** Remove the worktree with `git worktree remove` after all PRs are merged.
+<process>
+  <phase name="Parse Arguments and Fetch Issue Details" number="1">
+    <description>
+      Parse $ARGUMENTS to determine:
+      - Issue identifiers (e.g., OCE-36, OCE-37) — fetch from Linear API
+      - Issue range (e.g., OCE-36..OCE-47) — expand to individual identifiers, fetch all
+      - Plain name (e.g., security) — use as worktree name, no Linear lookup
+    </description>
 
-## Process
+    <steps>
+      <step>If issue identifiers are provided, fetch each from Linear using pitlinear CLI or the Linear GraphQL API directly</step>
+      <step>For each issue, record: identifier, title, priority (for merge ordering), and labels (for branch prefix convention)</step>
+      <step>Derive the worktree name from the issue range or explicit name</step>
+    </steps>
 
-### Phase 1: Parse Arguments and Fetch Issue Details
-
-Parse `$ARGUMENTS` to determine:
-- **Issue identifiers** (e.g., `OCE-36`, `OCE-37`) — fetch from Linear API
-- **Issue range** (e.g., `OCE-36..OCE-47`) — expand to individual identifiers, fetch all
-- **Plain name** (e.g., `security`) — use as worktree name, no Linear lookup
-
-If issue identifiers are provided, fetch each from Linear:
-
+    <commands>
 ```bash
 # Using pitlinear CLI (if available and Go is working)
 pitlinear --json issues get OCE-36
@@ -44,20 +49,11 @@ curl -s -X POST https://api.linear.app/graphql \
   -H "Authorization: $LINEAR_API_KEY" \
   -d '{"query":"{ issue(id: \"OCE-36\") { id identifier title description priority state { name } labels { nodes { name } } } }"}'
 ```
+    </commands>
+  </phase>
 
-For each issue, record:
-- **identifier**: e.g., `OCE-36`
-- **title**: e.g., "Add Go Tool Gates to CI Pipeline"
-- **priority**: for merge ordering (urgent/high first)
-- **labels**: for branch prefix convention
-
-Derive the worktree name from the issue range or explicit name:
-- Issues `OCE-36..OCE-47` → worktree name `quartermaster` (or ask user)
-- Single issue `OCE-42` → worktree name from issue title slug
-- Plain name `security` → use as-is
-
-### Phase 2: Create the Worktree
-
+  <phase name="Create the Worktree" number="2">
+    <commands>
 ```bash
 # Ensure master is up to date
 git checkout master
@@ -69,11 +65,12 @@ WORKTREE_PATH="/home/mrkai/code/tspit-worktrees/$WORKTREE_NAME"
 
 git worktree add "$WORKTREE_PATH" master
 ```
+    </commands>
+  </phase>
 
-### Phase 3: Symlink Hidden Files
-
-Gitignored files don't exist in worktrees. Symlink them from the main repo:
-
+  <phase name="Symlink Hidden Files" number="3">
+    <description>Gitignored files do not exist in worktrees. Symlink them from the main repo.</description>
+    <commands>
 ```bash
 MAIN_REPO="/home/mrkai/code/tspit"
 
@@ -87,29 +84,31 @@ for d in .vercel .vscode; do
   [ -d "$MAIN_REPO/$d" ] && ln -sf "$MAIN_REPO/$d" "$WORKTREE_PATH/$d"
 done
 
-# Any other gitignored dotfiles/dirs that exist
+# Other gitignored dotfiles/dirs
 for item in .gemini .ruff_cache .security-audit; do
   [ -e "$MAIN_REPO/$item" ] && ln -sf "$MAIN_REPO/$item" "$WORKTREE_PATH/$item"
 done
 ```
 
-Verify symlinks are correct:
-
 ```bash
+# Verify symlinks
 ls -la "$WORKTREE_PATH"/.env* "$WORKTREE_PATH"/.vercel 2>/dev/null
 ```
+    </commands>
+  </phase>
 
-### Phase 4: Install Dependencies
-
+  <phase name="Install Dependencies" number="4">
+    <commands>
 ```bash
 cd "$WORKTREE_PATH"
 pnpm install --frozen-lockfile
 ```
+    </commands>
+  </phase>
 
-### Phase 5: Create Branches
-
-For each issue, create a branch. Do NOT check them out yet — just create them at master HEAD:
-
+  <phase name="Create Branches" number="5">
+    <description>For each issue, create a branch at master HEAD. Do NOT check them out yet.</description>
+    <commands>
 ```bash
 # Branch naming convention: <prefix>/<issue-slug>
 # Prefix derived from context: qm/ for quartermaster, feat/ for features, fix/ for bugs, etc.
@@ -117,140 +116,79 @@ For each issue, create a branch. Do NOT check them out yet — just create them 
 # Example for OCE-36:
 git branch "qm/oce-36-go-gates-ci" master
 ```
+    </commands>
+    <rules>
+      <rule>Lowercase, hyphen-separated</rule>
+      <rule>Include the issue number for traceability</rule>
+      <rule>Keep under 50 chars</rule>
+      <rule>Prefix matches the conventional commit type (feat/, fix/, ci/, chore/, docs/)</rule>
+    </rules>
+  </phase>
 
-Branch naming rules:
-- Lowercase, hyphen-separated
-- Include the issue number for traceability
-- Keep it under 50 chars
-- Prefix matches the conventional commit type (`feat/`, `fix/`, `ci/`, `chore/`, `docs/`)
+  <phase name="Implementation Loop" number="6">
+    <description>For each issue, ordered by priority then by conflict risk (shared files last).</description>
+    <steps>
+      <step>Switch to the issue's branch in the worktree</step>
+      <step>Implement the changes</step>
+      <step>Run the gate: pnpm run lint, pnpm run typecheck, pnpm run test:unit</step>
+      <step>Commit with conventional commit message including "Closes ISSUE-ID"</step>
+      <step>Push with -u flag: git push -u origin branch-name</step>
+      <step>Create PR with gh pr create</step>
+      <step>Switch back to master before starting the next issue</step>
+    </steps>
+    <critical>Always return to master before starting the next issue's branch. This ensures every branch diverges from master, not from another issue branch.</critical>
+  </phase>
 
-### Phase 6: Implementation Loop
+  <phase name="Merge Strategy" number="7">
+    <description>After all PRs are created, determine the optimal merge order.</description>
+    <rules>
+      <rule>Independent PRs first — PRs that touch unique files with no overlap</rule>
+      <rule>Shared-file PRs in dependency order — if multiple PRs touch the same file (e.g., ci.yml, package.json, .gitignore), merge the foundational one first</rule>
+      <rule>Rebase before merge — if earlier merges changed files that a later PR also touches, rebase the later branch onto updated master then force push with --force-with-lease</rule>
+      <rule>Use admin merge if branch protection blocks merging after rebase: gh pr merge NUMBER --repo rickhallett/thepit --squash --admin</rule>
+    </rules>
+  </phase>
 
-For each issue (ordered by priority, then by conflict risk — shared files last):
+  <phase name="Cleanup" number="8">
+    <steps>
+      <step>Switch main repo to master and pull latest</step>
+      <step>Remove worktree: git worktree remove PATH (use --force if needed)</step>
+      <step>Delete local branches: git branch -D branch1 branch2 ...</step>
+      <step>Prune stale remote tracking refs: git remote prune origin</step>
+      <step>Update Linear issues to Done (use pitlinear CLI or Linear API)</step>
+    </steps>
+  </phase>
+</process>
 
-```bash
-# 1. Switch to the issue's branch
-cd "$WORKTREE_PATH"
-git checkout "<branch-name>"
+<conflict-resolution>
+  <scenario name="Same file, different sections">
+    Git usually handles this automatically during rebase. Verify the result.
+  </scenario>
+  <scenario name="Same file, overlapping sections (e.g., adding jobs to ci.yml)">
+    Manually resolve by keeping both additions. When you see both hunks adding content to the same location, include all additions in the resolved file.
+  </scenario>
+  <scenario name="package.json script conflicts">
+    Usually caused by multiple PRs adding scripts. Keep all additions. Verify no duplicate keys.
+  </scenario>
+  <scenario name=".gitignore conflicts">
+    Usually caused by multiple PRs adding entries. Keep all entries. Order does not matter.
+  </scenario>
+</conflict-resolution>
 
-# 2. Implement the changes
-# ... (agent-specific work)
+<edge-cases>
+  <case trigger="Worktree branch is checked out in main repo">Detach the worktree HEAD first: git -C WORKTREE_PATH checkout --detach</case>
+  <case trigger="Go is not available">Use Linear API directly via curl instead of pitlinear CLI</case>
+  <case trigger="PR squash merge includes commits from wrong branch">This happens if branches are not properly isolated. Always verify git log --oneline branch ^master shows only the intended commits.</case>
+  <case trigger="Base branch modified race condition on merge">Retry the gh pr merge command — GitHub API is eventually consistent.</case>
+  <case trigger="Branch protection blocks direct push to master">Always create PRs, even for single-line doc changes.</case>
+</edge-cases>
 
-# 3. Run the gate
-pnpm run lint
-pnpm run typecheck
-pnpm run test:unit
-
-# 4. Commit
-git add -A
-git commit -m "<type>: <description>
-
-<body explaining why>
-
-Closes <ISSUE-ID>"
-
-# 5. Push
-git push -u origin "<branch-name>"
-
-# 6. Create PR
-gh pr create \
-  --title "<type>: <description> (<ISSUE-ID>)" \
-  --body "$(cat <<'PREOF'
-## Summary
-- <1-3 bullet points>
-
-Closes <ISSUE-ID>
-PREOF
-)"
-
-# 7. Switch back to master before starting next issue
-git checkout master
-```
-
-**Critical:** Always return to master before starting the next issue's branch. This ensures every branch diverges from master, not from another issue branch.
-
-### Phase 7: Merge Strategy
-
-After all PRs are created, determine the optimal merge order:
-
-1. **Independent PRs first** — PRs that touch unique files with no overlap
-2. **Shared-file PRs in dependency order** — If multiple PRs touch the same file (e.g., `ci.yml`, `package.json`, `.gitignore`), merge the foundational one first
-3. **Rebase before merge** — If earlier merges changed files that a later PR also touches, rebase the later branch:
-   ```bash
-   git fetch origin master
-   git checkout "<branch>"
-   git rebase origin/master
-   # Resolve conflicts
-   git push --force-with-lease origin "<branch>"
-   ```
-4. **Use admin merge** if branch protection blocks merging (checks haven't run on rebased commit):
-   ```bash
-   gh pr merge <number> --repo rickhallett/thepit --squash --admin
-   ```
-
-### Phase 8: Cleanup
-
-After all PRs are merged:
-
-```bash
-# Switch main repo to master
-cd /home/mrkai/code/tspit
-git checkout master
-git pull origin master
-
-# Remove worktree
-git worktree remove "$WORKTREE_PATH"
-# If modified/untracked files remain:
-git worktree remove --force "$WORKTREE_PATH"
-
-# Delete local branches
-git branch -D <branch1> <branch2> ...
-
-# Prune stale remote tracking refs
-git remote prune origin
-
-# Update Linear issues to Done
-# (use pitlinear CLI or Linear API)
-```
-
-## Conflict Resolution Playbook
-
-### Same file, different sections
-Git usually handles this automatically during rebase. Verify the result.
-
-### Same file, overlapping sections (e.g., adding jobs to ci.yml)
-Manually resolve by keeping both additions. The pattern:
-```
-<<<<<<< HEAD
-  job-from-earlier-pr:
-    ...
-=======
-  job-from-this-pr:
-    ...
->>>>>>> commit
-```
-Resolution: Keep both jobs.
-
-### package.json script conflicts
-Usually caused by multiple PRs adding scripts. Keep all additions. Verify no duplicate keys.
-
-### .gitignore conflicts
-Usually caused by multiple PRs adding entries. Keep all entries. Order doesn't matter.
-
-## Edge Cases
-
-- **Worktree branch is checked out in main repo:** Detach the worktree HEAD first: `git -C "$WORKTREE_PATH" checkout --detach`
-- **Go isn't available:** Use Linear API directly via curl instead of pitlinear CLI
-- **PR squash merge includes commits from wrong branch:** This happens if branches aren't properly isolated. Always verify `git log --oneline <branch> ^master` shows only the intended commit(s).
-- **Base branch modified race condition on merge:** Retry the `gh pr merge` command — GitHub's API is eventually consistent.
-- **Branch protection blocks direct push to master:** Always create PRs, even for single-line doc changes.
-
-## Do NOT
-
-- Create branches from other issue branches — always branch from master
-- Mix multiple issues in one commit or one branch
-- Leave the worktree around after all PRs are merged
-- Force-push without `--force-with-lease` (safety against overwriting others' work)
-- Skip the gate before pushing — broken PRs waste CI minutes and block review
-- Use `git rebase -i` (interactive rebase requires terminal input, not supported)
-- Commit `.env` files or secrets into the worktree branches
+<constraints>
+  <constraint>Never create branches from other issue branches — always branch from master</constraint>
+  <constraint>Never mix multiple issues in one commit or one branch</constraint>
+  <constraint>Never leave the worktree around after all PRs are merged</constraint>
+  <constraint>Never force-push without --force-with-lease (safety against overwriting others' work)</constraint>
+  <constraint>Never skip the gate before pushing — broken PRs waste CI minutes and block review</constraint>
+  <constraint>Never use git rebase -i (interactive rebase requires terminal input, not supported)</constraint>
+  <constraint>Never commit .env files or secrets into the worktree branches</constraint>
+</constraints>
