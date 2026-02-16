@@ -205,7 +205,8 @@ Custom event stream (not standard SSE):
 ## Git Workflow
 
 - Each feature gets its own branch off `master` and its own PR
-- Merge PRs with: `gh pr merge <N> --admin --squash --delete-branch`
+- **Merge strategy: merge commit (no squash)** — preserves full commit history for auditability
+- Merge PRs with: `gh pr merge <N> --admin --merge --delete-branch`
 - After merge: `git checkout master && git pull`
 - Use atomic commits with descriptive Conventional Commit messages
 
