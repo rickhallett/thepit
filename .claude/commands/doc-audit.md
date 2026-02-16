@@ -10,20 +10,18 @@ Systematically verify every documentation file against the actual codebase, fix 
 /doc-audit "schema"           # Audit docs related to a topic
 ```
 
-## Principles
+<principles>
+  <principle>Code is truth. When a doc and the code disagree, the code wins. Always.</principle>
+  <principle>Verify, never infer. Run a command to get the real number. Do not estimate, guess, or reuse a number from memory.</principle>
+  <principle>Silent errors are the worst errors. A doc that says "20 tables" when there are 22 misleads every future reader. Treat count drift as a bug.</principle>
+  <principle>Flag ambiguity, do not hide it. When code behavior is unclear or could be read multiple ways, document both interpretations and flag it in the report.</principle>
+  <principle>Preserve intent. Fix what is wrong. Do not rewrite what is correct but stylistically different from your preference.</principle>
+</principles>
 
-1. **Code is truth.** When a doc and the code disagree, the code wins. Always.
-2. **Verify, never infer.** Run a command to get the real number. Do not estimate, guess, or reuse a number from memory.
-3. **Silent errors are the worst errors.** A doc that says "20 tables" when there are 22 misleads every future reader. Treat count drift as a bug.
-4. **Flag ambiguity, don't hide it.** When code behavior is unclear or could be read multiple ways, document both interpretations and flag it in the report.
-5. **Preserve intent.** Fix what's wrong. Don't rewrite what's correct but stylistically different from your preference.
-
-## Process
-
-### Phase 1: Establish Ground Truth
-
-Run these commands and record every result. These numbers are your source of truth for the entire audit.
-
+<process>
+  <phase name="Establish Ground Truth" number="1">
+    <description>Run these commands and record every result. These numbers are your source of truth for the entire audit.</description>
+    <commands>
 ```bash
 # Database schema
 grep -c "pgTable(" db/schema.ts                           # Table count
@@ -67,13 +65,13 @@ ls -d pit* shared 2>/dev/null                              # Go tool directories
 ls copy/variants/*.json 2>/dev/null                        # Copy variants
 cat copy/experiment.json 2>/dev/null                        # Active experiment config
 ```
+    </commands>
+    <critical>Store these results. You will reference them repeatedly.</critical>
+  </phase>
 
-Store these results. You will reference them repeatedly.
-
-### Phase 2: Build the Document Inventory
-
-Identify every documentation file in the repo:
-
+  <phase name="Build the Document Inventory" number="2">
+    <description>Identify every documentation file in the repo.</description>
+    <commands>
 ```bash
 # All markdown files
 find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' | sort
@@ -81,121 +79,102 @@ find . -name '*.md' -not -path './node_modules/*' -not -path './.git/*' | sort
 # Env templates
 find . -name '.env*example' | sort
 ```
+    </commands>
 
-Group them into audit tiers:
+    <tiers>
+      <tier level="Critical" rationale="Read by every contributor and every AI agent. Inaccuracy here has multiplicative cost.">
+        CLAUDE.md, AGENTS.md, README.md, ARCHITECTURE.md, .env.example
+      </tier>
+      <tier level="High" rationale="Per-directory READMEs that guide module-level work.">
+        app/README.md, app/api/README.md, components/README.md, lib/README.md, db/README.md, tests/README.md
+      </tier>
+      <tier level="Medium" rationale="Reference material. Less frequently read but still authoritative.">
+        docs/*.md (specs, reviews, plans), scripts/README.md, drizzle/README.md, presets/README.md, qa/README.md
+      </tier>
+      <tier level="Low" rationale="Specialized audiences. Less likely to cause cascading errors.">
+        Go CLI READMEs (pitctl/, pitforge/, etc.), .opencode/agents/*.md, strategy docs
+      </tier>
+    </tiers>
 
-| Tier | Files | Rationale |
-|------|-------|-----------|
-| **Critical** | `CLAUDE.md`, `AGENTS.md`, `README.md`, `ARCHITECTURE.md`, `.env.example` | Read by every contributor and every AI agent. Inaccuracy here has multiplicative cost. |
-| **High** | `app/README.md`, `app/api/README.md`, `components/README.md`, `lib/README.md`, `db/README.md`, `tests/README.md` | Per-directory READMEs that guide module-level work. |
-| **Medium** | `docs/*.md` (specs, reviews, plans), `scripts/README.md`, `drizzle/README.md`, `presets/README.md`, `qa/README.md` | Reference material. Less frequently read but still authoritative. |
-| **Low** | Go CLI READMEs (`pitctl/`, `pitforge/`, etc.), `.opencode/agents/*.md`, strategy docs | Specialized audiences. Less likely to cause cascading errors. |
+    <rule>If user specified a file or topic, filter to only matching files. Otherwise, audit all tiers.</rule>
+  </phase>
 
-If user specified a file or topic, filter to only matching files. Otherwise, audit all tiers.
+  <phase name="Systematic Cross-Check" number="3">
+    <description>For each documentation file, perform these checks in order.</description>
 
-### Phase 3: Systematic Cross-Check
+    <check name="Counts and Numbers" id="A">
+      <description>Every number in a doc must match reality: table counts, column counts, test counts (unit, integration, e2e), component counts, API route counts, env var counts, preset counts, migration counts, script counts.</description>
+      <method>Search for digits and number words. For each, verify against Phase 1 ground truth.</method>
+    </check>
 
-For each documentation file, perform these checks in order:
+    <check name="Names and Identifiers" id="B">
+      <description>Every named entity must exist in the code: table names, column names, enum values, file paths, directory paths, function names, hook names, component names, environment variable names, script names (in package.json), API route paths.</description>
+      <method>For each name, verify it exists with grep or find. Check spelling exactly.</method>
+    </check>
 
-#### A. Counts and Numbers
-Every number in a doc must match reality:
-- Table counts, column counts
-- Test counts (unit, integration, e2e)
-- Component counts
-- API route counts
-- Env var counts
-- Preset counts
-- Migration counts
-- Script counts
+    <check name="Behavioral Claims" id="C">
+      <description>Every claim about how something works must be verifiable: "Route X does Y" — read the route handler. "Component X uses hook Y" — check the import. "The credit system pre-authorizes on start" — read the bout engine code. "Streaming uses custom event format" — check the actual event names.</description>
+      <method>Read the relevant source code. Compare the documented behavior to the actual implementation.</method>
+    </check>
 
-**Method:** Search for digits and number words. For each, verify against Phase 1 ground truth.
+    <check name="Command Accuracy" id="D">
+      <description>Every documented command must work: pnpm run scripts — verify script exists in package.json. drizzle-kit commands — verify syntax is correct. Shell commands — verify they produce described output.</description>
+      <method>Check package.json scripts. For shell commands, dry-run mentally or execute if safe.</method>
+    </check>
 
-#### B. Names and Identifiers
-Every named entity must exist in the code:
-- Table names, column names, enum values
-- File paths and directory paths
-- Function names, hook names, component names
-- Environment variable names
-- Script names (in package.json)
-- API route paths
+    <check name="Architecture Claims" id="E">
+      <description>Structural claims must reflect current reality: directory purposes — verify by listing contents. Import patterns — verify with grep. Data flow descriptions — trace through code.</description>
+    </check>
 
-**Method:** For each name, verify it exists with `grep` or `find`. Check spelling exactly.
+    <check name="Env Var Completeness" id="F">
+      <checklist>
+        <item>Every process.env.* reference in code should appear in .env.example</item>
+        <item>Every entry in .env.example should be used somewhere in code OR explicitly marked as deprecated</item>
+        <item>Required vs optional classification must match actual behavior (does the app crash without it?)</item>
+      </checklist>
+    </check>
+  </phase>
 
-#### C. Behavioral Claims
-Every claim about how something works must be verifiable:
-- "Route X does Y" — read the route handler
-- "Component X uses hook Y" — check the import
-- "The credit system pre-authorizes on start" — read the bout engine code
-- "Streaming uses custom event format" — check the actual event names
+  <phase name="Categorize Findings" number="4">
+    <categories>
+      <category symbol="[ERROR]" name="Factual Error">Doc states something provably wrong. Example: "20 tables" when there are 22.</category>
+      <category symbol="[STALE]" name="Stale Reference">Was true, no longer is. Example: Deleted file still referenced.</category>
+      <category symbol="[MISSING]" name="Missing Coverage">Code exists with no doc mention. Example: New API route not in README.</category>
+      <category symbol="[AMBIG]" name="Ambiguous">Could be read multiple ways. Example: "optional" but app crashes without it.</category>
+      <category symbol="[JUDGE]" name="Judgement Call">Reasonable people could disagree. Example: Whether to list internal-only routes in public docs.</category>
+      <category symbol="[STYLE]" name="Cosmetic">Formatting, not accuracy. Example: Inconsistent heading levels.</category>
+    </categories>
+  </phase>
 
-**Method:** Read the relevant source code. Compare the documented behavior to the actual implementation.
+  <phase name="Apply Fixes" number="5">
+    <steps>
+      <step>Create a new branch: git checkout master and git pull, then git checkout -b docs/accuracy-audit</step>
+      <step>Fix all [ERROR] items first — these are non-negotiable</step>
+      <step>Fix [STALE] items next</step>
+      <step>Add [MISSING] items</step>
+      <step>Resolve [AMBIG] items with your best judgement (and flag in report)</step>
+      <step>Apply [STYLE] fixes only if they improve clarity</step>
+      <step>Commit each file or logical group separately using Conventional Commits: docs(scope): fix what-was-wrong</step>
+    </steps>
+    <constraints>
+      <constraint>Do NOT fix things that are not wrong</constraint>
+      <constraint>Do NOT rewrite prose for style</constraint>
+    </constraints>
+  </phase>
 
-#### D. Command Accuracy
-Every documented command must work:
-- `pnpm run <script>` — verify script exists in package.json
-- `drizzle-kit` commands — verify syntax is correct
-- Shell commands — verify they produce described output
-
-**Method:** Check `package.json` scripts. For shell commands, dry-run mentally or execute if safe.
-
-#### E. Architecture Claims
-Structural claims must reflect current reality:
-- Directory purposes — verify by listing contents
-- Import patterns — verify with grep
-- Data flow descriptions — trace through code
-
-#### F. Env Var Completeness
-- Every `process.env.*` reference in code should appear in `.env.example`
-- Every entry in `.env.example` should be used somewhere in code OR explicitly marked as deprecated
-- Required vs optional classification must match actual behavior (does the app crash without it?)
-
-### Phase 4: Categorize Findings
-
-For each discrepancy found, categorize it:
-
-| Category | Symbol | Description | Example |
-|----------|--------|-------------|---------|
-| **Factual Error** | `[ERROR]` | Doc states something provably wrong | "20 tables" when there are 22 |
-| **Stale Reference** | `[STALE]` | Was true, no longer is | Deleted file still referenced |
-| **Missing Coverage** | `[MISSING]` | Code exists with no doc mention | New API route not in README |
-| **Ambiguous** | `[AMBIG]` | Could be read multiple ways | "optional" but app crashes without it |
-| **Judgement Call** | `[JUDGE]` | Reasonable people could disagree | Whether to list internal-only routes in public docs |
-| **Cosmetic** | `[STYLE]` | Formatting, not accuracy | Inconsistent heading levels |
-
-### Phase 5: Apply Fixes
-
-1. Create a new branch:
-   ```bash
-   git checkout master && git pull
-   git checkout -b docs/accuracy-audit
-   ```
-
-2. Apply fixes file by file, committing each file (or logical group) separately:
-   - Fix all `[ERROR]` items first — these are non-negotiable
-   - Fix `[STALE]` items next
-   - Add `[MISSING]` items
-   - Resolve `[AMBIG]` items with your best judgement (and flag in report)
-   - Apply `[STYLE]` fixes only if they improve clarity
-
-3. For each commit, use Conventional Commits:
-   ```
-   docs(<scope>): fix <what was wrong>
-   ```
-
-4. Do NOT fix things that are not wrong. Do NOT rewrite prose for style.
-
-### Phase 6: Verify
-
+  <phase name="Verify" number="6">
+    <commands>
 ```bash
 pnpm run lint
 pnpm run typecheck
 pnpm run test:unit
 ```
+    </commands>
+    <rule>These must pass. Documentation changes should never break code, but verify anyway (e.g., JSDoc changes, .env.example changes affecting tests).</rule>
+  </phase>
 
-These must pass. Documentation changes should never break code, but verify anyway (e.g., JSDoc changes, .env.example changes affecting tests).
-
-### Phase 7: Create PR
-
+  <phase name="Create PR" number="7">
+    <commands>
 ```bash
 git push -u origin docs/accuracy-audit
 gh pr create --title "docs: accuracy audit — fix N discrepancies across M files" --body "$(cat <<'EOF'
@@ -215,13 +194,12 @@ against the running codebase. See audit report in PR comments for full details.
 EOF
 )"
 ```
+    </commands>
+  </phase>
 
-### Phase 8: Output Summary Report
-
-After the PR is created, output the full audit report to stdout. This is the primary deliverable — the PR is the artifact, but the report is the reasoning.
-
-Format:
-
+  <phase name="Output Summary Report" number="8">
+    <description>After the PR is created, output the full audit report to stdout. This is the primary deliverable — the PR is the artifact, but the report is the reasoning.</description>
+    <output-format>
 ```
 ═══════════════════════════════════════════════════════════════════
   DOCUMENTATION ACCURACY AUDIT REPORT
@@ -302,33 +280,39 @@ STATISTICS
 
 ═══════════════════════════════════════════════════════════════════
 ```
+    </output-format>
+  </phase>
+</process>
 
-## Scope Control
+<scope>
+  <in-scope>
+    <item>All .md files in the repo (except node_modules/, .git/)</item>
+    <item>.env.example and .env.test.example</item>
+    <item>Accuracy of code references, counts, commands, and behavioral claims</item>
+    <item>Completeness of schema, route, and env var documentation</item>
+  </in-scope>
 
-### In Scope
-- All `.md` files in the repo (except `node_modules/`, `.git/`)
-- `.env.example` and `.env.test.example`
-- Accuracy of code references, counts, commands, and behavioral claims
-- Completeness of schema, route, and env var documentation
+  <out-of-scope>
+    <item>Go CLI tool implementations (audit READMEs against their help text only)</item>
+    <item>Third-party documentation (Neon skill references in .agents/)</item>
+    <item>Marketing/strategy docs (docs/social-content-playbook.md, etc.) — verify technical claims only</item>
+    <item>Content in copy/variants/*.json — these are A/B test copy, not documentation</item>
+  </out-of-scope>
+</scope>
 
-### Out of Scope
-- Go CLI tool implementations (audit READMEs against their help text only)
-- Third-party documentation (Neon skill references in `.agents/`)
-- Marketing/strategy docs (`docs/social-content-playbook.md`, etc.) — verify technical claims only
-- Content in `copy/variants/*.json` — these are A/B test copy, not documentation
+<constraints>
+  <constraint>Do not rewrite docs for style when they are technically accurate</constraint>
+  <constraint>Do not add new documentation sections (only fix existing content)</constraint>
+  <constraint>Do not change the structure or organization of documents</constraint>
+  <constraint>Do not remove documentation that is correct but seems unnecessary</constraint>
+  <constraint>Do not touch code files (only documentation and config files)</constraint>
+  <constraint>Do not create new files (only modify existing ones)</constraint>
+</constraints>
 
-### Do NOT
-- Rewrite docs for style when they are technically accurate
-- Add new documentation sections (only fix existing content)
-- Change the structure or organization of documents
-- Remove documentation that is correct but seems unnecessary
-- Touch code files (only documentation and config files)
-- Create new files (only modify existing ones)
-
-## Edge Cases
-
-- **Doc references a feature that was removed:** Mark as `[STALE]`, remove the reference, add a note if the feature was recently removed
-- **Doc describes planned behavior not yet implemented:** Mark as `[AMBIG]`, check ROADMAP.md. If it's listed as planned, leave it but add "planned" qualifier. If not on roadmap, remove.
-- **Multiple docs disagree with each other:** Both can't be right. Check the code. Fix both to match reality.
-- **Count changed since doc was last updated:** This is `[ERROR]`, not `[STALE]`. The doc was wrong the moment the count changed.
-- **Env var exists in .env.example but is never read in code:** Mark as `[STALE]` if no `process.env` reference exists. Check if it's used by a dependency or build tool before removing.
+<edge-cases>
+  <case trigger="Doc references a feature that was removed">Mark as [STALE], remove the reference, add a note if the feature was recently removed.</case>
+  <case trigger="Doc describes planned behavior not yet implemented">Mark as [AMBIG], check ROADMAP.md. If listed as planned, leave it but add "planned" qualifier. If not on roadmap, remove.</case>
+  <case trigger="Multiple docs disagree with each other">Both cannot be right. Check the code. Fix both to match reality.</case>
+  <case trigger="Count changed since doc was last updated">This is [ERROR], not [STALE]. The doc was wrong the moment the count changed.</case>
+  <case trigger="Env var exists in .env.example but is never read in code">Mark as [STALE] if no process.env reference exists. Check if it is used by a dependency or build tool before removing.</case>
+</edge-cases>
