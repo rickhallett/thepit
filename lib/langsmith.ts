@@ -127,3 +127,43 @@ export const untracedStreamText: typeof ai.streamText = ((...args: Parameters<ty
  */
 export const untracedGenerateText: typeof ai.generateText = ((...args: Parameters<typeof ai.generateText>) =>
   ai.generateText(...args)) as typeof ai.generateText;
+
+// ---------------------------------------------------------------------------
+// traceable wrapper helpers
+// ---------------------------------------------------------------------------
+
+// Lazy-load traceable to avoid importing langsmith when disabled.
+let _traceable: typeof import('langsmith/traceable').traceable | null = null;
+
+function getTraceable(): typeof import('langsmith/traceable').traceable {
+  if (_traceable) return _traceable;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mod = require('langsmith/traceable') as typeof import('langsmith/traceable');
+  _traceable = mod.traceable;
+  return _traceable;
+}
+
+/**
+ * Wrap an async function with LangSmith `traceable()` when enabled.
+ * When disabled, returns the original function unchanged.
+ *
+ * @param fn - The function to wrap
+ * @param config - LangSmith trace config (name, metadata, tags, etc.)
+ * @returns The original function (disabled) or a traced wrapper (enabled)
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function withTracing<F extends (...args: any[]) => any>(
+  fn: F,
+  config: {
+    name: string;
+    metadata?: Record<string, unknown>;
+    tags?: string[];
+    run_type?: string;
+  },
+): F {
+  if (!LANGSMITH_ENABLED) return fn;
+  return getTraceable()(fn, {
+    ...config,
+    client: getLangSmithClient() ?? undefined,
+  }) as unknown as F;
+}

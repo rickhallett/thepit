@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
 
-import { tracedStreamText } from '@/lib/langsmith';
+import { tracedStreamText, withTracing } from '@/lib/langsmith';
 
 import {
   ASK_THE_PIT_ENABLED,
@@ -100,16 +100,30 @@ async function rawPOST(req: Request) {
 
   log.info('Ask The Pit request', { requestId, messageLength: message.length });
 
+  // Wrap the AI call in a traceable span so Ask The Pit queries appear
+  // as named traces in LangSmith, distinct from bout conversation traces.
+  const tracedAsk = withTracing(
+    async (opts: { model: string; systemPrompt: string; message: string }) => {
+      return tracedStreamText({
+        model: getModel(opts.model),
+        maxOutputTokens: ASK_THE_PIT_MAX_TOKENS,
+        messages: [
+          { role: 'system', content: opts.systemPrompt },
+          { role: 'user', content: opts.message },
+        ],
+      });
+    },
+    {
+      name: 'ask-the-pit',
+      run_type: 'chain',
+      metadata: { requestId, model: ASK_THE_PIT_MODEL },
+      tags: ['ask-the-pit', ASK_THE_PIT_MODEL],
+    },
+  );
+
   try {
     const start = Date.now();
-    const result = tracedStreamText({
-      model: getModel(ASK_THE_PIT_MODEL),
-      maxOutputTokens: ASK_THE_PIT_MAX_TOKENS,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: message },
-      ],
-    });
+    const result = await tracedAsk({ model: ASK_THE_PIT_MODEL, systemPrompt, message });
 
     const response = result.toTextStreamResponse();
     const durationMs = Date.now() - start;

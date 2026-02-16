@@ -129,3 +129,38 @@ describe('lib/langsmith (LANGSMITH_ENABLED=true)', () => {
     expect(tracedStreamText).not.toBe(untracedStreamText);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Tests: withTracing
+// ---------------------------------------------------------------------------
+
+describe('withTracing', () => {
+  it('returns the original function when disabled', async () => {
+    delete process.env.LANGSMITH_ENABLED;
+    const { withTracing } = await importFresh();
+    const fn = async () => 42;
+    const wrapped = withTracing(fn, { name: 'test' });
+    expect(wrapped).toBe(fn);
+  });
+
+  it('returns a different function when enabled (traceable wrapper)', async () => {
+    process.env.LANGSMITH_ENABLED = 'true';
+    process.env.LANGSMITH_API_KEY = 'lsv2_test_fake_key_for_unit_tests';
+    const { withTracing } = await importFresh();
+    const fn = async () => 42;
+    const wrapped = withTracing(fn, { name: 'test' });
+    // traceable() wraps the function, so it should be a different reference
+    expect(wrapped).not.toBe(fn);
+    expect(typeof wrapped).toBe('function');
+    delete process.env.LANGSMITH_API_KEY;
+  });
+
+  it('preserves function return value when disabled', async () => {
+    delete process.env.LANGSMITH_ENABLED;
+    const { withTracing } = await importFresh();
+    const fn = async (x: number) => x * 2;
+    const wrapped = withTracing(fn, { name: 'double' });
+    const result = await wrapped(21);
+    expect(result).toBe(42);
+  });
+});
