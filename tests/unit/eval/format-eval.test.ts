@@ -57,9 +57,25 @@ describe('evaluateFormat', () => {
       expect(result.comment).toContain('markdown');
     });
 
-    it('fails when bold markdown present', () => {
+    it('fails when bold markdown present at start of line', () => {
       const result = evaluateFormat({
         text: '**Bold text** should not appear in plain format.',
+        formatId: 'plain',
+      });
+      expect(result.score).toBe(0);
+    });
+
+    it('fails when inline bold markdown present mid-line', () => {
+      const result = evaluateFormat({
+        text: 'This has **bold** words in the middle of a sentence.',
+        formatId: 'plain',
+      });
+      expect(result.score).toBe(0);
+    });
+
+    it('fails when inline code backticks present', () => {
+      const result = evaluateFormat({
+        text: 'Use the `calculateTotal` function to get the sum.',
         formatId: 'plain',
       });
       expect(result.score).toBe(0);

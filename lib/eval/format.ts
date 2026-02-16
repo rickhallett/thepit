@@ -19,9 +19,11 @@ function isValidJsonResponse(text: string): boolean {
 
 /**
  * Check if text contains markdown formatting.
+ * Detects: headers, bold (**word**), inline code (`code`), list items,
+ * links, fenced code blocks, and tables.
  */
 function containsMarkdown(text: string): boolean {
-  return /^#{1,6}\s|^\*\*|^\- |\[.*\]\(.*\)|```|^\|/m.test(text);
+  return /^#{1,6}\s|\*\*[^*]+\*\*|`[^`]+`|^\- |\[.*\]\(.*\)|```|^\|/m.test(text);
 }
 
 /**
