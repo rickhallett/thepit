@@ -6,8 +6,8 @@
     "technicalLiteracy": 60,
     "wordiness": 50
   },
-  "tone": "balanced, professional, direct",
-  "generatedAt": "2026-02-15T12:00:00Z",
+  "tone": "confident, direct, product-aware",
+  "generatedAt": "2026-02-16T18:00:00Z",
   "model": "human-authored",
-  "constraints": ["exact copy of base.json — no transformation applied"]
+  "constraints": ["exact copy of base.json — no transformation applied", "v2: product identity rewrite — replaces community/open-source framing with honest product language"]
 }
