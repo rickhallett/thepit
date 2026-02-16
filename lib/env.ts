@@ -128,6 +128,12 @@ const serverEnvSchema = z.object({
   SENTRY_PROJECT: z.string().optional(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent']).optional().default('info'),
 
+  // --- LangSmith ---
+  LANGSMITH_ENABLED: boolFlag,
+  LANGSMITH_API_KEY: z.string().optional(),
+  LANGSMITH_TRACING: boolFlag,
+  LANGSMITH_PROJECT: z.string().optional().default('thepit'),
+
   // --- Anomaly alerting ---
   ANOMALY_WEBHOOK_URL: z.string().optional(),
 
