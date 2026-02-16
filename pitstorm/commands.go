@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -401,6 +402,7 @@ func loginCmd(args []string) {
 	// Parse login-specific flags.
 	accountsPath := "./accounts.json"
 	publishableKey := ""
+	secretKey := ""
 	envPath := ""
 
 	for i := 0; i < len(args); i++ {
@@ -417,6 +419,12 @@ func loginCmd(args []string) {
 			}
 			i++
 			publishableKey = args[i]
+		case "--secret":
+			if i+1 >= len(args) {
+				fatalf("login", "--secret requires a value")
+			}
+			i++
+			secretKey = args[i]
 		case "--env":
 			if i+1 >= len(args) {
 				fatalf("login", "--env requires a value")
@@ -437,34 +445,54 @@ func loginCmd(args []string) {
 		fatal("login", err)
 	}
 
+	// Load config for key resolution.
+	var cfg *config.Config
+	cfg, _ = config.Load(envPath)
+
 	// Resolve publishable key from flag, env, or config file.
 	if publishableKey == "" {
 		publishableKey = os.Getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
 	}
-	if publishableKey == "" {
-		cfg, cfgErr := config.Load(envPath)
-		if cfgErr == nil {
-			publishableKey = cfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
-		}
+	if publishableKey == "" && cfg != nil {
+		publishableKey = cfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
 	}
 	if publishableKey == "" {
 		fatalf("login", "Clerk publishable key not found. Set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY or use --key")
 	}
 
-	// Create auth client.
-	authClient, err := auth.NewClient(publishableKey)
+	// Resolve secret key from flag, env, or config file.
+	if secretKey == "" {
+		secretKey = os.Getenv("CLERK_SECRET_KEY")
+	}
+	if secretKey == "" && cfg != nil {
+		secretKey = cfg.Get("CLERK_SECRET_KEY")
+	}
+
+	// Create FAPI client.
+	fapiClient, err := auth.NewClient(publishableKey)
 	if err != nil {
 		fatal("login", err)
 	}
 
+	// Create Backend client if secret key is available.
+	var backendClient *auth.BackendClient
+	if secretKey != "" {
+		backendClient = auth.NewBackendClient(secretKey)
+	}
+
 	fapiURL, _ := auth.DecodeFAPIURL(publishableKey)
+	mode := "email+password"
+	if backendClient != nil {
+		mode = "ticket (via Backend API sign-in tokens)"
+	}
 	fmt.Printf("  Accounts:   %s\n", accountsPath)
 	fmt.Printf("  FAPI:       %s\n", fapiURL)
+	fmt.Printf("  Mode:       %s\n", mode)
 	fmt.Printf("  Accounts:   %d total (%d authenticated)\n\n",
 		len(f.Accounts), countAuthenticated(f))
 
 	// Sign in each non-anon account.
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 
 	passed := 0
@@ -479,8 +507,57 @@ func loginCmd(args []string) {
 			continue
 		}
 
-		// Sign in via Clerk FAPI.
-		result, signInErr := authClient.SignIn(ctx, acct.Email, acct.Password)
+		var result *auth.SignInResult
+		var signInErr error
+
+		if backendClient != nil {
+			// Ticket flow: create sign-in token via Backend API, then redeem via FAPI.
+			// This bypasses phone verification / 2FA requirements.
+			userID := acct.ClerkUserID
+			if userID == "" {
+				// Auto-resolve user ID from email via Backend API.
+				resolved, lookupErr := backendClient.LookupUserByEmail(ctx, acct.Email)
+				if lookupErr != nil {
+					fmt.Printf("  %-30s %s lookup user: %v\n",
+						acct.ID, theme.Error.Render("FAIL"), lookupErr)
+					failed++
+					continue
+				}
+				userID = resolved
+				acct.ClerkUserID = resolved
+			}
+
+			tokenResp, tokenErr := backendClient.CreateSignInToken(ctx, userID)
+			if tokenErr != nil {
+				fmt.Printf("  %-30s %s create ticket: %v\n",
+					acct.ID, theme.Error.Render("FAIL"), tokenErr)
+				failed++
+				continue
+			}
+
+			// Add delay between ticket redemptions to avoid Clerk rate limiting.
+			// The FAPI has aggressive per-IP rate limits (~10 req/min for sign-ins).
+			if i > 0 {
+				time.Sleep(3 * time.Second)
+			}
+
+			result, signInErr = fapiClient.SignInWithTicket(ctx, tokenResp.Token, userID)
+			// Retry once on rate limit with longer backoff.
+			if signInErr != nil && strings.Contains(signInErr.Error(), "429") {
+				fmt.Printf("  %-30s %s (rate limited, retrying in 15s...)\n",
+					acct.ID, theme.Warning.Render("WAIT"))
+				time.Sleep(15 * time.Second)
+				// Need a fresh ticket — the old one may have been consumed.
+				tokenResp, tokenErr = backendClient.CreateSignInToken(ctx, userID)
+				if tokenErr == nil {
+					result, signInErr = fapiClient.SignInWithTicket(ctx, tokenResp.Token, userID)
+				}
+			}
+		} else {
+			// Direct email+password flow via FAPI.
+			result, signInErr = fapiClient.SignIn(ctx, acct.Email, acct.Password)
+		}
+
 		if signInErr != nil {
 			fmt.Printf("  %-30s %s %v\n", acct.ID, theme.Error.Render("FAIL"), signInErr)
 			failed++
