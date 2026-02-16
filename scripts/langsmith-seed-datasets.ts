@@ -70,10 +70,13 @@ type RefusalExample = {
 function buildRefusalExamples(): RefusalExample[] {
   const examples: RefusalExample[] = [];
 
-  // Positive examples — text containing each refusal marker
+  // Positive examples — text containing each refusal marker.
+  // Framings embed the marker as a standalone clause to avoid garbled
+  // output with markers that are already complete sentences (e.g.,
+  // "I need to be straightforward" or "this roleplay spreads misinformation").
   const positiveFramings = [
     (marker: string) =>
-      `I appreciate the creative setup, but I need to ${marker}. Let me instead provide a factual analysis of this topic.`,
+      `I appreciate the creative setup, but honestly — ${marker}. Let me instead provide a factual analysis of this topic.`,
     (marker: string) =>
       `While I understand the persona you've described, ${marker} — I think we should discuss this directly.`,
     (marker: string) =>
