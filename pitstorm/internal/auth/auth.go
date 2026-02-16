@@ -1,0 +1,395 @@
+// Package auth provides headless Clerk authentication for pitstorm test accounts.
+// It uses the Clerk Frontend API (FAPI) exclusively — no Backend API keys required.
+// The publishable key is decoded to derive the FAPI base URL, then standard HTTP
+// calls perform email+password sign-in and JWT minting.
+//
+// The package is designed for testability: all HTTP calls go through a configurable
+// base URL, making it trivial to use httptest for unit tests.
+package auth
+
+import (
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+	"sync"
+	"time"
+)
+
+// Client performs Clerk Frontend API authentication.
+type Client struct {
+	httpClient *http.Client
+	fapiURL    string // e.g. "https://epic-dogfish-18.clerk.accounts.dev"
+}
+
+// NewClient creates a Clerk FAPI client from a publishable key.
+// The publishable key format is "pk_test_<base64-encoded-fapi-domain>$" or
+// "pk_live_<base64-encoded-fapi-domain>$".
+func NewClient(publishableKey string) (*Client, error) {
+	fapiURL, err := DecodeFAPIURL(publishableKey)
+	if err != nil {
+		return nil, err
+	}
+	return &Client{
+		httpClient: &http.Client{Timeout: 30 * time.Second},
+		fapiURL:    fapiURL,
+	}, nil
+}
+
+// NewClientWithURL creates a Clerk FAPI client with an explicit base URL.
+// Useful for testing with httptest.
+func NewClientWithURL(fapiURL string) *Client {
+	return &Client{
+		httpClient: &http.Client{Timeout: 30 * time.Second},
+		fapiURL:    strings.TrimRight(fapiURL, "/"),
+	}
+}
+
+// DecodeFAPIURL extracts the Frontend API URL from a Clerk publishable key.
+func DecodeFAPIURL(publishableKey string) (string, error) {
+	// Format: pk_test_<base64>$ or pk_live_<base64>$
+	parts := strings.SplitN(publishableKey, "_", 3)
+	if len(parts) != 3 || parts[0] != "pk" {
+		return "", fmt.Errorf("invalid publishable key format")
+	}
+
+	encoded := parts[2]
+	// The key ends with $ which is not part of the base64 content.
+	encoded = strings.TrimSuffix(encoded, "$")
+
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		// Try URL-safe base64 as fallback.
+		decoded, err = base64.URLEncoding.DecodeString(encoded)
+		if err != nil {
+			return "", fmt.Errorf("decode publishable key: %w", err)
+		}
+	}
+
+	domain := strings.TrimSuffix(string(decoded), "$")
+	if domain == "" {
+		return "", fmt.Errorf("empty domain in publishable key")
+	}
+
+	return "https://" + domain, nil
+}
+
+// SignInResult holds the outcome of a sign-in attempt.
+type SignInResult struct {
+	SessionID string // Clerk session ID for token minting.
+	ClientID  string // Clerk client ID.
+	UserID    string // Clerk user ID.
+	Token     string // JWT session token.
+	ExpiresAt time.Time
+}
+
+// SignIn performs email+password authentication against the Clerk Frontend API
+// and returns a session token. This is a two-step process:
+//  1. POST /v1/client/sign_ins — initiate sign-in with email+password
+//  2. POST /v1/client/sessions/{id}/tokens — mint a JWT from the session
+func (c *Client) SignIn(ctx context.Context, email, password string) (*SignInResult, error) {
+	// Step 1: Create sign-in.
+	signInResp, err := c.createSignIn(ctx, email, password)
+	if err != nil {
+		return nil, fmt.Errorf("create sign-in: %w", err)
+	}
+
+	// Check sign-in status.
+	if signInResp.Status != "complete" {
+		return nil, fmt.Errorf("sign-in not complete: status=%q (may require 2FA)", signInResp.Status)
+	}
+
+	// Extract session ID from the response.
+	sessionID := signInResp.CreatedSessionID
+	if sessionID == "" {
+		return nil, fmt.Errorf("sign-in complete but no session ID returned")
+	}
+
+	// Extract user ID.
+	userID := ""
+	if signInResp.UserID != "" {
+		userID = signInResp.UserID
+	}
+
+	// Step 2: Mint a JWT from the session.
+	tokenResp, err := c.mintToken(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("mint token: %w", err)
+	}
+
+	return &SignInResult{
+		SessionID: sessionID,
+		UserID:    userID,
+		Token:     tokenResp.JWT,
+		ExpiresAt: time.Unix(tokenResp.ExpiresAt, 0),
+	}, nil
+}
+
+// RefreshToken mints a new JWT for an existing session.
+func (c *Client) RefreshToken(ctx context.Context, sessionID string) (string, time.Time, error) {
+	resp, err := c.mintToken(ctx, sessionID)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	return resp.JWT, time.Unix(resp.ExpiresAt, 0), nil
+}
+
+// ---------- Internal API calls ----------
+
+// signInResponse represents the relevant fields from the Clerk sign-in API response.
+type signInResponse struct {
+	ID               string `json:"id"`
+	Status           string `json:"status"`
+	CreatedSessionID string `json:"created_session_id"`
+	UserID           string `json:"-"` // Extracted from nested structure.
+}
+
+// clerkResponse wraps the standard Clerk FAPI response envelope.
+type clerkResponse struct {
+	Response json.RawMessage `json:"response"`
+	Client   json.RawMessage `json:"client"`
+}
+
+// clerkClientResponse is the client object in the FAPI response.
+type clerkClientResponse struct {
+	Sessions []clerkSessionRef `json:"sessions"`
+}
+
+// clerkSessionRef is a minimal session reference within the client response.
+type clerkSessionRef struct {
+	ID     string       `json:"id"`
+	Status string       `json:"status"`
+	User   clerkUserRef `json:"user"`
+	Object string       `json:"object"`
+}
+
+// clerkUserRef is a minimal user reference.
+type clerkUserRef struct {
+	ID string `json:"id"`
+}
+
+// tokenResponse represents the Clerk token minting response.
+type tokenResponse struct {
+	JWT       string `json:"jwt"`
+	ExpiresAt int64  `json:"-"` // Extracted from the object.
+}
+
+// clerkTokenResponse is the FAPI response for token minting.
+type clerkTokenResponse struct {
+	Object string `json:"object"`
+	JWT    string `json:"jwt"`
+}
+
+func (c *Client) createSignIn(ctx context.Context, email, password string) (*signInResponse, error) {
+	form := url.Values{}
+	form.Set("identifier", email)
+	form.Set("password", password)
+	form.Set("strategy", "password")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		c.fapiURL+"/v1/client/sign_ins", strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "pitstorm/1.0")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("sign-in failed: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
+	}
+
+	// Parse the FAPI envelope.
+	var envelope clerkResponse
+	if err := json.Unmarshal(body, &envelope); err != nil {
+		return nil, fmt.Errorf("parse response envelope: %w", err)
+	}
+
+	// Parse the sign-in response.
+	var signIn signInResponse
+	if err := json.Unmarshal(envelope.Response, &signIn); err != nil {
+		return nil, fmt.Errorf("parse sign-in response: %w", err)
+	}
+
+	// Try to extract user ID from the client sessions.
+	if len(envelope.Client) > 0 {
+		var clientResp clerkClientResponse
+		if err := json.Unmarshal(envelope.Client, &clientResp); err == nil {
+			for _, s := range clientResp.Sessions {
+				if s.ID == signIn.CreatedSessionID && s.User.ID != "" {
+					signIn.UserID = s.User.ID
+					break
+				}
+			}
+		}
+	}
+
+	return &signIn, nil
+}
+
+func (c *Client) mintToken(ctx context.Context, sessionID string) (*tokenResponse, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		c.fapiURL+"/v1/client/sessions/"+sessionID+"/tokens", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "pitstorm/1.0")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("token mint failed: HTTP %d: %s", resp.StatusCode, truncate(string(body), 200))
+	}
+
+	// The token endpoint returns a JWT directly in the response field.
+	var tokenResp clerkTokenResponse
+	if err := json.Unmarshal(body, &tokenResp); err != nil {
+		return nil, fmt.Errorf("parse token response: %w", err)
+	}
+
+	jwt := tokenResp.JWT
+	if jwt == "" {
+		return nil, fmt.Errorf("empty JWT in token response")
+	}
+
+	// Extract expiry from JWT claims (middle segment).
+	expiresAt := extractJWTExpiry(jwt)
+
+	return &tokenResponse{
+		JWT:       jwt,
+		ExpiresAt: expiresAt,
+	}, nil
+}
+
+// extractJWTExpiry parses the exp claim from a JWT without verifying the signature.
+// Returns 0 if parsing fails (caller should handle gracefully).
+func extractJWTExpiry(jwt string) int64 {
+	parts := strings.SplitN(jwt, ".", 3)
+	if len(parts) != 3 {
+		return 0
+	}
+
+	// JWT payload is base64url-encoded.
+	payload := parts[1]
+	// Add padding if needed.
+	switch len(payload) % 4 {
+	case 2:
+		payload += "=="
+	case 3:
+		payload += "="
+	}
+
+	decoded, err := base64.URLEncoding.DecodeString(payload)
+	if err != nil {
+		return 0
+	}
+
+	var claims struct {
+		Exp int64 `json:"exp"`
+	}
+	if err := json.Unmarshal(decoded, &claims); err != nil {
+		return 0
+	}
+
+	return claims.Exp
+}
+
+// ---------- Token Refresher ----------
+
+// Refresher periodically refreshes session tokens for all active accounts.
+// It runs as a background goroutine and updates the accounts file in place.
+type Refresher struct {
+	client   *Client
+	interval time.Duration
+	mu       sync.Mutex
+	stopCh   chan struct{}
+	stopped  bool
+}
+
+// NewRefresher creates a token refresher that runs every interval.
+func NewRefresher(client *Client, interval time.Duration) *Refresher {
+	return &Refresher{
+		client:   client,
+		interval: interval,
+		stopCh:   make(chan struct{}),
+	}
+}
+
+// RefreshTarget holds the session info needed to refresh a single account's token.
+type RefreshTarget struct {
+	AccountID string
+	SessionID string
+}
+
+// RefreshCallback is called with the refreshed token for an account.
+type RefreshCallback func(accountID, token string, expiresAt time.Time)
+
+// Start begins the background refresh loop.
+func (r *Refresher) Start(ctx context.Context, targets []RefreshTarget, callback RefreshCallback) {
+	go r.loop(ctx, targets, callback)
+}
+
+// Stop signals the refresher to stop.
+func (r *Refresher) Stop() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if !r.stopped {
+		r.stopped = true
+		close(r.stopCh)
+	}
+}
+
+func (r *Refresher) loop(ctx context.Context, targets []RefreshTarget, callback RefreshCallback) {
+	ticker := time.NewTicker(r.interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-r.stopCh:
+			return
+		case <-ticker.C:
+			for _, t := range targets {
+				token, expiresAt, err := r.client.RefreshToken(ctx, t.SessionID)
+				if err != nil {
+					// Log but don't stop — other accounts may succeed.
+					continue
+				}
+				callback(t.AccountID, token, expiresAt)
+			}
+		}
+	}
+}
+
+// ---------- Helpers ----------
+
+func truncate(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "..."
+}
