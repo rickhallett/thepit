@@ -128,6 +128,9 @@ const serverEnvSchema = z.object({
   SENTRY_PROJECT: z.string().optional(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent']).optional().default('info'),
 
+  // --- Anomaly alerting ---
+  ANOMALY_WEBHOOK_URL: z.string().optional(),
+
   // --- Analytics ---
   PV_INTERNAL_SECRET: z.string().optional(),
 });

@@ -10,6 +10,7 @@
 // The anomaly detector logs warnings but does not enforce blocks. Rate limiting
 // (lib/rate-limit.ts) and DB constraints handle enforcement.
 
+import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
 
 // ---------------------------------------------------------------------------
@@ -86,6 +87,34 @@ function reportOnce(type: string, key: string, details: Record<string, unknown>)
 
   reportedAnomalies.set(reportKey, now);
   log.warn('anomaly_detected', { type, ...details });
+
+  // Non-blocking webhook notification
+  fireWebhook(type, details).catch(() => {});
+}
+
+/**
+ * Fire a webhook notification for anomaly events.
+ * Non-blocking, fire-and-forget. Failures are silently ignored
+ * to avoid impacting request handling.
+ */
+async function fireWebhook(type: string, details: Record<string, unknown>): Promise<void> {
+  const url = env.ANOMALY_WEBHOOK_URL;
+  if (!url) return;
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'anomaly_detected',
+        type,
+        ...details,
+        timestamp: new Date().toISOString(),
+      }),
+    });
+  } catch {
+    // Fire-and-forget — never let webhook failures affect request handling
+  }
 }
 
 // ---------------------------------------------------------------------------
