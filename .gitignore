@@ -73,3 +73,6 @@ Manage*.html
 
 # research pipeline exports
 research-exports/
+
+# backup exports (from pre-destructive-guard.sh)
+backups/
