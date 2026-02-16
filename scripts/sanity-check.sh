@@ -172,7 +172,7 @@ check_route GET "/feedback" 200 "GET /feedback" 200
 
 echo ""
 echo -e "${BOLD}[4/8] API GET Endpoints${RESET}"
-check_route GET "/api/openapi" 401 "GET /api/openapi (requires auth)" 10
+check_route GET "/api/openapi" 200 "GET /api/openapi (public spec)" 100
 check_route GET "/docs/api" 200 "GET /docs/api (API docs)" 200
 check_route GET "/api/feature-requests" 200 "GET /api/feature-requests" 10
 
@@ -197,27 +197,42 @@ check_route POST "/api/admin/seed-agents" 401 "POST /api/admin/seed-agents (no t
 echo ""
 echo -e "${BOLD}[7/8] Middleware Behavior${RESET}"
 
-# Check that session cookie is set
-session_cookie=$(curl -s -D - -o /dev/null --max-time 60 \
+# Analytics cookies (pit_sid, pit_utm) require GDPR consent via pit_consent=accepted.
+# First verify they are NOT set without consent (GDPR compliance).
+no_consent_cookies=$(curl -s -D - -o /dev/null --max-time 60 \
   -H "User-Agent: sanity-check/1.0" \
   "${BASE_URL}/" 2>/dev/null | grep -i 'set-cookie.*pit_sid' || true)
-if [[ -n "$session_cookie" ]]; then
-  echo -e "  ${GREEN}PASS${RESET}  Session cookie (pit_sid) set on first visit"
+if [[ -z "$no_consent_cookies" ]]; then
+  echo -e "  ${GREEN}PASS${RESET}  No analytics cookies without consent (GDPR compliant)"
   PASS=$((PASS + 1))
 else
-  echo -e "  ${RED}FAIL${RESET}  Session cookie (pit_sid) not set"
+  echo -e "  ${RED}FAIL${RESET}  Analytics cookies set without consent (GDPR violation)"
   FAIL=$((FAIL + 1))
 fi
 
-# Check that UTM params are captured
-utm_cookie=$(curl -s -D - -o /dev/null --max-time 60 \
+# Now check that session cookie IS set when consent is given.
+session_cookie=$(curl -s -D - -o /dev/null --max-time 60 \
   -H "User-Agent: sanity-check/1.0" \
-  "${BASE_URL}/?utm_source=test&utm_medium=check&utm_campaign=sanity" 2>/dev/null | grep -i 'set-cookie.*pit_utm' || true)
-if [[ -n "$utm_cookie" ]]; then
-  echo -e "  ${GREEN}PASS${RESET}  UTM cookie (pit_utm) set with UTM params"
+  -b "pit_consent=accepted" \
+  "${BASE_URL}/" 2>/dev/null | grep -i 'set-cookie.*pit_sid' || true)
+if [[ -n "$session_cookie" ]]; then
+  echo -e "  ${GREEN}PASS${RESET}  Session cookie (pit_sid) set with consent"
   PASS=$((PASS + 1))
 else
-  echo -e "  ${RED}FAIL${RESET}  UTM cookie (pit_utm) not set when UTM params present"
+  echo -e "  ${RED}FAIL${RESET}  Session cookie (pit_sid) not set even with consent"
+  FAIL=$((FAIL + 1))
+fi
+
+# Check that UTM params are captured when consent is given.
+utm_cookie=$(curl -s -D - -o /dev/null --max-time 60 \
+  -H "User-Agent: sanity-check/1.0" \
+  -b "pit_consent=accepted" \
+  "${BASE_URL}/?utm_source=test&utm_medium=check&utm_campaign=sanity" 2>/dev/null | grep -i 'set-cookie.*pit_utm' || true)
+if [[ -n "$utm_cookie" ]]; then
+  echo -e "  ${GREEN}PASS${RESET}  UTM cookie (pit_utm) set with consent + UTM params"
+  PASS=$((PASS + 1))
+else
+  echo -e "  ${RED}FAIL${RESET}  UTM cookie (pit_utm) not set even with consent + UTM params"
   FAIL=$((FAIL + 1))
 fi
 
