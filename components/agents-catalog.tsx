@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
+import { useCopy } from '@/lib/copy-client';
 import type { AgentSnapshot } from '@/lib/agent-registry';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import { buildLineage } from '@/lib/agent-lineage';
@@ -26,6 +27,7 @@ export function AgentsCatalog({
   presets: { id: string; name: string }[];
   className?: string;
 }) {
+  const c = useCopy();
   const [search, setSearch] = useState('');
   const [presetFilter, setPresetFilter] = useState('all');
   const [tierFilter, setTierFilter] = useState('all');
@@ -74,7 +76,7 @@ export function AgentsCatalog({
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Agent, preset, id"
+            placeholder={c.agents.searchPlaceholder}
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs uppercase tracking-[0.2em] text-foreground placeholder:text-muted focus:border-accent focus:outline-none sm:w-64"
           />
         </label>
@@ -85,7 +87,7 @@ export function AgentsCatalog({
             onChange={(event) => setPresetFilter(event.target.value)}
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-52"
           >
-            <option value="all">All presets</option>
+            <option value="all">{c.agents.presetFilter}</option>
             {presets.map((preset) => (
               <option key={preset.id} value={preset.id}>
                 {preset.name}
@@ -100,20 +102,20 @@ export function AgentsCatalog({
             onChange={(event) => setTierFilter(event.target.value)}
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-40"
           >
-            <option value="all">All</option>
-            <option value="free">Free</option>
-            <option value="premium">Premium</option>
-            <option value="custom">Custom</option>
+            <option value="all">{c.agents.tierFilter.all}</option>
+            <option value="free">{c.agents.tierFilter.free}</option>
+            <option value="premium">{c.agents.tierFilter.premium}</option>
+            <option value="custom">{c.agents.tierFilter.custom}</option>
           </select>
         </label>
         <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-muted">
-          {filtered.length} agents
+          {c.agents.agentsCount.replace('{n}', String(filtered.length))}
         </span>
       </div>
 
       {filtered.length === 0 ? (
         <div className="border-2 border-dashed border-foreground/40 p-8 text-center text-sm text-muted">
-          No agents match those filters.
+          {c.agents.noMatch}
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">

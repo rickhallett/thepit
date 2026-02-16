@@ -17,6 +17,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
 import { getConsentState } from '@/components/cookie-consent';
+import { getExperimentConfig } from '@/lib/copy-edge';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
@@ -65,6 +66,28 @@ function initPostHog() {
       if (utm.utm_content) superProps.utm_content = utm.utm_content;
       if (Object.keys(superProps).length > 0) {
         posthog.register(superProps);
+      }
+    }
+  } catch {
+    // Malformed cookie — ignore
+  }
+
+  // Register copy A/B variant as a super property so every PostHog event
+  // (page views, bout starts, votes, engagement) is tagged with the variant.
+  // Only register if the experiment is active and the cookie value is a known
+  // variant — prevents stale/tampered cookies from polluting analytics.
+  try {
+    const expConfig = getExperimentConfig();
+    if (expConfig.active) {
+      const variantCookie = document.cookie
+        .split('; ')
+        .find((c) => c.startsWith('pit_variant='));
+      if (variantCookie) {
+        const raw = variantCookie.substring(variantCookie.indexOf('=') + 1);
+        const variant = decodeURIComponent(raw).trim();
+        if (variant && variant in expConfig.variants) {
+          posthog.register({ copy_variant: variant });
+        }
       }
     }
   } catch {

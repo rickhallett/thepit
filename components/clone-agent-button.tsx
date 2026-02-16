@@ -8,10 +8,12 @@ import { encodeAgentId } from '@/lib/agent-links';
 export function CloneAgentButton({
   sourceAgentId,
   className,
+  label,
   onClone,
 }: {
   sourceAgentId: string;
   className?: string;
+  label?: string;
   onClone?: () => void;
 }) {
   const router = useRouter();
@@ -31,7 +33,7 @@ export function CloneAgentButton({
         className,
       )}
     >
-      Clone &amp; remix
+      {label ?? 'Clone & remix'}
     </button>
   );
 }

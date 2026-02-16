@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 
+import { getCopy } from '@/lib/copy';
 import { getAgentDetail } from '@/lib/agent-detail';
 import { decodeAgentId } from '@/lib/agent-links';
 import { AgentBuilder } from '@/components/agent-builder';
@@ -17,6 +18,7 @@ export default async function CloneAgentPage({
 }: {
   searchParams: { source?: string } | Promise<{ source?: string }>;
 }) {
+  const c = await getCopy();
   const resolved = await searchParams;
   const sourceId = resolved.source;
 
@@ -53,27 +55,25 @@ export default async function CloneAgentPage({
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-10">
         <header className="border-b-2 border-foreground/70 pb-6">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Agent Lab
+            {c.agentClone.label}
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Clone Agent
+            {c.agentClone.title}
           </h1>
           <p className="mt-3 max-w-2xl text-sm text-muted">
-            Cloning <span className="text-foreground">{detail.name}</span>.
-            Tweak any field to make it your own. The new agent will inherit
-            lineage from the original.
+            {c.agentClone.descriptionTemplate.replace('{name}', detail.name)}
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.3em] text-muted">
             <span className="rounded-full border border-foreground/40 px-3 py-1">
-              Source: {detail.name}
+              {c.agentClone.source} {detail.name}
             </span>
             {detail.presetName && (
               <span className="rounded-full border border-foreground/40 px-3 py-1">
-                Preset: {detail.presetName}
+                {c.agentClone.preset} {detail.presetName}
               </span>
             )}
             <span className="rounded-full border border-accent/50 px-3 py-1 text-accent">
-              Lineage preserved
+              {c.agentClone.lineagePreserved}
             </span>
           </div>
         </header>

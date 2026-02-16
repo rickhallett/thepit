@@ -2,9 +2,11 @@ import Link from 'next/link';
 
 import { AgentsCatalog } from '@/components/agents-catalog';
 import { getAgentSnapshots } from '@/lib/agent-registry';
+import { getCopy } from '@/lib/copy';
 import { ALL_PRESETS } from '@/lib/presets';
 
 export default async function AgentsPage() {
+  const c = await getCopy();
   const agents = await getAgentSnapshots();
   const presets = ALL_PRESETS.map((preset) => ({
     id: preset.id,
@@ -18,21 +20,20 @@ export default async function AgentsPage() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.4em] text-accent">
-                Agents
+                {c.agents.title}
               </p>
               <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-                All Agents
+                {c.agents.pageTitle}
               </h1>
               <p className="mt-3 max-w-2xl text-sm text-muted">
-                Browse every agent available in the arena right now. Filter by
-                preset or tier when you want a tighter shortlist.
+                {c.agents.description}
               </p>
             </div>
             <Link
               href="/agents/new"
               className="border-2 border-foreground/70 px-5 py-3 text-xs uppercase tracking-[0.4em] transition hover:border-accent hover:text-accent"
             >
-              Create agent
+              {c.agents.createAgent}
             </Link>
           </div>
         </header>

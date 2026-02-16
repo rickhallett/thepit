@@ -1,8 +1,10 @@
 import Link from 'next/link';
 
 import { enabledSocialChannels } from '@/lib/brand';
+import { getCopy } from '@/lib/copy';
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const c = await getCopy();
   const socials = enabledSocialChannels();
 
   return (
@@ -27,56 +29,17 @@ export function SiteFooter() {
 
         {/* Navigation links */}
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <span>&copy; THE PIT</span>
+          <span>{c.nav.footer.copyright}</span>
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/research"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Research
-            </Link>
-            <Link
-              href="/developers"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Developers
-            </Link>
-            <Link
-              href="/contact"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Contact
-            </Link>
-            <Link
-              href="/feedback"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Feedback
-            </Link>
-            <Link
-              href="/security"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Security
-            </Link>
-            <Link
-              href="/disclaimer"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Disclaimer
-            </Link>
-            <Link
-              href="/privacy"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Privacy
-            </Link>
-            <Link
-              href="/terms"
-              className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
-            >
-              Terms
-            </Link>
+            {c.nav.footer.links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-full border border-foreground/40 px-3 py-1 transition hover:border-accent hover:text-accent"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

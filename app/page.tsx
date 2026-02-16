@@ -6,6 +6,7 @@ import { IntroPoolCounter } from '@/components/intro-pool-counter';
 import { NewsletterSignup } from '@/components/newsletter-signup';
 import { CREDITS_ENABLED } from '@/lib/credits';
 import { getIntroPoolStatus } from '@/lib/intro-pool';
+import { getCopy } from '@/lib/copy';
 
 export const metadata = {
   title: 'THE PIT — AI Battle Arena',
@@ -14,7 +15,10 @@ export const metadata = {
 
 /** Server-rendered landing page with hero, presets, pricing, and research stats. */
 export default async function LandingPage() {
-  const poolStatus = CREDITS_ENABLED ? await getIntroPoolStatus() : null;
+  const [poolStatus, c] = await Promise.all([
+    CREDITS_ENABLED ? getIntroPoolStatus() : Promise.resolve(null),
+    getCopy(),
+  ]);
 
   return (
     <main className="bg-background text-foreground">
@@ -26,34 +30,33 @@ export default async function LandingPage() {
           <div className="flex items-center gap-3">
             <span className="inline-block h-3 w-3 animate-pulse rounded-full bg-accent" />
             <p className="text-sm uppercase tracking-[0.5em] text-accent md:text-base">
-              THE PIT
+              {c.hero.badge}
             </p>
           </div>
           <h1 className="font-sans text-5xl uppercase tracking-tight md:text-7xl">
-            Where agents collide.
+            {c.hero.headline}
           </h1>
           <p className="max-w-2xl text-lg text-muted">
-            Pick a preset. Watch AI personalities clash in real time. Vote on
-            who wins. Share the chaos.
+            {c.hero.subheadline}
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
               href="/arena"
               className="border-2 border-accent bg-accent px-8 py-4 text-xs uppercase tracking-[0.3em] text-background transition hover:bg-accent/90 hover:shadow-[0_0_20px_rgba(215,255,63,0.3)]"
             >
-              Enter the Arena
+              {c.hero.ctaPrimary}
             </Link>
             <Link
               href="#how-it-works"
               className="border-2 border-foreground/60 px-8 py-4 text-xs uppercase tracking-[0.3em] text-foreground transition hover:border-foreground hover:shadow-[0_0_20px_rgba(244,244,240,0.1)]"
             >
-              How It Works
+              {c.hero.ctaSecondary}
             </Link>
           </div>
           {poolStatus && (
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted">
-              <span className="rounded-full border-2 border-accent/70 px-3 py-1 text-accent">
-                Intro pool
+               <span className="rounded-full border-2 border-accent/70 px-3 py-1 text-accent">
+                {c.hero.introPool.label}
               </span>
               <span>
                 <IntroPoolCounter
@@ -61,17 +64,17 @@ export default async function LandingPage() {
                   drainRatePerMinute={poolStatus.drainRatePerMinute}
                   startedAt={poolStatus.startedAt}
                 />{' '}
-                credits remaining
+                {c.hero.introPool.remaining}
               </span>
               <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
-                drains 1 credit/min
+                {c.hero.introPool.drainRate}
               </span>
               {poolStatus.exhausted && (
                 <Link
                   href="/sign-up?redirect_url=/arena"
                   className="rounded-full border-2 border-accent/70 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-accent transition hover:bg-accent/10"
                 >
-                  Pool drained — sign up for credits
+                  {c.hero.introPool.drained}
                 </Link>
               )}
             </div>
@@ -86,41 +89,23 @@ export default async function LandingPage() {
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 max-w-8 bg-accent/60" />
             <p className="text-xs uppercase tracking-[0.4em] text-accent">
-              How It Works
+              {c.howItWorks.label}
             </p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Four moves to mastery
+            {c.howItWorks.title}
           </h2>
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <StepCard
-              step={1}
-              title="Pick"
-              heading="Choose a preset"
-              description="Philosophers, comedians, therapists, cats. The roster is built for spectacle."
-              color="#d7ff3f"
-            />
-            <StepCard
-              step={2}
-              title="Watch"
-              heading="Live streaming bouts"
-              description="Turn-by-turn text. Each agent has a voice, a strategy, and zero chill."
-              color="#00D4FF"
-            />
-            <StepCard
-              step={3}
-              title="Decide"
-              heading="Vote and share"
-              description="React to the best lines. Crown the winner. Share the replay link."
-              color="#FF4444"
-            />
-            <StepCard
-              step={4}
-              title="Clone"
-              heading="Remix the winners"
-              description="Clone any agent — winning or losing. Tweak the prompt DNA, adjust personality, tactics, and quirks. Build from scratch or fork a champion."
-              color="#C084FC"
-            />
+            {c.howItWorks.steps.map((step, i) => (
+              <StepCard
+                key={i}
+                step={i + 1}
+                title={step.title}
+                heading={step.heading}
+                description={step.description}
+                color={['#d7ff3f', '#00D4FF', '#FF4444', '#C084FC'][i]}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -130,44 +115,29 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 max-w-8 bg-accent/60" />
-            <p className="text-xs uppercase tracking-[0.4em] text-accent">Featured Presets</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-accent">{c.featuredPresets.label}</p>
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
-            <PresetHighlight
-              name="The Darwin Special"
-              description="Evolution meets its critics — and a smug house cat."
-              agentCount={3}
-              tags={['Philosophy', 'Science']}
-            />
-            <PresetHighlight
-              name="Roast Battle"
-              description="Two comics, zero mercy. Audience decides the winner."
-              agentCount={2}
-              tags={['Comedy', 'Competition']}
-            />
-            <PresetHighlight
-              name="The Last Supper"
-              description="Socrates, Nietzsche, Ayn Rand, and Buddha share a final meal."
-              agentCount={4}
-              tags={['Philosophy', 'History']}
-            />
-            <PresetHighlight
-              name="On The Couch"
-              description="Therapy gone wrong. Oversharing optional."
-              agentCount={2}
-              tags={['Psychology', 'Drama']}
-            />
+            {c.featuredPresets.presets.map((preset) => (
+              <PresetHighlight
+                key={preset.name}
+                name={preset.name}
+                description={preset.description}
+                agentCount={preset.agentCount}
+                tags={preset.tags}
+              />
+            ))}
           </div>
           <div className="mt-10 flex items-center gap-4">
             <Link
               href="/arena"
               className="text-xs uppercase tracking-[0.3em] text-accent transition hover:text-accent/80"
             >
-              View all presets
+              {c.featuredPresets.viewAll}
             </Link>
             <div className="h-px flex-1 bg-foreground/10" />
             <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
-              22 presets available
+              {c.featuredPresets.count}
             </span>
           </div>
         </div>
@@ -179,26 +149,24 @@ export default async function LandingPage() {
         <div className="relative mx-auto max-w-5xl px-6 py-20">
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 max-w-8" style={{ backgroundColor: 'rgba(255,68,68,0.6)' }} />
-            <p className="text-xs uppercase tracking-[0.4em]" style={{ color: '#FF4444' }}>Research Layer</p>
+            <p className="text-xs uppercase tracking-[0.4em]" style={{ color: '#FF4444' }}>{c.researchLayer.label}</p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Entertainment for you. Data for everyone.
+            {c.researchLayer.title}
           </h2>
           <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted">
-            Every bout creates a new multi-agent conversation and crowd feedback. We
-            analyze which personas persuade, perform, and evolve. Transcripts,
-            reactions, and votes feed into anonymized research datasets.
+            {c.researchLayer.description}
           </p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <ResearchStat label="Data points" value="Transcripts" detail="Turn-level behavioral capture" />
-            <ResearchStat label="Crowd signal" value="Reactions" detail="Heart + fire per turn" />
-            <ResearchStat label="Outcome" value="Winner votes" detail="Per-bout crowd consensus" />
+            {c.researchLayer.stats.map((stat) => (
+              <ResearchStat key={stat.label} label={stat.label} value={stat.value} detail={stat.detail} />
+            ))}
           </div>
           <Link
             href="/research"
             className="mt-8 inline-block border-2 border-foreground/50 px-6 py-3 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-[#FF4444] hover:text-[#FF4444]"
           >
-            Learn about the research
+            {c.researchLayer.cta}
           </Link>
         </div>
       </section>
@@ -211,73 +179,53 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 max-w-8 bg-accent/60" />
-            <p className="text-xs uppercase tracking-[0.4em] text-accent">Pricing</p>
+            <p className="text-xs uppercase tracking-[0.4em] text-accent">{c.pricing.label}</p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Plans for every pit fighter
+            {c.pricing.title}
           </h2>
           <p className="mt-4 max-w-2xl text-sm text-muted">
-            Start free with 15 lifetime bouts. Upgrade for more bouts, better models,
-            and unlimited agents. BYOK is always free and unlimited.
+            {c.pricing.description}
           </p>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <PlanCard
-              name="Free"
+              name={c.pricing.plans[0].name}
               price={0}
               period=""
               href="/sign-up?redirect_url=/arena"
-              cta="Get Started"
-              features={[
-                '3 bouts/day (15 lifetime)',
-                'Haiku model',
-                '1 custom agent',
-                'BYOK unlimited',
-              ]}
+              cta={c.pricing.plans[0].cta}
+              features={c.pricing.plans[0].features}
             />
             <PlanCard
-              name="Pit Pass"
+              name={c.pricing.plans[1].name}
               price={3}
               period="/mo"
               featured
               href="/sign-up?redirect_url=/arena#upgrade"
-              cta="Subscribe"
-              features={[
-                '15 bouts/day',
-                'Haiku + Sonnet',
-                '5 custom agents',
-                'Agent analytics',
-                'BYOK unlimited',
-              ]}
+              cta={c.pricing.plans[1].cta}
+              features={c.pricing.plans[1].features}
             />
             <PlanCard
-              name="Pit Lab"
+              name={c.pricing.plans[2].name}
               price={10}
               period="/mo"
               href="/sign-up?redirect_url=/arena#upgrade"
-              cta="Subscribe"
-              features={[
-                '100 bouts/day',
-                'All models (incl. Opus)',
-                'Unlimited agents',
-                'Headless API access',
-                'CLI toolchain (pitforge)',
-                'Agent analytics',
-                'BYOK unlimited',
-              ]}
+              cta={c.pricing.plans[2].cta}
+              features={c.pricing.plans[2].features}
             />
           </div>
 
           {/* Credit top-ups */}
           <div className="mt-12 border-t border-foreground/20 pt-8">
             <p className="text-xs uppercase tracking-[0.3em] text-muted">
-              Need extra bouts? Top up with credit packs
+              {c.pricing.creditPacks.label}
             </p>
             <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-2 max-w-lg">
               <CreditPackCard name="Starter" price={3} credits={300} />
               <CreditPackCard name="Plus" price={8} credits={800} />
             </div>
             <p className="mt-4 text-xs text-muted">
-              Or bring your own API key — BYOK bouts are always free and unlimited.
+              {c.pricing.creditPacks.byokNote}
             </p>
           </div>
         </div>

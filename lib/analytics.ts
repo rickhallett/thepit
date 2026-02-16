@@ -32,7 +32,8 @@ export type AnalyticsEvent =
   | 'feature_request_voted'
   | 'page_scroll_depth'
   | 'page_active_time'
-  | 'bout_engagement_depth';
+  | 'bout_engagement_depth'
+  | 'copy_variant_served';
 
 export function trackEvent(event: AnalyticsEvent, properties?: EventProperties) {
   if (typeof window === 'undefined') return;

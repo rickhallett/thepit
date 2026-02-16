@@ -21,7 +21,7 @@
 import { getContext } from '@/lib/async-context';
 
 /** Signal categories for structured log filtering. */
-export type LogSignal = 'audit' | 'metric' | 'security';
+export type LogSignal = 'audit' | 'metric' | 'security' | 'experiment';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 type ConfigLevel = LogLevel | 'silent';
@@ -208,5 +208,9 @@ export const log = {
   /** Security events: rate limit violations, auth failures, anomalies. */
   security(msg: string, ctx?: LogContext) {
     emit('warn', msg, { ...ctx, signal: 'security' as const });
+  },
+  /** Experiment events: copy variant assignment, A/B test data. */
+  experiment(msg: string, ctx?: LogContext) {
+    emit('info', msg, { ...ctx, signal: 'experiment' as const });
   },
 };

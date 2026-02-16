@@ -6,25 +6,10 @@ import { usePathname } from 'next/navigation';
 
 import { AuthControls } from '@/components/auth-controls';
 import { cn } from '@/lib/cn';
-
-const PRIMARY_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/arena', label: 'Arena' },
-  { href: '/agents', label: 'All agents' },
-  { href: '/leaderboard', label: 'Leaderboard' },
-];
-
-const OVERFLOW_LINKS = [
-  { href: '/research', label: 'Research' },
-  { href: '/developers', label: 'Developers' },
-  { href: '/roadmap', label: 'Roadmap' },
-  { href: '/contact', label: 'Contact' },
-  { href: '/feedback', label: 'Feedback' },
-];
-
-const ALL_LINKS = [...PRIMARY_LINKS, ...OVERFLOW_LINKS];
+import { useCopy } from '@/lib/copy-client';
 
 export function SiteHeader({ className }: { className?: string }) {
+  const c = useCopy();
   // Track which pathname the dropdowns were opened on.
   // When pathname changes, the dropdowns auto-close because the derived
   // booleans below resolve to false. No effect + setState needed.
@@ -52,7 +37,8 @@ export function SiteHeader({ className }: { className?: string }) {
     return () => document.removeEventListener('mousedown', handler);
   }, [moreOpen]);
 
-  const isOverflowActive = OVERFLOW_LINKS.some((l) => pathname === l.href);
+  const allLinks = [...c.nav.primary, ...c.nav.overflow];
+  const isOverflowActive = c.nav.overflow.some((l) => pathname === l.href);
 
   return (
     <header
@@ -64,11 +50,11 @@ export function SiteHeader({ className }: { className?: string }) {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="text-accent">
-            THE PIT
+            {c.nav.brand}
           </Link>
           {/* Desktop nav */}
           <nav className="hidden items-center gap-2 lg:flex">
-            {PRIMARY_LINKS.map((link) => (
+            {c.nav.primary.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -92,7 +78,7 @@ export function SiteHeader({ className }: { className?: string }) {
                 aria-expanded={moreOpen}
                 aria-haspopup="true"
               >
-                More
+                {c.nav.more}
                 <svg
                   viewBox="0 0 12 12"
                   fill="none"
@@ -105,7 +91,7 @@ export function SiteHeader({ className }: { className?: string }) {
               </button>
               {moreOpen && (
                 <div className="absolute left-0 top-full z-50 mt-2 flex min-w-[160px] flex-col gap-1 border-2 border-foreground/60 bg-black/95 p-2 shadow-[4px_4px_0_rgba(255,255,255,0.1)]">
-                  {OVERFLOW_LINKS.map((link) => (
+                  {c.nav.overflow.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
@@ -162,7 +148,7 @@ export function SiteHeader({ className }: { className?: string }) {
       {/* Mobile nav drawer */}
       {menuOpen && (
         <nav className="mx-auto mt-4 flex max-w-6xl flex-col gap-1 border-t border-foreground/20 pt-4 lg:hidden">
-          {ALL_LINKS.map((link) => (
+          {allLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}

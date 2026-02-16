@@ -1,17 +1,20 @@
 import Link from 'next/link';
 
+import { getCopy } from '@/lib/copy';
+
 const REPO = 'https://github.com/rickhallett/thepit';
 
-export default function SecurityPage() {
+export default async function SecurityPage() {
+  const c = await getCopy();
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-6 py-12">
         <header className="border-b-2 border-foreground/70 pb-4">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Security
+            {c.legal.security.label}
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight">
-            Security &amp; Transparency
+            {c.legal.security.title}
           </h1>
           <p className="mt-2 text-xs text-muted">Last updated: February 2026</p>
         </header>

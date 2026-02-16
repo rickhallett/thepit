@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore, useCallback, useState } from 'react';
 import Link from 'next/link';
+import { useCopy } from '@/lib/copy-client';
 
 /** Cookie name storing the user's analytics consent choice. */
 export const CONSENT_COOKIE = 'pit_consent';
@@ -43,6 +44,7 @@ function getServerSnapshot(): ConsentState {
  * always set as they are necessary for site functionality.
  */
 export function CookieConsent() {
+  const c = useCopy();
   // Use a counter to force re-reads of the cookie after user action
   const [, setVersion] = useState(0);
 
@@ -79,14 +81,12 @@ export function CookieConsent() {
       <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
           <p className="text-sm text-foreground">
-            We use analytics cookies to understand how THE PIT is used and
-            improve the experience.
+            {c.cookieConsent.message}
           </p>
           <p className="mt-1 text-xs text-muted">
-            Essential cookies (authentication, referral tracking) are always
-            active.{' '}
+            {c.cookieConsent.essential}{' '}
             <Link href="/privacy" className="underline transition hover:text-accent">
-              Privacy policy
+              {c.cookieConsent.privacyLink}
             </Link>
           </p>
         </div>
@@ -96,14 +96,14 @@ export function CookieConsent() {
             onClick={handleDecline}
             className="border-2 border-foreground/40 px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-muted transition hover:border-foreground hover:text-foreground"
           >
-            Decline
+            {c.cookieConsent.decline}
           </button>
           <button
             type="button"
             onClick={handleAccept}
             className="border-2 border-accent bg-accent px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-background transition hover:bg-accent/90"
           >
-            Accept
+            {c.cookieConsent.accept}
           </button>
         </div>
       </div>

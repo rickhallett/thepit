@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
+import { useCopy } from '@/lib/copy-client';
 
 type FeatureRequest = {
   id: number;
@@ -17,20 +18,11 @@ type FeatureRequest = {
   userVoted: boolean;
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  agents: 'Agents',
-  arena: 'Arena',
-  presets: 'Presets',
-  research: 'Research',
-  ui: 'UI',
-  other: 'Other',
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  planned: 'Planned',
-  shipped: 'Shipped',
-  reviewed: 'Reviewed',
-};
+const getStatusLabels = (c: ReturnType<typeof useCopy>): Record<string, string> => ({
+  planned: c.featureRequest.list.statusLabels.planned,
+  shipped: c.featureRequest.list.statusLabels.shipped,
+  reviewed: c.featureRequest.list.statusLabels.reviewed,
+});
 
 function timeAgo(dateStr: string): string {
   const ms = Date.now() - new Date(dateStr).getTime();
@@ -44,6 +36,8 @@ function timeAgo(dateStr: string): string {
 }
 
 export function FeatureRequestList() {
+  const c = useCopy();
+  const STATUS_LABELS = getStatusLabels(c);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -106,7 +100,7 @@ export function FeatureRequestList() {
   if (loading) {
     return (
       <p className="text-xs uppercase tracking-[0.3em] text-muted">
-        Loading requests...
+        {c.featureRequest.list.loading}
       </p>
     );
   }
@@ -114,7 +108,7 @@ export function FeatureRequestList() {
   if (requests.length === 0) {
     return (
       <p className="text-sm text-muted">
-        No feature requests yet. Be the first to submit one above.
+        {c.featureRequest.list.empty}
       </p>
     );
   }
@@ -133,7 +127,7 @@ export function FeatureRequestList() {
                   {r.title}
                 </h3>
                 <span className="rounded bg-foreground/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-muted">
-                  {CATEGORY_LABELS[r.category] ?? r.category}
+                  {c.featureRequest.form.categories[r.category] ?? r.category}
                 </span>
                 {STATUS_LABELS[r.status] && (
                   <span className="rounded bg-accent/20 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em] text-accent">

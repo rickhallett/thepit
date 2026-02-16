@@ -4,19 +4,21 @@ import { useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
+import { useCopy } from '@/lib/copy-client';
 
-const RELEVANCE_AREAS = [
-  { value: 'agent-interaction', label: 'Agent Interaction' },
-  { value: 'evaluation', label: 'Evaluation & Bias' },
-  { value: 'persona', label: 'Persona & Behaviour' },
-  { value: 'context-windows', label: 'Context Windows' },
-  { value: 'prompt-engineering', label: 'Prompt Engineering' },
-  { value: 'other', label: 'Other' },
+const RELEVANCE_VALUES = [
+  'agent-interaction',
+  'evaluation',
+  'persona',
+  'context-windows',
+  'prompt-engineering',
+  'other',
 ] as const;
 
 type FormStatus = 'idle' | 'loading' | 'success' | 'error';
 
 export function PaperSubmissionForm() {
+  const c = useCopy();
   const [arxivUrl, setArxivUrl] = useState('');
   const [justification, setJustification] = useState('');
   const [relevanceArea, setRelevanceArea] = useState('');
@@ -50,7 +52,7 @@ export function PaperSubmissionForm() {
       setStatus('success');
       trackEvent('paper_submitted', { relevanceArea });
     } catch {
-      setErrorMessage('Something went wrong. Try again.');
+      setErrorMessage(c.common.error);
       setStatus('error');
     }
   };
@@ -59,16 +61,14 @@ export function PaperSubmissionForm() {
     return (
       <div className="border-2 border-accent/40 bg-black/40 p-6">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
-          Submitted for review
+          {c.paperSubmission.success}
         </p>
         <p className="mt-4 text-sm font-bold text-foreground">
           {extractedTitle}
         </p>
         <p className="mt-1 text-xs text-muted">{extractedAuthors}</p>
         <p className="mt-4 text-xs text-muted">
-          Thank you for contributing to our research foundations. Submissions
-          are reviewed by our team and added to the citations page when
-          accepted.
+          {c.paperSubmission.successDescription}
         </p>
         <button
           type="button"
@@ -80,7 +80,7 @@ export function PaperSubmissionForm() {
           }}
           className="mt-4 text-xs uppercase tracking-[0.3em] text-accent transition hover:underline"
         >
-          Submit another paper
+          {c.paperSubmission.submitAnother}
         </button>
       </div>
     );
@@ -91,14 +91,14 @@ export function PaperSubmissionForm() {
       <SignedOut>
         <div className="border-2 border-foreground/40 bg-black/40 p-6">
           <p className="text-sm text-muted">
-            Sign in to suggest a paper for review.
+            {c.paperSubmission.signInPrompt}
           </p>
           <SignInButton mode="modal">
             <button
               type="button"
               className="mt-4 border-2 border-accent bg-accent/10 px-6 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
             >
-              Sign in
+              {c.common.signIn}
             </button>
           </SignInButton>
         </div>
@@ -108,7 +108,7 @@ export function PaperSubmissionForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-xs uppercase tracking-[0.3em] text-muted">
-              arXiv URL
+              {c.paperSubmission.fields.arxivUrl}
             </label>
             <input
               type="url"
@@ -122,7 +122,7 @@ export function PaperSubmissionForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-xs uppercase tracking-[0.3em] text-muted">
-              Relevance area
+              {c.paperSubmission.fields.relevanceArea}
             </label>
             <select
               value={relevanceArea}
@@ -131,11 +131,11 @@ export function PaperSubmissionForm() {
               className="border-2 border-foreground/70 bg-black/60 px-4 py-3 pr-10 text-sm text-foreground focus:border-accent focus:outline-none"
             >
               <option value="" disabled>
-                Select an area...
+                {c.paperSubmission.fields.areaPlaceholder}
               </option>
-              {RELEVANCE_AREAS.map((area) => (
-                <option key={area.value} value={area.value}>
-                  {area.label}
+              {RELEVANCE_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {c.paperSubmission.relevanceAreas[value]}
                 </option>
               ))}
             </select>
@@ -143,7 +143,7 @@ export function PaperSubmissionForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-xs uppercase tracking-[0.3em] text-muted">
-              Why it matters for The Pit
+              {c.paperSubmission.fields.whyItMatters}
             </label>
             <textarea
               rows={4}
@@ -165,12 +165,12 @@ export function PaperSubmissionForm() {
             disabled={status === 'loading'}
             className="border-2 border-accent bg-accent/10 px-8 py-4 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background disabled:opacity-50"
           >
-            {status === 'loading' ? 'Validating...' : 'Submit paper'}
+            {status === 'loading' ? c.paperSubmission.validating : c.paperSubmission.submit}
           </button>
 
           {status === 'error' && (
             <p className="text-xs uppercase tracking-[0.3em] text-red-400">
-              {errorMessage || 'Something went wrong. Try again.'}
+              {errorMessage || c.common.error}
             </p>
           )}
         </form>

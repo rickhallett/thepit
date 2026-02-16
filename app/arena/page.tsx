@@ -28,6 +28,7 @@ import {
   getFreeBoutsUsed,
 } from '@/lib/tier';
 import { ALL_PRESETS } from '@/lib/presets';
+import { getCopy } from '@/lib/copy';
 
 import {
   createBout,
@@ -44,6 +45,7 @@ export const metadata = {
 
 /** Arena page: preset grid with tier-aware model access, free bout counter, and upgrade section. */
 export default async function ArenaPage() {
+  const c = await getCopy();
   const creditsEnabled = CREDITS_ENABLED;
   const subsEnabled = SUBSCRIPTIONS_ENABLED;
   const { userId } = await auth();
@@ -74,19 +76,18 @@ export default async function ArenaPage() {
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-12">
         <header className="flex flex-col gap-5 border-b-2 border-foreground/70 pb-8">
           <h1 className="font-sans text-4xl uppercase tracking-tight md:text-5xl">
-            AI Battle Arena
+            {c.arena.title}
           </h1>
           <p className="max-w-2xl text-sm text-muted">
-            Pick a preset. The arena will spin up a round-robin debate and stream
-            each agent in real time. No poker math, no calculators, just chaos.
+            {c.arena.description}
           </p>
           {creditsEnabled && creditBalanceMicro !== null && (
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.3em] text-muted">
               <span className="rounded-full border-2 border-foreground/60 px-3 py-1">
-                Credits: {formatCredits(creditBalanceMicro)}
+                {c.arena.credits.label} {formatCredits(creditBalanceMicro)}
               </span>
               <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
-                1 credit = £{CREDIT_VALUE_GBP.toFixed(2)}
+                {c.arena.credits.rateLabel.replace('{rate}', CREDIT_VALUE_GBP.toFixed(2))}
               </span>
               {CREDITS_ADMIN_ENABLED && userId && (
                 <form action={grantTestCredits}>
@@ -94,7 +95,7 @@ export default async function ArenaPage() {
                     type="submit"
                     className="rounded-full border-2 border-foreground/50 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-muted transition hover:border-accent hover:text-accent"
                   >
-                    Add credits (test)
+                    {c.arena.credits.addCredits}
                   </button>
                 </form>
               )}
@@ -110,11 +111,11 @@ export default async function ArenaPage() {
                     ? 'border-accent text-accent'
                     : 'border-foreground/60 text-muted'
               }`}>
-                {userTier === 'lab' ? 'Pit Lab' : userTier === 'pass' ? 'Pit Pass' : 'Free'}
+                {userTier === 'lab' ? c.arena.tier.pitLab : userTier === 'pass' ? c.arena.tier.pitPass : c.arena.tier.free}
               </span>
               {userTier === 'free' && freeBoutsUsed !== null && tierConfig.lifetimeBoutCap !== null && (
                 <span className="text-xs uppercase tracking-[0.25em] text-muted">
-                  {tierConfig.lifetimeBoutCap - freeBoutsUsed} of {tierConfig.lifetimeBoutCap} lifetime bouts remaining
+                  {c.arena.tier.boutsRemaining.replace('{remaining}', String(tierConfig.lifetimeBoutCap - freeBoutsUsed)).replace('{total}', String(tierConfig.lifetimeBoutCap))}
                 </span>
               )}
               {userTier !== 'free' && (
@@ -123,7 +124,7 @@ export default async function ArenaPage() {
                     type="submit"
                     className="text-[10px] uppercase tracking-[0.25em] text-muted transition hover:text-accent"
                   >
-                    Manage subscription
+                    {c.arena.tier.manageSubscription}
                   </button>
                 </form>
               )}
@@ -132,14 +133,14 @@ export default async function ArenaPage() {
                   href="#upgrade"
                   className="text-[10px] uppercase tracking-[0.25em] text-accent transition hover:text-accent/80"
                 >
-                  Upgrade plan
+                  {c.arena.tier.upgradePlan}
                 </Link>
               )}
             </div>
           )}
           {showCreditPrompt && (
             <p className="mt-4 text-xs uppercase tracking-[0.25em] text-muted">
-              Sign in to track credits and history.
+              {c.arena.credits.signInPrompt}
             </p>
           )}
           {/* Free bout pool counter */}
@@ -155,7 +156,7 @@ export default async function ArenaPage() {
           {poolStatus && (
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted">
               <span className="rounded-full border-2 border-accent/70 px-3 py-1 text-accent">
-                Intro pool
+                {c.arena.credits.introPoolLabel}
               </span>
               <span>
                 <IntroPoolCounter
@@ -163,14 +164,14 @@ export default async function ArenaPage() {
                   drainRatePerMinute={poolStatus.drainRatePerMinute}
                   startedAt={poolStatus.startedAt}
                 />{' '}
-                credits left
+                {c.arena.credits.creditsLeft}
               </span>
               {poolStatus.exhausted && (
                 <Link
                   href="/sign-up?redirect_url=/arena"
                   className="rounded-full border-2 border-accent/70 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-accent transition hover:bg-accent/10"
                 >
-                  Pool drained — sign up for credits
+                  {c.arena.credits.poolDrained}
                 </Link>
               )}
             </div>
@@ -187,16 +188,16 @@ export default async function ArenaPage() {
             className="group flex h-full flex-col gap-4 border-2 border-foreground/80 bg-black/60 p-6 shadow-[8px_8px_0_rgba(255,255,255,0.15)] transition hover:-translate-y-1"
           >
             <p className="text-xs uppercase tracking-[0.35em] text-muted">
-              Arena Mode
+              {c.arena.customBout.label}
             </p>
             <h3 className="mt-2 font-sans text-2xl uppercase tracking-tight">
-              Build your own lineup
+              {c.arena.customBout.title}
             </h3>
             <p className="text-xs text-muted">
-              Select 2–6 agents, set a topic, and unleash custom chaos.
+              {c.arena.customBout.description}
             </p>
             <span className="mt-auto text-xs uppercase tracking-[0.3em] text-accent">
-              Start building →
+              {c.arena.customBout.cta}
             </span>
           </Link>
           {ALL_PRESETS.map((preset) => (
@@ -225,11 +226,11 @@ export default async function ArenaPage() {
         {subsEnabled && userTier !== 'lab' && (
           <section id="upgrade" className="flex flex-col gap-4 border-t-2 border-foreground/60 pt-8">
             <p className="text-xs uppercase tracking-[0.4em] text-accent">
-              {userId ? 'Upgrade Your Plan' : 'Choose Your Plan'}
+              {userId ? c.arena.upgrade.upgradeTitle : c.arena.upgrade.chooseTitle}
             </p>
             {!userId && (
               <p className="text-xs text-muted">
-                Sign up to subscribe and unlock premium models, more bouts, and custom agents.
+                {c.arena.upgrade.signUpDescription}
               </p>
             )}
             <div className="grid gap-4 md:grid-cols-2">
@@ -240,38 +241,38 @@ export default async function ArenaPage() {
                     className="flex flex-col gap-3 border-2 border-accent/60 bg-accent/5 p-5"
                   >
                     <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-accent">Pit Pass</p>
+                      <p className="text-xs uppercase tracking-[0.3em] text-accent">{c.arena.tier.pitPass}</p>
                       <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
                         £3<span className="text-sm text-muted">/mo</span>
                       </p>
                     </div>
                     <p className="text-xs text-muted">
-                      15 bouts/day, Haiku + Sonnet, 5 agents, analytics
+                      {c.arena.upgrade.passDescription}
                     </p>
                     <input type="hidden" name="plan" value="pass" />
                     <button
                       type="submit"
                       className="mt-auto border-2 border-accent px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
                     >
-                      Subscribe
+                      {c.arena.upgrade.subscribe}
                     </button>
                   </form>
                 ) : (
                   <div className="flex flex-col gap-3 border-2 border-accent/60 bg-accent/5 p-5">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-accent">Pit Pass</p>
+                      <p className="text-xs uppercase tracking-[0.3em] text-accent">{c.arena.tier.pitPass}</p>
                       <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
                         £3<span className="text-sm text-muted">/mo</span>
                       </p>
                     </div>
                     <p className="text-xs text-muted">
-                      15 bouts/day, Haiku + Sonnet, 5 agents, analytics
+                      {c.arena.upgrade.passDescription}
                     </p>
                     <Link
                       href="/sign-up?redirect_url=/arena#upgrade"
                       className="mt-auto border-2 border-accent px-4 py-3 text-center text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
                     >
-                      Sign up to subscribe
+                      {c.arena.upgrade.signUpToSubscribe}
                     </Link>
                   </div>
                 )
@@ -282,38 +283,38 @@ export default async function ArenaPage() {
                   className="flex flex-col gap-3 border-2 border-purple-400/60 bg-purple-400/5 p-5"
                 >
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-purple-400">Pit Lab</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-purple-400">{c.arena.tier.pitLab}</p>
                     <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
                       £10<span className="text-sm text-muted">/mo</span>
                     </p>
                   </div>
                   <p className="text-xs text-muted">
-                    100 bouts/day, all models incl. Opus, unlimited agents, API access
+                    {c.arena.upgrade.labDescription}
                   </p>
                   <input type="hidden" name="plan" value="lab" />
                   <button
                     type="submit"
                     className="mt-auto border-2 border-purple-400 px-4 py-3 text-xs uppercase tracking-[0.3em] text-purple-400 transition hover:bg-purple-400 hover:text-background"
                   >
-                    Subscribe
+                    {c.arena.upgrade.subscribe}
                   </button>
                 </form>
               ) : (
                 <div className="flex flex-col gap-3 border-2 border-purple-400/60 bg-purple-400/5 p-5">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-purple-400">Pit Lab</p>
+                    <p className="text-xs uppercase tracking-[0.3em] text-purple-400">{c.arena.tier.pitLab}</p>
                     <p className="mt-2 text-2xl font-sans uppercase tracking-tight">
                       £10<span className="text-sm text-muted">/mo</span>
                     </p>
                   </div>
                   <p className="text-xs text-muted">
-                    100 bouts/day, all models incl. Opus, unlimited agents, API access
+                    {c.arena.upgrade.labDescription}
                   </p>
                   <Link
                     href="/sign-up?redirect_url=/arena#upgrade"
                     className="mt-auto border-2 border-purple-400 px-4 py-3 text-center text-xs uppercase tracking-[0.3em] text-purple-400 transition hover:bg-purple-400 hover:text-background"
                   >
-                    Sign up to subscribe
+                    {c.arena.upgrade.signUpToSubscribe}
                   </Link>
                 </div>
               )}
@@ -324,7 +325,7 @@ export default async function ArenaPage() {
         {creditsEnabled && (
           <section className="flex flex-col gap-4 border-t-2 border-foreground/60 pt-8">
             <p className="text-xs uppercase tracking-[0.4em] text-accent">
-              Credit Packs
+              {c.arena.creditPacks.label}
             </p>
             <div className="grid gap-4 md:grid-cols-2">
               {CREDIT_PACKAGES.map((pack) => (
@@ -358,20 +359,20 @@ export default async function ArenaPage() {
         {creditsEnabled && userId && (
           <section className="flex flex-col gap-4 border-t-2 border-foreground/60 pt-8">
             <p className="text-xs uppercase tracking-[0.4em] text-accent">
-              Credit History
+              {c.arena.creditHistory.label}
             </p>
             {creditHistory.length === 0 ? (
               <p className="text-xs uppercase tracking-[0.3em] text-muted">
-                No credit activity yet.
+                {c.arena.creditHistory.empty}
               </p>
             ) : (
               <div className="relative">
               <div className="overflow-x-auto border-2 border-foreground/60">
                 <div className="grid min-w-[520px] grid-cols-[minmax(0,2fr)_110px_120px_120px] gap-4 border-b-2 border-foreground/60 bg-black/60 px-4 py-3 text-[10px] uppercase tracking-[0.3em] text-muted">
-                  <span>When</span>
-                  <span>Source</span>
-                  <span className="text-right">Delta</span>
-                  <span className="text-right">Reference</span>
+                  <span>{c.arena.creditHistory.columns.when}</span>
+                  <span>{c.arena.creditHistory.columns.source}</span>
+                  <span className="text-right">{c.arena.creditHistory.columns.delta}</span>
+                  <span className="text-right">{c.arena.creditHistory.columns.reference}</span>
                 </div>
                 {creditHistory.map((row) => {
                   const delta =
@@ -404,7 +405,7 @@ export default async function ArenaPage() {
         )}
 
         <footer className="text-xs uppercase tracking-[0.3em] text-muted">
-          Zero monte carlo. Zero equity. Pure spectacle.
+          {c.arena.tagline}
         </footer>
       </div>
     </main>

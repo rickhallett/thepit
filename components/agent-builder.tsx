@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { cn } from '@/lib/cn';
+import { useCopy } from '@/lib/copy-client';
 import { trackEvent } from '@/lib/analytics';
 import { buildStructuredPrompt } from '@/lib/agent-prompts';
 import {
@@ -44,6 +45,7 @@ export function AgentBuilder({
   initialValues?: AgentBuilderInitialValues;
 }) {
   const router = useRouter();
+  const c = useCopy();
   const [activeTab, setActiveTab] = useState<TabId>('basics');
   const [name, setName] = useState(initialValues?.name ?? '');
   const [archetype, setArchetype] = useState(initialValues?.archetype ?? '');
@@ -109,7 +111,7 @@ export function AgentBuilder({
     setError(null);
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setError('Add a name for your agent.');
+      setError(c.agentBuilder.validation.nameRequired);
       return;
     }
 
@@ -126,7 +128,7 @@ export function AgentBuilder({
       customInstructions.trim();
 
     if (!hasContent) {
-      setError('Add at least one personality or tactical detail.');
+      setError(c.agentBuilder.validation.personalityRequired);
       return;
     }
 
@@ -179,10 +181,10 @@ export function AgentBuilder({
       <div className="flex flex-col gap-6">
         <div className="flex flex-wrap items-center gap-2 border-2 border-foreground/60 bg-black/70 p-1 text-xs uppercase tracking-[0.3em]">
           {([
-            { id: 'basics', label: 'Basics' },
-            { id: 'personality', label: 'Personality' },
-            { id: 'tactics', label: 'Tactics' },
-            { id: 'advanced', label: 'Advanced' },
+            { id: 'basics', label: c.agentBuilder.tabs.basics },
+            { id: 'personality', label: c.agentBuilder.tabs.personality },
+            { id: 'tactics', label: c.agentBuilder.tabs.tactics },
+            { id: 'advanced', label: c.agentBuilder.tabs.advanced },
           ] as { id: TabId; label: string }[]).map((tab) => (
             <button
               key={tab.id}
@@ -203,29 +205,29 @@ export function AgentBuilder({
         {activeTab === 'basics' && (
           <div className="grid gap-4">
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Name</span>
+              <span>{c.agentBuilder.fields.name}</span>
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                placeholder="Agent name"
+                placeholder={c.agentBuilder.fields.namePlaceholder}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Archetype</span>
+              <span>{c.agentBuilder.fields.archetype}</span>
               <input
                 value={archetype}
                 onChange={(event) => setArchetype(event.target.value)}
-                placeholder="Philosopher, Comedian, Therapist..."
+                placeholder={c.agentBuilder.fields.archetypePlaceholder}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Goal</span>
+              <span>{c.agentBuilder.fields.goal}</span>
               <textarea
                 value={goal}
                 onChange={(event) => setGoal(event.target.value)}
-                placeholder="What do they want to achieve?"
+                placeholder={c.agentBuilder.fields.goalPlaceholder}
                 rows={3}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
@@ -236,25 +238,25 @@ export function AgentBuilder({
         {activeTab === 'personality' && (
           <div className="grid gap-4">
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Tone</span>
+              <span>{c.agentBuilder.fields.tone}</span>
               <input
                 value={tone}
                 onChange={(event) => setTone(event.target.value)}
-                placeholder="Sardonic, earnest, aggressive..."
+                placeholder={c.agentBuilder.fields.tonePlaceholder}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Speech pattern</span>
+              <span>{c.agentBuilder.fields.speechPattern}</span>
               <input
                 value={speechPattern}
                 onChange={(event) => setSpeechPattern(event.target.value)}
-                placeholder="Speaks in questions, uses corporate jargon..."
+                placeholder={c.agentBuilder.fields.speechPatternPlaceholder}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <div className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Quirks</span>
+              <span>{c.agentBuilder.fields.quirks}</span>
               <div className="flex flex-wrap gap-2">
                 {quirks.map((quirk) => (
                   <button
@@ -277,7 +279,7 @@ export function AgentBuilder({
                       handleAddQuirk();
                     }
                   }}
-                  placeholder="Add a quirk"
+                  placeholder={c.agentBuilder.fields.quirksPlaceholder}
                   className="flex-1 border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
                 />
                 <button
@@ -285,7 +287,7 @@ export function AgentBuilder({
                   onClick={handleAddQuirk}
                   className="border-2 border-foreground/60 px-4 py-2 text-xs uppercase tracking-[0.3em] transition hover:border-accent hover:text-accent"
                 >
-                  Add
+                  {c.agentBuilder.addButton}
                 </button>
               </div>
             </div>
@@ -295,31 +297,31 @@ export function AgentBuilder({
         {activeTab === 'tactics' && (
           <div className="grid gap-4">
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Opening move</span>
+              <span>{c.agentBuilder.fields.openingMove}</span>
               <textarea
                 value={openingMove}
                 onChange={(event) => setOpeningMove(event.target.value)}
-                placeholder="How do they start a bout?"
+                placeholder={c.agentBuilder.fields.openingMovePlaceholder}
                 rows={3}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Signature move</span>
+              <span>{c.agentBuilder.fields.signatureMove}</span>
               <textarea
                 value={signatureMove}
                 onChange={(event) => setSignatureMove(event.target.value)}
-                placeholder="Their go-to tactic or punchline"
+                placeholder={c.agentBuilder.fields.signatureMovePlaceholder}
                 rows={3}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Weakness</span>
+              <span>{c.agentBuilder.fields.weakness}</span>
               <textarea
                 value={weakness}
                 onChange={(event) => setWeakness(event.target.value)}
-                placeholder="What beats them?"
+                placeholder={c.agentBuilder.fields.weaknessPlaceholder}
                 rows={3}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
@@ -330,27 +332,27 @@ export function AgentBuilder({
         {activeTab === 'advanced' && (
           <div className="grid gap-4">
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Fears</span>
+              <span>{c.agentBuilder.fields.fears}</span>
               <textarea
                 value={fears}
                 onChange={(event) => setFears(event.target.value)}
-                placeholder="What do they avoid or fear?"
+                placeholder={c.agentBuilder.fields.fearsPlaceholder}
                 rows={3}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Custom instructions</span>
+              <span>{c.agentBuilder.fields.customInstructions}</span>
               <textarea
                 value={customInstructions}
                 onChange={(event) => setCustomInstructions(event.target.value)}
-                placeholder="Freeform instructions for power users"
+                placeholder={c.agentBuilder.fields.customInstructionsPlaceholder}
                 rows={6}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
               />
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Response length</span>
+              <span>{c.agentBuilder.fields.responseLength}</span>
               <select
                 value={responseLength}
                 onChange={(event) =>
@@ -366,7 +368,7 @@ export function AgentBuilder({
               </select>
             </label>
             <label className="grid gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-              <span>Response format</span>
+              <span>{c.agentBuilder.fields.responseFormat}</span>
               <select
                 value={responseFormat}
                 onChange={(event) =>
@@ -401,23 +403,23 @@ export function AgentBuilder({
             )}
           >
             {status === 'saving'
-              ? parentId ? 'Cloning...' : 'Creating...'
-              : parentId ? 'Clone agent' : 'Create agent'}
+              ? parentId ? c.agentBuilder.submit.cloning : c.agentBuilder.submit.creating
+              : parentId ? c.agentBuilder.submit.clone : c.agentBuilder.submit.create}
           </button>
           <span className="text-[10px] uppercase tracking-[0.3em] text-muted">
             {parentId
-              ? 'Cloned agents inherit lineage from the source.'
-              : 'Saved agents become immutable on creation.'}
+              ? c.agentBuilder.warnings.cloneLineage
+              : c.agentBuilder.warnings.immutable}
           </span>
         </div>
       </div>
 
       <aside className="flex flex-col gap-4 border-2 border-foreground/60 bg-black/70 p-5">
         <p className="text-xs uppercase tracking-[0.35em] text-muted">
-          Prompt preview
+          {c.agentBuilder.promptPreview.title}
         </p>
         <pre className="min-h-[280px] whitespace-pre-wrap border border-foreground/40 bg-black/60 p-4 text-sm text-foreground/90">
-          {previewPrompt || 'Start building to see the composed prompt.'}
+          {previewPrompt || c.agentBuilder.promptPreview.empty}
         </pre>
       </aside>
     </div>

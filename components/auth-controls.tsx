@@ -9,6 +9,7 @@ import {
 } from '@clerk/nextjs';
 
 import { cn } from '@/lib/cn';
+import { useCopy } from '@/lib/copy-client';
 
 /** Icon for the subscription menu item inside the UserButton dropdown. */
 function SubscriptionIcon() {
@@ -33,6 +34,7 @@ function SubscriptionIcon() {
 
 /** Auth controls with sign-in/up buttons (signed out) or UserButton with subscription link (signed in). */
 export function AuthControls({ className }: { className?: string }) {
+  const c = useCopy();
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <SignedOut>
@@ -41,7 +43,7 @@ export function AuthControls({ className }: { className?: string }) {
             type="button"
             className="rounded-full border-2 border-foreground/60 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-muted transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
           >
-            Sign in
+            {c.authControls.signIn}
           </button>
         </SignInButton>
         <SignUpButton mode="modal">
@@ -49,7 +51,7 @@ export function AuthControls({ className }: { className?: string }) {
             type="button"
             className="rounded-full border-2 border-foreground/60 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-muted transition hover:-translate-y-0.5 hover:border-accent hover:text-accent"
           >
-            Sign up
+            {c.authControls.signUp}
           </button>
         </SignUpButton>
       </SignedOut>
@@ -63,7 +65,7 @@ export function AuthControls({ className }: { className?: string }) {
         >
           <UserButton.MenuItems>
             <UserButton.Link
-              label="Manage subscription"
+              label={c.authControls.manageSubscription}
               labelIcon={<SubscriptionIcon />}
               href="/arena#upgrade"
             />

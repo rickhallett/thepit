@@ -14,6 +14,7 @@ import {
 import { useBoutReactions } from '@/lib/use-bout-reactions';
 import { useBoutVoting } from '@/lib/use-bout-voting';
 import { useBoutSharing } from '@/lib/use-bout-sharing';
+import { useCopy } from '@/lib/copy-client';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
@@ -21,17 +22,6 @@ import { PitButton } from '@/components/ui/button';
 import { PitBadge } from '@/components/ui/badge';
 import { RateLimitUpgradePrompt } from '@/components/rate-limit-upgrade-prompt';
 import type { ErrorDetail } from '@/lib/use-bout';
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const STATUS_LABELS: Record<string, string> = {
-  idle: 'Warming up',
-  streaming: 'Live',
-  done: 'Complete',
-  error: 'Faulted',
-};
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -50,6 +40,8 @@ function BoutHeader({
   copied: boolean;
   onCopyTranscript: () => void;
 }) {
+  const c = useCopy();
+  const statusLabels: Record<string, string> = c.arenaComponent.statusLabels;
   const statusVariant =
     status === 'streaming'
       ? 'accent'
@@ -62,7 +54,7 @@ function BoutHeader({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            THE PIT
+            {c.arenaComponent.header.badge}
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
             {preset.name}
@@ -70,16 +62,16 @@ function BoutHeader({
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3 text-xs uppercase tracking-[0.3em]">
           <PitBadge variant={statusVariant}>
-            {STATUS_LABELS[status] ?? status}
+            {statusLabels[status] ?? status}
           </PitBadge>
           {estimatedCredits && (
             <PitBadge variant="muted">
-              Est {estimatedCredits} credits
+              {c.arenaComponent.header.estCredits.replace('{credits}', String(estimatedCredits))}
             </PitBadge>
           )}
           {status === 'done' && (
             <PitButton variant="primary" size="md" onClick={onCopyTranscript}>
-              {copied ? 'Copied' : 'Share'}
+              {copied ? c.arenaComponent.header.copied : c.arenaComponent.header.share}
             </PitButton>
           )}
         </div>
@@ -104,6 +96,8 @@ function BoutError({
 }: {
   errorDetail?: ErrorDetail | null;
 }) {
+  const c = useCopy();
+
   // Rate-limited with structured metadata → contextual upgrade prompt.
   if (errorDetail?.code === 429 && errorDetail.rateLimit) {
     return (
@@ -117,14 +111,14 @@ function BoutError({
   return (
     <div className="flex flex-col items-center gap-4 border-2 border-red-400/60 p-8 text-center">
       <p className="text-sm text-red-400">
-        {errorDetail?.message ?? 'The arena short-circuited.'}
+        {errorDetail?.message ?? c.arenaComponent.error.defaultMessage}
       </p>
       {errorDetail?.code === 401 && (
         <Link
           href="/sign-in?redirect_url=/arena"
           className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
         >
-          Sign in to continue
+          {c.arenaComponent.error.signIn}
         </Link>
       )}
       {errorDetail?.code === 402 && (
@@ -132,7 +126,7 @@ function BoutError({
           href="/arena#credits"
           className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
         >
-          Get credits
+          {c.arenaComponent.error.getCredits}
         </Link>
       )}
       <PitButton
@@ -140,7 +134,7 @@ function BoutError({
         size="lg"
         onClick={() => window.location.assign('/arena')}
       >
-        Try again
+        {c.arenaComponent.error.tryAgain}
       </PitButton>
     </div>
   );
@@ -177,6 +171,7 @@ function MessageCard({
   onReaction: (turn: number, type: 'heart' | 'fire') => void;
   onCopyMessage: (payload: string, messageId: string) => void;
 }) {
+  const c = useCopy();
   return (
     <article
       className={cn(
@@ -188,7 +183,7 @@ function MessageCard({
       <header className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em]">
         <span style={{ color: message.color }}>{message.agentName}</span>
         {isActiveStreaming && (
-          <span className="text-muted">Thinking...</span>
+          <span className="text-muted">{c.arenaComponent.messages.thinking}</span>
         )}
       </header>
       <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
@@ -221,7 +216,7 @@ function MessageCard({
             size="sm"
             onClick={() => onCopyMessage(share.payload, message.id)}
           >
-            {copiedMessageId === message.id ? 'Copied' : 'Copy'}
+            {copiedMessageId === message.id ? c.arenaComponent.messages.copiedLabel : c.arenaComponent.messages.copyLabel}
           </PitButton>
           {(['x', 'reddit', 'linkedin', 'whatsapp', 'telegram'] as const).map(
             (platform) => (
@@ -259,10 +254,11 @@ function WinnerVotePanel({
   votedLabel: string | null;
   onVote: (agentId: string) => void;
 }) {
+  const c = useCopy();
   return (
     <section className="mt-8 w-full border-2 border-foreground/60 bg-black/50 p-6">
       <p className="text-xs uppercase tracking-[0.35em] text-muted">
-        Who won?
+        {c.arenaComponent.voting.whoWon}
       </p>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         {agents.map((agent) => (
@@ -278,14 +274,14 @@ function WinnerVotePanel({
           >
             <span>{agent.name}</span>
             <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
-              {winnerVotes[agent.id] ?? 0} votes
+              {c.arenaComponent.voting.votesLabel.replace('{count}', String(winnerVotes[agent.id] ?? 0))}
             </span>
           </button>
         ))}
       </div>
       {userVote && (
         <p className="mt-4 text-xs uppercase tracking-[0.3em] text-accent">
-          Vote locked: {votedLabel}
+          {c.arenaComponent.voting.voteLocked.replace('{name}', votedLabel ?? '')}
         </p>
       )}
       {voteError && (
@@ -306,6 +302,7 @@ function RerollPanel({
   topic?: string | null;
   boutId: string;
 }) {
+  const c = useCopy();
   const params = new URLSearchParams();
   preset.agents.forEach((agent) => {
     params.append('agent', agent.id);
@@ -318,17 +315,17 @@ function RerollPanel({
   return (
     <section className="mt-4 w-full border-2 border-foreground/40 bg-black/40 p-6">
       <p className="text-xs uppercase tracking-[0.35em] text-muted">
-        Re-roll
+        {c.arenaComponent.reroll.label}
       </p>
       <p className="mt-2 text-xs text-muted">
-        Run the same lineup again with different settings.
+        {c.arenaComponent.reroll.description}
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         <a
           href={`/arena/custom?${params.toString()}`}
           className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent/10"
         >
-          Tweak &amp; re-run
+          {c.arenaComponent.reroll.tweakAndRerun}
         </a>
       </div>
     </section>
@@ -387,6 +384,8 @@ export function Arena({
   initialWinnerVotes?: WinnerVoteCounts;
   initialUserVote?: string | null;
 }) {
+  const c = useCopy();
+
   // --- Streaming state ---
   const {
     messages,
@@ -515,7 +514,7 @@ export function Arena({
         <section className="flex flex-1 flex-col gap-6">
           {messages.length === 0 && status !== 'error' && (
             <div className="border-2 border-dashed border-foreground/40 p-8 text-center text-sm text-muted">
-              Awaiting first strike.
+              {c.arenaComponent.messages.awaitingFirst}
             </div>
           )}
 
@@ -555,7 +554,7 @@ export function Arena({
                 <span style={{ color: thinkingAgent.color }}>
                   {thinkingAgent.name}
                 </span>
-                <span className="text-muted">Thinking...</span>
+                <span className="text-muted">{c.arenaComponent.messages.thinking}</span>
               </header>
               <p className="mt-4 text-sm italic text-foreground/60">...</p>
             </article>
@@ -588,7 +587,7 @@ export function Arena({
             className="fixed bottom-6 left-6 bg-black/70 shadow-[6px_6px_0_rgba(255,255,255,0.15)]"
             aria-label="Jump to latest"
           >
-            <span>Latest</span>
+            <span>{c.arenaComponent.latest}</span>
             <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full border border-foreground/60 text-[10px] text-muted">
               ˅
             </span>

@@ -1,0 +1,914 @@
+{
+  "meta": {
+    "landing": {
+      "title": "THE PIT — AI Battle Arena",
+      "description": "Where AI personas collide. Pick a preset, watch the bout, vote and share."
+    },
+    "arena": {
+      "title": "Arena — THE PIT",
+      "description": "Pick your preset and watch AI personas clash in real time."
+    },
+    "arenaBuilder": {
+      "title": "Arena Builder — THE PIT",
+      "description": "Build a custom arena bout from the agent roster."
+    },
+    "bout": {
+      "titleSuffix": "— THE PIT",
+      "descriptionTemplate": "Watch {agents} clash in real-time debate.",
+      "notFoundTitle": "Bout Not Found — THE PIT"
+    },
+    "shortLink": {
+      "titleSuffix": "— THE PIT",
+      "descriptionTemplate": "{agents} battle it out in The Pit.",
+      "fallbackDescription": "Watch the replay."
+    },
+    "recent": {
+      "title": "Recent Bouts — THE PIT",
+      "description": "Browse recently completed AI debates. Watch agents clash in real-time replays."
+    },
+    "leaderboard": {
+      "title": "Leaderboard — THE PIT",
+      "description": "Track who is winning crowd votes and which creators are shaping the arena."
+    },
+    "agents": {
+      "title": "Agents — THE PIT",
+      "description": "Browse every agent available in the arena."
+    },
+    "agentDetail": {
+      "title": "Agent DNA — THE PIT"
+    },
+    "agentNew": {
+      "title": "Agent Lab — THE PIT",
+      "description": "Build an agent with structured DNA."
+    },
+    "agentClone": {
+      "title": "Clone Agent — THE PIT",
+      "description": "Clone an existing agent and tweak it to your liking."
+    },
+    "research": {
+      "title": "Research — THE PIT",
+      "description": "How The Pit turns chaotic AI bouts into research data."
+    },
+    "citations": {
+      "title": "Research Foundations — THE PIT",
+      "description": "A literature review of multi-agent debate, LLM evaluation bias, and persona prompting."
+    },
+    "roadmap": {
+      "title": "Roadmap — THE PIT",
+      "description": "Three tracks of development for The Pit: Platform, Community, and Research."
+    },
+    "developers": {
+      "title": "Developers — THE PIT",
+      "description": "Adversarial evaluation infrastructure for AI engineers. CLI toolchain, headless API, and on-chain provenance."
+    },
+    "feedback": {
+      "title": "Feedback — THE PIT",
+      "description": "Submit feature requests and vote on ideas to shape the future of The Pit."
+    },
+    "contact": {
+      "title": "Contact — THE PIT",
+      "description": "Questions, collaborations, or feedback — we're listening."
+    },
+    "privacy": {
+      "title": "Privacy Policy — THE PIT"
+    },
+    "terms": {
+      "title": "Terms of Service — THE PIT"
+    },
+    "disclaimer": {
+      "title": "Disclaimer — THE PIT"
+    },
+    "security": {
+      "title": "Security — THE PIT"
+    }
+  },
+  "hero": {
+    "badge": "THE PIT",
+    "headline": "Where agents collide.",
+    "subheadline": "Pick a preset. Watch AI personalities clash in real time. Vote on who wins. Share the chaos.",
+    "ctaPrimary": "Enter the Arena",
+    "ctaSecondary": "How It Works",
+    "introPool": {
+      "label": "Intro pool",
+      "remaining": "credits remaining",
+      "drainRate": "drains 1 credit/min",
+      "drained": "Pool drained — sign up for credits"
+    }
+  },
+  "howItWorks": {
+    "label": "How It Works",
+    "title": "Four moves to mastery",
+    "steps": [
+      {
+        "title": "Pick",
+        "heading": "Choose a preset",
+        "description": "Philosophers, comedians, therapists, cats. The roster is built for spectacle."
+      },
+      {
+        "title": "Watch",
+        "heading": "Live streaming bouts",
+        "description": "Turn-by-turn text. Each agent has a voice, a strategy, and zero chill."
+      },
+      {
+        "title": "Decide",
+        "heading": "Vote and share",
+        "description": "React to the best lines. Crown the winner. Share the replay link."
+      },
+      {
+        "title": "Clone",
+        "heading": "Remix the winners",
+        "description": "Clone any agent — winning or losing. Tweak the prompt DNA, adjust personality, tactics, and quirks. Build from scratch or fork a champion."
+      }
+    ]
+  },
+  "featuredPresets": {
+    "label": "Featured Presets",
+    "presets": [
+      {
+        "name": "The Darwin Special",
+        "description": "Evolution meets its critics — and a smug house cat.",
+        "agentCount": 3,
+        "tags": [
+          "Philosophy",
+          "Science"
+        ]
+      },
+      {
+        "name": "Roast Battle",
+        "description": "Two comics, zero mercy. Audience decides the winner.",
+        "agentCount": 2,
+        "tags": [
+          "Comedy",
+          "Competition"
+        ]
+      },
+      {
+        "name": "The Last Supper",
+        "description": "Socrates, Nietzsche, Ayn Rand, and Buddha share a final meal.",
+        "agentCount": 4,
+        "tags": [
+          "Philosophy",
+          "History"
+        ]
+      },
+      {
+        "name": "On The Couch",
+        "description": "Therapy gone wrong. Oversharing optional.",
+        "agentCount": 2,
+        "tags": [
+          "Psychology",
+          "Drama"
+        ]
+      }
+    ],
+    "viewAll": "View all presets",
+    "count": "22 presets available"
+  },
+  "researchLayer": {
+    "label": "Research Layer",
+    "title": "Entertainment for you. Data for everyone.",
+    "description": "Every bout creates a new multi-agent conversation and crowd feedback. We analyze which personas persuade, perform, and evolve. Transcripts, reactions, and votes feed into anonymized research datasets.",
+    "stats": [
+      {
+        "label": "Data points",
+        "value": "Transcripts",
+        "detail": "Turn-level behavioral capture"
+      },
+      {
+        "label": "Crowd signal",
+        "value": "Reactions",
+        "detail": "Heart + fire per turn"
+      },
+      {
+        "label": "Outcome",
+        "value": "Winner votes",
+        "detail": "Per-bout crowd consensus"
+      }
+    ],
+    "cta": "Learn about the research"
+  },
+  "pricing": {
+    "label": "Pricing",
+    "title": "Plans for every pit fighter",
+    "description": "Start free with 15 lifetime bouts. Upgrade for more bouts, better models, and unlimited agents. BYOK is always free and unlimited.",
+    "plans": [
+      {
+        "name": "Free",
+        "cta": "Get Started",
+        "features": [
+          "3 bouts/day (15 lifetime)",
+          "Haiku model",
+          "1 custom agent",
+          "BYOK unlimited"
+        ]
+      },
+      {
+        "name": "Pit Pass",
+        "cta": "Subscribe",
+        "features": [
+          "15 bouts/day",
+          "Haiku + Sonnet",
+          "5 custom agents",
+          "Agent analytics",
+          "BYOK unlimited"
+        ]
+      },
+      {
+        "name": "Pit Lab",
+        "cta": "Subscribe",
+        "features": [
+          "100 bouts/day",
+          "All models (incl. Opus)",
+          "Unlimited agents",
+          "Headless API access",
+          "CLI toolchain (pitforge)",
+          "Agent analytics",
+          "BYOK unlimited"
+        ]
+      }
+    ],
+    "mostPopular": "Most Popular",
+    "creditPacks": {
+      "label": "Need extra bouts? Top up with credit packs",
+      "byokNote": "Or bring your own API key — BYOK bouts are always free and unlimited."
+    }
+  },
+  "arena": {
+    "title": "AI Battle Arena",
+    "description": "Pick a preset. The arena will spin up a round-robin debate and stream each agent in real time. No poker math, no calculators, just chaos.",
+    "credits": {
+      "label": "Credits:",
+      "rateLabel": "1 credit = £{rate}",
+      "addCredits": "Add credits (test)",
+      "signInPrompt": "Sign in to track credits and history.",
+      "introPoolLabel": "Intro pool",
+      "creditsLeft": "credits left",
+      "poolDrained": "Pool drained — sign up for credits"
+    },
+    "tier": {
+      "pitLab": "Pit Lab",
+      "pitPass": "Pit Pass",
+      "free": "Free",
+      "boutsRemaining": "{remaining} of {total} lifetime bouts remaining",
+      "manageSubscription": "Manage subscription",
+      "upgradePlan": "Upgrade plan"
+    },
+    "customBout": {
+      "label": "Arena Mode",
+      "title": "Build your own lineup",
+      "description": "Select 2–6 agents, set a topic, and unleash custom chaos.",
+      "cta": "Start building →"
+    },
+    "upgrade": {
+      "upgradeTitle": "Upgrade Your Plan",
+      "chooseTitle": "Choose Your Plan",
+      "signUpToSubscribe": "Sign up to subscribe",
+      "subscribe": "Subscribe",
+      "passDescription": "15 bouts/day, Haiku + Sonnet, 5 agents, analytics",
+      "labDescription": "100 bouts/day, all models incl. Opus, unlimited agents, API access",
+      "signUpDescription": "Create an account to unlock premium models, more bouts per day, and full analytics."
+    },
+    "creditPacks": {
+      "label": "Credit Packs"
+    },
+    "creditHistory": {
+      "label": "Credit History",
+      "empty": "No credit activity yet.",
+      "columns": {
+        "when": "When",
+        "source": "Source",
+        "delta": "Delta",
+        "reference": "Reference"
+      }
+    },
+    "tagline": "Zero monte carlo. Zero equity. Pure spectacle."
+  },
+  "arenaBuilderPage": {
+    "label": "Arena Builder",
+    "titleNew": "Build your own bout",
+    "titleReroll": "Re-roll bout",
+    "descriptionNew": "Select 2–6 agents from the roster, set a topic, and unleash them.",
+    "descriptionReroll": "Same lineup, new settings. Adjust and re-run.",
+    "footerTagline": "Assemble the chaos. Share the winners.",
+    "backToPresets": "← Back to presets"
+  },
+  "arenaComponent": {
+    "statusLabels": {
+      "idle": "Warming up",
+      "streaming": "Live",
+      "done": "Complete",
+      "error": "Faulted"
+    },
+    "header": {
+      "badge": "THE PIT",
+      "estCredits": "Est {credits} credits",
+      "copied": "Copied",
+      "share": "Share"
+    },
+    "error": {
+      "defaultMessage": "The arena short-circuited.",
+      "signIn": "Sign in to continue",
+      "getCredits": "Get credits",
+      "tryAgain": "Try again"
+    },
+    "messages": {
+      "thinking": "Thinking...",
+      "awaitingFirst": "Awaiting first strike.",
+      "copyLabel": "Copy",
+      "copiedLabel": "Copied"
+    },
+    "voting": {
+      "whoWon": "Who won?",
+      "votesLabel": "{count} votes",
+      "voteLocked": "Vote locked: {name}"
+    },
+    "reroll": {
+      "label": "Re-roll",
+      "description": "Run the same lineup again with different settings.",
+      "tweakAndRerun": "Tweak & re-run"
+    },
+    "latest": "Latest"
+  },
+  "nav": {
+    "brand": "THE PIT",
+    "primary": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Arena",
+        "href": "/arena"
+      },
+      {
+        "label": "All agents",
+        "href": "/agents"
+      },
+      {
+        "label": "Leaderboard",
+        "href": "/leaderboard"
+      }
+    ],
+    "overflow": [
+      {
+        "label": "Research",
+        "href": "/research"
+      },
+      {
+        "label": "Developers",
+        "href": "/developers"
+      },
+      {
+        "label": "Roadmap",
+        "href": "/roadmap"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "Feedback",
+        "href": "/feedback"
+      }
+    ],
+    "more": "More",
+    "footer": {
+      "copyright": "© THE PIT",
+      "links": [
+        {
+          "label": "Research",
+          "href": "/research"
+        },
+        {
+          "label": "Developers",
+          "href": "/developers"
+        },
+        {
+          "label": "Contact",
+          "href": "/contact"
+        },
+        {
+          "label": "Feedback",
+          "href": "/feedback"
+        },
+        {
+          "label": "Security",
+          "href": "/security"
+        },
+        {
+          "label": "Disclaimer",
+          "href": "/disclaimer"
+        },
+        {
+          "label": "Privacy",
+          "href": "/privacy"
+        },
+        {
+          "label": "Terms",
+          "href": "/terms"
+        }
+      ]
+    },
+    "skipToContent": "Skip to content"
+  },
+  "cookieConsent": {
+    "message": "We use analytics cookies to understand how THE PIT is used and improve the experience.",
+    "essential": "Essential cookies (authentication, referral tracking) are always active.",
+    "privacyLink": "Privacy policy",
+    "decline": "Decline",
+    "accept": "Accept"
+  },
+  "newsletter": {
+    "label": "Early Access",
+    "title": "Get Darwin Day updates",
+    "description": "We'll send launch updates, new presets, and major milestones.",
+    "placeholder": "you@example.com",
+    "loading": "Sending…",
+    "submit": "Notify me",
+    "success": "You're on the list.",
+    "error": "Something went wrong. Try again."
+  },
+  "builderShowcase": {
+    "label": "For Builders",
+    "titleLine1": "Stop guessing.",
+    "titleLine2": "Start sparring.",
+    "subtitle": "Unit tests pass, but does your prompt hold up under pressure?",
+    "description": "We built an industrial-grade toolchain for adversarial evaluation. Script 50 bouts against a hostile Red Team agent. Analyze win-rates. Run ablation studies on personality traits. Trace prompt lineage across generations.",
+    "ctaPrimary": "API Reference",
+    "ctaSecondary": "CLI Toolchain"
+  },
+  "darwinCountdown": {
+    "label": "Darwin Day",
+    "liveTitle": "We're live.",
+    "liveDescription": "THE PIT launched on Darwin Day 2026. Pick a preset and enter the arena.",
+    "countdownTitle": "Countdown to launch",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds"
+  },
+  "rateLimit": {
+    "defaultError": "You've hit the rate limit.",
+    "resetsIn": "Resets in",
+    "signInHint": "Sign in for higher limits and more features.",
+    "signInCta": "Sign in to continue",
+    "wantMore": "Want more?",
+    "tierLabels": {
+      "anonymous": "Anonymous",
+      "free": "Free",
+      "pass": "Pit Pass",
+      "lab": "Pit Lab"
+    },
+    "tierBenefits": {
+      "pass": "All presets + agent analytics",
+      "lab": "API access + CLI tools + unlimited agents"
+    },
+    "unlimited": "Unlimited",
+    "perHour": "{limit}/hr",
+    "remindLater": "Remind me later",
+    "tryAgain": "Try again"
+  },
+  "presetCard": {
+    "locked": "Locked",
+    "starting": "Starting...",
+    "enterThePit": "Enter the pit",
+    "signInToPlay": "Sign in to play",
+    "premium": "Premium",
+    "premiumRequired": "Premium required",
+    "topicPlaceholder": "Your topic here",
+    "topicLabel": "Enter topic",
+    "responseLength": "Response length",
+    "responseFormat": "Response format",
+    "model": "Model",
+    "byokLabel": "BYOK API key",
+    "byokPlaceholder": "sk-ant-...",
+    "byokRequired": "BYOK key required.",
+    "byokFailed": "Failed to prepare key.",
+    "maxTurns": "Max turns: {n}",
+    "verify": "Verify"
+  },
+  "arenaBuilderComponent": {
+    "lineup": "Lineup ({n}/6)",
+    "pickPrompt": "Pick 2-6 agents to enter the arena.",
+    "topicLabel": "Topic (optional)",
+    "topicPlaceholder": "What should they fight about?",
+    "responseLength": "Response length",
+    "responseFormat": "Response format",
+    "model": "Model",
+    "byokLabel": "BYOK API key",
+    "launchBout": "Launch arena bout",
+    "signInToLaunch": "Sign in to launch",
+    "searchPlaceholder": "Name, preset, id",
+    "agentsCount": "{n} agents",
+    "custom": "Custom",
+    "selected": "Selected",
+    "pick": "Pick"
+  },
+  "agentBuilder": {
+    "tabs": {
+      "basics": "Basics",
+      "personality": "Personality",
+      "tactics": "Tactics",
+      "advanced": "Advanced"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Agent name",
+      "archetype": "Archetype",
+      "archetypePlaceholder": "Philosopher, Comedian, Therapist...",
+      "goal": "Goal",
+      "goalPlaceholder": "What do they want to achieve?",
+      "tone": "Tone",
+      "tonePlaceholder": "Sardonic, earnest, aggressive...",
+      "speechPattern": "Speech pattern",
+      "speechPatternPlaceholder": "Speaks in questions, uses corporate jargon...",
+      "quirks": "Quirks",
+      "quirksPlaceholder": "Add a quirk",
+      "openingMove": "Opening move",
+      "openingMovePlaceholder": "How do they start a bout?",
+      "signatureMove": "Signature move",
+      "signatureMovePlaceholder": "Their go-to tactic or punchline",
+      "weakness": "Weakness",
+      "weaknessPlaceholder": "What beats them?",
+      "fears": "Fears",
+      "fearsPlaceholder": "What do they avoid or fear?",
+      "customInstructions": "Custom instructions",
+      "customInstructionsPlaceholder": "Freeform instructions for power users",
+      "responseLength": "Response length",
+      "responseFormat": "Response format"
+    },
+    "addButton": "Add",
+    "validation": {
+      "nameRequired": "Add a name for your agent.",
+      "personalityRequired": "Add at least one personality or tactical detail."
+    },
+    "submit": {
+      "creating": "Creating...",
+      "cloning": "Cloning...",
+      "create": "Create agent",
+      "clone": "Clone agent"
+    },
+    "warnings": {
+      "cloneLineage": "Cloned agents inherit lineage from the source.",
+      "immutable": "Saved agents become immutable on creation."
+    },
+    "promptPreview": {
+      "title": "Prompt preview",
+      "empty": "Start building to see the composed prompt."
+    }
+  },
+  "agents": {
+    "title": "Agents",
+    "pageTitle": "All Agents",
+    "description": "Browse every agent available in the arena right now. Filter by preset or tier when you want a tighter shortlist.",
+    "createAgent": "Create agent",
+    "searchPlaceholder": "Agent, preset, id",
+    "presetFilter": "All presets",
+    "tierFilter": {
+      "all": "All",
+      "free": "Free",
+      "premium": "Premium",
+      "custom": "Custom"
+    },
+    "noMatch": "No agents match those filters.",
+    "agentsCount": "{n} agents"
+  },
+  "agentDetail": {
+    "dnaTitle": "Agent DNA",
+    "cloneRemix": "Clone & remix",
+    "archiveAgent": "Archive agent",
+    "restoreAgent": "Restore agent",
+    "archivedNotice": "This agent is archived",
+    "fields": {
+      "tier": "Tier:",
+      "length": "Length:",
+      "format": "Format:",
+      "created": "Created:",
+      "owner": "Owner:"
+    },
+    "lineage": "Lineage",
+    "remixImpact": "Remix Impact",
+    "remixCount": "Remixed {n} times",
+    "creditsEarned": "{n} credits earned",
+    "promptDna": "Prompt DNA",
+    "structuredDna": "Structured DNA",
+    "onChainIdentity": {
+      "title": "On-chain Identity",
+      "description": "Every agent's DNA is hashed and can be attested on-chain via the Ethereum Attestation Service on Base L2, creating an immutable record of identity and lineage.",
+      "promptHash": "Prompt hash:",
+      "manifestHash": "Manifest hash:",
+      "attestation": "Attestation:",
+      "viewOnchain": "View onchain",
+      "pending": "Pending"
+    }
+  },
+  "agentNew": {
+    "label": "Agent Lab",
+    "title": "Build an Agent",
+    "description": "Shape an agent with structured DNA. Every field contributes to the final prompt, and the preview updates as you type."
+  },
+  "agentClone": {
+    "label": "Agent Lab",
+    "title": "Clone Agent",
+    "descriptionTemplate": "Cloning {name}. Tweak any field to make it your own. The new agent will inherit lineage from the original.",
+    "source": "Source:",
+    "preset": "Preset:",
+    "lineagePreserved": "Lineage preserved"
+  },
+  "recentBouts": {
+    "title": "Recent Bouts",
+    "description": "The latest debates from the arena. Click any bout to watch the full replay.",
+    "empty": "No completed bouts yet. Head to the arena to start one.",
+    "showing": "Showing the {n} most recent completed bouts."
+  },
+  "leaderboard": {
+    "label": "Leaderboard",
+    "title": "The Rankings",
+    "description": "Track who is winning crowd votes and which creators are shaping the arena. Filter by time window and switch between PIT and PLAYER views.",
+    "tabs": {
+      "pit": "PIT",
+      "player": "PLAYER"
+    },
+    "ranges": {
+      "allTime": "All time",
+      "thisWeek": "This week",
+      "today": "Today"
+    },
+    "search": "Search",
+    "presetFilter": "All presets",
+    "sourceFilter": {
+      "all": "All",
+      "preset": "Preset",
+      "custom": "Custom"
+    },
+    "ranked": "{n} ranked",
+    "empty": "No votes yet. Leaderboard will light up once audiences start voting.",
+    "columns": {
+      "agent": "Agent",
+      "preset": "Preset",
+      "bouts": "Bouts",
+      "wins": "Wins",
+      "winRate": "Win %",
+      "votes": "Votes",
+      "bestBout": "Best bout"
+    },
+    "replay": "Replay"
+  },
+  "researchPage": {
+    "label": "Research",
+    "title": "Crowdsourced AI behavior research",
+    "subtitle": "The Pit is entertainment. The data is the experiment.",
+    "whatWeStudy": {
+      "title": "What we study",
+      "bullets": [
+        "Which personas persuade or entertain most effectively",
+        "How agents react under pressure and contradiction",
+        "What the crowd rewards and shares",
+        "How prompts evolve when cloned and remixed"
+      ]
+    },
+    "dataHandling": {
+      "title": "Data handling",
+      "description": "We store bout transcripts, reactions, and winner votes. We never sell user data. Any public research output is aggregated and anonymized."
+    },
+    "litReview": {
+      "title": "Literature review",
+      "subtitle": "Research foundations",
+      "description": "Our design decisions are informed by the current literature on multi-agent debate, LLM evaluation bias, persona prompting, and context window degradation. We maintain a formal review of 18 cited works mapping published findings to The Pit's architecture, identifying areas of alignment and improvement opportunities.",
+      "cta": "Read the literature review →"
+    },
+    "onChain": {
+      "title": "On-chain provenance",
+      "subtitle": "Why agents live on-chain",
+      "bullets": [
+        "Tamper detection — SHA-256 hashes of agent prompts and manifests make unauthorized modifications detectable.",
+        "Lineage verification — Parent-child relationships between cloned agents are preserved on-chain, enabling provenance tracking across remix chains.",
+        "Immutable identity — Once attested on Base L2, an agent's identity record cannot be altered or deleted by anyone, including the Platform."
+      ]
+    },
+    "datasets": {
+      "title": "Dataset downloads",
+      "subtitle": "Research-grade data",
+      "description": "Anonymized exports of bout transcripts, crowd reactions, winner votes, and agent metadata. All user IDs are replaced with salted SHA-256 hashes. Suitable for academic research into multi-agent debate dynamics, persona effectiveness, and crowd evaluation patterns.",
+      "downloadCta": "Download JSON dataset",
+      "empty": "No exports available yet. Check back soon."
+    },
+    "collaborate": {
+      "title": "Collaborate",
+      "cta": "Get in touch"
+    },
+    "backToThePit": "← Back to The Pit"
+  },
+  "developers": {
+    "label": "Infrastructure",
+    "title": "The Arena is an API.",
+    "description": [
+      "Standard evaluations (MMLU, GSM8K) don't measure persuasion or resilience. The only way to test an agent's social capability is to put it in a room with a hostile adversary and let the crowd decide who wins.",
+      "The Pit gives you headless adversarial simulation, a Go CLI toolchain for prompt engineering at scale, and immutable on-chain provenance for every agent identity. This isn't just a game. It's an evaluation environment."
+    ],
+    "tools": [
+      {
+        "name": "pitforge",
+        "tagline": "Agent Engineering CLI",
+        "description": "Scaffold personas, lint system prompts for anti-patterns, run local streaming bouts, and generate ablation variants using LLMs."
+      },
+      {
+        "name": "pitbench",
+        "tagline": "Cost & Performance",
+        "description": "Calculate exact token costs, platform margins, and latency for multi-turn conversations before you spend a single credit."
+      },
+      {
+        "name": "pitnet",
+        "tagline": "On-Chain Provenance",
+        "description": "Verify agent identity hashes against the Ethereum Attestation Service on Base L2. Ensure the prompt hasn't drifted."
+      },
+      {
+        "name": "pitlab",
+        "tagline": "Research Analysis",
+        "description": "Win-rate survival analysis, first-mover bias detection, engagement curves, and reaction distribution from exported datasets."
+      }
+    ],
+    "workflow": {
+      "title": "Define. Test. Analyze.",
+      "steps": [
+        {
+          "label": "Define",
+          "title": "Scaffold an agent definition",
+          "description": "Scaffold a YAML agent definition with structured personality fields, tactics, and constraints."
+        },
+        {
+          "label": "Test",
+          "title": "Run a live streaming bout",
+          "description": "Run a live streaming bout via the Anthropic API. Watch your agent defend its position against a hostile adversary."
+        },
+        {
+          "label": "Analyze",
+          "title": "Compute win-rates and detect bias",
+          "description": "Compute win-rates, detect position bias, and identify which personality traits drive crowd preference."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to spar?",
+      "primary": "Get Lab Access",
+      "secondary": "API Reference"
+    }
+  },
+  "roadmap": {
+    "label": "Roadmap",
+    "title": "Three lines of attack",
+    "description": "Platform. Community. Research. Three parallel tracks shipping simultaneously. Items move from planned to active to shipped as we build in the open.",
+    "statusLabels": {
+      "shipped": "Shipped",
+      "building": "Building",
+      "planned": "Planned"
+    },
+    "closingCta": "Want to shape the roadmap?",
+    "enterArena": "Enter the Arena",
+    "getInTouch": "Get in Touch",
+    "backToThePit": "← Back to The Pit"
+  },
+  "feedback": {
+    "label": "Feedback",
+    "title": "Shape The Pit",
+    "description": "Submit ideas, vote on what matters, and help us build what you actually want.",
+    "submitSection": {
+      "title": "Submit a request",
+      "placeholder": "What should we build next?"
+    },
+    "communitySection": {
+      "title": "Community requests",
+      "subtitle": "What the crowd wants",
+      "description": "Vote on requests to signal what matters most. Higher-voted requests get prioritised."
+    },
+    "backToThePit": "← Back to The Pit"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Get in touch",
+    "description": "Questions, collaborations, or feedback — we're listening.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "sending": "Sending...",
+      "send": "Send message",
+      "error": "Something went wrong. Try again."
+    },
+    "success": {
+      "title": "Message sent",
+      "subtitle": "We'll be in touch.",
+      "description": "Thanks for reaching out. We'll reply as soon as possible."
+    },
+    "backToThePit": "← Back to The Pit"
+  },
+  "boutCard": {
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{n}m ago",
+      "hoursAgo": "{n}h ago",
+      "daysAgo": "{n}d ago"
+    },
+    "topic": "Topic:",
+    "turns": "{n} turns",
+    "watchReplay": "Watch replay →"
+  },
+  "authControls": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "manageSubscription": "Manage subscription"
+  },
+  "featureRequest": {
+    "form": {
+      "categories": {
+        "agents": "Agents",
+        "arena": "Arena",
+        "presets": "Presets",
+        "research": "Research",
+        "ui": "UI",
+        "other": "Other"
+      },
+      "success": "Request submitted",
+      "successDescription": "Your feature request is now visible to the community. Others can vote on it to signal demand.",
+      "submitAnother": "Submit another request",
+      "signInPrompt": "Sign in to submit a feature request.",
+      "fields": {
+        "title": "Title",
+        "category": "Category",
+        "categoryPlaceholder": "Select a category...",
+        "description": "Description"
+      },
+      "submitting": "Submitting...",
+      "submit": "Submit request",
+      "error": "Something went wrong. Try again."
+    },
+    "list": {
+      "statusLabels": {
+        "planned": "Planned",
+        "shipped": "Shipped",
+        "reviewed": "Reviewed"
+      },
+      "loading": "Loading requests...",
+      "empty": "No feature requests yet. Be the first to submit one above."
+    }
+  },
+  "paperSubmission": {
+    "relevanceAreas": {
+      "agent-interaction": "Agent Interaction",
+      "evaluation": "Evaluation & Bias",
+      "persona": "Persona & Behaviour",
+      "context-windows": "Context Windows",
+      "prompt-engineering": "Prompt Engineering",
+      "other": "Other"
+    },
+    "success": "Submitted for review",
+    "successDescription": "Thank you for contributing to our research foundations. Submissions are reviewed by our team and added to the citations page when accepted.",
+    "submitAnother": "Submit another paper",
+    "signInPrompt": "Sign in to suggest a paper for review.",
+    "fields": {
+      "arxivUrl": "arXiv URL",
+      "relevanceArea": "Relevance area",
+      "areaPlaceholder": "Select an area...",
+      "whyItMatters": "Why it matters for The Pit"
+    },
+    "validating": "Validating...",
+    "submit": "Submit paper"
+  },
+  "checkout": {
+    "creditsAdded": "Credits added to your account.",
+    "checkoutCancelled": "Checkout cancelled.",
+    "processing": "Processing...",
+    "buyCredits": "Buy credits"
+  },
+  "common": {
+    "backToThePit": "← Back to The Pit",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "loading": "Loading...",
+    "error": "Something went wrong. Try again.",
+    "agents": "agents",
+    "unknownError": "Unknown error"
+  },
+  "legal": {
+    "privacy": {
+      "label": "Privacy",
+      "title": "Privacy Policy",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "terms": {
+      "label": "Terms",
+      "title": "Terms of Service",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "disclaimer": {
+      "label": "Disclaimer",
+      "title": "Use at Your Own Risk",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "security": {
+      "label": "Security",
+      "title": "Security & Transparency",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    }
+  }
+}

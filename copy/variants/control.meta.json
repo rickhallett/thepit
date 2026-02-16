@@ -1,0 +1,13 @@
+{
+  "name": "control",
+  "dimensions": {
+    "psychology": 50,
+    "scientificAccuracy": 70,
+    "technicalLiteracy": 60,
+    "wordiness": 50
+  },
+  "tone": "balanced, professional, direct",
+  "generatedAt": "2026-02-15T12:00:00Z",
+  "model": "human-authored",
+  "constraints": ["exact copy of base.json — no transformation applied"]
+}

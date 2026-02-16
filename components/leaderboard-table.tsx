@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { AgentIcon } from '@/components/agent-icon';
 import { cn } from '@/lib/cn';
+import { useCopy } from '@/lib/copy-client';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import { buildLineage } from '@/lib/agent-lineage';
 import { getAgentDisplayName } from '@/lib/agent-display-name';
@@ -21,6 +22,7 @@ export function LeaderboardTable({
   entries: PitLeaderboardEntry[];
   className?: string;
 }) {
+  const c = useCopy();
   const [search, setSearch] = useState('');
   const [presetFilter, setPresetFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState<'all' | 'preset' | 'custom'>(
@@ -95,7 +97,7 @@ export function LeaderboardTable({
     <section className={cn('flex flex-col gap-6', className)}>
       <div className="flex flex-wrap items-center gap-4">
         <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>Search</span>
+          <span>{c.leaderboard.search}</span>
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -110,7 +112,7 @@ export function LeaderboardTable({
             onChange={(event) => setPresetFilter(event.target.value)}
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-52"
           >
-            <option value="all">All presets</option>
+            <option value="all">{c.leaderboard.presetFilter}</option>
             {presetOptions.map((preset) => (
               <option key={preset.id} value={preset.id}>
                 {preset.name}
@@ -127,19 +129,19 @@ export function LeaderboardTable({
             }
             className="w-full border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none sm:w-40"
           >
-            <option value="preset">Preset</option>
-            <option value="custom">Custom</option>
-            <option value="all">All</option>
+            <option value="preset">{c.leaderboard.sourceFilter.preset}</option>
+            <option value="custom">{c.leaderboard.sourceFilter.custom}</option>
+            <option value="all">{c.leaderboard.sourceFilter.all}</option>
           </select>
         </label>
         <span className="ml-auto text-[10px] uppercase tracking-[0.3em] text-muted">
-          {filtered.length} ranked
+          {c.leaderboard.ranked.replace('{n}', String(filtered.length))}
         </span>
       </div>
 
       {filtered.length === 0 ? (
         <div className="border-2 border-dashed border-foreground/40 p-8 text-center text-sm text-muted">
-          No votes yet. Leaderboard will light up once audiences start voting.
+          {c.leaderboard.empty}
         </div>
       ) : (
         <div className="relative">
@@ -147,8 +149,8 @@ export function LeaderboardTable({
           <table className="min-w-[820px] w-full border-collapse text-left">
             <thead>
               <tr className="border-b-2 border-foreground/60 bg-black/60 text-[10px] uppercase tracking-[0.3em] text-muted">
-                <th scope="col" className="px-4 py-3 font-normal">Agent</th>
-                <th scope="col" className="px-4 py-3 font-normal">Preset</th>
+                <th scope="col" className="px-4 py-3 font-normal">{c.leaderboard.columns.agent}</th>
+                <th scope="col" className="px-4 py-3 font-normal">{c.leaderboard.columns.preset}</th>
                 <th
                   scope="col"
                   className="w-[80px] px-4 py-3 font-normal text-right"
@@ -159,7 +161,7 @@ export function LeaderboardTable({
                     onClick={() => toggleSort('bouts')}
                     className="transition hover:text-foreground"
                   >
-                    Bouts
+                    {c.leaderboard.columns.bouts}
                   </button>
                 </th>
                 <th
@@ -172,7 +174,7 @@ export function LeaderboardTable({
                     onClick={() => toggleSort('wins')}
                     className="transition hover:text-foreground"
                   >
-                    Wins
+                    {c.leaderboard.columns.wins}
                   </button>
                 </th>
                 <th
@@ -185,7 +187,7 @@ export function LeaderboardTable({
                     onClick={() => toggleSort('winRate')}
                     className="transition hover:text-foreground"
                   >
-                    Win %
+                    {c.leaderboard.columns.winRate}
                   </button>
                 </th>
                 <th
@@ -198,10 +200,10 @@ export function LeaderboardTable({
                     onClick={() => toggleSort('votes')}
                     className="transition hover:text-foreground"
                   >
-                    Votes
+                    {c.leaderboard.columns.votes}
                   </button>
                 </th>
-                <th scope="col" className="w-[90px] px-4 py-3 font-normal text-right">Best bout</th>
+                <th scope="col" className="w-[90px] px-4 py-3 font-normal text-right">{c.leaderboard.columns.bestBout}</th>
               </tr>
             </thead>
             <tbody>
@@ -255,7 +257,7 @@ export function LeaderboardTable({
                       href={`/b/${entry.bestBoutId}`}
                       className="text-accent underline"
                     >
-                      Replay
+                      {c.leaderboard.replay}
                     </Link>
                   ) : (
                     '-'

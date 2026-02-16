@@ -5,13 +5,14 @@ import { useState } from 'react';
 import { LeaderboardTable } from '@/components/leaderboard-table';
 import { PlayerLeaderboardTable } from '@/components/player-leaderboard-table';
 import { cn } from '@/lib/cn';
+import { useCopy } from '@/lib/copy-client';
 import type { LeaderboardData, LeaderboardRange } from '@/lib/leaderboard';
 
-const RANGE_LABELS: Record<LeaderboardRange, string> = {
-  all: 'All time',
-  week: 'This week',
-  day: 'Today',
-};
+const getRangeLabels = (c: ReturnType<typeof useCopy>): Record<LeaderboardRange, string> => ({
+  all: c.leaderboard.ranges.allTime,
+  week: c.leaderboard.ranges.thisWeek,
+  day: c.leaderboard.ranges.today,
+});
 
 type ViewMode = 'pit' | 'player';
 
@@ -22,8 +23,10 @@ export function LeaderboardDashboard({
   data: LeaderboardData;
   className?: string;
 }) {
+  const c = useCopy();
   const [view, setView] = useState<ViewMode>('pit');
   const [range, setRange] = useState<LeaderboardRange>('all');
+  const RANGE_LABELS = getRangeLabels(c);
 
   return (
     <section className={cn('flex flex-col gap-6', className)}>
@@ -41,7 +44,7 @@ export function LeaderboardDashboard({
                   : 'text-muted hover:text-foreground',
               )}
             >
-              {option === 'pit' ? 'PIT' : 'PLAYER'}
+              {option === 'pit' ? c.leaderboard.tabs.pit : c.leaderboard.tabs.player}
             </button>
           ))}
         </div>

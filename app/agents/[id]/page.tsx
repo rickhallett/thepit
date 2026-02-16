@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 
+import { getCopy } from '@/lib/copy';
 import { getAgentDetail } from '@/lib/agent-detail';
 import { buildAgentDetailHref, decodeAgentId } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
@@ -17,6 +18,7 @@ export default async function AgentDetailPage({
 }: {
   params: { id: string } | Promise<{ id: string }>;
 }) {
+  const c = await getCopy();
   const resolved = await params;
   const agentId = decodeAgentId(resolved.id);
   const [detail, { userId }, remixStats] = await Promise.all([
@@ -39,7 +41,7 @@ export default async function AgentDetailPage({
       <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-6 py-12">
         <header className="border-b-2 border-foreground/70 pb-6">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Agent DNA
+            {c.agentDetail.dnaTitle}
           </p>
           <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
             {detail.name}
@@ -50,14 +52,14 @@ export default async function AgentDetailPage({
             </p>
           )}
           <div className="mt-4 flex flex-wrap gap-3">
-            <CloneAgentButton sourceAgentId={detail.id} />
+            <CloneAgentButton sourceAgentId={detail.id} label={c.agentDetail.cloneRemix} />
             {userIsAdmin && !detail.archived && (
               <form action={archiveAgent.bind(null, detail.id)}>
                 <button
                   type="submit"
                   className="border-2 border-red-600/60 px-4 py-2 text-xs uppercase tracking-[0.3em] text-red-500 transition hover:border-red-500 hover:bg-red-500/10"
                 >
-                  Archive agent
+                  {c.agentDetail.archiveAgent}
                 </button>
               </form>
             )}
@@ -67,14 +69,14 @@ export default async function AgentDetailPage({
                   type="submit"
                   className="border-2 border-green-600/60 px-4 py-2 text-xs uppercase tracking-[0.3em] text-green-500 transition hover:border-green-500 hover:bg-green-500/10"
                 >
-                  Restore agent
+                  {c.agentDetail.restoreAgent}
                 </button>
               </form>
             )}
           </div>
           {userIsAdmin && detail.archived && (
             <p className="mt-2 text-xs uppercase tracking-[0.25em] text-red-500">
-              This agent is archived
+              {c.agentDetail.archivedNotice}
             </p>
           )}
         </header>
@@ -82,23 +84,23 @@ export default async function AgentDetailPage({
         <section className="grid gap-3 text-xs uppercase tracking-[0.25em] text-muted">
           <div className="flex flex-wrap gap-3">
             <span className="rounded-full border border-foreground/40 px-3 py-1">
-              Tier: {detail.tier}
+              {c.agentDetail.fields.tier} {detail.tier}
             </span>
             <span className="rounded-full border border-foreground/40 px-3 py-1">
-              Length: {detail.responseLength}
+              {c.agentDetail.fields.length} {detail.responseLength}
             </span>
             <span className="rounded-full border border-foreground/40 px-3 py-1">
-              Format: {detail.responseFormat}
+              {c.agentDetail.fields.format} {detail.responseFormat}
             </span>
             {detail.createdAt && (
               <span className="rounded-full border border-foreground/40 px-3 py-1">
-                Created: {new Date(detail.createdAt).toLocaleString()}
+                {c.agentDetail.fields.created} {new Date(detail.createdAt).toLocaleString()}
               </span>
             )}
           </div>
           {detail.ownerId && (
             <div>
-              Owner:{' '}
+              {c.agentDetail.fields.owner}{' '}
               {await getUserDisplayName(detail.ownerId)}
             </div>
           )}
@@ -107,7 +109,7 @@ export default async function AgentDetailPage({
         {detail.lineage.length > 0 && (
           <section>
             <p className="text-xs uppercase tracking-[0.3em] text-muted">
-              Lineage
+              {c.agentDetail.lineage}
             </p>
             <div className="mt-3 flex flex-wrap gap-3 text-xs uppercase tracking-[0.25em]">
               {detail.lineage.map((ancestor) => (
@@ -126,15 +128,15 @@ export default async function AgentDetailPage({
         {remixStats.remixCount > 0 && (
           <section className="grid gap-2 text-xs uppercase tracking-[0.25em] text-muted">
             <p className="text-xs uppercase tracking-[0.3em] text-muted">
-              Remix Impact
+              {c.agentDetail.remixImpact}
             </p>
             <div className="flex flex-wrap gap-3">
               <span className="rounded-full border border-foreground/40 px-3 py-1">
-                Remixed {remixStats.remixCount} {remixStats.remixCount === 1 ? 'time' : 'times'}
+                {c.agentDetail.remixCount.replace('{n}', String(remixStats.remixCount))}
               </span>
               {remixStats.totalRewardsMicro > 0 && (
                 <span className="rounded-full border border-accent/60 px-3 py-1 text-accent">
-                  {(remixStats.totalRewardsMicro / MICRO_PER_CREDIT).toFixed(1)} credits earned
+                  {c.agentDetail.creditsEarned.replace('{n}', (remixStats.totalRewardsMicro / MICRO_PER_CREDIT).toFixed(1))}
                 </span>
               )}
             </div>
@@ -143,7 +145,7 @@ export default async function AgentDetailPage({
 
         <section>
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
-            Prompt DNA
+            {c.agentDetail.promptDna}
           </p>
           <pre className="mt-3 max-h-96 overflow-auto whitespace-pre-wrap border-2 border-foreground/60 bg-black/70 p-4 text-sm text-foreground/90">
             {detail.systemPrompt}
@@ -162,7 +164,7 @@ export default async function AgentDetailPage({
           detail.customInstructions) && (
           <section className="grid gap-3 text-xs uppercase tracking-[0.25em] text-muted">
             <p className="text-xs uppercase tracking-[0.3em] text-muted">
-              Structured DNA
+              {c.agentDetail.structuredDna}
             </p>
             <div className="grid gap-2 text-sm normal-case text-foreground/90">
               {detail.archetype && <div>Archetype: {detail.archetype}</div>}
@@ -191,27 +193,25 @@ export default async function AgentDetailPage({
 
         <section className="grid gap-3 text-xs text-muted">
           <p className="text-xs uppercase tracking-[0.3em] text-accent">
-            On-chain Identity
+            {c.agentDetail.onChainIdentity.title}
           </p>
           <p className="text-sm text-muted">
-            Every agent&apos;s DNA is hashed and can be attested on-chain via the
-            Ethereum Attestation Service on Base L2, creating an immutable record
-            of identity and lineage.
+            {c.agentDetail.onChainIdentity.description}
           </p>
           <div>
-            Prompt hash:{' '}
+            {c.agentDetail.onChainIdentity.promptHash}{' '}
             <span className="text-foreground">
-              {detail.promptHash ?? 'Pending'}
+              {detail.promptHash ?? c.agentDetail.onChainIdentity.pending}
             </span>
           </div>
           <div>
-            Manifest hash:{' '}
+            {c.agentDetail.onChainIdentity.manifestHash}{' '}
             <span className="text-foreground">
-              {detail.manifestHash ?? 'Pending'}
+              {detail.manifestHash ?? c.agentDetail.onChainIdentity.pending}
             </span>
           </div>
           <div>
-            Attestation:{' '}
+            {c.agentDetail.onChainIdentity.attestation}{' '}
             {attestationUrl ? (
               <a
                 href={attestationUrl}
@@ -219,10 +219,10 @@ export default async function AgentDetailPage({
                 rel="noreferrer"
                 className="text-accent underline"
               >
-                View onchain
+                {c.agentDetail.onChainIdentity.viewOnchain}
               </a>
             ) : (
-              <span className="text-foreground">Pending</span>
+              <span className="text-foreground">{c.agentDetail.onChainIdentity.pending}</span>
             )}
           </div>
         </section>

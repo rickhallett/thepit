@@ -32,6 +32,8 @@ export type RequestContext = {
   userAgent?: string;
   /** Request pathname (e.g. /api/run-bout). */
   path?: string;
+  /** Active copy A/B testing variant (e.g. 'control', 'hype', 'precise'). */
+  copyVariant?: string;
 };
 
 /**

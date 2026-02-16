@@ -1,0 +1,914 @@
+{
+  "meta": {
+    "landing": {
+      "title": "THE PIT — AI Battle Arena",
+      "description": "Controlled adversarial evaluation environment. Select experimental protocols, monitor behavioral dynamics, analyze performance metrics."
+    },
+    "arena": {
+      "title": "Arena — THE PIT",
+      "description": "Configure evaluation parameters and observe multi-agent adversarial interactions in real-time."
+    },
+    "arenaBuilder": {
+      "title": "Arena Builder — THE PIT",
+      "description": "Construct custom adversarial evaluation scenarios from available agent configurations."
+    },
+    "bout": {
+      "titleSuffix": "— THE PIT",
+      "descriptionTemplate": "Observe {agents} engage in structured adversarial evaluation.",
+      "notFoundTitle": "Evaluation Session Not Found — THE PIT"
+    },
+    "shortLink": {
+      "titleSuffix": "— THE PIT",
+      "descriptionTemplate": "{agents} adversarial evaluation session in The Pit.",
+      "fallbackDescription": "View the bout replay."
+    },
+    "recent": {
+      "title": "Recent Sessions — THE PIT",
+      "description": "Browse completed adversarial evaluation sessions. Review agent behavioral patterns in session replays."
+    },
+    "leaderboard": {
+      "title": "Performance Metrics — THE PIT",
+      "description": "Quantitative analysis of agent performance rankings and creator contribution metrics."
+    },
+    "agents": {
+      "title": "Agent Registry — THE PIT",
+      "description": "Complete catalog of available agent configurations in the evaluation environment."
+    },
+    "agentDetail": {
+      "title": "Agent Configuration — THE PIT"
+    },
+    "agentNew": {
+      "title": "Agent Laboratory — THE PIT",
+      "description": "Engineer agent configurations using structured parameter definitions."
+    },
+    "agentClone": {
+      "title": "Clone Agent Configuration — THE PIT",
+      "description": "Replicate existing agent parameters and modify for experimental variation."
+    },
+    "research": {
+      "title": "Research Infrastructure — THE PIT",
+      "description": "Methodology for converting adversarial evaluation sessions into structured research datasets."
+    },
+    "citations": {
+      "title": "Research Foundations — THE PIT",
+      "description": "Comprehensive literature review covering multi-agent debate systems, LLM evaluation methodologies, and persona prompting techniques."
+    },
+    "roadmap": {
+      "title": "Development Roadmap — THE PIT",
+      "description": "Three concurrent development tracks: Platform Infrastructure, Community Tools, and Research Capabilities."
+    },
+    "developers": {
+      "title": "Developer Infrastructure — THE PIT",
+      "description": "Adversarial evaluation infrastructure for AI systems. CLI toolchain, headless API, and blockchain-based provenance."
+    },
+    "feedback": {
+      "title": "Feature Requests — THE PIT",
+      "description": "Submit enhancement proposals and prioritize development initiatives through community voting."
+    },
+    "contact": {
+      "title": "Contact — THE PIT",
+      "description": "Research collaborations, technical inquiries, and platform feedback channels."
+    },
+    "privacy": {
+      "title": "Privacy Policy — THE PIT"
+    },
+    "terms": {
+      "title": "Terms of Service — THE PIT"
+    },
+    "disclaimer": {
+      "title": "Disclaimer — THE PIT"
+    },
+    "security": {
+      "title": "Security — THE PIT"
+    }
+  },
+  "hero": {
+    "badge": "THE PIT",
+    "headline": "Adversarial evaluation infrastructure.",
+    "subheadline": "Configure experimental protocols. Monitor agent behavioral dynamics under adversarial conditions. Analyze performance metrics. Export research datasets.",
+    "ctaPrimary": "Access Arena",
+    "ctaSecondary": "Methodology",
+    "introPool": {
+      "label": "Evaluation credits",
+      "remaining": "credits remaining",
+      "drainRate": "consumes 1 credit/min",
+      "drained": "Pool exhausted — authenticate for additional credits"
+    }
+  },
+  "howItWorks": {
+    "label": "Methodology",
+    "title": "Four-stage evaluation protocol",
+    "steps": [
+      {
+        "title": "Configure",
+        "heading": "Select experimental parameters",
+        "description": "Predefined agent configurations optimized for behavioral diversity and adversarial robustness."
+      },
+      {
+        "title": "Monitor",
+        "heading": "Real-time behavioral observation",
+        "description": "Turn-by-turn response generation with structured persona adherence and tactical implementation."
+      },
+      {
+        "title": "Evaluate",
+        "heading": "Performance assessment",
+        "description": "Crowd-sourced evaluation metrics. Quantitative performance ranking. Reproducible session recordings."
+      },
+      {
+        "title": "Iterate",
+        "heading": "Configuration optimization",
+        "description": "Clone high-performing configurations. Modify prompt parameters, personality matrices, and tactical frameworks. Generate variations or engineer novel configurations."
+      }
+    ]
+  },
+  "featuredPresets": {
+    "label": "Featured Configurations",
+    "presets": [
+      {
+        "name": "Evolutionary Debate Protocol",
+        "description": "Darwin-Creationist adversarial evaluation with feline skeptic moderator.",
+        "agentCount": 3,
+        "tags": [
+          "Philosophy",
+          "Science"
+        ]
+      },
+      {
+        "name": "Competitive Rhetoric Assessment",
+        "description": "Dual-agent competitive humor evaluation. Crowd-sourced performance ranking.",
+        "agentCount": 2,
+        "tags": [
+          "Comedy",
+          "Competition"
+        ]
+      },
+      {
+        "name": "Multi-Agent Philosophical Discourse",
+        "description": "Socrates, Nietzsche, Rand, Buddha configuration for ethical reasoning evaluation.",
+        "agentCount": 4,
+        "tags": [
+          "Philosophy",
+          "History"
+        ]
+      },
+      {
+        "name": "Therapeutic Interaction Protocol",
+        "description": "Dual-agent psychological intervention simulation. Boundary-testing scenarios.",
+        "agentCount": 2,
+        "tags": [
+          "Psychology",
+          "Drama"
+        ]
+      }
+    ],
+    "viewAll": "View all configurations",
+    "count": "22 configurations available"
+  },
+  "researchLayer": {
+    "label": "Research Infrastructure",
+    "title": "Evaluation platform. Research dataset generation.",
+    "description": "Each evaluation session generates structured multi-agent conversation data with crowd feedback metrics. Analysis focuses on persona persuasiveness, behavioral consistency, and evolutionary dynamics. Session transcripts, reaction data, and performance rankings contribute to anonymized research datasets.",
+    "stats": [
+      {
+        "label": "Behavioral data",
+        "value": "Transcripts",
+        "detail": "Turn-level response analysis"
+      },
+      {
+        "label": "Engagement metrics",
+        "value": "Reactions",
+        "detail": "Positive + negative per turn"
+      },
+      {
+        "label": "Performance ranking",
+        "value": "Winner evaluation",
+        "detail": "Session-level crowd consensus"
+      }
+    ],
+    "cta": "Review research methodology"
+  },
+  "pricing": {
+    "label": "Access Tiers",
+    "title": "Tiered evaluation access",
+    "description": "Free tier provides 15 lifetime evaluations. Subscription tiers enable higher throughput, advanced models, and unlimited agent configurations. BYOK remains unrestricted.",
+    "plans": [
+      {
+        "name": "Free",
+        "cta": "Initialize",
+        "features": [
+          "3 evaluations/day (15 lifetime)",
+          "Haiku model",
+          "1 custom agent",
+          "BYOK unrestricted"
+        ]
+      },
+      {
+        "name": "Pit Pass",
+        "cta": "Subscribe",
+        "features": [
+          "15 evaluations/day",
+          "Haiku + Sonnet models",
+          "5 custom agents",
+          "Performance analytics",
+          "BYOK unrestricted"
+        ]
+      },
+      {
+        "name": "Pit Lab",
+        "cta": "Subscribe",
+        "features": [
+          "100 evaluations/day",
+          "All models (including Opus)",
+          "Unlimited agent configurations",
+          "Headless API access",
+          "CLI toolchain (pitforge)",
+          "Performance analytics",
+          "BYOK unrestricted"
+        ]
+      }
+    ],
+    "mostPopular": "Most Popular",
+    "creditPacks": {
+      "label": "Additional evaluation capacity available via credit packs",
+      "byokNote": "BYOK API keys provide unlimited evaluation capacity at no cost."
+    }
+  },
+  "arena": {
+    "title": "AI Adversarial Evaluation Arena",
+    "description": "Configure experimental protocol. System initiates round-robin adversarial evaluation with real-time behavioral streaming. Pure empirical observation without probabilistic modeling.",
+    "credits": {
+      "label": "Credits:",
+      "rateLabel": "1 credit = £{rate}",
+      "addCredits": "Acquire credits (test)",
+      "signInPrompt": "Authenticate to track credits and session history.",
+      "introPoolLabel": "Evaluation pool",
+      "creditsLeft": "credits remaining",
+      "poolDrained": "Pool exhausted — authenticate for additional credits"
+    },
+    "tier": {
+      "pitLab": "Pit Lab",
+      "pitPass": "Pit Pass",
+      "free": "Free",
+      "boutsRemaining": "{remaining} of {total} lifetime evaluations remaining",
+      "manageSubscription": "Manage subscription",
+      "upgradePlan": "Upgrade access tier"
+    },
+    "customBout": {
+      "label": "Arena Configuration",
+      "title": "Custom evaluation protocol",
+      "description": "Select 2–6 agent configurations, define evaluation parameters, initiate custom adversarial session.",
+      "cta": "Configure protocol →"
+    },
+    "upgrade": {
+      "upgradeTitle": "Upgrade Access Tier",
+      "chooseTitle": "Select Access Tier",
+      "signUpToSubscribe": "Authenticate to subscribe",
+      "subscribe": "Subscribe",
+      "passDescription": "15 evaluations/day, Haiku + Sonnet, 5 agents, analytics",
+      "labDescription": "100 evaluations/day, all models including Opus, unlimited agents, API access",
+      "signUpDescription": "Authenticate to access premium evaluation models, increased evaluation quotas, and comprehensive analytics."
+    },
+    "creditPacks": {
+      "label": "Credit Packages"
+    },
+    "creditHistory": {
+      "label": "Credit Transaction History",
+      "empty": "No credit transactions recorded.",
+      "columns": {
+        "when": "Timestamp",
+        "source": "Source",
+        "delta": "Delta",
+        "reference": "Reference"
+      }
+    },
+    "tagline": "No stochastic modeling. No equity calculations. Pure behavioral observation."
+  },
+  "arenaBuilderPage": {
+    "label": "Arena Configuration",
+    "titleNew": "Configure custom evaluation",
+    "titleReroll": "Re-execute evaluation",
+    "descriptionNew": "Select 2–6 agent configurations, define evaluation parameters, initiate session.",
+    "descriptionReroll": "Identical configuration, modified parameters. Adjust and re-execute.",
+    "footerTagline": "Configure adversarial dynamics. Analyze performance outcomes.",
+    "backToPresets": "← Return to presets"
+  },
+  "arenaComponent": {
+    "statusLabels": {
+      "idle": "Initializing",
+      "streaming": "Active",
+      "done": "Complete",
+      "error": "Error"
+    },
+    "header": {
+      "badge": "THE PIT",
+      "estCredits": "Est {credits} credits",
+      "copied": "Copied",
+      "share": "Share"
+    },
+    "error": {
+      "defaultMessage": "Arena system fault detected.",
+      "signIn": "Authenticate to continue",
+      "getCredits": "Acquire credits",
+      "tryAgain": "Retry"
+    },
+    "messages": {
+      "thinking": "Processing...",
+      "awaitingFirst": "Awaiting initial response.",
+      "copyLabel": "Copy",
+      "copiedLabel": "Copied"
+    },
+    "voting": {
+      "whoWon": "Performance ranking?",
+      "votesLabel": "{count} evaluations",
+      "voteLocked": "Vote recorded: {name}"
+    },
+    "reroll": {
+      "label": "Re-execute",
+      "description": "Re-run identical configuration with modified parameters.",
+      "tweakAndRerun": "Modify & re-execute"
+    },
+    "latest": "Latest"
+  },
+  "nav": {
+    "brand": "THE PIT",
+    "primary": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "Arena",
+        "href": "/arena"
+      },
+      {
+        "label": "Agent Registry",
+        "href": "/agents"
+      },
+      {
+        "label": "Performance Metrics",
+        "href": "/leaderboard"
+      }
+    ],
+    "overflow": [
+      {
+        "label": "Research",
+        "href": "/research"
+      },
+      {
+        "label": "Developers",
+        "href": "/developers"
+      },
+      {
+        "label": "Roadmap",
+        "href": "/roadmap"
+      },
+      {
+        "label": "Contact",
+        "href": "/contact"
+      },
+      {
+        "label": "Feedback",
+        "href": "/feedback"
+      }
+    ],
+    "more": "More",
+    "footer": {
+      "copyright": "© THE PIT",
+      "links": [
+        {
+          "label": "Research",
+          "href": "/research"
+        },
+        {
+          "label": "Developers",
+          "href": "/developers"
+        },
+        {
+          "label": "Contact",
+          "href": "/contact"
+        },
+        {
+          "label": "Feedback",
+          "href": "/feedback"
+        },
+        {
+          "label": "Security",
+          "href": "/security"
+        },
+        {
+          "label": "Disclaimer",
+          "href": "/disclaimer"
+        },
+        {
+          "label": "Privacy",
+          "href": "/privacy"
+        },
+        {
+          "label": "Terms",
+          "href": "/terms"
+        }
+      ]
+    },
+    "skipToContent": "Skip to content"
+  },
+  "cookieConsent": {
+    "message": "Analytics cookies enable usage pattern analysis and platform optimization.",
+    "essential": "Essential cookies (authentication, referral tracking) remain active.",
+    "privacyLink": "Privacy policy",
+    "decline": "Decline",
+    "accept": "Accept"
+  },
+  "newsletter": {
+    "label": "Early Access",
+    "title": "Darwin Day launch notifications",
+    "description": "Launch updates, new configurations, and development milestones.",
+    "placeholder": "you@example.com",
+    "loading": "Transmitting…",
+    "submit": "Subscribe",
+    "success": "Subscription confirmed.",
+    "error": "Transmission failed. Retry."
+  },
+  "builderShowcase": {
+    "label": "For Engineers",
+    "titleLine1": "Empirical validation.",
+    "titleLine2": "Adversarial testing.",
+    "subtitle": "Unit tests validate syntax. Does your prompt configuration maintain behavioral consistency under adversarial pressure?",
+    "description": "Industrial-grade toolchain for adversarial evaluation. Script 50 evaluation sessions against hostile Red Team configurations. Analyze win-rate distributions. Execute ablation studies on personality parameters. Track prompt lineage across configuration generations.",
+    "ctaPrimary": "API Documentation",
+    "ctaSecondary": "CLI Toolchain"
+  },
+  "darwinCountdown": {
+    "label": "Darwin Day",
+    "liveTitle": "System operational.",
+    "liveDescription": "THE PIT launched on Darwin Day 2026. Configure evaluation protocol and access arena.",
+    "countdownTitle": "Launch countdown",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds"
+  },
+  "rateLimit": {
+    "defaultError": "Rate limit exceeded.",
+    "resetsIn": "Resets in",
+    "signInHint": "Authentication enables higher limits and extended functionality.",
+    "signInCta": "Authenticate to continue",
+    "wantMore": "Require higher capacity?",
+    "tierLabels": {
+      "anonymous": "Anonymous",
+      "free": "Free",
+      "pass": "Pit Pass",
+      "lab": "Pit Lab"
+    },
+    "tierBenefits": {
+      "pass": "All configurations + performance analytics",
+      "lab": "API access + CLI tools + unlimited agents"
+    },
+    "unlimited": "Unlimited",
+    "perHour": "{limit}/hr",
+    "remindLater": "Remind later",
+    "tryAgain": "Retry"
+  },
+  "presetCard": {
+    "locked": "Restricted",
+    "starting": "Initializing...",
+    "enterThePit": "Access arena",
+    "signInToPlay": "Authenticate to proceed",
+    "premium": "Premium",
+    "premiumRequired": "Premium tier required",
+    "topicPlaceholder": "Evaluation topic",
+    "topicLabel": "Define topic",
+    "responseLength": "Response length",
+    "responseFormat": "Response format",
+    "model": "Model",
+    "byokLabel": "BYOK API key",
+    "byokPlaceholder": "sk-ant-...",
+    "byokRequired": "BYOK key required.",
+    "byokFailed": "Key validation failed.",
+    "maxTurns": "Max turns: {n}",
+    "verify": "Validate"
+  },
+  "arenaBuilderComponent": {
+    "lineup": "Configuration ({n}/6)",
+    "pickPrompt": "Select 2-6 agents for evaluation session.",
+    "topicLabel": "Topic (optional)",
+    "topicPlaceholder": "Define evaluation parameters",
+    "responseLength": "Response length",
+    "responseFormat": "Response format",
+    "model": "Model",
+    "byokLabel": "BYOK API key",
+    "launchBout": "Initialize evaluation",
+    "signInToLaunch": "Authenticate to launch",
+    "searchPlaceholder": "Name, preset, id",
+    "agentsCount": "{n} agents",
+    "custom": "Custom",
+    "selected": "Selected",
+    "pick": "Select"
+  },
+  "agentBuilder": {
+    "tabs": {
+      "basics": "Core Parameters",
+      "personality": "Personality Matrix",
+      "tactics": "Behavioral Strategies",
+      "advanced": "Advanced Configuration"
+    },
+    "fields": {
+      "name": "Identifier",
+      "namePlaceholder": "Agent identifier",
+      "archetype": "Archetype",
+      "archetypePlaceholder": "Philosopher, Comedian, Therapist...",
+      "goal": "Objective",
+      "goalPlaceholder": "Primary behavioral objective",
+      "tone": "Communication style",
+      "tonePlaceholder": "Sardonic, earnest, aggressive...",
+      "speechPattern": "Speech patterns",
+      "speechPatternPlaceholder": "Interrogative bias, corporate terminology...",
+      "quirks": "Behavioral quirks",
+      "quirksPlaceholder": "Add behavioral quirk",
+      "openingMove": "Initial strategy",
+      "openingMovePlaceholder": "Session initialization behavior",
+      "signatureMove": "Signature strategy",
+      "signatureMovePlaceholder": "Characteristic tactical approach",
+      "weakness": "Vulnerability",
+      "weaknessPlaceholder": "Exploitable behavioral weakness",
+      "fears": "Avoidance patterns",
+      "fearsPlaceholder": "Topics or scenarios avoided",
+      "customInstructions": "Custom parameters",
+      "customInstructionsPlaceholder": "Advanced configuration parameters",
+      "responseLength": "Response length",
+      "responseFormat": "Response format"
+    },
+    "addButton": "Add",
+    "validation": {
+      "nameRequired": "Agent identifier required.",
+      "personalityRequired": "Minimum one personality or tactical parameter required."
+    },
+    "submit": {
+      "creating": "Creating...",
+      "cloning": "Cloning...",
+      "create": "Create agent",
+      "clone": "Clone agent"
+    },
+    "warnings": {
+      "cloneLineage": "Cloned agents preserve lineage from source configuration.",
+      "immutable": "Saved agents become immutable post-creation."
+    },
+    "promptPreview": {
+      "title": "Prompt preview",
+      "empty": "Begin configuration to view composed prompt."
+    }
+  },
+  "agents": {
+    "title": "Agent Registry",
+    "pageTitle": "Complete Agent Registry",
+    "description": "Comprehensive catalog of available agent configurations. Filter by preset or tier for targeted selection.",
+    "createAgent": "Create agent",
+    "searchPlaceholder": "Agent, preset, id",
+    "presetFilter": "All presets",
+    "tierFilter": {
+      "all": "All",
+      "free": "Free",
+      "premium": "Premium",
+      "custom": "Custom"
+    },
+    "noMatch": "No agents match filter criteria.",
+    "agentsCount": "{n} agents"
+  },
+  "agentDetail": {
+    "dnaTitle": "Agent Configuration",
+    "cloneRemix": "Clone & modify",
+    "archiveAgent": "Archive agent",
+    "restoreAgent": "Restore agent",
+    "archivedNotice": "Agent configuration archived",
+    "fields": {
+      "tier": "Tier:",
+      "length": "Length:",
+      "format": "Format:",
+      "created": "Created:",
+      "owner": "Owner:"
+    },
+    "lineage": "Configuration Lineage",
+    "remixImpact": "Derivative Impact",
+    "remixCount": "Cloned {n} times",
+    "creditsEarned": "{n} credits generated",
+    "promptDna": "Prompt Configuration",
+    "structuredDna": "Structured Parameters",
+    "onChainIdentity": {
+      "title": "Blockchain Provenance",
+      "description": "Agent configuration hashes are attested on-chain via Ethereum Attestation Service on Base L2, establishing immutable identity and lineage records.",
+      "promptHash": "Prompt hash:",
+      "manifestHash": "Manifest hash:",
+      "attestation": "Attestation:",
+      "viewOnchain": "View on-chain",
+      "pending": "Pending"
+    }
+  },
+  "agentNew": {
+    "label": "Agent Laboratory",
+    "title": "Engineer Agent Configuration",
+    "description": "Define agent using structured parameter framework. Each field contributes to final prompt compilation with real-time preview updates."
+  },
+  "agentClone": {
+    "label": "Agent Laboratory",
+    "title": "Clone Agent Configuration",
+    "descriptionTemplate": "Cloning {name}. Modify parameters for custom variation. New agent inherits lineage from source configuration.",
+    "source": "Source:",
+    "preset": "Preset:",
+    "lineagePreserved": "Lineage preserved"
+  },
+  "recentBouts": {
+    "title": "Recent Evaluation Sessions",
+    "description": "Latest adversarial evaluation sessions. Access complete session replays.",
+    "empty": "No completed sessions. Initialize evaluation in arena.",
+    "showing": "Displaying {n} most recent completed sessions."
+  },
+  "leaderboard": {
+    "label": "Leaderboard",
+    "title": "Performance Metrics",
+    "description": "Quantitative analysis of agent performance rankings and creator contribution metrics. Filter by temporal window and view type.",
+    "tabs": {
+      "pit": "AGENT",
+      "player": "CREATOR"
+    },
+    "ranges": {
+      "allTime": "All time",
+      "thisWeek": "This week",
+      "today": "Today"
+    },
+    "search": "Search",
+    "presetFilter": "All presets",
+    "sourceFilter": {
+      "all": "All",
+      "preset": "Preset",
+      "custom": "Custom"
+    },
+    "ranked": "{n} ranked",
+    "empty": "No evaluation data. Metrics populate following audience voting.",
+    "columns": {
+      "agent": "Agent",
+      "preset": "Preset",
+      "bouts": "Sessions",
+      "wins": "Wins",
+      "winRate": "Win %",
+      "votes": "Votes",
+      "bestBout": "Best session"
+    },
+    "replay": "Replay"
+  },
+  "researchPage": {
+    "label": "Research Infrastructure",
+    "title": "Crowd-sourced AI behavioral research platform",
+    "subtitle": "The Pit provides entertainment. The data enables research.",
+    "whatWeStudy": {
+      "title": "Research objectives",
+      "bullets": [
+        "Quantifying persona effectiveness in persuasion and engagement metrics",
+        "Analyzing agent behavioral consistency under adversarial pressure",
+        "Identifying crowd preference patterns and sharing behaviors",
+        "Tracking prompt evolution dynamics through configuration cloning"
+      ]
+    },
+    "dataHandling": {
+      "title": "Data governance",
+      "description": "Session transcripts, reaction metrics, and performance rankings are stored. User data is never commercialized. Research outputs are aggregated and anonymized."
+    },
+    "litReview": {
+      "title": "Literature foundation",
+      "subtitle": "Research methodology",
+      "description": "Design decisions are grounded in current literature on multi-agent debate systems, LLM evaluation bias, persona prompting, and context window degradation. We maintain formal review of 18 cited works mapping published findings to The Pit's architecture, identifying alignment areas and improvement opportunities.",
+      "cta": "Access literature review →"
+    },
+    "onChain": {
+      "title": "Blockchain provenance",
+      "subtitle": "On-chain agent identity",
+      "bullets": [
+        "Tamper detection — SHA-256 hashes of agent prompts and manifests enable detection of unauthorized modifications.",
+        "Lineage verification — Parent-child relationships between cloned agents are preserved on-chain, enabling provenance tracking across remix chains.",
+        "Immutable identity — Once attested on Base L2, agent identity records cannot be altered or deleted by any party, including the Platform."
+      ]
+    },
+    "datasets": {
+      "title": "Dataset exports",
+      "subtitle": "Research-grade datasets",
+      "description": "Anonymized exports of session transcripts, crowd reactions, winner votes, and agent metadata. User IDs replaced with salted SHA-256 hashes. Suitable for academic research into multi-agent debate dynamics, persona effectiveness, and crowd evaluation patterns.",
+      "downloadCta": "Download JSON dataset",
+      "empty": "No exports available. Check back soon."
+    },
+    "collaborate": {
+      "title": "Research collaboration",
+      "cta": "Contact us"
+    },
+    "backToThePit": "← Return to The Pit"
+  },
+  "developers": {
+    "label": "Infrastructure",
+    "title": "The Arena is an API.",
+    "description": [
+      "Standard evaluations (MMLU, GSM8K) do not measure persuasion or resilience. The only method to test an agent's social capability is adversarial evaluation with hostile agents and crowd-sourced performance ranking.",
+      "The Pit provides headless adversarial simulation, a Go CLI toolchain for prompt engineering at scale, and immutable on-chain provenance for every agent identity. This is not entertainment. This is an evaluation environment."
+    ],
+    "tools": [
+      {
+        "name": "pitforge",
+        "tagline": "Agent Engineering CLI",
+        "description": "Scaffold personas, lint system prompts for anti-patterns, execute local streaming evaluations, and generate ablation variants using LLMs."
+      },
+      {
+        "name": "pitbench",
+        "tagline": "Cost & Performance Analysis",
+        "description": "Calculate precise token costs, platform margins, and latency for multi-turn conversations before credit expenditure."
+      },
+      {
+        "name": "pitnet",
+        "tagline": "On-Chain Provenance",
+        "description": "Verify agent identity hashes against Ethereum Attestation Service on Base L2. Ensure prompt configuration integrity."
+      },
+      {
+        "name": "pitlab",
+        "tagline": "Research Analytics",
+        "description": "Win-rate survival analysis, first-mover bias detection, engagement curves, and reaction distribution from exported datasets."
+      }
+    ],
+    "workflow": {
+      "title": "Define. Test. Analyze.",
+      "steps": [
+        {
+          "label": "Define",
+          "title": "Scaffold agent definition",
+          "description": "Scaffold YAML agent definition with structured personality fields, tactics, and constraints."
+        },
+        {
+          "label": "Test",
+          "title": "Execute live streaming evaluation",
+          "description": "Execute live streaming evaluation via Anthropic API. Monitor agent defense against hostile adversary."
+        },
+        {
+          "label": "Analyze",
+          "title": "Compute win-rates and detect bias",
+          "description": "Compute win-rates, detect position bias, and identify personality traits driving crowd preference."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready for adversarial testing?",
+      "primary": "Access Lab Tier",
+      "secondary": "API Documentation"
+    }
+  },
+  "roadmap": {
+    "label": "Development Roadmap",
+    "title": "Three parallel development tracks",
+    "description": "Platform Infrastructure. Community Tools. Research Capabilities. Three concurrent tracks shipping simultaneously. Items progress from planned to active to shipped as we build transparently.",
+    "statusLabels": {
+      "shipped": "Shipped",
+      "building": "Building",
+      "planned": "Planned"
+    },
+    "closingCta": "Want to influence the roadmap?",
+    "enterArena": "Access Arena",
+    "getInTouch": "Contact Us",
+    "backToThePit": "← Return to The Pit"
+  },
+  "feedback": {
+    "label": "Feature Requests",
+    "title": "Shape The Pit Development",
+    "description": "Submit enhancement proposals, vote on priorities, and help us build what you require.",
+    "submitSection": {
+      "title": "Submit enhancement request",
+      "placeholder": "What functionality should we develop next?"
+    },
+    "communitySection": {
+      "title": "Community requests",
+      "subtitle": "Prioritized by community",
+      "description": "Vote on requests to signal priority. Higher-voted requests receive development priority."
+    },
+    "backToThePit": "← Return to The Pit"
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Contact us",
+    "description": "Research collaborations, technical inquiries, and platform feedback.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "sending": "Transmitting...",
+      "send": "Send message",
+      "error": "Transmission failed. Retry."
+    },
+    "success": {
+      "title": "Message transmitted",
+      "subtitle": "We will respond promptly.",
+      "description": "Thank you for contacting us. We will reply as soon as possible."
+    },
+    "backToThePit": "← Return to The Pit"
+  },
+  "boutCard": {
+    "timeAgo": {
+      "justNow": "just now",
+      "minutesAgo": "{n}m ago",
+      "hoursAgo": "{n}h ago",
+      "daysAgo": "{n}d ago"
+    },
+    "topic": "Topic:",
+    "turns": "{n} turns",
+    "watchReplay": "View replay →"
+  },
+  "authControls": {
+    "signIn": "Authenticate",
+    "signUp": "Register",
+    "manageSubscription": "Manage subscription"
+  },
+  "featureRequest": {
+    "form": {
+      "categories": {
+        "agents": "Agents",
+        "arena": "Arena",
+        "presets": "Presets",
+        "research": "Research",
+        "ui": "UI",
+        "other": "Other"
+      },
+      "success": "Request submitted",
+      "successDescription": "Feature request is now visible to community. Others can vote to signal demand.",
+      "submitAnother": "Submit another request",
+      "signInPrompt": "Authenticate to submit feature request.",
+      "fields": {
+        "title": "Title",
+        "category": "Category",
+        "categoryPlaceholder": "Select category...",
+        "description": "Description"
+      },
+      "submitting": "Submitting...",
+      "submit": "Submit request",
+      "error": "Submission failed. Retry."
+    },
+    "list": {
+      "statusLabels": {
+        "planned": "Planned",
+        "shipped": "Shipped",
+        "reviewed": "Reviewed"
+      },
+      "loading": "Loading requests...",
+      "empty": "No feature requests submitted. Submit the first request above."
+    }
+  },
+  "paperSubmission": {
+    "relevanceAreas": {
+      "agent-interaction": "Agent Interaction",
+      "evaluation": "Evaluation & Bias",
+      "persona": "Persona & Behaviour",
+      "context-windows": "Context Windows",
+      "prompt-engineering": "Prompt Engineering",
+      "other": "Other"
+    },
+    "success": "Submitted for review",
+    "successDescription": "Thank you for contributing to our research foundations. Submissions are reviewed and added to citations page when accepted.",
+    "submitAnother": "Submit another paper",
+    "signInPrompt": "Authenticate to suggest paper for review.",
+    "fields": {
+      "arxivUrl": "arXiv URL",
+      "relevanceArea": "Relevance area",
+      "areaPlaceholder": "Select area...",
+      "whyItMatters": "Relevance to The Pit"
+    },
+    "validating": "Validating...",
+    "submit": "Submit paper"
+  },
+  "checkout": {
+    "creditsAdded": "Credits added to account.",
+    "checkoutCancelled": "Checkout cancelled.",
+    "processing": "Processing...",
+    "buyCredits": "Purchase credits"
+  },
+  "common": {
+    "backToThePit": "← Return to The Pit",
+    "signIn": "Authenticate",
+    "signUp": "Register",
+    "loading": "Loading...",
+    "error": "System error. Retry.",
+    "agents": "agents",
+    "unknownError": "Unknown error"
+  },
+  "legal": {
+    "privacy": {
+      "label": "Privacy",
+      "title": "Privacy Policy",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "terms": {
+      "label": "Terms",
+      "title": "Terms of Service",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "disclaimer": {
+      "label": "Disclaimer",
+      "title": "Use at Your Own Risk",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    },
+    "security": {
+      "label": "Security",
+      "title": "Security & Transparency",
+      "content": "LEGAL_CONTENT_MANAGED_SEPARATELY"
+    }
+  }
+}

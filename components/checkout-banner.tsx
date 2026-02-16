@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useCopy } from '@/lib/copy-client';
 
 export function CheckoutBanner() {
+  const c = useCopy();
   const searchParams = useSearchParams();
   const checkout = searchParams.get('checkout');
   const shouldShow = checkout === 'success' || checkout === 'cancel';
@@ -28,8 +30,8 @@ export function CheckoutBanner() {
       }`}
     >
       {isSuccess
-        ? 'Credits added to your account.'
-        : 'Checkout cancelled.'}
+        ? c.checkout.creditsAdded
+        : c.checkout.checkoutCancelled}
     </div>
   );
 }

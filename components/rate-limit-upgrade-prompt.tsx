@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { PitButton } from '@/components/ui/button';
+import { useCopy } from '@/lib/copy-client';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -44,23 +45,9 @@ function dismissForSession(): void {
   }
 }
 
-/** Human-readable tier labels. */
-const TIER_LABELS: Record<string, string> = {
-  anonymous: 'Anonymous',
-  free: 'Free',
-  pass: 'Pit Pass',
-  lab: 'Pit Lab',
-};
+// Tier labels are resolved from copy at render time — see tierLabel() in component.
 
-function tierLabel(tier: string): string {
-  return TIER_LABELS[tier] ?? tier;
-}
-
-/** Format a limit number for display (null = unlimited). */
-function formatLimit(limit: number | null): string {
-  if (limit === null) return 'Unlimited';
-  return `${limit}/hr`;
-}
+// formatLimit is resolved from copy at render time — see component body.
 
 /** Format seconds remaining as "Xm Ys" or "Xs". */
 function formatCountdown(totalSeconds: number): string {
@@ -107,6 +94,7 @@ export function RateLimitUpgradePrompt({
   errorMessage?: string;
 }) {
   const secondsLeft = useCountdown(rateLimit.resetAt);
+  const c = useCopy();
   const [dismissed, setDismissed] = useState(isDismissedThisSession);
 
   const currentTier = rateLimit.currentTier ?? 'free';
@@ -119,25 +107,34 @@ export function RateLimitUpgradePrompt({
     setDismissed(true);
   }, []);
 
+  const tierLabel = (tier: string): string => {
+    return (c.rateLimit.tierLabels as Record<string, string>)[tier] ?? tier;
+  };
+
+  const formatLimit = (limit: number | null): string => {
+    if (limit === null) return c.rateLimit.unlimited;
+    return c.rateLimit.perHour.replace('{limit}', String(limit));
+  };
+
   // Tier benefit descriptions for the upgrade CTA.
   const tierBenefits: Record<string, string> = useMemo(
     () => ({
-      pass: 'All presets + agent analytics',
-      lab: 'API access + CLI tools + unlimited agents',
+      pass: c.rateLimit.tierBenefits.pass,
+      lab: c.rateLimit.tierBenefits.lab,
     }),
-    [],
+    [c.rateLimit.tierBenefits.pass, c.rateLimit.tierBenefits.lab],
   );
 
   return (
     <div className="flex flex-col gap-5 border-2 border-red-400/60 bg-black/60 p-8">
       {/* Error message */}
       <p className="text-sm text-red-400">
-        {errorMessage ?? 'You\u2019ve hit the rate limit.'}
+        {errorMessage ?? c.rateLimit.defaultError}
       </p>
 
       {/* Countdown timer — always shown */}
       <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted">
-        <span className="text-foreground/80">Resets in</span>
+        <span className="text-foreground/80">{c.rateLimit.resetsIn}</span>
         <span className="font-mono text-sm text-foreground">
           {formatCountdown(secondsLeft)}
         </span>
@@ -147,13 +144,13 @@ export function RateLimitUpgradePrompt({
       {isAnonymous && (
         <div className="flex flex-col gap-3">
           <p className="text-xs text-muted">
-            Sign in for higher limits and more features.
+            {c.rateLimit.signInHint}
           </p>
           <Link
             href="/sign-in?redirect_url=/arena"
             className="inline-flex w-fit rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:border-accent hover:bg-accent/10"
           >
-            Sign in to continue
+            {c.rateLimit.signInCta}
           </Link>
         </div>
       )}
@@ -162,7 +159,7 @@ export function RateLimitUpgradePrompt({
       {!isAnonymous && !isTopTier && !dismissed && upgradeTiers.length > 0 && (
         <div className="flex flex-col gap-4 border-t border-foreground/20 pt-5">
           <p className="text-xs uppercase tracking-[0.3em] text-muted">
-            Want more?
+            {c.rateLimit.wantMore}
           </p>
 
           <div className="flex flex-col gap-3">
@@ -193,7 +190,7 @@ export function RateLimitUpgradePrompt({
             onClick={handleDismiss}
             className="self-end"
           >
-            Remind me later
+            {c.rateLimit.remindLater}
           </PitButton>
         </div>
       )}
@@ -205,7 +202,7 @@ export function RateLimitUpgradePrompt({
         onClick={() => window.location.assign('/arena')}
         className="self-start"
       >
-        Try again
+        {c.rateLimit.tryAgain}
       </PitButton>
     </div>
   );
