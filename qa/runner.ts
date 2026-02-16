@@ -281,17 +281,37 @@ async function runQA(options: RunOptions): Promise<void> {
  * CLI entry point
  */
 async function main(): Promise<void> {
-  const { values } = parseArgs({
-    options: {
-      'dry-run': { type: 'boolean', default: false },
-      'filter': { type: 'string', multiple: true },
-      'category': { type: 'string' },
-      'tier': { type: 'string' },
-      'verbose': { type: 'boolean', short: 'v', default: false },
-      'help': { type: 'boolean', short: 'h', default: false },
-    },
-    allowPositionals: true,
-  })
+  let values: {
+    'dry-run'?: boolean
+    filter?: string[]
+    category?: string
+    tier?: string
+    verbose?: boolean
+    help?: boolean
+  }
+  try {
+    const parsed = parseArgs({
+      options: {
+        'dry-run': { type: 'boolean', default: false },
+        'filter': { type: 'string', multiple: true },
+        'category': { type: 'string' },
+        'tier': { type: 'string' },
+        'verbose': { type: 'boolean', short: 'v', default: false },
+        'help': { type: 'boolean', short: 'h', default: false },
+      },
+      allowPositionals: true,
+    })
+    values = parsed.values as typeof values
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    if (message.includes('filter')) {
+      console.error('Error: --filter requires a test ID value.\n')
+      console.error('Usage: pnpm run qa:single -- <test-id>')
+      console.error('Example: pnpm run qa:single -- SEC-001')
+      process.exit(1)
+    }
+    throw err
+  }
 
   if (values.help) {
     console.log(`
