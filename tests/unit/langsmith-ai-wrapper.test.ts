@@ -164,3 +164,48 @@ describe('withTracing', () => {
     expect(result).toBe(42);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Tests: flushTraces and scheduleTraceFlush
+// ---------------------------------------------------------------------------
+
+describe('flushTraces', () => {
+  it('resolves immediately when disabled (no-op)', async () => {
+    delete process.env.LANGSMITH_ENABLED;
+    const { flushTraces } = await importFresh();
+    // Should not throw and should resolve quickly
+    await expect(flushTraces()).resolves.toBeUndefined();
+  });
+});
+
+describe('scheduleTraceFlush', () => {
+  it('does not throw when disabled', async () => {
+    delete process.env.LANGSMITH_ENABLED;
+    const { scheduleTraceFlush } = await importFresh();
+    expect(() => scheduleTraceFlush()).not.toThrow();
+  });
+
+  it('does not throw when called outside request scope (no after() available)', async () => {
+    process.env.LANGSMITH_ENABLED = 'true';
+    process.env.LANGSMITH_API_KEY = 'lsv2_test_fake_key_for_unit_tests';
+    const { scheduleTraceFlush } = await importFresh();
+    // In test environment, next/server's after() will throw, but
+    // scheduleTraceFlush should catch it and fall back gracefully.
+    expect(() => scheduleTraceFlush()).not.toThrow();
+    delete process.env.LANGSMITH_API_KEY;
+  });
+});
+
+describe('isLangSmithEnabled', () => {
+  it('is false by default', async () => {
+    delete process.env.LANGSMITH_ENABLED;
+    const { isLangSmithEnabled } = await importFresh();
+    expect(isLangSmithEnabled).toBe(false);
+  });
+
+  it('is true when LANGSMITH_ENABLED=true', async () => {
+    process.env.LANGSMITH_ENABLED = 'true';
+    const { isLangSmithEnabled } = await importFresh();
+    expect(isLangSmithEnabled).toBe(true);
+  });
+});

@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { log } from '@/lib/logger';
 import { validateBoutRequest, executeBout } from '@/lib/bout-engine';
+import { scheduleTraceFlush } from '@/lib/langsmith';
 import { getUserTier, SUBSCRIPTIONS_ENABLED, TIER_CONFIG } from '@/lib/tier';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
@@ -42,6 +43,9 @@ async function rawPOST(req: Request) {
   }
 
   const { context } = validation;
+
+  // Schedule LangSmith trace flush after response is sent.
+  scheduleTraceFlush();
 
   try {
     const result = await executeBout(context);

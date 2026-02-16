@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve, relative, isAbsolute } from 'node:path';
 
-import { tracedStreamText, withTracing } from '@/lib/langsmith';
+import { tracedStreamText, withTracing, scheduleTraceFlush } from '@/lib/langsmith';
 
 import {
   ASK_THE_PIT_ENABLED,
@@ -99,6 +99,9 @@ async function rawPOST(req: Request) {
   const systemPrompt = cachedSystemPrompt;
 
   log.info('Ask The Pit request', { requestId, messageLength: message.length });
+
+  // Schedule LangSmith trace flush after response is sent.
+  scheduleTraceFlush();
 
   // Wrap the AI call in a traceable span so Ask The Pit queries appear
   // as named traces in LangSmith, distinct from bout conversation traces.
