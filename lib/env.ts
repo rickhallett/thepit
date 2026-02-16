@@ -129,6 +129,9 @@ const serverEnvSchema = z.object({
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error', 'silent']).optional().default('info'),
 
   // --- LangSmith ---
+  // LANGSMITH_ENABLED gates our custom evaluation/dataset logic (scripts, eval pipeline).
+  // LANGSMITH_TRACING is the SDK-native flag that controls trace export to LangSmith.
+  // Both are needed: ENABLED=true + TRACING=false runs evals locally without sending traces.
   LANGSMITH_ENABLED: boolFlag,
   LANGSMITH_API_KEY: z.string().optional(),
   LANGSMITH_TRACING: boolFlag,
