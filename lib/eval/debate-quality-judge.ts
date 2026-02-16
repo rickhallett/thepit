@@ -7,6 +7,7 @@
 // The judge prompt uses XML structure consistent with lib/xml-prompt.ts patterns.
 // Designed for both offline evaluation (datasets) and online evaluation (traces).
 
+import { xmlEscape } from '@/lib/xml-prompt';
 import type { EvalScore } from './types';
 
 /**
@@ -42,7 +43,7 @@ export type DebateQualityResult = {
  */
 export function buildJudgePrompt(input: DebateQualityInput): string {
   const contextSection = input.previousTurn
-    ? `<previous-turn>\n${input.previousTurn}\n</previous-turn>\n\n`
+    ? `<previous-turn>\n${xmlEscape(input.previousTurn)}\n</previous-turn>\n\n`
     : '';
 
   return `<system>
@@ -110,10 +111,10 @@ Do not wrap in markdown code blocks.
 </instructions>
 
 <evaluation-context>
-<topic>${input.topic}</topic>
-<agent-name>${input.agentName}</agent-name>
+<topic>${xmlEscape(input.topic)}</topic>
+<agent-name>${xmlEscape(input.agentName)}</agent-name>
 ${contextSection}<turn-to-evaluate>
-${input.text}
+${xmlEscape(input.text)}
 </turn-to-evaluate>
 </evaluation-context>`;
 }
