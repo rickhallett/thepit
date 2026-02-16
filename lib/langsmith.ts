@@ -129,6 +129,60 @@ export const untracedGenerateText: typeof ai.generateText = ((...args: Parameter
   ai.generateText(...args)) as typeof ai.generateText;
 
 // ---------------------------------------------------------------------------
+// Serverless flush
+// ---------------------------------------------------------------------------
+
+/**
+ * Flush pending trace batches to LangSmith.
+ *
+ * In serverless environments (Vercel), the runtime may terminate the
+ * process after the response is sent. Call this in Next.js `after()` to
+ * ensure all traces are delivered before the function freezes.
+ *
+ * No-op when LangSmith is disabled or no client is initialized.
+ */
+export async function flushTraces(): Promise<void> {
+  const client = getLangSmithClient();
+  if (!client) return;
+
+  try {
+    await client.awaitPendingTraceBatches();
+  } catch (err) {
+    // Flush failure must never crash the request. Log and move on.
+    log.warn('LangSmith trace flush failed', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+}
+
+/**
+ * Whether LangSmith tracing is active. Useful for conditionally
+ * adding response headers or metadata.
+ */
+export const isLangSmithEnabled = LANGSMITH_ENABLED;
+
+/**
+ * Schedule trace flush via Next.js `after()` hook.
+ *
+ * Safely wraps the `after()` call so it doesn't throw outside a
+ * request scope (e.g., in tests or background tasks). When Next.js
+ * `after()` isn't available, falls back to a fire-and-forget flush.
+ */
+export function scheduleTraceFlush(): void {
+  if (!LANGSMITH_ENABLED) return;
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { after } = require('next/server') as typeof import('next/server');
+    after(flushTraces);
+  } catch {
+    // Outside request scope (tests, background tasks) — flush directly.
+    // Fire-and-forget: don't await, don't throw.
+    flushTraces().catch(() => {});
+  }
+}
+
+// ---------------------------------------------------------------------------
 // traceable wrapper helpers
 // ---------------------------------------------------------------------------
 

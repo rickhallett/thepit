@@ -5,6 +5,7 @@ import {
 
 import { log } from '@/lib/logger';
 import { validateBoutRequest, executeBout } from '@/lib/bout-engine';
+import { scheduleTraceFlush } from '@/lib/langsmith';
 import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
@@ -22,6 +23,13 @@ async function rawPOST(req: Request) {
   }
 
   const { context } = validation;
+
+  // Schedule LangSmith trace flush after response is sent.
+  // In serverless environments, the runtime may freeze before the
+  // LangSmith client has batched and sent all trace data. The after()
+  // hook runs after the response stream completes but before the
+  // function instance is frozen, ensuring reliable trace delivery.
+  scheduleTraceFlush();
 
   const stream = createUIMessageStream({
     async execute({ writer }) {

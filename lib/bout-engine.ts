@@ -12,6 +12,7 @@
 // The sync route omits it and gets the final result directly.
 
 import { tracedStreamText, untracedStreamText, withTracing } from '@/lib/langsmith';
+import { getContext } from '@/lib/async-context';
 import { eq } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
@@ -452,6 +453,21 @@ export async function validateBoutRequest(
   };
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────
+
+/** Hash a userId for LangSmith trace metadata. Avoids logging raw PII. */
+function hashUserId(userId: string): string {
+  // Simple truncated hash — sufficient for trace grouping, not cryptographic.
+  // Uses Node.js built-in crypto via a quick SHA-256 prefix.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const crypto = require('node:crypto') as typeof import('node:crypto');
+    return crypto.createHash('sha256').update(userId).digest('hex').slice(0, 16);
+  } catch {
+    return 'unknown';
+  }
+}
+
 // ─── Phase 2: Execution ──────────────────────────────────────────────
 
 /**
@@ -470,6 +486,10 @@ export async function executeBout(
   ctx: BoutContext,
   onEvent?: (event: TurnEvent) => void,
 ): Promise<BoutResult> {
+  // Propagate request context (from AsyncLocalStorage) into trace metadata
+  // for cross-referencing in LangSmith and Sentry dashboards.
+  const reqCtx = getContext();
+
   // Wrap the inner logic with LangSmith tracing. The trace name includes
   // the boutId for easy search, and metadata enables filtering by preset,
   // model, topic, etc. in the LangSmith dashboard.
@@ -478,7 +498,7 @@ export async function executeBout(
   // langsmith install) never bypass _executeBoutInner's error cleanup
   // (credit refund, DB status update, intro pool refund).
   let fn = _executeBoutInner;
-  try {
+   try {
     fn = withTracing(_executeBoutInner, {
       name: `bout:${ctx.boutId}`,
       run_type: 'chain',
@@ -491,6 +511,10 @@ export async function executeBout(
         responseLength: ctx.lengthConfig.id,
         responseFormat: ctx.formatConfig.id,
         isByok: !!ctx.byokData,
+        // Request context for cross-referencing
+        requestId: ctx.requestId,
+        country: reqCtx?.country,
+        userId: ctx.userId ? hashUserId(ctx.userId) : undefined,
       },
       tags: ['bout', ctx.presetId, ctx.modelId].filter(Boolean),
     });
