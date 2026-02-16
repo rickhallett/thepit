@@ -1,6 +1,7 @@
 import { spec } from '@/lib/openapi';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { rateLimitResponse } from '@/lib/api-utils';
+import { withLogging } from '@/lib/api-logging';
 
 /**
  * Serve the OpenAPI spec as JSON.
@@ -11,7 +12,7 @@ import { rateLimitResponse } from '@/lib/api-utils';
  */
 const RATE_LIMIT = { name: 'openapi', maxRequests: 10, windowMs: 60_000 };
 
-export async function GET(req: Request) {
+async function rawGET(req: Request) {
   const rateCheck = checkRateLimit(RATE_LIMIT, getClientIdentifier(req));
   if (!rateCheck.success) {
     return rateLimitResponse(rateCheck);
@@ -23,3 +24,5 @@ export async function GET(req: Request) {
     },
   });
 }
+
+export const GET = withLogging(rawGET, 'openapi');

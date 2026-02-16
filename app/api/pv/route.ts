@@ -11,6 +11,7 @@ import { pageViews } from '@/db/schema';
 import { sha256Hex } from '@/lib/hash';
 import { log } from '@/lib/logger';
 import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
@@ -21,7 +22,7 @@ function timingSafeCompare(a: string, b: string): boolean {
   return crypto.timingSafeEqual(digestA, digestB);
 }
 
-export async function POST(req: Request) {
+async function rawPOST(req: Request) {
   // Verify internal secret — reject external callers
   const secret = req.headers.get('x-pv-secret');
   const expected = process.env.PV_INTERNAL_SECRET ?? '';
@@ -99,3 +100,5 @@ export async function POST(req: Request) {
 
   return Response.json({ ok: true });
 }
+
+export const POST = withLogging(rawPOST, 'pv');

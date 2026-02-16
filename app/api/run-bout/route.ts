@@ -5,6 +5,7 @@ import {
 
 import { log } from '@/lib/logger';
 import { validateBoutRequest, executeBout } from '@/lib/bout-engine';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
@@ -13,7 +14,7 @@ export const runtime = 'nodejs';
 export const maxDuration = 120;
 
 /** Stream a multi-turn AI debate bout with tier-based access control and credit accounting. */
-export async function POST(req: Request) {
+async function rawPOST(req: Request) {
   const validation = await validateBoutRequest(req);
 
   if ('error' in validation) {
@@ -53,3 +54,5 @@ export async function POST(req: Request) {
     },
   });
 }
+
+export const POST = withLogging(rawPOST, 'run-bout');

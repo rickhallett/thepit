@@ -5,13 +5,14 @@ import { SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
 import { CREDITS_ENABLED, BYOK_ENABLED } from '@/lib/credits';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
 import { EAS_ENABLED } from '@/lib/eas';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
 const startedAt = new Date().toISOString();
 
 /** Lightweight health check for uptime monitors and pitctl. */
-export async function GET() {
+async function rawGET() {
   let dbStatus: 'ok' | 'error' = 'error';
   let dbLatencyMs = -1;
 
@@ -52,3 +53,5 @@ export async function GET() {
     },
   });
 }
+
+export const GET = withLogging(rawGET, 'health');

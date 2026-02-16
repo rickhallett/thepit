@@ -16,6 +16,7 @@ import { toError } from '@/lib/errors';
 import { getRequestId } from '@/lib/request-context';
 import { buildAskThePitSystem } from '@/lib/xml-prompt';
 import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
 
@@ -60,7 +61,7 @@ function loadDocs(): string {
   return cachedDocs;
 }
 
-export async function POST(req: Request) {
+async function rawPOST(req: Request) {
   if (!ASK_THE_PIT_ENABLED) {
     return errorResponse('Ask The Pit is not enabled.', 404);
   }
@@ -119,3 +120,5 @@ export async function POST(req: Request) {
     return errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 503);
   }
 }
+
+export const POST = withLogging(rawPOST, 'ask-the-pit');
