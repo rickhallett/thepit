@@ -115,6 +115,18 @@ describe('byok-stash', () => {
     );
   });
 
+  it('POST returns 400 for unsupported Anthropic model', async () => {
+    const req = new Request('http://localhost/api/byok-stash', {
+      method: 'POST',
+      body: JSON.stringify({ key: 'sk-ant-test-123', model: 'openai/gpt-4o' }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain('Unsupported Anthropic model');
+  });
+
   it('POST returns 400 for unsupported OpenRouter model', async () => {
     const req = new Request('http://localhost/api/byok-stash', {
       method: 'POST',

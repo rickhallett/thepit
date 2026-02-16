@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
-import { isValidByokKey, detectProvider, isOpenRouterModel } from '@/lib/models';
+import { isValidByokKey, detectProvider, isOpenRouterModel, ALL_MODEL_IDS } from '@/lib/models';
 import type { ByokProvider } from '@/lib/models';
 
 export const runtime = 'nodejs';
@@ -95,10 +95,15 @@ export const POST = withLogging(async function POST(req: Request) {
 
   const provider = detectProvider(key)!;
 
-  // Validate model selection for OpenRouter keys
+  // Validate model selection against curated list for each provider
   const model = typeof payload.model === 'string' ? payload.model.trim() : undefined;
-  if (model && provider === 'openrouter' && !isOpenRouterModel(model)) {
-    return errorResponse('Unsupported OpenRouter model.', 400);
+  if (model) {
+    if (provider === 'openrouter' && !isOpenRouterModel(model)) {
+      return errorResponse('Unsupported OpenRouter model.', 400);
+    }
+    if (provider === 'anthropic' && !ALL_MODEL_IDS.includes(model as typeof ALL_MODEL_IDS[number])) {
+      return errorResponse('Unsupported Anthropic model.', 400);
+    }
   }
 
   // Encode provider + model + key into cookie value

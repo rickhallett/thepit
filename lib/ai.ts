@@ -22,6 +22,7 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 import {
   MODEL_IDS,
+  ALL_MODEL_IDS,
   OPENROUTER_MODELS,
   ALL_OPENROUTER_MODEL_IDS,
   DEFAULT_FREE_MODEL,
@@ -128,7 +129,12 @@ export const getModel = (
 
   // Anthropic BYOK (default for sk-ant-* or unknown prefixes)
   const anthropicProvider = createAnthropic({ apiKey });
-  const resolvedId = byokModelId ?? BYOK_MODEL_ID;
+  // Validate the model ID against known Anthropic models, falling back to BYOK default.
+  // This prevents invalid model IDs (e.g. OpenRouter IDs) from reaching the Anthropic API.
+  const resolvedId =
+    byokModelId && ALL_MODEL_IDS.includes(byokModelId as typeof ALL_MODEL_IDS[number])
+      ? byokModelId
+      : BYOK_MODEL_ID;
   return anthropicProvider(resolvedId);
 };
 
