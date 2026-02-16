@@ -79,21 +79,19 @@ func main() {
 
 func runIssues(client *cmd.Client, args []string, defaultTeam string, jsonOut bool) {
 	if len(args) == 0 {
-		// Default: list issues.
+		// No subcommand and no flags: list all issues for default team.
 		team := defaultTeam
 		if team == "" {
 			fatalf("issues", "team required: use --team <key> or set LINEAR_TEAM_NAME")
 		}
-		opts := cmd.ListOpts{}
-		if s := flagVal(args, "--state"); s != "" {
-			opts.State = s
-		}
-		if l := flagVal(args, "--label"); l != "" {
-			opts.Label = l
-		}
-		if n := flagVal(args, "--limit"); n != "" {
-			opts.Limit, _ = strconv.Atoi(n)
-		}
+		must("issues", cmd.RunIssueList(client, team, cmd.ListOpts{}, jsonOut))
+		return
+	}
+
+	// If the first arg starts with "--", treat as implicit "list" with flags.
+	if len(args[0]) > 1 && args[0][0] == '-' {
+		team := resolveTeam(args, defaultTeam)
+		opts := parseListOpts(args)
 		must("issues", cmd.RunIssueList(client, team, opts, jsonOut))
 		return
 	}
@@ -185,16 +183,7 @@ func runIssues(client *cmd.Client, args []string, defaultTeam string, jsonOut bo
 
 	case "list":
 		team := resolveTeam(args[1:], defaultTeam)
-		opts := cmd.ListOpts{}
-		if s := flagVal(args[1:], "--state"); s != "" {
-			opts.State = s
-		}
-		if l := flagVal(args[1:], "--label"); l != "" {
-			opts.Label = l
-		}
-		if n := flagVal(args[1:], "--limit"); n != "" {
-			opts.Limit, _ = strconv.Atoi(n)
-		}
+		opts := parseListOpts(args[1:])
 		must("issues list", cmd.RunIssueList(client, team, opts, jsonOut))
 
 	default:
@@ -252,6 +241,25 @@ func resolveTeam(args []string, defaultTeam string) string {
 	return "" // unreachable
 }
 
+// parseListOpts extracts --state, --label, and --limit from args.
+func parseListOpts(args []string) cmd.ListOpts {
+	opts := cmd.ListOpts{}
+	if s := flagVal(args, "--state"); s != "" {
+		opts.State = s
+	}
+	if l := flagVal(args, "--label"); l != "" {
+		opts.Label = l
+	}
+	if n := flagVal(args, "--limit"); n != "" {
+		v, err := strconv.Atoi(n)
+		if err != nil {
+			fatalf("issues", "invalid --limit %q: %v", n, err)
+		}
+		opts.Limit = v
+	}
+	return opts
+}
+
 // --- helpers ---
 
 func usage() {
@@ -295,16 +303,6 @@ func fatal(ctx string, err error) {
 
 func fatalf(ctx, format string, args ...interface{}) {
 	fatal(ctx, fmt.Errorf(format, args...))
-}
-
-// hasFlag checks if a flag is present in args.
-func hasFlag(args []string, name string) bool {
-	for _, a := range args {
-		if a == name {
-			return true
-		}
-	}
-	return false
 }
 
 // flagVal returns the value following a flag name, or empty string.

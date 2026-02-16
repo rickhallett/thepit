@@ -36,7 +36,7 @@ func RunIssueGet(client *Client, ref string, jsonOut bool) error {
 	var issue *Issue
 	var err error
 
-	if strings.Contains(ref, "-") && !strings.Contains(ref, " ") && len(ref) < 20 {
+	if IsReadableRef(ref) {
 		issue, err = client.IssueGetByIdentifier(ref)
 	} else {
 		issue, err = client.IssueGet(ref)
@@ -61,7 +61,7 @@ func RunIssueUpdate(client *Client, ref string, input IssueUpdateInput, teamKey 
 	id := ref
 	var teamID string
 
-	if strings.Contains(ref, "-") && !strings.Contains(ref, " ") && len(ref) < 20 {
+	if IsReadableRef(ref) {
 		resolved, err := client.resolveIdentifier(ref)
 		if err != nil {
 			return err
@@ -159,7 +159,7 @@ func RunIssueList(client *Client, teamKey string, opts ListOpts, jsonOut bool) e
 // RunIssueDelete deletes an issue by identifier or UUID.
 func RunIssueDelete(client *Client, ref string) error {
 	id := ref
-	if strings.Contains(ref, "-") && !strings.Contains(ref, " ") && len(ref) < 20 {
+	if IsReadableRef(ref) {
 		resolved, err := client.resolveIdentifier(ref)
 		if err != nil {
 			return err
@@ -181,7 +181,7 @@ func RunIssueDelete(client *Client, ref string) error {
 // RunIssueSetParent sets the parent of an issue.
 func RunIssueSetParent(client *Client, childRef, parentRef string) error {
 	childID := childRef
-	if strings.Contains(childRef, "-") && !strings.Contains(childRef, " ") && len(childRef) < 20 {
+	if IsReadableRef(childRef) {
 		resolved, err := client.resolveIdentifier(childRef)
 		if err != nil {
 			return fmt.Errorf("resolve child %q: %w", childRef, err)
@@ -190,7 +190,7 @@ func RunIssueSetParent(client *Client, childRef, parentRef string) error {
 	}
 
 	parentID := parentRef
-	if strings.Contains(parentRef, "-") && !strings.Contains(parentRef, " ") && len(parentRef) < 20 {
+	if IsReadableRef(parentRef) {
 		resolved, err := client.resolveIdentifier(parentRef)
 		if err != nil {
 			return fmt.Errorf("resolve parent %q: %w", parentRef, err)

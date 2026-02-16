@@ -1,6 +1,15 @@
 // Package cmd implements pitlinear commands and the Linear GraphQL client.
 package cmd
 
+import "strings"
+
+// IsReadableRef returns true if ref looks like a short issue identifier
+// (e.g. "OCE-22") rather than a UUID. Linear UUIDs are 36 chars;
+// readable identifiers are always shorter and contain a hyphen.
+func IsReadableRef(ref string) bool {
+	return strings.Contains(ref, "-") && !strings.Contains(ref, " ") && len(ref) < 20
+}
+
 // Team represents a Linear team.
 type Team struct {
 	ID     string  `json:"id"`

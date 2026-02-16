@@ -471,3 +471,60 @@ func TestResolveIdentifierInvalid(t *testing.T) {
 		t.Fatal("expected error for identifier without hyphen")
 	}
 }
+
+func TestIsReadableRef(t *testing.T) {
+	tests := []struct {
+		ref  string
+		want bool
+	}{
+		{"OCE-22", true},
+		{"TST-1", true},
+		{"ABC-999", true},
+		{"nohyphen", false},
+		{"has space-1", false},
+		{"", false},
+		{"a]b-1", true}, // odd but passes heuristic
+		{"01234567-89ab-cdef-0123-456789abcdef", false}, // UUID (36 chars)
+		{"fb78359e-5665-4d7a-868d-931a56b39084", false}, // UUID (36 chars)
+	}
+	for _, tt := range tests {
+		if got := IsReadableRef(tt.ref); got != tt.want {
+			t.Errorf("IsReadableRef(%q) = %v, want %v", tt.ref, got, tt.want)
+		}
+	}
+}
+
+func TestTeamsCaching(t *testing.T) {
+	callCount := 0
+	_, client := mockLinear(t, func(r gqlRequest) (any, int) {
+		callCount++
+		return map[string]any{
+			"teams": map[string]any{
+				"nodes": []map[string]any{
+					{"id": "team-1", "name": "Alpha", "key": "ALP"},
+				},
+			},
+		}, 200
+	})
+
+	// First call should hit the server.
+	teams1, err := client.Teams()
+	if err != nil {
+		t.Fatalf("Teams() first call error: %v", err)
+	}
+	if callCount != 1 {
+		t.Fatalf("expected 1 API call, got %d", callCount)
+	}
+
+	// Second call should use cache.
+	teams2, err := client.Teams()
+	if err != nil {
+		t.Fatalf("Teams() second call error: %v", err)
+	}
+	if callCount != 1 {
+		t.Fatalf("expected still 1 API call after cache, got %d", callCount)
+	}
+	if len(teams1) != len(teams2) {
+		t.Fatalf("cache returned different results")
+	}
+}

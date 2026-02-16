@@ -12,7 +12,7 @@ import (
 // RunCommentAdd adds a comment to an issue.
 func RunCommentAdd(client *Client, ref, body string, jsonOut bool) error {
 	id := ref
-	if strings.Contains(ref, "-") && !strings.Contains(ref, " ") && len(ref) < 20 {
+	if IsReadableRef(ref) {
 		resolved, err := client.resolveIdentifier(ref)
 		if err != nil {
 			return err
@@ -42,7 +42,7 @@ func RunCommentAdd(client *Client, ref, body string, jsonOut bool) error {
 // RunCommentList lists comments on an issue.
 func RunCommentList(client *Client, ref string, jsonOut bool) error {
 	id := ref
-	if strings.Contains(ref, "-") && !strings.Contains(ref, " ") && len(ref) < 20 {
+	if IsReadableRef(ref) {
 		resolved, err := client.resolveIdentifier(ref)
 		if err != nil {
 			return err

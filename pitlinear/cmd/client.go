@@ -8,23 +8,27 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const linearAPI = "https://api.linear.app/graphql"
 
 // Client communicates with the Linear GraphQL API.
 type Client struct {
-	apiKey  string
-	baseURL string // overridable for tests
-	http    *http.Client
+	apiKey     string
+	baseURL    string // overridable for tests
+	http       *http.Client
+	teamsCache []Team // cached after first fetch
 }
 
-// NewClient returns a Linear API client.
+// NewClient returns a Linear API client with a 10-second timeout.
 func NewClient(apiKey string) *Client {
 	return &Client{
 		apiKey:  apiKey,
 		baseURL: linearAPI,
-		http:    http.DefaultClient,
+		http: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 }
 
@@ -163,8 +167,11 @@ const mCommentCreate = `mutation($input: CommentCreateInput!) {
 
 // --- Teams ---
 
-// Teams returns all teams.
+// Teams returns all teams. Results are cached after the first call.
 func (c *Client) Teams() ([]Team, error) {
+	if c.teamsCache != nil {
+		return c.teamsCache, nil
+	}
 	data, err := c.do(qTeams, nil)
 	if err != nil {
 		return nil, err
@@ -177,7 +184,8 @@ func (c *Client) Teams() ([]Team, error) {
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("parse teams: %w", err)
 	}
-	return resp.Teams.Nodes, nil
+	c.teamsCache = resp.Teams.Nodes
+	return c.teamsCache, nil
 }
 
 // TeamByKey finds a team by its key (e.g. "OCE") or name (e.g. "Oceanheartai").
@@ -461,6 +469,9 @@ func (c *Client) IssueUpdate(id string, input IssueUpdateInput, teamID string) (
 		inp["priority"] = p
 	}
 	if input.State != nil {
+		if teamID == "" {
+			return nil, fmt.Errorf("teamID required for state updates")
+		}
 		stateID, err := c.resolveStateID(teamID, *input.State)
 		if err != nil {
 			return nil, err
@@ -468,6 +479,9 @@ func (c *Client) IssueUpdate(id string, input IssueUpdateInput, teamID string) (
 		inp["stateId"] = stateID
 	}
 	if len(input.Labels) > 0 {
+		if teamID == "" {
+			return nil, fmt.Errorf("teamID required for label updates")
+		}
 		ids := make([]string, 0, len(input.Labels))
 		for _, name := range input.Labels {
 			lid, err := c.resolveLabelID(teamID, name)
@@ -520,13 +534,13 @@ func (c *Client) IssueList(teamID string, opts ListOpts) ([]Issue, error) {
 
 	if opts.State != "" {
 		vars["stateFilter"] = map[string]any{
-			"name": map[string]any{"eqCaseInsensitive": opts.State},
+			"name": map[string]any{"eq": opts.State},
 		}
 	}
 	if opts.Label != "" {
 		vars["labelFilter"] = map[string]any{
 			"some": map[string]any{
-				"name": map[string]any{"eqCaseInsensitive": opts.Label},
+				"name": map[string]any{"eq": opts.Label},
 			},
 		}
 	}
