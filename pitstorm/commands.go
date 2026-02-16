@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -458,8 +459,24 @@ func verifyCmd(args []string) {
 }
 
 func reportCmd(args []string) {
-	_ = args
 	fmt.Printf("\n%s\n\n", theme.Title.Render("pitstorm — report"))
-	fmt.Printf("  %s report command not yet implemented — coming in Phase 12\n\n",
-		theme.Warning.Render("note:"))
+
+	if len(args) == 0 {
+		fatalf("report", "usage: pitstorm report <file.json>")
+	}
+
+	filePath := args[0]
+
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		fatal("report", fmt.Errorf("read %s: %w", filePath, err))
+	}
+
+	var snap metrics.Snapshot
+	if err := json.Unmarshal(data, &snap); err != nil {
+		fatal("report", fmt.Errorf("parse JSON: %w", err))
+	}
+
+	fmt.Printf("  Source: %s\n", filePath)
+	fmt.Printf("%s\n", metrics.FormatSummary(snap))
 }
