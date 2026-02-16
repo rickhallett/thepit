@@ -15,6 +15,7 @@ import (
 	"github.com/rickhallett/thepit/pitstorm/internal/client"
 	"github.com/rickhallett/thepit/pitstorm/internal/metrics"
 	"github.com/rickhallett/thepit/pitstorm/internal/persona"
+	"github.com/rickhallett/thepit/pitstorm/internal/profile"
 )
 
 // Config holds the engine's runtime configuration.
@@ -25,9 +26,9 @@ type Config struct {
 	Verbose  bool
 }
 
-// RateFunc returns the target requests-per-second at the given elapsed time.
-// The engine uses this to throttle workers. A nil RateFunc means unlimited.
-type RateFunc func(elapsed time.Duration, total time.Duration) float64
+// RateFunc is an alias for profile.RateFunc to avoid type-adapter boilerplate.
+// A nil RateFunc means unlimited.
+type RateFunc = profile.RateFunc
 
 // Engine coordinates workers, rate limiting, metrics, and budget.
 type Engine struct {

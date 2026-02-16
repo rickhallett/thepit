@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"os/signal"
 	"syscall"
@@ -46,13 +47,10 @@ func runCmd(args []string) {
 		fatal("profile", err)
 	}
 
-	// Adapt profile.RateFunc → engine.RateFunc (same signature, different types).
-	var engineRateFunc engine.RateFunc = func(elapsed, total time.Duration) float64 {
-		return profileRateFunc(elapsed, total)
-	}
-
 	// 3. Create HTTP client.
-	cl := client.New(client.DefaultConfig(cfg.Target), logf)
+	clientCfg := client.DefaultConfig(cfg.Target)
+	clientCfg.Verbose = cfg.Verbose
+	cl := client.New(clientCfg, logf)
 	defer cl.Close()
 
 	// 4. Load and inject account tokens (if accounts file exists).
@@ -97,7 +95,7 @@ func runCmd(args []string) {
 	eng := engine.New(engine.Config{
 		Workers:  cfg.Workers,
 		Duration: cfg.Duration,
-		RateFunc: engineRateFunc,
+		RateFunc: profileRateFunc,
 		Verbose:  cfg.Verbose,
 	}, cl, act, m, gate, personas, logf)
 
@@ -202,7 +200,7 @@ func planCmd(args []string) {
 	fmt.Printf("\n  %s\n\n", theme.Bold.Render("Cost Estimation"))
 
 	durationMin := cfg.Duration.Minutes()
-	avgRateFraction := profileAvgFraction(cfg.Profile)
+	avgRateFraction := profileAvgFraction(cfg.Profile, cfg.Rate)
 	effectiveAvgRate := cfg.Rate * avgRateFraction
 
 	totalRequests := effectiveAvgRate * durationMin * 60
@@ -300,15 +298,23 @@ func shortenModel(model string) string {
 }
 
 // profileAvgFraction returns the average rate as a fraction of peak for each profile.
-// These are analytically derived from the rate curve integrals.
-func profileAvgFraction(name string) float64 {
+// These are analytically derived from the rate curve integrals. The peakRate
+// parameter is needed for trickle, which is capped at 1-2 req/s regardless of peak.
+func profileAvgFraction(name string, peakRate float64) float64 {
 	switch name {
 	case "trickle":
-		return 0.30 // ~1-2 req/s regardless of peak, low utilization
+		// Trickle oscillates between min(peak,1) and min(peak,2).
+		// Average = (min(peak,1) + min(peak,2)) / 2.
+		if peakRate <= 0 {
+			return 0.30
+		}
+		lo := math.Min(peakRate, 1.0)
+		hi := math.Min(peakRate, 2.0)
+		return ((lo + hi) / 2) / peakRate
 	case "steady":
 		return 1.00 // constant at peak
 	case "ramp":
-		return 0.52 // integral of ramp: 60%×0.5 + 20%×1.0 + 20%×0.55
+		return 0.61 // integral of ramp: 60%×0.5 + 20%×1.0 + 20%×0.55 = 0.30+0.20+0.11
 	case "spike":
 		return 0.19 // 90% at 10% baseline + 10% at peak
 	case "viral":

@@ -724,6 +724,152 @@ func testFile() *File {
 	}
 }
 
+// ---------- VerifyAll skips anon accounts ----------
+
+func TestVerifyAllSkipsAnon(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := r.Header.Get("Authorization")
+		if auth == "Bearer good" || auth == "" {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+	}))
+	defer srv.Close()
+
+	f := &File{
+		Version: 1,
+		Target:  srv.URL,
+		Accounts: []Account{
+			{ID: "anon-acct", Tier: TierAnon},
+			{ID: "good-acct", SessionToken: "good", Tier: TierFree},
+		},
+	}
+
+	v := NewVerifier(srv.URL, nil)
+	results := v.VerifyAll(context.Background(), f)
+
+	// health + anon (skipped OK) + good-acct = 3
+	if len(results) != 3 {
+		t.Fatalf("results = %d, want 3", len(results))
+	}
+
+	// Anon should be OK with "skipped" message.
+	anon := results[1]
+	if !anon.OK {
+		t.Errorf("anon should be OK (skipped), got error: %s", anon.Error)
+	}
+	if !strings.Contains(anon.Error, "skipped") {
+		t.Errorf("anon error = %q, want 'skipped'", anon.Error)
+	}
+
+	// Good account should pass normally.
+	if !results[2].OK {
+		t.Errorf("good-acct should pass: %s", results[2].Error)
+	}
+}
+
+// ---------- DefaultAccounts tier alignment ----------
+
+func TestDefaultAccountsViralSharerTier(t *testing.T) {
+	f := DefaultAccounts("https://www.thepit.cloud")
+	for _, a := range f.Accounts {
+		if a.ID == "account-viral-sharer" {
+			if a.Tier != TierPass {
+				t.Errorf("viral-sharer tier = %q, want %q", a.Tier, TierPass)
+			}
+			return
+		}
+	}
+	t.Fatal("account-viral-sharer not found in DefaultAccounts")
+}
+
+// ---------- FormatVerifyResults error display ----------
+
+func TestFormatVerifyResultsNetworkError(t *testing.T) {
+	results := []VerifyResult{
+		{
+			AccountID:  "net-err-acct",
+			OK:         false,
+			StatusCode: 0,
+			Latency:    50 * time.Millisecond,
+			Error:      "connection refused",
+		},
+	}
+
+	s := FormatVerifyResults(results)
+	// Should show the error message, NOT "0" status.
+	if strings.Contains(s, "  0  ") {
+		t.Errorf("should not show status 0 for network errors: %s", s)
+	}
+	if !strings.Contains(s, "connection refused") {
+		t.Errorf("should show error message: %s", s)
+	}
+}
+
+// ---------- Atomic Save ----------
+
+func TestSaveAtomicDoesNotCorrupt(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "accounts.json")
+
+	original := &File{
+		Version: 1,
+		Target:  "https://test.thepit.cloud",
+		Accounts: []Account{
+			{ID: "acct-1", Email: "a@test.com", Password: "pass", Tier: TierFree},
+		},
+	}
+
+	// Save twice to verify overwrite works atomically.
+	if err := Save(path, original); err != nil {
+		t.Fatalf("first Save: %v", err)
+	}
+
+	original.Accounts = append(original.Accounts, Account{
+		ID: "acct-2", Email: "b@test.com", Password: "pass", Tier: TierFree,
+	})
+	if err := Save(path, original); err != nil {
+		t.Fatalf("second Save: %v", err)
+	}
+
+	reloaded, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load after atomic Save: %v", err)
+	}
+	if len(reloaded.Accounts) != 2 {
+		t.Errorf("accounts = %d, want 2", len(reloaded.Accounts))
+	}
+}
+
+func TestSaveNoTempFileLeftBehind(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "accounts.json")
+
+	f := &File{
+		Version: 1,
+		Target:  "http://localhost",
+		Accounts: []Account{
+			{ID: "a", Email: "a@b.c", Password: "p", Tier: TierFree},
+		},
+	}
+	if err := Save(path, f); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+	for _, e := range entries {
+		if strings.Contains(e.Name(), ".tmp") {
+			t.Errorf("temp file left behind: %s", e.Name())
+		}
+	}
+}
+
+// ---------- Helpers ----------
+
 func writeTemp(t *testing.T, content string) string {
 	t.Helper()
 	dir := t.TempDir()
