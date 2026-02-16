@@ -46,6 +46,10 @@ type Account struct {
 	// ClerkUserID is the Clerk user ID, populated after setup.
 	ClerkUserID string `json:"clerk_user_id,omitempty"`
 
+	// ClerkSessionID is the Clerk session ID, needed for token refresh.
+	// Populated by login — used by the Refresher during run.
+	ClerkSessionID string `json:"clerk_session_id,omitempty"`
+
 	// SessionToken is a cached Clerk session token.
 	// Populated by setup or verify — may expire.
 	SessionToken string `json:"session_token,omitempty"`

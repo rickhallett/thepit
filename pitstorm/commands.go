@@ -57,8 +57,10 @@ func runCmd(args []string) {
 	defer cl.Close()
 
 	// 4. Load and inject account tokens (if accounts file exists).
+	var acctFile *account.File
 	if _, statErr := os.Stat(cfg.Accounts); statErr == nil {
-		acctFile, loadErr := account.Load(cfg.Accounts)
+		var loadErr error
+		acctFile, loadErr = account.Load(cfg.Accounts)
 		if loadErr != nil {
 			fmt.Printf("  %s failed to load accounts: %v (continuing without auth)\n",
 				theme.Warning.Render("warning:"), loadErr)
@@ -72,6 +74,12 @@ func runCmd(args []string) {
 	} else {
 		fmt.Printf("  %s no accounts file at %s (running without auth)\n",
 			theme.Warning.Render("note:"), cfg.Accounts)
+	}
+
+	// 4b. Start token refresher if we have accounts with session IDs.
+	var refresher *auth.Refresher
+	if acctFile != nil {
+		refresher = startTokenRefresher(acctFile, cfg.EnvPath, cl, logf)
 	}
 
 	// 5. Create action layer.
@@ -122,6 +130,11 @@ func runCmd(args []string) {
 		fmt.Printf("\n  %s %v\n", theme.Error.Render("engine error:"), err)
 	}
 	elapsed := time.Since(start)
+
+	// Stop token refresher.
+	if refresher != nil {
+		refresher.Stop()
+	}
 
 	// 9. Print final report.
 	snap := m.Snapshot()
@@ -567,6 +580,7 @@ func loginCmd(args []string) {
 		// Update account with session data.
 		acct.SessionToken = result.Token
 		acct.TokenExpiresAt = result.ExpiresAt
+		acct.ClerkSessionID = result.SessionID
 		if result.UserID != "" {
 			acct.ClerkUserID = result.UserID
 		}
@@ -687,6 +701,62 @@ func verifyCmd(args []string) {
 			os.Exit(1)
 		}
 	}
+}
+
+// startTokenRefresher creates and starts a background Refresher that keeps
+// Clerk JWTs alive during the simulation. Returns nil if refresh is not
+// possible (no publishable key, no session IDs).
+func startTokenRefresher(
+	acctFile *account.File,
+	envPath string,
+	cl *client.Client,
+	logf func(string, ...any),
+) *auth.Refresher {
+	// Build refresh targets from accounts that have a Clerk session ID.
+	var targets []auth.RefreshTarget
+	for _, acct := range acctFile.Accounts {
+		if acct.Tier == account.TierAnon || acct.ClerkSessionID == "" {
+			continue
+		}
+		targets = append(targets, auth.RefreshTarget{
+			AccountID: acct.ID,
+			SessionID: acct.ClerkSessionID,
+		})
+	}
+	if len(targets) == 0 {
+		logf("[refresh] no accounts with session IDs — skipping token refresh")
+		return nil
+	}
+
+	// Resolve the Clerk publishable key so we can construct an auth.Client.
+	publishableKey := os.Getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+	if publishableKey == "" {
+		cfg, _ := config.Load(envPath)
+		if cfg != nil {
+			publishableKey = cfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+		}
+	}
+	if publishableKey == "" {
+		logf("[refresh] no publishable key — skipping token refresh")
+		return nil
+	}
+
+	fapiClient, err := auth.NewClient(publishableKey)
+	if err != nil {
+		logf("[refresh] failed to create FAPI client: %v", err)
+		return nil
+	}
+
+	// Refresh every 45 seconds (Clerk JWTs expire at ~60s).
+	refresher := auth.NewRefresher(fapiClient, 45*time.Second)
+
+	refresher.Start(context.Background(), targets, func(accountID, token string, expiresAt time.Time) {
+		cl.SetToken(accountID, token)
+		logf("[refresh] %s token refreshed, expires=%s", accountID, expiresAt.Format(time.RFC3339))
+	})
+
+	fmt.Printf("  Refresh:    %d accounts, every 45s\n", len(targets))
+	return refresher
 }
 
 func reportCmd(args []string) {
