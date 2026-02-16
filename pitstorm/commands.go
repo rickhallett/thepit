@@ -4,10 +4,16 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/rickhallett/thepit/pitstorm/internal/account"
+	"github.com/rickhallett/thepit/pitstorm/internal/action"
 	"github.com/rickhallett/thepit/pitstorm/internal/budget"
+	"github.com/rickhallett/thepit/pitstorm/internal/client"
+	"github.com/rickhallett/thepit/pitstorm/internal/engine"
+	"github.com/rickhallett/thepit/pitstorm/internal/metrics"
 	"github.com/rickhallett/thepit/pitstorm/internal/persona"
 	"github.com/rickhallett/thepit/pitstorm/internal/profile"
 	"github.com/rickhallett/thepit/shared/theme"
@@ -20,19 +26,127 @@ func runCmd(args []string) {
 	}
 
 	fmt.Printf("\n%s\n\n", theme.Title.Render("pitstorm — run"))
+
+	logf := func(format string, a ...any) {
+		if cfg.Verbose {
+			fmt.Printf("  "+format+"\n", a...)
+		}
+	}
+
+	// 1. Resolve personas.
+	personas, err := persona.Resolve(cfg.Personas)
+	if err != nil {
+		fatal("personas", err)
+	}
+
+	// 2. Resolve traffic profile → RateFunc.
+	profileRateFunc, err := profile.Get(cfg.Profile, cfg.Rate)
+	if err != nil {
+		fatal("profile", err)
+	}
+
+	// Adapt profile.RateFunc → engine.RateFunc (same signature, different types).
+	var engineRateFunc engine.RateFunc = func(elapsed, total time.Duration) float64 {
+		return profileRateFunc(elapsed, total)
+	}
+
+	// 3. Create HTTP client.
+	cl := client.New(client.DefaultConfig(cfg.Target), logf)
+	defer cl.Close()
+
+	// 4. Load and inject account tokens (if accounts file exists).
+	if _, statErr := os.Stat(cfg.Accounts); statErr == nil {
+		acctFile, loadErr := account.Load(cfg.Accounts)
+		if loadErr != nil {
+			fmt.Printf("  %s failed to load accounts: %v (continuing without auth)\n",
+				theme.Warning.Render("warning:"), loadErr)
+		} else {
+			injected, skipped := account.InjectTokens(acctFile, cl.SetToken)
+			fmt.Printf("  Tokens:     %d injected, %d skipped\n", injected, len(skipped))
+			if len(skipped) > 0 && cfg.Verbose {
+				logf("skipped accounts: %v", skipped)
+			}
+		}
+	} else {
+		fmt.Printf("  %s no accounts file at %s (running without auth)\n",
+			theme.Warning.Render("note:"), cfg.Accounts)
+	}
+
+	// 5. Create action layer.
+	act := action.New(cl)
+
+	// 6. Create metrics collector.
+	m := metrics.NewCollector()
+
+	// 7. Create budget gate.
+	gate := budget.NewGate(cfg.Budget)
+
+	// Display configuration.
 	fmt.Printf("  Target:     %s\n", cfg.Target)
 	fmt.Printf("  Profile:    %s\n", cfg.Profile)
-	fmt.Printf("  Rate:       %.1f req/s\n", cfg.Rate)
+	fmt.Printf("  Rate:       %.1f req/s (peak)\n", cfg.Rate)
 	fmt.Printf("  Duration:   %s\n", cfg.Duration)
 	fmt.Printf("  Budget:     £%.2f\n", cfg.Budget)
 	fmt.Printf("  Workers:    %d\n", cfg.Workers)
-	fmt.Printf("  Personas:   %v\n", cfg.Personas)
+	fmt.Printf("  Personas:   %d active\n", len(personas))
 	fmt.Printf("  Instance:   %d/%d\n", cfg.InstanceID, cfg.InstanceOf)
 	fmt.Println()
 
-	// Engine wiring happens in Phase 7+.
-	fmt.Printf("  %s engine not yet wired — coming in later phases\n\n",
-		theme.Warning.Render("note:"))
+	// 8. Create and run engine.
+	eng := engine.New(engine.Config{
+		Workers:  cfg.Workers,
+		Duration: cfg.Duration,
+		RateFunc: engineRateFunc,
+		Verbose:  cfg.Verbose,
+	}, cl, act, m, gate, personas, logf)
+
+	// Handle graceful shutdown on SIGINT/SIGTERM.
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-sigCh
+		fmt.Printf("\n  %s received %v, shutting down gracefully...\n",
+			theme.Warning.Render("signal:"), sig)
+		cancel()
+	}()
+
+	fmt.Printf("  %s simulation started\n\n", theme.Success.Render("GO:"))
+
+	start := time.Now()
+	if err := eng.Run(ctx); err != nil {
+		fmt.Printf("\n  %s %v\n", theme.Error.Render("engine error:"), err)
+	}
+	elapsed := time.Since(start)
+
+	// 9. Print final report.
+	snap := m.Snapshot()
+	budgetSummary := gate.Summary()
+
+	fmt.Printf("\n%s\n", theme.Title.Render("pitstorm — results"))
+	fmt.Printf("\n  Run completed in %s\n", elapsed.Truncate(time.Millisecond))
+	fmt.Printf("%s\n", metrics.FormatSummary(snap))
+	fmt.Printf("%s\n", budget.FormatSummary(budgetSummary))
+
+	// 10. Write JSON output if requested.
+	if cfg.Output != "" {
+		jsonData, jsonErr := snap.JSON()
+		if jsonErr != nil {
+			fmt.Printf("  %s failed to marshal JSON: %v\n\n",
+				theme.Error.Render("error:"), jsonErr)
+		} else {
+			if writeErr := os.WriteFile(cfg.Output, jsonData, 0644); writeErr != nil {
+				fmt.Printf("  %s failed to write output: %v\n\n",
+					theme.Error.Render("error:"), writeErr)
+			} else {
+				fmt.Printf("\n  JSON output written to %s\n", cfg.Output)
+			}
+		}
+	}
+
+	fmt.Println()
 }
 
 func planCmd(args []string) {
