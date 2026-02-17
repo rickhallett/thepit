@@ -202,15 +202,30 @@ func (d *Dispatcher) doRunBout(ctx context.Context, workerID int, spec *persona.
 	// Track the bout so reactions/votes/short-links can reference it.
 	d.trackBout(boutID)
 
-	// Parse the SSE stream.
+	// Parse the SSE stream, tracking active stream concurrency.
+	d.metrics.StreamStart()
 	result, err := client.ParseSSEStream(handle.Body, nil)
+	d.metrics.StreamDone()
 	if err != nil {
+		d.metrics.RecordError("/api/run-bout")
+		return
+	}
+
+	// Check for server-side errors reported inside the SSE stream.
+	if result.Error != "" {
+		d.metrics.RecordStreamError()
 		d.metrics.RecordError("/api/run-bout")
 		return
 	}
 
 	d.metrics.RecordLatency("/api/run-bout", handle.Duration)
 	d.metrics.RecordStreamMetrics(result.DeltaCount, result.TotalChars)
+
+	// Record time-to-first-byte if the stream emitted any text deltas.
+	if result.FirstByte > 0 {
+		d.metrics.RecordFirstByte("/api/run-bout", result.FirstByte)
+	}
+
 	d.metrics.RecordBoutDone()
 	d.metrics.RecordSuccess()
 

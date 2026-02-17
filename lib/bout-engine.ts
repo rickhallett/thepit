@@ -11,6 +11,7 @@
 // The streaming route passes an onTurnEvent callback to write SSE events.
 // The sync route omits it and gets the final result directly.
 
+import * as Sentry from '@sentry/nextjs';
 import { tracedStreamText, untracedStreamText, withTracing } from '@/lib/langsmith';
 import { getContext } from '@/lib/async-context';
 import { eq } from 'drizzle-orm';
@@ -95,6 +96,8 @@ export type BoutContext = {
   preauthMicro: number;
   /** Micro-credits consumed from the intro pool for anonymous bouts. Zero for authenticated bouts. */
   introPoolConsumedMicro: number;
+  /** User tier at the time of validation — 'anonymous' | 'free' | 'pass' | 'lab'. */
+  tier: string;
   requestId: string;
   db: ReturnType<typeof requireDb>;
 };
@@ -452,6 +455,7 @@ export async function validateBoutRequest(
       userId,
       preauthMicro,
       introPoolConsumedMicro,
+      tier: currentTier,
       requestId,
       db,
     },
@@ -547,6 +551,18 @@ async function _executeBoutInner(
     modelId,
     maxTurns: preset.maxTurns,
     userId: userId ?? undefined,
+  });
+
+  // TEMPORARY: Phase 7 structured log — revert after load testing
+  Sentry.logger.info('bout_started', {
+    bout_id: boutId,
+    preset_id: presetId,
+    model_id: modelId,
+    user_id: userId ?? 'anonymous',
+    user_tier: ctx.tier,
+    response_length: lengthConfig.id,
+    response_format: formatConfig.id,
+    max_turns: preset.maxTurns,
   });
 
   const history: string[] = [];
@@ -814,6 +830,20 @@ async function _executeBoutInner(
       hasShareLine: !!shareLine,
     });
 
+    // TEMPORARY: Phase 7 structured log — revert after load testing
+    Sentry.logger.info('bout_completed', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      user_id: userId ?? 'anonymous',
+      user_tier: ctx.tier,
+      turns: preset.maxTurns,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      duration_ms: boutDurationMs,
+      has_share_line: !!shareLine,
+    });
+
     if (shareLine) {
       onEvent?.({ type: 'data-share-line', data: { text: shareLine } });
     }
@@ -865,6 +895,20 @@ async function _executeBoutInner(
       inputTokens,
       outputTokens,
       durationMs: boutDurationMs,
+    });
+
+    // TEMPORARY: Phase 7 structured log — revert after load testing
+    Sentry.logger.error('bout_error', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      user_id: userId ?? 'anonymous',
+      user_tier: ctx.tier,
+      turns_completed: transcript.length,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      duration_ms: boutDurationMs,
+      error_message: error instanceof Error ? error.message : String(error),
     });
 
     // Persist error state with partial transcript

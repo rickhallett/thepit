@@ -43,15 +43,27 @@ type Collector struct {
 
 	// Active workers gauge.
 	activeWorkers atomic.Int64
+
+	// Active SSE streams gauge + peak watermark.
+	activeStreams atomic.Int64
+	peakStreams   atomic.Int64
+
+	// SSE stream-level errors (stream parsed OK but contained an error event).
+	streamErrors atomic.Int64
+
+	// Per-endpoint first-byte latency histograms.
+	firstByteMu sync.Mutex
+	firstBytes  map[string]*Histogram
 }
 
 // NewCollector creates a metrics collector and records the start time.
 func NewCollector() *Collector {
 	return &Collector{
-		start:     time.Now(),
-		latencies: make(map[string]*Histogram),
-		statuses:  make(map[int]*atomic.Int64),
-		errCounts: make(map[string]*atomic.Int64),
+		start:      time.Now(),
+		latencies:  make(map[string]*Histogram),
+		statuses:   make(map[int]*atomic.Int64),
+		errCounts:  make(map[string]*atomic.Int64),
+		firstBytes: make(map[string]*Histogram),
 	}
 }
 
@@ -140,26 +152,63 @@ func (c *Collector) WorkerDone() {
 	c.activeWorkers.Add(-1)
 }
 
+// StreamStart increments the active stream gauge and updates the peak watermark.
+func (c *Collector) StreamStart() {
+	n := c.activeStreams.Add(1)
+	for {
+		peak := c.peakStreams.Load()
+		if n <= peak || c.peakStreams.CompareAndSwap(peak, n) {
+			break
+		}
+	}
+}
+
+// StreamDone decrements the active stream gauge.
+func (c *Collector) StreamDone() {
+	c.activeStreams.Add(-1)
+}
+
+// RecordStreamError increments the SSE stream-level error counter.
+func (c *Collector) RecordStreamError() {
+	c.streamErrors.Add(1)
+}
+
+// RecordFirstByte records a time-to-first-byte duration for the given endpoint.
+func (c *Collector) RecordFirstByte(endpoint string, d time.Duration) {
+	c.firstByteMu.Lock()
+	h, ok := c.firstBytes[endpoint]
+	if !ok {
+		h = NewHistogram()
+		c.firstBytes[endpoint] = h
+	}
+	c.firstByteMu.Unlock()
+	h.Add(d)
+}
+
 // ---------- Snapshot ----------
 
 // Snapshot is a point-in-time copy of all metrics, safe to serialize.
 type Snapshot struct {
-	Elapsed       time.Duration           `json:"elapsed"`
-	Requests      int64                   `json:"requests"`
-	Successes     int64                   `json:"successes"`
-	Errors        int64                   `json:"errors"`
-	Retries       int64                   `json:"retries"`
-	RateLimits    int64                   `json:"rateLimits"`
-	BoutStarts    int64                   `json:"boutStarts"`
-	BoutsDone     int64                   `json:"boutsDone"`
-	TotalDeltas   int64                   `json:"totalDeltas"`
-	TotalChars    int64                   `json:"totalChars"`
-	ActiveWorkers int64                   `json:"activeWorkers"`
-	Throughput    float64                 `json:"throughputRps"`
-	ErrorRate     float64                 `json:"errorRate"`
-	Latencies     map[string]LatencyStats `json:"latencies"`
-	StatusCodes   map[int]int64           `json:"statusCodes"`
-	ErrorsByEP    map[string]int64        `json:"errorsByEndpoint"`
+	Elapsed           time.Duration           `json:"elapsed"`
+	Requests          int64                   `json:"requests"`
+	Successes         int64                   `json:"successes"`
+	Errors            int64                   `json:"errors"`
+	Retries           int64                   `json:"retries"`
+	RateLimits        int64                   `json:"rateLimits"`
+	BoutStarts        int64                   `json:"boutStarts"`
+	BoutsDone         int64                   `json:"boutsDone"`
+	TotalDeltas       int64                   `json:"totalDeltas"`
+	TotalChars        int64                   `json:"totalChars"`
+	ActiveWorkers     int64                   `json:"activeWorkers"`
+	ActiveStreams     int64                   `json:"activeStreams"`
+	ActiveStreamsPeak int64                   `json:"activeStreamsPeak"`
+	StreamErrors      int64                   `json:"streamErrors"`
+	Throughput        float64                 `json:"throughputRps"`
+	ErrorRate         float64                 `json:"errorRate"`
+	Latencies         map[string]LatencyStats `json:"latencies"`
+	FirstBytes        map[string]LatencyStats `json:"firstBytes,omitempty"`
+	StatusCodes       map[int]int64           `json:"statusCodes"`
+	ErrorsByEP        map[string]int64        `json:"errorsByEndpoint"`
 }
 
 // LatencyStats holds computed percentiles for a latency histogram.
@@ -211,23 +260,35 @@ func (c *Collector) Snapshot() Snapshot {
 	}
 	c.errorMu.Unlock()
 
+	// Copy first-byte histograms.
+	c.firstByteMu.Lock()
+	fb := make(map[string]LatencyStats, len(c.firstBytes))
+	for ep, h := range c.firstBytes {
+		fb[ep] = h.Stats()
+	}
+	c.firstByteMu.Unlock()
+
 	return Snapshot{
-		Elapsed:       elapsed,
-		Requests:      reqs,
-		Successes:     c.successes.Load(),
-		Errors:        errs,
-		Retries:       c.retries.Load(),
-		RateLimits:    c.rateLimits.Load(),
-		BoutStarts:    c.boutStarts.Load(),
-		BoutsDone:     c.boutsDone.Load(),
-		TotalDeltas:   c.totalDeltas.Load(),
-		TotalChars:    c.totalChars.Load(),
-		ActiveWorkers: c.activeWorkers.Load(),
-		Throughput:    throughput,
-		ErrorRate:     errRate,
-		Latencies:     latencies,
-		StatusCodes:   statuses,
-		ErrorsByEP:    errsByEP,
+		Elapsed:           elapsed,
+		Requests:          reqs,
+		Successes:         c.successes.Load(),
+		Errors:            errs,
+		Retries:           c.retries.Load(),
+		RateLimits:        c.rateLimits.Load(),
+		BoutStarts:        c.boutStarts.Load(),
+		BoutsDone:         c.boutsDone.Load(),
+		TotalDeltas:       c.totalDeltas.Load(),
+		TotalChars:        c.totalChars.Load(),
+		ActiveWorkers:     c.activeWorkers.Load(),
+		ActiveStreams:     c.activeStreams.Load(),
+		ActiveStreamsPeak: c.peakStreams.Load(),
+		StreamErrors:      c.streamErrors.Load(),
+		Throughput:        throughput,
+		ErrorRate:         errRate,
+		Latencies:         latencies,
+		FirstBytes:        fb,
+		StatusCodes:       statuses,
+		ErrorsByEP:        errsByEP,
 	}
 }
 
@@ -330,6 +391,7 @@ func FormatSummary(s Snapshot) string {
 	fmt.Fprintf(&b, "  Rate Limits:   %d\n", s.RateLimits)
 	fmt.Fprintf(&b, "  Bouts:         %d started, %d completed\n", s.BoutStarts, s.BoutsDone)
 	fmt.Fprintf(&b, "  Stream Deltas: %d (%d chars)\n", s.TotalDeltas, s.TotalChars)
+	fmt.Fprintf(&b, "  Streams:       %d active, %d peak, %d errors\n", s.ActiveStreams, s.ActiveStreamsPeak, s.StreamErrors)
 	fmt.Fprintf(&b, "  Workers:       %d active\n", s.ActiveWorkers)
 
 	if len(s.StatusCodes) > 0 {
@@ -355,6 +417,20 @@ func FormatSummary(s Snapshot) string {
 			ls := s.Latencies[ep]
 			fmt.Fprintf(&b, "    %-24s n=%-6d p50=%.0fms  p95=%.0fms  p99=%.0fms  min=%.0fms  max=%.0fms\n",
 				ep, ls.Count, ls.P50, ls.P95, ls.P99, ls.Min, ls.Max)
+		}
+	}
+
+	if len(s.FirstBytes) > 0 {
+		fmt.Fprintf(&b, "\n  First Byte (TTFB):\n")
+		eps := make([]string, 0, len(s.FirstBytes))
+		for ep := range s.FirstBytes {
+			eps = append(eps, ep)
+		}
+		sort.Strings(eps)
+		for _, ep := range eps {
+			fb := s.FirstBytes[ep]
+			fmt.Fprintf(&b, "    %-24s n=%-6d p50=%.0fms  p95=%.0fms  p99=%.0fms  min=%.0fms  max=%.0fms\n",
+				ep, fb.Count, fb.P50, fb.P95, fb.P99, fb.Min, fb.Max)
 		}
 	}
 

@@ -17,11 +17,20 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     // Capture errors at 100% — every client error matters at launch.
     sampleRate: 1.0,
 
+    // Structured logs for client-side events.
+    enableLogs: true,
+
     // Session Replay: 1% of sessions, 100% of error sessions.
     replaysSessionSampleRate: 0.01,
     replaysOnErrorSampleRate: 1.0,
     integrations: [
-      Sentry.replayIntegration(),
+      Sentry.replayIntegration({
+        // Explicit PII protection — do not rely on SDK defaults which may
+        // change between versions. All text, inputs, and media are masked.
+        maskAllText: true,
+        maskAllInputs: true,
+        blockAllMedia: true,
+      }),
     ],
 
     // Filter noisy browser errors
