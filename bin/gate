@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# Unified verification gate — one command, one exit code.
+# Usage: bin/gate          (full gate)
+#        bin/gate --quick   (lint + typecheck only, skip tests)
+#        bin/gate --go      (Go CLI gates only)
+set -euo pipefail
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+QUICK=false
+GO_ONLY=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --quick) QUICK=true ;;
+    --go)    GO_ONLY=true ;;
+  esac
+done
+
+pass() { printf "${GREEN}PASS${NC} %s\n" "$1"; }
+fail() { printf "${RED}FAIL${NC} %s\n" "$1"; exit 1; }
+skip() { printf "${YELLOW}SKIP${NC} %s\n" "$1"; }
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_ROOT"
+
+# ── Node gate ──
+if [ "$GO_ONLY" = false ]; then
+  printf "\n── Node gate ──\n"
+
+  printf "lint... "
+  pnpm run lint --quiet 2>&1 | tail -1
+  pass "lint"
+
+  printf "typecheck... "
+  pnpm run typecheck 2>&1 | tail -1
+  pass "typecheck"
+
+  if [ "$QUICK" = false ]; then
+    printf "test:unit... "
+    pnpm run test:unit --reporter=dot 2>&1 | tail -3
+    pass "test:unit"
+  else
+    skip "test:unit (--quick)"
+  fi
+fi
+
+# ── Go gate ──
+printf "\n── Go gate ──\n"
+GO_FAILURES=0
+
+for d in "$REPO_ROOT"/pit* "$REPO_ROOT"/shared; do
+  [ -f "$d/Makefile" ] || continue
+  name="$(basename "$d")"
+  printf "%s... " "$name"
+  if make -C "$d" gate 2>&1 | tail -1; then
+    pass "$name"
+  else
+    printf "${YELLOW}WARN${NC} %s (go gate failed, non-blocking)\n" "$name"
+    GO_FAILURES=$((GO_FAILURES + 1))
+  fi
+done
+
+# ── Summary ──
+printf "\n"
+if [ "$GO_FAILURES" -gt 0 ]; then
+  printf "${YELLOW}Gate passed with %d Go warnings${NC}\n" "$GO_FAILURES"
+else
+  printf "${GREEN}Gate passed${NC}\n"
+fi

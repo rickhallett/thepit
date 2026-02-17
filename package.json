@@ -8,6 +8,7 @@
   },
   "scripts": {
     "setup": "bash scripts/bootstrap.sh",
+    "gate": "bin/gate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

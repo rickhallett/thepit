@@ -1,0 +1,96 @@
+# Captain Delegation Matrix
+# Extracted from .opencode/agents/captain.md
+# Used by /delegate to route task descriptions to the correct agent(s).
+
+routing_rules:
+  - pattern: "new feature"
+    keywords: ["feature", "add", "implement", "build", "create", "new endpoint", "new page"]
+    primary: architect
+    support: [artisan, foreman, watchdog, sentinel]
+    commands: ["/create-worktree"]
+    context: ["lib/bout-engine.ts", "lib/xml-prompt.ts", "db/schema.ts", "lib/credits.ts"]
+
+  - pattern: "security hardening"
+    keywords: ["security", "vulnerability", "auth", "rate limit", "injection", "XSS", "CSRF", "prompt injection", "harden"]
+    primary: sentinel
+    support: [watchdog, foreman]
+    commands: ["/security-audit"]
+    context: ["middleware.ts", "lib/rate-limit.ts", "lib/admin.ts", "lib/xml-prompt.ts"]
+
+  - pattern: "performance optimization"
+    keywords: ["performance", "slow", "latency", "optimize", "speed", "index", "query"]
+    primary: architect
+    support: [foreman, lighthouse]
+    commands: []
+    context: ["lib/bout-engine.ts", "db/schema.ts", "lib/api-logging.ts"]
+
+  - pattern: "bug fix (API)"
+    keywords: ["bug", "fix", "broken", "error", "500", "crash", "regression", "server action"]
+    primary: architect
+    support: [watchdog]
+    commands: []
+    context: ["app/actions.ts", "app/api/*/route.ts", "lib/*.ts"]
+
+  - pattern: "bug fix (UI)"
+    keywords: ["UI bug", "layout", "responsive", "rendering", "component", "CSS", "styling", "mobile"]
+    primary: artisan
+    support: [watchdog]
+    commands: []
+    context: ["components/*.tsx", "lib/use-bout.ts", "app/globals.css"]
+
+  - pattern: "documentation"
+    keywords: ["docs", "documentation", "README", "stale", "outdated", "count", "drift"]
+    primary: scribe
+    support: []
+    commands: ["/doc-audit"]
+    context: ["README.md", "CLAUDE.md", "AGENTS.md", "ARCHITECTURE.md", ".env.example"]
+
+  - pattern: "code cleanup"
+    keywords: ["refactor", "cleanup", "lint", "type error", "dead code", "duplicate", "extract", "rename"]
+    primary: janitor
+    support: [watchdog]
+    commands: []
+    context: ["eslint.config.mjs", "tsconfig.json"]
+
+  - pattern: "release readiness"
+    keywords: ["release", "ship", "deploy", "launch", "freeze", "readiness"]
+    primary: captain
+    support: ["*all*"]
+    commands: []
+    context: ["ROADMAP.md", "docs/release-review-*.md"]
+
+  - pattern: "infrastructure / deployment"
+    keywords: ["deploy", "Vercel", "CI", "CD", "migration", "schema", "database", "infra", "pitctl"]
+    primary: foreman
+    support: [lighthouse]
+    commands: []
+    context: ["next.config.ts", ".vercelignore", "db/schema.ts", "drizzle.config.ts"]
+
+  - pattern: "observability"
+    keywords: ["logging", "monitoring", "health", "tracing", "Sentry", "PostHog", "observability", "alert"]
+    primary: lighthouse
+    support: [foreman]
+    commands: []
+    context: ["lib/logger.ts", "lib/api-logging.ts", "app/api/health/route.ts", "instrumentation.ts"]
+
+  - pattern: "tooling / CI audit"
+    keywords: ["tooling", "CI", "workflow", "script", "composition", "pipeline", "automation", "Go CLI"]
+    primary: quartermaster
+    support: [foreman, watchdog]
+    commands: ["/tooling-review"]
+    context: ["package.json", ".github/workflows/*.yml", "scripts/*", "pit*/main.go"]
+
+  - pattern: "testing"
+    keywords: ["test", "coverage", "flaky", "E2E", "Playwright", "Vitest", "mock", "fixture"]
+    primary: watchdog
+    support: []
+    commands: []
+    context: ["vitest.config.ts", "playwright.config.ts", "tests/**/*.test.ts"]
+
+merge_order:
+  - foreman     # schema first
+  - sentinel    # security after schema
+  - architect   # features after security
+  - artisan     # UI after features
+  - janitor     # cleanup second-to-last
+  - scribe      # docs last

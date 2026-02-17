@@ -17,6 +17,8 @@
 - `pitbench/` — benchmarking CLI.
 
 ## Build, Test, and Development Commands
+- `bin/gate` runs the full verification gate (lint + typecheck + tests + Go gates). **Use this as the single verification command.**
+- `bin/gate --quick` runs lint + typecheck only (skip tests).
 - `pnpm run dev` starts the local dev server.
 - `pnpm run build` creates a production build.
 - `pnpm run start` runs the production build locally.
@@ -25,6 +27,20 @@
 - `pnpm run test:unit` runs unit + API tests (788 tests).
 - `pnpm run test:ci` runs lint + typecheck + unit + integration.
 - `pnpm run test:e2e` runs Playwright tests. Set `BASE_URL` to target a deployed instance.
+
+## Slash Commands
+- `/trigger-scan` evaluates 51 self-healing triggers against the current diff. Run after any significant change.
+- `/delegate "task description"` routes a task to the correct agent(s) with context files and post-completion triggers.
+- `/doc-drift` triages which documentation files may be stale given the current diff. Faster than `/doc-audit`.
+- `/doc-audit` full documentation accuracy audit (Scribe).
+- `/security-audit` systematic security review (Sentinel).
+- `/tooling-review` tooling and composition audit (Quartermaster).
+- `/create-worktree "OCE-36 OCE-37"` creates isolated git worktrees for implementing Linear issues.
+
+## Agentic Data Files
+- `.claude/data/trigger-manifest.yml` — 51 self-healing triggers extracted from agent definitions.
+- `.claude/data/delegation-matrix.yml` — Captain's delegation matrix as structured routing rules.
+- `.claude/data/doc-drift-map.yml` — Source-to-documentation dependency map (213 rules across 28 docs).
 
 ## Coding Style & Naming Conventions
 - TypeScript (strict) is the default; prefer typed objects over `any`.

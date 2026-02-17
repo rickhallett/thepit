@@ -1,0 +1,327 @@
+# Self-Healing Trigger Manifest
+# Extracted from .opencode/agents/*.md — 51 triggers across 10 agents.
+# Used by /trigger-scan to evaluate which agents should review a diff.
+#
+# Schema:
+#   agent:         Agent name (lowercase)
+#   id:            Unique trigger ID (agent.N)
+#   condition:     Human-readable condition that fires the trigger
+#   detection:     How to detect it (command, file check, or heuristic)
+#   file_patterns: Glob patterns — if diff touches these files, trigger may fire
+
+triggers:
+  # ── CAPTAIN ──
+  - agent: captain
+    id: captain.1
+    condition: Release milestone or feature freeze approaching
+    detection: Calendar date or feature freeze signal
+    file_patterns: ["docs/release-review-*.md", ".opencode/plans/*.md", "ROADMAP.md"]
+
+  - agent: captain
+    id: captain.2
+    condition: Finding backlog exceeds 10 unresolved items
+    detection: Count unresolved findings across recent reviews
+    file_patterns: ["docs/release-review-*.md", ".opencode/plans/*.md"]
+
+  - agent: captain
+    id: captain.3
+    condition: Test count changes by more than 10
+    detection: "pnpm run test:unit | grep 'Tests' — compare to documented count"
+    file_patterns: ["tests/**/*.test.ts", "tests/**/*.spec.ts"]
+
+  - agent: captain
+    id: captain.4
+    condition: Multiple agents produce conflicting changes causing merge conflicts
+    detection: Merge conflicts between agent branches
+    file_patterns: ["db/schema.ts", "lib/*.ts", "app/**/*.ts", "app/**/*.tsx", "components/*.tsx"]
+
+  - agent: captain
+    id: captain.5
+    condition: New feature request received
+    detection: User or stakeholder requests new capability
+    file_patterns: ["ROADMAP.md", ".opencode/plans/*.md"]
+
+  # ── ARCHITECT ──
+  - agent: architect
+    id: architect.1
+    condition: Bout engine or streaming route modified
+    detection: Diff touches lib/bout-engine.ts or app/api/run-bout/route.ts
+    file_patterns: ["lib/bout-engine.ts", "app/api/run-bout/route.ts"]
+
+  - agent: architect
+    id: architect.2
+    condition: Credit pricing constants changed
+    detection: Diff touches CREDIT_VALUE_GBP, CREDIT_PLATFORM_MARGIN, model prices, or token estimates
+    file_patterns: ["lib/credits.ts"]
+
+  - agent: architect
+    id: architect.3
+    condition: New subscription tier added
+    detection: New value in user_tier enum or new tier config in lib/tier.ts
+    file_patterns: ["lib/tier.ts", "db/schema.ts", "app/api/credits/webhook/route.ts"]
+
+  - agent: architect
+    id: architect.4
+    condition: New preset JSON file added
+    detection: New JSON file in presets/ or new entry in presets/index.json
+    file_patterns: ["presets/*.json", "presets/index.json"]
+
+  - agent: architect
+    id: architect.5
+    condition: Unhandled Stripe webhook event type
+    detection: Unhandled event type logged in webhook handler
+    file_patterns: ["app/api/credits/webhook/route.ts"]
+
+  # ── ARTISAN ──
+  - agent: artisan
+    id: artisan.1
+    condition: New React component created
+    detection: New .tsx file in components/
+    file_patterns: ["components/*.tsx"]
+
+  - agent: artisan
+    id: artisan.2
+    condition: useBout() streaming hook modified
+    detection: Diff touches lib/use-bout.ts
+    file_patterns: ["lib/use-bout.ts"]
+
+  - agent: artisan
+    id: artisan.3
+    condition: ARIA or keyboard accessibility issue identified
+    detection: Accessibility finding reported
+    file_patterns: ["components/*.tsx", "app/*/page.tsx"]
+
+  - agent: artisan
+    id: artisan.4
+    condition: Component uses colors, fonts, or spacing outside design system
+    detection: Design system inconsistency detected
+    file_patterns: ["components/*.tsx", "app/globals.css"]
+
+  # ── FOREMAN ──
+  - agent: foreman
+    id: foreman.1
+    condition: Drizzle ORM schema modified
+    detection: Table, column, index, or enum changes in db/schema.ts
+    file_patterns: ["db/schema.ts"]
+
+  - agent: foreman
+    id: foreman.2
+    condition: New database query pattern without supporting index
+    detection: "New db.select().from(table).where(...) pattern"
+    file_patterns: ["lib/*.ts", "db/schema.ts", "drizzle/*.sql"]
+
+  - agent: foreman
+    id: foreman.3
+    condition: package.json scripts section modified
+    detection: Changes to scripts section of package.json
+    file_patterns: ["package.json"]
+
+  - agent: foreman
+    id: foreman.4
+    condition: pitctl CLI out of sync with database schema
+    detection: New table or column in db/schema.ts not reflected in pitctl queries
+    file_patterns: ["db/schema.ts", "pitctl/cmd/*.go", "pitctl/main.go"]
+
+  - agent: foreman
+    id: foreman.5
+    condition: Vercel deployment fails with build or runtime error
+    detection: Build error or runtime error in Vercel deployment
+    file_patterns: ["next.config.ts", ".vercelignore", "package.json"]
+
+  # ── SENTINEL ──
+  - agent: sentinel
+    id: sentinel.1
+    condition: New API route file added
+    detection: New file matching app/api/*/route.ts
+    file_patterns: ["app/api/*/route.ts"]
+
+  - agent: sentinel
+    id: sentinel.2
+    condition: Credits module modified (preauth, settlement, delta)
+    detection: Diff touches preauthorizeCredits, settleCredits, or applyCreditDelta
+    file_patterns: ["lib/credits.ts"]
+
+  - agent: sentinel
+    id: sentinel.3
+    condition: Middleware file modified
+    detection: Any change to middleware.ts
+    file_patterns: ["middleware.ts"]
+
+  - agent: sentinel
+    id: sentinel.4
+    condition: Security tests fail in CI gate
+    detection: tests/api/security-*.test.ts failures
+    file_patterns: ["tests/api/security-*.test.ts", "app/api/*/route.ts", "lib/*.ts"]
+
+  - agent: sentinel
+    id: sentinel.5
+    condition: XML prompt builder module modified
+    detection: Diff touches xmlEscape, wrapPersona, buildSystemMessage in lib/xml-prompt.ts
+    file_patterns: ["lib/xml-prompt.ts"]
+
+  - agent: sentinel
+    id: sentinel.6
+    condition: New environment variable referenced in production code
+    detection: New process.env.* reference
+    file_patterns: ["app/**/*.ts", "app/**/*.tsx", "lib/*.ts", ".env.example"]
+
+  # ── WATCHDOG ──
+  - agent: watchdog
+    id: watchdog.1
+    condition: CI gate fails with any test failure
+    detection: Any test failure in pnpm run test:ci
+    file_patterns: ["tests/**/*.test.ts", "lib/*.ts", "app/api/*/route.ts"]
+
+  - agent: watchdog
+    id: watchdog.2
+    condition: Code coverage drops below 85% threshold
+    detection: pnpm run test:unit reports coverage below threshold
+    file_patterns: ["tests/unit/*.test.ts", "vitest.config.ts"]
+
+  - agent: watchdog
+    id: watchdog.3
+    condition: New library module created in lib/
+    detection: New file in lib/ directory
+    file_patterns: ["lib/*.ts", "tests/unit/*.test.ts"]
+
+  - agent: watchdog
+    id: watchdog.4
+    condition: New API route file created
+    detection: New app/api/*/route.ts file
+    file_patterns: ["app/api/*/route.ts", "tests/api/*.test.ts"]
+
+  - agent: watchdog
+    id: watchdog.5
+    condition: Existing API route handler modified
+    detection: Diff touches existing app/api/*/route.ts
+    file_patterns: ["app/api/*/route.ts", "tests/api/*.test.ts"]
+
+  # ── LIGHTHOUSE ──
+  - agent: lighthouse
+    id: lighthouse.1
+    condition: New API route without withLogging() wrapper
+    detection: "New app/api/*/route.ts without import of withLogging"
+    file_patterns: ["app/api/*/route.ts", "lib/api-logging.ts"]
+
+  - agent: lighthouse
+    id: lighthouse.2
+    condition: console.log or console.error in production code
+    detection: "console.log/warn/error in app/ or lib/ (not test files)"
+    file_patterns: ["app/**/*.ts", "app/**/*.tsx", "lib/*.ts"]
+
+  - agent: lighthouse
+    id: lighthouse.3
+    condition: New feature flag env var not reported by health endpoint
+    detection: New feature flag env var missing from /api/health response
+    file_patterns: ["app/api/health/route.ts", "lib/*.ts"]
+
+  - agent: lighthouse
+    id: lighthouse.4
+    condition: Error boundary fails to catch an error class
+    detection: Unhandled error in production (Sentry, user report, log analysis)
+    file_patterns: ["app/error.tsx", "app/global-error.tsx", "lib/api-logging.ts", "lib/use-bout.ts"]
+
+  - agent: lighthouse
+    id: lighthouse.5
+    condition: Sentry, PostHog, or Helicone config drifts
+    detection: instrumentation.ts or provider config references outdated SDK or missing DSN
+    file_patterns: ["instrumentation.ts", "sentry.*.config.ts", "package.json"]
+
+  # ── QUARTERMASTER ──
+  - agent: quartermaster
+    id: quartermaster.1
+    condition: New script added to package.json
+    detection: scripts section in package.json changes
+    file_patterns: ["package.json", "scripts/README.md"]
+
+  - agent: quartermaster
+    id: quartermaster.2
+    condition: New Go CLI tool or subcommand added
+    detection: "New pit*/ directory or new cmd/*.go file"
+    file_patterns: ["pit*/main.go", "pit*/cmd/*.go", "pit*/Makefile"]
+
+  - agent: quartermaster
+    id: quartermaster.3
+    condition: CI workflow YAML modified
+    detection: Changes to .github/workflows/*.yml
+    file_patterns: [".github/workflows/*.yml"]
+
+  - agent: quartermaster
+    id: quartermaster.4
+    condition: New utility module created in lib/
+    detection: New file in lib/
+    file_patterns: ["lib/*.ts"]
+
+  - agent: quartermaster
+    id: quartermaster.5
+    condition: Quarterly review cycle triggered
+    detection: Calendar trigger (every 3 months or on-demand)
+    file_patterns: ["package.json", "scripts/*", "pit*/main.go", ".github/workflows/*.yml"]
+
+  # ── SCRIBE ──
+  - agent: scribe
+    id: scribe.1
+    condition: Database schema modified (tables, columns, indexes, enums)
+    detection: Diff adds or removes table, column, index, or enum in db/schema.ts
+    file_patterns: ["db/schema.ts", "CLAUDE.md", "ARCHITECTURE.md", "README.md", ".env.example"]
+
+  - agent: scribe
+    id: scribe.2
+    condition: New page, API route, or component added
+    detection: "New file matching app/*/page.tsx, app/api/*/route.ts, or components/*.tsx"
+    file_patterns: ["app/*/page.tsx", "app/api/*/route.ts", "components/*.tsx", "README.md"]
+
+  - agent: scribe
+    id: scribe.3
+    condition: Environment variable in code missing from .env.example
+    detection: process.env.* reference not in .env.example
+    file_patterns: [".env.example", "CLAUDE.md", "app/**/*.ts", "lib/*.ts"]
+
+  - agent: scribe
+    id: scribe.4
+    condition: Test count changes materially from documented value
+    detection: pnpm run test:unit reports different count than documented
+    file_patterns: ["README.md", "AGENTS.md", "docs/release-review-*.md"]
+
+  - agent: scribe
+    id: scribe.5
+    condition: Feature branch merged matching a ROADMAP.md item
+    detection: Feature branch merged corresponding to roadmap item
+    file_patterns: ["ROADMAP.md"]
+
+  # ── JANITOR ──
+  - agent: janitor
+    id: janitor.1
+    condition: ESLint reports errors
+    detection: pnpm run lint reports errors
+    file_patterns: ["lib/*.ts", "app/**/*.ts", "app/**/*.tsx", "components/*.tsx"]
+
+  - agent: janitor
+    id: janitor.2
+    condition: TypeScript type checker reports errors
+    detection: pnpm run typecheck fails
+    file_patterns: ["lib/*.ts", "app/**/*.ts", "app/**/*.tsx", "components/*.tsx", "tsconfig.json"]
+
+  - agent: janitor
+    id: janitor.3
+    condition: Same literal appears in 3+ files
+    detection: String or number literal repeated across 3+ files
+    file_patterns: ["lib/*.ts", "app/**/*.ts", "components/*.tsx"]
+
+  - agent: janitor
+    id: janitor.4
+    condition: Function body exceeds ~100 lines
+    detection: Function body longer than 100 lines
+    file_patterns: ["lib/*.ts", "app/api/*/route.ts", "app/actions.ts"]
+
+  - agent: janitor
+    id: janitor.5
+    condition: LLM prompt constructed via string concatenation outside xml-prompt.ts
+    detection: "String template producing content for streamText() outside lib/xml-prompt.ts"
+    file_patterns: ["lib/bout-engine.ts", "app/api/*/route.ts", "lib/*.ts"]
+
+  - agent: janitor
+    id: janitor.6
+    condition: '"as any" or "as unknown as" type assertion in production code'
+    detection: "Type assertion (as any or as unknown as) in app/ or lib/"
+    file_patterns: ["app/**/*.ts", "app/**/*.tsx", "lib/*.ts"]

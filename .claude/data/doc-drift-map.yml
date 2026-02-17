@@ -1,0 +1,254 @@
+# Source-to-Documentation Dependency Map
+# When a source file matching a trigger pattern changes,
+# the corresponding doc should be reviewed for staleness.
+# Used by /doc-drift to triage which docs need review.
+#
+# 213 trigger rules across 28 documentation files.
+
+mappings:
+  # ═══ Critical tier ═══
+
+  - doc: "README.md"
+    triggers:
+      - pattern: "tests/**/*.test.ts"
+        reason: "Test count badge and Stack table"
+      - pattern: "tests/**/*.spec.ts"
+        reason: "Playwright spec count in Stack table"
+      - pattern: "db/schema.ts"
+        reason: "Table count in Documentation Index"
+      - pattern: "presets/*.json"
+        reason: "'22 preset scenarios' in What It Does"
+      - pattern: "components/*.tsx"
+        reason: "'32 React components' in Documentation Index"
+      - pattern: "components/ui/*.tsx"
+        reason: "Counted in component total"
+      - pattern: "lib/*.ts"
+        reason: "'66 utility modules' in Documentation Index"
+      - pattern: "app/api/**/route.ts"
+        reason: "'20 API endpoints' in Documentation Index"
+      - pattern: "drizzle/*.sql"
+        reason: "'9 SQL migrations' in Documentation Index"
+      - pattern: "package.json"
+        reason: "Commands section, Stack table (Next.js version)"
+      - pattern: "go.work"
+        reason: "'Go 1.25 (7 CLIs)' in Stack table"
+      - pattern: "pit*/main.go"
+        reason: "Go CLI tool table"
+      - pattern: ".env.example"
+        reason: "Environment variables table"
+      - pattern: ".github/workflows/*.yml"
+        reason: "CI/CD section"
+      - pattern: "lib/eas.ts"
+        reason: "'On-chain provenance' feature description"
+
+  - doc: "CLAUDE.md"
+    triggers:
+      - pattern: "db/schema.ts"
+        reason: "Full schema section lists every table with all columns"
+      - pattern: "package.json"
+        reason: "All pnpm run commands listed verbatim"
+      - pattern: "tests/**/*.test.ts"
+        reason: "'788+ unit/API tests' count"
+      - pattern: ".env.example"
+        reason: "Environment variables section"
+      - pattern: "lib/env.ts"
+        reason: "Env validation; new vars must be documented"
+      - pattern: "pit*/main.go"
+        reason: "Go CLI tools table"
+      - pattern: "go.work"
+        reason: "Go version and CLI count"
+      - pattern: "pitlinear/cmd/*.go"
+        reason: "Detailed pitlinear command reference"
+      - pattern: "copy/experiment.json"
+        reason: "Copy A/B Testing System section"
+      - pattern: "lib/copy*.ts"
+        reason: "Copy system exports documented"
+      - pattern: "presets/*.json"
+        reason: "Preset System section"
+      - pattern: ".github/workflows/*.yml"
+        reason: "Deployment and CI sections"
+      - pattern: "scripts/*.sh"
+        reason: "Smoke Testing section"
+      - pattern: "drizzle/*.sql"
+        reason: "New migrations imply schema changes"
+      - pattern: "lib/bout-engine.ts"
+        reason: "Core Data Flow"
+      - pattern: "lib/use-bout.ts"
+        reason: "Streaming Protocol section"
+
+  - doc: "AGENTS.md"
+    triggers:
+      - pattern: "tests/**/*.test.ts"
+        reason: "'788 tests' count"
+      - pattern: "package.json"
+        reason: "Build/Test/Development Commands"
+      - pattern: "go.work"
+        reason: "Go version"
+      - pattern: "pitlinear/cmd/*.go"
+        reason: "pitlinear detailed section"
+      - pattern: ".env.example"
+        reason: "Required env vars listed"
+      - pattern: "pit*/main.go"
+        reason: "Project Structure listing"
+      - pattern: "shared/**/*.go"
+        reason: "Go shared library description"
+
+  - doc: "ARCHITECTURE.md"
+    triggers:
+      - pattern: "db/schema.ts"
+        reason: "Data Model lists all 20 tables with columns"
+      - pattern: "lib/bout-engine.ts"
+        reason: "Bout Engine section"
+      - pattern: "lib/use-bout.ts"
+        reason: "Streaming Protocol event types"
+      - pattern: "lib/xml-prompt.ts"
+        reason: "XML safety boundaries"
+      - pattern: "lib/tier.ts"
+        reason: "Subscription Tiers section"
+      - pattern: "lib/credits.ts"
+        reason: "Credits + Pricing section"
+      - pattern: "lib/agent-dna.ts"
+        reason: "DNA manifest hash section"
+      - pattern: "lib/seed-agents.ts"
+        reason: "'12 high-DNA standalone agents' count"
+      - pattern: "lib/env.ts"
+        reason: "Feature Flags table (13 flags)"
+      - pattern: "lib/analytics.ts"
+        reason: "PostHog event types count"
+      - pattern: "lib/logger.ts"
+        reason: "Structured Logger section"
+      - pattern: "go.work"
+        reason: "Go CLI Toolchain section"
+      - pattern: "pit*/**/*.go"
+        reason: "Per-CLI command descriptions"
+      - pattern: "qa/*.ts"
+        reason: "QA Framework section"
+      - pattern: ".github/workflows/*.yml"
+        reason: "Deployment section"
+
+  - doc: ".env.example"
+    triggers:
+      - pattern: "lib/env.ts"
+        reason: "Centralized env validation"
+      - pattern: "lib/ai.ts"
+        reason: "ANTHROPIC_* model env vars"
+      - pattern: "lib/credits.ts"
+        reason: "CREDITS_* env vars"
+      - pattern: "lib/stripe.ts"
+        reason: "STRIPE_* env vars"
+      - pattern: "lib/eas.ts"
+        reason: "EAS_* env vars"
+      - pattern: "lib/logger.ts"
+        reason: "LOG_LEVEL env var"
+      - pattern: "lib/analytics.ts"
+        reason: "NEXT_PUBLIC_POSTHOG_KEY"
+      - pattern: "lib/langsmith.ts"
+        reason: "LANGSMITH_* env vars"
+      - pattern: "middleware.ts"
+        reason: "PV_INTERNAL_SECRET"
+      - pattern: "app/api/**/route.ts"
+        reason: "New routes may reference new env vars"
+
+  # ═══ High tier (per-directory READMEs) ═══
+
+  - doc: "app/README.md"
+    triggers:
+      - pattern: "app/**/page.tsx"
+        reason: "Route Tree listing"
+      - pattern: "app/actions.ts"
+        reason: "Server Actions table"
+
+  - doc: "app/api/README.md"
+    triggers:
+      - pattern: "app/api/**/route.ts"
+        reason: "Endpoint Inventory table (20 routes)"
+      - pattern: "lib/bout-engine.ts"
+        reason: "Streaming Protocol and Bout Lifecycle"
+      - pattern: "lib/credits.ts"
+        reason: "Credit Preauthorization Flow"
+
+  - doc: "components/README.md"
+    triggers:
+      - pattern: "components/*.tsx"
+        reason: "Component Inventory"
+      - pattern: "components/ui/*.tsx"
+        reason: "UI primitives in total count"
+
+  - doc: "lib/README.md"
+    triggers:
+      - pattern: "lib/*.ts"
+        reason: "Module Inventory (66 files across 11 domains)"
+
+  - doc: "db/README.md"
+    triggers:
+      - pattern: "db/schema.ts"
+        reason: "Schema Overview (20 tables, 3 enums)"
+
+  - doc: "tests/README.md"
+    triggers:
+      - pattern: "tests/**/*.test.ts"
+        reason: "Test file count"
+      - pattern: "vitest.config.ts"
+        reason: "Configuration section"
+      - pattern: "playwright.config.ts"
+        reason: "Configuration section"
+
+  # ═══ Medium tier ═══
+
+  - doc: "ROADMAP.md"
+    triggers:
+      - pattern: "presets/*.json"
+        reason: "'22 scenarios' count"
+      - pattern: "lib/seed-agents.ts"
+        reason: "'12 high-DNA agents' listed as completed"
+      - pattern: "app/roadmap/page.tsx"
+        reason: "Roadmap page must stay in sync"
+
+  - doc: "scripts/README.md"
+    triggers:
+      - pattern: "scripts/*.sh"
+        reason: "Script inventory"
+      - pattern: "scripts/*.ts"
+        reason: "TypeScript scripts in inventory"
+
+  - doc: "drizzle/README.md"
+    triggers:
+      - pattern: "drizzle/*.sql"
+        reason: "Migration History table"
+
+  # ═══ Low tier (Go CLI READMEs) ═══
+
+  - doc: "pitctl/README.md"
+    triggers:
+      - pattern: "pitctl/**/*.go"
+        reason: "Commands and flags"
+
+  - doc: "pitforge/README.md"
+    triggers:
+      - pattern: "pitforge/**/*.go"
+        reason: "Commands (init, validate, lint, hash, diff, catalog, spar, evolve)"
+
+  - doc: "pitlab/README.md"
+    triggers:
+      - pattern: "pitlab/**/*.go"
+        reason: "Commands (summary, survival, position, engagement, codebook)"
+
+  - doc: "pitnet/README.md"
+    triggers:
+      - pattern: "pitnet/**/*.go"
+        reason: "Commands (status, verify, submit, audit)"
+
+  - doc: "pitbench/README.md"
+    triggers:
+      - pattern: "pitbench/**/*.go"
+        reason: "Commands (models, estimate, cost, margin)"
+
+  - doc: "pitstorm/README.md"
+    triggers:
+      - pattern: "pitstorm/**/*.go"
+        reason: "Commands and traffic profiles"
+
+  - doc: "shared/README.md"
+    triggers:
+      - pattern: "shared/**/*.go"
+        reason: "Package APIs (config, db, theme, format, license)"
