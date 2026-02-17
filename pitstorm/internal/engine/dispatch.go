@@ -3,8 +3,10 @@ package engine
 import (
 	"context"
 	"fmt"
+	"io"
 	"math/rand/v2"
 	"sync"
+	"time"
 
 	"github.com/rickhallett/thepit/pitstorm/internal/action"
 	"github.com/rickhallett/thepit/pitstorm/internal/budget"
@@ -12,6 +14,28 @@ import (
 	"github.com/rickhallett/thepit/pitstorm/internal/metrics"
 	"github.com/rickhallett/thepit/pitstorm/internal/persona"
 )
+
+// boutTimeout is the maximum wall-clock time for a single streaming bout
+// before pitstorm forcibly closes the connection. A healthy 6-turn bout
+// completes in ~2 min; 4 min gives generous headroom.
+const boutTimeout = 4 * time.Minute
+
+// contextReader wraps an io.Reader so that reads fail fast when the
+// context is cancelled. This lets ParseSSEStream (which reads from an
+// io.Reader with no context awareness) unblock when a bout times out.
+type contextReader struct {
+	ctx context.Context
+	r   io.Reader
+}
+
+func (cr *contextReader) Read(p []byte) (int, error) {
+	select {
+	case <-cr.ctx.Done():
+		return 0, cr.ctx.Err()
+	default:
+		return cr.r.Read(p)
+	}
+}
 
 // validPresetIDs are the free-tier preset IDs that pitstorm can use for bout creation.
 var validPresetIDs = []string{
@@ -177,8 +201,13 @@ func (d *Dispatcher) doRunBout(ctx context.Context, workerID int, spec *persona.
 	boutID := action.GenerateID(21)
 	presetID := validPresetIDs[intn(len(validPresetIDs))]
 
+	// Per-bout timeout: if the stream hangs, the worker is freed after boutTimeout
+	// instead of blocking until the engine's overall duration expires.
+	boutCtx, boutCancel := context.WithTimeout(ctx, boutTimeout)
+	defer boutCancel()
+
 	d.metrics.RecordBoutStart()
-	handle, err := d.actor.RunBoutStream(ctx, accountID(spec), action.RunBoutRequest{
+	handle, err := d.actor.RunBoutStream(boutCtx, accountID(spec), action.RunBoutRequest{
 		BoutID:   boutID,
 		PresetID: presetID,
 		Topic:    spec.PickTopic(),
@@ -203,8 +232,9 @@ func (d *Dispatcher) doRunBout(ctx context.Context, workerID int, spec *persona.
 	d.trackBout(boutID)
 
 	// Parse the SSE stream, tracking active stream concurrency.
+	// Wrap body with contextReader so reads fail fast on bout timeout.
 	d.metrics.StreamStart()
-	result, err := client.ParseSSEStream(handle.Body, nil)
+	result, err := client.ParseSSEStream(&contextReader{ctx: boutCtx, r: handle.Body}, nil)
 	d.metrics.StreamDone()
 	if err != nil {
 		d.metrics.RecordError("/api/run-bout")
