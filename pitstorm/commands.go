@@ -103,11 +103,16 @@ func runCmd(args []string) {
 	fmt.Println()
 
 	// 8. Create and run engine.
+	if cfg.StatusFile != "" {
+		fmt.Printf("  Status:     %s (live, updated every 5s)\n", cfg.StatusFile)
+	}
+
 	eng := engine.New(engine.Config{
-		Workers:  cfg.Workers,
-		Duration: cfg.Duration,
-		RateFunc: profileRateFunc,
-		Verbose:  cfg.Verbose,
+		Workers:    cfg.Workers,
+		Duration:   cfg.Duration,
+		RateFunc:   profileRateFunc,
+		Verbose:    cfg.Verbose,
+		StatusFile: cfg.StatusFile,
 	}, cl, act, m, gate, personas, logf)
 
 	// Handle graceful shutdown on SIGINT/SIGTERM.
@@ -362,6 +367,8 @@ func setupCmd(args []string) {
 	target := "https://www.thepit.cloud"
 	outputPath := "./accounts.json"
 	force := false
+	secretKey := ""
+	envPath := ""
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -379,6 +386,18 @@ func setupCmd(args []string) {
 			outputPath = args[i]
 		case "--force":
 			force = true
+		case "--secret":
+			if i+1 >= len(args) {
+				fatalf("setup", "--secret requires a value")
+			}
+			i++
+			secretKey = args[i]
+		case "--env":
+			if i+1 >= len(args) {
+				fatalf("setup", "--env requires a value")
+			}
+			i++
+			envPath = args[i]
 		default:
 			fatalf("setup", "unknown flag %q", args[i])
 		}
@@ -397,15 +416,72 @@ func setupCmd(args []string) {
 		fatal("setup", err)
 	}
 
+	// Resolve Clerk secret key for user provisioning.
+	if secretKey == "" {
+		secretKey = os.Getenv("CLERK_SECRET_KEY")
+	}
+	if secretKey == "" {
+		envCfg, _ := config.Load(envPath)
+		if envCfg != nil {
+			secretKey = envCfg.Get("CLERK_SECRET_KEY")
+		}
+	}
+
+	// If we have a secret key, create users in Clerk.
+	if secretKey != "" {
+		fmt.Printf("  Provisioning users in Clerk...\n\n")
+		backend := auth.NewBackendClient(secretKey)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+
+		created, existed, failed := 0, 0, 0
+		for i := range f.Accounts {
+			acct := &f.Accounts[i]
+			if acct.Tier == account.TierAnon {
+				fmt.Printf("  %-30s %s (anon)\n", acct.ID, theme.Muted.Render("SKIP"))
+				continue
+			}
+
+			result, err := backend.CreateUser(ctx, auth.CreateUserRequest{
+				Email:    acct.Email,
+				Password: acct.Password,
+			})
+			if err != nil {
+				fmt.Printf("  %-30s %s %v\n", acct.ID, theme.Error.Render("FAIL"), err)
+				failed++
+				continue
+			}
+
+			acct.ClerkUserID = result.ID
+			if result.Email == acct.Email && result.ID != "" {
+				// Check if this was an existing user (LookupUserByEmail path).
+				fmt.Printf("  %-30s %s user=%s\n", acct.ID, theme.Success.Render("OK"), result.ID)
+				created++
+			} else {
+				fmt.Printf("  %-30s %s user=%s (existed)\n", acct.ID, theme.Success.Render("OK"), result.ID)
+				existed++
+			}
+		}
+		fmt.Printf("\n  Clerk: %d created, %d existed, %d failed\n\n", created, existed, failed)
+
+		if failed > 0 {
+			fmt.Printf("  %s Some accounts failed to provision. Check Clerk dashboard.\n\n",
+				theme.Warning.Render("warning:"))
+		}
+	} else {
+		fmt.Printf("  %s No CLERK_SECRET_KEY found — skipping Clerk user provisioning.\n",
+			theme.Warning.Render("note:"))
+		fmt.Printf("  Set CLERK_SECRET_KEY or use --secret to provision users in Clerk.\n\n")
+	}
+
 	if err := account.Save(outputPath, f); err != nil {
 		fatal("setup", err)
 	}
 
 	fmt.Printf("  Generated %d accounts for %s\n", len(f.Accounts), target)
 	fmt.Printf("  Written to %s\n\n", outputPath)
-	fmt.Printf("%s\n\n", account.Summary(f))
-	fmt.Printf("  %s Accounts have no session tokens yet.\n", theme.Warning.Render("note:"))
-	fmt.Printf("  Run %s to sign in and obtain tokens from Clerk.\n\n",
+	fmt.Printf("%s\n", account.Summary(f))
+	fmt.Printf("  Next: run %s to sign in and obtain tokens.\n\n",
 		theme.Accent.Render("pitstorm login --accounts "+outputPath))
 }
 
@@ -712,32 +788,39 @@ func startTokenRefresher(
 	cl *client.Client,
 	logf func(string, ...any),
 ) *auth.Refresher {
-	// Build refresh targets from accounts that have a Clerk session ID.
+	// Build refresh targets from accounts that have a Clerk user ID.
 	var targets []auth.RefreshTarget
 	for _, acct := range acctFile.Accounts {
-		if acct.Tier == account.TierAnon || acct.ClerkSessionID == "" {
+		if acct.Tier == account.TierAnon || acct.ClerkUserID == "" {
 			continue
 		}
 		targets = append(targets, auth.RefreshTarget{
 			AccountID: acct.ID,
 			SessionID: acct.ClerkSessionID,
+			UserID:    acct.ClerkUserID,
 		})
 	}
 	if len(targets) == 0 {
-		logf("[refresh] no accounts with session IDs — skipping token refresh")
+		logf("[refresh] no accounts with user IDs — skipping token refresh")
 		return nil
 	}
 
-	// Resolve the Clerk publishable key so we can construct an auth.Client.
+	// Resolve keys.
 	publishableKey := os.Getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
-	if publishableKey == "" {
-		cfg, _ := config.Load(envPath)
-		if cfg != nil {
-			publishableKey = cfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+	secretKey := os.Getenv("CLERK_SECRET_KEY")
+	if publishableKey == "" || secretKey == "" {
+		envCfg, _ := config.Load(envPath)
+		if envCfg != nil {
+			if publishableKey == "" {
+				publishableKey = envCfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+			}
+			if secretKey == "" {
+				secretKey = envCfg.Get("CLERK_SECRET_KEY")
+			}
 		}
 	}
-	if publishableKey == "" {
-		logf("[refresh] no publishable key — skipping token refresh")
+	if publishableKey == "" || secretKey == "" {
+		logf("[refresh] missing CLERK keys — skipping token refresh")
 		return nil
 	}
 
@@ -746,16 +829,27 @@ func startTokenRefresher(
 		logf("[refresh] failed to create FAPI client: %v", err)
 		return nil
 	}
+	backendClient := auth.NewBackendClient(secretKey)
 
 	// Refresh every 45 seconds (Clerk JWTs expire at ~60s).
-	refresher := auth.NewRefresher(fapiClient, 45*time.Second)
+	// Use Backend API (ticket flow) instead of FAPI cookie-based refresh,
+	// because the refresher doesn't have session cookies from the original sign-in.
+	refresher := auth.NewRefresher(fapiClient, 45*time.Second, logf)
+	refresher.SetBackend(backendClient)
 
-	refresher.Start(context.Background(), targets, func(accountID, token string, expiresAt time.Time) {
+	callback := func(accountID, token string, expiresAt time.Time) {
 		cl.SetToken(accountID, token)
 		logf("[refresh] %s token refreshed, expires=%s", accountID, expiresAt.Format(time.RFC3339))
-	})
+	}
 
-	fmt.Printf("  Refresh:    %d accounts, every 45s\n", len(targets))
+	// Synchronous initial refresh — ensures tokens are fresh before workers start.
+	fmt.Printf("  Refresh:    %d accounts, every 45s (warming up...)\n", len(targets))
+	refresher.RefreshNow(context.Background(), targets, callback)
+
+	// Start background refresh loop.
+	refresher.Start(context.Background(), targets, callback)
+
+	fmt.Printf("  Refresh:    tokens warmed, background loop started\n")
 	return refresher
 }
 

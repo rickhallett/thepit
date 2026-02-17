@@ -382,7 +382,7 @@ func TestRefresher_CallsCallback(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClientWithURL(srv.URL)
-	refresher := NewRefresher(client, 50*time.Millisecond)
+	refresher := NewRefresher(client, 50*time.Millisecond, nil)
 
 	var gotAccountID string
 	var gotToken string
@@ -419,7 +419,7 @@ func TestRefresher_CallsCallback(t *testing.T) {
 
 func TestRefresher_StopImmediately(t *testing.T) {
 	client := NewClientWithURL("http://localhost:0")
-	refresher := NewRefresher(client, time.Hour)
+	refresher := NewRefresher(client, time.Hour, nil)
 
 	ctx := context.Background()
 	refresher.Start(ctx, nil, func(string, string, time.Time) {})
@@ -439,7 +439,7 @@ func TestRefresher_SkipsFailedAccounts(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClientWithURL(srv.URL)
-	refresher := NewRefresher(client, 30*time.Millisecond)
+	refresher := NewRefresher(client, 30*time.Millisecond, nil)
 
 	var cbCalls atomic.Int32
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)

@@ -6,7 +6,9 @@ package engine
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -20,10 +22,11 @@ import (
 
 // Config holds the engine's runtime configuration.
 type Config struct {
-	Workers  int
-	Duration time.Duration
-	RateFunc RateFunc // controls req/s over time; nil = unlimited
-	Verbose  bool
+	Workers    int
+	Duration   time.Duration
+	RateFunc   RateFunc // controls req/s over time; nil = unlimited
+	Verbose    bool
+	StatusFile string // if set, write live JSON status to this path every monitor tick
 }
 
 // RateFunc is an alias for profile.RateFunc to avoid type-adapter boilerplate.
@@ -209,10 +212,22 @@ func (e *Engine) ticketFeeder(ctx context.Context, start time.Time, tickets chan
 	}
 }
 
-// monitor logs periodic status updates.
+// liveStatus is the JSON structure written to the status file each tick.
+type liveStatus struct {
+	Timestamp string           `json:"timestamp"`
+	Metrics   metrics.Snapshot `json:"metrics"`
+	Budget    budget.Summary   `json:"budget"`
+}
+
+// monitor logs periodic status updates and optionally writes a live status file.
 func (e *Engine) monitor(ctx context.Context, start time.Time) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
+
+	// Clean up status file on exit so stale data isn't mistaken for a live run.
+	if e.cfg.StatusFile != "" {
+		defer os.Remove(e.cfg.StatusFile)
+	}
 
 	for {
 		select {
@@ -221,16 +236,45 @@ func (e *Engine) monitor(ctx context.Context, start time.Time) {
 		case <-ticker.C:
 			snap := e.metrics.Snapshot()
 			budgetSummary := e.budget.Summary()
-			e.logf("[monitor] elapsed=%s reqs=%d ok=%d err=%d rate=%.1f/s budget=£%.4f/£%.2f workers=%d",
+			e.logf("[monitor] elapsed=%s reqs=%d ok=%d err=%d rate=%.1f/s streams=%d/%d budget=£%.4f/£%.2f workers=%d",
 				time.Since(start).Truncate(time.Second),
 				snap.Requests,
 				snap.Successes,
 				snap.Errors,
 				snap.Throughput,
+				snap.ActiveStreams,
+				snap.ActiveStreamsPeak,
 				budgetSummary.SpentGBP,
 				budgetSummary.CeilingGBP,
 				snap.ActiveWorkers,
 			)
+
+			if e.cfg.StatusFile != "" {
+				e.writeStatus(snap, budgetSummary)
+			}
 		}
+	}
+}
+
+// writeStatus atomically writes the live status JSON file.
+func (e *Engine) writeStatus(snap metrics.Snapshot, bs budget.Summary) {
+	status := liveStatus{
+		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		Metrics:   snap,
+		Budget:    bs,
+	}
+	data, err := json.MarshalIndent(status, "", "  ")
+	if err != nil {
+		e.logf("[status] marshal error: %v", err)
+		return
+	}
+	// Atomic write: write to temp file then rename to avoid partial reads.
+	tmp := e.cfg.StatusFile + ".tmp"
+	if err := os.WriteFile(tmp, data, 0644); err != nil {
+		e.logf("[status] write error: %v", err)
+		return
+	}
+	if err := os.Rename(tmp, e.cfg.StatusFile); err != nil {
+		e.logf("[status] rename error: %v", err)
 	}
 }

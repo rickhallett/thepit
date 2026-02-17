@@ -72,6 +72,8 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  --personas <list>    Persona mix: all|free-only|paid-only|stress or comma-separated (default: all)\n")
 	fmt.Fprintf(os.Stderr, "  --instance <n/m>     Instance partitioning, e.g. 1/3 (default: 1/1)\n")
 	fmt.Fprintf(os.Stderr, "  --output <path>      JSON output file (default: stdout)\n")
+	fmt.Fprintf(os.Stderr, "  --status <path>      Live status JSON file (default: results/.live-status.json)\n")
+	fmt.Fprintf(os.Stderr, "  --no-status          Disable live status file\n")
 	fmt.Fprintf(os.Stderr, "  --verbose            Log every request\n")
 	fmt.Fprintf(os.Stderr, "  --env <path>         Path to .env file\n\n")
 }

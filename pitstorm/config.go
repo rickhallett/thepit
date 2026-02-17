@@ -20,6 +20,7 @@ type RunConfig struct {
 	InstanceID int
 	InstanceOf int
 	Output     string
+	StatusFile string // live status JSON file, updated every 5s during run
 	Verbose    bool
 	EnvPath    string
 }
@@ -38,6 +39,7 @@ func DefaultRunConfig() RunConfig {
 		InstanceID: 1,
 		InstanceOf: 1,
 		Output:     "",
+		StatusFile: "results/.live-status.json",
 		Verbose:    false,
 		EnvPath:    "",
 	}
@@ -139,6 +141,14 @@ func ParseRunConfig(args []string) (RunConfig, error) {
 			}
 			i++
 			cfg.Output = args[i]
+		case "--status":
+			if i+1 >= len(args) {
+				return cfg, fmt.Errorf("--status requires a value")
+			}
+			i++
+			cfg.StatusFile = args[i]
+		case "--no-status":
+			cfg.StatusFile = ""
 		case "--verbose":
 			cfg.Verbose = true
 		case "--env":

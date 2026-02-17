@@ -195,6 +195,7 @@ Each directory has its own README documenting architecture, design decisions, an
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System overview: core flow, streaming protocol, data model |
 | [ROADMAP.md](ROADMAP.md) | Product roadmap: platform and research tracks |
 | [AGENTS.md](AGENTS.md) | Coding guidelines for AI agents working on this repository |
+| [Agentic Archaeology Report](docs/agentic-archaeology-report.md) | Survey of agentic engineering patterns: evolution, dormancy, and TAC framework mapping[^1] |
 
 ---
 
@@ -217,6 +218,8 @@ Two GitHub Actions workflows enforce quality on every push and PR:
 AGPL-3.0. If you modify and deploy this code, you must open-source your changes. Use the hosted product at [thepit.cloud](https://thepit.cloud) for the full experience without that obligation.
 
 ---
+
+[^1]: The [Agentic Archaeology Report](docs/agentic-archaeology-report.md) is a systematic survey of 571 commits profiling how agentic engineering patterns evolved, which tools became dormant, and where metaprompting can close open feedback loops. It maps the codebase against the TAC (Tactical Agentic Coding) framework and produces 7 concrete proposals tracked in the [Turnkey epic](https://linear.app/oceanheartai/project/turnkey) on Linear.
 
 <p align="center">
   <code>Built by Kai</code>
