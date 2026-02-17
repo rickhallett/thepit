@@ -71,6 +71,10 @@ export async function initializeUserSession(params: {
   await ensureUserRecord(params.userId);
   await ensureReferralCode(params.userId);
 
+  // Detect new users for analytics. When credits are enabled we use the
+  // signup bonus claim as the signal ('claimed' vs 'already'). When credits
+  // are disabled we fall back to checking whether ensureUserRecord created a
+  // new row — the function is idempotent so "first call = new user".
   let isNewUser = false;
 
   if (CREDITS_ENABLED) {
@@ -84,12 +88,21 @@ export async function initializeUserSession(params: {
         code: params.referralCode,
       });
     }
+  } else {
+    // Credits disabled (dev / non-monetised). Detect new users by checking
+    // whether the in-memory cache has seen this user before — if not, and
+    // we weren't in the cache at function entry, this is the first init.
+    // Note: `lastInit` was checked above; if we reach here it was either
+    // absent or expired, so this is effectively "first session for this user".
+    isNewUser = !lastInit;
   }
 
   // --- Analytics: signup_completed (OCE-250) ---
   // Fire once per user on their very first session initialization.
-  // The `isNewUser` flag is true only when the signup bonus was just claimed
-  // (not 'already' or 'disabled'), guaranteeing exactly-once semantics.
+  // When credits are enabled the `isNewUser` flag is true only when the
+  // signup bonus was just claimed ('claimed'), guaranteeing exactly-once.
+  // When credits are disabled, `isNewUser` is true on the first init for
+  // a given userId (no prior cache entry).
   if (isNewUser) {
     serverTrack(params.userId, 'signup_completed', {
       referral_code: params.referralCode ?? null,

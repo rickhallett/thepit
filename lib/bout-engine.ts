@@ -97,8 +97,8 @@ export type BoutContext = {
   preauthMicro: number;
   /** Micro-credits consumed from the intro pool for anonymous bouts. Zero for authenticated bouts. */
   introPoolConsumedMicro: number;
-  /** User tier at the time of validation — 'anonymous' | 'free' | 'pass' | 'lab'. */
-  tier: string;
+  /** User tier at the time of validation. */
+  tier: 'anonymous' | 'free' | 'pass' | 'lab';
   requestId: string;
   db: ReturnType<typeof requireDb>;
 };
@@ -554,12 +554,11 @@ async function _executeBoutInner(
     userId: userId ?? undefined,
   });
 
-  // TEMPORARY: Phase 7 structured log — revert after load testing
   Sentry.logger.info('bout_started', {
     bout_id: boutId,
     preset_id: presetId,
     model_id: modelId,
-    user_id: userId ?? 'anonymous',
+    user_id: userId ? hashUserId(userId) : 'anonymous',
     user_tier: ctx.tier,
     response_length: lengthConfig.id,
     response_format: formatConfig.id,
@@ -831,12 +830,11 @@ async function _executeBoutInner(
       hasShareLine: !!shareLine,
     });
 
-    // TEMPORARY: Phase 7 structured log — revert after load testing
     Sentry.logger.info('bout_completed', {
       bout_id: boutId,
       preset_id: presetId,
       model_id: modelId,
-      user_id: userId ?? 'anonymous',
+      user_id: userId ? hashUserId(userId) : 'anonymous',
       user_tier: ctx.tier,
       turns: preset.maxTurns,
       input_tokens: inputTokens,
@@ -920,12 +918,11 @@ async function _executeBoutInner(
       durationMs: boutDurationMs,
     });
 
-    // TEMPORARY: Phase 7 structured log — revert after load testing
     Sentry.logger.error('bout_error', {
       bout_id: boutId,
       preset_id: presetId,
       model_id: modelId,
-      user_id: userId ?? 'anonymous',
+      user_id: userId ? hashUserId(userId) : 'anonymous',
       user_tier: ctx.tier,
       turns_completed: transcript.length,
       input_tokens: inputTokens,

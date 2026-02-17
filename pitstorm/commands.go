@@ -453,13 +453,12 @@ func setupCmd(args []string) {
 			}
 
 			acct.ClerkUserID = result.ID
-			if result.Email == acct.Email && result.ID != "" {
-				// Check if this was an existing user (LookupUserByEmail path).
-				fmt.Printf("  %-30s %s user=%s\n", acct.ID, theme.Success.Render("OK"), result.ID)
-				created++
-			} else {
+			if result.AlreadyExisted {
 				fmt.Printf("  %-30s %s user=%s (existed)\n", acct.ID, theme.Success.Render("OK"), result.ID)
 				existed++
+			} else {
+				fmt.Printf("  %-30s %s user=%s\n", acct.ID, theme.Success.Render("OK"), result.ID)
+				created++
 			}
 		}
 		fmt.Printf("\n  Clerk: %d created, %d existed, %d failed\n\n", created, existed, failed)
@@ -788,11 +787,18 @@ func startTokenRefresher(
 	cl *client.Client,
 	logf func(string, ...any),
 ) *auth.Refresher {
-	// Build refresh targets from accounts that have a Clerk user ID.
+	// Build refresh targets from accounts that have a Clerk user ID or session ID.
+	// Accounts with only a session ID can still be refreshed via the FAPI fallback.
 	var targets []auth.RefreshTarget
 	for _, acct := range acctFile.Accounts {
-		if acct.Tier == account.TierAnon || acct.ClerkUserID == "" {
+		if acct.Tier == account.TierAnon {
 			continue
+		}
+		if acct.ClerkUserID == "" && acct.ClerkSessionID == "" {
+			continue
+		}
+		if acct.ClerkUserID == "" {
+			logf("[refresh] %s has session ID but no user ID — will use FAPI fallback (consider re-auth)", acct.ID)
 		}
 		targets = append(targets, auth.RefreshTarget{
 			AccountID: acct.ID,
@@ -801,7 +807,7 @@ func startTokenRefresher(
 		})
 	}
 	if len(targets) == 0 {
-		logf("[refresh] no accounts with user IDs — skipping token refresh")
+		logf("[refresh] no accounts with user or session IDs — skipping token refresh")
 		return nil
 	}
 
@@ -843,8 +849,11 @@ func startTokenRefresher(
 	}
 
 	// Synchronous initial refresh — ensures tokens are fresh before workers start.
+	// Bounded context prevents indefinite hang on network issues.
 	fmt.Printf("  Refresh:    %d accounts, every 45s (warming up...)\n", len(targets))
-	refresher.RefreshNow(context.Background(), targets, callback)
+	warmCtx, warmCancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer warmCancel()
+	refresher.RefreshNow(warmCtx, targets, callback)
 
 	// Start background refresh loop.
 	refresher.Start(context.Background(), targets, callback)

@@ -20,9 +20,10 @@ import (
 // completes in ~2 min; 4 min gives generous headroom.
 const boutTimeout = 4 * time.Minute
 
-// contextReader wraps an io.Reader so that reads fail fast when the
-// context is cancelled. This lets ParseSSEStream (which reads from an
-// io.Reader with no context awareness) unblock when a bout times out.
+// contextReader wraps an io.Reader with a non-blocking context check
+// between reads. It does NOT interrupt a blocking Read mid-call — for
+// that, the HTTP request context (boutCtx) cancels the TCP connection.
+// This provides a fast-path exit on the *next* read after cancellation.
 type contextReader struct {
 	ctx context.Context
 	r   io.Reader
@@ -242,8 +243,10 @@ func (d *Dispatcher) doRunBout(ctx context.Context, workerID int, spec *persona.
 	}
 
 	// Check for server-side errors reported inside the SSE stream.
+	// Record latency even for errored streams to avoid biased percentile data.
 	if result.Error != "" {
 		d.metrics.RecordStreamError()
+		d.metrics.RecordLatency("/api/run-bout", handle.Duration)
 		d.metrics.RecordError("/api/run-bout")
 		return
 	}

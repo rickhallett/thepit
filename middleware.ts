@@ -195,6 +195,9 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   // ---------------------------------------------------------------------------
   // A "visit" is a new session (no existing pit_sid cookie). We increment the
   // visit counter and record the last-visit timestamp to compute days-since-last.
+  // Defaults are only consumed when `hasAnalyticsConsent` is true (the PV
+  // payload is gated on consent, and `isNewSession` is false without it).
+  // When consent is absent these values are inert — kept at safe defaults.
   let visitNumber = 1;
   let daysSinceLastVisit: number | null = null;
   const isNewSession = hasAnalyticsConsent && !req.cookies.get(SESSION_COOKIE)?.value;

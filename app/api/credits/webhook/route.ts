@@ -174,6 +174,19 @@ export const POST = withLogging(async function POST(req: Request) {
     if (userId && priceId) {
       const tier = resolveTierFromPriceId(priceId);
       if (tier) {
+        // Read the old tier BEFORE writing the update — otherwise the
+        // comparison always sees oldTier === newTier.
+        const tierOrder: Record<string, number> = { free: 0, pass: 1, lab: 2 };
+        const db2 = requireDb();
+        const [currentUser] = await db2
+          .select({ tier: users.subscriptionTier })
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+        const oldTier = currentUser?.tier ?? 'free';
+        const oldTierRank = tierOrder[oldTier] ?? 0;
+        const newTierRank = tierOrder[tier] ?? 0;
+
         await updateUserSubscription({
           userId,
           tier,
@@ -184,25 +197,16 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
-        // Determine if upgrade or downgrade based on tier ordering.
-        const tierOrder: Record<string, number> = { free: 0, pass: 1, lab: 2 };
-        const db2 = requireDb();
-        const [currentUser] = await db2
-          .select({ tier: users.subscriptionTier })
-          .from(users)
-          .where(eq(users.id, userId))
-          .limit(1);
-        const oldTierRank = tierOrder[currentUser?.tier ?? 'free'] ?? 0;
-        const newTierRank = tierOrder[tier] ?? 0;
+
         if (newTierRank > oldTierRank) {
           serverTrack(userId, 'subscription_upgraded', {
-            from_tier: currentUser?.tier ?? 'free',
+            from_tier: oldTier,
             to_tier: tier,
             subscription_id: subscription.id,
           });
         } else if (newTierRank < oldTierRank) {
           serverTrack(userId, 'subscription_downgraded', {
-            from_tier: currentUser?.tier ?? 'free',
+            from_tier: oldTier,
             to_tier: tier,
             subscription_id: subscription.id,
           });
@@ -233,9 +237,9 @@ export const POST = withLogging(async function POST(req: Request) {
         stripeCustomerId: subscription.customer,
       });
       serverTrack(userId, 'subscription_churned', {
-          subscription_id: subscription.id,
-        });
-        log.info('Subscription deleted, downgraded to free', { userId });
+        subscription_id: subscription.id,
+      });
+      log.info('Subscription deleted, downgraded to free', { userId });
     }
   }
 
@@ -271,10 +275,10 @@ export const POST = withLogging(async function POST(req: Request) {
         stripeCustomerId: invoice.customer,
       });
       serverTrack(userId, 'payment_failed', {
-          subscription_id: invoice.subscription,
-          invoice_id: invoice.id,
-        });
-        log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
+        subscription_id: invoice.subscription,
+        invoice_id: invoice.id,
+      });
+      log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }
 
