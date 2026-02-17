@@ -102,3 +102,45 @@ jobs:
       - name: Security scan
         run: pnpm run security:scan
         continue-on-error: true  # scan targets live endpoints; may fail in CI without running server
+
+  agentic-review:
+    name: agentic-review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Trigger scan
+        id: triggers
+        run: |
+          REPORT=$(bash scripts/ci-trigger-scan.sh "origin/${{ github.base_ref }}" 2>/dev/null || echo "Trigger scan failed")
+          {
+            echo 'body<<ENDOFTRIGGERS'
+            echo "$REPORT"
+            echo 'ENDOFTRIGGERS'
+          } >> "$GITHUB_OUTPUT"
+      - name: Doc drift scan
+        id: docs
+        run: |
+          REPORT=$(bash scripts/ci-doc-drift.sh "origin/${{ github.base_ref }}" 2>/dev/null || echo "Doc drift scan failed")
+          {
+            echo 'body<<ENDOFDOCS'
+            echo "$REPORT"
+            echo 'ENDOFDOCS'
+          } >> "$GITHUB_OUTPUT"
+      - name: Post agentic review comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: agentic-review
+          message: |
+            ${{ steps.triggers.outputs.body }}
+
+            ---
+
+            ${{ steps.docs.outputs.body }}
+
+            ---
+            <sub>Posted by the agentic review pipeline. See <code>.claude/data/</code> for trigger and doc-drift manifests.</sub>
