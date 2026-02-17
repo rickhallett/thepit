@@ -33,7 +33,12 @@ export type AnalyticsEvent =
   | 'page_scroll_depth'
   | 'page_active_time'
   | 'bout_engagement_depth'
-  | 'copy_variant_served';
+  | 'copy_variant_served'
+  // Discovery events (OCE-256)
+  | 'leaderboard_viewed'
+  | 'agents_browsed'
+  | 'preset_browsed'
+  | 'bout_replayed';
 
 export function trackEvent(event: AnalyticsEvent, properties?: EventProperties) {
   if (typeof window === 'undefined') return;

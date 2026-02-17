@@ -12,6 +12,7 @@ import { sha256Hex } from '@/lib/hash';
 import { log } from '@/lib/logger';
 import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
+import { serverTrack } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -40,6 +41,9 @@ async function rawPOST(req: Request) {
     utm?: string;
     userId?: string;
     copyVariant?: string;
+    visitNumber?: number;
+    daysSinceLastVisit?: number | null;
+    isNewSession?: boolean;
   }>(req);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
@@ -92,6 +96,20 @@ async function rawPOST(req: Request) {
       country: payload.country?.slice(0, 2) || null,
       copyVariant,
     });
+    // --- Analytics: session_started (OCE-254) ---
+    // Fire on the first page view of a new session to enable retention cohorts.
+    if (payload.isNewSession) {
+      const distinctId = userId ?? `anon_${sessionId}`;
+      serverTrack(distinctId, 'session_started', {
+        visit_number: payload.visitNumber ?? 1,
+        days_since_last_visit: payload.daysSinceLastVisit ?? null,
+        landing_page: path,
+        referrer: payload.referrer?.slice(0, 256) ?? null,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        country: payload.country?.slice(0, 2) ?? null,
+      });
+    }
   } catch (error) {
     // Best-effort — don't fail the page load
     log.error('page view insert failed', { error: error instanceof Error ? error.message : String(error), path, sessionId });

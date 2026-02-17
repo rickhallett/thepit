@@ -98,10 +98,17 @@ export interface ShareLinks {
  * @param text - Full share text (used for Reddit, WhatsApp, Telegram, LinkedIn)
  * @param replayUrl - Replay URL for the bout
  * @param xText - Optional shorter text for X/Twitter (280 char limit). Falls back to `text` if omitted.
+ * @param sharerId - Optional Clerk user ID appended as `pit_sharer` for viral attribution.
  */
-export function buildShareLinks(text: string, replayUrl: string, xText?: string): ShareLinks {
+export function buildShareLinks(text: string, replayUrl: string, xText?: string, sharerId?: string | null): ShareLinks {
+  // Append sharer attribution to the replay URL if a userId is provided.
+  // This enables K-factor viral coefficient tracking (OCE-252).
+  const attributedUrl = sharerId
+    ? `${replayUrl}${replayUrl.includes('?') ? '&' : '?'}pit_sharer=${encodeURIComponent(sharerId)}`
+    : replayUrl;
+
   const encoded = encodeURIComponent(text);
-  const encodedUrl = encodeURIComponent(replayUrl);
+  const encodedUrl = encodeURIComponent(attributedUrl);
   const title = encodeURIComponent(`THE PIT — AI Battle Arena`);
   const xEncoded = encodeURIComponent(xText ?? text);
 

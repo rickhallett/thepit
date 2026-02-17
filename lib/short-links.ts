@@ -113,6 +113,7 @@ export async function recordClick(
   await db.insert(shortLinkClicks).values({
     shortLinkId,
     boutId,
+    sharerId: url.searchParams.get('pit_sharer') ?? null,
     refCode: url.searchParams.get('ref') ?? null,
     utmSource: url.searchParams.get('utm_source') ?? null,
     utmMedium: url.searchParams.get('utm_medium') ?? null,

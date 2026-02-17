@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
+import { TrackPageEvent } from '@/components/track-page-event';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { getCopy } from '@/lib/copy';
@@ -94,7 +95,12 @@ export default async function ReplayPage({
     userId ? getUserWinnerVote(resolved.id, userId) : Promise.resolve(null),
   ]);
 
+  // Track replay views — only for bouts the viewer didn't create (i.e. shared bouts)
+  const isReplay = bout.ownerId !== userId;
+
   return (
+    <>
+    {isReplay && <TrackPageEvent event="bout_replayed" properties={{ boutId: resolved.id, presetId: bout.presetId }} />}
     <Arena
       boutId={resolved.id}
       preset={preset}
@@ -107,5 +113,6 @@ export default async function ReplayPage({
       initialWinnerVotes={winnerVoteCounts}
       initialUserVote={userWinnerVote}
     />
+    </>
   );
 }

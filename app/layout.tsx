@@ -48,7 +48,22 @@ export default async function RootLayout({
   const referralCode = cookieStore.get('pit_ref')?.value ?? null;
 
   if (userId) {
-    await initializeUserSession({ userId, referralCode });
+    // Parse first-touch UTM params from cookie for signup attribution.
+    let utmSource: string | null = null;
+    let utmMedium: string | null = null;
+    let utmCampaign: string | null = null;
+    try {
+      const utmRaw = cookieStore.get('pit_utm')?.value;
+      if (utmRaw) {
+        const utm = JSON.parse(utmRaw);
+        utmSource = utm.utm_source ?? null;
+        utmMedium = utm.utm_medium ?? null;
+        utmCampaign = utm.utm_campaign ?? null;
+      }
+    } catch {
+      // Malformed cookie — ignore
+    }
+    await initializeUserSession({ userId, referralCode, utmSource, utmMedium, utmCampaign });
   }
 
   return (

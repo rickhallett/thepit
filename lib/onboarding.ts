@@ -14,6 +14,7 @@ import {
 } from '@/lib/intro-pool';
 import { ensureReferralCode, applyReferralBonus } from '@/lib/referrals';
 import { ensureUserRecord } from '@/lib/users';
+import { serverTrack, serverIdentify } from '@/lib/posthog-server';
 
 export async function applySignupBonus(userId: string) {
   if (!CREDITS_ENABLED) {
@@ -57,6 +58,9 @@ const INIT_CACHE_TTL_MS = 60 * 60 * 1000;
 export async function initializeUserSession(params: {
   userId: string;
   referralCode?: string | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
 }) {
   const now = Date.now();
   const lastInit = recentlyInitialized.get(params.userId);
@@ -67,9 +71,12 @@ export async function initializeUserSession(params: {
   await ensureUserRecord(params.userId);
   await ensureReferralCode(params.userId);
 
+  let isNewUser = false;
+
   if (CREDITS_ENABLED) {
     await ensureCreditAccount(params.userId);
-    await applySignupBonus(params.userId);
+    const bonusResult = await applySignupBonus(params.userId);
+    isNewUser = bonusResult.status === 'claimed';
 
     if (params.referralCode) {
       await applyReferralBonus({
@@ -77,6 +84,25 @@ export async function initializeUserSession(params: {
         code: params.referralCode,
       });
     }
+  }
+
+  // --- Analytics: signup_completed (OCE-250) ---
+  // Fire once per user on their very first session initialization.
+  // The `isNewUser` flag is true only when the signup bonus was just claimed
+  // (not 'already' or 'disabled'), guaranteeing exactly-once semantics.
+  if (isNewUser) {
+    serverTrack(params.userId, 'signup_completed', {
+      referral_code: params.referralCode ?? null,
+      utm_source: params.utmSource ?? null,
+      utm_medium: params.utmMedium ?? null,
+      utm_campaign: params.utmCampaign ?? null,
+    });
+    serverIdentify(params.userId, {
+      signup_date: new Date().toISOString(),
+      initial_tier: 'free',
+      referral_code: params.referralCode ?? null,
+      utm_source: params.utmSource ?? null,
+    });
   }
 
   recentlyInitialized.set(params.userId, now);

@@ -14,13 +14,14 @@
 import * as Sentry from '@sentry/nextjs';
 import { tracedStreamText, untracedStreamText, withTracing } from '@/lib/langsmith';
 import { getContext } from '@/lib/async-context';
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 
 import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
+import { serverTrack } from '@/lib/posthog-server';
 import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
@@ -843,6 +844,28 @@ async function _executeBoutInner(
       duration_ms: boutDurationMs,
       has_share_line: !!shareLine,
     });
+
+    // --- Analytics: user_activated (OCE-253) ---
+    // Fire once when a user completes their very first bout. We check the DB
+    // for any OTHER completed bouts by this user. If this is the only one,
+    // this is their activation moment.
+    if (userId) {
+      try {
+        const [boutCount] = await db
+          .select({ value: sql<number>`count(*)::int` })
+          .from(bouts)
+          .where(and(eq(bouts.ownerId, userId), eq(bouts.status, 'completed')));
+        if (boutCount && boutCount.value === 1) {
+          serverTrack(userId, 'user_activated', {
+            preset_id: presetId,
+            model_id: modelId,
+            duration_ms: boutDurationMs,
+          });
+        }
+      } catch {
+        // Non-critical — don't break bout completion for analytics
+      }
+    }
 
     if (shareLine) {
       onEvent?.({ type: 'data-share-line', data: { text: shareLine } });

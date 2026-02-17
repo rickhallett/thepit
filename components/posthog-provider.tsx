@@ -87,6 +87,10 @@ function initPostHog() {
         const variant = decodeURIComponent(raw).trim();
         if (variant && variant in expConfig.variants) {
           posthog.register({ copy_variant: variant });
+          // Fire copy_variant_served once per init (OCE-248).
+          // The super property ensures it's on every event; this explicit
+          // event enables direct variant-served counting for A/B analysis.
+          posthog.capture('copy_variant_served', { variant });
         }
       }
     }

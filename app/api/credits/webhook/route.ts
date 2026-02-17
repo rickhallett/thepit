@@ -15,6 +15,7 @@ import {
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
+import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -105,6 +106,12 @@ export const POST = withLogging(async function POST(req: Request) {
           referenceId: session.id,
           credits,
         });
+        serverTrack(userId, 'credit_purchase_completed', {
+          credits,
+          amount_total: session.amount_total ?? 0,
+          currency: session.currency ?? 'gbp',
+          session_id: session.id,
+        });
       }
 
       if (existing) {
@@ -140,6 +147,11 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
+        serverTrack(userId, 'subscription_started', {
+          tier,
+          subscription_id: subscription.id,
+          status: subscription.status,
+        });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
@@ -172,6 +184,29 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
+        // Determine if upgrade or downgrade based on tier ordering.
+        const tierOrder: Record<string, number> = { free: 0, pass: 1, lab: 2 };
+        const db2 = requireDb();
+        const [currentUser] = await db2
+          .select({ tier: users.subscriptionTier })
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+        const oldTierRank = tierOrder[currentUser?.tier ?? 'free'] ?? 0;
+        const newTierRank = tierOrder[tier] ?? 0;
+        if (newTierRank > oldTierRank) {
+          serverTrack(userId, 'subscription_upgraded', {
+            from_tier: currentUser?.tier ?? 'free',
+            to_tier: tier,
+            subscription_id: subscription.id,
+          });
+        } else if (newTierRank < oldTierRank) {
+          serverTrack(userId, 'subscription_downgraded', {
+            from_tier: currentUser?.tier ?? 'free',
+            to_tier: tier,
+            subscription_id: subscription.id,
+          });
+        }
         log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
@@ -197,7 +232,10 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: subscription.customer,
       });
-      log.info('Subscription deleted, downgraded to free', { userId });
+      serverTrack(userId, 'subscription_churned', {
+          subscription_id: subscription.id,
+        });
+        log.info('Subscription deleted, downgraded to free', { userId });
     }
   }
 
@@ -232,7 +270,11 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: invoice.customer,
       });
-      log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
+      serverTrack(userId, 'payment_failed', {
+          subscription_id: invoice.subscription,
+          invoice_id: invoice.id,
+        });
+        log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }
 
@@ -276,6 +318,9 @@ export const POST = withLogging(async function POST(req: Request) {
       }
     }
   }
+
+  // Flush server-side analytics before the serverless function terminates.
+  await flushServerAnalytics();
 
   return Response.json({ received: true });
 }, 'credits-webhook');
