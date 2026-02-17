@@ -89,7 +89,7 @@ triggers:
     id: artisan.3
     condition: ARIA or keyboard accessibility issue identified
     detection: Accessibility finding reported
-    file_patterns: ["components/*.tsx", "app/*/page.tsx"]
+    file_patterns: ["components/*.tsx", "app/**/page.tsx"]
 
   - agent: artisan
     id: artisan.4
@@ -132,8 +132,8 @@ triggers:
   - agent: sentinel
     id: sentinel.1
     condition: New API route file added
-    detection: New file matching app/api/*/route.ts
-    file_patterns: ["app/api/*/route.ts"]
+    detection: New file matching app/api/**/route.ts
+    file_patterns: ["app/api/**/route.ts"]
 
   - agent: sentinel
     id: sentinel.2
@@ -151,7 +151,7 @@ triggers:
     id: sentinel.4
     condition: Security tests fail in CI gate
     detection: tests/api/security-*.test.ts failures
-    file_patterns: ["tests/api/security-*.test.ts", "app/api/*/route.ts", "lib/*.ts"]
+    file_patterns: ["tests/api/security-*.test.ts", "app/api/**/route.ts", "lib/*.ts"]
 
   - agent: sentinel
     id: sentinel.5
@@ -170,7 +170,7 @@ triggers:
     id: watchdog.1
     condition: CI gate fails with any test failure
     detection: Any test failure in pnpm run test:ci
-    file_patterns: ["tests/**/*.test.ts", "lib/*.ts", "app/api/*/route.ts"]
+    file_patterns: ["tests/**/*.test.ts", "lib/*.ts", "app/api/**/route.ts"]
 
   - agent: watchdog
     id: watchdog.2
@@ -187,21 +187,21 @@ triggers:
   - agent: watchdog
     id: watchdog.4
     condition: New API route file created
-    detection: New app/api/*/route.ts file
-    file_patterns: ["app/api/*/route.ts", "tests/api/*.test.ts"]
+    detection: New app/api/**/route.ts file
+    file_patterns: ["app/api/**/route.ts", "tests/api/*.test.ts"]
 
   - agent: watchdog
     id: watchdog.5
     condition: Existing API route handler modified
-    detection: Diff touches existing app/api/*/route.ts
-    file_patterns: ["app/api/*/route.ts", "tests/api/*.test.ts"]
+    detection: Diff touches existing app/api/**/route.ts
+    file_patterns: ["app/api/**/route.ts", "tests/api/*.test.ts"]
 
   # ── LIGHTHOUSE ──
   - agent: lighthouse
     id: lighthouse.1
     condition: New API route without withLogging() wrapper
-    detection: "New app/api/*/route.ts without import of withLogging"
-    file_patterns: ["app/api/*/route.ts", "lib/api-logging.ts"]
+    detection: "New app/api/**/route.ts without import of withLogging"
+    file_patterns: ["app/api/**/route.ts", "lib/api-logging.ts"]
 
   - agent: lighthouse
     id: lighthouse.2
@@ -268,8 +268,8 @@ triggers:
   - agent: scribe
     id: scribe.2
     condition: New page, API route, or component added
-    detection: "New file matching app/*/page.tsx, app/api/*/route.ts, or components/*.tsx"
-    file_patterns: ["app/*/page.tsx", "app/api/*/route.ts", "components/*.tsx", "README.md"]
+    detection: "New file matching app/**/page.tsx, app/api/**/route.ts, or components/*.tsx"
+    file_patterns: ["app/**/page.tsx", "app/api/**/route.ts", "components/*.tsx", "README.md"]
 
   - agent: scribe
     id: scribe.3
@@ -312,13 +312,13 @@ triggers:
     id: janitor.4
     condition: Function body exceeds ~100 lines
     detection: Function body longer than 100 lines
-    file_patterns: ["lib/*.ts", "app/api/*/route.ts", "app/actions.ts"]
+    file_patterns: ["lib/*.ts", "app/api/**/route.ts", "app/actions.ts"]
 
   - agent: janitor
     id: janitor.5
     condition: LLM prompt constructed via string concatenation outside xml-prompt.ts
     detection: "String template producing content for streamText() outside lib/xml-prompt.ts"
-    file_patterns: ["lib/bout-engine.ts", "app/api/*/route.ts", "lib/*.ts"]
+    file_patterns: ["lib/bout-engine.ts", "app/api/**/route.ts", "lib/*.ts"]
 
   - agent: janitor
     id: janitor.6

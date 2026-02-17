@@ -61,7 +61,7 @@ routing_rules:
   - pattern: "release readiness"
     keywords: ["release", "ship", "deploy", "launch", "freeze", "readiness"]
     primary: captain
-    support: ["*all*"]
+    support: ["*all*"]  # Sentinel value: expand to all 10 agents at resolution time
     commands: []
     context: ["ROADMAP.md", "docs/release-review-*.md"]
 
@@ -100,10 +100,17 @@ routing_rules:
     commands: []
     context: ["pitstorm/main.go", "pitbench/main.go", "tests/e2e/*.spec.ts"]
 
+# merge_order defines the sequence when multiple agents contribute to
+# the same task. Agents listed earlier commit first. All 10 agents are
+# included; agents not involved in a task are simply skipped.
 merge_order:
-  - foreman     # schema first
-  - sentinel    # security after schema
-  - architect   # features after security
-  - artisan     # UI after features
-  - janitor     # cleanup second-to-last
-  - scribe      # docs last
+  - foreman        # schema / infra first
+  - sentinel       # security after schema
+  - lighthouse     # observability after security
+  - architect      # features after infra
+  - artisan        # UI after features
+  - watchdog       # tests after implementation
+  - quartermaster  # tooling review after tests
+  - captain        # coordination / orchestration
+  - janitor        # cleanup second-to-last
+  - scribe         # docs last

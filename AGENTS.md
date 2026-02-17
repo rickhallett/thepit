@@ -59,7 +59,7 @@ ADWs are declarative YAML files that compose slash commands, gates, assertions, 
 ## Agentic Data Files
 - `.claude/data/trigger-manifest.yml` — 51 self-healing triggers extracted from agent definitions.
 - `.claude/data/delegation-matrix.yml` — Captain's delegation matrix as structured routing rules.
-- `.claude/data/doc-drift-map.yml` — Source-to-documentation dependency map (213 rules across 28 docs).
+- `.claude/data/doc-drift-map.yml` — Source-to-documentation dependency map (89 rules across 22 docs).
 - `.claude/data/adw-schema.yml` — ADW YAML schema specification (step types, fields, output format).
 
 ## Coding Style & Naming Conventions

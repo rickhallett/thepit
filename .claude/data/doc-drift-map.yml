@@ -3,7 +3,7 @@
 # the corresponding doc should be reviewed for staleness.
 # Used by /doc-drift to triage which docs need review.
 #
-# 213 trigger rules across 28 documentation files.
+# 88 trigger rules across 21 documentation files.
 
 mappings:
   # ═══ Critical tier ═══
@@ -247,6 +247,11 @@ mappings:
     triggers:
       - pattern: "pitstorm/**/*.go"
         reason: "Commands and traffic profiles"
+
+  - doc: "pitlinear/README.md"
+    triggers:
+      - pattern: "pitlinear/**/*.go"
+        reason: "Commands and flags"
 
   - doc: "shared/README.md"
     triggers:
