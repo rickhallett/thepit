@@ -4,7 +4,7 @@ Lightweight triage of which documentation files may be stale given the current d
 
 ## Usage
 
-```
+```text
 /doc-drift                       # Scan staged + unstaged changes
 /doc-drift "HEAD~3..HEAD"        # Scan a commit range
 /doc-drift "main..HEAD"          # Scan branch diff against main
@@ -48,7 +48,7 @@ cat .claude/data/doc-drift-map.yml
 
   <phase name="Output Report" number="4">
     <output-format>
-```
+```text
 ═══════════════════════════════════════════════════════════════════
   DOC DRIFT TRIAGE
   Diff: <range or "working tree">

@@ -4,7 +4,7 @@ Evaluate all 51 self-healing triggers against the current diff and output which 
 
 ## Usage
 
-```
+```text
 /trigger-scan                    # Scan staged + unstaged changes
 /trigger-scan "HEAD~3..HEAD"     # Scan a commit range
 /trigger-scan "main..HEAD"       # Scan branch diff against main
@@ -69,7 +69,7 @@ cat .claude/data/trigger-manifest.yml
 
   <phase name="Output Report" number="5">
     <output-format>
-```
+```text
 ═══════════════════════════════════════════════════════════════════
   TRIGGER SCAN REPORT
   Diff: <range or "working tree">

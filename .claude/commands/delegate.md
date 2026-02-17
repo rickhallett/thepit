@@ -4,7 +4,7 @@ Route a task description to the correct agent(s), slash commands, and context fi
 
 ## Usage
 
-```
+```text
 /delegate "fix the streaming bug where turns overlap"
 /delegate "add a new API endpoint for user preferences"
 /delegate "update all stale counts in documentation"
@@ -73,7 +73,7 @@ cat .claude/data/trigger-manifest.yml
 
   <phase name="Output Delegation Plan" number="6">
     <output-format>
-```
+```text
 ═══════════════════════════════════════════════════════════════════
   DELEGATION PLAN
   Task: <$ARGUMENTS>

@@ -36,7 +36,8 @@ match_pattern() {
 
 # Parse doc-drift-map.yml and match
 DRIFT_RESULTS=""
-DRIFT_COUNT=0
+TRIGGER_COUNT=0
+STALE_DOCS=""
 current_doc=""
 
 while IFS= read -r line; do
@@ -51,22 +52,33 @@ while IFS= read -r line; do
       reason=$(echo "$line" | sed 's/.*reason: *"//' | sed 's/".*//')
       if [ -n "$current_doc" ] && [ -n "$pattern" ]; then
         if match_pattern "$pattern"; then
-          DRIFT_COUNT=$((DRIFT_COUNT + 1))
+          TRIGGER_COUNT=$((TRIGGER_COUNT + 1))
           DRIFT_RESULTS="${DRIFT_RESULTS}| \`${current_doc}\` | \`${pattern}\` | ${reason} |
 "
+          # Track unique doc names
+          if ! echo "$STALE_DOCS" | grep -qF "$current_doc"; then
+            STALE_DOCS="${STALE_DOCS}${current_doc}
+"
+          fi
         fi
       fi
       ;;
   esac
 done < "$DRIFTMAP"
 
+# Count unique stale docs
+DOC_COUNT=0
+if [ -n "$STALE_DOCS" ]; then
+  DOC_COUNT=$(echo -n "$STALE_DOCS" | grep -c . 2>/dev/null || echo 0)
+fi
+
 # Output markdown report
 echo "## Doc Drift Report"
 echo ""
-echo "**Diff:** \`${BASE_REF}...HEAD\` | **Files changed:** ${FILE_COUNT} | **Docs potentially stale:** ${DRIFT_COUNT}"
+echo "**Diff:** \`${BASE_REF}...HEAD\` | **Files changed:** ${FILE_COUNT} | **Docs potentially stale:** ${DOC_COUNT} | **Triggers matched:** ${TRIGGER_COUNT}"
 echo ""
 
-if [ "$DRIFT_COUNT" -eq 0 ]; then
+if [ "$DOC_COUNT" -eq 0 ]; then
   echo "No documentation drift detected. Diff is isolated from documented claims."
   exit 0
 fi
@@ -76,6 +88,4 @@ echo "|----------|---------|--------|"
 echo -n "$DRIFT_RESULTS"
 echo ""
 
-# Deduplicate doc names for summary
-STALE_DOCS=$(echo "$DRIFT_RESULTS" | grep -oP '`[^`]+`' | head -n "$DRIFT_COUNT" | sort -u | tr '\n' ' ')
 echo "> **Recommendation:** Run \`/doc-audit\` scoped to the flagged documents to verify and fix staleness."

@@ -46,7 +46,7 @@ Every `.opencode/agents/*.md` file defines 4-6 "self-healing triggers" -- condit
 **These triggers are documented behavioral protocols, not runtime automation.** They require a human to invoke the right agent persona in the right context. The triggers describe what the agent *should* do when it detects a condition, but there is no mechanism to:
 
 1. Automatically detect the conditions
-2. Automatically invoke the correct agent
+2. Invoke the correct agent
 3. Verify the trigger was actually executed
 
 This is the single largest "close the loop" opportunity in the codebase. These 50 triggers are a specification for an automation system that doesn't exist yet.
@@ -219,6 +219,6 @@ The TAC framework identifies metaprompting as "prompts that generate prompts" --
 | Self-Documenting | `/doc-audit` exists but manual | **C+** |
 | Composability | Designed for composition, not yet composed | **C** |
 
-**Overall**: The *architecture* for Phase 2/3 agentic engineering is exceptionally well-designed. The *activation energy* to actually close the loops is surprisingly low -- most of the hard engineering is done. What's missing is the thin connective tissue: trigger evaluation, stdin piping in Go CLIs, scheduled invocations, and a small number of metaprompts that route work to the right agent.
+**Overall**: The *architecture* for Phase 2/3 agentic engineering is exceptionally well-designed. The *activation energy* to actually close the loops is surprisingly low -- most of the hard engineering is done. What's missing is the thin connective tissue: trigger evaluation, stdin piping in Go CLIs, scheduled invocations, and a few metaprompts that route work to the right agent.
 
 The single highest-leverage action is **Proposal 1: Trigger-Based Agent Dispatch** -- it transforms 50 dormant specifications into an operational safety net and demonstrates the metaprompting pattern that can be replicated across every other gap.

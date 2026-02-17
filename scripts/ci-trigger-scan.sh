@@ -28,21 +28,22 @@ fi
 FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l | tr -d ' ')
 
 # Parse triggers and match against changed files.
-# We use a simple approach: extract each trigger block, check file_patterns against changed files.
 FIRED_TRIGGERS=""
 FIRED_COUNT=0
 AGENTS_INVOLVED=""
 
-# Extract trigger entries: id, agent, condition, file_patterns
-# Parse the YAML line by line
+# Per-trigger state
 current_agent=""
 current_id=""
 current_condition=""
 current_patterns=""
+# Saved agent for the trigger being accumulated (set when id: is parsed)
+emit_agent=""
 
 match_pattern() {
   local pattern="$1"
-  # Convert glob pattern to grep-compatible regex
+  # Convert glob pattern to grep-compatible regex.
+  # Handle ** (match any path depth, including zero segments) before * (single segment).
   local regex
   regex=$(echo "$pattern" | sed 's/\./\\./g' | sed 's/\*\*/DOUBLESTAR/g' | sed 's/\*/[^\/]*/g' | sed 's/DOUBLESTAR/.*/g')
   echo "$CHANGED_FILES" | grep -qE "^${regex}$" 2>/dev/null
@@ -71,10 +72,10 @@ check_and_emit() {
 
   if [ "$matched" = true ]; then
     FIRED_COUNT=$((FIRED_COUNT + 1))
-    FIRED_TRIGGERS="${FIRED_TRIGGERS}| \`${current_id}\` | ${current_agent} | ${current_condition} | \`${matched_file}\` |
+    FIRED_TRIGGERS="${FIRED_TRIGGERS}| \`${current_id}\` | ${emit_agent} | ${current_condition} | \`${matched_file}\` |
 "
-    if ! echo "$AGENTS_INVOLVED" | grep -q "$current_agent"; then
-      AGENTS_INVOLVED="${AGENTS_INVOLVED} ${current_agent}"
+    if ! echo "$AGENTS_INVOLVED" | grep -q "$emit_agent"; then
+      AGENTS_INVOLVED="${AGENTS_INVOLVED} ${emit_agent}"
     fi
   fi
 }
@@ -85,11 +86,14 @@ while IFS= read -r line; do
       current_agent=$(echo "$line" | sed 's/.*agent: *//')
       ;;
     *"id:"*)
-      # Emit previous trigger if exists
+      # Emit previous trigger (uses emit_agent, not current_agent)
       check_and_emit
+      # Now start accumulating the new trigger
       current_id=$(echo "$line" | sed 's/.*id: *//')
       current_condition=""
       current_patterns=""
+      # Snapshot the agent for this trigger BEFORE it can be overwritten
+      emit_agent="$current_agent"
       ;;
     *"condition:"*)
       current_condition=$(echo "$line" | sed 's/.*condition: *//')
