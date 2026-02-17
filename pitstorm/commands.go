@@ -103,11 +103,16 @@ func runCmd(args []string) {
 	fmt.Println()
 
 	// 8. Create and run engine.
+	if cfg.StatusFile != "" {
+		fmt.Printf("  Status:     %s (live, updated every 5s)\n", cfg.StatusFile)
+	}
+
 	eng := engine.New(engine.Config{
-		Workers:  cfg.Workers,
-		Duration: cfg.Duration,
-		RateFunc: profileRateFunc,
-		Verbose:  cfg.Verbose,
+		Workers:    cfg.Workers,
+		Duration:   cfg.Duration,
+		RateFunc:   profileRateFunc,
+		Verbose:    cfg.Verbose,
+		StatusFile: cfg.StatusFile,
 	}, cl, act, m, gate, personas, logf)
 
 	// Handle graceful shutdown on SIGINT/SIGTERM.

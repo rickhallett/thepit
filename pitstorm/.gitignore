@@ -5,5 +5,8 @@ pitstorm
 # Test output
 coverage.out
 
+# Simulation results (JSON output, live status)
+results/
+
 # Credentials (contains plaintext passwords and session tokens)
 accounts.json
