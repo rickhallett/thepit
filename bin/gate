@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 # Unified verification gate — one command, one exit code.
-# Usage: bin/gate          (full gate)
-#        bin/gate --quick   (lint + typecheck only, skip tests)
+# Usage: bin/gate          (full gate: lint + typecheck + unit + integration + Go)
+#        bin/gate --quick   (lint + typecheck only, skip tests and Go)
 #        bin/gate --go      (Go CLI gates only)
-set -euo pipefail
+#
+# Go gate failures are non-blocking (WARN) by design. The go.work file
+# requires go >= 1.25.7 but the system may run 1.25.6. Go failures are
+# logged but do not cause a non-zero exit. This policy is intentional —
+# the Go CLIs are auxiliary tooling, not production-blocking.
+set -uo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -27,42 +32,95 @@ skip() { printf "${YELLOW}SKIP${NC} %s\n" "$1"; }
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+NODE_EXIT=0
+
 # ── Node gate ──
 if [ "$GO_ONLY" = false ]; then
   printf "\n── Node gate ──\n"
 
   printf "lint... "
-  pnpm run lint --quiet 2>&1 | tail -1
-  pass "lint"
+  set +e
+  lint_out=$(pnpm run lint --quiet 2>&1)
+  lint_rc=$?
+  set -e
+  if [ $lint_rc -eq 0 ]; then
+    pass "lint"
+  else
+    echo "$lint_out" | tail -5
+    fail "lint"
+  fi
 
   printf "typecheck... "
-  pnpm run typecheck 2>&1 | tail -1
-  pass "typecheck"
+  set +e
+  tc_out=$(pnpm run typecheck 2>&1)
+  tc_rc=$?
+  set -e
+  if [ $tc_rc -eq 0 ]; then
+    pass "typecheck"
+  else
+    echo "$tc_out" | tail -5
+    fail "typecheck"
+  fi
 
   if [ "$QUICK" = false ]; then
     printf "test:unit... "
-    pnpm run test:unit --reporter=dot 2>&1 | tail -3
-    pass "test:unit"
+    set +e
+    unit_out=$(pnpm run test:unit --reporter=dot 2>&1)
+    unit_rc=$?
+    set -e
+    if [ $unit_rc -eq 0 ]; then
+      echo "$unit_out" | tail -1
+      pass "test:unit"
+    else
+      echo "$unit_out" | tail -10
+      fail "test:unit"
+    fi
+
+    printf "test:integration... "
+    set +e
+    int_out=$(pnpm run test:integration 2>&1)
+    int_rc=$?
+    set -e
+    if [ $int_rc -eq 0 ]; then
+      echo "$int_out" | tail -1
+      pass "test:integration"
+    else
+      echo "$int_out" | tail -10
+      fail "test:integration"
+    fi
   else
     skip "test:unit (--quick)"
+    skip "test:integration (--quick)"
   fi
 fi
 
 # ── Go gate ──
-printf "\n── Go gate ──\n"
-GO_FAILURES=0
+# Only runs when not in --quick mode, or when --go is explicitly set.
+if [ "$QUICK" = false ] || [ "$GO_ONLY" = true ]; then
+  printf "\n── Go gate ──\n"
+  GO_FAILURES=0
 
-for d in "$REPO_ROOT"/pit* "$REPO_ROOT"/shared; do
-  [ -f "$d/Makefile" ] || continue
-  name="$(basename "$d")"
-  printf "%s... " "$name"
-  if make -C "$d" gate 2>&1 | tail -1; then
-    pass "$name"
-  else
-    printf "${YELLOW}WARN${NC} %s (go gate failed, non-blocking)\n" "$name"
-    GO_FAILURES=$((GO_FAILURES + 1))
-  fi
-done
+  for d in "$REPO_ROOT"/pit* "$REPO_ROOT"/shared; do
+    [ -f "$d/Makefile" ] || continue
+    name="$(basename "$d")"
+    printf "%s... " "$name"
+    set +e
+    go_out=$(make -C "$d" gate 2>&1)
+    go_rc=$?
+    set -e
+    if [ $go_rc -eq 0 ]; then
+      echo "$go_out" | tail -1
+      pass "$name"
+    else
+      echo "$go_out" | tail -1
+      printf "${YELLOW}WARN${NC} %s (go gate failed, non-blocking)\n" "$name"
+      GO_FAILURES=$((GO_FAILURES + 1))
+    fi
+  done
+else
+  skip "Go gate (--quick)"
+  GO_FAILURES=0
+fi
 
 # ── Summary ──
 printf "\n"
