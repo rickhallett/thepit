@@ -1,0 +1,227 @@
+# ADW (AI Developer Workflow) Schema Specification
+# Version: 1.0
+#
+# ADWs are declarative YAML files that compose slash commands, shell gates,
+# assertions, and prompts into named, repeatable workflows. They live in
+# .claude/adws/*.yml and are executed via the /run-adw slash command.
+#
+# This file defines the schema. It is NOT an ADW itself — it is the
+# specification that all ADW files must conform to.
+
+schema:
+  version: "1.0"
+
+  # ─── Top-level fields ─────────────────────────────────────────────
+  fields:
+    name:
+      type: string
+      required: true
+      description: >
+        Human-readable workflow name. Used in output headers.
+        Example: "Feature Complete Checklist"
+
+    description:
+      type: string
+      required: true
+      description: >
+        One-line description of when to use this workflow.
+        Example: "Run before marking a feature PR as ready for review."
+
+    version:
+      type: string
+      required: false
+      default: "1.0"
+      description: >
+        Schema version this ADW targets. Allows future evolution.
+
+    trigger:
+      type: string
+      required: false
+      description: >
+        Optional hint for when this workflow should be suggested.
+        Values: "pre-commit", "pre-push", "pre-review", "post-merge",
+        "on-demand", "scheduled".
+        Not enforced — purely advisory for /delegate routing.
+
+    context:
+      type: list[string]
+      required: false
+      description: >
+        Files to read before executing any steps. Provides shared context
+        for all steps. Glob patterns allowed.
+        Example: ["AGENTS.md", "ARCHITECTURE.md", "lib/bout-engine.ts"]
+
+    env:
+      type: map[string, string]
+      required: false
+      description: >
+        Variables available to all steps via ${VAR} substitution.
+        Example: { DIFF_RANGE: "origin/master...HEAD" }
+
+    steps:
+      type: list[Step]
+      required: true
+      description: >
+        Ordered list of steps to execute. Steps run sequentially.
+        A failing gate or assertion halts the workflow unless
+        continue_on_failure is true.
+
+  # ─── Step types ────────────────────────────────────────────────────
+  step_types:
+    command:
+      description: >
+        Invoke a slash command. The command string is passed to the
+        agent as if typed interactively.
+      fields:
+        command:
+          type: string
+          required: true
+          description: >
+            Slash command invocation. May include arguments.
+            Example: '/trigger-scan "origin/master...HEAD"'
+        label:
+          type: string
+          required: false
+          description: >
+            Human-readable step label for output. Defaults to the command.
+        save_as:
+          type: string
+          required: false
+          description: >
+            Variable name to store the command's output. Available to
+            subsequent steps via ${save_as}.
+
+    gate:
+      description: >
+        Run a shell command and assert it exits 0. A failing gate halts
+        the workflow (unless continue_on_failure is set).
+      fields:
+        gate:
+          type: string
+          required: true
+          description: >
+            Shell command to execute.
+            Example: "bin/gate --quick"
+        label:
+          type: string
+          required: false
+          description: >
+            Human-readable step label. Defaults to the gate command.
+        continue_on_failure:
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If true, a non-zero exit does not halt the workflow.
+            The failure is logged and the workflow continues.
+        timeout:
+          type: string
+          required: false
+          default: "5m"
+          description: >
+            Maximum time for the gate. Format: "30s", "5m", "1h".
+
+    assert:
+      description: >
+        Check a condition and halt if it fails. Assertions are
+        declarative checks that don't run shell commands.
+      fields:
+        assert:
+          type: string
+          required: true
+          description: >
+            Condition to check. The agent evaluates this as a natural
+            language assertion against the current state.
+            Example: "No CRITICAL triggers fired in the trigger scan"
+        label:
+          type: string
+          required: false
+          description: Human-readable step label.
+        severity:
+          type: string
+          required: false
+          default: "error"
+          description: >
+            What to do on assertion failure.
+            "error" = halt workflow. "warning" = log and continue.
+
+    prompt:
+      description: >
+        Free-form instruction to the agent. Use for steps that don't
+        map to a slash command or gate.
+      fields:
+        prompt:
+          type: string
+          required: true
+          description: >
+            Natural language instruction for the agent.
+            Example: "Summarize the trigger scan and doc drift results
+            into a single PR description paragraph."
+        label:
+          type: string
+          required: false
+          description: Human-readable step label.
+        save_as:
+          type: string
+          required: false
+          description: >
+            Variable name to store the output.
+
+  # ─── Output format ────────────────────────────────────────────────
+  output:
+    description: >
+      After all steps complete, /run-adw outputs a summary in this format:
+
+      ═══════════════════════════════════════════════════════════════
+        ADW: <name>
+        Status: PASS | FAIL | PARTIAL
+        Steps: <completed>/<total> (<failed> failed, <skipped> skipped)
+      ═══════════════════════════════════════════════════════════════
+
+      Step 1: [PASS] <label>
+      Step 2: [PASS] <label>
+      Step 3: [FAIL] <label> — <reason>
+      Step 4: [SKIP] <label> — halted by step 3
+
+      ═══════════════════════════════════════════════════════════════
+
+  # ─── Example ───────────────────────────────────────────────────────
+  example: |
+    # .claude/adws/feature-complete.yml
+    name: Feature Complete Checklist
+    description: Run before marking a feature PR as ready for review.
+    trigger: pre-review
+    context:
+      - AGENTS.md
+      - ARCHITECTURE.md
+    env:
+      DIFF_RANGE: "origin/master...HEAD"
+    steps:
+      - command: '/trigger-scan "${DIFF_RANGE}"'
+        label: Trigger scan
+        save_as: TRIGGER_REPORT
+
+      - assert: "No CRITICAL triggers fired in the trigger scan"
+        label: No critical triggers
+        severity: error
+
+      - command: '/doc-drift "${DIFF_RANGE}"'
+        label: Doc drift triage
+
+      - gate: "bin/gate --quick"
+        label: Lint + typecheck
+        timeout: "3m"
+
+      - gate: "pnpm run test:unit"
+        label: Unit tests
+        timeout: "10m"
+
+      - command: '/security-audit "new"'
+        label: Security audit (new code only)
+
+      - prompt: >
+          Summarize all results into a PR-ready checklist.
+          Include: trigger count, doc drift count, gate status,
+          test status, and any security findings.
+        label: Generate PR summary
+        save_as: PR_SUMMARY

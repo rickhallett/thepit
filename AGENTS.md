@@ -32,15 +32,35 @@
 - `/trigger-scan` evaluates 51 self-healing triggers against the current diff. Run after any significant change.
 - `/delegate "task description"` routes a task to the correct agent(s) with context files and post-completion triggers.
 - `/doc-drift` triages which documentation files may be stale given the current diff. Faster than `/doc-audit`.
+- `/run-adw feature-complete` executes a multi-step ADW workflow (see ADW section below).
 - `/doc-audit` full documentation accuracy audit (Scribe).
 - `/security-audit` systematic security review (Sentinel).
 - `/tooling-review` tooling and composition audit (Quartermaster).
 - `/create-worktree "OCE-36 OCE-37"` creates isolated git worktrees for implementing Linear issues.
 
+## ADW (AI Developer Workflows)
+
+ADWs are declarative YAML files that compose slash commands, gates, assertions, and prompts into named, repeatable pipelines. They live in `.claude/adws/*.yml` and are executed via `/run-adw`.
+
+**Available workflows:**
+- `feature-complete` — Pre-review checklist: triggers, doc drift, lint, typecheck, tests, security audit.
+- `release-ready` — Pre-merge verification: full gate, security audit, doc audit, tooling review.
+- `post-merge` — Post-merge verification: trigger scan, doc drift, follow-up task generation.
+
+**Usage:**
+```bash
+/run-adw feature-complete           # Run the full workflow
+/run-adw release-ready --dry-run    # Preview steps without executing
+/run-adw post-merge --from 3        # Resume from step 3
+```
+
+**Creating new ADWs:** Add a `.yml` file to `.claude/adws/` following the schema in `.claude/data/adw-schema.yml`. Each ADW must define `name`, `description`, and `steps`. Steps can be `command` (slash commands), `gate` (shell commands), `assert` (conditions), or `prompt` (free-form instructions).
+
 ## Agentic Data Files
 - `.claude/data/trigger-manifest.yml` — 51 self-healing triggers extracted from agent definitions.
 - `.claude/data/delegation-matrix.yml` — Captain's delegation matrix as structured routing rules.
 - `.claude/data/doc-drift-map.yml` — Source-to-documentation dependency map (213 rules across 28 docs).
+- `.claude/data/adw-schema.yml` — ADW YAML schema specification (step types, fields, output format).
 
 ## Coding Style & Naming Conventions
 - TypeScript (strict) is the default; prefer typed objects over `any`.

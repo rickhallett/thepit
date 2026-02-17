@@ -1,0 +1,50 @@
+# Feature Complete Checklist
+# Run before marking a feature PR as ready for review.
+# Covers: triggers, doc drift, lint, typecheck, tests, security.
+
+name: Feature Complete Checklist
+description: Run before marking a feature PR as ready for review.
+version: "1.0"
+trigger: pre-review
+
+context:
+  - AGENTS.md
+  - ARCHITECTURE.md
+
+env:
+  DIFF_RANGE: "origin/master...HEAD"
+
+steps:
+  - command: '/trigger-scan "${DIFF_RANGE}"'
+    label: Trigger scan
+    save_as: TRIGGER_REPORT
+
+  - assert: "No CRITICAL triggers fired in the trigger scan"
+    label: No critical triggers
+    severity: error
+
+  - command: '/doc-drift "${DIFF_RANGE}"'
+    label: Doc drift triage
+    save_as: DOC_DRIFT_REPORT
+
+  - gate: "bin/gate --quick"
+    label: Lint + typecheck
+    timeout: "3m"
+
+  - gate: "pnpm run test:unit"
+    label: Unit tests
+    timeout: "10m"
+
+  - command: '/security-audit "new"'
+    label: Security audit (new code only)
+    save_as: SECURITY_REPORT
+
+  - prompt: >
+      Summarize all results into a PR-ready checklist.
+      Include: trigger count and which agents are involved,
+      doc drift count and which docs need attention,
+      gate status (lint, typecheck, tests),
+      and any security findings from the audit.
+      Format as a markdown checklist suitable for a PR description.
+    label: Generate PR summary
+    save_as: PR_SUMMARY

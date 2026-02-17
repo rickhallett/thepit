@@ -1,0 +1,66 @@
+# Release Ready
+# Full verification before merging to master.
+# Covers everything in feature-complete plus full test suite,
+# doc audit, and tooling review.
+
+name: Release Ready
+description: Full verification before merging a PR to master.
+version: "1.0"
+trigger: pre-merge
+
+context:
+  - AGENTS.md
+  - ARCHITECTURE.md
+  - ROADMAP.md
+
+env:
+  DIFF_RANGE: "origin/master...HEAD"
+
+steps:
+  - command: '/trigger-scan "${DIFF_RANGE}"'
+    label: Trigger scan
+    save_as: TRIGGER_REPORT
+
+  - assert: "No CRITICAL triggers fired in the trigger scan"
+    label: No critical triggers
+    severity: error
+
+  - command: '/doc-drift "${DIFF_RANGE}"'
+    label: Doc drift triage
+    save_as: DOC_DRIFT_REPORT
+
+  - assert: "No CRITICAL-tier docs are flagged as potentially stale"
+    label: No critical doc drift
+    severity: warning
+
+  - gate: "bin/gate"
+    label: Full gate (lint + typecheck + tests + Go)
+    timeout: "15m"
+
+  - command: '/security-audit'
+    label: Full security audit
+    save_as: SECURITY_REPORT
+
+  - assert: "No HIGH or CRITICAL security findings in the audit"
+    label: No critical security issues
+    severity: error
+
+  - command: '/doc-audit'
+    label: Full documentation audit
+    save_as: DOC_AUDIT_REPORT
+
+  - command: '/tooling-review "compositions only"'
+    label: Tooling review
+    save_as: TOOLING_REPORT
+
+  - prompt: >
+      Generate a release summary. Include:
+      1. What changed (from git log)
+      2. Trigger scan results
+      3. Security audit status
+      4. Documentation status (drift + audit)
+      5. Gate status
+      6. Any action items that should be addressed before merge
+      Format as a structured release note.
+    label: Generate release summary
+    save_as: RELEASE_SUMMARY

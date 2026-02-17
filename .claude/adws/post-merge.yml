@@ -1,0 +1,43 @@
+# Post Merge
+# Run after merging a PR to master.
+# Verifies documentation is up to date, flags any follow-up work,
+# and ensures the deployed state matches expectations.
+
+name: Post Merge Verification
+description: Run after merging a PR to master to catch drift and queue follow-ups.
+version: "1.0"
+trigger: post-merge
+
+context:
+  - AGENTS.md
+
+env:
+  DIFF_RANGE: "HEAD~1..HEAD"
+
+steps:
+  - command: '/trigger-scan "${DIFF_RANGE}"'
+    label: Post-merge trigger scan
+    save_as: TRIGGER_REPORT
+
+  - command: '/doc-drift "${DIFF_RANGE}"'
+    label: Post-merge doc drift
+    save_as: DOC_DRIFT_REPORT
+
+  - assert: "No CRITICAL-tier docs are flagged as potentially stale"
+    label: Documentation is current
+    severity: warning
+
+  - gate: "bin/gate --quick"
+    label: Quick gate on master
+    timeout: "3m"
+
+  - prompt: >
+      Review the trigger scan and doc drift results. If any
+      triggers fired or docs are flagged stale, create a
+      follow-up task list. For each item, specify:
+      - What needs to be done
+      - Which agent should do it (from /delegate)
+      - Priority (high/medium/low)
+      If nothing needs follow-up, confirm that master is clean.
+    label: Generate follow-up tasks
+    save_as: FOLLOWUP_TASKS
