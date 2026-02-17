@@ -8,14 +8,7 @@ import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { useCopy } from '@/lib/copy-client';
 import { FREE_MODEL_ID } from '@/lib/ai';
-import {
-  ALL_MODEL_IDS,
-  ALL_OPENROUTER_MODEL_IDS,
-  type ByokProvider,
-  detectProvider,
-  OPENROUTER_MODEL_LABELS,
-  type OpenRouterModelId,
-} from '@/lib/models';
+import { useByokModelPicker } from '@/lib/use-byok-model-picker';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {
   RESPONSE_LENGTHS,
@@ -62,35 +55,14 @@ export function ArenaBuilder({
     defaultPremiumModel ?? premiumModels[0] ?? FREE_MODEL_ID,
   );
   const [byokKey, setByokKey] = useState('');
-  const [byokModel, setByokModel] = useState('');
   const [byokError, setByokError] = useState<string | null>(null);
   const byokStashedRef = useRef(false);
-
-  const labelForModel = (modelId: string) => {
-    if (modelId.includes('haiku')) return 'Haiku';
-    if (modelId.includes('sonnet')) return 'Sonnet';
-    if (modelId.includes('opus')) return 'Opus';
-    return modelId;
-  };
-
-  // Detect provider from key prefix as user types
-  const detectedProvider: ByokProvider | undefined = byokKey.trim()
-    ? detectProvider(byokKey.trim())
-    : undefined;
-
-  // Model options for the detected BYOK provider
-  const byokModelOptions: { id: string; label: string }[] =
-    detectedProvider === 'openrouter'
-      ? ALL_OPENROUTER_MODEL_IDS.map((id) => ({
-          id,
-          label: OPENROUTER_MODEL_LABELS[id as OpenRouterModelId],
-        }))
-      : detectedProvider === 'anthropic'
-        ? ALL_MODEL_IDS.map((id) => ({
-            id,
-            label: labelForModel(id),
-          }))
-        : [];
+  const {
+    byokModel,
+    setByokModel,
+    byokModelOptions,
+    resetIfProviderChanged,
+  } = useByokModelPicker(byokKey);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -256,10 +228,7 @@ export function ArenaBuilder({
                 value={byokKey}
                 onChange={(event) => {
                   setByokKey(event.target.value);
-                  const newProvider = detectProvider(event.target.value.trim());
-                  if (newProvider !== detectedProvider) {
-                    setByokModel('');
-                  }
+                  resetIfProviderChanged(event.target.value);
                 }}
                 placeholder={c.presetCard.byokPlaceholder}
                 className="border-2 border-foreground/70 bg-black/60 px-3 py-2 text-xs tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
