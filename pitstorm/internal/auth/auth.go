@@ -230,6 +230,65 @@ func (b *BackendClient) CreateSignInToken(ctx context.Context, userID string) (*
 	return &result, nil
 }
 
+// CreateUserRequest holds the parameters for creating a Clerk user via the Backend API.
+type CreateUserRequest struct {
+	Email    string
+	Password string
+}
+
+// CreateUserResponse holds the result of creating a Clerk user.
+type CreateUserResponse struct {
+	ID    string `json:"id"`
+	Email string `json:"-"` // set by caller for convenience
+}
+
+// CreateUser creates a new user in Clerk via the Backend API (POST /v1/users).
+// If the user already exists (409), it looks them up by email and returns the existing ID.
+func (b *BackendClient) CreateUser(ctx context.Context, req CreateUserRequest) (*CreateUserResponse, error) {
+	body := fmt.Sprintf(`{"email_address":[%q],"password":%q,"skip_password_checks":true}`,
+		req.Email, req.Password)
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost,
+		b.apiURL+"/v1/users", strings.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	httpReq.Header.Set("Authorization", "Bearer "+b.secretKey)
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("User-Agent", "pitstorm/1.0")
+
+	resp, err := b.httpClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read response: %w", err)
+	}
+
+	// 422 with "already exists" means the user already exists — look them up.
+	if resp.StatusCode == http.StatusUnprocessableEntity && strings.Contains(string(respBody), "taken") {
+		existingID, lookupErr := b.LookupUserByEmail(ctx, req.Email)
+		if lookupErr != nil {
+			return nil, fmt.Errorf("user exists but lookup failed: %w", lookupErr)
+		}
+		return &CreateUserResponse{ID: existingID, Email: req.Email}, nil
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("create user failed: HTTP %d: %s",
+			resp.StatusCode, truncate(string(respBody), 300))
+	}
+
+	var result CreateUserResponse
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return nil, fmt.Errorf("parse response: %w", err)
+	}
+	result.Email = req.Email
+	return &result, nil
+}
+
 // LookupUserByEmail finds a Clerk user by email address via the Backend API.
 // Returns the user ID or an error if not found.
 func (b *BackendClient) LookupUserByEmail(ctx context.Context, email string) (string, error) {

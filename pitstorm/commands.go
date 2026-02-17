@@ -367,6 +367,8 @@ func setupCmd(args []string) {
 	target := "https://www.thepit.cloud"
 	outputPath := "./accounts.json"
 	force := false
+	secretKey := ""
+	envPath := ""
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -384,6 +386,18 @@ func setupCmd(args []string) {
 			outputPath = args[i]
 		case "--force":
 			force = true
+		case "--secret":
+			if i+1 >= len(args) {
+				fatalf("setup", "--secret requires a value")
+			}
+			i++
+			secretKey = args[i]
+		case "--env":
+			if i+1 >= len(args) {
+				fatalf("setup", "--env requires a value")
+			}
+			i++
+			envPath = args[i]
 		default:
 			fatalf("setup", "unknown flag %q", args[i])
 		}
@@ -402,15 +416,72 @@ func setupCmd(args []string) {
 		fatal("setup", err)
 	}
 
+	// Resolve Clerk secret key for user provisioning.
+	if secretKey == "" {
+		secretKey = os.Getenv("CLERK_SECRET_KEY")
+	}
+	if secretKey == "" {
+		envCfg, _ := config.Load(envPath)
+		if envCfg != nil {
+			secretKey = envCfg.Get("CLERK_SECRET_KEY")
+		}
+	}
+
+	// If we have a secret key, create users in Clerk.
+	if secretKey != "" {
+		fmt.Printf("  Provisioning users in Clerk...\n\n")
+		backend := auth.NewBackendClient(secretKey)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+
+		created, existed, failed := 0, 0, 0
+		for i := range f.Accounts {
+			acct := &f.Accounts[i]
+			if acct.Tier == account.TierAnon {
+				fmt.Printf("  %-30s %s (anon)\n", acct.ID, theme.Muted.Render("SKIP"))
+				continue
+			}
+
+			result, err := backend.CreateUser(ctx, auth.CreateUserRequest{
+				Email:    acct.Email,
+				Password: acct.Password,
+			})
+			if err != nil {
+				fmt.Printf("  %-30s %s %v\n", acct.ID, theme.Error.Render("FAIL"), err)
+				failed++
+				continue
+			}
+
+			acct.ClerkUserID = result.ID
+			if result.Email == acct.Email && result.ID != "" {
+				// Check if this was an existing user (LookupUserByEmail path).
+				fmt.Printf("  %-30s %s user=%s\n", acct.ID, theme.Success.Render("OK"), result.ID)
+				created++
+			} else {
+				fmt.Printf("  %-30s %s user=%s (existed)\n", acct.ID, theme.Success.Render("OK"), result.ID)
+				existed++
+			}
+		}
+		fmt.Printf("\n  Clerk: %d created, %d existed, %d failed\n\n", created, existed, failed)
+
+		if failed > 0 {
+			fmt.Printf("  %s Some accounts failed to provision. Check Clerk dashboard.\n\n",
+				theme.Warning.Render("warning:"))
+		}
+	} else {
+		fmt.Printf("  %s No CLERK_SECRET_KEY found — skipping Clerk user provisioning.\n",
+			theme.Warning.Render("note:"))
+		fmt.Printf("  Set CLERK_SECRET_KEY or use --secret to provision users in Clerk.\n\n")
+	}
+
 	if err := account.Save(outputPath, f); err != nil {
 		fatal("setup", err)
 	}
 
 	fmt.Printf("  Generated %d accounts for %s\n", len(f.Accounts), target)
 	fmt.Printf("  Written to %s\n\n", outputPath)
-	fmt.Printf("%s\n\n", account.Summary(f))
-	fmt.Printf("  %s Accounts have no session tokens yet.\n", theme.Warning.Render("note:"))
-	fmt.Printf("  Run %s to sign in and obtain tokens from Clerk.\n\n",
+	fmt.Printf("%s\n", account.Summary(f))
+	fmt.Printf("  Next: run %s to sign in and obtain tokens.\n\n",
 		theme.Accent.Render("pitstorm login --accounts "+outputPath))
 }
 
