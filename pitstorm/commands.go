@@ -834,7 +834,7 @@ func startTokenRefresher(
 	// Refresh every 45 seconds (Clerk JWTs expire at ~60s).
 	// Use Backend API (ticket flow) instead of FAPI cookie-based refresh,
 	// because the refresher doesn't have session cookies from the original sign-in.
-	refresher := auth.NewRefresher(fapiClient, 45*time.Second)
+	refresher := auth.NewRefresher(fapiClient, 45*time.Second, logf)
 	refresher.SetBackend(backendClient)
 
 	callback := func(accountID, token string, expiresAt time.Time) {

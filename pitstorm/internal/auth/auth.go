@@ -650,16 +650,21 @@ type Refresher struct {
 	client   *Client
 	backend  *BackendClient // if set, use Backend API ticket flow instead of FAPI cookies
 	interval time.Duration
+	logf     func(string, ...any)
 	mu       sync.Mutex
 	stopCh   chan struct{}
 	stopped  bool
 }
 
 // NewRefresher creates a token refresher that runs every interval.
-func NewRefresher(client *Client, interval time.Duration) *Refresher {
+func NewRefresher(client *Client, interval time.Duration, logf func(string, ...any)) *Refresher {
+	if logf == nil {
+		logf = func(string, ...any) {}
+	}
 	return &Refresher{
 		client:   client,
 		interval: interval,
+		logf:     logf,
 		stopCh:   make(chan struct{}),
 	}
 }
@@ -719,7 +724,11 @@ func (r *Refresher) loop(ctx context.Context, targets []RefreshTarget, callback 
 }
 
 func (r *Refresher) refreshAll(ctx context.Context, targets []RefreshTarget, callback RefreshCallback) {
-	for _, t := range targets {
+	for i, t := range targets {
+		// Delay between refreshes to avoid Clerk FAPI rate limiting.
+		if i > 0 {
+			time.Sleep(2 * time.Second)
+		}
 		var token string
 		var expiresAt time.Time
 		var err error
@@ -735,7 +744,7 @@ func (r *Refresher) refreshAll(ctx context.Context, targets []RefreshTarget, cal
 		}
 
 		if err != nil {
-			// Log but don't stop — other accounts may succeed.
+			r.logf("[refresh] %s FAILED: %v", t.AccountID, err)
 			continue
 		}
 		callback(t.AccountID, token, expiresAt)
