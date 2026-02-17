@@ -7,3 +7,6 @@ coverage.out
 
 # Credentials (contains plaintext passwords and session tokens)
 accounts.json
+
+# Storm run output
+results/
