@@ -341,6 +341,9 @@ export interface PresetCardCopy {
   byokPlaceholder: string;
   byokRequired: string;
   byokFailed: string;
+  byokPrivacy: string;
+  byokModelLabel: string;
+  byokModelDefault: string;
   maxTurns: string;
   verify: string;
 }
