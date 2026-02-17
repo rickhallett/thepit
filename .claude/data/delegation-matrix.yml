@@ -1,6 +1,12 @@
 # Captain Delegation Matrix
 # Extracted from .opencode/agents/captain.md
 # Used by /delegate to route task descriptions to the correct agent(s).
+#
+# Validated against 10 real Linear issues (OCE-142):
+#   8/10 correct routing, 1 partial (script fix → architect instead of quartermaster),
+#   1 gap (load testing had no rule → added below).
+#   Routing priority: more specific patterns win over general ones.
+#   On ties, use merge_order to determine primary.
 
 routing_rules:
   - pattern: "new feature"
@@ -86,6 +92,13 @@ routing_rules:
     support: []
     commands: []
     context: ["vitest.config.ts", "playwright.config.ts", "tests/**/*.test.ts"]
+
+  - pattern: "load testing / simulation"
+    keywords: ["pitstorm", "load test", "simulation", "spike", "resilience", "sustained", "traffic", "benchmark", "pitbench"]
+    primary: quartermaster
+    support: [lighthouse, foreman]
+    commands: []
+    context: ["pitstorm/main.go", "pitbench/main.go", "tests/e2e/*.spec.ts"]
 
 merge_order:
   - foreman     # schema first
