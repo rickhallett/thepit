@@ -1,0 +1,331 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# sync-env-to-vercel
+# Syncs .env key/value pairs to Vercel production environment.
+# - Adds keys present in .env but missing from Vercel
+# - Updates keys where the value differs
+# - Never uploads excluded keys (QA/TEST)
+# - Never deletes keys that exist only in Vercel
+# - Values never appear in stdout — only key names and actions
+#
+# Usage:
+#   bin/sync-env-to-vercel              # dry run (default, safe)
+#   bin/sync-env-to-vercel --apply      # actually sync
+#   bin/sync-env-to-vercel --show-values # dry run with values visible (for private terminal)
+#   bin/sync-env-to-vercel --env-file .env.production --apply
+
+# ── defaults ─────────────────────────────────────────────────────────
+ENV_FILE=".env"
+VERCEL_ENV="production"
+APPLY=false
+SHOW_VALUES=false
+
+# ── excluded keys (never upload to production) ───────────────────────
+EXCLUDED_KEYS=(
+  QA_BASE_URL
+  QA_DATABASE_URL
+  QA_PREMIUM_USER_EMAIL
+  QA_TEST_USER_EMAIL
+  QA_TEST_USER_PASSWORD
+  TEST_CLERK_PUBLISHABLE_KEY
+  TEST_CLERK_SECRET_KEY
+  LINEAR_API_KEY
+)
+
+# ── allowlist mode ───────────────────────────────────────────────────
+# When non-empty, ONLY keys matching these prefixes are eligible for
+# ADD or UPDATE. Everything else is skipped. Exclusions still apply.
+ALLOWED_PREFIXES=(
+  HELICONE_
+  SENTRY_
+  NEXT_PUBLIC_SENTRY_
+  LANGSMITH_
+  POSTHOG_
+  NEXT_PUBLIC_POSTHOG_
+  OTLP_
+  VERCEL_LOG_DRAINS_
+)
+
+# ── parse args ───────────────────────────────────────────────────────
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --apply)   APPLY=true; shift ;;
+    --show-values) SHOW_VALUES=true; shift ;;
+    --env-file) ENV_FILE="$2"; shift 2 ;;
+    --environment) VERCEL_ENV="$2"; shift 2 ;;
+    --help|-h)
+      echo "Usage: bin/sync-env-to-vercel [--apply] [--show-values] [--env-file FILE] [--environment ENV]"
+      echo ""
+      echo "  --apply         Execute changes (default: dry run)"
+      echo "  --show-values   Show old/new values for UPDATE keys (use in private terminal)"
+      echo "  --env-file      Path to local env file (default: .env)"
+      echo "  --environment   Vercel environment target (default: production)"
+      exit 0
+      ;;
+    *) echo "Unknown option: $1"; exit 1 ;;
+  esac
+done
+
+# ── preflight checks ────────────────────────────────────────────────
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "ERROR: $ENV_FILE not found"
+  exit 1
+fi
+
+if ! command -v vercel &>/dev/null; then
+  echo "ERROR: vercel CLI not found"
+  exit 1
+fi
+
+# quick auth check
+if ! vercel whoami &>/dev/null; then
+  echo "ERROR: vercel CLI not authenticated. Run 'vercel login' first."
+  exit 1
+fi
+
+# ── temp files with cleanup ──────────────────────────────────────────
+TMPDIR_WORK="$(mktemp -d)"
+chmod 700 "$TMPDIR_WORK"
+VERCEL_PULLED="$TMPDIR_WORK/.env.vercel-pulled"
+trap 'rm -rf "$TMPDIR_WORK"' EXIT
+
+# ── pull current vercel env ──────────────────────────────────────────
+echo "Pulling Vercel $VERCEL_ENV env vars..."
+vercel env pull "$VERCEL_PULLED" --environment "$VERCEL_ENV" --yes >/dev/null 2>&1
+
+if [[ ! -f "$VERCEL_PULLED" ]]; then
+  echo "ERROR: Failed to pull Vercel env"
+  exit 1
+fi
+
+# ── parse env file into associative array ────────────────────────────
+# Handles: KEY=value, KEY="value", KEY='value', values with = in them
+# Skips: comments, blank lines, lines starting with #
+declare -A local_env
+declare -A vercel_env
+
+parse_env_file() {
+  local file="$1"
+  local -n target_map="$2"
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    # skip comments and blank lines
+    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+
+    # extract key (everything before first =)
+    local key="${line%%=*}"
+    # skip if no = found or key is empty
+    [[ "$key" == "$line" || -z "$key" ]] && continue
+    # trim whitespace from key
+    key="$(echo "$key" | xargs)"
+
+    # skip Vercel auto-injected vars (but not user-defined VERCEL_ vars like VERCEL_LOG_DRAINS_ENDPOINT)
+    case "$key" in
+      VERCEL|VERCEL_ENV|VERCEL_URL|VERCEL_BRANCH_URL|VERCEL_PROJECT_PRODUCTION_URL|\
+      VERCEL_GIT_*|VERCEL_REGION|VERCEL_DEPLOYMENT_ID|VERCEL_SKEW_PROTECTION_ENABLED|\
+      TURBO_*|NX_*) continue ;;
+    esac
+
+    # extract value (everything after first =)
+    local value="${line#*=}"
+
+    # strip surrounding quotes if present
+    if [[ "$value" =~ ^\"(.*)\"$ ]]; then
+      value="${BASH_REMATCH[1]}"
+    elif [[ "$value" =~ ^\'(.*)\'$ ]]; then
+      value="${BASH_REMATCH[1]}"
+    fi
+
+    target_map["$key"]="$value"
+  done < "$file"
+}
+
+parse_env_file "$ENV_FILE" local_env
+parse_env_file "$VERCEL_PULLED" vercel_env
+
+# ── build exclusion set for O(1) lookup ──────────────────────────────
+declare -A excluded_set
+for k in "${EXCLUDED_KEYS[@]}"; do
+  excluded_set["$k"]=1
+done
+
+# ── allowlist helper ──────────────────────────────────────────────────
+is_allowed() {
+  local key="$1"
+  # if no prefixes defined, everything is allowed
+  if [[ ${#ALLOWED_PREFIXES[@]} -eq 0 ]]; then
+    return 0
+  fi
+  for prefix in "${ALLOWED_PREFIXES[@]}"; do
+    if [[ "$key" == "$prefix"* ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# ── compute delta ────────────────────────────────────────────────────
+declare -a keys_to_add=()
+declare -a keys_to_update=()
+declare -a keys_excluded=()
+declare -a keys_unchanged=()
+declare -a keys_vercel_only=()
+declare -a keys_filtered=()
+
+for key in "${!local_env[@]}"; do
+  if [[ -n "${excluded_set[$key]+_}" ]]; then
+    keys_excluded+=("$key")
+  elif ! is_allowed "$key"; then
+    keys_filtered+=("$key")
+  elif [[ -z "${vercel_env[$key]+_}" ]]; then
+    keys_to_add+=("$key")
+  elif [[ "${local_env[$key]}" != "${vercel_env[$key]}" ]]; then
+    keys_to_update+=("$key")
+  else
+    keys_unchanged+=("$key")
+  fi
+done
+
+for key in "${!vercel_env[@]}"; do
+  if [[ -z "${local_env[$key]+_}" ]]; then
+    keys_vercel_only+=("$key")
+  fi
+done
+
+# ── sort arrays for consistent output ────────────────────────────────
+IFS=$'\n' keys_to_add=($(sort <<<"${keys_to_add[*]-}")); unset IFS
+IFS=$'\n' keys_to_update=($(sort <<<"${keys_to_update[*]-}")); unset IFS
+IFS=$'\n' keys_excluded=($(sort <<<"${keys_excluded[*]-}")); unset IFS
+IFS=$'\n' keys_filtered=($(sort <<<"${keys_filtered[*]-}")); unset IFS
+IFS=$'\n' keys_unchanged=($(sort <<<"${keys_unchanged[*]-}")); unset IFS
+IFS=$'\n' keys_vercel_only=($(sort <<<"${keys_vercel_only[*]-}")); unset IFS
+
+# ── display plan ─────────────────────────────────────────────────────
+if [[ "$APPLY" == true ]]; then
+  echo ""
+  echo "Syncing $ENV_FILE → Vercel $VERCEL_ENV (LIVE)"
+else
+  echo ""
+  echo "Syncing $ENV_FILE → Vercel $VERCEL_ENV (DRY RUN)"
+fi
+echo ""
+
+for key in "${keys_to_add[@]}"; do
+  [[ -z "$key" ]] && continue
+  printf "  %-8s %s\n" "ADD" "$key"
+  if [[ "$SHOW_VALUES" == true ]]; then
+    printf "           new: %s\n" "${local_env[$key]}"
+  fi
+done
+
+for key in "${keys_to_update[@]}"; do
+  [[ -z "$key" ]] && continue
+  printf "  %-8s %s  (value differs)\n" "UPDATE" "$key"
+  if [[ "$SHOW_VALUES" == true ]]; then
+    printf "           old: %s\n" "${vercel_env[$key]}"
+    printf "           new: %s\n" "${local_env[$key]}"
+  fi
+done
+
+for key in "${keys_excluded[@]}"; do
+  [[ -z "$key" ]] && continue
+  printf "  %-8s %s  (excluded)\n" "SKIP" "$key"
+done
+
+for key in "${keys_filtered[@]}"; do
+  [[ -z "$key" ]] && continue
+  printf "  %-8s %s  (not in allowlist)\n" "SKIP" "$key"
+done
+
+for key in "${keys_vercel_only[@]}"; do
+  [[ -z "$key" ]] && continue
+  printf "  %-8s %s  (vercel only)\n" "SKIP" "$key"
+done
+
+# count non-empty entries (|| true to avoid set -e on zero increment)
+count_add=0; for k in "${keys_to_add[@]}"; do [[ -n "$k" ]] && ((count_add++)) || true; done
+count_update=0; for k in "${keys_to_update[@]}"; do [[ -n "$k" ]] && ((count_update++)) || true; done
+count_excluded=0; for k in "${keys_excluded[@]}"; do [[ -n "$k" ]] && ((count_excluded++)) || true; done
+count_filtered=0; for k in "${keys_filtered[@]}"; do [[ -n "$k" ]] && ((count_filtered++)) || true; done
+count_unchanged=${#keys_unchanged[@]}
+count_vercel_only=0; for k in "${keys_vercel_only[@]}"; do [[ -n "$k" ]] && ((count_vercel_only++)) || true; done
+count_skipped=$((count_excluded + count_filtered + count_vercel_only))
+
+echo ""
+echo "Summary: $count_add to add, $count_update to update, $count_skipped skipped ($count_excluded excluded, $count_filtered filtered, $count_vercel_only vercel-only), $count_unchanged unchanged"
+
+if [[ "$APPLY" != true ]]; then
+  echo ""
+  echo "Run with --apply to execute."
+  exit 0
+fi
+
+# ── execute changes ──────────────────────────────────────────────────
+echo ""
+errors=0
+
+for key in "${keys_to_add[@]}"; do
+  [[ -z "$key" ]] && continue
+  printf "  Adding %-40s " "$key..."
+  if printf '%s' "${local_env[$key]}" | vercel env add "$key" "$VERCEL_ENV" --force >/dev/null 2>&1; then
+    echo "OK"
+  else
+    echo "FAILED"
+    ((errors++))
+  fi
+done
+
+for key in "${keys_to_update[@]}"; do
+  [[ -z "$key" ]] && continue
+  printf "  Updating %-38s " "$key..."
+  # remove old value first
+  if vercel env rm "$key" "$VERCEL_ENV" -y >/dev/null 2>&1; then
+    if printf '%s' "${local_env[$key]}" | vercel env add "$key" "$VERCEL_ENV" --force >/dev/null 2>&1; then
+      echo "OK"
+    else
+      echo "FAILED (add)"
+      ((errors++))
+    fi
+  else
+    echo "FAILED (rm)"
+    ((errors++))
+  fi
+done
+
+echo ""
+if [[ $errors -gt 0 ]]; then
+  echo "Completed with $errors error(s)."
+  exit 1
+else
+  echo "All changes applied successfully."
+fi
+
+# ── verify ───────────────────────────────────────────────────────────
+echo ""
+echo "Verifying..."
+VERCEL_VERIFY="$TMPDIR_WORK/.env.vercel-verify"
+vercel env pull "$VERCEL_VERIFY" --environment "$VERCEL_ENV" --yes >/dev/null 2>&1
+
+declare -A verify_env
+parse_env_file "$VERCEL_VERIFY" verify_env
+
+verify_errors=0
+for key in "${keys_to_add[@]}" "${keys_to_update[@]}"; do
+  [[ -z "$key" ]] && continue
+  if [[ -z "${verify_env[$key]+_}" ]]; then
+    echo "  MISSING: $key not found in Vercel after sync"
+    ((verify_errors++))
+  elif [[ "${verify_env[$key]}" != "${local_env[$key]}" ]]; then
+    echo "  MISMATCH: $key value differs after sync"
+    ((verify_errors++))
+  fi
+done
+
+if [[ $verify_errors -gt 0 ]]; then
+  echo ""
+  echo "Verification found $verify_errors issue(s). Check Vercel dashboard."
+  exit 1
+else
+  echo "Verification passed. All $((count_add + count_update)) changes confirmed."
+fi
