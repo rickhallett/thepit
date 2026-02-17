@@ -788,32 +788,39 @@ func startTokenRefresher(
 	cl *client.Client,
 	logf func(string, ...any),
 ) *auth.Refresher {
-	// Build refresh targets from accounts that have a Clerk session ID.
+	// Build refresh targets from accounts that have a Clerk user ID.
 	var targets []auth.RefreshTarget
 	for _, acct := range acctFile.Accounts {
-		if acct.Tier == account.TierAnon || acct.ClerkSessionID == "" {
+		if acct.Tier == account.TierAnon || acct.ClerkUserID == "" {
 			continue
 		}
 		targets = append(targets, auth.RefreshTarget{
 			AccountID: acct.ID,
 			SessionID: acct.ClerkSessionID,
+			UserID:    acct.ClerkUserID,
 		})
 	}
 	if len(targets) == 0 {
-		logf("[refresh] no accounts with session IDs — skipping token refresh")
+		logf("[refresh] no accounts with user IDs — skipping token refresh")
 		return nil
 	}
 
-	// Resolve the Clerk publishable key so we can construct an auth.Client.
+	// Resolve keys.
 	publishableKey := os.Getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
-	if publishableKey == "" {
-		cfg, _ := config.Load(envPath)
-		if cfg != nil {
-			publishableKey = cfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+	secretKey := os.Getenv("CLERK_SECRET_KEY")
+	if publishableKey == "" || secretKey == "" {
+		envCfg, _ := config.Load(envPath)
+		if envCfg != nil {
+			if publishableKey == "" {
+				publishableKey = envCfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+			}
+			if secretKey == "" {
+				secretKey = envCfg.Get("CLERK_SECRET_KEY")
+			}
 		}
 	}
-	if publishableKey == "" {
-		logf("[refresh] no publishable key — skipping token refresh")
+	if publishableKey == "" || secretKey == "" {
+		logf("[refresh] missing CLERK keys — skipping token refresh")
 		return nil
 	}
 
@@ -822,16 +829,27 @@ func startTokenRefresher(
 		logf("[refresh] failed to create FAPI client: %v", err)
 		return nil
 	}
+	backendClient := auth.NewBackendClient(secretKey)
 
 	// Refresh every 45 seconds (Clerk JWTs expire at ~60s).
+	// Use Backend API (ticket flow) instead of FAPI cookie-based refresh,
+	// because the refresher doesn't have session cookies from the original sign-in.
 	refresher := auth.NewRefresher(fapiClient, 45*time.Second)
+	refresher.SetBackend(backendClient)
 
-	refresher.Start(context.Background(), targets, func(accountID, token string, expiresAt time.Time) {
+	callback := func(accountID, token string, expiresAt time.Time) {
 		cl.SetToken(accountID, token)
 		logf("[refresh] %s token refreshed, expires=%s", accountID, expiresAt.Format(time.RFC3339))
-	})
+	}
 
-	fmt.Printf("  Refresh:    %d accounts, every 45s\n", len(targets))
+	// Synchronous initial refresh — ensures tokens are fresh before workers start.
+	fmt.Printf("  Refresh:    %d accounts, every 45s (warming up...)\n", len(targets))
+	refresher.RefreshNow(context.Background(), targets, callback)
+
+	// Start background refresh loop.
+	refresher.Start(context.Background(), targets, callback)
+
+	fmt.Printf("  Refresh:    tokens warmed, background loop started\n")
 	return refresher
 }
 

@@ -648,6 +648,7 @@ func extractJWTExpiry(jwt string) int64 {
 // It runs as a background goroutine and updates the accounts file in place.
 type Refresher struct {
 	client   *Client
+	backend  *BackendClient // if set, use Backend API ticket flow instead of FAPI cookies
 	interval time.Duration
 	mu       sync.Mutex
 	stopCh   chan struct{}
@@ -667,6 +668,7 @@ func NewRefresher(client *Client, interval time.Duration) *Refresher {
 type RefreshTarget struct {
 	AccountID string
 	SessionID string
+	UserID    string // Clerk user ID, used for Backend API ticket-based refresh
 }
 
 // RefreshCallback is called with the refreshed token for an account.
@@ -675,6 +677,19 @@ type RefreshCallback func(accountID, token string, expiresAt time.Time)
 // Start begins the background refresh loop.
 func (r *Refresher) Start(ctx context.Context, targets []RefreshTarget, callback RefreshCallback) {
 	go r.loop(ctx, targets, callback)
+}
+
+// SetBackend configures the refresher to use the Backend API ticket flow
+// instead of the cookie-based FAPI refresh. This is needed when the refresher
+// doesn't have session cookies from the original sign-in.
+func (r *Refresher) SetBackend(b *BackendClient) {
+	r.backend = b
+}
+
+// RefreshNow performs a single synchronous refresh of all targets.
+// Call this before starting workers to ensure tokens are fresh.
+func (r *Refresher) RefreshNow(ctx context.Context, targets []RefreshTarget, callback RefreshCallback) {
+	r.refreshAll(ctx, targets, callback)
 }
 
 // Stop signals the refresher to stop.
@@ -698,16 +713,51 @@ func (r *Refresher) loop(ctx context.Context, targets []RefreshTarget, callback 
 		case <-r.stopCh:
 			return
 		case <-ticker.C:
-			for _, t := range targets {
-				token, expiresAt, err := r.client.RefreshToken(ctx, t.SessionID)
-				if err != nil {
-					// Log but don't stop — other accounts may succeed.
-					continue
-				}
-				callback(t.AccountID, token, expiresAt)
-			}
+			r.refreshAll(ctx, targets, callback)
 		}
 	}
+}
+
+func (r *Refresher) refreshAll(ctx context.Context, targets []RefreshTarget, callback RefreshCallback) {
+	for _, t := range targets {
+		var token string
+		var expiresAt time.Time
+		var err error
+
+		if r.backend != nil && t.UserID != "" {
+			// Backend API ticket flow: create a sign-in token and redeem it.
+			token, expiresAt, err = r.refreshViaBackend(ctx, t)
+		} else if t.SessionID != "" {
+			// FAPI cookie-based refresh (only works if client has session cookies).
+			token, expiresAt, err = r.client.RefreshToken(ctx, t.SessionID)
+		} else {
+			continue
+		}
+
+		if err != nil {
+			// Log but don't stop — other accounts may succeed.
+			continue
+		}
+		callback(t.AccountID, token, expiresAt)
+	}
+}
+
+// refreshViaBackend mints a fresh JWT by creating a Backend API sign-in token
+// and redeeming it via the FAPI. This doesn't require session cookies.
+func (r *Refresher) refreshViaBackend(ctx context.Context, t RefreshTarget) (string, time.Time, error) {
+	// Create a one-time sign-in token via Backend API.
+	tokenResp, err := r.backend.CreateSignInToken(ctx, t.UserID)
+	if err != nil {
+		return "", time.Time{}, fmt.Errorf("create sign-in token for %s: %w", t.AccountID, err)
+	}
+
+	// Redeem via FAPI to get a session JWT.
+	result, err := r.client.SignInWithTicket(ctx, tokenResp.Token, t.UserID)
+	if err != nil {
+		return "", time.Time{}, fmt.Errorf("redeem ticket for %s: %w", t.AccountID, err)
+	}
+
+	return result.Token, result.ExpiresAt, nil
 }
 
 // ---------- Helpers ----------
