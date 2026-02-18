@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { PitButton } from '@/components/ui/button';
 import { useCopy } from '@/lib/copy-client';
+import { trackEvent } from '@/lib/analytics';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -102,6 +103,14 @@ export function RateLimitUpgradePrompt({
   const isAnonymous = currentTier === 'anonymous';
   const isTopTier = currentTier === 'lab' || upgradeTiers.length === 0;
 
+  // --- Analytics: paywall_hit (OCE-287) ---
+  useEffect(() => {
+    trackEvent('paywall_hit', {
+      current_tier: currentTier,
+      limit: rateLimit.limit ?? 0,
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleDismiss = useCallback(() => {
     dismissForSession();
     setDismissed(true);
@@ -167,6 +176,7 @@ export function RateLimitUpgradePrompt({
               <Link
                 key={upgrade.tier}
                 href={upgrade.url}
+                onClick={() => trackEvent('upgrade_cta_clicked', { target_tier: upgrade.tier })}
                 className="flex items-center justify-between rounded border-2 border-foreground/40 px-4 py-3 transition hover:border-accent hover:text-accent"
               >
                 <div className="flex flex-col gap-1">

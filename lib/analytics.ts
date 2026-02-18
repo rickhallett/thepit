@@ -39,6 +39,9 @@ export type AnalyticsEvent =
   | 'agents_browsed'
   | 'preset_browsed'
   | 'bout_replayed'
+  // Revenue funnel (OCE-287)
+  | 'paywall_hit'
+  | 'upgrade_cta_clicked'
   // Acquisition funnel (OCE-285)
   | 'consent_granted'
   | 'consent_declined'

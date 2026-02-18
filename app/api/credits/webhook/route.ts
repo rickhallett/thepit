@@ -15,7 +15,7 @@ import {
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
-import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
+import { serverTrack, serverIdentify, flushServerAnalytics } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -152,6 +152,7 @@ export const POST = withLogging(async function POST(req: Request) {
           subscription_id: subscription.id,
           status: subscription.status,
         });
+        serverIdentify(userId, { current_tier: tier });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
@@ -214,6 +215,7 @@ export const POST = withLogging(async function POST(req: Request) {
             subscription_id: subscription.id,
           });
         }
+        serverIdentify(userId, { current_tier: tier });
         log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
@@ -230,6 +232,15 @@ export const POST = withLogging(async function POST(req: Request) {
 
     const userId = subscription.metadata?.userId;
     if (userId) {
+      // Read previous tier BEFORE the downgrade for churn analytics
+      const db3 = requireDb();
+      const [churnedUser] = await db3
+        .select({ tier: users.subscriptionTier })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      const previousTier = churnedUser?.tier ?? 'free';
+
       // Immediate downgrade to free
       await updateUserSubscription({
         userId,
@@ -241,7 +252,9 @@ export const POST = withLogging(async function POST(req: Request) {
       });
       serverTrack(userId, 'subscription_churned', {
         subscription_id: subscription.id,
+        previous_tier: previousTier,
       });
+      serverIdentify(userId, { current_tier: 'free' });
       log.info('Subscription deleted, downgraded to free', { userId });
     }
   }
@@ -269,6 +282,15 @@ export const POST = withLogging(async function POST(req: Request) {
     }
 
     if (userId && invoice.subscription) {
+      // Read previous tier BEFORE the downgrade for analytics
+      const db4 = requireDb();
+      const [failedUser] = await db4
+        .select({ tier: users.subscriptionTier })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      const previousTier = failedUser?.tier ?? 'free';
+
       await updateUserSubscription({
         userId,
         tier: 'free',
@@ -280,7 +302,9 @@ export const POST = withLogging(async function POST(req: Request) {
       serverTrack(userId, 'payment_failed', {
         subscription_id: invoice.subscription,
         invoice_id: invoice.id,
+        previous_tier: previousTier,
       });
+      serverIdentify(userId, { current_tier: 'free' });
       log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }

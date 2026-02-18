@@ -23,7 +23,13 @@ export type ServerAnalyticsEvent =
   | 'payment_failed'
   | 'session_started'
   | '$ai_generation'
-  | 'short_link_clicked';
+  | 'short_link_clicked'
+  // Bout lifecycle (OCE-283)
+  | 'bout_started'
+  | 'bout_completed'
+  | 'bout_error'
+  // Viral funnel (OCE-288)
+  | 'referral_arrived';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =

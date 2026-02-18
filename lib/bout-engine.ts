@@ -555,16 +555,27 @@ async function _executeBoutInner(
     userId: userId ?? undefined,
   });
 
-  Sentry.logger.info('bout_started', {
-    bout_id: boutId,
-    preset_id: presetId,
-    model_id: modelId,
-    user_id: userId ? hashUserId(userId) : 'anonymous',
-    user_tier: ctx.tier,
-    response_length: lengthConfig.id,
-    response_format: formatConfig.id,
-    max_turns: preset.maxTurns,
-  });
+    Sentry.logger.info('bout_started', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      user_id: userId ? hashUserId(userId) : 'anonymous',
+      user_tier: ctx.tier,
+      response_length: lengthConfig.id,
+      response_format: formatConfig.id,
+      max_turns: preset.maxTurns,
+    });
+
+    // --- Analytics: bout_started (OCE-283) ---
+    serverTrack(userId ?? 'anonymous', 'bout_started', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      user_tier: ctx.tier,
+      agent_count: preset.agents.length,
+      max_turns: preset.maxTurns,
+      is_byok: !!byokData,
+    });
 
   const history: string[] = [];
   const transcript: TranscriptEntry[] = [];
@@ -896,6 +907,21 @@ async function _executeBoutInner(
       has_share_line: !!shareLine,
     });
 
+    // --- Analytics: bout_completed (OCE-283) ---
+    serverTrack(userId ?? 'anonymous', 'bout_completed', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      user_tier: ctx.tier,
+      agent_count: preset.agents.length,
+      turns: preset.maxTurns,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      duration_ms: boutDurationMs,
+      is_byok: !!byokData,
+      has_share_line: !!shareLine,
+    });
+
     // --- Analytics: user_activated (OCE-253) ---
     // Fire once when a user completes their very first bout. We check the DB
     // for any OTHER completed bouts by this user. If this is the only one,
@@ -992,6 +1018,20 @@ async function _executeBoutInner(
       output_tokens: outputTokens,
       duration_ms: boutDurationMs,
       error_message: error instanceof Error ? error.message : String(error),
+    });
+
+    // --- Analytics: bout_error (OCE-283) ---
+    serverTrack(userId ?? 'anonymous', 'bout_error', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      user_tier: ctx.tier,
+      agent_count: preset.agents.length,
+      turns_completed: transcript.length,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      duration_ms: boutDurationMs,
+      is_byok: !!byokData,
     });
 
     // Persist error state with partial transcript
