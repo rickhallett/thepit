@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/rickhallett/thepit/pitlinear/cmd"
 	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/logging"
+	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -26,6 +30,21 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	logger := logging.Setup("pitlinear", "", false)
+	tel := telemetry.New("pitlinear")
+	startedAt := time.Now()
+	logger.Info("command started", "command", args[0])
+	_ = tel.Capture(context.Background(), "pitlinear.command.started", map[string]any{
+		"command": args[0],
+	})
+	defer func() {
+		durationMs := time.Since(startedAt).Milliseconds()
+		logger.Info("command completed", "command", args[0], "duration_ms", durationMs)
+		_ = tel.Capture(context.Background(), "pitlinear.command.completed", map[string]any{
+			"command":     args[0],
+			"duration_ms": durationMs,
+		})
+	}()
 
 	// Handle version before config loading (no API key needed).
 	if args[0] == "version" {
@@ -71,6 +90,7 @@ func main() {
 	case "comments":
 		runComments(client, args[1:], *jsonOut)
 	default:
+		logger.Error("unknown command", "command", args[0])
 		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
 		usage()
 		os.Exit(1)

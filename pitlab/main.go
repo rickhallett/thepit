@@ -12,6 +12,7 @@ import (
 	"github.com/rickhallett/thepit/pitlab/cmd"
 	"github.com/rickhallett/thepit/pitlab/internal/dataset"
 	"github.com/rickhallett/thepit/shared/license"
+	"github.com/rickhallett/thepit/shared/logging"
 	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
@@ -32,15 +33,19 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	logger := logging.Setup("pitlab", "", false)
 	tel := telemetry.New("pitlab")
 	startedAt := time.Now()
+	logger.Info("command started", "command", args[0])
 	_ = tel.Capture(context.Background(), "pitlab.command.started", map[string]any{
 		"command": args[0],
 	})
 	defer func() {
+		durationMs := time.Since(startedAt).Milliseconds()
+		logger.Info("command completed", "command", args[0], "duration_ms", durationMs)
 		_ = tel.Capture(context.Background(), "pitlab.command.completed", map[string]any{
 			"command":     args[0],
-			"duration_ms": time.Since(startedAt).Milliseconds(),
+			"duration_ms": durationMs,
 		})
 	}()
 
@@ -89,6 +94,7 @@ func main() {
 	case "codebook":
 		cmd.RunCodebook(ds)
 	default:
+		logger.Error("unknown command", "command", args[0])
 		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
 		usage()
 		os.Exit(1)

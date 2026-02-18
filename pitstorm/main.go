@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/rickhallett/thepit/shared/logging"
 	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
@@ -22,15 +23,19 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	logger := logging.Setup("pitstorm", "", false)
 	tel := telemetry.New("pitstorm")
 	startedAt := time.Now()
+	logger.Info("command started", "command", args[0])
 	_ = tel.Capture(context.Background(), "pitstorm.command.started", map[string]any{
 		"command": args[0],
 	})
 	defer func() {
+		durationMs := time.Since(startedAt).Milliseconds()
+		logger.Info("command completed", "command", args[0], "duration_ms", durationMs)
 		_ = tel.Capture(context.Background(), "pitstorm.command.completed", map[string]any{
 			"command":     args[0],
-			"duration_ms": time.Since(startedAt).Milliseconds(),
+			"duration_ms": durationMs,
 		})
 	}()
 
@@ -51,6 +56,7 @@ func main() {
 	case "report":
 		reportCmd(args[1:])
 	default:
+		logger.Error("unknown command", "command", args[0])
 		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
 		usage()
 		os.Exit(1)
