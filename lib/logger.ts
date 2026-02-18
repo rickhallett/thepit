@@ -19,6 +19,7 @@
 //   log.security('rate_limit_exceeded', { clientIp, route });
 
 import { getContext } from '@/lib/async-context';
+import { logs, SeverityNumber } from '@opentelemetry/api-logs';
 
 /** Signal categories for structured log filtering. */
 export type LogSignal = 'audit' | 'metric' | 'security' | 'experiment';
@@ -77,6 +78,57 @@ function sanitize(value: unknown): unknown {
 }
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const otelLogger = logs.getLogger('tspit');
+
+function hashString(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+function getSampleRate(path: string | undefined, level: LogLevel): number {
+  if (level === 'error' || level === 'warn') return 1;
+  if (!path) return 1;
+  if (path === '/api/health') return 0;
+  if (path === '/api/pv') return 0.1;
+  return 1;
+}
+
+function shouldSample(path: string | undefined, level: LogLevel, requestId: string | undefined): boolean {
+  const rate = getSampleRate(path, level);
+  if (rate >= 1) return true;
+  if (rate <= 0) return false;
+  const key = requestId || `${path ?? 'unknown'}:${Date.now()}`;
+  return (hashString(key) % 10_000) / 10_000 < rate;
+}
+
+function toSeverity(level: LogLevel): SeverityNumber {
+  if (level === 'debug') return SeverityNumber.DEBUG;
+  if (level === 'info') return SeverityNumber.INFO;
+  if (level === 'warn') return SeverityNumber.WARN;
+  return SeverityNumber.ERROR;
+}
+
+function emitOtel(level: LogLevel, msg: string, ctx: LogContext, error?: Error) {
+  if (typeof process === 'undefined') return;
+  try {
+    const attributes: Record<string, unknown> = { ...ctx };
+    if (error) {
+      attributes.error_name = error.name;
+      attributes.error_message = error.message;
+    }
+    otelLogger.emit({
+      severityNumber: toSeverity(level),
+      severityText: level.toUpperCase(),
+      body: msg,
+      attributes: attributes as any,
+    });
+  } catch {
+    // OTel is best-effort; stdout logging remains the source of truth.
+  }
+}
 
 /**
  * Attempt to read the active Sentry trace ID.
@@ -132,8 +184,11 @@ function emit(
   if (reqCtx) {
     if (reqCtx.requestId && !ctx.requestId) ctx.requestId = reqCtx.requestId;
     if (reqCtx.clientIp && !ctx.clientIp) ctx.clientIp = reqCtx.clientIp;
+    if (reqCtx.userId && !ctx.userId) ctx.userId = reqCtx.userId;
     if (reqCtx.country && !ctx.country) ctx.country = reqCtx.country;
     if (reqCtx.path && !ctx.path) ctx.path = reqCtx.path;
+    if (reqCtx.copyVariant && !ctx.copyVariant) ctx.copyVariant = reqCtx.copyVariant;
+    if (reqCtx.sessionId && !ctx.sessionId) ctx.sessionId = reqCtx.sessionId;
   }
 
   // Inject Sentry trace ID when available — links structured logs to
@@ -143,7 +198,24 @@ function emit(
     if (traceId) ctx.traceId = traceId;
   }
 
-  const sanitizedCtx = sanitize(ctx) as LogContext;
+  const sampleRate = getSampleRate(
+    typeof ctx.path === 'string' ? ctx.path : undefined,
+    level,
+  );
+  const sampled = shouldSample(
+    typeof ctx.path === 'string' ? ctx.path : undefined,
+    level,
+    typeof ctx.requestId === 'string' ? ctx.requestId : undefined,
+  );
+  const sampledCtx = {
+    ...ctx,
+    sampled,
+    sample_rate: sampleRate,
+  };
+  if (!sampled) return;
+
+  const sanitizedCtx = sanitize(sampledCtx) as LogContext;
+  emitOtel(level, msg, sanitizedCtx, error);
 
   if (IS_PRODUCTION) {
     const entry: Record<string, unknown> = {

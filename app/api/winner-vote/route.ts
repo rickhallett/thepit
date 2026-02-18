@@ -6,6 +6,7 @@ import { bouts, winnerVotes } from '@/db/schema';
 import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -52,5 +53,6 @@ export const POST = withLogging(async function POST(req: Request) {
     .values({ boutId, agentId, userId })
     .onConflictDoNothing();
 
+  log.info('vote.submitted', { boutId, agentId, userId });
   return Response.json({ ok: true });
 }, 'winner-vote');

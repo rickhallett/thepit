@@ -10,6 +10,7 @@ import {
   type RateLimitConfig,
 } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -96,6 +97,7 @@ export const POST = withLogging(async function POST(req: Request) {
   if (existing) {
     // Remove existing reaction (toggle off)
     await db.delete(reactions).where(eq(reactions.id, existing.id));
+    log.info('reaction.toggled', { boutId, turnIndex, reactionType, action: 'removed', userId: dedupeUserId });
     return Response.json({ ok: true, action: 'removed' }, {
       headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) },
     });
@@ -112,6 +114,7 @@ export const POST = withLogging(async function POST(req: Request) {
     })
     .onConflictDoNothing();
 
+  log.info('reaction.toggled', { boutId, turnIndex, reactionType, action: 'added', userId: dedupeUserId });
   return Response.json({ ok: true, action: 'added' }, {
     headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) },
   });

@@ -8,6 +8,7 @@ import { withLogging } from '@/lib/api-logging';
 import { parseArxivId, fetchArxivMetadata } from '@/lib/arxiv';
 import { ensureUserRecord } from '@/lib/users';
 import { UNSAFE_PATTERN } from '@/lib/validation';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -99,6 +100,13 @@ export const POST = withLogging(async function POST(req: Request) {
       relevanceArea,
     })
     .onConflictDoNothing();
+
+  log.info('paper.submitted', {
+    userId,
+    arxivId,
+    title: metadata.title.slice(0, 120),
+    relevanceArea,
+  });
 
   return Response.json({
     ok: true,

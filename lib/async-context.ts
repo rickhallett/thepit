@@ -26,6 +26,7 @@ export type RequestContext = {
   requestId: string;
   clientIp: string;
   userId?: string;
+  sessionId?: string;
   /** ISO 3166-1 alpha-2 country code from Vercel edge (x-vercel-ip-country). */
   country?: string;
   /** Client User-Agent string (truncated to 200 chars). */

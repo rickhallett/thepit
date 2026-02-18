@@ -8,6 +8,7 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { ensureUserRecord } from '@/lib/users';
 import { UNSAFE_PATTERN } from '@/lib/validation';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -142,6 +143,13 @@ export const POST = withLogging(async function POST(req: Request) {
       category,
     })
     .returning({ id: featureRequests.id });
+
+  log.info('feature_request.created', {
+    userId,
+    featureRequestId: created.id,
+    category,
+    titleLength: title.length,
+  });
 
   return Response.json({ ok: true, id: created.id });
 }, 'feature-requests');

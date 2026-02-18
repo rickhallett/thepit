@@ -8,6 +8,7 @@
 //   serverTrack(userId, 'signup_completed', { referralCode: 'abc' });
 
 import { PostHog } from 'posthog-node';
+import { getContext } from '@/lib/async-context';
 
 // Known server-side event names. Client-side events are defined separately
 // in lib/analytics.ts — these are the events that can ONLY originate from
@@ -15,13 +16,21 @@ import { PostHog } from 'posthog-node';
 export type ServerAnalyticsEvent =
   | 'signup_completed'
   | 'user_activated'
+  | 'bout_started'
+  | 'bout_completed'
   | 'subscription_started'
   | 'subscription_upgraded'
   | 'subscription_downgraded'
   | 'subscription_churned'
   | 'credit_purchase_completed'
   | 'payment_failed'
-  | 'session_started';
+  | 'session_started'
+  | 'short_link_clicked'
+  | 'share_link_created'
+  | 'referral_arrived'
+  | 'referral_completed'
+  | 'webhook.processed'
+  | '$ai_generation';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
@@ -60,6 +69,9 @@ export function serverTrack(
   const client = getClient();
   if (!client) return;
 
+  const reqCtx = getContext();
+  const environment = process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? 'development';
+
   client.capture({
     distinctId,
     event,
@@ -67,6 +79,9 @@ export function serverTrack(
       ...properties,
       $lib: 'posthog-node',
       source: 'server',
+      environment,
+      copy_variant: reqCtx?.copyVariant ?? null,
+      $session_id: reqCtx?.sessionId ?? null,
     },
   });
 }

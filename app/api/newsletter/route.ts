@@ -3,6 +3,7 @@ import { newsletterSignups } from '@/db/schema';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -37,5 +38,6 @@ export const POST = withLogging(async function POST(req: Request) {
     .values({ email })
     .onConflictDoNothing();
 
+  log.info('newsletter.signed_up', { isNew: true });
   return Response.json({ ok: true });
 }, 'newsletter');

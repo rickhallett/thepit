@@ -31,6 +31,7 @@ import {
 } from '@/lib/response-formats';
 import { getFormString } from '@/lib/form-utils';
 import { log } from '@/lib/logger';
+import { withActionLogging } from '@/lib/api-logging';
 
 /**
  * Resolve the app URL for redirects (e.g. Stripe checkout success/cancel).
@@ -58,166 +59,199 @@ function getAppUrl(): string {
 
 /** Create a bout record and redirect to its streaming page. */
 export async function createBout(presetId: string, formData?: FormData) {
-  if (!getPresetById(presetId)) {
-    redirect('/arena');
-  }
+  return withActionLogging('createBout', async () => {
+    if (!getPresetById(presetId)) {
+      redirect('/arena');
+    }
 
-  const { userId } = await auth();
+    const { userId } = await auth();
 
-  // Require authentication for all bouts — captures every user for the
-  // first-bout Opus promotion and prevents anonymous free-pool drain.
-  if (!userId) {
-    redirect('/sign-in?redirect_url=/arena');
-  }
+    // Require authentication for all bouts — captures every user for the
+    // first-bout Opus promotion and prevents anonymous free-pool drain.
+    if (!userId) {
+      redirect('/sign-in?redirect_url=/arena');
+    }
 
-  const db = requireDb();
-  const id = nanoid();
-  const topic = getFormString(formData, 'topic');
-  const model = getFormString(formData, 'model');
-  const length = getFormString(formData, 'length');
-  const format = getFormString(formData, 'format');
-  const lengthConfig = resolveResponseLength(length);
-  const formatConfig = resolveResponseFormat(format);
+    const db = requireDb();
+    const id = nanoid();
+    const topic = getFormString(formData, 'topic');
+    const model = getFormString(formData, 'model');
+    const length = getFormString(formData, 'length');
+    const format = getFormString(formData, 'format');
+    const lengthConfig = resolveResponseLength(length);
+    const formatConfig = resolveResponseFormat(format);
 
-  await ensureUserRecord(userId);
+    await ensureUserRecord(userId);
 
-  await db.insert(bouts).values({
-    id,
-    presetId,
-    status: 'running',
-    transcript: [],
-    ownerId: userId,
-    topic: topic ?? null,
-    responseLength: lengthConfig.id,
-    responseFormat: formatConfig.id,
+    await db.insert(bouts).values({
+      id,
+      presetId,
+      status: 'running',
+      transcript: [],
+      ownerId: userId,
+      topic: topic ?? null,
+      responseLength: lengthConfig.id,
+      responseFormat: formatConfig.id,
+    });
+
+    log.info('bout.created', {
+      userId,
+      boutId: id,
+      presetId,
+      topic: topic ?? null,
+      model: model ?? null,
+      responseLength: lengthConfig.id,
+      responseFormat: formatConfig.id,
+    });
+
+    const params = new URLSearchParams({ presetId });
+    if (topic) {
+      params.set('topic', topic);
+    }
+    if (model) {
+      params.set('model', model);
+    }
+    if (length) {
+      params.set('length', length);
+    }
+    if (format) {
+      params.set('format', format);
+    }
+    redirect(`/bout/${id}?${params.toString()}`);
   });
-
-  const params = new URLSearchParams({ presetId });
-  if (topic) {
-    params.set('topic', topic);
-  }
-  if (model) {
-    params.set('model', model);
-  }
-  if (length) {
-    params.set('length', length);
-  }
-  if (format) {
-    params.set('format', format);
-  }
-  redirect(`/bout/${id}?${params.toString()}`);
 }
 
 /** Create an arena-mode bout with a custom agent lineup and redirect to the bout page. */
 export async function createArenaBout(formData: FormData) {
-  const { userId } = await auth();
+  return withActionLogging('createArenaBout', async () => {
+    const { userId } = await auth();
 
-  // Require authentication for all bouts.
-  if (!userId) {
-    redirect('/sign-in?redirect_url=/arena/custom');
-  }
+    // Require authentication for all bouts.
+    if (!userId) {
+      redirect('/sign-in?redirect_url=/arena/custom');
+    }
 
-  const agentIds = formData.getAll('agentIds').filter(Boolean) as string[];
-  const topic = getFormString(formData, 'topic');
-  const length = getFormString(formData, 'length');
-  const format = getFormString(formData, 'format');
-  const model = getFormString(formData, 'model');
-  const lengthConfig = resolveResponseLength(length || DEFAULT_RESPONSE_LENGTH);
-  const formatConfig = resolveResponseFormat(format || DEFAULT_RESPONSE_FORMAT);
+    const agentIds = formData.getAll('agentIds').filter(Boolean) as string[];
+    const topic = getFormString(formData, 'topic');
+    const length = getFormString(formData, 'length');
+    const format = getFormString(formData, 'format');
+    const model = getFormString(formData, 'model');
+    const lengthConfig = resolveResponseLength(length || DEFAULT_RESPONSE_LENGTH);
+    const formatConfig = resolveResponseFormat(format || DEFAULT_RESPONSE_FORMAT);
 
-  if (agentIds.length < 2 || agentIds.length > 6) {
-    throw new Error('Select between 2 and 6 agents.');
-  }
+    if (agentIds.length < 2 || agentIds.length > 6) {
+      throw new Error('Select between 2 and 6 agents.');
+    }
 
-  const snapshots = await getAgentSnapshots();
-  const lineup = agentIds
-    .map((id) => snapshots.find((agent) => agent.id === id))
-    .filter((a): a is NonNullable<typeof a> => Boolean(a))
-    .map((agent) => ({
-      id: agent.id,
-      name: agent.name,
-      systemPrompt: agent.systemPrompt,
-      color: agent.color,
-      avatar: agent.avatar,
-    }));
+    const snapshots = await getAgentSnapshots();
+    const lineup = agentIds
+      .map((id) => snapshots.find((agent) => agent.id === id))
+      .filter((a): a is NonNullable<typeof a> => Boolean(a))
+      .map((agent) => ({
+        id: agent.id,
+        name: agent.name,
+        systemPrompt: agent.systemPrompt,
+        color: agent.color,
+        avatar: agent.avatar,
+      }));
 
-  if (lineup.length !== agentIds.length) {
-    throw new Error('One or more agents could not be found.');
-  }
+    if (lineup.length !== agentIds.length) {
+      throw new Error('One or more agents could not be found.');
+    }
 
-  await ensureUserRecord(userId);
+    await ensureUserRecord(userId);
 
-  const db = requireDb();
-  const id = nanoid();
-  await db.insert(bouts).values({
-    id,
-    presetId: ARENA_PRESET_ID,
-    status: 'running',
-    transcript: [],
-    ownerId: userId,
-    topic: topic || null,
-    responseLength: lengthConfig.id,
-    responseFormat: formatConfig.id,
-    agentLineup: lineup,
+    const db = requireDb();
+    const id = nanoid();
+    await db.insert(bouts).values({
+      id,
+      presetId: ARENA_PRESET_ID,
+      status: 'running',
+      transcript: [],
+      ownerId: userId,
+      topic: topic || null,
+      responseLength: lengthConfig.id,
+      responseFormat: formatConfig.id,
+      agentLineup: lineup,
+    });
+
+    log.info('arena_bout.created', {
+      userId,
+      boutId: id,
+      agentCount: lineup.length,
+      topic: topic || null,
+      model: model || null,
+      responseLength: lengthConfig.id,
+      responseFormat: formatConfig.id,
+    });
+
+    const params = new URLSearchParams();
+    if (model) {
+      params.set('model', model);
+    }
+    const query = params.toString();
+    redirect(query ? `/bout/${id}?${query}` : `/bout/${id}`);
   });
-
-  const params = new URLSearchParams();
-  if (model) {
-    params.set('model', model);
-  }
-  const query = params.toString();
-  redirect(query ? `/bout/${id}?${query}` : `/bout/${id}`);
 }
 
 /** Create a Stripe Checkout session for a one-time credit pack purchase. */
 export async function createCreditCheckout(formData: FormData) {
-  const packId = getFormString(formData, 'packId');
-  const pack = CREDIT_PACKAGES.find((item) => item.id === packId);
+  return withActionLogging('createCreditCheckout', async () => {
+    const packId = getFormString(formData, 'packId');
+    const pack = CREDIT_PACKAGES.find((item) => item.id === packId);
 
-  if (!pack) {
-    throw new Error('Invalid credit pack.');
-  }
+    if (!pack) {
+      throw new Error('Invalid credit pack.');
+    }
 
-  const { userId } = await auth();
-  if (!userId) {
-    redirect('/sign-in?redirect_url=/arena');
-  }
+    const { userId } = await auth();
+    if (!userId) {
+      redirect('/sign-in?redirect_url=/arena');
+    }
 
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('Payment service unavailable.');
-  }
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Payment service unavailable.');
+    }
 
-  const appUrl = getAppUrl();
+    const appUrl = getAppUrl();
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price_data: {
-          currency: 'gbp',
-          unit_amount: Math.round(pack.priceGbp * 100),
-          product_data: {
-            name: `THE PIT — ${pack.name} Credits`,
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'gbp',
+            unit_amount: Math.round(pack.priceGbp * 100),
+            product_data: {
+              name: `THE PIT — ${pack.name} Credits`,
+            },
           },
+          quantity: 1,
         },
-        quantity: 1,
+      ],
+      metadata: {
+        userId,
+        packId: pack.id,
+        credits: pack.credits.toString(),
       },
-    ],
-    metadata: {
+      success_url: `${appUrl}/arena?checkout=success`,
+      cancel_url: `${appUrl}/arena?checkout=cancel`,
+    });
+
+    if (!session.url) {
+      throw new Error('Failed to create checkout session.');
+    }
+
+    log.audit('checkout.initiated', {
       userId,
       packId: pack.id,
-      credits: pack.credits.toString(),
-    },
-    success_url: `${appUrl}/arena?checkout=success`,
-    cancel_url: `${appUrl}/arena?checkout=cancel`,
+      credits: pack.credits,
+      priceGbp: pack.priceGbp,
+    });
+
+    redirect(session.url);
   });
-
-  if (!session.url) {
-    throw new Error('Failed to create checkout session.');
-  }
-
-  redirect(session.url);
 }
 
 /** Grant test credits to the current user (admin-only). */
@@ -241,7 +275,7 @@ export async function grantTestCredits() {
     credits: CREDITS_ADMIN_GRANT,
   });
 
-  log.info('audit', { action: 'grant_test_credits', userId, credits: CREDITS_ADMIN_GRANT });
+  log.audit('credits.granted', { action: 'grant_test_credits', userId, credits: CREDITS_ADMIN_GRANT });
   redirect('/arena?credits=granted');
 }
 
@@ -258,7 +292,7 @@ export async function archiveAgent(agentId: string) {
     .set({ archived: true })
     .where(eq(agents.id, agentId));
 
-  log.info('audit', { action: 'archive_agent', userId, agentId });
+  log.audit('agent.archived', { action: 'archive_agent', userId, agentId });
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
 
@@ -275,7 +309,7 @@ export async function restoreAgent(agentId: string) {
     .set({ archived: false })
     .where(eq(agents.id, agentId));
 
-  log.info('audit', { action: 'restore_agent', userId, agentId });
+  log.audit('agent.restored', { action: 'restore_agent', userId, agentId });
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
 
@@ -334,51 +368,54 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
  * Redirects the user to Stripe's hosted checkout page.
  */
 export async function createSubscriptionCheckout(formData: FormData) {
-  if (!SUBSCRIPTIONS_ENABLED) {
-    throw new Error('Subscriptions not enabled.');
-  }
+  return withActionLogging('createSubscriptionCheckout', async () => {
+    if (!SUBSCRIPTIONS_ENABLED) {
+      throw new Error('Subscriptions not enabled.');
+    }
 
-  const plan = formData?.get('plan');
-  if (plan !== 'pass' && plan !== 'lab') {
-    throw new Error('Invalid plan.');
-  }
+    const plan = formData?.get('plan');
+    if (plan !== 'pass' && plan !== 'lab') {
+      throw new Error('Invalid plan.');
+    }
 
-  const priceId =
-    plan === 'pass'
-      ? process.env.STRIPE_PASS_PRICE_ID
-      : process.env.STRIPE_LAB_PRICE_ID;
+    const priceId =
+      plan === 'pass'
+        ? process.env.STRIPE_PASS_PRICE_ID
+        : process.env.STRIPE_LAB_PRICE_ID;
 
-  if (!priceId) {
-    throw new Error('Subscription plan not configured.');
-  }
+    if (!priceId) {
+      throw new Error('Subscription plan not configured.');
+    }
 
-  const { userId } = await auth();
-  if (!userId) {
-    redirect('/sign-in?redirect_url=/arena');
-  }
+    const { userId } = await auth();
+    if (!userId) {
+      redirect('/sign-in?redirect_url=/arena');
+    }
 
-  await ensureUserRecord(userId);
-  const customerId = await getOrCreateStripeCustomer(userId);
+    await ensureUserRecord(userId);
+    const customerId = await getOrCreateStripeCustomer(userId);
 
-  const appUrl = getAppUrl();
+    const appUrl = getAppUrl();
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'subscription',
-    customer: customerId,
-    line_items: [{ price: priceId, quantity: 1 }],
-    metadata: { userId, plan },
-    subscription_data: {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer: customerId,
+      line_items: [{ price: priceId, quantity: 1 }],
       metadata: { userId, plan },
-    },
-    success_url: `${appUrl}/arena?subscription=success`,
-    cancel_url: `${appUrl}/arena?subscription=cancel`,
+      subscription_data: {
+        metadata: { userId, plan },
+      },
+      success_url: `${appUrl}/arena?subscription=success`,
+      cancel_url: `${appUrl}/arena?subscription=cancel`,
+    });
+
+    if (!session.url) {
+      throw new Error('Failed to create checkout session.');
+    }
+
+    log.audit('subscription.initiated', { userId, plan, priceId });
+    redirect(session.url);
   });
-
-  if (!session.url) {
-    throw new Error('Failed to create checkout session.');
-  }
-
-  redirect(session.url);
 }
 
 /**
@@ -387,26 +424,27 @@ export async function createSubscriptionCheckout(formData: FormData) {
  * upgrade, downgrade, cancel, or update payment methods.
  */
 export async function createBillingPortal() {
-  if (!SUBSCRIPTIONS_ENABLED) {
-    throw new Error('Subscriptions not enabled.');
-  }
+  return withActionLogging('createBillingPortal', async () => {
+    if (!SUBSCRIPTIONS_ENABLED) {
+      throw new Error('Subscriptions not enabled.');
+    }
 
-  const { userId } = await auth();
-  if (!userId) {
-    redirect('/sign-in?redirect_url=/arena');
-  }
+    const { userId } = await auth();
+    if (!userId) {
+      redirect('/sign-in?redirect_url=/arena');
+    }
 
-  await ensureUserRecord(userId);
-  const customerId = await getOrCreateStripeCustomer(userId);
+    await ensureUserRecord(userId);
+    const customerId = await getOrCreateStripeCustomer(userId);
 
-  const appUrl = getAppUrl();
+    const appUrl = getAppUrl();
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: customerId,
-    return_url: `${appUrl}/arena`,
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${appUrl}/arena`,
+    });
+
+    log.audit('billing_portal.opened', { userId, customerId });
+    redirect(session.url);
   });
-
-  redirect(session.url);
 }
-
-

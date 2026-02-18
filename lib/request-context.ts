@@ -28,3 +28,15 @@ export function getReferer(req: Request): string {
 export function getClientCountry(req: Request): string {
   return req.headers.get('x-client-country') ?? '';
 }
+
+/** Extract active copy variant propagated by middleware. */
+export function getCopyVariant(req: Request): string | undefined {
+  const variant = req.headers.get('x-copy-variant') ?? undefined;
+  return variant || undefined;
+}
+
+/** Extract PostHog session id forwarded by middleware from the PH cookie. */
+export function getPosthogSessionId(req: Request): string | undefined {
+  const header = req.headers.get('x-posthog-session-id') ?? undefined;
+  return header || undefined;
+}

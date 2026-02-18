@@ -111,3 +111,11 @@ vercel env pull .env.check --environment production
 grep '\\n"' .env.check
 rm .env.check
 ```
+
+### PostHog MCP Server
+- Project-level MCP config is in `.claude/settings.json`.
+- Required env vars for MCP client:
+  - `POSTHOG_PERSONAL_API_KEY`
+  - `POSTHOG_HOST` (defaults to `https://us.posthog.com`)
+- Use `.claude/prompts/verify-logging.md` as the dry-run gate for logging tickets.
+- Use `.claude/templates/feature-validation.md` for feature rollout measurement and decision logs.

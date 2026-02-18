@@ -15,7 +15,7 @@ import {
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
-import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
+import { serverTrack, serverIdentify, flushServerAnalytics } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -57,6 +57,7 @@ async function updateUserSubscription(params: {
  *   Out-of-order delivery is mitigated by Stripe's per-object ordering.
  */
 export const POST = withLogging(async function POST(req: Request) {
+  const webhookStart = Date.now();
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     return errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 500);
@@ -112,6 +113,14 @@ export const POST = withLogging(async function POST(req: Request) {
           currency: session.currency ?? 'gbp',
           session_id: session.id,
         });
+        log.audit('credit_purchase.completed', {
+          eventType: event.type,
+          userId,
+          credits,
+          amountCents: session.amount_total ?? 0,
+          currency: session.currency ?? 'gbp',
+          sessionId: session.id,
+        });
       }
 
       if (existing) {
@@ -152,6 +161,7 @@ export const POST = withLogging(async function POST(req: Request) {
           subscription_id: subscription.id,
           status: subscription.status,
         });
+        serverIdentify(userId, { current_tier: tier });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
@@ -214,6 +224,7 @@ export const POST = withLogging(async function POST(req: Request) {
             subscription_id: subscription.id,
           });
         }
+        serverIdentify(userId, { current_tier: tier });
         log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
@@ -241,7 +252,9 @@ export const POST = withLogging(async function POST(req: Request) {
       });
       serverTrack(userId, 'subscription_churned', {
         subscription_id: subscription.id,
+        tier: 'free',
       });
+      serverIdentify(userId, { current_tier: 'free' });
       log.info('Subscription deleted, downgraded to free', { userId });
     }
   }
@@ -280,7 +293,10 @@ export const POST = withLogging(async function POST(req: Request) {
       serverTrack(userId, 'payment_failed', {
         subscription_id: invoice.subscription,
         invoice_id: invoice.id,
+        tier: 'free',
+        attempt_count: 0,
       });
+      serverIdentify(userId, { current_tier: 'free' });
       log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }
@@ -322,9 +338,21 @@ export const POST = withLogging(async function POST(req: Request) {
           stripeCustomerId: invoice.customer,
         });
         log.info('Payment succeeded, tier restored', { userId, tier });
+        serverIdentify(userId, { current_tier: tier });
       }
     }
   }
+
+  serverTrack(`webhook:${event.id}`, 'webhook.processed', {
+    event_type: event.type,
+    status: 'success',
+    duration_ms: Date.now() - webhookStart,
+  });
+  log.audit('webhook.processed', {
+    eventType: event.type,
+    status: 'success',
+    durationMs: Date.now() - webhookStart,
+  });
 
   // Flush server-side analytics before the serverless function terminates.
   // Wrapped in try-catch so a PostHog SDK/network error doesn't turn a

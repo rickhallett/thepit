@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "posthog": {
+      "command": "npx",
+      "args": ["-y", "@posthog/mcp-server"],
+      "env": {
+        "POSTHOG_PERSONAL_API_KEY": "${POSTHOG_PERSONAL_API_KEY}",
+        "POSTHOG_HOST": "https://us.posthog.com"
+      }
+    }
+  }
+}

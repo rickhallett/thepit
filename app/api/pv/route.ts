@@ -44,6 +44,8 @@ async function rawPOST(req: Request) {
     visitNumber?: number;
     daysSinceLastVisit?: number | null;
     isNewSession?: boolean;
+    referralCode?: string | null;
+    isNewReferral?: boolean;
   }>(req);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
@@ -111,6 +113,21 @@ async function rawPOST(req: Request) {
         utm_term: utmTerm,
         utm_content: utmContent,
         country: payload.country?.slice(0, 2) ?? null,
+      });
+    }
+    if (payload.isNewReferral && payload.referralCode) {
+      const distinctId = userId ?? `anon_${sessionId}`;
+      serverTrack(distinctId, 'referral_arrived', {
+        referral_code: payload.referralCode.slice(0, 32),
+        landing_page: path,
+        referrer: payload.referrer?.slice(0, 256) ?? null,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+      });
+      log.info('referral.arrived', {
+        referralCode: payload.referralCode.slice(0, 32),
+        path,
+        distinctId,
       });
     }
   } catch (error) {

@@ -316,6 +316,15 @@ export const POST = withLogging(async function POST(req: Request) {
     });
   }
 
+  log.audit('agent.created', {
+    userId,
+    agentId: manifest.agentId,
+    name: manifest.name,
+    parentId: manifest.parentId ?? null,
+    archetype: archetype ?? null,
+    tier: manifest.tier,
+  });
+
   return Response.json({
     agentId: manifest.agentId,
     promptHash,

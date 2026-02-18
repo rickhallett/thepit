@@ -5,6 +5,7 @@
 
 import { resolveShortLink, recordClick } from '@/lib/short-links';
 import { log } from '@/lib/logger';
+import { serverTrack } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -30,6 +31,14 @@ export async function GET(
       boutId: link.boutId,
     });
   });
+
+  const referrer = req.headers.get('referer') ?? '';
+  serverTrack(`short-link:${slug}`, 'short_link_clicked', {
+    bout_id: link.boutId,
+    slug,
+    referrer: referrer.slice(0, 120),
+  });
+  log.info('short_link.clicked', { boutId: link.boutId, slug });
 
   const url = new URL(req.url);
   const destination = new URL(`/b/${link.boutId}`, url.origin);

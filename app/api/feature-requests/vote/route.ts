@@ -6,6 +6,7 @@ import { featureRequestVotes } from '@/db/schema';
 import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -67,6 +68,13 @@ export const POST = withLogging(async function POST(req: Request) {
     })
     .from(featureRequestVotes)
     .where(eq(featureRequestVotes.featureRequestId, featureRequestId));
+
+  log.info('feature_request.voted', {
+    userId,
+    featureRequestId,
+    voted: !existing,
+    voteCount: result.count,
+  });
 
   return Response.json({
     voted: !existing,

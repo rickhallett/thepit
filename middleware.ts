@@ -35,6 +35,22 @@ const UTM_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm
 const UTM_COOKIE = 'pit_utm';
 const UTM_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
+function readPosthogSessionId(rawCookieHeader: string): string | undefined {
+  const match = rawCookieHeader.match(/(?:^|;\s*)ph_[^=]+_posthog=([^;]+)/);
+  if (!match?.[1]) return undefined;
+  try {
+    const decoded = decodeURIComponent(match[1]);
+    const parsed = JSON.parse(decoded) as { $sesid?: string | number };
+    const sesid = parsed.$sesid;
+    if (typeof sesid === 'string' || typeof sesid === 'number') {
+      return String(sesid);
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
 /**
  * Paths that should NOT record page views (API routes, static assets,
  * and internal Next.js paths are already excluded by the matcher, but
@@ -48,6 +64,7 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   const requestId = nanoid(12);
 
   const referral = req.nextUrl.searchParams.get('ref');
+  let isNewReferral = false;
 
   // ---------------------------------------------------------------------------
   // Forensic header propagation — forward client metadata to route handlers
@@ -70,6 +87,7 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   }
 
   const pathname = req.nextUrl.pathname;
+  const posthogSessionId = readPosthogSessionId(req.headers.get('cookie') ?? '');
 
   // ---------------------------------------------------------------------------
   // Copy variant assignment — A/B testing
@@ -115,9 +133,28 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   // Propagate variant to server components via request header.
   // This MUST happen before NextResponse.next() — headers are captured at that point.
   headers.set(COPY_VARIANT_HEADER, copyVariant);
+  if (posthogSessionId) {
+    headers.set('x-posthog-session-id', posthogSessionId);
+  }
 
   const response = NextResponse.next({ request: { headers } });
   response.headers.set('x-request-id', requestId);
+
+  console.log(JSON.stringify({
+    level: 'info',
+    msg: 'request.routed',
+    ts: new Date().toISOString(),
+    service: 'tspit',
+    source: 'edge',
+    event: 'request.routed',
+    requestId,
+    path: pathname,
+    method: req.method,
+    copyVariant,
+    hasReferral: Boolean(referral),
+    hasSession: Boolean(req.cookies.get(SESSION_COOKIE)?.value),
+    country,
+  }));
 
   // Write variant cookie on the response (only when assignment changed).
   if (variantCookieToSet) {
@@ -133,6 +170,7 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   // Referral cookie — first-touch attribution
   // ---------------------------------------------------------------------------
   if (referral && REFERRAL_RE.test(referral) && !req.cookies.get('pit_ref')) {
+    isNewReferral = true;
     response.cookies.set('pit_ref', referral, {
       maxAge: 60 * 60 * 24 * 30,
       sameSite: 'lax',
@@ -278,6 +316,8 @@ export default clerkMiddleware(async (clerkAuth, req) => {
         visitNumber,
         daysSinceLastVisit,
         isNewSession: isNewSession ?? false,
+        referralCode: referral ?? null,
+        isNewReferral,
       }),
     }).catch(() => {
       // Silently drop — page views are best-effort analytics

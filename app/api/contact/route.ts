@@ -74,5 +74,9 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse('Email delivery failed.', 500);
   }
 
+  log.info('contact.submitted', {
+    messageLength: message.length,
+  });
+
   return Response.json({ ok: true });
 }, 'contact');

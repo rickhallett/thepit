@@ -5,6 +5,8 @@ import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { createShortLink } from '@/lib/short-links';
 import { eq } from 'drizzle-orm';
 import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
+import { log } from '@/lib/logger';
+import { serverTrack } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -41,6 +43,8 @@ export const POST = withLogging(async function POST(req: Request) {
   }
 
   const { slug, created } = await createShortLink(boutId);
+  log.info('short_link.created', { boutId, slug, isNew: created });
+  serverTrack(`short-link:${slug}`, 'share_link_created', { bout_id: boutId, slug, is_new: created });
 
   return Response.json({ slug, created }, { status: created ? 201 : 200 });
 }, 'short-links');

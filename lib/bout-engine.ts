@@ -554,6 +554,20 @@ async function _executeBoutInner(
     userId: userId ?? undefined,
   });
 
+  if (userId) {
+    try {
+      serverTrack(userId, 'bout_started', {
+        bout_id: boutId,
+        preset_id: presetId,
+        model_id: modelId,
+        source: 'server',
+        total_turns: preset.maxTurns,
+      });
+    } catch {
+      // Analytics is best-effort and must not block bout execution.
+    }
+  }
+
   Sentry.logger.info('bout_started', {
     bout_id: boutId,
     preset_id: presetId,
@@ -741,7 +755,7 @@ async function _executeBoutInner(
       }
 
       const turnDurationMs = Date.now() - turnStart;
-      log.info('AI turn complete', {
+      log.debug('AI turn complete', {
         requestId,
         boutId,
         turn: i,
@@ -818,7 +832,8 @@ async function _executeBoutInner(
       .where(eq(bouts.id, boutId));
 
     const boutDurationMs = Date.now() - boutStartTime;
-    log.info('Bout completed', {
+    log.metric('bout.completed', {
+      event: 'bout.completed',
       requestId,
       boutId,
       presetId,
@@ -829,6 +844,23 @@ async function _executeBoutInner(
       durationMs: boutDurationMs,
       hasShareLine: !!shareLine,
     });
+
+    if (userId) {
+      try {
+        serverTrack(userId, 'bout_completed', {
+          bout_id: boutId,
+          preset_id: presetId,
+          model_id: modelId,
+          duration_ms: boutDurationMs,
+          turns_completed: preset.maxTurns,
+          input_tokens: inputTokens,
+          output_tokens: outputTokens,
+          source: 'server',
+        });
+      } catch {
+        // Best-effort only.
+      }
+    }
 
     Sentry.logger.info('bout_completed', {
       bout_id: boutId,
@@ -888,9 +920,10 @@ async function _executeBoutInner(
       // Financial telemetry: track estimation accuracy for margin health.
       // Negative delta = overestimated (refund to user, safe).
       // Positive delta = underestimated (charged more, margin leak).
-      log.info('financial_settlement', {
+      log.audit('credit.settled', {
         requestId,
         boutId,
+        userId,
         modelId,
         estimated_micro: preauthMicro,
         actual_micro: actualMicro,
@@ -912,6 +945,12 @@ async function _executeBoutInner(
           referenceId: boutId,
         });
       }
+    }
+
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Non-blocking analytics flush.
     }
 
     return { transcript, shareLine, inputTokens, outputTokens };
@@ -974,6 +1013,12 @@ async function _executeBoutInner(
     if (introPoolConsumedMicro > 0) {
       log.info('Refunding intro pool on error', { boutId, introPoolConsumedMicro });
       await refundIntroPool(introPoolConsumedMicro);
+    }
+
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Best-effort flush on error path.
     }
 
     throw error;

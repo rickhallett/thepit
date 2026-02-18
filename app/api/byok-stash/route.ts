@@ -5,6 +5,7 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { isValidByokKey, detectProvider, isOpenRouterModel, ALL_MODEL_IDS } from '@/lib/models';
 import type { ByokProvider } from '@/lib/models';
+import { log } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -118,6 +119,7 @@ export const POST = withLogging(async function POST(req: Request) {
     maxAge: MAX_AGE_SECONDS,
   });
 
+  log.info('byok.stashed', { userId, provider, modelId: model ?? null });
   return Response.json({ ok: true, provider });
 }, 'byok-stash');
 
