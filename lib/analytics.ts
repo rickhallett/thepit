@@ -44,7 +44,6 @@ export type AnalyticsEvent =
   | 'upgrade_cta_clicked'
   // Acquisition funnel (OCE-285)
   | 'consent_granted'
-  | 'consent_declined'
   | 'arena_viewed';
 
 export function trackEvent(event: AnalyticsEvent, properties?: EventProperties) {

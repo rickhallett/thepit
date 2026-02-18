@@ -3,7 +3,6 @@
 import { useSyncExternalStore, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useCopy } from '@/lib/copy-client';
-import { trackEvent } from '@/lib/analytics';
 
 /** Cookie name storing the user's analytics consent choice. */
 export const CONSENT_COOKIE = 'pit_consent';
@@ -79,10 +78,11 @@ export function CookieConsent() {
   const handleDecline = () => {
     setConsentCookie('declined');
     setVersion((v) => v + 1);
-    // Note: this event will only fire if PostHog was already initialized
-    // (e.g. during a session where consent was previously granted then revoked).
-    // For first-time decliners, PostHog is not yet active so this is a no-op.
-    trackEvent('consent_declined', {});
+    // We intentionally do NOT track consent_declined. PostHog is not initialized
+    // when the user has never consented, so the call was always a no-op. More
+    // importantly, firing analytics after an explicit refusal would violate UK
+    // PECR. Server-side consent_declined rates can be inferred from the gap
+    // between page_view counts and consent_granted counts in PostHog.
   };
 
   return (
