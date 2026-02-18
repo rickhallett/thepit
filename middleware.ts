@@ -290,8 +290,10 @@ export default clerkMiddleware(async (clerkAuth, req) => {
 
 export const config = {
   matcher: [
-    // Exclude static assets and PostHog reverse proxy (/ingest) paths
-    '/((?!_next|ingest($|/)|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Exclude static assets and PostHog reverse proxy (/ingest) paths.
+    // NOTE: Next.js 16 forbids capturing groups in matcher patterns, so we
+    // use a non-capturing group (?:$|/) for the ingest boundary.
+    '/((?!_next|ingest(?:$|/)|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     '/(api|trpc)(.*)',
   ],
 };
