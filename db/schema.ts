@@ -409,6 +409,7 @@ export const shortLinkClicks = pgTable('short_link_clicks', {
   id: serial('id').primaryKey(),
   shortLinkId: integer('short_link_id').notNull(),
   boutId: varchar('bout_id', { length: 21 }).notNull().references(() => bouts.id, { onDelete: 'cascade' }),
+  sharerId: varchar('sharer_id', { length: 128 }).references(() => users.id, { onDelete: 'set null' }),
   refCode: varchar('ref_code', { length: 64 }),
   utmSource: varchar('utm_source', { length: 128 }),
   utmMedium: varchar('utm_medium', { length: 128 }),

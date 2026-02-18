@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
+import { TrackPageEvent } from '@/components/track-page-event';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { getCopy } from '@/lib/copy';
@@ -94,18 +95,26 @@ export default async function ReplayPage({
     userId ? getUserWinnerVote(resolved.id, userId) : Promise.resolve(null),
   ]);
 
+  // Track replay views — only for authenticated users viewing bouts they didn't
+  // create (i.e. shared bouts). Anonymous visitors are excluded to avoid
+  // inflating the replay metric with bot/crawler traffic.
+  const isReplay = !!userId && bout.ownerId !== userId;
+
   return (
-    <Arena
-      boutId={resolved.id}
-      preset={preset}
-      initialTranscript={(bout.transcript ?? []) as TranscriptEntry[]}
-      shareLine={bout.shareLine}
-      format={bout.responseFormat ?? null}
-      length={bout.responseLength ?? null}
-      topic={bout.topic ?? null}
-      initialReactions={reactionCounts}
-      initialWinnerVotes={winnerVoteCounts}
-      initialUserVote={userWinnerVote}
-    />
+    <>
+      {isReplay && <TrackPageEvent event="bout_replayed" properties={{ boutId: resolved.id, presetId: bout.presetId }} />}
+      <Arena
+        boutId={resolved.id}
+        preset={preset}
+        initialTranscript={(bout.transcript ?? []) as TranscriptEntry[]}
+        shareLine={bout.shareLine}
+        format={bout.responseFormat ?? null}
+        length={bout.responseLength ?? null}
+        topic={bout.topic ?? null}
+        initialReactions={reactionCounts}
+        initialWinnerVotes={winnerVoteCounts}
+        initialUserVote={userWinnerVote}
+      />
+    </>
   );
 }

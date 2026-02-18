@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { AgentsCatalog } from '@/components/agents-catalog';
+import { TrackPageEvent } from '@/components/track-page-event';
 import { getAgentSnapshots } from '@/lib/agent-registry';
 import { getCopy } from '@/lib/copy';
 import { ALL_PRESETS } from '@/lib/presets';
@@ -15,6 +16,7 @@ export default async function AgentsPage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-background text-foreground">
+      <TrackPageEvent event="agents_browsed" />
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-10">
         <header className="border-b-2 border-foreground/70 pb-6">
           <div className="flex flex-wrap items-start justify-between gap-4">

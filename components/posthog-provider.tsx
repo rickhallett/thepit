@@ -17,6 +17,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 
 import { getConsentState } from '@/components/cookie-consent';
+import type { AnalyticsEvent } from '@/lib/analytics';
 import { getExperimentConfig } from '@/lib/copy-edge';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -87,6 +88,11 @@ function initPostHog() {
         const variant = decodeURIComponent(raw).trim();
         if (variant && variant in expConfig.variants) {
           posthog.register({ copy_variant: variant });
+          // Fire copy_variant_served once per init (OCE-248).
+          // The super property ensures it's on every event; this explicit
+          // event enables direct variant-served counting for A/B analysis.
+          const event: AnalyticsEvent = 'copy_variant_served';
+          posthog.capture(event, { variant });
         }
       }
     }

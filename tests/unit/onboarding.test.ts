@@ -19,6 +19,7 @@ const { mockDb, creditTransactionsTable } = vi.hoisted(() => {
 });
 
 const mockEnsureUserRecord = vi.fn().mockResolvedValue({ id: 'user_1' });
+const mockUserRecordExists = vi.fn().mockResolvedValue(false);
 const mockEnsureReferralCode = vi.fn().mockResolvedValue('ABC12345');
 const mockEnsureCreditAccount = vi.fn().mockResolvedValue({ userId: 'user_1', balanceMicro: 0 });
 const mockClaimIntroCredits = vi.fn();
@@ -54,6 +55,7 @@ vi.mock('@/lib/referrals', () => ({
 
 vi.mock('@/lib/users', () => ({
   ensureUserRecord: mockEnsureUserRecord,
+  userRecordExists: mockUserRecordExists,
 }));
 
 const setupSelect = (result: unknown[]) => {
@@ -76,6 +78,8 @@ describe('onboarding', () => {
     mockDb.update.mockReset();
     mockCreditsEnabled = true;
     mockEnsureUserRecord.mockClear();
+    mockUserRecordExists.mockClear();
+    mockUserRecordExists.mockResolvedValue(false);
     mockEnsureReferralCode.mockClear();
     mockEnsureCreditAccount.mockClear();
     mockClaimIntroCredits.mockClear();

@@ -98,12 +98,28 @@ export interface ShareLinks {
  * @param text - Full share text (used for Reddit, WhatsApp, Telegram, LinkedIn)
  * @param replayUrl - Replay URL for the bout
  * @param xText - Optional shorter text for X/Twitter (280 char limit). Falls back to `text` if omitted.
+ * @param sharerId - Optional Clerk user ID appended as `pit_sharer` for viral attribution.
  */
-export function buildShareLinks(text: string, replayUrl: string, xText?: string): ShareLinks {
-  const encoded = encodeURIComponent(text);
-  const encodedUrl = encodeURIComponent(replayUrl);
+export function buildShareLinks(text: string, replayUrl: string, xText?: string, sharerId?: string | null): ShareLinks {
+  // Append sharer attribution to the replay URL if a userId is provided.
+  // This enables K-factor viral coefficient tracking (OCE-252).
+  const attributedUrl = sharerId
+    ? `${replayUrl}${replayUrl.includes('?') ? '&' : '?'}pit_sharer=${encodeURIComponent(sharerId)}`
+    : replayUrl;
+
+  // Replace the plain replayUrl inside text/xText with the attributed version
+  // so ALL share channels (including X and WhatsApp) carry the pit_sharer param.
+  // Without this, only channels using encodedUrl (Reddit, LinkedIn, Telegram)
+  // would include attribution — X and WhatsApp embed the URL inline in the text.
+  const attributedText = sharerId ? text.replaceAll(replayUrl, attributedUrl) : text;
+  const attributedXText = xText
+    ? (sharerId ? xText.replaceAll(replayUrl, attributedUrl) : xText)
+    : attributedText;
+
+  const encoded = encodeURIComponent(attributedText);
+  const encodedUrl = encodeURIComponent(attributedUrl);
   const title = encodeURIComponent(`THE PIT — AI Battle Arena`);
-  const xEncoded = encodeURIComponent(xText ?? text);
+  const xEncoded = encodeURIComponent(attributedXText);
 
   return {
     x: `https://twitter.com/intent/tweet?text=${xEncoded}`,

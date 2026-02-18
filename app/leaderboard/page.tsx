@@ -1,4 +1,5 @@
 import { LeaderboardDashboard } from '@/components/leaderboard-dashboard';
+import { TrackPageEvent } from '@/components/track-page-event';
 import { getCopy } from '@/lib/copy';
 import { getLeaderboardData } from '@/lib/leaderboard';
 
@@ -9,6 +10,7 @@ export default async function LeaderboardPage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-background text-foreground">
+      <TrackPageEvent event="leaderboard_viewed" />
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-10">
         <header className="border-b-2 border-foreground/70 pb-6">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">

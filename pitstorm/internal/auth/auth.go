@@ -193,9 +193,15 @@ type signInTokenResponse struct {
 // This token can be redeemed via the FAPI to create a session, bypassing
 // the normal sign-in flow (including phone verification / 2FA).
 func (b *BackendClient) CreateSignInToken(ctx context.Context, userID string) (*signInTokenResponse, error) {
-	body := fmt.Sprintf(`{"user_id":%q}`, userID)
+	tokenPayload := struct {
+		UserID string `json:"user_id"`
+	}{UserID: userID}
+	tokenBytes, err := json.Marshal(tokenPayload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal request: %w", err)
+	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		b.apiURL+"/v1/sign_in_tokens", strings.NewReader(body))
+		b.apiURL+"/v1/sign_in_tokens", strings.NewReader(string(tokenBytes)))
 	if err != nil {
 		return nil, err
 	}
@@ -238,17 +244,29 @@ type CreateUserRequest struct {
 
 // CreateUserResponse holds the result of creating a Clerk user.
 type CreateUserResponse struct {
-	ID    string `json:"id"`
-	Email string `json:"-"` // set by caller for convenience
+	ID             string `json:"id"`
+	Email          string `json:"-"` // set by caller for convenience
+	AlreadyExisted bool   `json:"-"` // true when the 422-lookup path was taken
 }
 
 // CreateUser creates a new user in Clerk via the Backend API (POST /v1/users).
 // If the user already exists (409), it looks them up by email and returns the existing ID.
 func (b *BackendClient) CreateUser(ctx context.Context, req CreateUserRequest) (*CreateUserResponse, error) {
-	body := fmt.Sprintf(`{"email_address":[%q],"password":%q,"skip_password_checks":true}`,
-		req.Email, req.Password)
+	payload := struct {
+		EmailAddress       []string `json:"email_address"`
+		Password           string   `json:"password"`
+		SkipPasswordChecks bool     `json:"skip_password_checks"`
+	}{
+		EmailAddress:       []string{req.Email},
+		Password:           req.Password,
+		SkipPasswordChecks: true,
+	}
+	bodyBytes, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal request: %w", err)
+	}
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		b.apiURL+"/v1/users", strings.NewReader(body))
+		b.apiURL+"/v1/users", strings.NewReader(string(bodyBytes)))
 	if err != nil {
 		return nil, err
 	}
@@ -267,13 +285,35 @@ func (b *BackendClient) CreateUser(ctx context.Context, req CreateUserRequest) (
 		return nil, fmt.Errorf("read response: %w", err)
 	}
 
-	// 422 with "already exists" means the user already exists — look them up.
-	if resp.StatusCode == http.StatusUnprocessableEntity && strings.Contains(string(respBody), "taken") {
-		existingID, lookupErr := b.LookupUserByEmail(ctx, req.Email)
-		if lookupErr != nil {
-			return nil, fmt.Errorf("user exists but lookup failed: %w", lookupErr)
+	// 422 means the email is already taken. Check Clerk's error code for
+	// robustness rather than substring-matching the English message text.
+	if resp.StatusCode == http.StatusUnprocessableEntity {
+		var clerkErr struct {
+			Errors []struct {
+				Code string `json:"code"`
+			} `json:"errors"`
 		}
-		return &CreateUserResponse{ID: existingID, Email: req.Email}, nil
+		isAlreadyExists := false
+		if json.Unmarshal(respBody, &clerkErr) == nil {
+			for _, e := range clerkErr.Errors {
+				if e.Code == "form_identifier_exists" {
+					isAlreadyExists = true
+					break
+				}
+			}
+		}
+		// Fallback: if we couldn't parse the error code, check for the legacy
+		// "taken" substring to avoid breaking on older Clerk API versions.
+		if !isAlreadyExists {
+			isAlreadyExists = strings.Contains(string(respBody), "taken")
+		}
+		if isAlreadyExists {
+			existingID, lookupErr := b.LookupUserByEmail(ctx, req.Email)
+			if lookupErr != nil {
+				return nil, fmt.Errorf("user exists but lookup failed: %w", lookupErr)
+			}
+			return &CreateUserResponse{ID: existingID, Email: req.Email, AlreadyExisted: true}, nil
+		}
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -726,8 +766,13 @@ func (r *Refresher) loop(ctx context.Context, targets []RefreshTarget, callback 
 func (r *Refresher) refreshAll(ctx context.Context, targets []RefreshTarget, callback RefreshCallback) {
 	for i, t := range targets {
 		// Delay between refreshes to avoid Clerk FAPI rate limiting.
+		// Context-aware: returns immediately on cancellation/timeout.
 		if i > 0 {
-			time.Sleep(2 * time.Second)
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(2 * time.Second):
+			}
 		}
 		var token string
 		var expiresAt time.Time

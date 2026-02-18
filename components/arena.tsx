@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
 
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
@@ -385,6 +386,7 @@ export function Arena({
   initialUserVote?: string | null;
 }) {
   const c = useCopy();
+  const { userId } = useAuth();
 
   // --- Streaming state ---
   const {
@@ -428,6 +430,7 @@ export function Arena({
     status,
     messages,
     shareLine: resolvedShareLine,
+    userId,
   });
 
   // --- Scroll management ---

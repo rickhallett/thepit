@@ -128,6 +128,20 @@ export async function ensureUserRecord(userId: string) {
 }
 
 /**
+ * Check whether a user record exists in the database.
+ * Used by onboarding to detect new users durably (survives deploys/restarts).
+ */
+export async function userRecordExists(userId: string): Promise<boolean> {
+  const db = requireDb();
+  const [row] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  return !!row;
+}
+
+/**
  * Look up a user's display name. Fallback chain:
  * displayName -> masked email -> truncated ID.
  */

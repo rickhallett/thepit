@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -270,6 +271,13 @@ func (e *Engine) writeStatus(snap metrics.Snapshot, bs budget.Summary) {
 	}
 	// Atomic write: write to temp file then rename to avoid partial reads.
 	tmp := e.cfg.StatusFile + ".tmp"
+	// Ensure parent directory exists (e.g. results/ is gitignored).
+	if dir := filepath.Dir(tmp); dir != "." {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			e.logf("[status] mkdir error: %v", err)
+			return
+		}
+	}
 	if err := os.WriteFile(tmp, data, 0644); err != nil {
 		e.logf("[status] write error: %v", err)
 		return

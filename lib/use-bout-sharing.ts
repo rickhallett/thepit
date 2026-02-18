@@ -50,6 +50,7 @@ export function useBoutSharing({
   status,
   messages,
   shareLine,
+  userId,
 }: {
   boutId: string;
   preset: Preset;
@@ -57,6 +58,7 @@ export function useBoutSharing({
   status: string;
   messages: { id: string; agentName: string; text: string }[];
   shareLine: string | null;
+  userId?: string | null;
 }) {
   const [shareUrl, setShareUrl] = useState(() =>
     typeof window !== 'undefined' ? window.location.href : '',
@@ -142,10 +144,10 @@ export function useBoutSharing({
 
       return {
         payload,
-        links: buildShareLinks(payload, replayUrl, xText),
+        links: buildShareLinks(payload, replayUrl, xText, userId),
       };
     });
-  }, [messages, preset.name, replayUrl, shareLine, topic]);
+  }, [messages, preset.name, replayUrl, shareLine, topic, userId]);
 
   const copyTranscript = async () => {
     if (!sharePayload) return;

@@ -15,6 +15,7 @@ import {
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
+import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -105,6 +106,12 @@ export const POST = withLogging(async function POST(req: Request) {
           referenceId: session.id,
           credits,
         });
+        serverTrack(userId, 'credit_purchase_completed', {
+          credits,
+          amount_total: session.amount_total ?? 0,
+          currency: session.currency ?? 'gbp',
+          session_id: session.id,
+        });
       }
 
       if (existing) {
@@ -140,6 +147,11 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
+        serverTrack(userId, 'subscription_started', {
+          tier,
+          subscription_id: subscription.id,
+          status: subscription.status,
+        });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
@@ -162,6 +174,22 @@ export const POST = withLogging(async function POST(req: Request) {
     if (userId && priceId) {
       const tier = resolveTierFromPriceId(priceId);
       if (tier) {
+        // Read the old tier BEFORE writing the update — otherwise the
+        // comparison always sees oldTier === newTier.
+        // Exhaustive tier ordering — TypeScript enforces all UserTier values
+        // are mapped, so adding a new tier without updating this map is a
+        // compile-time error (no silent misclassification of upgrades).
+        const tierOrder: Record<UserTier, number> = { free: 0, pass: 1, lab: 2 };
+        const db = requireDb();
+        const [currentUser] = await db
+          .select({ tier: users.subscriptionTier })
+          .from(users)
+          .where(eq(users.id, userId))
+          .limit(1);
+        const oldTier: UserTier = (currentUser?.tier as UserTier) ?? 'free';
+        const oldTierRank = tierOrder[oldTier];
+        const newTierRank = tierOrder[tier];
+
         await updateUserSubscription({
           userId,
           tier,
@@ -172,6 +200,20 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
+
+        if (newTierRank > oldTierRank) {
+          serverTrack(userId, 'subscription_upgraded', {
+            from_tier: oldTier,
+            to_tier: tier,
+            subscription_id: subscription.id,
+          });
+        } else if (newTierRank < oldTierRank) {
+          serverTrack(userId, 'subscription_downgraded', {
+            from_tier: oldTier,
+            to_tier: tier,
+            subscription_id: subscription.id,
+          });
+        }
         log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
@@ -196,6 +238,9 @@ export const POST = withLogging(async function POST(req: Request) {
         subscriptionStatus: 'canceled',
         currentPeriodEnd: null,
         stripeCustomerId: subscription.customer,
+      });
+      serverTrack(userId, 'subscription_churned', {
+        subscription_id: subscription.id,
       });
       log.info('Subscription deleted, downgraded to free', { userId });
     }
@@ -231,6 +276,10 @@ export const POST = withLogging(async function POST(req: Request) {
         subscriptionStatus: 'past_due',
         currentPeriodEnd: null,
         stripeCustomerId: invoice.customer,
+      });
+      serverTrack(userId, 'payment_failed', {
+        subscription_id: invoice.subscription,
+        invoice_id: invoice.id,
       });
       log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
@@ -275,6 +324,15 @@ export const POST = withLogging(async function POST(req: Request) {
         log.info('Payment succeeded, tier restored', { userId, tier });
       }
     }
+  }
+
+  // Flush server-side analytics before the serverless function terminates.
+  // Wrapped in try-catch so a PostHog SDK/network error doesn't turn a
+  // successful webhook into a 500, which would trigger Stripe retries.
+  try {
+    await flushServerAnalytics();
+  } catch {
+    // Best-effort — analytics loss is acceptable, webhook failure is not.
   }
 
   return Response.json({ received: true });

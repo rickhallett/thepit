@@ -16,6 +16,14 @@ const REFERRAL_RE = /^[A-Za-z0-9_-]{1,32}$/;
 const SESSION_COOKIE = 'pit_sid';
 const SESSION_MAX_AGE = 30 * 60; // 30 minutes rolling
 
+/** Visit counter cookie — persists across sessions for retention analysis. */
+const VISIT_COOKIE = 'pit_visits';
+const VISIT_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
+/** Last-visit timestamp cookie — measures days since last visit. */
+const LAST_VISIT_COOKIE = 'pit_last_visit';
+const LAST_VISIT_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
 /** Variant cookie max age — 30 days. */
 const VARIANT_MAX_AGE = 60 * 60 * 24 * 30;
 
@@ -183,6 +191,52 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   }
 
   // ---------------------------------------------------------------------------
+  // Visit counter — track visit number and recency for retention cohorts (OCE-254)
+  // ---------------------------------------------------------------------------
+  // A "visit" is a new session (no existing pit_sid cookie). We increment the
+  // visit counter and record the last-visit timestamp to compute days-since-last.
+  // Defaults are only consumed when `hasAnalyticsConsent` is true (the PV
+  // payload is gated on consent, and `isNewSession` is false without it).
+  // When consent is absent these values are inert — kept at safe defaults.
+  let visitNumber = 1;
+  let daysSinceLastVisit: number | null = null;
+  const isNewSession = hasAnalyticsConsent && !req.cookies.get(SESSION_COOKIE)?.value;
+
+  if (hasAnalyticsConsent) {
+    const existingVisits = parseInt(req.cookies.get(VISIT_COOKIE)?.value ?? '0', 10) || 0;
+    const lastVisitTs = req.cookies.get(LAST_VISIT_COOKIE)?.value;
+
+    if (isNewSession) {
+      visitNumber = existingVisits + 1;
+      if (lastVisitTs) {
+        const lastVisitDate = new Date(lastVisitTs);
+        if (!isNaN(lastVisitDate.getTime())) {
+          daysSinceLastVisit = Math.floor(
+            (Date.now() - lastVisitDate.getTime()) / (1000 * 60 * 60 * 24),
+          );
+        }
+      }
+
+      response.cookies.set(VISIT_COOKIE, String(visitNumber), {
+        maxAge: VISIT_MAX_AGE,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        httpOnly: true,
+      });
+      response.cookies.set(LAST_VISIT_COOKIE, new Date().toISOString(), {
+        maxAge: LAST_VISIT_MAX_AGE,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        httpOnly: true,
+      });
+    } else {
+      visitNumber = existingVisits || 1;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Page view recording — fire-and-forget to /api/pv internal endpoint (requires consent)
   // ---------------------------------------------------------------------------
   const pvSecret = process.env.PV_INTERNAL_SECRET;
@@ -221,6 +275,9 @@ export default clerkMiddleware(async (clerkAuth, req) => {
         utm: utmCookie,
         userId: pvUserId,
         copyVariant,
+        visitNumber,
+        daysSinceLastVisit,
+        isNewSession: isNewSession ?? false,
       }),
     }).catch(() => {
       // Silently drop — page views are best-effort analytics

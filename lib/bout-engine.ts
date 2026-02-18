@@ -14,13 +14,14 @@
 import * as Sentry from '@sentry/nextjs';
 import { tracedStreamText, untracedStreamText, withTracing } from '@/lib/langsmith';
 import { getContext } from '@/lib/async-context';
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 
 import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
+import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
 import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
@@ -96,8 +97,8 @@ export type BoutContext = {
   preauthMicro: number;
   /** Micro-credits consumed from the intro pool for anonymous bouts. Zero for authenticated bouts. */
   introPoolConsumedMicro: number;
-  /** User tier at the time of validation — 'anonymous' | 'free' | 'pass' | 'lab'. */
-  tier: string;
+  /** User tier at the time of validation. */
+  tier: 'anonymous' | 'free' | 'pass' | 'lab';
   requestId: string;
   db: ReturnType<typeof requireDb>;
 };
@@ -553,12 +554,11 @@ async function _executeBoutInner(
     userId: userId ?? undefined,
   });
 
-  // TEMPORARY: Phase 7 structured log — revert after load testing
   Sentry.logger.info('bout_started', {
     bout_id: boutId,
     preset_id: presetId,
     model_id: modelId,
-    user_id: userId ?? 'anonymous',
+    user_id: userId ? hashUserId(userId) : 'anonymous',
     user_tier: ctx.tier,
     response_length: lengthConfig.id,
     response_format: formatConfig.id,
@@ -830,12 +830,11 @@ async function _executeBoutInner(
       hasShareLine: !!shareLine,
     });
 
-    // TEMPORARY: Phase 7 structured log — revert after load testing
     Sentry.logger.info('bout_completed', {
       bout_id: boutId,
       preset_id: presetId,
       model_id: modelId,
-      user_id: userId ?? 'anonymous',
+      user_id: userId ? hashUserId(userId) : 'anonymous',
       user_tier: ctx.tier,
       turns: preset.maxTurns,
       input_tokens: inputTokens,
@@ -843,6 +842,38 @@ async function _executeBoutInner(
       duration_ms: boutDurationMs,
       has_share_line: !!shareLine,
     });
+
+    // --- Analytics: user_activated (OCE-253) ---
+    // Fire once when a user completes their very first bout. We check the DB
+    // for any OTHER completed bouts by this user. If this is the only one,
+    // this is their activation moment.
+    //
+    // KNOWN RACE: Two concurrent bout completions can both see count(*) === 1
+    // and fire duplicate user_activated events. An atomic UPDATE ... WHERE
+    // activated_at IS NULL RETURNING pattern would fix this, but requires a
+    // schema migration (no activated_at column exists). The minor analytics
+    // duplication is acceptable — PostHog deduplicates on distinct_id+timestamp
+    // and the funnel metric tolerates it.
+    if (userId) {
+      try {
+        const [boutCount] = await db
+          .select({ value: sql<number>`count(*)::int` })
+          .from(bouts)
+          .where(and(eq(bouts.ownerId, userId), eq(bouts.status, 'completed')));
+        if (boutCount && boutCount.value === 1) {
+          serverTrack(userId, 'user_activated', {
+            preset_id: presetId,
+            model_id: modelId,
+            duration_ms: boutDurationMs,
+          });
+          // Flush immediately — in serverless environments the PostHog batch
+          // buffer may not drain before the function terminates.
+          await flushServerAnalytics();
+        }
+      } catch {
+        // Non-critical — don't break bout completion for analytics
+      }
+    }
 
     if (shareLine) {
       onEvent?.({ type: 'data-share-line', data: { text: shareLine } });
@@ -897,12 +928,11 @@ async function _executeBoutInner(
       durationMs: boutDurationMs,
     });
 
-    // TEMPORARY: Phase 7 structured log — revert after load testing
     Sentry.logger.error('bout_error', {
       bout_id: boutId,
       preset_id: presetId,
       model_id: modelId,
-      user_id: userId ?? 'anonymous',
+      user_id: userId ? hashUserId(userId) : 'anonymous',
       user_tier: ctx.tier,
       turns_completed: transcript.length,
       input_tokens: inputTokens,
