@@ -21,7 +21,7 @@ import { cookies } from 'next/headers';
 import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
-import { serverTrack } from '@/lib/posthog-server';
+import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
 import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
@@ -847,6 +847,13 @@ async function _executeBoutInner(
     // Fire once when a user completes their very first bout. We check the DB
     // for any OTHER completed bouts by this user. If this is the only one,
     // this is their activation moment.
+    //
+    // KNOWN RACE: Two concurrent bout completions can both see count(*) === 1
+    // and fire duplicate user_activated events. An atomic UPDATE ... WHERE
+    // activated_at IS NULL RETURNING pattern would fix this, but requires a
+    // schema migration (no activated_at column exists). The minor analytics
+    // duplication is acceptable — PostHog deduplicates on distinct_id+timestamp
+    // and the funnel metric tolerates it.
     if (userId) {
       try {
         const [boutCount] = await db
@@ -859,6 +866,9 @@ async function _executeBoutInner(
             model_id: modelId,
             duration_ms: boutDurationMs,
           });
+          // Flush immediately — in serverless environments the PostHog batch
+          // buffer may not drain before the function terminates.
+          await flushServerAnalytics();
         }
       } catch {
         // Non-critical — don't break bout completion for analytics

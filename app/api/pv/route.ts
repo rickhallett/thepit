@@ -12,7 +12,7 @@ import { sha256Hex } from '@/lib/hash';
 import { log } from '@/lib/logger';
 import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
-import { serverTrack } from '@/lib/posthog-server';
+import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -109,6 +109,9 @@ async function rawPOST(req: Request) {
         utm_medium: utmMedium,
         country: payload.country?.slice(0, 2) ?? null,
       });
+      // Flush immediately — in serverless environments the PostHog batch buffer
+      // (flushAt=20, flushInterval=5s) may not drain before the function terminates.
+      await flushServerAnalytics();
     }
   } catch (error) {
     // Best-effort — don't fail the page load

@@ -13,8 +13,8 @@ import {
   INTRO_SIGNUP_CREDITS,
 } from '@/lib/intro-pool';
 import { ensureReferralCode, applyReferralBonus } from '@/lib/referrals';
-import { ensureUserRecord } from '@/lib/users';
-import { serverTrack, serverIdentify } from '@/lib/posthog-server';
+import { ensureUserRecord, userRecordExists } from '@/lib/users';
+import { serverTrack, serverIdentify, flushServerAnalytics } from '@/lib/posthog-server';
 
 export async function applySignupBonus(userId: string) {
   if (!CREDITS_ENABLED) {
@@ -68,19 +68,26 @@ export async function initializeUserSession(params: {
     return;
   }
 
+  // Check DB for existing user BEFORE ensureUserRecord creates one.
+  // This provides a durable new-user signal that survives deploys/restarts,
+  // unlike the in-memory cache which resets and causes duplicate events.
+  const existedBefore = await userRecordExists(params.userId);
+
   await ensureUserRecord(params.userId);
   await ensureReferralCode(params.userId);
 
   // Detect new users for analytics. When credits are enabled we use the
-  // signup bonus claim as the signal ('claimed' vs 'already'). When credits
-  // are disabled we fall back to checking whether ensureUserRecord created a
-  // new row — the function is idempotent so "first call = new user".
+  // signup bonus claim as the signal ('claimed' or 'empty' — the pool may be
+  // exhausted but the user is still new). When credits are disabled we use
+  // the durable DB check from above.
   let isNewUser = false;
 
   if (CREDITS_ENABLED) {
     await ensureCreditAccount(params.userId);
     const bonusResult = await applySignupBonus(params.userId);
-    isNewUser = bonusResult.status === 'claimed';
+    // Both 'claimed' (got credits) and 'empty' (pool drained) indicate a new
+    // user. Only 'already' (duplicate) and 'disabled' are not new signups.
+    isNewUser = bonusResult.status === 'claimed' || bonusResult.status === 'empty';
 
     if (params.referralCode) {
       await applyReferralBonus({
@@ -89,12 +96,9 @@ export async function initializeUserSession(params: {
       });
     }
   } else {
-    // Credits disabled (dev / non-monetised). Detect new users by checking
-    // whether the in-memory cache has seen this user before — if not, and
-    // we weren't in the cache at function entry, this is the first init.
-    // Note: `lastInit` was checked above; if we reach here it was either
-    // absent or expired, so this is effectively "first session for this user".
-    isNewUser = !lastInit;
+    // Credits disabled (dev / non-monetised). Use the durable DB check —
+    // if the user row didn't exist before ensureUserRecord, this is new.
+    isNewUser = !existedBefore;
   }
 
   // --- Analytics: signup_completed (OCE-250) ---
@@ -116,6 +120,9 @@ export async function initializeUserSession(params: {
       referral_code: params.referralCode ?? null,
       utm_source: params.utmSource ?? null,
     });
+    // Flush immediately — in serverless environments the PostHog batch buffer
+    // (flushAt=20, flushInterval=5s) may not drain before the function terminates.
+    await flushServerAnalytics();
   }
 
   recentlyInitialized.set(params.userId, now);

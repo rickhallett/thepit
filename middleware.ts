@@ -222,12 +222,14 @@ export default clerkMiddleware(async (clerkAuth, req) => {
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
         path: '/',
+        httpOnly: true,
       });
       response.cookies.set(LAST_VISIT_COOKIE, new Date().toISOString(), {
         maxAge: LAST_VISIT_MAX_AGE,
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
         path: '/',
+        httpOnly: true,
       });
     } else {
       visitNumber = existingVisits || 1;

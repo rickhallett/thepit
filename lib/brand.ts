@@ -107,10 +107,19 @@ export function buildShareLinks(text: string, replayUrl: string, xText?: string,
     ? `${replayUrl}${replayUrl.includes('?') ? '&' : '?'}pit_sharer=${encodeURIComponent(sharerId)}`
     : replayUrl;
 
-  const encoded = encodeURIComponent(text);
+  // Replace the plain replayUrl inside text/xText with the attributed version
+  // so ALL share channels (including X and WhatsApp) carry the pit_sharer param.
+  // Without this, only channels using encodedUrl (Reddit, LinkedIn, Telegram)
+  // would include attribution — X and WhatsApp embed the URL inline in the text.
+  const attributedText = sharerId ? text.replaceAll(replayUrl, attributedUrl) : text;
+  const attributedXText = xText
+    ? (sharerId ? xText.replaceAll(replayUrl, attributedUrl) : xText)
+    : attributedText;
+
+  const encoded = encodeURIComponent(attributedText);
   const encodedUrl = encodeURIComponent(attributedUrl);
   const title = encodeURIComponent(`THE PIT — AI Battle Arena`);
-  const xEncoded = encodeURIComponent(xText ?? text);
+  const xEncoded = encodeURIComponent(attributedXText);
 
   return {
     x: `https://twitter.com/intent/tweet?text=${xEncoded}`,

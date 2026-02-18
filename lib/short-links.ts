@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid';
 import { requireDb } from '@/db';
 import { shortLinks, shortLinkClicks } from '@/db/schema';
 import { sha256Hex } from '@/lib/hash';
+import { log } from '@/lib/logger';
 import { resolveClientIp } from '@/lib/ip';
 
 const SLUG_LENGTH = 8;
@@ -110,10 +111,11 @@ export async function recordClick(
   const rawIp = resolveClientIp(req.headers);
   const ipHash = await sha256Hex(rawIp);
 
-  await db.insert(shortLinkClicks).values({
+  const sharerId = url.searchParams.get('pit_sharer') ?? null;
+  const clickData = {
     shortLinkId,
     boutId,
-    sharerId: url.searchParams.get('pit_sharer') ?? null,
+    sharerId,
     refCode: url.searchParams.get('ref') ?? null,
     utmSource: url.searchParams.get('utm_source') ?? null,
     utmMedium: url.searchParams.get('utm_medium') ?? null,
@@ -123,5 +125,23 @@ export async function recordClick(
     referer: req.headers.get('referer') ?? null,
     userAgent: req.headers.get('user-agent') ?? null,
     ipHash,
-  });
+  };
+
+  try {
+    await db.insert(shortLinkClicks).values(clickData);
+  } catch (error) {
+    // The sharerId comes from an untrusted query param (pit_sharer) and has a
+    // FK constraint to users.id. A tampered/invalid value causes a constraint
+    // violation. Retry without sharerId to preserve click analytics rather
+    // than silently dropping the entire record.
+    if (sharerId && error instanceof Error && error.message.includes('violates foreign key')) {
+      log.warn('Invalid pit_sharer in short link click, retrying without sharerId', {
+        sharerId,
+        boutId,
+      });
+      await db.insert(shortLinkClicks).values({ ...clickData, sharerId: null });
+    } else {
+      throw error;
+    }
+  }
 }

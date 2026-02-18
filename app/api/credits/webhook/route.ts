@@ -177,8 +177,8 @@ export const POST = withLogging(async function POST(req: Request) {
         // Read the old tier BEFORE writing the update — otherwise the
         // comparison always sees oldTier === newTier.
         const tierOrder: Record<string, number> = { free: 0, pass: 1, lab: 2 };
-        const db2 = requireDb();
-        const [currentUser] = await db2
+        const db = requireDb();
+        const [currentUser] = await db
           .select({ tier: users.subscriptionTier })
           .from(users)
           .where(eq(users.id, userId))
