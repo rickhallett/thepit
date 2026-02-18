@@ -104,6 +104,9 @@ export function RateLimitUpgradePrompt({
   const isTopTier = currentTier === 'lab' || upgradeTiers.length === 0;
 
   // --- Analytics: paywall_hit (OCE-287) ---
+  // Intentionally fire-once-per-mount: this component only renders when the
+  // user hits the rate limit, so we want exactly one event per prompt display.
+  // Props won't change during a single mount lifecycle.
   useEffect(() => {
     trackEvent('paywall_hit', {
       current_tier: currentTier,

@@ -114,11 +114,12 @@ async function rawPOST(req: Request) {
         country: payload.country?.slice(0, 2) ?? null,
       });
 
-      // --- Analytics: referral_arrived (OCE-288) ---
-      // Fire when a referred user starts a new session (pit_ref cookie present).
+      // --- Analytics: referred_session_started (OCE-288) ---
+      // Fire on each new session where pit_ref cookie is present. Fires per-session
+      // (not once-per-user) since the cookie persists 30 days across sessions.
       const referralCode = typeof payload.referralCode === 'string' ? payload.referralCode.slice(0, 64) : null;
       if (referralCode) {
-        serverTrack(distinctId, 'referral_arrived', {
+        serverTrack(distinctId, 'referred_session_started', {
           referral_code: referralCode,
           landing_page: path,
           referrer: payload.referrer?.slice(0, 256) ?? null,

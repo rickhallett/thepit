@@ -555,27 +555,27 @@ async function _executeBoutInner(
     userId: userId ?? undefined,
   });
 
-    Sentry.logger.info('bout_started', {
-      bout_id: boutId,
-      preset_id: presetId,
-      model_id: modelId,
-      user_id: userId ? hashUserId(userId) : 'anonymous',
-      user_tier: ctx.tier,
-      response_length: lengthConfig.id,
-      response_format: formatConfig.id,
-      max_turns: preset.maxTurns,
-    });
+  Sentry.logger.info('bout_started', {
+    bout_id: boutId,
+    preset_id: presetId,
+    model_id: modelId,
+    user_id: userId ? hashUserId(userId) : 'anonymous',
+    user_tier: ctx.tier,
+    response_length: lengthConfig.id,
+    response_format: formatConfig.id,
+    max_turns: preset.maxTurns,
+  });
 
-    // --- Analytics: bout_started (OCE-283) ---
-    serverTrack(userId ?? 'anonymous', 'bout_started', {
-      bout_id: boutId,
-      preset_id: presetId,
-      model_id: modelId,
-      user_tier: ctx.tier,
-      agent_count: preset.agents.length,
-      max_turns: preset.maxTurns,
-      is_byok: !!byokData,
-    });
+  // --- Analytics: bout_started (OCE-283) ---
+  serverTrack(userId ?? 'anonymous', 'bout_started', {
+    bout_id: boutId,
+    preset_id: presetId,
+    model_id: modelId,
+    user_tier: ctx.tier,
+    agent_count: preset.agents.length,
+    max_turns: preset.maxTurns,
+    is_byok: !!byokData,
+  });
 
   const history: string[] = [];
   const transcript: TranscriptEntry[] = [];

@@ -29,7 +29,7 @@ export type ServerAnalyticsEvent =
   | 'bout_completed'
   | 'bout_error'
   // Viral funnel (OCE-288)
-  | 'referral_arrived';
+  | 'referred_session_started';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
