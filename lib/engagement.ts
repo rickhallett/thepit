@@ -109,6 +109,10 @@ export type BoutEngagement = {
   reactionsGiven: number;
   /** Whether the user cast a winner vote during this bout session. */
   votesCast: boolean;
+  /** Preset ID for funnel attribution. */
+  presetId?: string;
+  /** Model ID for funnel attribution. */
+  model?: string;
 };
 
 /**
@@ -120,5 +124,7 @@ export function trackBoutEngagement(boutId: string, engagement: BoutEngagement):
     turnsWatched: engagement.turnsWatched,
     reactionsGiven: engagement.reactionsGiven,
     votesCast: engagement.votesCast,
+    presetId: engagement.presetId ?? null,
+    model: engagement.model ?? null,
   });
 }

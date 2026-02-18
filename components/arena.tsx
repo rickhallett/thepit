@@ -474,6 +474,8 @@ export function Arena({
         turnsWatched: turnsWatchedRef.current,
         reactionsGiven: reactionsGivenRef.current,
         votesCast: Boolean(userVoteRef.current),
+        presetId: preset.id,
+        model: model ?? undefined,
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

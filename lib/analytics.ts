@@ -38,7 +38,11 @@ export type AnalyticsEvent =
   | 'leaderboard_viewed'
   | 'agents_browsed'
   | 'preset_browsed'
-  | 'bout_replayed';
+  | 'bout_replayed'
+  // Acquisition funnel (OCE-285)
+  | 'consent_granted'
+  | 'consent_declined'
+  | 'arena_viewed';
 
 export function trackEvent(event: AnalyticsEvent, properties?: EventProperties) {
   if (typeof window === 'undefined') return;
