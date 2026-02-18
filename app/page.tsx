@@ -75,7 +75,7 @@ export default async function LandingPage() {
               </span>
               {poolStatus.exhausted && (
                 <Link
-                  href="/sign-up?redirect_url=/arena"
+                  href={isSignedIn ? '/arena' : '/sign-up?redirect_url=/arena'}
                   className="rounded-full border-2 border-accent/70 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-accent transition hover:bg-accent/10"
                 >
                   {c.hero.introPool.drained}
