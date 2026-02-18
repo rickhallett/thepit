@@ -9,7 +9,7 @@ const __dirname = import.meta.dirname;
 const require = createRequire(import.meta.url);
 
 // Content-Security-Policy directives.
-// Server-side-only domains (api.resend.com, export.arxiv.org, anthropic.helicone.ai,
+// Server-side-only domains (api.resend.com, export.arxiv.org,
 // api.stripe.com) are omitted since CSP only governs the browser.
 //
 // Clerk domains: production uses clerk.thepit.cloud (Frontend API) and

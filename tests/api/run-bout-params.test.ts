@@ -107,6 +107,7 @@ vi.mock('@/lib/credits', () => ({
   BYOK_ENABLED: false,
   applyCreditDelta: vi.fn(),
   computeCostGbp: vi.fn(() => 0),
+  computeCostUsd: vi.fn(() => ({ inputCostUsd: 0, outputCostUsd: 0, totalCostUsd: 0 })),
   estimateBoutCostGbp: vi.fn(() => 0),
   estimateTokensFromText: vi.fn(() => 0),
   preauthorizeCredits: vi.fn(),

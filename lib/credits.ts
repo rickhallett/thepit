@@ -49,6 +49,9 @@ export const BYOK_FEE_GBP_PER_1K_TOKENS = Number(
 );
 export const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
 
+/** GBP/USD exchange rate used for pricing conversions. */
+export const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
+
 // Prices per million tokens in GBP (converted from USD at ~0.732 GBP/USD).
 // Combined with CREDIT_PLATFORM_MARGIN (default 10%), these yield ~10% margin
 // over actual Anthropic API costs.
@@ -150,6 +153,25 @@ export const computeCostGbp = (
   const raw =
     (inputTokens * pricing.in + outputTokens * pricing.out) / 1_000_000;
   return raw * (1 + CREDIT_PLATFORM_MARGIN);
+};
+
+/**
+ * Compute actual cost in USD for PostHog $ai_generation events.
+ * PostHog's LLM analytics dashboard expects costs in USD.
+ */
+export const computeCostUsd = (
+  inputTokens: number,
+  outputTokens: number,
+  modelId: string,
+): { inputCostUsd: number; outputCostUsd: number; totalCostUsd: number } => {
+  const pricing = getModelPricing(modelId);
+  const inputCostGbp = (inputTokens * pricing.in) / 1_000_000;
+  const outputCostGbp = (outputTokens * pricing.out) / 1_000_000;
+  return {
+    inputCostUsd: inputCostGbp * GBP_TO_USD,
+    outputCostUsd: outputCostGbp * GBP_TO_USD,
+    totalCostUsd: (inputCostGbp + outputCostGbp) * GBP_TO_USD,
+  };
 };
 
 export async function ensureCreditAccount(userId: string) {

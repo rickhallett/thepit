@@ -13,9 +13,8 @@
 // Platform-funded calls always use Anthropic directly. OpenRouter is
 // BYOK-only — the platform never routes its own calls through OpenRouter.
 //
-// When HELICONE_API_KEY is set, all platform-funded AI calls are routed
-// through Helicone's proxy for cost/latency/token analytics. BYOK calls
-// bypass Helicone since we don't proxy user-supplied keys.
+// LLM cost/token analytics are captured via PostHog $ai_generation events
+// in the bout engine (lib/bout-engine.ts) after each turn completes.
 
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
@@ -31,23 +30,8 @@ import {
   detectProvider,
 } from '@/lib/models';
 
-const HELICONE_API_KEY = process.env.HELICONE_API_KEY;
-const HELICONE_ENABLED = process.env.HELICONE_ENABLED === 'true';
-const HELICONE_BASE_URL = 'https://anthropic.helicone.ai/v1';
-
-const useHelicone = HELICONE_ENABLED && !!HELICONE_API_KEY;
-
 const defaultAnthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  ...(useHelicone
-    ? {
-        baseURL: HELICONE_BASE_URL,
-        headers: {
-          'Helicone-Auth': `Bearer ${HELICONE_API_KEY}`,
-          'Helicone-Property-Service': 'tspit',
-        },
-      }
-    : {}),
 });
 
 export const FREE_MODEL_ID =
@@ -93,7 +77,7 @@ export const DEFAULT_OPENROUTER_MODEL = OPENROUTER_MODELS.GPT_4O;
  * Resolve a model ID + optional API key into a provider instance.
  *
  * Provider routing for BYOK:
- *   - No apiKey → platform Anthropic (default or Helicone-proxied)
+ *   - No apiKey → platform Anthropic (direct)
  *   - sk-ant-* apiKey → direct Anthropic with user's key
  *   - sk-or-v1-* apiKey → OpenRouter with user's key
  *

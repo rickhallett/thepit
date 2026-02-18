@@ -21,7 +21,8 @@ export type ServerAnalyticsEvent =
   | 'subscription_churned'
   | 'credit_purchase_completed'
   | 'payment_failed'
-  | 'session_started';
+  | 'session_started'
+  | '$ai_generation';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
@@ -85,6 +86,63 @@ export function serverIdentify(
   client.identify({
     distinctId,
     properties,
+  });
+}
+
+/**
+ * Capture a PostHog $ai_generation event for LLM cost/token analytics.
+ *
+ * Uses PostHog's standard AI observability schema so generation data
+ * appears in the built-in LLM analytics dashboard. This replaces the
+ * Helicone proxy that was previously used for cost tracking.
+ *
+ * @see https://posthog.com/docs/ai-engineering/observability
+ */
+export function serverCaptureAIGeneration(
+  distinctId: string,
+  params: {
+    model: string;
+    provider: string;
+    inputTokens: number;
+    outputTokens: number;
+    inputCostUsd: number;
+    outputCostUsd: number;
+    totalCostUsd: number;
+    durationMs: number;
+    boutId: string;
+    presetId: string;
+    turn?: number;
+    isByok: boolean;
+    /** 'turn' for debate turns, 'share_line' for share line generation */
+    generationType: 'turn' | 'share_line';
+  },
+): void {
+  const client = getClient();
+  if (!client) return;
+
+  client.capture({
+    distinctId,
+    event: '$ai_generation',
+    properties: {
+      // PostHog standard $ai_generation fields
+      $ai_model: params.model,
+      $ai_provider: params.provider,
+      $ai_input_tokens: params.inputTokens,
+      $ai_output_tokens: params.outputTokens,
+      $ai_input_cost_usd: params.inputCostUsd,
+      $ai_output_cost_usd: params.outputCostUsd,
+      $ai_total_cost_usd: params.totalCostUsd,
+      $ai_latency: params.durationMs / 1000, // PostHog expects seconds
+      $ai_is_error: false,
+      // Custom properties for THE PIT context
+      bout_id: params.boutId,
+      preset_id: params.presetId,
+      turn: params.turn,
+      is_byok: params.isByok,
+      generation_type: params.generationType,
+      $lib: 'posthog-node',
+      source: 'server',
+    },
   });
 }
 
