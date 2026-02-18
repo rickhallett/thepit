@@ -14,6 +14,7 @@ import { PostHog } from 'posthog-node';
 // the server (webhooks, session init, bout engine, etc.).
 export type ServerAnalyticsEvent =
   | 'signup_completed'
+  | 'llm_generation_recorded'
   | 'user_activated'
   | 'subscription_started'
   | 'subscription_upgraded'

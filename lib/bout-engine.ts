@@ -751,6 +751,18 @@ async function _executeBoutInner(
         outputTokens: turnOutputTokens,
         durationMs: turnDurationMs,
       });
+      serverTrack(userId ?? `anon_${boutId}`, 'llm_generation_recorded', {
+        bout_id: boutId,
+        preset_id: presetId,
+        turn: i,
+        agent_id: agent.id,
+        provider: modelId === 'byok' ? (byokData?.provider ?? 'anthropic') : 'anthropic',
+        model_id: modelId,
+        input_tokens: turnInputTokens,
+        output_tokens: turnOutputTokens,
+        duration_ms: turnDurationMs,
+        estimated_cost_gbp: computeCostGbp(turnInputTokens, turnOutputTokens, modelId),
+      });
 
       // Refusal detection: log when an agent breaks character
       const refusalMarker = detectRefusal(fullText);
@@ -842,6 +854,18 @@ async function _executeBoutInner(
       duration_ms: boutDurationMs,
       has_share_line: !!shareLine,
     });
+    serverTrack(userId ?? `anon_${boutId}`, 'llm_generation_recorded', {
+      bout_id: boutId,
+      preset_id: presetId,
+      phase: 'bout_total',
+      provider: modelId === 'byok' ? (byokData?.provider ?? 'anthropic') : 'anthropic',
+      model_id: modelId,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      duration_ms: boutDurationMs,
+      estimated_cost_gbp: computeCostGbp(inputTokens, outputTokens, modelId),
+      turns: preset.maxTurns,
+    });
 
     // --- Analytics: user_activated (OCE-253) ---
     // Fire once when a user completes their very first bout. We check the DB
@@ -913,6 +937,11 @@ async function _executeBoutInner(
         });
       }
     }
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Best-effort analytics.
+    }
 
     return { transcript, shareLine, inputTokens, outputTokens };
   } catch (error) {
@@ -974,6 +1003,11 @@ async function _executeBoutInner(
     if (introPoolConsumedMicro > 0) {
       log.info('Refunding intro pool on error', { boutId, introPoolConsumedMicro });
       await refundIntroPool(introPoolConsumedMicro);
+    }
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Best-effort analytics.
     }
 
     throw error;
