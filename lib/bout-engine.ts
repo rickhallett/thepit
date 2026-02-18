@@ -291,9 +291,9 @@ export async function validateBoutRequest(
               ? []
               : [
                   ...(currentTier !== 'pass'
-                    ? [{ tier: 'pass', limit: 15, url: '/sign-up?redirect_url=/arena#upgrade' }]
+                    ? [{ tier: 'pass', limit: 15, url: userId ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade' }]
                     : []),
-                  { tier: 'lab', limit: null, url: '/sign-up?redirect_url=/arena#upgrade' },
+                  { tier: 'lab', limit: null, url: userId ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade' },
                 ],
         }),
       };

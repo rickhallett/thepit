@@ -158,7 +158,19 @@ describe('contact form', () => {
     expect(await res.json()).toMatchObject({ error: 'Rate limit exceeded.', code: 'RATE_LIMITED' });
   });
 
-  it('U9: HTML special chars in fields are escaped in email body', async () => {
+  it('U9: Resend API fetch throws (timeout/network) → 502', async () => {
+    (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
+    );
+
+    const res = await POST(
+      makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
+    );
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: 'Email delivery failed — please try again.' });
+  });
+
+  it('U10: HTML special chars in fields are escaped in email body', async () => {
     const res = await POST(
       makeJsonReq({
         name: '<script>alert("xss")</script>',
