@@ -107,6 +107,9 @@ async function rawPOST(req: Request) {
         referrer: payload.referrer?.slice(0, 256) ?? null,
         utm_source: utmSource,
         utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        utm_term: utmTerm,
+        utm_content: utmContent,
         country: payload.country?.slice(0, 2) ?? null,
       });
     }

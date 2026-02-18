@@ -176,16 +176,19 @@ export const POST = withLogging(async function POST(req: Request) {
       if (tier) {
         // Read the old tier BEFORE writing the update — otherwise the
         // comparison always sees oldTier === newTier.
-        const tierOrder: Record<string, number> = { free: 0, pass: 1, lab: 2 };
+        // Exhaustive tier ordering — TypeScript enforces all UserTier values
+        // are mapped, so adding a new tier without updating this map is a
+        // compile-time error (no silent misclassification of upgrades).
+        const tierOrder: Record<UserTier, number> = { free: 0, pass: 1, lab: 2 };
         const db = requireDb();
         const [currentUser] = await db
           .select({ tier: users.subscriptionTier })
           .from(users)
           .where(eq(users.id, userId))
           .limit(1);
-        const oldTier = currentUser?.tier ?? 'free';
-        const oldTierRank = tierOrder[oldTier] ?? 0;
-        const newTierRank = tierOrder[tier] ?? 0;
+        const oldTier: UserTier = (currentUser?.tier as UserTier) ?? 'free';
+        const oldTierRank = tierOrder[oldTier];
+        const newTierRank = tierOrder[tier];
 
         await updateUserSubscription({
           userId,
