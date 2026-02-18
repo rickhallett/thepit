@@ -5,6 +5,7 @@
 
 import { resolveShortLink, recordClick } from '@/lib/short-links';
 import { log } from '@/lib/logger';
+import { serverTrack } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -29,6 +30,12 @@ export async function GET(
       slug,
       boutId: link.boutId,
     });
+  });
+
+  // PostHog event for viral funnel tracking — complements the DB-only recordClick
+  serverTrack('anonymous', 'short_link_clicked', {
+    slug,
+    bout_id: link.boutId,
   });
 
   const url = new URL(req.url);

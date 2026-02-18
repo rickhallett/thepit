@@ -3,6 +3,7 @@
 import { useSyncExternalStore, useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useCopy } from '@/lib/copy-client';
+import { trackEvent } from '@/lib/analytics';
 
 /** Cookie name storing the user's analytics consent choice. */
 export const CONSENT_COOKIE = 'pit_consent';
@@ -63,6 +64,9 @@ export function CookieConsent() {
   const handleAccept = () => {
     setConsentCookie('accepted');
     setVersion((v) => v + 1);
+    // Track consent before reload — PostHog may not be initialized yet,
+    // but the event will be captured after reload when PostHog starts.
+    trackEvent('consent_granted', {});
     // Reload to allow PostHog to initialize and middleware to set analytics cookies
     window.location.reload();
   };
@@ -70,6 +74,10 @@ export function CookieConsent() {
   const handleDecline = () => {
     setConsentCookie('declined');
     setVersion((v) => v + 1);
+    // Note: this event will only fire if PostHog was already initialized
+    // (e.g. during a session where consent was previously granted then revoked).
+    // For first-time decliners, PostHog is not yet active so this is a no-op.
+    trackEvent('consent_declined', {});
   };
 
   return (

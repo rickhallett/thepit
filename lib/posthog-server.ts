@@ -22,7 +22,8 @@ export type ServerAnalyticsEvent =
   | 'credit_purchase_completed'
   | 'payment_failed'
   | 'session_started'
-  | '$ai_generation';
+  | '$ai_generation'
+  | 'short_link_clicked';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =

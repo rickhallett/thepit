@@ -178,7 +178,7 @@ export function useBout({
     const boutStartTime = Date.now();
     const run = async () => {
       setStatus('streaming');
-      trackEvent('bout_started', { presetId: preset.id, model: model ?? null });
+      trackEvent('bout_started', { boutId, presetId: preset.id, model: model ?? null });
 
       // BYOK key is now stashed in an HTTP-only cookie by /api/byok-stash.
       // The /api/run-bout endpoint reads it directly from the cookie —
@@ -300,6 +300,7 @@ export function useBout({
         setActiveMessageId(null);
         setThinkingAgentId(null);
         trackEvent('bout_completed', {
+          boutId,
           presetId: preset.id,
           model: model ?? null,
           durationMs: Date.now() - boutStartTime,
@@ -312,7 +313,7 @@ export function useBout({
         setErrorDetail({ code: 0, message: 'The arena short-circuited.' });
         setStatus('error');
         setThinkingAgentId(null);
-        trackEvent('bout_error', { presetId: preset.id, model: model ?? null });
+        trackEvent('bout_error', { boutId, presetId: preset.id, model: model ?? null });
       }
     });
 

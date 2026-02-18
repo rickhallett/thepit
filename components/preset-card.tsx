@@ -99,7 +99,12 @@ export function PresetCard({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     if (locked) return;
     setByokError(null);
-    trackEvent('preset_selected', { presetId: preset.id, model: selectedModel });
+    trackEvent('preset_selected', {
+      presetId: preset.id,
+      model: selectedModel,
+      agentCount: preset.agents.length,
+      tier: preset.tier,
+    });
     if (!showModelSelector) return;
     if (selectedModel === 'byok') {
       // If we already stashed the key, allow the form to submit normally
