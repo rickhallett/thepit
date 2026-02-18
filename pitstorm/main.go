@@ -57,7 +57,9 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "\n%s\n\n",
 		theme.Title.Render("pitstorm — release traffic simulator for THE PIT"))
 	fmt.Fprintf(os.Stderr, "Usage:\n")
-	fmt.Fprintf(os.Stderr, "  pitstorm <command> [flags]\n\n")
+	fmt.Fprintf(os.Stderr, "  pitstorm [global flags] <command> [command flags]\n\n")
+	fmt.Fprintf(os.Stderr, "Global Flags:\n")
+	fmt.Fprintf(os.Stderr, "  --env <path>         Path to .env file (auto-resolved if omitted)\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")
 	fmt.Fprintf(os.Stderr, "  run [flags]    Execute traffic simulation\n")
 	fmt.Fprintf(os.Stderr, "  plan [flags]   Dry run — estimate cost and show execution plan\n")
@@ -69,8 +71,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "Login Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --accounts <path>    Path to accounts.json (default: ./accounts.json)\n")
 	fmt.Fprintf(os.Stderr, "  --key <pk_...>       Clerk publishable key (default: from env/config)\n")
-	fmt.Fprintf(os.Stderr, "  --secret <sk_...>    Clerk secret key for ticket flow (default: from env/config)\n")
-	fmt.Fprintf(os.Stderr, "  --env <path>         Path to .env file (auto-resolved if omitted)\n\n")
+	fmt.Fprintf(os.Stderr, "  --secret <sk_...>    Clerk secret key for ticket flow (default: from env/config)\n\n")
 	fmt.Fprintf(os.Stderr, "Run Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --target <url>       Target URL (default: https://www.thepit.cloud)\n")
 	fmt.Fprintf(os.Stderr, "  --accounts <path>    Path to accounts.json (default: ./accounts.json)\n")
@@ -84,8 +85,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  --output <path>      JSON output file (default: stdout)\n")
 	fmt.Fprintf(os.Stderr, "  --status <path>      Live status JSON file (default: results/.live-status.json)\n")
 	fmt.Fprintf(os.Stderr, "  --no-status          Disable live status file\n")
-	fmt.Fprintf(os.Stderr, "  --verbose            Log every request\n")
-	fmt.Fprintf(os.Stderr, "  --env <path>         Path to .env file\n\n")
+	fmt.Fprintf(os.Stderr, "  --verbose            Log every request\n\n")
 }
 
 func fatal(ctx string, err error) {

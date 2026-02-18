@@ -391,6 +391,8 @@ func setupCmd(appCfg *config.Config, args []string) {
 			}
 			i++
 			secretKey = args[i]
+		case "--env":
+			fatalf("setup", "--env is a global flag; place it before the subcommand: pitstorm --env <path> setup")
 		default:
 			fatalf("setup", "unknown flag %q", args[i])
 		}
@@ -500,6 +502,8 @@ func loginCmd(appCfg *config.Config, args []string) {
 			}
 			i++
 			secretKey = args[i]
+		case "--env":
+			fatalf("login", "--env is a global flag; place it before the subcommand: pitstorm --env <path> login")
 		default:
 			fatalf("login", "unknown flag %q", args[i])
 		}
