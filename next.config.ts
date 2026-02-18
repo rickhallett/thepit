@@ -67,6 +67,27 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // PostHog reverse proxy (OCE-281) — route analytics through our own domain
+  // to avoid ad-blocker interference. Client-side PostHog points api_host at
+  // /ingest; these rewrites forward requests to the PostHog US ingest cluster.
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/ingest/:path*',
+        destination: 'https://us.i.posthog.com/:path*',
+      },
+      {
+        source: '/ingest/decide',
+        destination: 'https://us.i.posthog.com/decide',
+      },
+    ];
+  },
+
 };
 
 // Sentry wraps the Next.js config to enable source map uploads and
