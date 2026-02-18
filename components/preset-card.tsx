@@ -100,9 +100,9 @@ export function PresetCard({
     if (locked) return;
     setByokError(null);
     trackEvent('preset_selected', {
-      presetId: preset.id,
+      preset_id: preset.id,
       model: selectedModel,
-      agentCount: preset.agents.length,
+      agent_count: preset.agents.length,
       tier: preset.tier,
     });
     if (!showModelSelector) return;

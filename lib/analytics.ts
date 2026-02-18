@@ -6,7 +6,7 @@
 //
 // Usage:
 //   import { trackEvent } from '@/lib/analytics';
-//   trackEvent('bout_started', { presetId: 'roast-battle', model: 'haiku' });
+//   trackEvent('bout_started', { preset_id: 'roast-battle', model: 'haiku' });
 
 'use client';
 

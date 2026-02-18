@@ -5,7 +5,7 @@
 //
 // Usage:
 //   <TrackPageEvent event="leaderboard_viewed" />
-//   <TrackPageEvent event="bout_replayed" properties={{ boutId: '...' }} />
+//   <TrackPageEvent event="bout_replayed" properties={{ bout_id: '...' }} />
 
 import { useEffect, useRef } from 'react';
 import { trackEvent, type AnalyticsEvent } from '@/lib/analytics';

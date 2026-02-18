@@ -102,7 +102,7 @@ export default async function ReplayPage({
 
   return (
     <>
-      {isReplay && <TrackPageEvent event="bout_replayed" properties={{ boutId: resolved.id, presetId: bout.presetId }} />}
+      {isReplay && <TrackPageEvent event="bout_replayed" properties={{ bout_id: resolved.id, preset_id: bout.presetId }} />}
       <Arena
         boutId={resolved.id}
         preset={preset}
