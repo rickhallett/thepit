@@ -77,7 +77,14 @@ export function useBoutSharing({
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data?.slug) setShortSlug(data.slug);
+        if (data?.slug) {
+          setShortSlug(data.slug);
+          trackEvent('short_link_created', {
+            boutId,
+            slug: data.slug,
+            created: Boolean(data.created),
+          });
+        }
       })
       .catch(() => {
         // Non-critical — fall back to /b/ URLs
@@ -153,14 +160,14 @@ export function useBoutSharing({
     if (!sharePayload) return;
     await navigator.clipboard.writeText(sharePayload);
     setCopied(true);
-    trackEvent('bout_shared', { boutId, method: 'copy_header' });
+    trackEvent('bout_shared', { boutId, method: 'copy_header', hasShortLink: !!shortSlug });
     window.setTimeout(() => setCopied(false), 1600);
   };
 
   const copyMessageShare = async (payload: string, messageId: string) => {
     await navigator.clipboard.writeText(payload);
     setCopiedMessageId(messageId);
-    trackEvent('bout_shared', { boutId, method: 'copy_message' });
+    trackEvent('bout_shared', { boutId, method: 'copy_message', hasShortLink: !!shortSlug });
     window.setTimeout(() => setCopiedMessageId(null), 1600);
   };
 

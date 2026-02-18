@@ -31,6 +31,7 @@ import {
 } from '@/lib/response-formats';
 import { getFormString } from '@/lib/form-utils';
 import { log } from '@/lib/logger';
+import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
 
 /**
  * Resolve the app URL for redirects (e.g. Stripe checkout success/cancel).
@@ -216,6 +217,18 @@ export async function createCreditCheckout(formData: FormData) {
   if (!session.url) {
     throw new Error('Failed to create checkout session.');
   }
+  serverTrack(userId, 'checkout_initiated_server', {
+    checkout_mode: 'payment',
+    pack_id: pack.id,
+    credits: pack.credits,
+    amount_gbp: pack.priceGbp,
+    session_id: session.id,
+  });
+  try {
+    await flushServerAnalytics();
+  } catch {
+    // Best-effort analytics.
+  }
 
   redirect(session.url);
 }
@@ -377,6 +390,16 @@ export async function createSubscriptionCheckout(formData: FormData) {
   if (!session.url) {
     throw new Error('Failed to create checkout session.');
   }
+  serverTrack(userId, 'subscription_checkout_initiated_server', {
+    plan,
+    price_id: priceId,
+    session_id: session.id,
+  });
+  try {
+    await flushServerAnalytics();
+  } catch {
+    // Best-effort analytics.
+  }
 
   redirect(session.url);
 }
@@ -405,8 +428,15 @@ export async function createBillingPortal() {
     customer: customerId,
     return_url: `${appUrl}/arena`,
   });
+  serverTrack(userId, 'billing_portal_opened_server', {
+    customer_id: customerId,
+  });
+  try {
+    await flushServerAnalytics();
+  } catch {
+    // Best-effort analytics.
+  }
 
   redirect(session.url);
 }
-
 

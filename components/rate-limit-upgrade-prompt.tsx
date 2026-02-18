@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { PitButton } from '@/components/ui/button';
 import { useCopy } from '@/lib/copy-client';
+import { trackEvent } from '@/lib/analytics';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -101,6 +102,18 @@ export function RateLimitUpgradePrompt({
   const upgradeTiers = rateLimit.upgradeTiers ?? [];
   const isAnonymous = currentTier === 'anonymous';
   const isTopTier = currentTier === 'lab' || upgradeTiers.length === 0;
+  const [paywallTracked, setPaywallTracked] = useState(false);
+
+  useEffect(() => {
+    if (paywallTracked) return;
+    trackEvent('paywall_viewed', {
+      currentTier,
+      hasUpgradePath: upgradeTiers.length > 0,
+      limit: rateLimit.limit ?? null,
+      remaining: rateLimit.remaining,
+    });
+    setPaywallTracked(true);
+  }, [currentTier, paywallTracked, rateLimit.limit, rateLimit.remaining, upgradeTiers.length]);
 
   const handleDismiss = useCallback(() => {
     dismissForSession();

@@ -95,14 +95,20 @@ export default async function ReplayPage({
     userId ? getUserWinnerVote(resolved.id, userId) : Promise.resolve(null),
   ]);
 
-  // Track replay views — only for authenticated users viewing bouts they didn't
-  // create (i.e. shared bouts). Anonymous visitors are excluded to avoid
-  // inflating the replay metric with bot/crawler traffic.
-  const isReplay = !!userId && bout.ownerId !== userId;
+  const isReplay = !userId || bout.ownerId !== userId;
 
   return (
     <>
-      {isReplay && <TrackPageEvent event="bout_replayed" properties={{ boutId: resolved.id, presetId: bout.presetId }} />}
+      {isReplay && (
+        <TrackPageEvent
+          event="bout_replayed"
+          properties={{
+            boutId: resolved.id,
+            presetId: bout.presetId,
+            viewerType: userId ? 'authenticated' : 'anonymous',
+          }}
+        />
+      )}
       <Arena
         boutId={resolved.id}
         preset={preset}

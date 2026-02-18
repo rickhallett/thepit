@@ -15,7 +15,7 @@ import {
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
-import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
+import { serverTrack, serverIdentify, flushServerAnalytics } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -45,6 +45,25 @@ async function updateUserSubscription(params: {
       updatedAt: new Date(),
     })
     .where(eq(users.id, params.userId));
+}
+
+function identifySubscriptionState(params: {
+  userId: string;
+  tier: UserTier;
+  subscriptionStatus: string;
+  subscriptionId: string;
+  stripeCustomerId: string | null;
+  currentPeriodEnd: Date | null;
+}) {
+  serverIdentify(params.userId, {
+    current_tier: params.tier,
+    subscription_status: params.subscriptionStatus,
+    subscription_id: params.subscriptionId,
+    stripe_customer_id: params.stripeCustomerId,
+    subscription_current_period_end: params.currentPeriodEnd
+      ? params.currentPeriodEnd.toISOString()
+      : null,
+  });
 }
 
 /**
@@ -152,6 +171,16 @@ export const POST = withLogging(async function POST(req: Request) {
           subscription_id: subscription.id,
           status: subscription.status,
         });
+        identifySubscriptionState({
+          userId,
+          tier,
+          subscriptionId: subscription.id,
+          subscriptionStatus: subscription.status,
+          stripeCustomerId: subscription.customer,
+          currentPeriodEnd: subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000)
+            : null,
+        });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
@@ -214,6 +243,16 @@ export const POST = withLogging(async function POST(req: Request) {
             subscription_id: subscription.id,
           });
         }
+        identifySubscriptionState({
+          userId,
+          tier,
+          subscriptionId: subscription.id,
+          subscriptionStatus: subscription.status,
+          stripeCustomerId: subscription.customer,
+          currentPeriodEnd: subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000)
+            : null,
+        });
         log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
@@ -241,6 +280,14 @@ export const POST = withLogging(async function POST(req: Request) {
       });
       serverTrack(userId, 'subscription_churned', {
         subscription_id: subscription.id,
+      });
+      identifySubscriptionState({
+        userId,
+        tier: 'free',
+        subscriptionId: subscription.id,
+        subscriptionStatus: 'canceled',
+        stripeCustomerId: subscription.customer,
+        currentPeriodEnd: null,
       });
       log.info('Subscription deleted, downgraded to free', { userId });
     }
@@ -281,6 +328,14 @@ export const POST = withLogging(async function POST(req: Request) {
         subscription_id: invoice.subscription,
         invoice_id: invoice.id,
       });
+      identifySubscriptionState({
+        userId,
+        tier: 'free',
+        subscriptionId: invoice.subscription,
+        subscriptionStatus: 'past_due',
+        stripeCustomerId: invoice.customer,
+        currentPeriodEnd: null,
+      });
       log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }
@@ -320,6 +375,14 @@ export const POST = withLogging(async function POST(req: Request) {
           subscriptionStatus: 'active',
           currentPeriodEnd: null, // Will be updated by subscription.updated event
           stripeCustomerId: invoice.customer,
+        });
+        identifySubscriptionState({
+          userId,
+          tier,
+          subscriptionId: invoice.subscription,
+          subscriptionStatus: 'active',
+          stripeCustomerId: invoice.customer,
+          currentPeriodEnd: null,
         });
         log.info('Payment succeeded, tier restored', { userId, tier });
       }

@@ -13,6 +13,7 @@ function SubmitButton() {
   useEffect(() => {
     if (pending && wasIdle.current) {
       trackEvent('credit_purchase_initiated');
+      trackEvent('checkout_initiated', { flow: 'credits' });
     }
     wasIdle.current = !pending;
   }, [pending]);

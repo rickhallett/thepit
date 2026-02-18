@@ -45,7 +45,7 @@ export function useBoutVoting(
         ...prev,
         [agentId]: (prev[agentId] ?? 0) + 1,
       }));
-      trackEvent('winner_voted', { agentId });
+      trackEvent('winner_voted', { boutId, agentId });
     } finally {
       setVotePending(null);
     }

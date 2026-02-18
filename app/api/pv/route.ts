@@ -44,6 +44,9 @@ async function rawPOST(req: Request) {
     visitNumber?: number;
     daysSinceLastVisit?: number | null;
     isNewSession?: boolean;
+    consentJustAccepted?: boolean;
+    referralCaptured?: boolean;
+    referralCode?: string | null;
   }>(req);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
@@ -76,6 +79,9 @@ async function rawPOST(req: Request) {
 
   const userId = typeof payload.userId === 'string' ? payload.userId.slice(0, 128) : null;
   const copyVariant = typeof payload.copyVariant === 'string' ? payload.copyVariant.slice(0, 32) : null;
+  const referralCode = typeof payload.referralCode === 'string'
+    ? payload.referralCode.slice(0, 32)
+    : null;
 
   const ipHash = payload.clientIp ? await sha256Hex(payload.clientIp) : null;
 
@@ -111,6 +117,22 @@ async function rawPOST(req: Request) {
         utm_term: utmTerm,
         utm_content: utmContent,
         country: payload.country?.slice(0, 2) ?? null,
+        copy_variant: copyVariant,
+      });
+    }
+    const distinctId = userId ?? `anon_${sessionId}`;
+    if (payload.consentJustAccepted) {
+      serverTrack(distinctId, 'consent_accepted_server', {
+        path: path.slice(0, 256),
+      });
+    }
+    if (payload.referralCaptured && referralCode) {
+      serverTrack(distinctId, 'referral_captured_server', {
+        referral_code: referralCode,
+        landing_page: path.slice(0, 256),
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
       });
     }
   } catch (error) {

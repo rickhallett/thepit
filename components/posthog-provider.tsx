@@ -57,6 +57,9 @@ function initPostHog() {
     const utmCookie = document.cookie
       .split('; ')
       .find((c) => c.startsWith('pit_utm='));
+    const refCookie = document.cookie
+      .split('; ')
+      .find((c) => c.startsWith('pit_ref='));
     if (utmCookie) {
       const utm = JSON.parse(decodeURIComponent(utmCookie.split('=')[1]));
       const superProps: Record<string, string> = {};
@@ -65,8 +68,17 @@ function initPostHog() {
       if (utm.utm_campaign) superProps.utm_campaign = utm.utm_campaign;
       if (utm.utm_term) superProps.utm_term = utm.utm_term;
       if (utm.utm_content) superProps.utm_content = utm.utm_content;
+      if (refCookie) {
+        const ref = decodeURIComponent(refCookie.split('=')[1] ?? '').trim();
+        if (ref) superProps.referral_code = ref;
+      }
       if (Object.keys(superProps).length > 0) {
         posthog.register(superProps);
+      }
+    } else if (refCookie) {
+      const ref = decodeURIComponent(refCookie.split('=')[1] ?? '').trim();
+      if (ref) {
+        posthog.register({ referral_code: ref });
       }
     }
   } catch {

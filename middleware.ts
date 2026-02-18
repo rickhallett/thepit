@@ -34,6 +34,8 @@ const VARIANT_RE = /^[a-z0-9-]{1,32}$/;
 const UTM_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const;
 const UTM_COOKIE = 'pit_utm';
 const UTM_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const CONSENT_TRACKED_COOKIE = 'pit_consent_tracked';
+const CONSENT_TRACKED_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 /**
  * Paths that should NOT record page views (API routes, static assets,
@@ -48,6 +50,7 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   const requestId = nanoid(12);
 
   const referral = req.nextUrl.searchParams.get('ref');
+  let referralCaptured = false;
 
   // ---------------------------------------------------------------------------
   // Forensic header propagation — forward client metadata to route handlers
@@ -139,6 +142,7 @@ export default clerkMiddleware(async (clerkAuth, req) => {
       secure: process.env.NODE_ENV === 'production',
       path: '/',
     });
+    referralCaptured = true;
   }
 
   // ---------------------------------------------------------------------------
@@ -148,6 +152,15 @@ export default clerkMiddleware(async (clerkAuth, req) => {
   // active when the user has accepted analytics cookies via the consent banner.
   // Essential cookies (pit_ref for referral attribution, Clerk auth) are always set.
   const hasAnalyticsConsent = req.cookies.get('pit_consent')?.value === 'accepted';
+  const consentJustAccepted = hasAnalyticsConsent && !req.cookies.get(CONSENT_TRACKED_COOKIE)?.value;
+  if (consentJustAccepted) {
+    response.cookies.set(CONSENT_TRACKED_COOKIE, '1', {
+      maxAge: CONSENT_TRACKED_MAX_AGE,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // UTM cookie — first-touch campaign attribution (requires consent)
@@ -278,6 +291,9 @@ export default clerkMiddleware(async (clerkAuth, req) => {
         visitNumber,
         daysSinceLastVisit,
         isNewSession: isNewSession ?? false,
+        consentJustAccepted,
+        referralCaptured,
+        referralCode: referralCaptured ? referral : null,
       }),
     }).catch(() => {
       // Silently drop — page views are best-effort analytics

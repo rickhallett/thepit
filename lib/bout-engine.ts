@@ -543,6 +543,18 @@ async function _executeBoutInner(
   onEvent?: (event: TurnEvent) => void,
 ): Promise<BoutResult> {
   const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokData, userId, preauthMicro, introPoolConsumedMicro, requestId, db } = ctx;
+  let completedBoutsBefore = 0;
+  if (userId) {
+    try {
+      const [row] = await db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(bouts)
+        .where(and(eq(bouts.ownerId, userId), eq(bouts.status, 'completed')));
+      completedBoutsBefore = row?.value ?? 0;
+    } catch {
+      completedBoutsBefore = 0;
+    }
+  }
 
   const boutStartTime = Date.now();
   log.info('Bout stream starting', {
@@ -563,6 +575,16 @@ async function _executeBoutInner(
     response_length: lengthConfig.id,
     response_format: formatConfig.id,
     max_turns: preset.maxTurns,
+  });
+  serverTrack(userId ?? `anon_${boutId}`, 'bout_started_server', {
+    bout_id: boutId,
+    preset_id: presetId,
+    model_id: modelId,
+    user_tier: ctx.tier,
+    response_length: lengthConfig.id,
+    response_format: formatConfig.id,
+    max_turns: preset.maxTurns,
+    is_first_bout: userId ? completedBoutsBefore === 0 : null,
   });
 
   const history: string[] = [];
@@ -842,6 +864,17 @@ async function _executeBoutInner(
       duration_ms: boutDurationMs,
       has_share_line: !!shareLine,
     });
+    serverTrack(userId ?? `anon_${boutId}`, 'bout_completed_server', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      turns: preset.maxTurns,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      duration_ms: boutDurationMs,
+      has_share_line: !!shareLine,
+      is_first_bout: userId ? completedBoutsBefore === 0 : null,
+    });
 
     // --- Analytics: user_activated (OCE-253) ---
     // Fire once when a user completes their very first bout. We check the DB
@@ -940,6 +973,17 @@ async function _executeBoutInner(
       duration_ms: boutDurationMs,
       error_message: error instanceof Error ? error.message : String(error),
     });
+    serverTrack(userId ?? `anon_${boutId}`, 'bout_error_server', {
+      bout_id: boutId,
+      preset_id: presetId,
+      model_id: modelId,
+      turns_completed: transcript.length,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      duration_ms: boutDurationMs,
+      error_message: error instanceof Error ? error.message : String(error),
+      is_first_bout: userId ? completedBoutsBefore === 0 : null,
+    });
 
     // Persist error state with partial transcript
     await db
@@ -977,5 +1021,11 @@ async function _executeBoutInner(
     }
 
     throw error;
+  } finally {
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Best-effort analytics.
+    }
   }
 }

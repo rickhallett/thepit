@@ -108,17 +108,27 @@ export async function initializeUserSession(params: {
   // When credits are disabled, `isNewUser` is true on the first init for
   // a given userId (no prior cache entry).
   if (isNewUser) {
+    const acquisitionChannel = params.referralCode
+      ? 'referral'
+      : (params.utmSource ?? null)
+        ? 'utm'
+        : 'direct';
     serverTrack(params.userId, 'signup_completed', {
       referral_code: params.referralCode ?? null,
       utm_source: params.utmSource ?? null,
       utm_medium: params.utmMedium ?? null,
       utm_campaign: params.utmCampaign ?? null,
+      acquisition_channel: acquisitionChannel,
     });
     serverIdentify(params.userId, {
       signup_date: new Date().toISOString(),
+      current_tier: 'free',
       initial_tier: 'free',
       referral_code: params.referralCode ?? null,
       utm_source: params.utmSource ?? null,
+      utm_medium: params.utmMedium ?? null,
+      utm_campaign: params.utmCampaign ?? null,
+      acquisition_channel: acquisitionChannel,
     });
     // Flush immediately — in serverless environments the PostHog batch buffer
     // (flushAt=20, flushInterval=5s) may not drain before the function terminates.

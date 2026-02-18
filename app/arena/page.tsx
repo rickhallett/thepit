@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 
 import { Suspense } from 'react';
+import { TrackPageEvent } from '@/components/track-page-event';
 import { PresetCard } from '@/components/preset-card';
 import { CheckoutBanner } from '@/components/checkout-banner';
 import { BuyCreditsButton } from '@/components/buy-credits-button';
@@ -74,6 +75,7 @@ export default async function ArenaPage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-12">
+        <TrackPageEvent event="arena_viewed" />
         <header className="flex flex-col gap-5 border-b-2 border-foreground/70 pb-8">
           <h1 className="font-sans text-4xl uppercase tracking-tight md:text-5xl">
             {c.arena.title}

@@ -5,6 +5,7 @@ import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { createShortLink } from '@/lib/short-links';
 import { eq } from 'drizzle-orm';
 import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
+import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -41,6 +42,17 @@ export const POST = withLogging(async function POST(req: Request) {
   }
 
   const { slug, created } = await createShortLink(boutId);
+  const distinctId = `anon_${getClientIdentifier(req)}`;
+  serverTrack(distinctId, 'short_link_created_server', {
+    bout_id: boutId,
+    slug,
+    created,
+  });
+  try {
+    await flushServerAnalytics();
+  } catch {
+    // Best-effort analytics.
+  }
 
   return Response.json({ slug, created }, { status: created ? 201 : 200 });
 }, 'short-links');

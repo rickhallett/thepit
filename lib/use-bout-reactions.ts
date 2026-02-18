@@ -102,7 +102,12 @@ export function useBoutReactions(
         });
       }
 
-      trackEvent('reaction_submitted', { reactionType, turn, action: isRemoving ? 'removed' : 'added' });
+      trackEvent('reaction_submitted', {
+        boutId,
+        reactionType,
+        turn,
+        action: isRemoving ? 'removed' : 'added',
+      });
       if (!isRemoving) reactionsGivenRef.current += 1;
     } catch {
       // Revert optimistic update on error

@@ -14,7 +14,18 @@ import { PostHog } from 'posthog-node';
 // the server (webhooks, session init, bout engine, etc.).
 export type ServerAnalyticsEvent =
   | 'signup_completed'
+  | 'bout_started_server'
+  | 'bout_completed_server'
+  | 'bout_error_server'
   | 'user_activated'
+  | 'paywall_viewed_server'
+  | 'consent_accepted_server'
+  | 'checkout_initiated_server'
+  | 'subscription_checkout_initiated_server'
+  | 'billing_portal_opened_server'
+  | 'short_link_created_server'
+  | 'short_link_clicked_server'
+  | 'referral_captured_server'
   | 'subscription_started'
   | 'subscription_upgraded'
   | 'subscription_downgraded'
