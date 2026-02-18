@@ -38,7 +38,11 @@
     "sim": "tsx tests/simulation/run.ts",
     "sim:dry": "tsx tests/simulation/run.ts --dry-run",
     "research:export": "bash scripts/research-pipeline.sh",
-    "copy:generate": "tsx scripts/copyGenerate.ts"
+    "copy:generate": "tsx scripts/copyGenerate.ts",
+    "level4:qa-from-vitest": "tsx scripts/vitest-json-to-level4-qa.ts",
+    "level4:emit": "tsx scripts/emit-level4-record.ts",
+    "level4:gate:baseline": "bash scripts/run-level4-gate.sh --profile baseline",
+    "level4:gate:adversarial": "bash scripts/run-level4-gate.sh --profile adversarial"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.37",

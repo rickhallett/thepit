@@ -25,6 +25,9 @@ pnpm run qa:dry
 # Run all implemented tests
 pnpm run qa
 
+# Run and emit machine-readable artifact
+pnpm run qa -- --json-out qa/results/latest.json
+
 # Run specific categories
 pnpm run qa:nav      # Navigation tests
 pnpm run qa:auth     # Authentication tests

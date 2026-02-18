@@ -1,0 +1,46 @@
+name: Level4 Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      window_id:
+        description: "Window id (e.g. w-2026-02-l4-01)"
+        required: true
+      records_path:
+        description: "Path to NDJSON records"
+        required: true
+        default: "runs/w-2026-02-l4-01.ndjson"
+      profile:
+        description: "Gate profile"
+        required: true
+        default: "baseline"
+        type: choice
+        options:
+          - baseline
+          - adversarial
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout darkfactorio
+        uses: actions/checkout@v4
+        with:
+          repository: rickhallett/darkfactorio
+          path: darkfactorio
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.7"
+          cache-dependency-path: |
+            darkfactorio/go.sum
+
+      - name: Run level4 gate
+        run: |
+          bash scripts/run-level4-gate.sh \
+            --window "${{ inputs.window_id }}" \
+            --records "${{ inputs.records_path }}" \
+            --profile "${{ inputs.profile }}" \
+            --dfgate-repo "./darkfactorio"

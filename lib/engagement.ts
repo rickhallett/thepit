@@ -83,7 +83,7 @@ export function initActiveTimeTracking(): () => void {
     if (activeMs > 1000) {
       // Only report if at least 1 second of active time
       trackEvent('page_active_time', {
-        activeSeconds: Math.round(activeMs / 1000),
+        active_seconds: Math.round(activeMs / 1000),
         path: window.location.pathname,
       });
     }
@@ -120,11 +120,11 @@ export type BoutEngagement = {
  */
 export function trackBoutEngagement(boutId: string, engagement: BoutEngagement): void {
   trackEvent('bout_engagement_depth', {
-    boutId,
-    turnsWatched: engagement.turnsWatched,
-    reactionsGiven: engagement.reactionsGiven,
-    votesCast: engagement.votesCast,
-    presetId: engagement.presetId ?? null,
+    bout_id: boutId,
+    turns_watched: engagement.turnsWatched,
+    reactions_given: engagement.reactionsGiven,
+    votes_cast: engagement.votesCast,
+    preset_id: engagement.presetId ?? null,
     model: engagement.model ?? null,
   });
 }

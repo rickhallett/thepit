@@ -50,7 +50,7 @@ export function PaperSubmissionForm() {
       setExtractedTitle(json.title);
       setExtractedAuthors(json.authors);
       setStatus('success');
-      trackEvent('paper_submitted', { relevanceArea });
+      trackEvent('paper_submitted', { relevance_area: relevanceArea });
     } catch {
       setErrorMessage(c.common.error);
       setStatus('error');

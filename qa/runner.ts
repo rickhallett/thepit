@@ -13,12 +13,12 @@
  *   tsx qa/runner.ts --tier api         # Run by automation tier
  */
 
-import { readFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parseArgs } from 'node:util'
 
 import { parseQAReport, filterByCategory, summarize, type ParsedTest } from './parser.js'
-import { writeResults, generateSummary, type TestResult } from './writer.js'
+import { writeResults, generateSummary, toJSON, type TestResult } from './writer.js'
 import { loadConfig, validateConfig, printConfig, type QAConfig } from './config.js'
 import { AUTOMATION_TIERS, type AutomationTier } from './tiers.js'
 import {
@@ -44,6 +44,7 @@ interface RunOptions {
   tier?: AutomationTier
   dryRun: boolean
   verbose: boolean
+  jsonOut?: string
 }
 
 /**
@@ -275,6 +276,17 @@ async function runQA(options: RunOptions): Promise<void> {
 
   // Print summary
   console.log(generateSummary(results))
+
+  // Optional machine-readable artifact for CI and level4 contract emission
+  if (options.jsonOut) {
+    const out = options.jsonOut
+    const dir = out.includes('/') ? out.slice(0, out.lastIndexOf('/')) : ''
+    if (dir) {
+      await mkdir(dir, { recursive: true })
+    }
+    await writeFile(out, toJSON(results), 'utf-8')
+    console.log(`📦 JSON results written to ${out}`)
+  }
 }
 
 /**
@@ -287,6 +299,7 @@ async function main(): Promise<void> {
     category?: string
     tier?: string
     verbose?: boolean
+    'json-out'?: string
     help?: boolean
   }
   try {
@@ -297,6 +310,7 @@ async function main(): Promise<void> {
         'category': { type: 'string' },
         'tier': { type: 'string' },
         'verbose': { type: 'boolean', short: 'v', default: false },
+        'json-out': { type: 'string' },
         'help': { type: 'boolean', short: 'h', default: false },
       },
       allowPositionals: true,
@@ -325,6 +339,7 @@ Options:
   --filter <id>       Run specific test(s) by ID (can repeat)
   --category <name>   Run tests in category (partial match)
   --tier <tier>       Run tests by automation tier (api|browser|partial|human)
+  --json-out <path>   Write machine-readable JSON result artifact
   -v, --verbose       Show detailed output
   -h, --help          Show this help
 
@@ -343,6 +358,7 @@ Examples:
     category: values.category,
     tier: values.tier as AutomationTier | undefined,
     verbose: values.verbose ?? false,
+    jsonOut: values['json-out'],
   }
 
   await runQA(options)

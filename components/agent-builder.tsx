@@ -163,7 +163,7 @@ export function AgentBuilder({
 
       const payload = (await response.json()) as { agentId?: string };
       if (payload.agentId) {
-        trackEvent(parentId ? 'agent_cloned' : 'agent_created', { agentId: payload.agentId });
+        trackEvent(parentId ? 'agent_cloned' : 'agent_created', { agent_id: payload.agentId });
         router.push(`/agents/${payload.agentId}`);
         return;
       }
