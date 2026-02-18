@@ -1,15 +1,18 @@
 package main
 
 import (
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/rickhallett/thepit/pitforge/cmd"
 	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/license"
+	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -29,6 +32,17 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	tel := telemetry.New("pitforge")
+	startedAt := time.Now()
+	_ = tel.Capture(context.Background(), "pitforge.command.started", map[string]any{
+		"command": args[0],
+	})
+	defer func() {
+		_ = tel.Capture(context.Background(), "pitforge.command.completed", map[string]any{
+			"command":     args[0],
+			"duration_ms": time.Since(startedAt).Milliseconds(),
+		})
+	}()
 
 	// Commands that don't require config.
 	switch args[0] {

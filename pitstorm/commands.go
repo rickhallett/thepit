@@ -21,6 +21,7 @@ import (
 	"github.com/rickhallett/thepit/pitstorm/internal/persona"
 	"github.com/rickhallett/thepit/pitstorm/internal/profile"
 	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -167,6 +168,20 @@ func runCmd(args []string) {
 	}
 
 	fmt.Println()
+
+	tel := telemetry.New("pitstorm")
+	_ = tel.Capture(context.Background(), "pitstorm.metrics_snapshot", map[string]any{
+		"profile":          cfg.Profile,
+		"duration_ms":      elapsed.Milliseconds(),
+		"requests":         snap.Requests,
+		"successes":        snap.Successes,
+		"errors":           snap.Errors,
+		"throughput_rps":   snap.Throughput,
+		"error_rate":       snap.ErrorRate,
+		"active_peak":      snap.ActiveStreamsPeak,
+		"stream_errors":    snap.StreamErrors,
+		"budget_spent_gbp": budgetSummary.SpentGBP,
+	})
 }
 
 func planCmd(args []string) {

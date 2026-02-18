@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/rickhallett/thepit/pitbench/cmd"
 	"github.com/rickhallett/thepit/shared/license"
+	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -26,6 +29,17 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	tel := telemetry.New("pitbench")
+	startedAt := time.Now()
+	_ = tel.Capture(context.Background(), "pitbench.command.started", map[string]any{
+		"command": args[0],
+	})
+	defer func() {
+		_ = tel.Capture(context.Background(), "pitbench.command.completed", map[string]any{
+			"command":     args[0],
+			"duration_ms": time.Since(startedAt).Milliseconds(),
+		})
+	}()
 
 	// Models command doesn't need license (just shows pricing table).
 	switch args[0] {

@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"crypto/ed25519"
 	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/rickhallett/thepit/pitnet/cmd"
 	"github.com/rickhallett/thepit/shared/license"
+	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -26,6 +29,17 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	tel := telemetry.New("pitnet")
+	startedAt := time.Now()
+	_ = tel.Capture(context.Background(), "pitnet.command.started", map[string]any{
+		"command": args[0],
+	})
+	defer func() {
+		_ = tel.Capture(context.Background(), "pitnet.command.completed", map[string]any{
+			"command":     args[0],
+			"duration_ms": time.Since(startedAt).Milliseconds(),
+		})
+	}()
 
 	// Status command is free — shows Base L2 connectivity.
 	switch args[0] {

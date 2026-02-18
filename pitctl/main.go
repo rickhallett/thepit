@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/rickhallett/thepit/pitctl/cmd"
 	"github.com/rickhallett/thepit/shared/config"
+	"github.com/rickhallett/thepit/shared/telemetry"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -26,6 +29,17 @@ func main() {
 		usage()
 		os.Exit(0)
 	}
+	tel := telemetry.New("pitctl")
+	startedAt := time.Now()
+	_ = tel.Capture(context.Background(), "pitctl.command.started", map[string]any{
+		"command": args[0],
+	})
+	defer func() {
+		_ = tel.Capture(context.Background(), "pitctl.command.completed", map[string]any{
+			"command":     args[0],
+			"duration_ms": time.Since(startedAt).Milliseconds(),
+		})
+	}()
 
 	cfg, err := config.Load(*envPath)
 	if err != nil {

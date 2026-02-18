@@ -40,6 +40,9 @@ var Schema = []VarSpec{
 	{Name: "EAS_ENABLED", Required: false, Desc: "Enable on-chain attestations"},
 	{Name: "RESEND_API_KEY", Required: false, Desc: "Resend email API key"},
 	{Name: "LICENSE_SIGNING_KEY", Required: false, Desc: "Ed25519 private key for license signing (hex)"},
+	{Name: "POSTHOG_API_KEY", Required: false, Desc: "PostHog API key for pit* CLI telemetry"},
+	{Name: "POSTHOG_PRIVATE_API", Required: false, Desc: "PostHog private API host for server/CLI telemetry"},
+	{Name: "POSTHOG_SAMPLE_RATE", Required: false, Desc: "Sampling rate (0-1) for telemetry"},
 }
 
 // Config holds resolved configuration values.
