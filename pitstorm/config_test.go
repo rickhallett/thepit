@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -43,7 +44,6 @@ func TestParseRunConfig_AllFlags(t *testing.T) {
 		"--instance", "2/3",
 		"--output", "/tmp/results.json",
 		"--verbose",
-		"--env", "/tmp/.env",
 	}
 
 	cfg, err := ParseRunConfig(args)
@@ -84,8 +84,15 @@ func TestParseRunConfig_AllFlags(t *testing.T) {
 	if !cfg.Verbose {
 		t.Error("Verbose should be true")
 	}
-	if cfg.EnvPath != "/tmp/.env" {
-		t.Errorf("EnvPath = %q", cfg.EnvPath)
+}
+
+func TestParseRunConfig_EnvFlagRejectsWithGuidance(t *testing.T) {
+	_, err := ParseRunConfig([]string{"--env", "/tmp/.env"})
+	if err == nil {
+		t.Fatal("expected error when --env is passed as subcommand flag")
+	}
+	if !strings.Contains(err.Error(), "global flag") {
+		t.Errorf("error should mention global flag, got: %v", err)
 	}
 }
 
@@ -173,7 +180,7 @@ func TestParseRunConfig_MissingValue(t *testing.T) {
 	flags := []string{
 		"--target", "--accounts", "--profile", "--rate",
 		"--duration", "--budget", "--workers", "--personas",
-		"--instance", "--output", "--env",
+		"--instance", "--output",
 	}
 	for _, f := range flags {
 		t.Run(f, func(t *testing.T) {

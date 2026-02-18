@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -370,6 +371,87 @@ func TestEnvLocalOnlyNoEnv(t *testing.T) {
 	}
 	if got := cfg.Get("LINEAR_API_KEY"); got != "local_only" {
 		t.Errorf("LINEAR_API_KEY = %q, want local_only", got)
+	}
+}
+
+func TestSensitiveKeysScrubbed(t *testing.T) {
+	dir := t.TempDir()
+	envPath := filepath.Join(dir, ".env")
+	content := `DATABASE_URL=postgres://secret-db
+ANTHROPIC_API_KEY=sk-ant-secret
+CLERK_SECRET_KEY=sk_live_secret
+EAS_SIGNER_PRIVATE_KEY=0xdeadbeef
+NEXT_PUBLIC_APP_URL=https://test.example.com
+LINEAR_TEAM_NAME=MYTEAM
+EAS_RPC_URL=https://rpc.example.com
+`
+	if err := os.WriteFile(envPath, []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(envPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Sensitive keys should NOT be in Vars.
+	for _, key := range []string{"DATABASE_URL", "ANTHROPIC_API_KEY", "CLERK_SECRET_KEY", "EAS_SIGNER_PRIVATE_KEY"} {
+		if _, ok := cfg.Vars[key]; ok {
+			t.Errorf("sensitive key %q should be scrubbed from Vars", key)
+		}
+	}
+
+	// Non-sensitive keys should remain in Vars.
+	for _, key := range []string{"NEXT_PUBLIC_APP_URL", "LINEAR_TEAM_NAME", "EAS_RPC_URL"} {
+		if _, ok := cfg.Vars[key]; !ok {
+			t.Errorf("non-sensitive key %q should remain in Vars", key)
+		}
+	}
+
+	// All keys should still be accessible via Get().
+	if got := cfg.Get("DATABASE_URL"); got != "postgres://secret-db" {
+		t.Errorf("Get(DATABASE_URL) = %q, want postgres://secret-db", got)
+	}
+	if got := cfg.Get("ANTHROPIC_API_KEY"); got != "sk-ant-secret" {
+		t.Errorf("Get(ANTHROPIC_API_KEY) = %q, want sk-ant-secret", got)
+	}
+	if got := cfg.Get("CLERK_SECRET_KEY"); got != "sk_live_secret" {
+		t.Errorf("Get(CLERK_SECRET_KEY) = %q, want sk_live_secret", got)
+	}
+	if got := cfg.Get("EAS_SIGNER_PRIVATE_KEY"); got != "0xdeadbeef" {
+		t.Errorf("Get(EAS_SIGNER_PRIVATE_KEY) = %q, want 0xdeadbeef", got)
+	}
+	if got := cfg.Get("LINEAR_TEAM_NAME"); got != "MYTEAM" {
+		t.Errorf("Get(LINEAR_TEAM_NAME) = %q, want MYTEAM", got)
+	}
+}
+
+func TestStringRedactsSensitiveValues(t *testing.T) {
+	dir := t.TempDir()
+	envPath := filepath.Join(dir, ".env")
+	content := "DATABASE_URL=postgres://secret\nANTHROPIC_API_KEY=sk-secret\nNEXT_PUBLIC_APP_URL=https://test.example.com\n"
+	if err := os.WriteFile(envPath, []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(envPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	str := cfg.String()
+
+	// Should contain REDACTED for sensitive keys.
+	if !strings.Contains(str, "REDACTED") {
+		t.Errorf("String() should contain REDACTED, got: %s", str)
+	}
+
+	// Should NOT contain actual secret values.
+	if strings.Contains(str, "postgres://secret") {
+		t.Errorf("String() should not contain actual DATABASE_URL value")
+	}
+	if strings.Contains(str, "sk-secret") {
+		t.Errorf("String() should not contain actual ANTHROPIC_API_KEY value")
 	}
 }
 

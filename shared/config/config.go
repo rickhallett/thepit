@@ -50,7 +50,7 @@ var Schema = []VarSpec{
 	{Name: "LICENSE_SIGNING_KEY", Required: false, Desc: "Ed25519 private key for license signing (hex)"},
 	// Linear issue tracking (pitlinear).
 	{Name: "LINEAR_API_KEY", Required: false, Desc: "Linear API key"},
-	{Name: "LINEAR_TEAM_NAME", Required: false, Desc: "Default Linear team key (e.g. Oceanheartai)"},
+	{Name: "LINEAR_TEAM_NAME", Required: false, Desc: "Default Linear team key (e.g. MYTEAM)"},
 	// On-chain attestations (pitnet).
 	{Name: "EAS_RPC_URL", Required: false, Desc: "Base L2 RPC URL for EAS"},
 	{Name: "EAS_SCHEMA_UID", Required: false, Desc: "EAS schema UID"},
@@ -60,14 +60,43 @@ var Schema = []VarSpec{
 	{Name: "NEXT_PUBLIC_POSTHOG_HOST", Required: false, Desc: "PostHog API host"},
 }
 
+// sensitiveKeySuffixes defines suffixes that mark a variable as secret.
+// Values matching these suffixes are scrubbed from the exported Vars map
+// after loading and stored in an unexported field to prevent accidental
+// leakage via logging, serialization, or iteration of Vars.
+var sensitiveKeySuffixes = []string{
+	"_KEY",
+	"_SECRET",
+	"_PRIVATE_KEY",
+	"_TOKEN",
+}
+
+// isSensitive returns true if the variable name ends with a sensitive suffix.
+func isSensitive(name string) bool {
+	upper := strings.ToUpper(name)
+	for _, suffix := range sensitiveKeySuffixes {
+		if strings.HasSuffix(upper, suffix) {
+			return true
+		}
+	}
+	// DATABASE_URL contains credentials — always sensitive.
+	return upper == "DATABASE_URL"
+}
+
 // Config holds resolved configuration values.
+//
+// IMPORTANT: Vars contains only non-sensitive values. Sensitive keys (API keys,
+// secrets, private keys, tokens, DATABASE_URL) are stored in an unexported
+// field and accessible only via Get(). Never log or serialize Vars without
+// reviewing its contents.
 type Config struct {
 	DatabaseURL string
 	AppURL      string
 	Loaded      bool
 	EnvPath     string            // first env file found (backward compat)
 	EnvPaths    []string          // all env files loaded, in order
-	Vars        map[string]string // all loaded vars
+	Vars        map[string]string // non-sensitive loaded vars
+	secrets     map[string]string // sensitive vars (unexported, not serializable)
 }
 
 // Load reads .env and .env.local files, then merges with shell environment
@@ -82,15 +111,21 @@ type Config struct {
 // are loaded (e.g. passing "/foo/.env" also checks "/foo/.env.local").
 func Load(envPath string) (*Config, error) {
 	cfg := &Config{
-		Vars: make(map[string]string),
+		Vars:    make(map[string]string),
+		secrets: make(map[string]string),
 	}
 
 	// Resolve env file paths.
 	var paths []string
 	if envPath != "" {
-		paths = []string{envPath}
+		// Absolutize the explicit path for consistent storage.
+		absPath, err := filepath.Abs(envPath)
+		if err != nil {
+			return nil, fmt.Errorf("resolving path %s: %w", envPath, err)
+		}
+		paths = []string{absPath}
 		// Also check the .local sibling of the explicit path.
-		localPath := envPath + ".local"
+		localPath := absPath + ".local"
 		if _, err := os.Stat(localPath); err == nil {
 			paths = append(paths, localPath)
 		}
@@ -133,7 +168,17 @@ func Load(envPath string) (*Config, error) {
 		}
 	}
 
-	cfg.DatabaseURL = cfg.Vars["DATABASE_URL"]
+	// Scrub sensitive values from the exported Vars map into the
+	// unexported secrets map. This prevents accidental leakage via
+	// logging, serialization, or iteration of cfg.Vars.
+	for key, val := range cfg.Vars {
+		if isSensitive(key) {
+			cfg.secrets[key] = val
+			delete(cfg.Vars, key)
+		}
+	}
+
+	cfg.DatabaseURL = cfg.secrets["DATABASE_URL"]
 	cfg.AppURL = cfg.Vars["NEXT_PUBLIC_APP_URL"]
 	if cfg.AppURL == "" {
 		cfg.AppURL = "http://localhost:3000"
@@ -142,19 +187,24 @@ func Load(envPath string) (*Config, error) {
 	return cfg, nil
 }
 
-// Get returns the value of an environment variable.
+// Get returns the value of an environment variable. Sensitive values
+// (keys, secrets, tokens, private keys) are stored internally and not
+// exposed via the Vars map, but are still accessible through Get().
 func (c *Config) Get(name string) string {
+	if v, ok := c.secrets[name]; ok {
+		return v
+	}
 	return c.Vars[name]
 }
 
 // IsSet returns true if the variable has a non-empty value.
 func (c *Config) IsSet(name string) bool {
-	return c.Vars[name] != ""
+	return c.Get(name) != ""
 }
 
 // IsEnabled returns true if the variable is set to "true".
 func (c *Config) IsEnabled(name string) bool {
-	return strings.ToLower(c.Vars[name]) == "true"
+	return strings.ToLower(c.Get(name)) == "true"
 }
 
 // Validate checks that all required variables are set. Returns a list of
@@ -167,6 +217,29 @@ func (c *Config) Validate() []string {
 		}
 	}
 	return missing
+}
+
+// String returns a safe representation of the config that redacts sensitive values.
+// This prevents accidental secret leakage via fmt.Print, log, or %v formatting.
+func (c *Config) String() string {
+	var b strings.Builder
+	b.WriteString("Config{")
+	fmt.Fprintf(&b, "Loaded:%v EnvPaths:%v", c.Loaded, c.EnvPaths)
+	b.WriteString(" Vars:[")
+	for k := range c.Vars {
+		fmt.Fprintf(&b, "%s ", k)
+	}
+	b.WriteString("] Secrets:[")
+	for k := range c.secrets {
+		fmt.Fprintf(&b, "%s=REDACTED ", k)
+	}
+	b.WriteString("]}")
+	return b.String()
+}
+
+// GoString implements fmt.GoStringer for %#v formatting, also redacting secrets.
+func (c *Config) GoString() string {
+	return c.String()
 }
 
 // resolveEnvPaths looks for .env and .env.local in standard locations relative
@@ -190,14 +263,18 @@ func resolveEnvPaths() []string {
 		if _, err := os.Stat(envPath); err != nil {
 			continue
 		}
-		abs, _ := filepath.Abs(envPath)
+		abs, err := filepath.Abs(envPath)
+		if err != nil {
+			continue
+		}
 		paths := []string{abs}
 
 		// Check for .env.local in the same directory.
 		localPath := filepath.Join(dir, ".env.local")
 		if _, err := os.Stat(localPath); err == nil {
-			absLocal, _ := filepath.Abs(localPath)
-			paths = append(paths, absLocal)
+			if absLocal, absErr := filepath.Abs(localPath); absErr == nil {
+				paths = append(paths, absLocal)
+			}
 		}
 
 		return paths
@@ -207,8 +284,9 @@ func resolveEnvPaths() []string {
 	for _, dir := range dirs {
 		localPath := filepath.Join(dir, ".env.local")
 		if _, err := os.Stat(localPath); err == nil {
-			absLocal, _ := filepath.Abs(localPath)
-			return []string{absLocal}
+			if absLocal, absErr := filepath.Abs(localPath); absErr == nil {
+				return []string{absLocal}
+			}
 		}
 	}
 

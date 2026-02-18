@@ -22,7 +22,6 @@ type RunConfig struct {
 	Output     string
 	StatusFile string // live status JSON file, updated every 5s during run
 	Verbose    bool
-	EnvPath    string
 }
 
 // DefaultRunConfig returns the default configuration.
@@ -41,7 +40,6 @@ func DefaultRunConfig() RunConfig {
 		Output:     "",
 		StatusFile: "results/.live-status.json",
 		Verbose:    false,
-		EnvPath:    "",
 	}
 }
 
@@ -152,11 +150,9 @@ func ParseRunConfig(args []string) (RunConfig, error) {
 		case "--verbose":
 			cfg.Verbose = true
 		case "--env":
-			if i+1 >= len(args) {
-				return cfg, fmt.Errorf("--env requires a value")
-			}
-			i++
-			cfg.EnvPath = args[i]
+			// --env is now a global flag parsed before the subcommand.
+			// e.g. pitstorm --env /path run (not: pitstorm run --env /path)
+			return cfg, fmt.Errorf("--env is a global flag; place it before the subcommand: pitstorm --env <path> run")
 		default:
 			return cfg, fmt.Errorf("unknown flag %q", args[i])
 		}
