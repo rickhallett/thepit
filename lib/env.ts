@@ -62,7 +62,6 @@ const serverEnvSchema = z.object({
   EAS_ENABLED: boolFlag,
   ASK_THE_PIT_ENABLED: boolFlag,
   CREDITS_ADMIN_ENABLED: boolFlag,
-  HELICONE_ENABLED: boolFlag,
 
   // --- Credit economy ---
   CREDITS_STARTING_CREDITS: numStr(500),
@@ -121,7 +120,6 @@ const serverEnvSchema = z.object({
   APP_URL: z.string().optional(),
 
   // --- Observability ---
-  HELICONE_API_KEY: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
   SENTRY_AUTH_TOKEN: z.string().optional(),
   SENTRY_ORG: z.string().optional(),

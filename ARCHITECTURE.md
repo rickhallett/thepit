@@ -73,7 +73,6 @@ All features behind env-gated boolean flags (`=== 'true'`). The health endpoint 
 | `PREMIUM_ENABLED` | Legacy premium preset gating (pre-subscriptions) |
 | `EAS_ENABLED` | On-chain agent attestations on Base L2 |
 | `ASK_THE_PIT_ENABLED` | AI Q&A chatbot |
-| `HELICONE_ENABLED` | AI cost/latency analytics proxy |
 | `NEXT_PUBLIC_SOCIAL_X_ENABLED` | X/Twitter link in footer and share UI |
 | `NEXT_PUBLIC_SOCIAL_REDDIT_ENABLED` | Reddit link |
 | `NEXT_PUBLIC_SOCIAL_DISCORD_ENABLED` | Discord link |
@@ -133,8 +132,8 @@ Six-layer observability stack. All layers are conditional on env vars and degrad
 ### PostHog (Product Analytics)
 Consent-gated (see Privacy above). SPA page view tracking, Clerk identity sync, UTM super properties, auto-capture, dead click detection, session recording, `respect_dnt: true`. Typed events defined in `lib/analytics.ts` (16 event types). Engagement tracking (`lib/engagement.ts`) monitors scroll depth milestones, active time, and bout interaction depth.
 
-### Helicone (AI Cost/Latency)
-When `HELICONE_ENABLED=true`, platform-funded AI calls proxy through `https://anthropic.helicone.ai/v1`. BYOK calls bypass Helicone. Tagged with `Helicone-Property-Service: tspit`.
+### PostHog LLM Analytics (AI Cost/Token Tracking)
+LLM cost and token analytics are captured via PostHog `$ai_generation` events emitted by the bout engine after each turn completes. This provides per-model cost tracking, token usage trends, and latency monitoring in the PostHog LLM analytics dashboard. Both platform-funded and BYOK turns are tracked (BYOK with the user's resolved model ID for accurate attribution).
 
 ### Structured Logger
 `lib/logger.ts` — zero-dep structured logging. JSON lines in production (`level`, `msg`, `ts`, `service: 'tspit'`), human-readable in dev. Configurable level via `LOG_LEVEL`. Auto-sanitizes API keys (`sk-ant-*`, `sk_live_*`, `sk_test_*`).
@@ -181,4 +180,4 @@ Custom test automation framework in `qa/`. Parses user stories from `docs/qa-rep
 - **CLI:** `pnpm run qa`, `pnpm run qa:dry`, `pnpm run qa:setup`, `pnpm run qa:teardown`, `pnpm run qa:single <ID>`
 
 ## Deployment
-Deployed on Vercel. Environment variables mirror `.env.example`. CSP configured in `next.config.ts` for Clerk, PostHog, Sentry, Helicone, and EAS domains. Sentry source maps uploaded at build. Go tools are built and run locally or in CI.
+Deployed on Vercel. Environment variables mirror `.env.example`. CSP configured in `next.config.ts` for Clerk, PostHog, Sentry, and EAS domains. Sentry source maps uploaded at build. Go tools are built and run locally or in CI.

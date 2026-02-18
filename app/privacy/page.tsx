@@ -486,22 +486,7 @@ export default async function PrivacyPage() {
                 resend.com/legal/privacy-policy
               </a>
             </li>
-            <li>
-              <strong className="text-foreground/80">
-                Helicone (optional)
-              </strong>{' '}
-              &mdash; AI observability and cost monitoring. When enabled,
-              proxies API requests to Anthropic and processes request/response
-              metadata for latency, cost, and quality tracking. Privacy policy:{' '}
-              <a
-                href="https://www.helicone.ai/privacy"
-                target="_blank"
-                rel="noreferrer"
-                className="text-accent underline"
-              >
-                helicone.ai/privacy
-              </a>
-            </li>
+
           </ul>
         </section>
 

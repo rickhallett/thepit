@@ -21,7 +21,7 @@ import { cookies } from 'next/headers';
 import { requireDb } from '@/db';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
-import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
+import { serverTrack, serverCaptureAIGeneration, flushServerAnalytics } from '@/lib/posthog-server';
 import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
@@ -47,6 +47,7 @@ import {
   CREDITS_ENABLED,
   applyCreditDelta,
   computeCostGbp,
+  computeCostUsd,
   estimateBoutCostGbp,
   estimateTokensFromText,
   preauthorizeCredits,
@@ -752,6 +753,36 @@ async function _executeBoutInner(
         durationMs: turnDurationMs,
       });
 
+      // PostHog LLM analytics: capture $ai_generation for cost/token tracking.
+      // Replaces the Helicone proxy that was previously used for this purpose.
+      // BYOK turns use the user's resolved model ID for accurate attribution.
+      const aiModelId = modelId === 'byok'
+        ? (byokData?.modelId ?? 'byok-unknown')
+        : modelId;
+      const aiProvider = modelId === 'byok'
+        ? (byokData?.provider ?? 'unknown')
+        : 'anthropic';
+      const { inputCostUsd, outputCostUsd, totalCostUsd } = computeCostUsd(
+        turnInputTokens,
+        turnOutputTokens,
+        modelId,
+      );
+      serverCaptureAIGeneration(userId ?? 'anonymous', {
+        model: aiModelId,
+        provider: aiProvider,
+        inputTokens: turnInputTokens,
+        outputTokens: turnOutputTokens,
+        inputCostUsd,
+        outputCostUsd,
+        totalCostUsd,
+        durationMs: turnDurationMs,
+        boutId,
+        presetId,
+        turn: i,
+        isByok: !!byokData,
+        generationType: 'turn',
+      });
+
       // Refusal detection: log when an agent breaks character
       const refusalMarker = detectRefusal(fullText);
       if (refusalMarker) {
@@ -787,6 +818,7 @@ async function _executeBoutInner(
       const shareContent = buildSharePrompt(clippedTranscript);
 
       // Share line is always platform-funded (Haiku) — use traced variant.
+      const shareLineStart = Date.now();
       const shareResult = tracedStreamText({
         model: getModel(FREE_MODEL_ID),
         maxOutputTokens: 80,
@@ -801,6 +833,27 @@ async function _executeBoutInner(
       if (shareLine.length > 140) {
         shareLine = `${shareLine.slice(0, 137).trimEnd()}...`;
       }
+
+      // PostHog LLM analytics for share line generation
+      const shareUsage = await shareResult.usage;
+      const shareInputTokens = shareUsage?.inputTokens ?? estimateTokensFromText(shareContent, 1);
+      const shareOutputTokens = shareUsage?.outputTokens ?? estimateTokensFromText(shareText, 1);
+      const shareDurationMs = Date.now() - shareLineStart;
+      const shareCost = computeCostUsd(shareInputTokens, shareOutputTokens, FREE_MODEL_ID);
+      serverCaptureAIGeneration(userId ?? 'anonymous', {
+        model: FREE_MODEL_ID,
+        provider: 'anthropic',
+        inputTokens: shareInputTokens,
+        outputTokens: shareOutputTokens,
+        inputCostUsd: shareCost.inputCostUsd,
+        outputCostUsd: shareCost.outputCostUsd,
+        totalCostUsd: shareCost.totalCostUsd,
+        durationMs: shareDurationMs,
+        boutId,
+        presetId,
+        isByok: false,
+        generationType: 'share_line',
+      });
     } catch (error) {
       log.warn('Failed to generate share line', toError(error), { boutId });
     }

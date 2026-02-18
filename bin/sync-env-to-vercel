@@ -37,7 +37,6 @@ EXCLUDED_KEYS=(
 # When non-empty, ONLY keys matching these prefixes are eligible for
 # ADD or UPDATE. Everything else is skipped. Exclusions still apply.
 ALLOWED_PREFIXES=(
-  HELICONE_
   SENTRY_
   NEXT_PUBLIC_SENTRY_
   LANGSMITH_

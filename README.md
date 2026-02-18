@@ -156,7 +156,7 @@ Copy `.env.example` to `.env`. Required variables:
 | `ADMIN_USER_IDS` | Comma-separated admin user IDs | — |
 | `NEXT_PUBLIC_POSTHOG_KEY` | PostHog analytics | — |
 | `SENTRY_DSN` | Sentry error tracking | — |
-| `HELICONE_API_KEY` | Helicone AI observability | — |
+
 | `LOG_LEVEL` | Structured log level | `info` |
 
 > See `.env.example` for the full list of 50+ configurable environment variables including credit economy tuning, EAS blockchain config, and Stripe price IDs.
