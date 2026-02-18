@@ -25,7 +25,19 @@ export type ServerAnalyticsEvent =
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const POSTHOG_HOST =
-  process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
+  process.env.POSTHOG_PRIVATE_API ??
+  process.env.NEXT_PUBLIC_POSTHOG_HOST ??
+  'https://us.i.posthog.com';
+const SAMPLE_RATE = Math.min(
+  1,
+  Math.max(0, Number.parseFloat(process.env.POSTHOG_SAMPLE_RATE ?? '1') || 1),
+);
+const INTERNAL_DISTINCT_IDS = new Set(
+  (process.env.POSTHOG_INTERNAL_DISTINCT_IDS ?? '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean),
+);
 
 // Lazy singleton — avoids initializing when PostHog is not configured.
 let _client: PostHog | null = null;
@@ -44,6 +56,20 @@ function getClient(): PostHog | null {
   return _client;
 }
 
+function deterministicSampleKey(input: string): number {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash / 0xffffffff;
+}
+
+function shouldCaptureEvent(distinctId: string, event: ServerAnalyticsEvent): boolean {
+  if (INTERNAL_DISTINCT_IDS.has(distinctId)) return false;
+  if (SAMPLE_RATE >= 1) return true;
+  return deterministicSampleKey(`${distinctId}:${event}`) <= SAMPLE_RATE;
+}
+
 /**
  * Capture a server-side analytics event.
  * Non-blocking — events are batched and flushed asynchronously.
@@ -59,6 +85,7 @@ export function serverTrack(
 ): void {
   const client = getClient();
   if (!client) return;
+  if (!shouldCaptureEvent(distinctId, event)) return;
 
   client.capture({
     distinctId,

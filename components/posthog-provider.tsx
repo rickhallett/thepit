@@ -21,8 +21,10 @@ import type { AnalyticsEvent } from '@/lib/analytics';
 import { getExperimentConfig } from '@/lib/copy-edge';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const POSTHOG_PROXY_ENABLED = process.env.NEXT_PUBLIC_POSTHOG_PROXY === 'true';
 const POSTHOG_HOST =
-  process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
+  process.env.NEXT_PUBLIC_POSTHOG_HOST ??
+  (POSTHOG_PROXY_ENABLED ? '/ingest' : 'https://us.i.posthog.com');
 
 /**
  * Initialize PostHog only when the user has consented to analytics cookies.

@@ -142,6 +142,8 @@ const serverEnvSchema = z.object({
 
   // --- Analytics ---
   PV_INTERNAL_SECRET: z.string().optional(),
+  POSTHOG_SAMPLE_RATE: z.string().optional().default('1'),
+  POSTHOG_INTERNAL_DISTINCT_IDS: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
