@@ -44,6 +44,7 @@ async function rawPOST(req: Request) {
     visitNumber?: number;
     daysSinceLastVisit?: number | null;
     isNewSession?: boolean;
+    referralCode?: string;
   }>(req);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
@@ -112,6 +113,18 @@ async function rawPOST(req: Request) {
         utm_content: utmContent,
         country: payload.country?.slice(0, 2) ?? null,
       });
+
+      // --- Analytics: referred_session_started (OCE-288) ---
+      // Fire on each new session where pit_ref cookie is present. Fires per-session
+      // (not once-per-user) since the cookie persists 30 days across sessions.
+      const referralCode = typeof payload.referralCode === 'string' ? payload.referralCode.slice(0, 64) : null;
+      if (referralCode) {
+        serverTrack(distinctId, 'referred_session_started', {
+          referral_code: referralCode,
+          landing_page: path,
+          referrer: payload.referrer?.slice(0, 256) ?? null,
+        });
+      }
     }
   } catch (error) {
     // Best-effort — don't fail the page load

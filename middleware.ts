@@ -278,6 +278,7 @@ export default clerkMiddleware(async (clerkAuth, req) => {
         visitNumber,
         daysSinceLastVisit,
         isNewSession: isNewSession ?? false,
+        referralCode: req.cookies.get('pit_ref')?.value ?? undefined,
       }),
     }).catch(() => {
       // Silently drop — page views are best-effort analytics

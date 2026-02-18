@@ -114,9 +114,19 @@ export async function initializeUserSession(params: {
       utm_medium: params.utmMedium ?? null,
       utm_campaign: params.utmCampaign ?? null,
     });
+    // Derive acquisition channel from available attribution data.
+    // Priority: referral > paid (utm) > organic
+    const acquisitionChannel: string = params.referralCode
+      ? 'referral'
+      : params.utmSource
+        ? 'paid'
+        : 'organic';
+
     serverIdentify(params.userId, {
       signup_date: new Date().toISOString(),
       initial_tier: 'free',
+      current_tier: 'free',
+      acquisition_channel: acquisitionChannel,
       referral_code: params.referralCode ?? null,
       utm_source: params.utmSource ?? null,
     });
