@@ -291,7 +291,7 @@ export default clerkMiddleware(async (clerkAuth, req) => {
 export const config = {
   matcher: [
     // Exclude static assets and PostHog reverse proxy (/ingest) paths
-    '/((?!_next|ingest|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/((?!_next|ingest($|/)|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     '/(api|trpc)(.*)',
   ],
 };

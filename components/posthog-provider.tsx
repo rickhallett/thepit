@@ -21,8 +21,9 @@ import type { AnalyticsEvent } from '@/lib/analytics';
 import { getExperimentConfig } from '@/lib/copy-edge';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-// Use reverse proxy (/ingest) in production to avoid ad-blocker interference.
-// Falls back to direct PostHog domain for local dev (no rewrites configured).
+// Use reverse proxy (/ingest) to avoid ad-blocker interference with PostHog.
+// Rewrites in next.config.ts forward these requests to the PostHog US cluster
+// in both development and production environments.
 const POSTHOG_HOST = '/ingest';
 
 // Email domains considered internal (team members). Matched against Clerk
@@ -133,7 +134,7 @@ function PostHogIdentify() {
       const isInternal = domain ? INTERNAL_DOMAINS.includes(domain) : false;
 
       ph.identify(userId, {
-        ...(isInternal ? { is_internal: true } : {}),
+        is_internal: isInternal,
       });
     } else if (isSignedIn === false) {
       ph.reset();
