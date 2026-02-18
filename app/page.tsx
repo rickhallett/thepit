@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { auth } from '@clerk/nextjs/server';
+
 import { BuilderShowcase } from '@/components/builder-showcase';
 import { DarwinCountdown } from '@/components/darwin-countdown';
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
@@ -15,10 +17,12 @@ export const metadata = {
 
 /** Server-rendered landing page with hero, presets, pricing, and research stats. */
 export default async function LandingPage() {
-  const [poolStatus, c] = await Promise.all([
+  const [poolStatus, c, { userId }] = await Promise.all([
     CREDITS_ENABLED ? getIntroPoolStatus() : Promise.resolve(null),
     getCopy(),
+    auth(),
   ]);
+  const isSignedIn = !!userId;
 
   return (
     <main className="bg-background text-foreground">
@@ -192,7 +196,7 @@ export default async function LandingPage() {
               name={c.pricing.plans[0].name}
               price={0}
               period=""
-              href="/sign-up?redirect_url=/arena"
+              href={isSignedIn ? '/arena' : '/sign-up?redirect_url=/arena'}
               cta={c.pricing.plans[0].cta}
               features={c.pricing.plans[0].features}
             />
@@ -201,7 +205,7 @@ export default async function LandingPage() {
               price={3}
               period="/mo"
               featured
-              href="/sign-up?redirect_url=/arena#upgrade"
+              href={isSignedIn ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade'}
               cta={c.pricing.plans[1].cta}
               features={c.pricing.plans[1].features}
             />
@@ -209,7 +213,7 @@ export default async function LandingPage() {
               name={c.pricing.plans[2].name}
               price={10}
               period="/mo"
-              href="/sign-up?redirect_url=/arena#upgrade"
+              href={isSignedIn ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade'}
               cta={c.pricing.plans[2].cta}
               features={c.pricing.plans[2].features}
             />

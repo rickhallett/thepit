@@ -54,19 +54,26 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse('Contact email not configured.', 501);
   }
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      subject: `The Pit contact — ${name.replace(/[\r\n]+/g, ' ').trim()}`,
-      html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`,
-    }),
-  });
+  let res: Response;
+  try {
+    res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(10_000),
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [toEmail],
+        subject: `The Pit contact — ${name.replace(/[\r\n]+/g, ' ').trim()}`,
+        html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`,
+      }),
+    });
+  } catch (err) {
+    log.error('Resend API fetch failed', { error: String(err) });
+    return errorResponse('Email delivery failed — please try again.', 502);
+  }
 
   if (!res.ok) {
     const text = await res.text();
