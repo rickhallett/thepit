@@ -122,7 +122,13 @@ export async function initializeUserSession(params: {
     });
     // Flush immediately — in serverless environments the PostHog batch buffer
     // (flushAt=20, flushInterval=5s) may not drain before the function terminates.
-    await flushServerAnalytics();
+    // Wrapped in try-catch so a PostHog network/SDK error doesn't crash the
+    // root layout render on a new user's first page load.
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Best-effort — analytics loss is acceptable, layout crash is not.
+    }
   }
 
   recentlyInitialized.set(params.userId, now);

@@ -20,7 +20,6 @@ export type ServerAnalyticsEvent =
   | 'subscription_downgraded'
   | 'subscription_churned'
   | 'credit_purchase_completed'
-  | 'credit_purchase_failed'
   | 'payment_failed'
   | 'session_started';
 
