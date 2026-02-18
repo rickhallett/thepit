@@ -14,15 +14,21 @@ import posthog from 'posthog-js';
 import { PostHogProvider as PHProvider, usePostHog } from 'posthog-js/react';
 import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
+import { useAuth, useUser } from '@clerk/nextjs';
 
 import { getConsentState } from '@/components/cookie-consent';
 import type { AnalyticsEvent } from '@/lib/analytics';
 import { getExperimentConfig } from '@/lib/copy-edge';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const POSTHOG_HOST =
-  process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com';
+// Use reverse proxy (/ingest) to avoid ad-blocker interference with PostHog.
+// Rewrites in next.config.ts forward these requests to the PostHog US cluster
+// in both development and production environments.
+const POSTHOG_HOST = '/ingest';
+
+// Email domains considered internal (team members). Matched against Clerk
+// user's primary email to set is_internal person property for filtering.
+const INTERNAL_DOMAINS = ['oceanheart.ai', 'thepit.cloud'];
 
 /**
  * Initialize PostHog only when the user has consented to analytics cookies.
@@ -115,16 +121,25 @@ function initPostHog() {
 /** Sync Clerk auth state with PostHog identity. */
 function PostHogIdentify() {
   const { userId, isSignedIn } = useAuth();
+  const { user } = useUser();
   const ph = usePostHog();
 
   useEffect(() => {
     if (!ph) return;
     if (isSignedIn && userId) {
-      ph.identify(userId);
+      // Detect internal team members by email domain (OCE-282).
+      // Sets is_internal person property for dashboard filtering.
+      const email = user?.primaryEmailAddress?.emailAddress;
+      const domain = email?.split('@')[1]?.toLowerCase();
+      const isInternal = domain ? INTERNAL_DOMAINS.includes(domain) : false;
+
+      ph.identify(userId, {
+        is_internal: isInternal,
+      });
     } else if (isSignedIn === false) {
       ph.reset();
     }
-  }, [ph, userId, isSignedIn]);
+  }, [ph, userId, isSignedIn, user]);
 
   return null;
 }

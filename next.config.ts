@@ -17,7 +17,9 @@ const require = createRequire(import.meta.url);
 // *.clerk.com domains are kept for development/staging with pk_test_ keys.
 const clerkDomains = 'https://clerk.thepit.cloud https://accounts.thepit.cloud https://*.clerk.accounts.dev https://*.clerk.com';
 const clerkImgDomains = 'https://img.clerk.com https://images.clerk.dev https://images.clerk.com';
-// PostHog uses both us.i.posthog.com (ingest) and us-assets.i.posthog.com (assets/config)
+// PostHog uses both us.i.posthog.com (ingest) and us-assets.i.posthog.com (assets/config).
+// Kept in CSP even with the /ingest reverse proxy as a safety net — the PostHog SDK may
+// bypass the proxy for session recording assets or feature flag evaluation.
 const posthogDomains = 'https://us.i.posthog.com https://us-assets.i.posthog.com';
 
 const cspDirectives = [
@@ -67,6 +69,27 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // PostHog reverse proxy (OCE-281) — route analytics through our own domain
+  // to avoid ad-blocker interference. Client-side PostHog points api_host at
+  // /ingest; these rewrites forward requests to the PostHog US ingest cluster.
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/ingest/:path*',
+        destination: 'https://us.i.posthog.com/:path*',
+      },
+    ];
+  },
+
+  // Required for PostHog reverse proxy — the SDK uses trailing slashes on
+  // endpoints (/e/, /decide/). Without this, Next.js 308-redirects them,
+  // and sendBeacon (used by capture_pageleave) does not follow redirects.
+  skipTrailingSlashRedirect: true,
 };
 
 // Sentry wraps the Next.js config to enable source map uploads and
