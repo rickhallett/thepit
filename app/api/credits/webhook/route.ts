@@ -324,7 +324,13 @@ export const POST = withLogging(async function POST(req: Request) {
   }
 
   // Flush server-side analytics before the serverless function terminates.
-  await flushServerAnalytics();
+  // Wrapped in try-catch so a PostHog SDK/network error doesn't turn a
+  // successful webhook into a 500, which would trigger Stripe retries.
+  try {
+    await flushServerAnalytics();
+  } catch {
+    // Best-effort — analytics loss is acceptable, webhook failure is not.
+  }
 
   return Response.json({ received: true });
 }, 'credits-webhook');

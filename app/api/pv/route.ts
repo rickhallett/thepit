@@ -109,14 +109,19 @@ async function rawPOST(req: Request) {
         utm_medium: utmMedium,
         country: payload.country?.slice(0, 2) ?? null,
       });
-      // Flush immediately — in serverless environments the PostHog batch buffer
-      // (flushAt=20, flushInterval=5s) may not drain before the function terminates.
-      await flushServerAnalytics();
     }
   } catch (error) {
     // Best-effort — don't fail the page load
     log.error('page view insert failed', { error: error instanceof Error ? error.message : String(error), path, sessionId });
     return errorResponse(API_ERRORS.INTERNAL, 500);
+  }
+
+  // Flush PostHog buffer outside the DB try-catch so a flush failure doesn't
+  // return 500 when the page view was persisted successfully.
+  try {
+    await flushServerAnalytics();
+  } catch {
+    // Best-effort — analytics loss is acceptable, page view already recorded.
   }
 
   return Response.json({ ok: true });
