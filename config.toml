@@ -1,0 +1,14 @@
+[mcp_servers.posthog]
+startup_timeout_sec = 30
+
+[smoke_targets.sentry]
+region_url = "https://us.sentry.io"
+organization_slug = "brandwatch-77a365983"
+project_slug = "thepit"
+project_id = "4510870484746240"
+
+[smoke_targets.langsmith]
+endpoint = "https://api.smith.langchain.com"
+workspace_id = "a885a32e-a1fa-4c4d-9853-fe626d1d7711"
+project_name = "pitstorm"
+project_id = "b1d96b13-2db6-4f1d-839c-9cd25ccff185"
