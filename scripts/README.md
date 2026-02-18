@@ -16,6 +16,8 @@
 | `reset-prod-data.ts` | TypeScript | Reset production data (admin only). Clears bout, reaction, vote, and analytics data. | `pnpm tsx scripts/reset-prod-data.ts` |
 | `copyGenerate.ts` | TypeScript | LLM-powered copy variant generation for A/B testing | `pnpm run copy:generate` |
 | `preview-e2e.sh` | Bash | Push, wait for Vercel preview deployment, run Playwright E2E against it | `./scripts/preview-e2e.sh [--url] [--skip-push]` |
+| `emit-level4-record.ts` | TypeScript | Emit one Level-4 NDJSON evaluation record from pitstorm + QA artifacts | `pnpm run level4:emit -- --window ... --run ... --pipeline ... --class ...` |
+| `run-level4-gate.sh` | Bash | Run external darkfactorio `dfgatev01` against a window file | `pnpm run level4:gate:baseline -- --window ... --records runs/<window>.ndjson` |
 
 ### `stripe-setup.sh`
 

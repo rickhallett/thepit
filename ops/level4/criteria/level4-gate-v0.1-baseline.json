@@ -1,0 +1,15 @@
+{
+  "version": "level4-gate-v0.1-baseline",
+  "min_runs": 10,
+  "thresholds": {
+    "min_scenario_pass_rate_percent": 90,
+    "min_first_pass_rate_percent": 70,
+    "max_mean_retries": 2.0,
+    "max_decision_reversal_percent": 5.0,
+    "max_approved_incidents": 0
+  },
+  "required_class_minimum": {
+    "low_risk_feature": 4,
+    "medium_integration": 4
+  }
+}
