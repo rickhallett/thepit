@@ -64,9 +64,14 @@ export function CookieConsent() {
   const handleAccept = () => {
     setConsentCookie('accepted');
     setVersion((v) => v + 1);
-    // Track consent before reload — PostHog may not be initialized yet,
-    // but the event will be captured after reload when PostHog starts.
-    trackEvent('consent_granted', {});
+    // Defer the consent_granted event — PostHog isn't initialized yet because
+    // consent was just granted. Set a localStorage flag that the PostHog
+    // provider picks up after init on the next page load.
+    try {
+      localStorage.setItem('pit:pending_consent_event', '1');
+    } catch {
+      // localStorage unavailable — event will be lost, acceptable tradeoff
+    }
     // Reload to allow PostHog to initialize and middleware to set analytics cookies
     window.location.reload();
   };

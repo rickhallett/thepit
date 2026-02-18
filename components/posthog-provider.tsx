@@ -73,6 +73,17 @@ function initPostHog() {
     // Malformed cookie — ignore
   }
 
+  // Flush deferred consent_granted event — set by CookieConsent handleAccept
+  // before reload, when PostHog wasn't yet initialized.
+  try {
+    if (localStorage.getItem('pit:pending_consent_event')) {
+      posthog.capture('consent_granted' satisfies AnalyticsEvent, {});
+      localStorage.removeItem('pit:pending_consent_event');
+    }
+  } catch {
+    // localStorage unavailable — skip
+  }
+
   // Register copy A/B variant as a super property so every PostHog event
   // (page views, bout starts, votes, engagement) is tagged with the variant.
   // Only register if the experiment is active and the cookie value is a known
