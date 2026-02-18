@@ -39,20 +39,13 @@ func main() {
 		fatal("config", err)
 	}
 
-	// LINEAR_API_KEY can be in .env, .env.local, or environment.
-	// config.Load only checks .env, so also check env vars directly.
+	// config.Load resolves .env → .env.local → shell env (Next.js convention).
 	apiKey := cfg.Get("LINEAR_API_KEY")
-	if apiKey == "" {
-		apiKey = os.Getenv("LINEAR_API_KEY")
-	}
 	if apiKey == "" {
 		fatal("config", fmt.Errorf("LINEAR_API_KEY not set (add to .env, .env.local, or export)"))
 	}
 
 	teamName := cfg.Get("LINEAR_TEAM_NAME")
-	if teamName == "" {
-		teamName = os.Getenv("LINEAR_TEAM_NAME")
-	}
 	// teamName is optional; commands that need it will require --team flag or positional arg.
 
 	client := cmd.NewClient(apiKey)

@@ -24,7 +24,7 @@ import (
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
-func runCmd(args []string) {
+func runCmd(appCfg *config.Config, args []string) {
 	cfg, err := ParseRunConfig(args)
 	if err != nil {
 		fatal("config", err)
@@ -79,7 +79,7 @@ func runCmd(args []string) {
 	// 4b. Start token refresher if we have accounts with session IDs.
 	var refresher *auth.Refresher
 	if acctFile != nil {
-		refresher = startTokenRefresher(acctFile, cfg.EnvPath, cl, logf)
+		refresher = startTokenRefresher(acctFile, appCfg, cl, logf)
 	}
 
 	// 5. Create action layer.
@@ -360,7 +360,7 @@ func strings12(ch string) string { return stringsN(ch, 12) }
 func strings25(ch string) string { return stringsN(ch, 25) }
 func strings35(ch string) string { return stringsN(ch, 35) }
 
-func setupCmd(args []string) {
+func setupCmd(appCfg *config.Config, args []string) {
 	fmt.Printf("\n%s\n\n", theme.Title.Render("pitstorm — setup"))
 
 	// Parse setup-specific flags.
@@ -368,7 +368,6 @@ func setupCmd(args []string) {
 	outputPath := "./accounts.json"
 	force := false
 	secretKey := ""
-	envPath := ""
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -392,12 +391,6 @@ func setupCmd(args []string) {
 			}
 			i++
 			secretKey = args[i]
-		case "--env":
-			if i+1 >= len(args) {
-				fatalf("setup", "--env requires a value")
-			}
-			i++
-			envPath = args[i]
 		default:
 			fatalf("setup", "unknown flag %q", args[i])
 		}
@@ -417,14 +410,9 @@ func setupCmd(args []string) {
 	}
 
 	// Resolve Clerk secret key for user provisioning.
+	// CLI --secret flag takes precedence over config.
 	if secretKey == "" {
-		secretKey = os.Getenv("CLERK_SECRET_KEY")
-	}
-	if secretKey == "" {
-		envCfg, _ := config.Load(envPath)
-		if envCfg != nil {
-			secretKey = envCfg.Get("CLERK_SECRET_KEY")
-		}
+		secretKey = appCfg.Get("CLERK_SECRET_KEY")
 	}
 
 	// If we have a secret key, create users in Clerk.
@@ -484,14 +472,13 @@ func setupCmd(args []string) {
 		theme.Accent.Render("pitstorm login --accounts "+outputPath))
 }
 
-func loginCmd(args []string) {
+func loginCmd(appCfg *config.Config, args []string) {
 	fmt.Printf("\n%s\n\n", theme.Title.Render("pitstorm — login"))
 
 	// Parse login-specific flags.
 	accountsPath := "./accounts.json"
 	publishableKey := ""
 	secretKey := ""
-	envPath := ""
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -513,12 +500,6 @@ func loginCmd(args []string) {
 			}
 			i++
 			secretKey = args[i]
-		case "--env":
-			if i+1 >= len(args) {
-				fatalf("login", "--env requires a value")
-			}
-			i++
-			envPath = args[i]
 		default:
 			fatalf("login", "unknown flag %q", args[i])
 		}
@@ -533,27 +514,17 @@ func loginCmd(args []string) {
 		fatal("login", err)
 	}
 
-	// Load config for key resolution.
-	var cfg *config.Config
-	cfg, _ = config.Load(envPath)
-
-	// Resolve publishable key from flag, env, or config file.
+	// Resolve publishable key: CLI --key flag takes precedence over config.
 	if publishableKey == "" {
-		publishableKey = os.Getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
-	}
-	if publishableKey == "" && cfg != nil {
-		publishableKey = cfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+		publishableKey = appCfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
 	}
 	if publishableKey == "" {
 		fatalf("login", "Clerk publishable key not found. Set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY or use --key")
 	}
 
-	// Resolve secret key from flag, env, or config file.
+	// Resolve secret key: CLI --secret flag takes precedence over config.
 	if secretKey == "" {
-		secretKey = os.Getenv("CLERK_SECRET_KEY")
-	}
-	if secretKey == "" && cfg != nil {
-		secretKey = cfg.Get("CLERK_SECRET_KEY")
+		secretKey = appCfg.Get("CLERK_SECRET_KEY")
 	}
 
 	// Create FAPI client.
@@ -783,7 +754,7 @@ func verifyCmd(args []string) {
 // possible (no publishable key, no session IDs).
 func startTokenRefresher(
 	acctFile *account.File,
-	envPath string,
+	appCfg *config.Config,
 	cl *client.Client,
 	logf func(string, ...any),
 ) *auth.Refresher {
@@ -811,20 +782,9 @@ func startTokenRefresher(
 		return nil
 	}
 
-	// Resolve keys.
-	publishableKey := os.Getenv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
-	secretKey := os.Getenv("CLERK_SECRET_KEY")
-	if publishableKey == "" || secretKey == "" {
-		envCfg, _ := config.Load(envPath)
-		if envCfg != nil {
-			if publishableKey == "" {
-				publishableKey = envCfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
-			}
-			if secretKey == "" {
-				secretKey = envCfg.Get("CLERK_SECRET_KEY")
-			}
-		}
-	}
+	// Resolve keys from centrally-loaded config.
+	publishableKey := appCfg.Get("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY")
+	secretKey := appCfg.Get("CLERK_SECRET_KEY")
 	if publishableKey == "" || secretKey == "" {
 		logf("[refresh] missing CLERK keys — skipping token refresh")
 		return nil

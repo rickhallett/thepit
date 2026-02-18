@@ -10,11 +10,12 @@ import (
 
 	"github.com/rickhallett/thepit/pitnet/internal/abi"
 	"github.com/rickhallett/thepit/pitnet/internal/chain"
+	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
 // RunVerify verifies an attestation UID against on-chain data.
-func RunVerify(args []string) {
+func RunVerify(appCfg *config.Config, args []string) {
 	if len(args) == 0 {
 		fmt.Fprintf(os.Stderr, "%s verify requires an attestation UID\n", theme.Error.Render("error:"))
 		fmt.Fprintf(os.Stderr, "\n  Usage: pitnet verify <attestation-uid> [--rpc <url>]\n\n")
@@ -45,11 +46,12 @@ func RunVerify(args []string) {
 		os.Exit(1)
 	}
 
-	cfg := chain.Config{RPCURL: rpcURL}
-	if envRPC := os.Getenv("EAS_RPC_URL"); envRPC != "" && rpcURL == "" {
-		cfg.RPCURL = envRPC
+	// CLI flag takes precedence over config.
+	chainCfg := chain.Config{RPCURL: rpcURL}
+	if rpcURL == "" {
+		chainCfg.RPCURL = appCfg.Get("EAS_RPC_URL")
 	}
-	client := chain.New(cfg)
+	client := chain.New(chainCfg)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

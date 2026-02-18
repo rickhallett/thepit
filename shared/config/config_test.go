@@ -247,3 +247,164 @@ func TestSchemaContainsLicenseSigningKey(t *testing.T) {
 		t.Error("LICENSE_SIGNING_KEY not found in Schema")
 	}
 }
+
+func TestSchemaContainsCLIVars(t *testing.T) {
+	schemaNames := make(map[string]bool)
+	for _, s := range Schema {
+		schemaNames[s.Name] = true
+	}
+	for _, name := range []string{
+		"LINEAR_API_KEY",
+		"LINEAR_TEAM_NAME",
+		"EAS_RPC_URL",
+		"EAS_SCHEMA_UID",
+		"EAS_SIGNER_PRIVATE_KEY",
+	} {
+		if !schemaNames[name] {
+			t.Errorf("%q not found in Schema", name)
+		}
+	}
+}
+
+func TestEnvLocalOverridesEnv(t *testing.T) {
+	dir := t.TempDir()
+
+	// .env has the base value.
+	envPath := filepath.Join(dir, ".env")
+	if err := os.WriteFile(envPath, []byte("DATABASE_URL=from_env\nLINEAR_API_KEY=base_key\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// .env.local overrides LINEAR_API_KEY but not DATABASE_URL.
+	localPath := filepath.Join(dir, ".env.local")
+	if err := os.WriteFile(localPath, []byte("LINEAR_API_KEY=local_key\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(envPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got := cfg.Get("DATABASE_URL"); got != "from_env" {
+		t.Errorf("DATABASE_URL = %q, want from_env (should be preserved from .env)", got)
+	}
+	if got := cfg.Get("LINEAR_API_KEY"); got != "local_key" {
+		t.Errorf("LINEAR_API_KEY = %q, want local_key (.env.local should override .env)", got)
+	}
+	if len(cfg.EnvPaths) != 2 {
+		t.Errorf("EnvPaths has %d entries, want 2", len(cfg.EnvPaths))
+	}
+}
+
+func TestShellOverridesEnvLocal(t *testing.T) {
+	dir := t.TempDir()
+
+	envPath := filepath.Join(dir, ".env")
+	if err := os.WriteFile(envPath, []byte("LINEAR_API_KEY=from_file\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	localPath := filepath.Join(dir, ".env.local")
+	if err := os.WriteFile(localPath, []byte("LINEAR_API_KEY=from_local\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("LINEAR_API_KEY", "from_shell")
+
+	cfg, err := Load(envPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got := cfg.Get("LINEAR_API_KEY"); got != "from_shell" {
+		t.Errorf("LINEAR_API_KEY = %q, want from_shell (shell should override .env.local)", got)
+	}
+}
+
+func TestNonSchemaVarShellOverride(t *testing.T) {
+	dir := t.TempDir()
+
+	// Put a non-schema var in .env.
+	envPath := filepath.Join(dir, ".env")
+	if err := os.WriteFile(envPath, []byte("CUSTOM_VAR=from_file\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Setenv("CUSTOM_VAR", "from_shell")
+
+	cfg, err := Load(envPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got := cfg.Get("CUSTOM_VAR"); got != "from_shell" {
+		t.Errorf("CUSTOM_VAR = %q, want from_shell (shell should override .env for non-schema vars)", got)
+	}
+}
+
+func TestEnvLocalOnlyNoEnv(t *testing.T) {
+	// Only .env.local exists (no .env). Should still load.
+	dir := t.TempDir()
+	localPath := filepath.Join(dir, ".env.local")
+	if err := os.WriteFile(localPath, []byte("LINEAR_API_KEY=local_only\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !cfg.Loaded {
+		t.Error("expected Loaded=true when .env.local exists in CWD")
+	}
+	if got := cfg.Get("LINEAR_API_KEY"); got != "local_only" {
+		t.Errorf("LINEAR_API_KEY = %q, want local_only", got)
+	}
+}
+
+func TestAutoResolveWithEnvLocal(t *testing.T) {
+	// Both .env and .env.local exist in CWD. Auto-resolve should find both.
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte("DATABASE_URL=base\nANTHROPIC_API_KEY=base_key\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".env.local"), []byte("ANTHROPIC_API_KEY=local_key\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Chdir(origDir)
+
+	if err := os.Chdir(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load("")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got := cfg.Get("DATABASE_URL"); got != "base" {
+		t.Errorf("DATABASE_URL = %q, want base", got)
+	}
+	if got := cfg.Get("ANTHROPIC_API_KEY"); got != "local_key" {
+		t.Errorf("ANTHROPIC_API_KEY = %q, want local_key (.env.local should override .env)", got)
+	}
+	if len(cfg.EnvPaths) != 2 {
+		t.Errorf("EnvPaths has %d entries, want 2", len(cfg.EnvPaths))
+	}
+}

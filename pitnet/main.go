@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/rickhallett/thepit/pitnet/cmd"
+	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/license"
 	"github.com/rickhallett/thepit/shared/theme"
 )
@@ -18,6 +19,7 @@ var version = "dev"
 var publicKeyHex = ""
 
 func main() {
+	envPath := flag.String("env", "", "path to .env file")
 	flag.Usage = usage
 	flag.Parse()
 
@@ -27,13 +29,21 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Status command is free — shows Base L2 connectivity.
-	switch args[0] {
-	case "version":
+	// Handle version before config loading.
+	if args[0] == "version" {
 		fmt.Printf("pitnet %s\n", version)
 		return
-	case "status":
-		cmd.RunStatus(args[1:])
+	}
+
+	// Load config — resolves .env → .env.local → shell env.
+	cfg, err := config.Load(*envPath)
+	if err != nil {
+		fatal("config", err)
+	}
+
+	// Status command is free — shows Base L2 connectivity.
+	if args[0] == "status" {
+		cmd.RunStatus(cfg, args[1:])
 		return
 	}
 
@@ -44,9 +54,9 @@ func main() {
 	case "submit":
 		cmd.RunSubmit(args[1:])
 	case "verify":
-		cmd.RunVerify(args[1:])
+		cmd.RunVerify(cfg, args[1:])
 	case "audit":
-		cmd.RunAudit(args[1:])
+		cmd.RunAudit(cfg, args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "%s unknown command %q\n", theme.Error.Render("error:"), args[0])
 		usage()
@@ -66,6 +76,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  status [flags]          Check Base L2 / EAS service connectivity\n")
 	fmt.Fprintf(os.Stderr, "  version                 Show version\n\n")
 	fmt.Fprintf(os.Stderr, "Global Flags:\n")
+	fmt.Fprintf(os.Stderr, "  --env <path>    Path to .env file (default: auto-detect)\n")
 	fmt.Fprintf(os.Stderr, "  --rpc <url>     Base L2 RPC URL (default: %s or EAS_RPC_URL env)\n\n", "https://mainnet.base.org")
 	fmt.Fprintf(os.Stderr, "Submit Flags:\n")
 	fmt.Fprintf(os.Stderr, "  --agent-id <id>         Agent ID\n")

@@ -12,6 +12,7 @@ import (
 
 	"github.com/rickhallett/thepit/pitnet/internal/abi"
 	"github.com/rickhallett/thepit/pitnet/internal/chain"
+	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -28,9 +29,9 @@ type AgentRecord struct {
 // RunAudit audits agents with attestation UIDs against on-chain data.
 // It reads from the database (DATABASE_URL) and verifies each attestation
 // exists on-chain with matching hashes.
-func RunAudit(args []string) {
+func RunAudit(appCfg *config.Config, args []string) {
 	rpcURL := ""
-	dbURL := os.Getenv("DATABASE_URL")
+	dbURL := ""
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -47,17 +48,21 @@ func RunAudit(args []string) {
 		}
 	}
 
+	// CLI flags take precedence over config.
+	if dbURL == "" {
+		dbURL = appCfg.Get("DATABASE_URL")
+	}
 	if dbURL == "" {
 		fmt.Fprintf(os.Stderr, "%s DATABASE_URL is required for audit\n", theme.Error.Render("error:"))
-		fmt.Fprintf(os.Stderr, "\n  Set DATABASE_URL in .env or pass --db <url>\n\n")
+		fmt.Fprintf(os.Stderr, "\n  Set DATABASE_URL in .env, .env.local, or pass --db <url>\n\n")
 		os.Exit(1)
 	}
 
-	cfg := chain.Config{RPCURL: rpcURL}
-	if envRPC := os.Getenv("EAS_RPC_URL"); envRPC != "" && rpcURL == "" {
-		cfg.RPCURL = envRPC
+	chainCfg := chain.Config{RPCURL: rpcURL}
+	if rpcURL == "" {
+		chainCfg.RPCURL = appCfg.Get("EAS_RPC_URL")
 	}
-	client := chain.New(cfg)
+	client := chain.New(chainCfg)
 
 	fmt.Printf("\n  %s\n\n", theme.Title.Render("Attestation Audit"))
 	fmt.Printf("  %-22s %s\n", theme.Muted.Render("rpc:"), client.RPCURL())

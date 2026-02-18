@@ -1,6 +1,14 @@
 // Package config handles .env file parsing and environment variable validation
-// for THE PIT CLI tools. It reads the tspit project's .env file and provides
-// typed access to all configuration values.
+// for THE PIT CLI tools. It reads the tspit project's .env and .env.local files
+// and provides typed access to all configuration values.
+//
+// Resolution order (Next.js convention):
+//  1. .env           — base defaults
+//  2. .env.local     — local overrides (gitignored)
+//  3. Shell env vars — always win
+//
+// All pit* CLIs should use this package as the single source of truth for
+// environment configuration. Do not use raw os.Getenv in CLI code.
 package config
 
 import (
@@ -40,6 +48,16 @@ var Schema = []VarSpec{
 	{Name: "EAS_ENABLED", Required: false, Desc: "Enable on-chain attestations"},
 	{Name: "RESEND_API_KEY", Required: false, Desc: "Resend email API key"},
 	{Name: "LICENSE_SIGNING_KEY", Required: false, Desc: "Ed25519 private key for license signing (hex)"},
+	// Linear issue tracking (pitlinear).
+	{Name: "LINEAR_API_KEY", Required: false, Desc: "Linear API key"},
+	{Name: "LINEAR_TEAM_NAME", Required: false, Desc: "Default Linear team key (e.g. Oceanheartai)"},
+	// On-chain attestations (pitnet).
+	{Name: "EAS_RPC_URL", Required: false, Desc: "Base L2 RPC URL for EAS"},
+	{Name: "EAS_SCHEMA_UID", Required: false, Desc: "EAS schema UID"},
+	{Name: "EAS_SIGNER_PRIVATE_KEY", Required: false, Desc: "EAS signer private key (hex)"},
+	// PostHog analytics (shared).
+	{Name: "NEXT_PUBLIC_POSTHOG_KEY", Required: false, Desc: "PostHog project API key"},
+	{Name: "NEXT_PUBLIC_POSTHOG_HOST", Required: false, Desc: "PostHog API host"},
 }
 
 // Config holds resolved configuration values.
@@ -47,38 +65,69 @@ type Config struct {
 	DatabaseURL string
 	AppURL      string
 	Loaded      bool
-	EnvPath     string
+	EnvPath     string            // first env file found (backward compat)
+	EnvPaths    []string          // all env files loaded, in order
 	Vars        map[string]string // all loaded vars
 }
 
-// Load reads the .env file and merges with environment variables.
-// envPath can be empty to use default resolution (CWD/.env, CWD/../.env, or CWD/../../.env).
+// Load reads .env and .env.local files, then merges with shell environment
+// variables. Resolution order follows the Next.js convention:
+//
+//  1. .env           — base defaults
+//  2. .env.local     — local overrides (gitignored)
+//  3. Shell env vars — always win
+//
+// envPath can be empty to use default resolution (walks up from CWD).
+// If envPath is an explicit path, both that file and its .local sibling
+// are loaded (e.g. passing "/foo/.env" also checks "/foo/.env.local").
 func Load(envPath string) (*Config, error) {
 	cfg := &Config{
 		Vars: make(map[string]string),
 	}
 
-	// Resolve .env path.
+	// Resolve env file paths.
+	var paths []string
 	if envPath != "" {
-		cfg.EnvPath = envPath
+		paths = []string{envPath}
+		// Also check the .local sibling of the explicit path.
+		localPath := envPath + ".local"
+		if _, err := os.Stat(localPath); err == nil {
+			paths = append(paths, localPath)
+		}
 	} else {
-		cfg.EnvPath = resolveEnvPath()
+		paths = resolveEnvPaths()
 	}
 
-	// Load .env file if it exists.
-	if cfg.EnvPath != "" {
-		envMap, err := godotenv.Read(cfg.EnvPath)
+	// Load env files in order — later files override earlier ones.
+	for _, p := range paths {
+		envMap, err := godotenv.Read(p)
 		if err != nil {
-			return nil, fmt.Errorf("reading %s: %w", cfg.EnvPath, err)
+			return nil, fmt.Errorf("reading %s: %w", p, err)
 		}
 		for k, v := range envMap {
 			cfg.Vars[k] = v
 		}
+		cfg.EnvPaths = append(cfg.EnvPaths, p)
+		if cfg.EnvPath == "" {
+			cfg.EnvPath = p // backward compat: first file found
+		}
 		cfg.Loaded = true
 	}
 
-	// Environment variables override .env values.
+	// Shell environment variables override everything.
+	// Check all vars loaded from dotenv files AND all Schema entries,
+	// so that shell env works even for vars not in any dotenv file.
+	checked := make(map[string]bool)
+	for key := range cfg.Vars {
+		if val := os.Getenv(key); val != "" {
+			cfg.Vars[key] = val
+		}
+		checked[key] = true
+	}
 	for _, spec := range Schema {
+		if checked[spec.Name] {
+			continue
+		}
 		if val := os.Getenv(spec.Name); val != "" {
 			cfg.Vars[spec.Name] = val
 		}
@@ -120,26 +169,48 @@ func (c *Config) Validate() []string {
 	return missing
 }
 
-// resolveEnvPath looks for .env in standard locations relative to CWD.
-func resolveEnvPath() string {
+// resolveEnvPaths looks for .env and .env.local in standard locations relative
+// to CWD. Returns paths in load order: .env first, then .env.local (at the
+// same directory level). Stops walking up once the first .env is found.
+func resolveEnvPaths() []string {
 	cwd, err := os.Getwd()
 	if err != nil {
-		return ""
+		return nil
 	}
 
 	// Walk up to three levels to find .env (handles tool subdirectories).
-	candidates := []string{
-		filepath.Join(cwd, ".env"),
-		filepath.Join(cwd, "..", ".env"),
-		filepath.Join(cwd, "..", "..", ".env"),
+	dirs := []string{
+		cwd,
+		filepath.Join(cwd, ".."),
+		filepath.Join(cwd, "..", ".."),
 	}
 
-	for _, p := range candidates {
-		if _, err := os.Stat(p); err == nil {
-			abs, _ := filepath.Abs(p)
-			return abs
+	for _, dir := range dirs {
+		envPath := filepath.Join(dir, ".env")
+		if _, err := os.Stat(envPath); err != nil {
+			continue
+		}
+		abs, _ := filepath.Abs(envPath)
+		paths := []string{abs}
+
+		// Check for .env.local in the same directory.
+		localPath := filepath.Join(dir, ".env.local")
+		if _, err := os.Stat(localPath); err == nil {
+			absLocal, _ := filepath.Abs(localPath)
+			paths = append(paths, absLocal)
+		}
+
+		return paths
+	}
+
+	// No .env found — check for standalone .env.local (rare but valid).
+	for _, dir := range dirs {
+		localPath := filepath.Join(dir, ".env.local")
+		if _, err := os.Stat(localPath); err == nil {
+			absLocal, _ := filepath.Abs(localPath)
+			return []string{absLocal}
 		}
 	}
 
-	return ""
+	return nil
 }

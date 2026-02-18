@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/rickhallett/thepit/pitnet/internal/chain"
+	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
 // RunStatus checks the Base L2 / EAS service connectivity and state.
-func RunStatus(args []string) {
+func RunStatus(appCfg *config.Config, args []string) {
 	rpcURL := ""
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -25,11 +26,12 @@ func RunStatus(args []string) {
 		}
 	}
 
-	cfg := chain.Config{RPCURL: rpcURL}
-	if envRPC := os.Getenv("EAS_RPC_URL"); envRPC != "" && rpcURL == "" {
-		cfg.RPCURL = envRPC
+	// CLI flag takes precedence over config.
+	chainCfg := chain.Config{RPCURL: rpcURL}
+	if rpcURL == "" {
+		chainCfg.RPCURL = appCfg.Get("EAS_RPC_URL")
 	}
-	client := chain.New(cfg)
+	client := chain.New(chainCfg)
 
 	fmt.Printf("\n  %s\n\n", theme.Title.Render("Base L2 / EAS Status"))
 	fmt.Printf("  %-22s %s\n", theme.Muted.Render("rpc:"), client.RPCURL())
@@ -71,7 +73,7 @@ func RunStatus(args []string) {
 	}
 
 	// Check schema UID if configured.
-	schemaUID := os.Getenv("EAS_SCHEMA_UID")
+	schemaUID := appCfg.Get("EAS_SCHEMA_UID")
 	if schemaUID != "" {
 		fmt.Printf("  %-22s %s\n", theme.Muted.Render("schema uid:"), schemaUID)
 	} else {

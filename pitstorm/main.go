@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
 var version = "dev"
 
 func main() {
+	envPath := flag.String("env", "", "path to .env file")
 	flag.Usage = usage
 	flag.Parse()
 
@@ -20,18 +22,26 @@ func main() {
 		os.Exit(0)
 	}
 
-	switch args[0] {
-	case "version":
+	if args[0] == "version" {
 		fmt.Printf("pitstorm %s\n", version)
 		return
+	}
+
+	// Load config once — resolves .env → .env.local → shell env.
+	cfg, err := config.Load(*envPath)
+	if err != nil {
+		fatal("config", err)
+	}
+
+	switch args[0] {
 	case "run":
-		runCmd(args[1:])
+		runCmd(cfg, args[1:])
 	case "plan":
 		planCmd(args[1:])
 	case "setup":
-		setupCmd(args[1:])
+		setupCmd(cfg, args[1:])
 	case "login":
-		loginCmd(args[1:])
+		loginCmd(cfg, args[1:])
 	case "verify":
 		verifyCmd(args[1:])
 	case "report":
