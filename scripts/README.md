@@ -18,6 +18,7 @@
 | `preview-e2e.sh` | Bash | Push, wait for Vercel preview deployment, run Playwright E2E against it | `./scripts/preview-e2e.sh [--url] [--skip-push]` |
 | `emit-level4-record.ts` | TypeScript | Emit one Level-4 NDJSON evaluation record from pitstorm + QA artifacts | `pnpm run level4:emit -- --window ... --run ... --pipeline ... --class ...` |
 | `run-level4-gate.sh` | Bash | Run external darkfactorio `dfgatev01` against a window file | `pnpm run level4:gate:baseline -- --window ... --records runs/<window>.ndjson` |
+| `vitest-json-to-level4-qa.ts` | TypeScript | Convert vitest JSON output into QA summary format (`summary.total/passed/failed`) | `pnpm run level4:qa-from-vitest --in qa/results/integration-vitest.json --out qa/results/latest.json` |
 
 ### `stripe-setup.sh`
 

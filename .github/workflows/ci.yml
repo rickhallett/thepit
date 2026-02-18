@@ -60,9 +60,36 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run test:integration
+      - name: Run integration tests with JSON report
+        run: |
+          mkdir -p qa/results runs
+          pnpm exec vitest run tests/integration --coverage=false --reporter=default --reporter=json --outputFile qa/results/integration-vitest.json
         env:
           TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+      - name: Build Level4 QA summary from vitest
+        run: |
+          pnpm run level4:qa-from-vitest --in qa/results/integration-vitest.json --out qa/results/latest.json
+      - name: Emit Level4 eval record (CI integration lane)
+        run: |
+          WINDOW_ID="w-ci-${{ github.run_id }}"
+          RUN_ID="ci-${{ github.run_id }}-${{ github.run_attempt }}"
+          pnpm run level4:emit -- \
+            --window "$WINDOW_ID" \
+            --run "$RUN_ID" \
+            --pipeline "tspit-ci-integration" \
+            --class medium_integration \
+            --qa qa/results/latest.json \
+            --decision approved \
+            --out "runs/${WINDOW_ID}.ndjson"
+      - name: Upload Level4 contract artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: level4-contract-${{ github.run_id }}
+          path: |
+            qa/results/integration-vitest.json
+            qa/results/latest.json
+            runs/w-ci-${{ github.run_id }}.ndjson
+          retention-days: 30
 
   go-gate:
     name: go-gate

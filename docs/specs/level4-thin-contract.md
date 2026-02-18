@@ -45,3 +45,12 @@ pnpm run level4:gate:adversarial --window w-2026-02-l4-01 --records runs/w-2026-
 - No changes to Next.js runtime or API route behavior.
 - No forced blocking in existing CI pipelines yet.
 - No in-repo duplication of dfgate implementation.
+
+## CI artifact emission (added)
+
+`CI / integration` now emits:
+- `qa/results/integration-vitest.json` (raw vitest JSON)
+- `qa/results/latest.json` (normalized QA summary)
+- `runs/w-ci-<run_id>.ndjson` (one Level-4 eval record)
+
+These are uploaded as artifacts and intended for later gate evaluation workflows.
