@@ -17,6 +17,9 @@ const require = createRequire(import.meta.url);
 // *.clerk.com domains are kept for development/staging with pk_test_ keys.
 const clerkDomains = 'https://clerk.thepit.cloud https://accounts.thepit.cloud https://*.clerk.accounts.dev https://*.clerk.com';
 const clerkImgDomains = 'https://img.clerk.com https://images.clerk.dev https://images.clerk.com';
+// Clerk uses Cloudflare Turnstile for bot protection on sign-up/sign-in.
+// The widget loads scripts and iframes from challenges.cloudflare.com.
+const turnstileDomains = 'https://challenges.cloudflare.com';
 // PostHog uses both us.i.posthog.com (ingest) and us-assets.i.posthog.com (assets/config).
 // Kept in CSP even with the /ingest reverse proxy as a safety net — the PostHog SDK may
 // bypass the proxy for session recording assets or feature flag evaluation.
@@ -24,12 +27,12 @@ const posthogDomains = 'https://us.i.posthog.com https://us-assets.i.posthog.com
 
 const cspDirectives = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${clerkDomains} ${posthogDomains} https://cdn.jsdelivr.net`,
+  `script-src 'self' 'unsafe-inline' ${clerkDomains} ${turnstileDomains} ${posthogDomains} https://cdn.jsdelivr.net`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: ${clerkImgDomains}`,
   "font-src 'self' data:",
-  `connect-src 'self' ${clerkDomains} ${posthogDomains} https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com`,
-  `frame-src 'self' https://checkout.stripe.com ${clerkDomains}`,
+  `connect-src 'self' ${clerkDomains} ${turnstileDomains} ${posthogDomains} https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com`,
+  `frame-src 'self' https://checkout.stripe.com ${clerkDomains} ${turnstileDomains}`,
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
