@@ -15,21 +15,38 @@ const linearAPI = "https://api.linear.app/graphql"
 
 // Client communicates with the Linear GraphQL API.
 type Client struct {
-	apiKey     string
-	baseURL    string // overridable for tests
-	http       *http.Client
-	teamsCache []Team // cached after first fetch
+	apiKey      string
+	baseURL     string // overridable for tests
+	http        *http.Client
+	cache       *DiskCache
+	teamsCache  []Team             // in-process cache
+	statesCache map[string][]State // in-process cache keyed by teamID
+	labelsCache map[string][]Label // in-process cache keyed by teamID
 }
 
 // NewClient returns a Linear API client with a 10-second timeout.
-func NewClient(apiKey string) *Client {
+// If useCache is false, the disk cache is disabled (no directory created).
+func NewClient(apiKey string, useCache ...bool) *Client {
+	cacheEnabled := true
+	if len(useCache) > 0 {
+		cacheEnabled = useCache[0]
+	}
 	return &Client{
 		apiKey:  apiKey,
 		baseURL: linearAPI,
 		http: &http.Client{
 			Timeout: 10 * time.Second,
 		},
+		cache:       NewDiskCache(cacheEnabled),
+		statesCache: make(map[string][]State),
+		labelsCache: make(map[string][]Label),
 	}
+}
+
+// SetCache replaces the disk cache. Used to disable caching (--no-cache)
+// or inject a test cache.
+func (c *Client) SetCache(cache *DiskCache) {
+	c.cache = cache
 }
 
 // --- internal GraphQL execution ---
@@ -167,11 +184,21 @@ const mCommentCreate = `mutation($input: CommentCreateInput!) {
 
 // --- Teams ---
 
-// Teams returns all teams. Results are cached after the first call.
+// Teams returns all teams. Results are cached in-process and on disk.
 func (c *Client) Teams() ([]Team, error) {
 	if c.teamsCache != nil {
 		return c.teamsCache, nil
 	}
+
+	// Check disk cache.
+	if cached := c.cache.Get("teams"); cached != nil {
+		var teams []Team
+		if json.Unmarshal(cached, &teams) == nil && len(teams) > 0 {
+			c.teamsCache = teams
+			return teams, nil
+		}
+	}
+
 	data, err := c.do(qTeams, nil)
 	if err != nil {
 		return nil, err
@@ -185,6 +212,7 @@ func (c *Client) Teams() ([]Team, error) {
 		return nil, fmt.Errorf("parse teams: %w", err)
 	}
 	c.teamsCache = resp.Teams.Nodes
+	c.cache.Set(TTLMetadata, "teams", c.teamsCache)
 	return c.teamsCache, nil
 }
 
@@ -206,8 +234,22 @@ func (c *Client) TeamByKey(key string) (*Team, error) {
 
 // --- States & Labels ---
 
-// States returns workflow states for a team.
+// States returns workflow states for a team. Cached in-process and on disk.
 func (c *Client) States(teamID string) ([]State, error) {
+	// In-process cache.
+	if cached, ok := c.statesCache[teamID]; ok {
+		return cached, nil
+	}
+
+	// Disk cache.
+	if cached := c.cache.Get("states", teamID); cached != nil {
+		var states []State
+		if json.Unmarshal(cached, &states) == nil && len(states) > 0 {
+			c.statesCache[teamID] = states
+			return states, nil
+		}
+	}
+
 	data, err := c.do(qTeamStates, map[string]any{"id": teamID})
 	if err != nil {
 		return nil, err
@@ -222,11 +264,27 @@ func (c *Client) States(teamID string) ([]State, error) {
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("parse states: %w", err)
 	}
+	c.statesCache[teamID] = resp.Team.States.Nodes
+	c.cache.Set(TTLMetadata, "states", resp.Team.States.Nodes, teamID)
 	return resp.Team.States.Nodes, nil
 }
 
-// Labels returns labels for a team.
+// Labels returns labels for a team. Cached in-process and on disk.
 func (c *Client) Labels(teamID string) ([]Label, error) {
+	// In-process cache.
+	if cached, ok := c.labelsCache[teamID]; ok {
+		return cached, nil
+	}
+
+	// Disk cache.
+	if cached := c.cache.Get("labels", teamID); cached != nil {
+		var labels []Label
+		if json.Unmarshal(cached, &labels) == nil && len(labels) > 0 {
+			c.labelsCache[teamID] = labels
+			return labels, nil
+		}
+	}
+
 	data, err := c.do(qTeamLabels, map[string]any{"id": teamID})
 	if err != nil {
 		return nil, err
@@ -241,6 +299,8 @@ func (c *Client) Labels(teamID string) ([]Label, error) {
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("parse labels: %w", err)
 	}
+	c.labelsCache[teamID] = resp.Team.Labels.Nodes
+	c.cache.Set(TTLMetadata, "labels", resp.Team.Labels.Nodes, teamID)
 	return resp.Team.Labels.Nodes, nil
 }
 
@@ -282,8 +342,9 @@ func (c *Client) resolveLabelID(teamID, name string) (string, error) {
 	return "", fmt.Errorf("label %q not found (available: %s)", name, strings.Join(names, ", "))
 }
 
-// resolveIdentifier converts "OCE-22" to an issue UUID.
+// resolveIdentifier converts "OCE-22" to an issue UUID. Cached on disk.
 func (c *Client) resolveIdentifier(identifier string) (string, error) {
+	// Validate format before checking cache.
 	parts := strings.SplitN(identifier, "-", 2)
 	if len(parts) != 2 {
 		return "", fmt.Errorf("invalid identifier %q (expected TEAM-123)", identifier)
@@ -292,6 +353,15 @@ func (c *Client) resolveIdentifier(identifier string) (string, error) {
 	num, err := strconv.ParseFloat(parts[1], 64)
 	if err != nil {
 		return "", fmt.Errorf("invalid number in identifier %q: %w", identifier, err)
+	}
+
+	// Check disk cache for identifier → UUID mapping.
+	upper := strings.ToUpper(identifier)
+	if cached := c.cache.Get("ident", upper); cached != nil {
+		var id string
+		if json.Unmarshal(cached, &id) == nil && id != "" {
+			return id, nil
+		}
 	}
 
 	team, err := c.TeamByKey(teamKey)
@@ -320,7 +390,10 @@ func (c *Client) resolveIdentifier(identifier string) (string, error) {
 	if len(resp.Issues.Nodes) == 0 {
 		return "", fmt.Errorf("issue %q not found", identifier)
 	}
-	return resp.Issues.Nodes[0].ID, nil
+
+	id := resp.Issues.Nodes[0].ID
+	c.cache.Set(TTLIdentifier, "ident", id, upper)
+	return id, nil
 }
 
 // --- Issues ---
@@ -365,8 +438,16 @@ func parseIssueList(raw json.RawMessage) ([]Issue, error) {
 	return issues, nil
 }
 
-// IssueGet returns an issue by UUID.
+// IssueGet returns an issue by UUID. Results are cached on disk.
 func (c *Client) IssueGet(id string) (*Issue, error) {
+	// Check disk cache.
+	if cached := c.cache.Get("issue", id); cached != nil {
+		var issue Issue
+		if json.Unmarshal(cached, &issue) == nil && issue.ID != "" {
+			return &issue, nil
+		}
+	}
+
 	data, err := c.do(qIssueGet, map[string]any{"id": id})
 	if err != nil {
 		return nil, err
@@ -377,7 +458,12 @@ func (c *Client) IssueGet(id string) (*Issue, error) {
 	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, fmt.Errorf("parse issue: %w", err)
 	}
-	return parseIssue(resp.Issue)
+	issue, err := parseIssue(resp.Issue)
+	if err != nil {
+		return nil, err
+	}
+	c.cache.Set(TTLIssueRead, "issue", issue, id)
+	return issue, nil
 }
 
 // IssueGetByIdentifier returns an issue by identifier (e.g. "OCE-22").
@@ -517,6 +603,8 @@ func (c *Client) IssueUpdate(id string, input IssueUpdateInput, teamID string) (
 	if !resp.IssueUpdate.Success {
 		return nil, fmt.Errorf("issueUpdate returned success=false")
 	}
+	// Invalidate cached issue data after mutation.
+	c.cache.Delete("issue", id)
 	return parseIssue(resp.IssueUpdate.Issue)
 }
 
@@ -587,6 +675,8 @@ func (c *Client) IssueDelete(id string) error {
 	if !resp.IssueDelete.Success {
 		return fmt.Errorf("issueDelete returned success=false")
 	}
+	// Invalidate cached issue data after deletion.
+	c.cache.Delete("issue", id)
 	return nil
 }
 
