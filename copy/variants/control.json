@@ -662,7 +662,7 @@
   "researchPage": {
     "label": "Research",
     "title": "Multi-agent behavioral research",
-    "subtitle": "Every bout is a data point. Every vote is a signal.",
+    "subtitle": "Six pre-registered hypotheses. 195 bouts. Automated metrics, permutation tests, and honest null results.",
     "whatWeStudy": {
       "title": "What we're investigating",
       "bullets": [

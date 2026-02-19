@@ -103,5 +103,8 @@ docs/architecture-bundle.md
 # internal release reviews
 docs/release-review-*
 
+# internal research docs
+docs/research-seed-hypotheses.md
+
 # hype copy variant (contradicts no-hype positioning)
 copy/variants/hype.json
