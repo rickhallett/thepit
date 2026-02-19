@@ -116,15 +116,6 @@ describe('tier module', () => {
   });
 
   describe('canRunBout', () => {
-    // Helper: mock a count query result for getDailyBoutsUsed
-    const mockSelectCount = (total: number) => {
-      mockDb.select.mockImplementationOnce(() => ({
-        from: () => ({
-          where: async () => [{ total }],
-        }),
-      }));
-    };
-
     it('always allows BYOK bouts regardless of tier', async () => {
       setupSelect([{ subscriptionTier: 'free', freeBoutsUsed: 999 }]);
       const { canRunBout } = await loadTier();
@@ -132,8 +123,8 @@ describe('tier module', () => {
       expect(result.allowed).toBe(true);
     });
 
-    it('allows free users under daily limit (no lifetime cap)', async () => {
-      // getUserTier
+    it('always allows free users (global pool is sole limiter)', async () => {
+      // getUserTier → free
       mockDb.select.mockImplementationOnce(() => ({
         from: () => ({
           where: () => ({
@@ -141,37 +132,15 @@ describe('tier module', () => {
           }),
         }),
       }));
-      // getDailyBoutsUsed (free tier has no lifetime cap, goes straight to daily check)
-      mockSelectCount(1);
+      // No getDailyBoutsUsed mock needed — free tier skips per-user daily check
 
       const { canRunBout } = await loadTier();
       const result = await canRunBout('regular-user', false);
       expect(result.allowed).toBe(true);
     });
 
-    it('blocks free users who hit daily limit', async () => {
-      // getUserTier
-      mockDb.select.mockImplementationOnce(() => ({
-        from: () => ({
-          where: () => ({
-            limit: async () => [{ subscriptionTier: 'free' }],
-          }),
-        }),
-      }));
-      // getDailyBoutsUsed: at daily limit (5 for free tier, no lifetime cap)
-      mockSelectCount(5);
-
-      const { canRunBout } = await loadTier();
-      const result = await canRunBout('regular-user', false);
-      expect(result.allowed).toBe(false);
-      if (!result.allowed) {
-        expect(result.reason).toContain('Daily limit');
-        expect(result.reason).toContain('5 bouts/day');
-      }
-    });
-
-    it('allows pass tier users under daily limit', async () => {
-      // getUserTier
+    it('always allows pass tier (credit-gated, no daily cap)', async () => {
+      // getUserTier → pass
       mockDb.select.mockImplementationOnce(() => ({
         from: () => ({
           where: () => ({
@@ -179,37 +148,14 @@ describe('tier module', () => {
           }),
         }),
       }));
-      // getDailyBoutsUsed (pass: 15/day)
-      mockSelectCount(10);
 
       const { canRunBout } = await loadTier();
       const result = await canRunBout('pass-user', false);
       expect(result.allowed).toBe(true);
     });
 
-    it('blocks pass tier users at daily limit', async () => {
-      // getUserTier
-      mockDb.select.mockImplementationOnce(() => ({
-        from: () => ({
-          where: () => ({
-            limit: async () => [{ subscriptionTier: 'pass' }],
-          }),
-        }),
-      }));
-      // getDailyBoutsUsed
-      mockSelectCount(15);
-
-      const { canRunBout } = await loadTier();
-      const result = await canRunBout('pass-user', false);
-      expect(result.allowed).toBe(false);
-      if (!result.allowed) {
-        expect(result.reason).toContain('Daily limit');
-        expect(result.reason).toContain('15 bouts/day');
-      }
-    });
-
-    it('allows lab tier users under daily limit', async () => {
-      // getUserTier
+    it('always allows lab tier (credit-gated, no daily cap)', async () => {
+      // getUserTier → lab
       mockDb.select.mockImplementationOnce(() => ({
         from: () => ({
           where: () => ({
@@ -217,8 +163,6 @@ describe('tier module', () => {
           }),
         }),
       }));
-      // getDailyBoutsUsed
-      mockSelectCount(50);
 
       const { canRunBout } = await loadTier();
       const result = await canRunBout('lab-user', false);
