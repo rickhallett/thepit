@@ -385,14 +385,14 @@ describe('createBout', () => {
     expect(mockDb.insert).toHaveBeenCalled();
   });
 
-  it('redirects unauthenticated user to sign-in', async () => {
+  it('redirects unauthenticated user to sign-up', async () => {
     authMock.mockResolvedValue({ userId: null });
 
     mockGetFormString.mockReturnValue('');
 
     await expectRedirect(
       () => createBout('darwin-special'),
-      /\/sign-in/,
+      /\/sign-up/,
     );
 
     // No bout should be created for unauthenticated users
