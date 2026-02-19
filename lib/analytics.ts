@@ -44,7 +44,9 @@ export type AnalyticsEvent =
   | 'upgrade_cta_clicked'
   // Acquisition funnel (OCE-285)
   | 'consent_granted'
-  | 'arena_viewed';
+  | 'arena_viewed'
+  // Share modal (viral loop)
+  | 'share_modal_shown';
 
 export function trackEvent(event: AnalyticsEvent, properties?: EventProperties) {
   if (typeof window === 'undefined') return;
