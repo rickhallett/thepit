@@ -68,7 +68,7 @@ import {
   incrementFreeBoutsUsed,
   getFreeBoutsUsed,
 } from '@/lib/tier';
-import { consumeFreeBout } from '@/lib/free-bout-pool';
+import { consumeFreeBout, settleFreeBoutSpend } from '@/lib/free-bout-pool';
 import { FIRST_BOUT_PROMOTION_MODEL } from '@/lib/models';
 import { UNSAFE_PATTERN } from '@/lib/validation';
 import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
@@ -120,6 +120,8 @@ export type BoutContext = {
   preauthMicro: number;
   /** Micro-credits consumed from the intro pool for anonymous bouts. Zero for authenticated bouts. */
   introPoolConsumedMicro: number;
+  /** Estimated cost (micro) charged to the free bout pool. Zero for non-free or BYOK bouts. */
+  freePoolSpendMicro: number;
   /** User tier at the time of validation. */
   tier: 'anonymous' | 'free' | 'pass' | 'lab';
   requestId: string;
@@ -327,6 +329,7 @@ export async function validateBoutRequest(
   // Tier-based access control
   const isByok = requestedModel === 'byok' && BYOK_ENABLED;
   let modelId = FREE_MODEL_ID;
+  let freePoolSpendMicro = 0;
 
   if (SUBSCRIPTIONS_ENABLED && userId) {
     // Reuse tier resolved above for rate limiting — avoids a redundant DB read.
@@ -374,14 +377,18 @@ export async function validateBoutRequest(
     }
 
     if (!isByok && tier === 'free') {
-      const poolResult = await consumeFreeBout();
+      // Compute estimated cost early so the free bout pool can enforce
+      // both the bout count cap AND the daily spend cap atomically.
+      freePoolSpendMicro = toMicroCredits(
+        estimateBoutCostGbp(preset.maxTurns, modelId, lengthConfig.outputTokensPerTurn),
+      );
+      const poolResult = await consumeFreeBout(freePoolSpendMicro);
       if (!poolResult.consumed) {
-        return {
-          error: errorResponse(
-            'Daily free bout pool exhausted. Upgrade your plan or use your own API key (BYOK).',
-            429,
-          ),
-        };
+        freePoolSpendMicro = 0; // Not consumed — reset
+        const msg = poolResult.reason === 'spend'
+          ? 'Daily free tier spend cap reached. Upgrade your plan or try again tomorrow.'
+          : 'Daily free bout pool exhausted. Upgrade your plan or use your own API key (BYOK).';
+        return { error: errorResponse(msg, 429) };
       }
       await incrementFreeBoutsUsed(userId);
     }
@@ -481,6 +488,7 @@ export async function validateBoutRequest(
       userId,
       preauthMicro,
       introPoolConsumedMicro,
+      freePoolSpendMicro,
       tier: currentTier,
       requestId,
       db,
@@ -567,7 +575,7 @@ async function _executeBoutInner(
   ctx: BoutContext,
   onEvent?: (event: TurnEvent) => void,
 ): Promise<BoutResult> {
-  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokData, userId, preauthMicro, introPoolConsumedMicro, requestId, db } = ctx;
+  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokData, userId, preauthMicro, introPoolConsumedMicro, freePoolSpendMicro, requestId, db } = ctx;
 
   const boutStartTime = Date.now();
   log.info('Bout stream starting', {
@@ -1042,6 +1050,15 @@ async function _executeBoutInner(
           preauthMicro,
           referenceId: boutId,
         });
+      }
+
+      // Settle free pool daily spend: reconcile estimated vs actual cost.
+      // Only applies to free-tier platform-funded bouts.
+      if (freePoolSpendMicro > 0) {
+        const poolSpendDelta = actualMicro - freePoolSpendMicro;
+        if (poolSpendDelta !== 0) {
+          await settleFreeBoutSpend(poolSpendDelta);
+        }
       }
     }
 
