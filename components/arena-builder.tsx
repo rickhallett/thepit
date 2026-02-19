@@ -12,7 +12,7 @@ import { useByokModelPicker } from '@/lib/use-byok-model-picker';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {
   RESPONSE_LENGTHS,
-  DEFAULT_RESPONSE_LENGTH,
+  DEFAULT_ARENA_RESPONSE_LENGTH,
 } from '@/lib/response-lengths';
 import {
   DEFAULT_RESPONSE_FORMAT,
@@ -177,7 +177,7 @@ export function ArenaBuilder({
           <span>{c.arenaBuilderComponent.responseLength}</span>
           <select
             name="length"
-            defaultValue={DEFAULT_RESPONSE_LENGTH}
+            defaultValue={DEFAULT_ARENA_RESPONSE_LENGTH}
             className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
           >
             {RESPONSE_LENGTHS.map((length) => (

@@ -54,9 +54,9 @@ export type TierConfig = {
 
 export const TIER_CONFIG: Record<UserTier, TierConfig> = {
   free: {
-    boutsPerDay: 3,
-    lifetimeBoutCap: 15,
-    models: ['haiku'],
+    boutsPerDay: 5,
+    lifetimeBoutCap: null,
+    models: ['haiku', 'sonnet'],
     maxAgents: 1,
     apiAccess: false,
     agentAnalytics: false,

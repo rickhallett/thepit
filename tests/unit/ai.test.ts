@@ -25,9 +25,9 @@ describe('lib/ai', () => {
     delete process.env.ANTHROPIC_BYOK_MODEL;
   });
 
-  it('FREE_MODEL_ID defaults to haiku model', async () => {
+  it('FREE_MODEL_ID defaults to sonnet model', async () => {
     const { FREE_MODEL_ID } = await import('@/lib/ai');
-    expect(FREE_MODEL_ID).toBe(MODEL_IDS.HAIKU);
+    expect(FREE_MODEL_ID).toBe(MODEL_IDS.SONNET);
   });
 
   it('PREMIUM_MODEL_OPTIONS is an array of model IDs', async () => {
