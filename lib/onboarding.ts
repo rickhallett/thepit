@@ -14,7 +14,7 @@ import {
 } from '@/lib/intro-pool';
 import { ensureReferralCode, applyReferralBonus } from '@/lib/referrals';
 import { ensureUserRecord, userRecordExists } from '@/lib/users';
-import { serverTrack, serverIdentify, flushServerAnalytics } from '@/lib/posthog-server';
+import { serverTrack, serverIdentify } from '@/lib/posthog-server';
 
 export async function applySignupBonus(userId: string) {
   if (!CREDITS_ENABLED) {
@@ -108,12 +108,6 @@ export async function initializeUserSession(params: {
   // When credits are disabled, `isNewUser` is true on the first init for
   // a given userId (no prior cache entry).
   if (isNewUser) {
-    serverTrack(params.userId, 'signup_completed', {
-      referral_code: params.referralCode ?? null,
-      utm_source: params.utmSource ?? null,
-      utm_medium: params.utmMedium ?? null,
-      utm_campaign: params.utmCampaign ?? null,
-    });
     // Derive acquisition channel from available attribution data.
     // Priority: referral > paid (utm) > organic
     const acquisitionChannel: string = params.referralCode
@@ -122,20 +116,26 @@ export async function initializeUserSession(params: {
         ? 'paid'
         : 'organic';
 
-    serverIdentify(params.userId, {
-      signup_date: new Date().toISOString(),
-      initial_tier: 'free',
-      current_tier: 'free',
-      acquisition_channel: acquisitionChannel,
-      referral_code: params.referralCode ?? null,
-      utm_source: params.utmSource ?? null,
-    });
-    // Flush immediately — in serverless environments the PostHog batch buffer
-    // (flushAt=20, flushInterval=5s) may not drain before the function terminates.
+    // Both serverTrack and serverIdentify now use captureImmediate /
+    // identifyImmediate, which complete the HTTP request before returning.
+    // No separate flush needed — each call is self-contained.
     // Wrapped in try-catch so a PostHog network/SDK error doesn't crash the
     // root layout render on a new user's first page load.
     try {
-      await flushServerAnalytics();
+      await serverTrack(params.userId, 'signup_completed', {
+        referral_code: params.referralCode ?? null,
+        utm_source: params.utmSource ?? null,
+        utm_medium: params.utmMedium ?? null,
+        utm_campaign: params.utmCampaign ?? null,
+      });
+      await serverIdentify(params.userId, {
+        signup_date: new Date().toISOString(),
+        initial_tier: 'free',
+        current_tier: 'free',
+        acquisition_channel: acquisitionChannel,
+        referral_code: params.referralCode ?? null,
+        utm_source: params.utmSource ?? null,
+      });
     } catch {
       // Best-effort — analytics loss is acceptable, layout crash is not.
     }

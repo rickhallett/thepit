@@ -567,7 +567,8 @@ async function _executeBoutInner(
   });
 
   // --- Analytics: bout_started (OCE-283) ---
-  serverTrack(userId ?? 'anonymous', 'bout_started', {
+  // captureImmediate — completes HTTP request before continuing.
+  await serverTrack(userId ?? 'anonymous', 'bout_started', {
     bout_id: boutId,
     preset_id: presetId,
     model_id: modelId,
@@ -908,7 +909,8 @@ async function _executeBoutInner(
     });
 
     // --- Analytics: bout_completed (OCE-283) ---
-    serverTrack(userId ?? 'anonymous', 'bout_completed', {
+    // captureImmediate — completes HTTP request before continuing.
+    await serverTrack(userId ?? 'anonymous', 'bout_completed', {
       bout_id: boutId,
       preset_id: presetId,
       model_id: modelId,
@@ -940,14 +942,11 @@ async function _executeBoutInner(
           .from(bouts)
           .where(and(eq(bouts.ownerId, userId), eq(bouts.status, 'completed')));
         if (boutCount && boutCount.value === 1) {
-          serverTrack(userId, 'user_activated', {
+          await serverTrack(userId, 'user_activated', {
             preset_id: presetId,
             model_id: modelId,
             duration_ms: boutDurationMs,
           });
-          // Flush immediately — in serverless environments the PostHog batch
-          // buffer may not drain before the function terminates.
-          await flushServerAnalytics();
         }
       } catch {
         // Non-critical — don't break bout completion for analytics
@@ -993,6 +992,15 @@ async function _executeBoutInner(
       }
     }
 
+    // Flush batched $ai_generation events (serverCaptureAIGeneration uses
+    // capture() for latency, not captureImmediate). shutdown() drains the
+    // promise queue so no events are lost when the function terminates.
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Best-effort — analytics loss is acceptable.
+    }
+
     return { transcript, shareLine, inputTokens, outputTokens };
   } catch (error) {
     const boutDurationMs = Date.now() - boutStartTime;
@@ -1021,7 +1029,7 @@ async function _executeBoutInner(
     });
 
     // --- Analytics: bout_error (OCE-283) ---
-    serverTrack(userId ?? 'anonymous', 'bout_error', {
+    await serverTrack(userId ?? 'anonymous', 'bout_error', {
       bout_id: boutId,
       preset_id: presetId,
       model_id: modelId,
@@ -1067,6 +1075,13 @@ async function _executeBoutInner(
     if (introPoolConsumedMicro > 0) {
       log.info('Refunding intro pool on error', { boutId, introPoolConsumedMicro });
       await refundIntroPool(introPoolConsumedMicro);
+    }
+
+    // Flush batched $ai_generation events on error path too.
+    try {
+      await flushServerAnalytics();
+    } catch {
+      // Best-effort — analytics loss is acceptable.
     }
 
     throw error;
