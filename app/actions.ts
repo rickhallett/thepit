@@ -29,6 +29,7 @@ import {
   DEFAULT_RESPONSE_FORMAT,
   resolveResponseFormat,
 } from '@/lib/response-formats';
+import { resolveTurns } from '@/lib/turns';
 import { getFormString } from '@/lib/form-utils';
 import { log } from '@/lib/logger';
 
@@ -124,8 +125,10 @@ export async function createArenaBout(formData: FormData) {
   const length = getFormString(formData, 'length');
   const format = getFormString(formData, 'format');
   const model = getFormString(formData, 'model');
+  const turns = getFormString(formData, 'turns');
   const lengthConfig = resolveResponseLength(length || DEFAULT_RESPONSE_LENGTH);
   const formatConfig = resolveResponseFormat(format || DEFAULT_RESPONSE_FORMAT);
+  const maxTurns = resolveTurns(turns);
 
   if (agentIds.length < 2 || agentIds.length > 6) {
     throw new Error('Select between 2 and 6 agents.');
@@ -160,6 +163,7 @@ export async function createArenaBout(formData: FormData) {
     topic: topic || null,
     responseLength: lengthConfig.id,
     responseFormat: formatConfig.id,
+    maxTurns,
     agentLineup: lineup,
   });
 

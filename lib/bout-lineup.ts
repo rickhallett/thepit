@@ -4,17 +4,22 @@ import type { ArenaAgent } from '@/db/schema';
 import {
   ARENA_PRESET_ID,
   DEFAULT_AGENT_COLOR,
-  DEFAULT_ARENA_MAX_TURNS,
   type Agent,
   type Preset,
 } from '@/lib/presets';
+import { DEFAULT_ARENA_TURNS } from '@/lib/turns';
 
 /**
  * Reconstruct an arena-mode Preset from the agentLineup JSONB column.
  * Used by bout replay pages and the bout engine when resuming an arena bout.
+ *
+ * @param agentLineup - The agent lineup from the bout's JSONB column.
+ * @param maxTurns    - Optional turn count override (from the bout row or user selection).
+ *                      Falls back to DEFAULT_ARENA_TURNS (6).
  */
 export function buildArenaPresetFromLineup(
   agentLineup: ArenaAgent[],
+  maxTurns?: number | null,
 ): Preset {
   const agents: Agent[] = agentLineup.map((agent) => ({
     id: agent.id,
@@ -28,7 +33,7 @@ export function buildArenaPresetFromLineup(
     name: 'Arena Mode',
     description: 'Custom lineup',
     tier: 'free',
-    maxTurns: DEFAULT_ARENA_MAX_TURNS,
+    maxTurns: maxTurns ?? DEFAULT_ARENA_TURNS,
     agents,
   };
 }
