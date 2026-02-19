@@ -333,9 +333,9 @@ export async function validateBoutRequest(
       modelId = allowed[0] ?? FREE_MODEL_ID;
     }
 
-    // First-bout promotion: give free-tier users Opus on their very first
-    // bout so they experience the best model quality and are motivated to
-    // upgrade. Only applies to non-BYOK, non-explicit-model requests.
+    // First-bout promotion: give free-tier users the promotion model on
+    // their very first bout so they experience higher quality and are
+    // motivated to upgrade. Only applies to non-BYOK, non-explicit-model.
     if (
       !isByok &&
       tier === 'free' &&
@@ -345,7 +345,7 @@ export async function validateBoutRequest(
       const used = await getFreeBoutsUsed(userId);
       if (used === 0) {
         modelId = FIRST_BOUT_PROMOTION_MODEL;
-        log.info('First-bout promotion: upgraded to Opus', { userId });
+        log.info('First-bout promotion applied', { userId, model: FIRST_BOUT_PROMOTION_MODEL });
       }
     }
 
