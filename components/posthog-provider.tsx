@@ -12,7 +12,7 @@
 
 import posthog from 'posthog-js';
 import { PostHogProvider as PHProvider, usePostHog } from 'posthog-js/react';
-import { useEffect, Suspense } from 'react';
+import { useEffect, useState, createContext, useContext, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
 
@@ -30,14 +30,21 @@ const POSTHOG_HOST = '/ingest';
 // user's primary email to set is_internal person property for filtering.
 const INTERNAL_DOMAINS = ['oceanheart.ai', 'thepit.cloud'];
 
+// Reactive flag so child effects (PostHogIdentify, PostHogPageView) re-run
+// after posthog.init() completes. Without this, posthog.__loaded is a plain
+// property invisible to React's dependency tracking, meaning initial events
+// would be silently dropped for returning users with prior consent.
+const PostHogReadyContext = createContext(false);
+
 /**
  * Initialize PostHog only when the user has consented to analytics cookies.
  * Called once on mount and guards against double-init.
+ * Returns true if PostHog is loaded after the call (either freshly or already).
  */
-function initPostHog() {
-  if (typeof window === 'undefined' || !POSTHOG_KEY) return;
-  if (getConsentState() !== 'accepted') return;
-  if (posthog.__loaded) return;
+function initPostHog(): boolean {
+  if (typeof window === 'undefined' || !POSTHOG_KEY) return false;
+  if (getConsentState() !== 'accepted') return false;
+  if (posthog.__loaded) return true;
 
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
@@ -116,6 +123,8 @@ function initPostHog() {
   } catch {
     // Malformed cookie — ignore
   }
+
+  return true;
 }
 
 /** Sync Clerk auth state with PostHog identity. */
@@ -123,9 +132,10 @@ function PostHogIdentify() {
   const { userId, isSignedIn } = useAuth();
   const { user } = useUser();
   const ph = usePostHog();
+  const ready = useContext(PostHogReadyContext);
 
   useEffect(() => {
-    if (!ph) return;
+    if (!ph || !ready) return;
     if (isSignedIn && userId) {
       // Detect internal team members by email domain (OCE-282).
       // Sets is_internal person property for dashboard filtering.
@@ -139,7 +149,7 @@ function PostHogIdentify() {
     } else if (isSignedIn === false) {
       ph.reset();
     }
-  }, [ph, userId, isSignedIn, user]);
+  }, [ph, ready, userId, isSignedIn, user]);
 
   return null;
 }
@@ -149,32 +159,56 @@ function PostHogPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const ph = usePostHog();
+  const ready = useContext(PostHogReadyContext);
 
   useEffect(() => {
-    if (!pathname || !ph) return;
+    if (!pathname || !ph || !ready) return;
     const url = `${window.origin}${pathname}${searchParams?.toString() ? `?${searchParams.toString()}` : ''}`;
     ph.capture('$pageview', { $current_url: url });
-  }, [pathname, searchParams, ph]);
+  }, [pathname, searchParams, ph, ready]);
 
   return null;
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  const [posthogReady, setPosthogReady] = useState(false);
+
   useEffect(() => {
-    initPostHog();
+    if (initPostHog()) {
+      // Defer state update to avoid "setState in effect" lint rule.
+      // initPostHog() is synchronous, so __loaded is already true by this
+      // point. The microtask ensures React batches the re-render properly
+      // and child effects (PostHogIdentify, PostHogPageView) fire with
+      // the updated ready state.
+      queueMicrotask(() => setPosthogReady(true));
+    }
   }, []);
 
-  if (!POSTHOG_KEY || (typeof window !== 'undefined' && getConsentState() !== 'accepted')) {
+  // Always render the PHProvider wrapper when the key exists to avoid a
+  // hydration mismatch (React error #418). The previous guard used
+  // `typeof window !== 'undefined' && getConsentState() !== 'accepted'`
+  // which produced different component trees on server vs client — the
+  // server short-circuited to the PHProvider path while the client
+  // rendered a bare fragment for users without consent.
+  //
+  // The PHProvider context is inert until posthogReady is true.
+  // Actual tracking is gated behind initPostHog() (client-only, checks
+  // consent). The PostHogReadyContext propagates the ready state to
+  // PostHogIdentify and PostHogPageView so they fire initial events
+  // once init completes, while preventing pre-consent event queuing.
+  if (!POSTHOG_KEY) {
     return <>{children}</>;
   }
 
   return (
-    <PHProvider client={posthog}>
-      <PostHogIdentify />
-      <Suspense fallback={null}>
-        <PostHogPageView />
-      </Suspense>
-      {children}
-    </PHProvider>
+    <PostHogReadyContext.Provider value={posthogReady}>
+      <PHProvider client={posthog}>
+        <PostHogIdentify />
+        <Suspense fallback={null}>
+          <PostHogPageView />
+        </Suspense>
+        {children}
+      </PHProvider>
+    </PostHogReadyContext.Provider>
   );
 }
