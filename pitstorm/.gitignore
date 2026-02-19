@@ -7,6 +7,8 @@ coverage.out
 
 # Simulation results (JSON output, live status)
 results/
+# Track hypothesis research data
+!results/hypotheses/
 
 # Credentials (contains plaintext passwords and session tokens)
 accounts.json
