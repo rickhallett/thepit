@@ -74,6 +74,28 @@ import { UNSAFE_PATTERN } from '@/lib/validation';
 import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
 import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 
+// ─── Prompt caching ──────────────────────────────────────────────────
+
+/**
+ * Anthropic prompt caching: mark a message as a cache breakpoint.
+ * The API caches all content up to and including the marked message.
+ * Ignored by non-Anthropic providers (OpenRouter, etc.).
+ *
+ * @see https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+ */
+const ANTHROPIC_CACHE_CONTROL = {
+  anthropic: { cacheControl: { type: 'ephemeral' as const } },
+} as const;
+
+/**
+ * Whether the current bout is hitting an Anthropic model (platform or BYOK).
+ * OpenRouter BYOK calls should NOT receive Anthropic-specific providerOptions.
+ */
+function isAnthropicModel(modelId: string, byokData: ByokKeyData | null): boolean {
+  if (modelId !== 'byok') return true; // Platform-funded — always Anthropic
+  return byokData?.provider === 'anthropic';
+}
+
 // ─── Types ───────────────────────────────────────────────────────────
 
 /** Structured BYOK key data decoded from the stash cookie. */
@@ -704,11 +726,20 @@ async function _executeBoutInner(
       // BYOK calls use the untraced variant — user API keys must not be
       // logged to our LangSmith project. Platform calls get full tracing.
       const streamFn = modelId === 'byok' ? untracedStreamText : tracedStreamText;
+
+      // Anthropic prompt caching: mark the system message as a cache
+      // breakpoint so repeated turns reuse the cached safety+persona+format
+      // prefix. Ignored for non-Anthropic providers (OpenRouter BYOK).
+      const useCache = isAnthropicModel(modelId, byokData);
       const result = streamFn({
         model: boutModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
         messages: [
-          { role: 'system', content: systemContent },
+          {
+            role: 'system',
+            content: systemContent,
+            ...(useCache && { providerOptions: ANTHROPIC_CACHE_CONTROL }),
+          },
           { role: 'user', content: userContent },
         ],
       });
@@ -753,6 +784,22 @@ async function _executeBoutInner(
         outputTokens += turnOutputTokens;
       }
 
+      // Anthropic prompt caching metadata: extract cache hit/miss tokens.
+      // providerMetadata.anthropic may contain cacheCreationInputTokens and
+      // cacheReadInputTokens when cache control breakpoints are active.
+      let cacheCreationTokens = 0;
+      let cacheReadTokens = 0;
+      if (useCache) {
+        try {
+          const meta = await result.providerMetadata;
+          const anthMeta = meta?.anthropic as Record<string, number> | undefined;
+          cacheCreationTokens = anthMeta?.cacheCreationInputTokens ?? 0;
+          cacheReadTokens = anthMeta?.cacheReadInputTokens ?? 0;
+        } catch {
+          // Non-fatal — provider may not return metadata
+        }
+      }
+
       const turnDurationMs = Date.now() - turnStart;
       log.info('AI turn complete', {
         requestId,
@@ -762,6 +809,8 @@ async function _executeBoutInner(
         modelId,
         inputTokens: turnInputTokens,
         outputTokens: turnOutputTokens,
+        ...(cacheCreationTokens > 0 && { cacheCreationTokens }),
+        ...(cacheReadTokens > 0 && { cacheReadTokens }),
         durationMs: turnDurationMs,
       });
 
@@ -793,6 +842,8 @@ async function _executeBoutInner(
         turn: i,
         isByok: !!byokData,
         generationType: 'turn',
+        ...(cacheCreationTokens > 0 && { cacheCreationInputTokens: cacheCreationTokens }),
+        ...(cacheReadTokens > 0 && { cacheReadInputTokens: cacheReadTokens }),
       });
 
       // Refusal detection: log when an agent breaks character

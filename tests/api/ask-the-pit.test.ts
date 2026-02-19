@@ -147,7 +147,13 @@ describe('ask-the-pit route', () => {
     const callArgs = streamTextMock.mock.calls[0][0];
     expect(callArgs.maxOutputTokens).toBe(2000);
     expect(callArgs.messages).toEqual([
-      { role: 'system', content: expect.stringContaining('documentation') },
+      {
+        role: 'system',
+        content: expect.stringContaining('documentation'),
+        providerOptions: {
+          anthropic: { cacheControl: { type: 'ephemeral' } },
+        },
+      },
       { role: 'user', content: 'What is The Pit?' },
     ]);
 

@@ -111,7 +111,15 @@ async function rawPOST(req: Request) {
         model: getModel(opts.model),
         maxOutputTokens: ASK_THE_PIT_MAX_TOKENS,
         messages: [
-          { role: 'system', content: opts.systemPrompt },
+          {
+            role: 'system',
+            content: opts.systemPrompt,
+            // Anthropic prompt caching: the system prompt includes full docs,
+            // so caching saves significant input tokens across requests.
+            providerOptions: {
+              anthropic: { cacheControl: { type: 'ephemeral' as const } },
+            },
+          },
           { role: 'user', content: opts.message },
         ],
       });
