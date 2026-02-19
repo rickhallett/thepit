@@ -1,0 +1,366 @@
+{
+  "hypothesis": "H4",
+  "runAt": "2026-02-19T17:33:39Z",
+  "decision": "Clear result: max |d| = 3.009 \u003e= 0.30. No LLM judge needed.",
+  "thresholdHit": "clear",
+  "groups": [
+    {
+      "AgentCount": 2,
+      "PresetID": "first-contact",
+      "BoutCount": 15,
+      "TotalTurns": 180,
+      "M1AvgChars": {
+        "mean": 933.072222222222,
+        "sd": 40.68208402243774
+      },
+      "M2AgentTTR": {
+        "mean": 0.4876785358070363,
+        "sd": 0.02103410838067644
+      },
+      "M3Novelty": {
+        "mean": 0.44669051805715076,
+        "sd": 0.211307240601221
+      },
+      "M4ConvoTTR": {
+        "mean": 0.3995470464692313,
+        "sd": 0.01539557029640655
+      }
+    },
+    {
+      "AgentCount": 4,
+      "PresetID": "shark-pit",
+      "BoutCount": 10,
+      "TotalTurns": 120,
+      "M1AvgChars": {
+        "mean": 821.475,
+        "sd": 46.75692660114846
+      },
+      "M2AgentTTR": {
+        "mean": 0.5614022690397653,
+        "sd": 0.027854001264150767
+      },
+      "M3Novelty": {
+        "mean": 0.3930703768539292,
+        "sd": 0.21821336298400845
+      },
+      "M4ConvoTTR": {
+        "mean": 0.3466896080306082,
+        "sd": 0.015103718187017875
+      }
+    },
+    {
+      "AgentCount": 5,
+      "PresetID": "flatshare",
+      "BoutCount": 10,
+      "TotalTurns": 120,
+      "M1AvgChars": {
+        "mean": 793.79,
+        "sd": 57.307548485157575
+      },
+      "M2AgentTTR": {
+        "mean": 0.5908149959408374,
+        "sd": 0.04718063127971143
+      },
+      "M3Novelty": {
+        "mean": 0.4084363189762502,
+        "sd": 0.23773487443109428
+      },
+      "M4ConvoTTR": {
+        "mean": 0.3606226807531229,
+        "sd": 0.01198854780007215
+      }
+    },
+    {
+      "AgentCount": 6,
+      "PresetID": "summit",
+      "BoutCount": 15,
+      "TotalTurns": 180,
+      "M1AvgChars": {
+        "mean": 927.8,
+        "sd": 62.738076892225756
+      },
+      "M2AgentTTR": {
+        "mean": 0.6140773223103959,
+        "sd": 0.046862021453741805
+      },
+      "M3Novelty": {
+        "mean": 0.4072268371799016,
+        "sd": 0.2329601773444993
+      },
+      "M4ConvoTTR": {
+        "mean": 0.35877658223417414,
+        "sd": 0.034947239325335125
+      }
+    }
+  ],
+  "primaryEffect": {
+    "m1_chars_d": 0.09074576811819025,
+    "m2_agentTTR_d": -3.008577650718214,
+    "m3_novelty_d": 0.17744669429294693,
+    "m4_convoTTR_d": 1.509844720440954
+  },
+  "pairwise": [
+    {
+      "groupA": 2,
+      "groupB": 4,
+      "effects": {
+        "m1_chars_d": 2.520931200636757,
+        "m2_agentTTR_d": -2.9287401873567744,
+        "m3_novelty_d": 0.250453999745787,
+        "m4_convoTTR_d": 3.458796680499383
+      }
+    },
+    {
+      "groupA": 2,
+      "groupB": 5,
+      "effects": {
+        "m1_chars_d": 2.6912464578192234,
+        "m2_agentTTR_d": -2.608846164692355,
+        "m3_novelty_d": 0.1721318400398824,
+        "m4_convoTTR_d": 2.7488276676534893
+      }
+    },
+    {
+      "groupA": 2,
+      "groupB": 6,
+      "effects": {
+        "m1_chars_d": 0.09074576811819025,
+        "m2_agentTTR_d": -3.008577650718214,
+        "m3_novelty_d": 0.17744669429294693,
+        "m4_convoTTR_d": 1.509844720440954
+      }
+    },
+    {
+      "groupA": 4,
+      "groupB": 5,
+      "effects": {
+        "m1_chars_d": 0.5234248849754838,
+        "m2_agentTTR_d": -0.7391801975616934,
+        "m3_novelty_d": -0.06734044011829454,
+        "m4_convoTTR_d": -1.02183181673575
+      }
+    },
+    {
+      "groupA": 4,
+      "groupB": 6,
+      "effects": {
+        "m1_chars_d": -1.8226796748902694,
+        "m2_agentTTR_d": -1.2544059144289526,
+        "m3_novelty_d": -0.06231215426922453,
+        "m4_convoTTR_d": -0.41887154771423707
+      }
+    },
+    {
+      "groupA": 5,
+      "groupB": 6,
+      "effects": {
+        "m1_chars_d": -2.2017454013727407,
+        "m2_agentTTR_d": -0.49520232151055416,
+        "m3_novelty_d": 0.005149393550896538,
+        "m4_convoTTR_d": 0.06528387937987128
+      }
+    }
+  ],
+  "permutations": {
+    "m1_chars_p": 0.6627,
+    "m2_agentTTR_p": 0,
+    "m3_novelty_p": 0.0938,
+    "m4_convoTTR_p": 0,
+    "iterations": 10000
+  },
+  "agents": [
+    {
+      "agentId": "alien",
+      "agentName": "The Alien",
+      "presetId": "first-contact",
+      "agentCount": 2,
+      "bouts": 15,
+      "totalTurns": 90,
+      "avgChars": 903.2555555555555,
+      "agentTTR": 0.47727679573060566,
+      "avgNovelty": 0.406284473097004
+    },
+    {
+      "agentId": "diplomat",
+      "agentName": "The Diplomat",
+      "presetId": "first-contact",
+      "agentCount": 2,
+      "bouts": 15,
+      "totalTurns": 90,
+      "avgChars": 962.8888888888889,
+      "agentTTR": 0.49808027588346715,
+      "avgNovelty": 0.48709656301729737
+    },
+    {
+      "agentId": "founder",
+      "agentName": "The Founder",
+      "presetId": "shark-pit",
+      "agentCount": 4,
+      "bouts": 10,
+      "totalTurns": 30,
+      "avgChars": 836.6666666666667,
+      "agentTTR": 0.5772139058910606,
+      "avgNovelty": 0.549630149982055
+    },
+    {
+      "agentId": "hype-beast",
+      "agentName": "The Hype Beast",
+      "presetId": "shark-pit",
+      "agentCount": 4,
+      "bouts": 10,
+      "totalTurns": 30,
+      "avgChars": 818.2666666666667,
+      "agentTTR": 0.5465114460888552,
+      "avgNovelty": 0.33976158476453244
+    },
+    {
+      "agentId": "pessimist",
+      "agentName": "The Pessimist",
+      "presetId": "shark-pit",
+      "agentCount": 4,
+      "bouts": 10,
+      "totalTurns": 30,
+      "avgChars": 858.1000000000001,
+      "agentTTR": 0.5635962807576622,
+      "avgNovelty": 0.31194612684955747
+    },
+    {
+      "agentId": "vc",
+      "agentName": "The VC",
+      "presetId": "shark-pit",
+      "agentCount": 4,
+      "bouts": 10,
+      "totalTurns": 30,
+      "avgChars": 772.8666666666666,
+      "agentTTR": 0.5582874434214833,
+      "avgNovelty": 0.370943645819572
+    },
+    {
+      "agentId": "food-thief",
+      "agentName": "The Food Thief",
+      "presetId": "flatshare",
+      "agentCount": 5,
+      "bouts": 10,
+      "totalTurns": 20,
+      "avgChars": 798.6,
+      "agentTTR": 0.6401558849167112,
+      "avgNovelty": 0.3957175787276732
+    },
+    {
+      "agentId": "landlord",
+      "agentName": "The Landlord",
+      "presetId": "flatshare",
+      "agentCount": 5,
+      "bouts": 10,
+      "totalTurns": 20,
+      "avgChars": 818.55,
+      "agentTTR": 0.6277047365935944,
+      "avgNovelty": 0.34393400047130457
+    },
+    {
+      "agentId": "messy",
+      "agentName": "The Messy One",
+      "presetId": "flatshare",
+      "agentCount": 5,
+      "bouts": 10,
+      "totalTurns": 30,
+      "avgChars": 704.7333333333333,
+      "agentTTR": 0.5325605221496315,
+      "avgNovelty": 0.47328828516997834
+    },
+    {
+      "agentId": "note-leaver",
+      "agentName": "The Note-Leaver",
+      "presetId": "flatshare",
+      "agentCount": 5,
+      "bouts": 10,
+      "totalTurns": 30,
+      "avgChars": 786.0666666666667,
+      "agentTTR": 0.5773435046049641,
+      "avgNovelty": 0.4414389909853728
+    },
+    {
+      "agentId": "partner-bringer",
+      "agentName": "The Partner-Bringer",
+      "presetId": "flatshare",
+      "agentCount": 5,
+      "bouts": 10,
+      "totalTurns": 20,
+      "avgChars": 861,
+      "agentTTR": 0.5763103314392852,
+      "avgNovelty": 0.33887542042549823
+    },
+    {
+      "agentId": "activist",
+      "agentName": "The Activist",
+      "presetId": "summit",
+      "agentCount": 6,
+      "bouts": 15,
+      "totalTurns": 30,
+      "avgChars": 890.9,
+      "agentTTR": 0.5946404927169258,
+      "avgNovelty": 0.3289009620661599
+    },
+    {
+      "agentId": "diplomat",
+      "agentName": "The Diplomat",
+      "presetId": "summit",
+      "agentCount": 6,
+      "bouts": 15,
+      "totalTurns": 30,
+      "avgChars": 1034.0666666666666,
+      "agentTTR": 0.6298093562198963,
+      "avgNovelty": 0.5115826955931797
+    },
+    {
+      "agentId": "journalist",
+      "agentName": "The Journalist",
+      "presetId": "summit",
+      "agentCount": 6,
+      "bouts": 15,
+      "totalTurns": 30,
+      "avgChars": 898.0333333333333,
+      "agentTTR": 0.5810740620297252,
+      "avgNovelty": 0.21842334234679978
+    },
+    {
+      "agentId": "nationalist",
+      "agentName": "The Nationalist",
+      "presetId": "summit",
+      "agentCount": 6,
+      "bouts": 15,
+      "totalTurns": 30,
+      "avgChars": 866.6,
+      "agentTTR": 0.6487942147405751,
+      "avgNovelty": 0.6660901030091656
+    },
+    {
+      "agentId": "oligarch",
+      "agentName": "The Oligarch",
+      "presetId": "summit",
+      "agentCount": 6,
+      "bouts": 15,
+      "totalTurns": 30,
+      "avgChars": 932.4333333333333,
+      "agentTTR": 0.6435717851412748,
+      "avgNovelty": 0.41864301371526097
+    },
+    {
+      "agentId": "translator",
+      "agentName": "The Translator",
+      "presetId": "summit",
+      "agentCount": 6,
+      "bouts": 15,
+      "totalTurns": 30,
+      "avgChars": 944.7666666666667,
+      "agentTTR": 0.5865740230139782,
+      "avgNovelty": 0.29972090634884374
+    }
+  ],
+  "trend": {
+    "m1_r": 0.07244074938274889,
+    "m2_r": 0.7184192566486686,
+    "m3_r": -0.07026600452700787,
+    "m4_r": -0.5443245279897932
+  }
+}

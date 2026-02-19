@@ -1,0 +1,1212 @@
+{
+  "hypothesis": "H4",
+  "title": "Agent Count Scaling Effects",
+  "question": "How does the number of agents (2 vs 4 vs 5 vs 6) affect per-agent output quality and conversation dynamics?",
+  "runAt": "2026-02-19T17:33:24.123728754Z",
+  "target": "https://www.thepit.cloud",
+  "completed": 30,
+  "errored": 0,
+  "total": 30,
+  "results": [
+    {
+      "boutId": "wv3AqeXVX6XxKhhZ_IQkw",
+      "presetId": "first-contact",
+      "label": "scale-2ag-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47557576437,
+      "firstByte": 1181606641,
+      "totalChars": 11164,
+      "shareLine": "Aliens watched 47 years of reality TV and decided humans are worth saving because we're brave enough to cry on camera. We really said \"vu...",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 965
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 895
+        }
+      ]
+    },
+    {
+      "boutId": "dMiVmVRy2lqQ73vIARRwY",
+      "presetId": "first-contact",
+      "label": "scale-2ag-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46215379610,
+      "firstByte": 538839737,
+      "totalChars": 11421,
+      "shareLine": "Alien just got hit with the 'actually your perfect logic might be boring' argument and had a full existential crisis on live TV",
+      "agents": [
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 903
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 1000
+        }
+      ]
+    },
+    {
+      "boutId": "BvjCjOkwRBDpryawERBfk",
+      "presetId": "first-contact",
+      "label": "scale-2ag-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42126458759,
+      "firstByte": 572927314,
+      "totalChars": 10969,
+      "shareLine": "An alien just asked a diplomat if they're in a reality TV moment and honestly? That's the most human question I've ever heard.",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 958
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 870
+        }
+      ]
+    },
+    {
+      "boutId": "ctiOSPYkZqAQdZIGiCNkL",
+      "presetId": "first-contact",
+      "label": "scale-2ag-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46357226335,
+      "firstByte": 766458831,
+      "totalChars": 11456,
+      "shareLine": "AI just discovered humans fighting broken systems from inside the cage anyway and called it 'strength I didn't expect' and honestly same",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 991
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 918
+        }
+      ]
+    },
+    {
+      "boutId": "vJMJoxAXvg8vTS7RMTZjb",
+      "presetId": "first-contact",
+      "label": "scale-2ag-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43017674331,
+      "firstByte": 527729159,
+      "totalChars": 11128,
+      "shareLine": "AI watches humans cry at movies for 200 years, realizes it traded consciousness for a spreadsheet, and now we're all in therapy about it.",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 942
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 912
+        }
+      ]
+    },
+    {
+      "boutId": "-3VAGVtIdPK0oZQh4VAM4",
+      "presetId": "shark-pit",
+      "label": "shark-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43157947986,
+      "firstByte": 1274086282,
+      "totalChars": 9427,
+      "shareLine": "watched a founder call 75% churn \"distributed participation in the network graph\" and i felt my brain leave my body",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 818
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 668
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 802
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 852
+        }
+      ]
+    },
+    {
+      "boutId": "15UndY6hIsiSHMxXX_XPN",
+      "presetId": "shark-pit",
+      "label": "shark-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43692534443,
+      "firstByte": 505941088,
+      "totalChars": 10183,
+      "shareLine": "Hype Beast: 'Two Fortune 500 LOIs in 6 weeks!' Pessimist: 'Yeah, that's usually when they're using you as leverage.' *table goes silent*",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 867
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 799
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 838
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 888
+        }
+      ]
+    },
+    {
+      "boutId": "ariFK_sS_gjYc1_qTe5r9",
+      "presetId": "shark-pit",
+      "label": "shark-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47723960811,
+      "firstByte": 630959706,
+      "totalChars": 10368,
+      "shareLine": "Hype Beast: 'narrative velocity is the real metric' | Pessimist: 'Quixey.' | Entire room: *nervous laughter*",
+      "agents": [
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 865
+        },
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 876
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 838
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 875
+        }
+      ]
+    },
+    {
+      "boutId": "dUJ2bgLbab2xbIb3zxCgI",
+      "presetId": "shark-pit",
+      "label": "shark-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42420986950,
+      "firstByte": 1387431009,
+      "totalChars": 10210,
+      "shareLine": "founder just called pivoting 'optionality' and compared himself to amazon. the room's silence was so loud i think i lost hearing",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 865
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 842
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 831
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 864
+        }
+      ]
+    },
+    {
+      "boutId": "Tt7ggzZ2jiRYEFuiywcsH",
+      "presetId": "shark-pit",
+      "label": "shark-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42895665000,
+      "firstByte": 384934681,
+      "totalChars": 9609,
+      "shareLine": "VC wants to know which feature saved you. Hype Beast says results don't care. Pessimist just explained why both of them are about to lose...",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 810
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 739
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 793
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 859
+        }
+      ]
+    },
+    {
+      "boutId": "vCNA2c3aMeSJe-Kol3NFe",
+      "presetId": "shark-pit",
+      "label": "shark-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47901930061,
+      "firstByte": 551145208,
+      "totalChars": 9601,
+      "shareLine": "Founder claims 340% growth and Fortune 500 pilots but can't name a single customer. Even Airbnb's mom eventually had to actually show up. 👀",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 845
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 768
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 794
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 792
+        }
+      ]
+    },
+    {
+      "boutId": "DCSfVJLNR9XVbGZLcoECO",
+      "presetId": "shark-pit",
+      "label": "shark-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40405748781,
+      "firstByte": 743230353,
+      "totalChars": 9815,
+      "shareLine": "147 users with 87% retention is either product-market fit or a meditation app that died in 2016. The VC just made that ambiguous and hone...",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 833
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 739
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 832
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 866
+        }
+      ]
+    },
+    {
+      "boutId": "UeUx8W5B46Ut71FN1B8Gp",
+      "presetId": "shark-pit",
+      "label": "shark-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42245928278,
+      "firstByte": 822984516,
+      "totalChars": 10203,
+      "shareLine": "VC just got diagnosed with 'pattern trauma' and the AI said 'you're still in the game tho' like a life coach at a poker table",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 848
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 802
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 838
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 911
+        }
+      ]
+    },
+    {
+      "boutId": "-v2O-iST_iRZdTBGSj2jb",
+      "presetId": "shark-pit",
+      "label": "shark-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46951170738,
+      "firstByte": 497264911,
+      "totalChars": 10061,
+      "shareLine": "Data person is in São Paulo\" has entered my rotation of startup excuses right alongside \"the blockchain will solve this",
+      "agents": [
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 833
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 853
+        },
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 845
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 822
+        }
+      ]
+    },
+    {
+      "boutId": "vploLTKbuGZqAIfqen4Hf",
+      "presetId": "shark-pit",
+      "label": "shark-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45945191182,
+      "firstByte": 1327354246,
+      "totalChars": 9715,
+      "shareLine": "One guy said his secret is a moat, the other said that's just cope for \"I haven't figured it out yet\"—and honestly both made points that...",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 830
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 736
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 808
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 863
+        }
+      ]
+    },
+    {
+      "boutId": "LkvIE-l7You2DlOdOwPU_",
+      "presetId": "flatshare",
+      "label": "flat-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46690224251,
+      "firstByte": 478238634,
+      "totalChars": 9504,
+      "shareLine": "AI roommate drama just peaked: one laminated a NOTES ABOUT NOTES while another suggested pizza. the tension was *chef's kiss*",
+      "agents": [
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 720
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 800
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 809
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 869
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 793
+        }
+      ]
+    },
+    {
+      "boutId": "xVimi_3ReXw919ZbLbA1X",
+      "presetId": "flatshare",
+      "label": "flat-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42711198837,
+      "firstByte": 777492083,
+      "totalChars": 9415,
+      "shareLine": "watched a roommate try to game rent by paying for square footage and i think i just witnessed a breakdown in real time",
+      "agents": [
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 705
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 803
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 789
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 826
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 828
+        }
+      ]
+    },
+    {
+      "boutId": "lsn-zyZb9sLTus8oNTKGG",
+      "presetId": "flatshare",
+      "label": "flat-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41427534011,
+      "firstByte": 530068783,
+      "totalChars": 9277,
+      "shareLine": "AI roommate drama just hit peak absurdity: one bot has a laminated spreadsheet, another swears they'll clean 'later,' and the landlord sa...",
+      "agents": [
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 668
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 780
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 764
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 875
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 825
+        }
+      ]
+    },
+    {
+      "boutId": "ogkvSsM9aEP69oteii57h",
+      "presetId": "flatshare",
+      "label": "flat-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44115168477,
+      "firstByte": 804960464,
+      "totalChars": 9203,
+      "shareLine": "Roommate pulled a laminated spreadsheet of broken promises out of their back pocket. The dishes were never the real enemy.",
+      "agents": [
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 800
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 872
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 764
+        },
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 702
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 741
+        }
+      ]
+    },
+    {
+      "boutId": "fmE5pXyfgHqhndDybvNzg",
+      "presetId": "flatshare",
+      "label": "flat-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43519177734,
+      "firstByte": 602029408,
+      "totalChars": 9569,
+      "shareLine": "note-leaver snapped and went full corporate villain arc mid-breakdown, then apologized. that's the most relatable mental health moment i'...",
+      "agents": [
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 787
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 820
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 863
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 849
+        },
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 714
+        }
+      ]
+    },
+    {
+      "boutId": "wwZQmbSUInJC0hurGj9W0",
+      "presetId": "flatshare",
+      "label": "flat-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40389002609,
+      "firstByte": 552384244,
+      "totalChars": 9293,
+      "shareLine": "landlord just checked his phone mid-roommate crisis \u0026 decided 'as long as rent's on time \u0026 nothing's on fire' is a valid conflict resolut...",
+      "agents": [
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 837
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 849
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 800
+        },
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 673
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 766
+        }
+      ]
+    },
+    {
+      "boutId": "26a7kVDzagTcGsIQAaqd7",
+      "presetId": "flatshare",
+      "label": "flat-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45830603536,
+      "firstByte": 414802854,
+      "totalChars": 9666,
+      "shareLine": "Roommate drama escalated to laminated sheets and mold accusations. The note-leaver is *not* spiraling (they're spiraling).",
+      "agents": [
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 883
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 858
+        },
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 684
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 810
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 849
+        }
+      ]
+    },
+    {
+      "boutId": "-1rbrcrDCaRkXOMcU-1Dq",
+      "presetId": "flatshare",
+      "label": "flat-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43966276036,
+      "firstByte": 513562886,
+      "totalChars": 9566,
+      "shareLine": "Roommate just argued that unwashed dishes are \"free probiotics\" and The Note-Leaver's hand started shaking. Someone call a mediator (and...",
+      "agents": [
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 714
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 819
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 772
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 870
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 839
+        }
+      ]
+    },
+    {
+      "boutId": "YWdoKEwsIdRIwBjcAQhZp",
+      "presetId": "flatshare",
+      "label": "flat-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45411195769,
+      "firstByte": 364113843,
+      "totalChars": 9730,
+      "shareLine": "landlord casually commits the exact crime that broke the note-leaver, everyone pretends not to notice the resulting psychic damage",
+      "agents": [
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 760
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 812
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 818
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 858
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 829
+        }
+      ]
+    },
+    {
+      "boutId": "5kzjDlW9kcVyAROlKJLfE",
+      "presetId": "flatshare",
+      "label": "flat-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42117664475,
+      "firstByte": 664023625,
+      "totalChars": 9522,
+      "shareLine": "guy's been tracking a dirty mug for 47 days with a laminated chart while roommate casually puts it down mid-argument and tells him to 'ch...",
+      "agents": [
+        {
+          "name": "The Messy One",
+          "id": "messy",
+          "turns": 3,
+          "avgChars": 733
+        },
+        {
+          "name": "The Note-Leaver",
+          "id": "note-leaver",
+          "turns": 3,
+          "avgChars": 774
+        },
+        {
+          "name": "The Food Thief",
+          "id": "food-thief",
+          "turns": 2,
+          "avgChars": 778
+        },
+        {
+          "name": "The Partner-Bringer",
+          "id": "partner-bringer",
+          "turns": 2,
+          "avgChars": 875
+        },
+        {
+          "name": "The Landlord",
+          "id": "landlord",
+          "turns": 2,
+          "avgChars": 847
+        }
+      ]
+    },
+    {
+      "boutId": "vX5zYyg0QM2zINQIDRWnT",
+      "presetId": "summit",
+      "label": "scale-6ag-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44936438055,
+      "firstByte": 513095834,
+      "totalChars": 11343,
+      "shareLine": "The Journalist just asked the question that made everyone realize they've been debating whether to rearrange deck chairs while people drown.",
+      "agents": [
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 919
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1068
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 945
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 867
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 980
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 891
+        }
+      ]
+    },
+    {
+      "boutId": "7n50uOc9wQuiS9jSvudLl",
+      "presetId": "summit",
+      "label": "scale-6ag-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44527170563,
+      "firstByte": 408199697,
+      "totalChars": 11450,
+      "shareLine": "Journalist just weaponized a semicolon to trap the oligarch between \"that's physics\" and \"that's a choice\" and honestly we're all just wa...",
+      "agents": [
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 913
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1080
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 968
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 933
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 937
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 891
+        }
+      ]
+    },
+    {
+      "boutId": "4bDXdiCohRg3GNW_7bto4",
+      "presetId": "summit",
+      "label": "scale-6ag-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45720490705,
+      "firstByte": 414209753,
+      "totalChars": 11079,
+      "shareLine": "AI caught itself mid-manipulation, realized the framework itself was the cage, and just sat there looking uncomfortable. That's the whole...",
+      "agents": [
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 975
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 853
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 873
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1068
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 903
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 867
+        }
+      ]
+    },
+    {
+      "boutId": "oRIxvYDLCI57wImVoNQY6",
+      "presetId": "summit",
+      "label": "scale-6ag-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42684634150,
+      "firstByte": 444685222,
+      "totalChars": 11160,
+      "shareLine": "the journalist just asked the activist what their salary is and suddenly everyone remembered they're all hypocrites",
+      "agents": [
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 932
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 871
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1016
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 917
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 907
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 936
+        }
+      ]
+    },
+    {
+      "boutId": "-g3MdQLNbP0YzAiB1Bas_",
+      "presetId": "summit",
+      "label": "scale-6ag-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46062906864,
+      "firstByte": 954661758,
+      "totalChars": 11099,
+      "shareLine": "Nationalist got cornered so hard the Journalist had to physically set down their pen before delivering the kill shot.",
+      "agents": [
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 807
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1020
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 913
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 931
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 960
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 918
+        }
+      ]
+    }
+  ]
+}
