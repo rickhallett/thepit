@@ -13,6 +13,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"math"
 	"math/rand/v2"
@@ -21,6 +22,7 @@ import (
 	"strings"
 	"time"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/db"
@@ -205,13 +207,12 @@ func cohensD(g1, g2 []float64) float64 {
 func ordinal(n int) string {
 	suffixes := []string{"th", "st", "nd", "rd"}
 	v := n % 100
-	idx := v - 20
-	if idx < 0 {
-		idx = v
-	} else {
-		idx = idx % 10
+	// 11, 12, 13 are special: "11th", "12th", "13th"
+	if v >= 11 && v <= 13 {
+		return fmt.Sprintf("%dth", n)
 	}
-	if idx < 0 || idx >= len(suffixes) {
+	idx := v % 10
+	if idx > 3 {
 		idx = 0
 	}
 	return fmt.Sprintf("%d%s", n, suffixes[idx])
@@ -255,9 +256,9 @@ func nonStopWords(text string) []string {
 // Metrics
 // ---------------------------------------------------------------------------
 
-// M1: character count
+// M1: character count (Unicode runes, not bytes)
 func computeM1(text string) float64 {
-	return float64(len(text))
+	return float64(utf8.RuneCountInString(text))
 }
 
 // M2: novel vocabulary rate (fraction of words not in any prior turn)
@@ -326,13 +327,14 @@ func extractAnchorWords(text string) []string {
 	return out
 }
 
-// M4: question density (? count / char count * 100)
+// M4: question density (? count / character count * 100)
 func computeM4(text string) float64 {
-	if len(text) == 0 {
+	n := utf8.RuneCountInString(text)
+	if n == 0 {
 		return 0
 	}
 	qCount := strings.Count(text, "?")
-	return float64(qCount) / float64(len(text)) * 100
+	return float64(qCount) / float64(n) * 100
 }
 
 // ---------------------------------------------------------------------------
@@ -670,26 +672,20 @@ func formatReport(report AnalysisReport) string {
 // ---------------------------------------------------------------------------
 
 func main() {
-	phase := ""
-	jsonOutput := false
-
-	for i := 1; i < len(os.Args); i++ {
-		switch os.Args[i] {
-		case "--phase":
-			i++
-			if i < len(os.Args) {
-				phase = os.Args[i]
-			}
-		case "--json":
-			jsonOutput = true
-		case "--help", "-h":
-			fmt.Println("Usage: go run ./cmd/analyze --phase H2 [--json]")
-			return
-		}
+	phaseFlag := flag.String("phase", "", "hypothesis phase to analyze (e.g. H2)")
+	jsonFlag := flag.Bool("json", false, "emit JSON instead of human-readable report")
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: go run ./cmd/analyze -phase H2 [-json]\n\n")
+		flag.PrintDefaults()
 	}
+	flag.Parse()
+
+	phase := *phaseFlag
+	jsonOutput := *jsonFlag
 
 	if phase == "" {
-		fmt.Fprintf(os.Stderr, "error: --phase required (e.g. --phase H2)\n")
+		fmt.Fprintf(os.Stderr, "error: -phase required (e.g. -phase H2)\n")
+		flag.Usage()
 		os.Exit(1)
 	}
 	if strings.ToUpper(phase) != "H2" {
@@ -788,14 +784,14 @@ func main() {
 	// Analyze each preset.
 	var presetResults []PresetResult
 	for presetID, bouts := range boutsByPreset {
-		cfg, ok := presets[presetID]
+		presetCfg, ok := presets[presetID]
 		if !ok {
 			continue
 		}
 		if !jsonOutput {
 			fmt.Fprintf(os.Stderr, "  analyzing %s (%d bouts)...\n", presetID, len(bouts))
 		}
-		presetResults = append(presetResults, analyzeBouts(bouts, presetID, cfg))
+		presetResults = append(presetResults, analyzeBouts(bouts, presetID, presetCfg))
 	}
 
 	// Sort presets deterministically (last-supper before summit).
@@ -814,7 +810,11 @@ func main() {
 	}
 
 	if jsonOutput {
-		data, _ := json.MarshalIndent(report, "", "  ")
+		data, err := json.MarshalIndent(report, "", "  ")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error marshaling report: %v\n", err)
+			os.Exit(1)
+		}
 		fmt.Println(string(data))
 	} else {
 		fmt.Println(formatReport(report))
