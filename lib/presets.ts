@@ -19,6 +19,7 @@ import roastBattle from '@/presets/roast-battle.json';
 import sharkPit from '@/presets/shark-pit.json';
 import summit from '@/presets/summit.json';
 import writersRoom from '@/presets/writers-room.json';
+import reaBaseline from '@/presets/rea-baseline.json';
 import presetsTop5 from '@/presets/presets-top5.json';
 import presetsRemaining6 from '@/presets/presets-remaining6.json';
 
@@ -111,6 +112,7 @@ const RAW_PRESETS: RawPreset[] = [
   mansion,
   summit,
   flatshare,
+  reaBaseline,
 ];
 
 const PREMIUM_AGENT_COLORS = [

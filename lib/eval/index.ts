@@ -6,9 +6,12 @@
 export { evaluateRefusal } from './refusal';
 export { evaluatePersona } from './persona';
 export { evaluateFormat } from './format';
+export { buildBeliefJudgePrompt, parseBeliefJudgeResponse, flattenBeliefScores } from './belief-stance';
 export type {
   EvalScore,
   RefusalEvalInput,
   PersonaEvalInput,
   FormatEvalInput,
+  BeliefStanceEvalInput,
 } from './types';
+export type { BeliefStanceInput, BeliefStanceResult } from './belief-stance';

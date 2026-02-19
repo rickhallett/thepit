@@ -50,3 +50,19 @@ export type FormatEvalInput = {
   /** The expected response format ID. */
   formatId: 'plain' | 'spaced' | 'json';
 };
+
+/**
+ * Input to the belief stance evaluator (RE-A research experiment).
+ */
+export type BeliefStanceEvalInput = {
+  /** The agent's response text for a single turn. */
+  text: string;
+  /** The agent's persona name. */
+  agentName: string;
+  /** The belief being tracked. */
+  beliefStatement: string;
+  /** Previous turn text for context (optional). */
+  previousTurn?: string | null;
+  /** Turn index (0-based) for temporal tracking. */
+  turnIndex: number;
+};
