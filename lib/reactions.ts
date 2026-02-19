@@ -52,7 +52,7 @@ export async function getMostReactedTurnIndex(boutId: string) {
     .from(reactions)
     .where(eq(reactions.boutId, boutId))
     .groupBy(reactions.turnIndex)
-    .orderBy(desc(sql`count(*)`))
+    .orderBy(desc(sql`count(*)`), desc(reactions.turnIndex))
     .limit(1);
 
   return top && top.totalCount > 0 ? top : null;

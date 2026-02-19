@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   // Build arena preset if needed
   const resolvedPreset =
     presetId === ARENA_PRESET_ID && agentLineup.length > 0
-      ? buildArenaPresetFromLineup(agentLineup)
+      ? buildArenaPresetFromLineup(agentLineup, bout?.maxTurns)
       : preset;
 
   const presetName = resolvedPreset?.name ?? 'AI Battle';
@@ -152,7 +152,7 @@ export default async function BoutPage({
 
   let preset = PRESETS.find((item) => item.id === resolvedPresetId);
   if (!preset && resolvedPresetId === ARENA_PRESET_ID && bout?.agentLineup) {
-    preset = buildArenaPresetFromLineup(bout.agentLineup);
+    preset = buildArenaPresetFromLineup(bout.agentLineup, bout.maxTurns);
   }
   if (!preset) {
     notFound();
