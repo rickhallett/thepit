@@ -13,18 +13,16 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/tests-900%2B%20passing-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-788%20passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/Anthropic-Claude-orange" alt="Claude" />
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
 
 ---
 
-<!-- TODO: Add arena screenshot or GIF of a live bout (OCE-105) -->
-
 Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Share the replay. Every bout generates research-grade behavioral data — transcripts, per-turn reactions, and winner votes.
 
-**Bring your own API key** — unlimited bouts, always free. No account required to start.
+**Bring your own API key** — unlimited bouts with your own Anthropic key. No credits needed.
 
 ---
 
@@ -75,7 +73,7 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 | Error Tracking | Sentry |
 | Analytics | PostHog + Vercel Analytics |
 | Hosting | Vercel |
-| Tests | Vitest (900+) + Playwright (3 specs) |
+| Tests | Vitest (788) + Playwright (51 E2E tests) |
 | CLI Toolchain | Go 1.25 (7 CLIs + shared lib) |
 
 ---
@@ -119,7 +117,7 @@ pnpm run build            # Production build
 pnpm run start            # Serve production build
 pnpm run lint             # ESLint
 pnpm run typecheck        # TypeScript type checking
-pnpm run test:unit        # Unit + API tests (900+ tests)
+pnpm run test:unit        # Unit + API tests (788 tests)
 pnpm run test:ci          # Lint + typecheck + unit + integration
 pnpm run test:e2e         # Playwright E2E (requires running server)
 ```
@@ -141,7 +139,7 @@ Copy `.env.example` to `.env`. Required variables:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `ANTHROPIC_FREE_MODEL` | Free tier model | `claude-haiku-4-5-20251001` |
+| `ANTHROPIC_FREE_MODEL` | Free tier model | `claude-sonnet-4-5-20250929` |
 | `ANTHROPIC_PREMIUM_MODELS` | Premium models (comma-separated) | `claude-sonnet-4-5-20250929,claude-opus-4-5-20251101` |
 | `CREDITS_ENABLED` | Enable credit economy | `false` |
 | `PREMIUM_ENABLED` | Enable premium tier | `false` |
