@@ -25,6 +25,7 @@ import (
 
 	"github.com/rickhallett/thepit/pitstorm/internal/action"
 	"github.com/rickhallett/thepit/pitstorm/internal/client"
+	"github.com/rickhallett/thepit/shared/config"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -145,8 +146,15 @@ func main() {
 	// Create HTTP client with research bypass header.
 	cfg := client.DefaultConfig(target)
 
-	// Read RESEARCH_API_KEY from environment (loaded from .env via shared/config).
+	// Load RESEARCH_API_KEY from .env via shared/config (os.Getenv won't
+	// have it unless explicitly exported — godotenv reads into a map, not
+	// the process environment).
 	researchKey := os.Getenv("RESEARCH_API_KEY")
+	if researchKey == "" {
+		if envCfg, err := config.Load(""); err == nil {
+			researchKey = envCfg.Vars["RESEARCH_API_KEY"]
+		}
+	}
 	if researchKey == "" {
 		fmt.Fprintf(os.Stderr, "  %s RESEARCH_API_KEY not set — bouts will hit rate limits.\n",
 			theme.Warning.Render("warn:"))
