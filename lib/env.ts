@@ -115,6 +115,7 @@ const serverEnvSchema = z.object({
 
   // --- Research ---
   RESEARCH_ANONYMIZE_SALT: z.string().optional(),
+  RESEARCH_API_KEY: z.string().optional(),
 
   // --- App URLs ---
   APP_URL: z.string().optional(),

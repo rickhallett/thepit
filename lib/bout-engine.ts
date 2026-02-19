@@ -293,11 +293,27 @@ export async function validateBoutRequest(
     return { error: errorResponse(API_ERRORS.FORBIDDEN, 403) };
   }
 
+  // Research API key bypass: when a valid X-Research-Key header is present,
+  // treat the request as lab tier (no rate limit, no pool consumption).
+  // This allows internal tooling (pitstorm hypothesis runner) to run
+  // batches of bouts without hitting per-tier rate limits.
+  const researchKey = req.headers.get('x-research-key');
+  const researchBypass =
+    !!researchKey &&
+    !!process.env.RESEARCH_API_KEY &&
+    researchKey === process.env.RESEARCH_API_KEY;
+
+  if (researchBypass) {
+    log.info('Research bypass active', { boutId, presetId });
+  }
+
   // Tier-aware rate limiting
   // Resolve tier early so rate limits match what the 429 response advertises.
-  const currentTier = userId
-    ? await getUserTier(userId)
-    : ('anonymous' as const);
+  const currentTier = researchBypass
+    ? ('lab' as const)
+    : userId
+      ? await getUserTier(userId)
+      : ('anonymous' as const);
 
   const BOUT_LIMITS: Record<string, number> = { anonymous: 2, free: 5, pass: 15 };
   const boutMaxRequests = BOUT_LIMITS[currentTier]; // undefined for lab → skip
@@ -419,9 +435,10 @@ export async function validateBoutRequest(
   }
 
   // Credit pre-authorization
+  // Research bypass skips all credit/pool gates — the bouts are platform-internal.
   let preauthMicro = 0;
   let introPoolConsumedMicro = 0;
-  if (CREDITS_ENABLED) {
+  if (CREDITS_ENABLED && !researchBypass) {
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
       modelId,

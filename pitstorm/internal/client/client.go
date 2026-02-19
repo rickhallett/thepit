@@ -56,6 +56,10 @@ type Config struct {
 
 	// Verbose enables per-request logging (written to the provided logger).
 	Verbose bool
+
+	// CustomHeaders are added to every outgoing request.
+	// Use this for internal auth headers (e.g. X-Research-Key).
+	CustomHeaders map[string]string
 }
 
 // DefaultConfig returns a Config with sensible defaults.
@@ -282,6 +286,10 @@ func (c *Client) setHeaders(req *http.Request, accountID string, hasBody bool) {
 		if tok, ok := c.GetToken(accountID); ok {
 			req.Header.Set("Authorization", "Bearer "+tok)
 		}
+	}
+
+	for k, v := range c.cfg.CustomHeaders {
+		req.Header.Set(k, v)
 	}
 }
 
