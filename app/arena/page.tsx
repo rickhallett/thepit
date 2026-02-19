@@ -219,7 +219,7 @@ export default async function ArenaPage() {
                   ? availableModels[availableModels.length - 1] ?? DEFAULT_PREMIUM_MODEL_ID
                   : DEFAULT_PREMIUM_MODEL_ID
               }
-              byokEnabled={BYOK_ENABLED}
+              byokEnabled={BYOK_ENABLED && userTier !== 'free'}
             />
           ))}
         </section>

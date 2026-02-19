@@ -179,8 +179,17 @@ export async function canRunBout(
   userId: string,
   isByok: boolean,
 ): Promise<{ allowed: true } | { allowed: false; reason: string }> {
-  // BYOK bouts are always allowed regardless of tier
-  if (isByok) return { allowed: true };
+  // BYOK requires a paid subscription (covers platform running costs)
+  if (isByok) {
+    const tier = await getUserTier(userId);
+    if (tier === 'free') {
+      return {
+        allowed: false,
+        reason: 'BYOK (Bring Your Own Key) is available to subscribers only. Upgrade to Pit Pass or Pit Lab to use your own API key.',
+      };
+    }
+    return { allowed: true };
+  }
 
   const tier = await getUserTier(userId);
   const config = TIER_CONFIG[tier];
@@ -224,13 +233,13 @@ export async function canCreateAgent(
 
 /**
  * Check whether a user's tier allows access to a specific model.
- * BYOK always returns true (user pays with their own key).
+ * BYOK requires a paid tier (pass or lab).
  */
 export function canAccessModel(
   tier: UserTier,
   modelId: string,
 ): boolean {
-  if (modelId === 'byok') return true;
+  if (modelId === 'byok') return tier !== 'free';
 
   const family = MODEL_FAMILY[modelId as keyof typeof MODEL_FAMILY];
   if (!family) return false; // Unknown models default to denied (fail-closed)

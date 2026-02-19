@@ -5,6 +5,7 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { isValidByokKey, detectProvider, isOpenRouterModel, ALL_MODEL_IDS } from '@/lib/models';
 import type { ByokProvider } from '@/lib/models';
+import { getUserTier, SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
 
 export const runtime = 'nodejs';
 
@@ -69,6 +70,17 @@ export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
     return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
+  }
+
+  // BYOK is a subscriber-only feature
+  if (SUBSCRIPTIONS_ENABLED) {
+    const tier = await getUserTier(userId);
+    if (tier === 'free') {
+      return errorResponse(
+        'BYOK is available to subscribers only. Upgrade to Pit Pass or Pit Lab.',
+        403,
+      );
+    }
   }
 
   const rateCheck = checkRateLimit(RATE_LIMIT, userId);
