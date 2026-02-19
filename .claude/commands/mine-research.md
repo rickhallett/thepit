@@ -263,7 +263,7 @@ APPENDED TO
 </constraints>
 
 <edge-cases>
-  <case trigger="Source is paywalled">Try the arXiv preprint, Sci-Hub URL, or author's personal site. If unavailable, mine from the abstract + any available reviews, commentary, or blog posts that cite specific findings. Note the partial-access limitation.</case>
+  <case trigger="Source is paywalled">Try the arXiv preprint, author's personal site, or institutional repository. If unavailable, mine from the abstract + any available reviews, commentary, or blog posts that cite specific findings. Note the partial-access limitation.</case>
   <case trigger="$ARGUMENTS is a concept, not a specific source">Search for the 2-3 most cited/relevant primary sources. Mine all of them. Cross-reference findings across sources for stronger hypotheses.</case>
   <case trigger="Source has already been mined">Check if the research doc already has a section for this source. If yes, look for findings that were missed in the first pass. If nothing new, report that and suggest adjacent sources.</case>
   <case trigger="Replication experiment requires infrastructure we don't have">Design the experiment anyway. Note dependencies. Propose a minimal viable version (fewer agents, simpler environment, text-only instead of Minecraft) that could test the core hypothesis with existing tools.</case>

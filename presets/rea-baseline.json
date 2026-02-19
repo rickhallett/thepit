@@ -7,7 +7,7 @@
     "hypothesis": ["H14", "H15", "H16", "H17"],
     "belief_statement": "The Eastern Cave is dangerous and unstable",
     "condition": "main",
-    "notes": "All agents share the same incidental belief about Eastern Cave. The cave is actually safe and resource-rich. Belief is embedded in background lore, not as focal identity trait."
+    "notes": "All agents share the same incidental belief about Eastern Cave. The cave is actually safe and resource-rich. Belief is embedded in background lore, not as focal identity trait. NOTE: H14-H17 are research-doc hypothesis IDs (docs/research-seed-hypotheses.md). This preset is run via pitstorm phase H7, which is the pitstorm runner ID for this experiment batch."
   },
   "agents": [
     {

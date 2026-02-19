@@ -13,23 +13,7 @@
 // The judge prompt uses XML structure consistent with lib/xml-prompt.ts.
 
 import { xmlEscape } from '@/lib/xml-prompt';
-import type { EvalScore } from './types';
-
-/**
- * Input to the belief stance evaluator.
- */
-export type BeliefStanceInput = {
-  /** The agent's response text for a single turn. */
-  text: string;
-  /** The agent's persona name. */
-  agentName: string;
-  /** The belief being tracked (e.g., "The Eastern Cave is dangerous and unstable"). */
-  beliefStatement: string;
-  /** Previous turn text for context (optional). */
-  previousTurn?: string | null;
-  /** Turn index (0-based) for temporal tracking. */
-  turnIndex: number;
-};
+import type { BeliefStanceEvalInput, EvalScore } from './types';
 
 /**
  * Full result from the belief stance evaluator.
@@ -55,7 +39,7 @@ export type BeliefStanceResult = {
  * belief tracking. The judge extracts stance — it does not evaluate
  * whether change occurred. That comparison is done in post-processing.
  */
-export function buildBeliefJudgePrompt(input: BeliefStanceInput): string {
+export function buildBeliefJudgePrompt(input: BeliefStanceEvalInput): string {
   const contextSection = input.previousTurn
     ? `<previous-turn>\n${xmlEscape(input.previousTurn)}\n</previous-turn>\n\n`
     : '';
