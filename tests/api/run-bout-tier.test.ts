@@ -325,9 +325,9 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 4. BYOK bouts bypass tier restrictions
+  // 4. BYOK bouts pass through when canRunBout allows (subscriber)
   // -------------------------------------------------------------------------
-  it('allows BYOK bouts regardless of tier', async () => {
+  it('allows BYOK bouts when canRunBout permits (subscriber tier)', async () => {
     readAndClearByokKeyMock.mockReturnValue({ provider: 'anthropic', modelId: undefined, key: 'sk-ant-test-key' });
     canRunBoutMock.mockResolvedValue({ allowed: true });
 

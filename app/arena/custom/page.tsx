@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
 
 import { ArenaBuilder } from '@/components/arena-builder';
 import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { BYOK_ENABLED } from '@/lib/credits';
 import { getAgentSnapshots } from '@/lib/agent-registry';
 import { getCopy } from '@/lib/copy';
+import { getUserTier, SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
 
 import { createArenaBout } from '../../actions';
 
@@ -26,6 +28,8 @@ export default async function ArenaBuilderPage({
   const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
   const agents = await getAgentSnapshots();
   const resolved = await searchParams;
+  const { userId } = await auth();
+  const userTier = SUBSCRIPTIONS_ENABLED && userId ? await getUserTier(userId) : null;
 
   // Support pre-selection from re-roll links
   const agentParam = resolved?.agent;
@@ -65,7 +69,7 @@ export default async function ArenaBuilderPage({
           premiumEnabled={premiumEnabled}
           premiumModels={PREMIUM_MODEL_OPTIONS}
           defaultPremiumModel={DEFAULT_PREMIUM_MODEL_ID}
-          byokEnabled={BYOK_ENABLED}
+          byokEnabled={BYOK_ENABLED && userTier !== 'free'}
           initialAgentIds={initialAgentIds}
           initialTopic={initialTopic}
         />

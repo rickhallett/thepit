@@ -230,7 +230,7 @@
     "mostPopular": "Most Popular",
     "creditPacks": {
       "label": "Additional evaluation capacity available via credit packs",
-      "byokNote": "BYOK API keys provide unlimited evaluation capacity at no cost."
+      "byokNote": "Subscribers can use BYOK API keys for unlimited evaluation capacity."
     }
   },
   "arena": {

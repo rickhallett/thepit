@@ -116,10 +116,27 @@ describe('tier module', () => {
   });
 
   describe('canRunBout', () => {
-    it('always allows BYOK bouts regardless of tier', async () => {
-      setupSelect([{ subscriptionTier: 'free', freeBoutsUsed: 999 }]);
+    it('blocks free tier from BYOK bouts', async () => {
+      setupSelect([{ subscriptionTier: 'free' }]);
       const { canRunBout } = await loadTier();
       const result = await canRunBout('regular-user', true);
+      expect(result.allowed).toBe(false);
+      if (!result.allowed) {
+        expect(result.reason).toContain('subscribers only');
+      }
+    });
+
+    it('allows pass tier BYOK bouts', async () => {
+      setupSelect([{ subscriptionTier: 'pass' }]);
+      const { canRunBout } = await loadTier();
+      const result = await canRunBout('pass-user', true);
+      expect(result.allowed).toBe(true);
+    });
+
+    it('allows lab tier BYOK bouts', async () => {
+      setupSelect([{ subscriptionTier: 'lab' }]);
+      const { canRunBout } = await loadTier();
+      const result = await canRunBout('lab-user', true);
       expect(result.allowed).toBe(true);
     });
 
@@ -208,9 +225,19 @@ describe('tier module', () => {
   });
 
   describe('canAccessModel', () => {
-    it('always allows BYOK', async () => {
+    it('blocks free tier from BYOK', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', 'byok')).toBe(true);
+      expect(canAccessModel('free', 'byok')).toBe(false);
+    });
+
+    it('allows pass tier to use BYOK', async () => {
+      const { canAccessModel } = await loadTier();
+      expect(canAccessModel('pass', 'byok')).toBe(true);
+    });
+
+    it('allows lab tier to use BYOK', async () => {
+      const { canAccessModel } = await loadTier();
+      expect(canAccessModel('lab', 'byok')).toBe(true);
     });
 
     it('allows free tier to use haiku', async () => {
