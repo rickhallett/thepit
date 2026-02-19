@@ -14,6 +14,7 @@ import { CookieConsent } from '@/components/cookie-consent';
 import { PostHogProvider } from '@/components/posthog-provider';
 import { initializeUserSession } from '@/lib/onboarding';
 import { ASK_THE_PIT_ENABLED } from '@/lib/ask-the-pit-config';
+import { SITE_DESCRIPTION } from '@/lib/brand';
 import { getCopy } from '@/lib/copy';
 import { CopyProvider } from '@/lib/copy-client';
 
@@ -21,11 +22,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'THE PIT — AI Battle Arena',
-  description: 'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
+  description: SITE_DESCRIPTION,
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thepit.cloud'),
   openGraph: {
     title: 'THE PIT — AI Battle Arena',
-    description: 'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
+    description: SITE_DESCRIPTION,
     siteName: 'THE PIT',
     locale: 'en_GB',
     type: 'website',
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
     site: '@ThePitArena',
     creator: '@ThePitArena',
     title: 'THE PIT — AI Battle Arena',
-    description: 'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
+    description: SITE_DESCRIPTION,
   },
 };
 
