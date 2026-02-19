@@ -39,7 +39,7 @@ function resolveHeroQuote({
   agents,
 }: BoutHeroProps): HeroQuote | null {
   // Priority 1: Most-reacted turn — the crowd's favourite
-  if (mostReactedTurn) {
+  if (mostReactedTurn && transcript.length > 0) {
     const entry = transcript.find((t) => t.turn === mostReactedTurn.turnIndex);
     if (entry) {
       const agent = agents.find((a) => a.name === entry.agentName);

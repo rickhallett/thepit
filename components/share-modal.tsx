@@ -34,7 +34,8 @@ interface ShareModalProps {
 }
 
 export function ShareModal({ shareData, onClose }: ShareModalProps) {
-  const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedAll, setCopiedAll] = useState(false);
 
   // Escape key dismisses
   useEffect(() => {
@@ -46,13 +47,14 @@ export function ShareModal({ shareData, onClose }: ShareModalProps) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [shareData, onClose]);
 
-  // Track modal view
+  // Track modal view — depend on boutId (stable string) not shareData (new object each render)
+  const boutId = shareData?.boutId;
   useEffect(() => {
-    if (!shareData) return;
+    if (!boutId) return;
     trackEvent('share_modal_shown', {
-      bout_id: shareData.boutId,
+      bout_id: boutId,
     });
-  }, [shareData]);
+  }, [boutId]);
 
   if (!shareData) return null;
 
@@ -67,23 +69,31 @@ export function ShareModal({ shareData, onClose }: ShareModalProps) {
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(shareData.sharePayload);
-    setCopied(true);
-    trackEvent('bout_shared', {
-      bout_id: shareData.boutId,
-      method: 'modal_copy',
-    });
-    window.setTimeout(() => setCopied(false), 1600);
+    try {
+      await navigator.clipboard.writeText(shareData.sharePayload);
+      setCopiedAll(true);
+      trackEvent('bout_shared', {
+        bout_id: shareData.boutId,
+        method: 'modal_copy',
+      });
+      window.setTimeout(() => setCopiedAll(false), 1600);
+    } catch {
+      // Clipboard API requires secure context — fail silently
+    }
   };
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText(shareData.replayUrl);
-    setCopied(true);
-    trackEvent('bout_shared', {
-      bout_id: shareData.boutId,
-      method: 'modal_copy_link',
-    });
-    window.setTimeout(() => setCopied(false), 1600);
+    try {
+      await navigator.clipboard.writeText(shareData.replayUrl);
+      setCopiedLink(true);
+      trackEvent('bout_shared', {
+        bout_id: shareData.boutId,
+        method: 'modal_copy_link',
+      });
+      window.setTimeout(() => setCopiedLink(false), 1600);
+    } catch {
+      // Clipboard API requires secure context — fail silently
+    }
   };
 
   return (
@@ -132,7 +142,7 @@ export function ShareModal({ shareData, onClose }: ShareModalProps) {
             {shareData.replayUrl}
           </div>
           <PitButton variant="primary" size="sm" onClick={handleCopyLink}>
-            {copied ? 'Copied' : 'Copy link'}
+            {copiedLink ? 'Copied' : 'Copy link'}
           </PitButton>
         </div>
 
@@ -161,7 +171,7 @@ export function ShareModal({ shareData, onClose }: ShareModalProps) {
             className="flex flex-col items-center gap-1 border-2 border-foreground/40 bg-black/60 px-3 py-3 text-center transition hover:border-accent hover:text-accent"
           >
             <span className="text-xs uppercase tracking-[0.3em] text-foreground/90">
-              {copied ? 'Copied!' : 'Copy all'}
+              {copiedAll ? 'Copied!' : 'Copy all'}
             </span>
             <span className="text-[10px] uppercase tracking-[0.25em] text-muted">
               Full transcript

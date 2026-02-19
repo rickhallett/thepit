@@ -16,6 +16,7 @@ import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { freeBoutPool } from '@/db/schema';
+import { MICRO_VALUE_GBP } from '@/lib/credits';
 
 export const FREE_BOUT_POOL_MAX = Number(
   process.env.FREE_BOUT_POOL_MAX ?? '500',
@@ -26,11 +27,6 @@ export const FREE_BOUT_DAILY_SPEND_CAP_GBP = Number(
   process.env.FREE_BOUT_DAILY_SPEND_CAP_GBP ?? '20',
 );
 
-/**
- * Convert GBP to micro-credits for the spend cap.
- * 1 credit = £0.01, 1 micro = £0.0001.
- */
-const MICRO_VALUE_GBP = 0.0001;
 const spendCapMicro = Math.ceil(FREE_BOUT_DAILY_SPEND_CAP_GBP / MICRO_VALUE_GBP);
 
 /** Get today's date as YYYY-MM-DD in UTC. */
@@ -127,7 +123,7 @@ export async function getFreeBoutPoolStatus(): Promise<FreeBoutPoolStatus> {
 export async function consumeFreeBout(
   estimatedCostMicro: number = 0,
 ): Promise<
-  | { consumed: true; remaining: number }
+  | { consumed: true; remaining: number; poolDate: string }
   | { consumed: false; remaining: number; reason: 'count' | 'spend' }
 > {
   const pool = await ensureTodayPool();
@@ -162,7 +158,7 @@ export async function consumeFreeBout(
   }
 
   const remaining = Math.max(0, result.maxDaily - result.used);
-  return { consumed: true, remaining };
+  return { consumed: true, remaining, poolDate: pool.date };
 }
 
 /**
@@ -171,11 +167,15 @@ export async function consumeFreeBout(
  *
  * @param deltaMicro - Positive means underestimated (charge more),
  *                     negative means overestimated (refund).
+ * @param poolDate   - The pool date the bout was charged against. Defaults
+ *                     to today. Passing the original date prevents midnight
+ *                     boundary mismatches where a bout started on day N but
+ *                     settles on day N+1.
  */
-export async function settleFreeBoutSpend(deltaMicro: number): Promise<void> {
+export async function settleFreeBoutSpend(deltaMicro: number, poolDate?: string): Promise<void> {
   if (deltaMicro === 0) return;
   const db = requireDb();
-  const date = todayUTC();
+  const date = poolDate ?? todayUTC();
 
   // Clamp to 0 to prevent negative spend totals on refunds
   await db

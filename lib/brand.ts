@@ -34,7 +34,7 @@ export interface SocialChannel {
   key: string;
   /** Human-readable label for the UI. */
   label: string;
-  /** Canonical URL (vanity subdomain preferred). */
+  /** Canonical URL (vanity subdomain or direct link). */
   url: string;
   /** Whether this channel is enabled (env-var gated). */
   enabled: boolean;

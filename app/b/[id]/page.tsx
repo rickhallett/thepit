@@ -86,7 +86,7 @@ export default async function ReplayPage({
 
   let preset = ALL_PRESETS.find((item) => item.id === bout.presetId);
   if (!preset && bout.presetId === ARENA_PRESET_ID && bout.agentLineup) {
-    preset = buildArenaPresetFromLineup(bout.agentLineup);
+    preset = buildArenaPresetFromLineup(bout.agentLineup, bout.maxTurns);
   }
   if (!preset) {
     notFound();

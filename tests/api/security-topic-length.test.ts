@@ -94,6 +94,7 @@ vi.mock('@/lib/rate-limit', () => ({
 vi.mock('@/lib/credits', () => ({
   CREDITS_ENABLED: false,
   BYOK_ENABLED: false,
+  MICRO_VALUE_GBP: 0.0001,
   estimateBoutCostGbp: vi.fn(),
   getCreditBalanceMicro: vi.fn(),
   preauthorizeCredits: vi.fn(),
