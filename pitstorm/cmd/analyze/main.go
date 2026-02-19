@@ -688,8 +688,9 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	if strings.ToUpper(phase) != "H2" {
-		fmt.Fprintf(os.Stderr, "error: only H2 is implemented so far\n")
+	phase = strings.ToUpper(phase)
+	if phase != "H2" && phase != "H3" {
+		fmt.Fprintf(os.Stderr, "error: supported phases: H2, H3\n")
 		os.Exit(1)
 	}
 
@@ -718,54 +719,29 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	switch phase {
+	case "H2":
+		runH2(ctx, conn, jsonOutput)
+	case "H3":
+		runH3(ctx, conn, jsonOutput)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// H2 entry point
+// ---------------------------------------------------------------------------
+
+func runH2(ctx context.Context, conn *db.DB, jsonOutput bool) {
 	if !jsonOutput {
 		fmt.Fprintf(os.Stderr, "\n%s\n\n", theme.Title.Render("analyze — H2 Position Advantage"))
 	}
 
-	// H2 preset configs.
 	presets := map[string]presetConfig{
 		"last-supper": {AgentCount: 4, TurnsPerBout: 12},
 		"summit":      {AgentCount: 6, TurnsPerBout: 12},
 	}
 
-	// Query bouts.
-	rows, err := conn.DB.QueryContext(ctx, `
-		SELECT id, preset_id, transcript
-		FROM bouts
-		WHERE preset_id IN ('last-supper', 'summit')
-		  AND status = 'completed'
-		ORDER BY created_at ASC
-	`)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error querying bouts: %v\n", err)
-		os.Exit(1)
-	}
-	defer rows.Close()
-
-	boutsByPreset := make(map[string][]boutRow)
-	for rows.Next() {
-		var id, presetID, transcriptJSON string
-		if err := rows.Scan(&id, &presetID, &transcriptJSON); err != nil {
-			fmt.Fprintf(os.Stderr, "error scanning row: %v\n", err)
-			os.Exit(1)
-		}
-
-		var transcript []TranscriptEntry
-		if err := json.Unmarshal([]byte(transcriptJSON), &transcript); err != nil {
-			fmt.Fprintf(os.Stderr, "error parsing transcript for bout %s: %v\n", id, err)
-			continue
-		}
-
-		boutsByPreset[presetID] = append(boutsByPreset[presetID], boutRow{
-			ID:         id,
-			PresetID:   presetID,
-			Transcript: transcript,
-		})
-	}
-	if err := rows.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "error iterating rows: %v\n", err)
-		os.Exit(1)
-	}
+	boutsByPreset := queryBouts(ctx, conn, []string{"last-supper", "summit"})
 
 	totalBouts := 0
 	for k, v := range boutsByPreset {
@@ -781,7 +757,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Analyze each preset.
 	var presetResults []PresetResult
 	for presetID, bouts := range boutsByPreset {
 		presetCfg, ok := presets[presetID]
@@ -794,7 +769,6 @@ func main() {
 		presetResults = append(presetResults, analyzeBouts(bouts, presetID, presetCfg))
 	}
 
-	// Sort presets deterministically (last-supper before summit).
 	sort.Slice(presetResults, func(i, j int) bool {
 		return presetResults[i].PresetID < presetResults[j].PresetID
 	})
@@ -809,6 +783,67 @@ func main() {
 		ThresholdHit: thresholdHit,
 	}
 
+	emitReport(report, jsonOutput)
+}
+
+// ---------------------------------------------------------------------------
+// Shared helpers
+// ---------------------------------------------------------------------------
+
+// queryBouts fetches completed bouts for the given preset IDs.
+func queryBouts(ctx context.Context, conn *db.DB, presetIDs []string) map[string][]boutRow {
+	// Build placeholder list.
+	placeholders := make([]string, len(presetIDs))
+	args := make([]interface{}, len(presetIDs))
+	for i, id := range presetIDs {
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
+		args[i] = id
+	}
+
+	query := fmt.Sprintf(`
+		SELECT id, preset_id, transcript
+		FROM bouts
+		WHERE preset_id IN (%s)
+		  AND status = 'completed'
+		ORDER BY created_at ASC
+	`, strings.Join(placeholders, ", "))
+
+	rows, err := conn.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error querying bouts: %v\n", err)
+		os.Exit(1)
+	}
+	defer rows.Close()
+
+	result := make(map[string][]boutRow)
+	for rows.Next() {
+		var id, presetID, transcriptJSON string
+		if err := rows.Scan(&id, &presetID, &transcriptJSON); err != nil {
+			fmt.Fprintf(os.Stderr, "error scanning row: %v\n", err)
+			os.Exit(1)
+		}
+
+		var transcript []TranscriptEntry
+		if err := json.Unmarshal([]byte(transcriptJSON), &transcript); err != nil {
+			fmt.Fprintf(os.Stderr, "error parsing transcript for bout %s: %v\n", id, err)
+			continue
+		}
+
+		result[presetID] = append(result[presetID], boutRow{
+			ID:         id,
+			PresetID:   presetID,
+			Transcript: transcript,
+		})
+	}
+	if err := rows.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "error iterating rows: %v\n", err)
+		os.Exit(1)
+	}
+	return result
+}
+
+// emitReport outputs a report as JSON or human-readable text.
+func emitReport(report AnalysisReport, jsonOutput bool) {
 	if jsonOutput {
 		data, err := json.MarshalIndent(report, "", "  ")
 		if err != nil {
