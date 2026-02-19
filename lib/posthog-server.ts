@@ -3,9 +3,25 @@
 // (components/posthog-provider.tsx) by enabling event capture where no browser
 // context is available (e.g., Stripe webhooks, onboarding flows).
 //
+// IMPORTANT — Vercel serverless compatibility:
+// PostHog's Node SDK docs explicitly recommend `captureImmediate()` over
+// `capture()` in serverless environments like Vercel. The standard `capture()`
+// wraps the event in an async `prepareEventMessage()` pipeline, and the SDK's
+// `flush()` does NOT await pending promises (only `shutdown()` does). This
+// means events queued via `capture()` can be lost when the function terminates.
+//
+// This module provides two tiers:
+// - `serverTrack` / `serverIdentify`: use `captureImmediate` / `identifyImmediate`
+//   for guaranteed delivery of one-shot lifecycle events.
+// - `serverCaptureAIGeneration`: uses batched `capture()` for high-frequency
+//   per-turn LLM analytics during bout streaming (latency-sensitive path).
+//   These are drained by `flushServerAnalytics()` via `shutdown()`.
+//
+// @see https://posthog.com/docs/libraries/node#short-lived-processes-like-serverless-environments
+//
 // Usage:
 //   import { serverTrack, serverIdentify } from '@/lib/posthog-server';
-//   serverTrack(userId, 'signup_completed', { referralCode: 'abc' });
+//   await serverTrack(userId, 'signup_completed', { referralCode: 'abc' });
 
 import { PostHog } from 'posthog-node';
 
@@ -44,7 +60,8 @@ function getClient(): PostHog | null {
 
   _client = new PostHog(POSTHOG_KEY, {
     host: POSTHOG_HOST,
-    // Flush events every 5 seconds or when 20 events are queued.
+    // Batch settings for AI generation events (high-frequency per-turn).
+    // One-shot lifecycle events bypass batching via captureImmediate().
     flushAt: 20,
     flushInterval: 5000,
   });
@@ -54,21 +71,26 @@ function getClient(): PostHog | null {
 
 /**
  * Capture a server-side analytics event.
- * Non-blocking — events are batched and flushed asynchronously.
+ *
+ * Uses `captureImmediate()` per PostHog's serverless guidance — guarantees
+ * the HTTP request finishes before the function continues. The standard
+ * `capture()` method wraps events in an async `prepareEventMessage()` chain
+ * that `flush()` cannot await (only `shutdown()` drains the promise queue),
+ * causing silent event loss in Vercel serverless functions.
  *
  * @param distinctId - The user's Clerk ID (or 'anonymous' for unauthenticated events)
  * @param event - Event name from the ServerAnalyticsEvent union
  * @param properties - Arbitrary event properties
  */
-export function serverTrack(
+export async function serverTrack(
   distinctId: string,
   event: ServerAnalyticsEvent,
   properties?: Record<string, string | number | boolean | null>,
-): void {
+): Promise<void> {
   const client = getClient();
   if (!client) return;
 
-  client.capture({
+  await client.captureImmediate({
     distinctId,
     event,
     properties: {
@@ -81,16 +103,16 @@ export function serverTrack(
 
 /**
  * Set persistent user properties on the PostHog person profile.
- * Useful for enriching user records with tier, signup date, etc.
+ * Uses `identifyImmediate()` for serverless compatibility.
  */
-export function serverIdentify(
+export async function serverIdentify(
   distinctId: string,
   properties: Record<string, string | number | boolean | null>,
-): void {
+): Promise<void> {
   const client = getClient();
   if (!client) return;
 
-  client.identify({
+  await client.identifyImmediate({
     distinctId,
     properties,
   });
@@ -102,6 +124,12 @@ export function serverIdentify(
  * Uses PostHog's standard AI observability schema so generation data
  * appears in the built-in LLM analytics dashboard. This replaces the
  * Helicone proxy that was previously used for cost tracking.
+ *
+ * Uses batched `capture()` (not `captureImmediate`) because AI generation
+ * events fire per-turn during bout streaming — awaiting each HTTP request
+ * would add unacceptable latency. These are drained by the
+ * `flushServerAnalytics()` call at the end of the bout via `shutdown()`,
+ * which properly awaits the pending promise queue.
  *
  * @see https://posthog.com/docs/ai-engineering/observability
  */
@@ -154,13 +182,23 @@ export function serverCaptureAIGeneration(
 }
 
 /**
- * Flush pending events. Call in Vercel serverless handlers before the
+ * Flush all pending events. Call in Vercel serverless handlers before the
  * function terminates to ensure events are delivered.
  *
- * In long-running processes, the automatic flush interval handles delivery.
+ * Uses `shutdown()` instead of `flush()` because `shutdown()` calls
+ * `promiseQueue.join()` which awaits all pending capture promises,
+ * while `flush()` only drains the batch queue (missing any events still
+ * in the async `prepareEventMessage()` pipeline from batched `capture()`
+ * calls like `serverCaptureAIGeneration`).
+ *
+ * The singleton is re-created on next use after shutdown.
  */
 export async function flushServerAnalytics(): Promise<void> {
   const client = getClient();
   if (!client) return;
-  await client.flush();
+
+  await client.shutdown();
+  // Reset the singleton so subsequent calls in the same process
+  // (e.g. long-running dev server) create a fresh client.
+  _client = null;
 }

@@ -5,7 +5,7 @@
 
 import { resolveShortLink, recordClick } from '@/lib/short-links';
 import { log } from '@/lib/logger';
-import { serverTrack, flushServerAnalytics } from '@/lib/posthog-server';
+import { serverTrack } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -33,12 +33,11 @@ export async function GET(
   });
 
   // PostHog event for viral funnel tracking — complements the DB-only recordClick.
-  // Must flush before the 302 redirect or the queued event is lost.
-  serverTrack('anonymous', 'short_link_clicked', {
+  // captureImmediate completes the HTTP request before returning — no flush needed.
+  await serverTrack('anonymous', 'short_link_clicked', {
     slug,
     bout_id: link.boutId,
   });
-  await flushServerAnalytics();
 
   const url = new URL(req.url);
   const destination = new URL(`/b/${link.boutId}`, url.origin);

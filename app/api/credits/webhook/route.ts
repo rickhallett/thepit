@@ -15,7 +15,7 @@ import {
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
-import { serverTrack, serverIdentify, flushServerAnalytics } from '@/lib/posthog-server';
+import { serverTrack, serverIdentify } from '@/lib/posthog-server';
 
 export const runtime = 'nodejs';
 
@@ -106,7 +106,7 @@ export const POST = withLogging(async function POST(req: Request) {
           referenceId: session.id,
           credits,
         });
-        serverTrack(userId, 'credit_purchase_completed', {
+        await serverTrack(userId, 'credit_purchase_completed', {
           credits,
           amount_total: session.amount_total ?? 0,
           currency: session.currency ?? 'gbp',
@@ -147,12 +147,12 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
-        serverTrack(userId, 'subscription_started', {
+        await serverTrack(userId, 'subscription_started', {
           tier,
           subscription_id: subscription.id,
           status: subscription.status,
         });
-        serverIdentify(userId, { current_tier: tier });
+        await serverIdentify(userId, { current_tier: tier });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
@@ -203,19 +203,19 @@ export const POST = withLogging(async function POST(req: Request) {
         });
 
         if (newTierRank > oldTierRank) {
-          serverTrack(userId, 'subscription_upgraded', {
+          await serverTrack(userId, 'subscription_upgraded', {
             from_tier: oldTier,
             to_tier: tier,
             subscription_id: subscription.id,
           });
         } else if (newTierRank < oldTierRank) {
-          serverTrack(userId, 'subscription_downgraded', {
+          await serverTrack(userId, 'subscription_downgraded', {
             from_tier: oldTier,
             to_tier: tier,
             subscription_id: subscription.id,
           });
         }
-        serverIdentify(userId, { current_tier: tier });
+        await serverIdentify(userId, { current_tier: tier });
         log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
@@ -250,11 +250,11 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: subscription.customer,
       });
-      serverTrack(userId, 'subscription_churned', {
+      await serverTrack(userId, 'subscription_churned', {
         subscription_id: subscription.id,
         previous_tier: previousTier,
       });
-      serverIdentify(userId, { current_tier: 'free' });
+      await serverIdentify(userId, { current_tier: 'free' });
       log.info('Subscription deleted, downgraded to free', { userId });
     }
   }
@@ -299,12 +299,12 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: invoice.customer,
       });
-      serverTrack(userId, 'payment_failed', {
+      await serverTrack(userId, 'payment_failed', {
         subscription_id: invoice.subscription,
         invoice_id: invoice.id,
         previous_tier: previousTier,
       });
-      serverIdentify(userId, { current_tier: 'free' });
+      await serverIdentify(userId, { current_tier: 'free' });
       log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }
@@ -348,15 +348,6 @@ export const POST = withLogging(async function POST(req: Request) {
         log.info('Payment succeeded, tier restored', { userId, tier });
       }
     }
-  }
-
-  // Flush server-side analytics before the serverless function terminates.
-  // Wrapped in try-catch so a PostHog SDK/network error doesn't turn a
-  // successful webhook into a 500, which would trigger Stripe retries.
-  try {
-    await flushServerAnalytics();
-  } catch {
-    // Best-effort — analytics loss is acceptable, webhook failure is not.
   }
 
   return Response.json({ received: true });
