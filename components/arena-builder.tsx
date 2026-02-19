@@ -18,6 +18,10 @@ import {
   DEFAULT_RESPONSE_FORMAT,
   RESPONSE_FORMATS,
 } from '@/lib/response-formats';
+import {
+  TURN_OPTIONS,
+  DEFAULT_ARENA_TURNS,
+} from '@/lib/turns';
 
 import type { AgentSnapshot } from '@/lib/agent-registry';
 
@@ -197,6 +201,20 @@ export function ArenaBuilder({
             {RESPONSE_FORMATS.map((format) => (
               <option key={format.id} value={format.id}>
                 {format.label} · {format.hint}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-muted">
+          <span>Turns</span>
+          <select
+            name="turns"
+            defaultValue={DEFAULT_ARENA_TURNS}
+            className="border-2 border-foreground/70 bg-black/60 px-3 py-2 pr-8 text-xs uppercase tracking-[0.2em] text-foreground focus:border-accent focus:outline-none"
+          >
+            {TURN_OPTIONS.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.label} · {opt.hint}
               </option>
             ))}
           </select>

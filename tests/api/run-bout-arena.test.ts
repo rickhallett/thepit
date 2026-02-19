@@ -88,7 +88,7 @@ vi.mock('@/lib/presets', () => ({
   getPresetById: getPresetByIdMock,
   ARENA_PRESET_ID: 'arena',
   DEFAULT_AGENT_COLOR: '#f8fafc',
-  DEFAULT_ARENA_MAX_TURNS: 12,
+  DEFAULT_ARENA_MAX_TURNS: 6,
 }));
 
 vi.mock('@/lib/rate-limit', () => ({

@@ -161,6 +161,7 @@ export async function validateBoutRequest(
     model?: string;
     length?: string;
     format?: string;
+    turns?: string | number;
   };
 
   try {
@@ -238,13 +239,14 @@ export async function validateBoutRequest(
   // Preset resolution
   let preset: Preset | undefined = getPresetById(presetId);
 
-  if (!preset && presetId === ARENA_PRESET_ID) {
+   if (!preset && presetId === ARENA_PRESET_ID) {
     const [row] = await db
       .select({
         agentLineup: bouts.agentLineup,
         topic: bouts.topic,
         responseLength: bouts.responseLength,
         responseFormat: bouts.responseFormat,
+        maxTurns: bouts.maxTurns,
       })
       .from(bouts)
       .where(eq(bouts.id, boutId))
@@ -252,7 +254,7 @@ export async function validateBoutRequest(
     if (!row?.agentLineup) {
       return { error: errorResponse('Unknown preset.', 404) };
     }
-    preset = buildArenaPresetFromLineup(row.agentLineup);
+    preset = buildArenaPresetFromLineup(row.agentLineup, row.maxTurns);
     if (!topic && row.topic) {
       topic = row.topic;
     }

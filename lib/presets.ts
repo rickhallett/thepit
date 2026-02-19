@@ -30,8 +30,11 @@ export const ARENA_PRESET_ID = 'arena';
 /** Fallback agent color when a preset/agent doesn't specify one. */
 export const DEFAULT_AGENT_COLOR = '#f8fafc';
 
-/** Default max turns for arena-mode bouts. */
-export const DEFAULT_ARENA_MAX_TURNS = 12;
+/**
+ * Default max turns for arena-mode bouts.
+ * @deprecated Use DEFAULT_ARENA_TURNS from '@/lib/turns' instead.
+ */
+export const DEFAULT_ARENA_MAX_TURNS = 6;
 
 export type PresetTier = 'free' | 'premium';
 
