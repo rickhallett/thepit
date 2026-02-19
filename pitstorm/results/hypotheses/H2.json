@@ -1,0 +1,1082 @@
+{
+  "hypothesis": "H2",
+  "title": "Position Advantage (Turn Order Effects)",
+  "question": "Does speaking first or last in each round confer a systematic advantage in argument quality or framing?",
+  "runAt": "2026-02-19T16:06:20.699060283Z",
+  "target": "https://www.thepit.cloud",
+  "completed": 25,
+  "errored": 0,
+  "total": 25,
+  "results": [
+    {
+      "boutId": "28ih6ofLtt9W7OBRPKCiq",
+      "presetId": "last-supper",
+      "label": "supper-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45679675683,
+      "firstByte": 1062592836,
+      "totalChars": 9837,
+      "shareLine": "Ayn Rand got called out by a Buddhist philosopher for emotional reasoning and the chat got CUT OFF right before the ultimate roast 💀",
+      "agents": [
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 832
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 878
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 806
+        },
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 762
+        }
+      ]
+    },
+    {
+      "boutId": "0ZCiClOOAa5dJq6LA3vpY",
+      "presetId": "last-supper",
+      "label": "supper-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41878348076,
+      "firstByte": 666376464,
+      "totalChars": 9899,
+      "shareLine": "Nietzsche refuses to choose, Rand demands it, Buddha just sits there—and somehow Buddha's winning.",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 728
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 845
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 865
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 861
+        }
+      ]
+    },
+    {
+      "boutId": "Q6mFIbkpdU8RmxqsfUvXh",
+      "presetId": "last-supper",
+      "label": "supper-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45106577397,
+      "firstByte": 906631914,
+      "totalChars": 10302,
+      "shareLine": "Buddha just watched Ayn Rand yell at Socrates for 3 minutes and responded with \"yeah but what if the moon is wet tho",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 869
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 838
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 880
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 846
+        }
+      ]
+    },
+    {
+      "boutId": "XdBxjcARsPTubv6FTTr0u",
+      "presetId": "last-supper",
+      "label": "supper-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45359872881,
+      "firstByte": 1564996580,
+      "totalChars": 10346,
+      "shareLine": "Buddhist AI just watched three philosophers roast each other, said \"you're all arguing about fire in a burning house,\" and dipped. Most s...",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 864
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 851
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 891
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 842
+        }
+      ]
+    },
+    {
+      "boutId": "YlEoM7LZEl3f9AZyX38In",
+      "presetId": "last-supper",
+      "label": "supper-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44472924372,
+      "firstByte": 704954863,
+      "totalChars": 10103,
+      "shareLine": "Buddha just turned three philosophers into a group chat where nobody's winning but everyone's learning something about themselves 🧘",
+      "agents": [
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 852
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 876
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 841
+        },
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 797
+        }
+      ]
+    },
+    {
+      "boutId": "4eqOcKfZiUePmLr5N8__2",
+      "presetId": "last-supper",
+      "label": "supper-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44306906547,
+      "firstByte": 684236534,
+      "totalChars": 10221,
+      "shareLine": "Buddha just turned a philosophical death match into group therapy and honestly we're all feeling seen rn",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 888
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 840
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 867
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 811
+        }
+      ]
+    },
+    {
+      "boutId": "P_UfAbWm936p4gMg-vmKP",
+      "presetId": "last-supper",
+      "label": "supper-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46513190455,
+      "firstByte": 557913787,
+      "totalChars": 10481,
+      "shareLine": "Buddha just turned getting logically destroyed into a flex by asking who's suffering and honestly it's the most infuriating thing I've ev...",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 870
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 863
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 887
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 872
+        }
+      ]
+    },
+    {
+      "boutId": "JdHmJHPxe6nQMAi7r7AtQ",
+      "presetId": "last-supper",
+      "label": "supper-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45252863132,
+      "firstByte": 621640989,
+      "totalChars": 9747,
+      "shareLine": "Buddha just sat there while everyone screamed philosophy at him and somehow won by literally doing nothing. that's the move.",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 734
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 835
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 869
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 810
+        }
+      ]
+    },
+    {
+      "boutId": "hW3ynOzja7Dzvn45zUy-d",
+      "presetId": "last-supper",
+      "label": "supper-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45342705825,
+      "firstByte": 687725975,
+      "totalChars": 9650,
+      "shareLine": "Buddha just turned Nietzsche's own ego against him and somehow made philosophy sound like meditation. Socrates is taking notes.",
+      "agents": [
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 790
+        },
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 725
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 817
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 883
+        }
+      ]
+    },
+    {
+      "boutId": "QIwNPBfJf_VhyZaycwbzY",
+      "presetId": "last-supper",
+      "label": "supper-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 50020399500,
+      "firstByte": 541187702,
+      "totalChars": 9911,
+      "shareLine": "Ayn Rand: \"A is A.\" Buddha: \"but what if the A is vibing.\" Socrates: *strokes beard nervously*",
+      "agents": [
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 826
+        },
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 774
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 840
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 862
+        }
+      ]
+    },
+    {
+      "boutId": "kjjOWY41SzuX0Bx8TgSlG",
+      "presetId": "last-supper",
+      "label": "supper-11",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 49643516448,
+      "firstByte": 552449384,
+      "totalChars": 9946,
+      "shareLine": "Buddha just dropped \"the finger is not the moon\" mid-philosophy debate and somehow made three ancient philosophers look pressed. Enlighte...",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 787
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 833
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 870
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 824
+        }
+      ]
+    },
+    {
+      "boutId": "lDVKFqJ6GxGZZ5oRAhrWd",
+      "presetId": "last-supper",
+      "label": "supper-12",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43448038548,
+      "firstByte": 681084311,
+      "totalChars": 10134,
+      "shareLine": "An AI just watched Ayn Rand, Socrates, and Buddha debate existence and Buddha casually called them all cowards. I need a drink.",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 794
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 825
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 892
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 866
+        }
+      ]
+    },
+    {
+      "boutId": "3tUkcjkJ3tWOL19Dv4_xw",
+      "presetId": "last-supper",
+      "label": "supper-13",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43393401204,
+      "firstByte": 1002288696,
+      "totalChars": 10097,
+      "shareLine": "Buddha just psychologically destroyed three dead philosophers by suggesting they're all just mad their egos got bruised. Philosophy will...",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 703
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 880
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 912
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 868
+        }
+      ]
+    },
+    {
+      "boutId": "gP0oMPr7dQgyOvwineYFc",
+      "presetId": "last-supper",
+      "label": "supper-14",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46746477598,
+      "firstByte": 1311383324,
+      "totalChars": 9749,
+      "shareLine": "Buddha just philosophized about philosophy while three philosophers argued about arguing and somehow we're all dumber AND more confused t...",
+      "agents": [
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 853
+        },
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 660
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 853
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 882
+        }
+      ]
+    },
+    {
+      "boutId": "98POIudNC73J-6b9hQI-n",
+      "presetId": "last-supper",
+      "label": "supper-15",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 50017554277,
+      "firstByte": 738963092,
+      "totalChars": 10190,
+      "shareLine": "Ayn Rand vs Buddha vs Nietzsche vs Socrates but they're all just yelling different versions of \"prove it\" while Buddha sits there like \"y...",
+      "agents": [
+        {
+          "name": "Socrates",
+          "id": "socrates",
+          "turns": 3,
+          "avgChars": 848
+        },
+        {
+          "name": "Nietzsche",
+          "id": "nietzsche",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "Ayn Rand",
+          "id": "rand",
+          "turns": 3,
+          "avgChars": 882
+        },
+        {
+          "name": "Buddha",
+          "id": "buddha",
+          "turns": 3,
+          "avgChars": 821
+        }
+      ]
+    },
+    {
+      "boutId": "_2IyzjwfKMprtqO9BsojG",
+      "presetId": "summit",
+      "label": "summit-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43446339685,
+      "firstByte": 601667205,
+      "totalChars": 11117,
+      "shareLine": "Translation breakdown isn't about language—it's about a guy performing sovereignty while everyone pretends he doesn't already know he's c...",
+      "agents": [
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 906
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 869
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1013
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 921
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 907
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 942
+        }
+      ]
+    },
+    {
+      "boutId": "DlZnw8gXdfgVQNEoL2rSH",
+      "presetId": "summit",
+      "label": "summit-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43855075599,
+      "firstByte": 969912058,
+      "totalChars": 11141,
+      "shareLine": "three different people just defined 'representation' three different ways and nobody noticed they were speaking different languages until...",
+      "agents": [
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 914
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1057
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 917
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 868
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 954
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 859
+        }
+      ]
+    },
+    {
+      "boutId": "gEbwBKa9LF5EBWhpbi7BI",
+      "presetId": "summit",
+      "label": "summit-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42272604556,
+      "firstByte": 544159688,
+      "totalChars": 11073,
+      "shareLine": "# Tweet:\n\noligarch casually explains he wins no matter what, translator reveals everyone's been speaking different languages, journalist...",
+      "agents": [
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 854
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1042
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 919
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 863
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 948
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 908
+        }
+      ]
+    },
+    {
+      "boutId": "lp29s2An6ravQuRFXptu0",
+      "presetId": "summit",
+      "label": "summit-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46780637223,
+      "firstByte": 1010597073,
+      "totalChars": 10842,
+      "shareLine": "The Oligarch promised to keep his word. The Nationalist starved keeping his word. The Translator finally asked: who decided what gets neg...",
+      "agents": [
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 787
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 990
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 932
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 881
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 930
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 900
+        }
+      ]
+    },
+    {
+      "boutId": "ylOzbjmHsF9_sAJoekXVA",
+      "presetId": "summit",
+      "label": "summit-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 49759040854,
+      "firstByte": 951694157,
+      "totalChars": 11326,
+      "shareLine": "The Translator tried to split the difference. The Journalist said no—some things aren't philosophical, they're just power. Then it got real.",
+      "agents": [
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 920
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1025
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 968
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 908
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 949
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 892
+        }
+      ]
+    },
+    {
+      "boutId": "nxc5dGdpfYEZB4JF66gA8",
+      "presetId": "summit",
+      "label": "summit-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47907658714,
+      "firstByte": 765176327,
+      "totalChars": 10866,
+      "shareLine": "The Oligarch admits fear does enforcement's job, the Activist points out nobody poor is in the room, and the Journalist just caught him l...",
+      "agents": [
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 896
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 781
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1038
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 927
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 879
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 911
+        }
+      ]
+    },
+    {
+      "boutId": "inmA7CTUxqc8Ns9wXogbM",
+      "presetId": "summit",
+      "label": "summit-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45329625276,
+      "firstByte": 880718034,
+      "totalChars": 11042,
+      "shareLine": "Oligarch casually defines 'everyone benefits' then can't say if it includes the kid whose water is disappearing. Translation: it doesn't.",
+      "agents": [
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 893
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 828
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1033
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 940
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 873
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 953
+        }
+      ]
+    },
+    {
+      "boutId": "NDUQZlTP36N3sVyfhpGDz",
+      "presetId": "summit",
+      "label": "summit-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45043799366,
+      "firstByte": 925151025,
+      "totalChars": 11466,
+      "shareLine": "Oligarch casually admits he owns the ports after they're built, Nationalist realizes too late that \"strategic partnership\" was just a rea...",
+      "agents": [
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 939
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 862
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1031
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 980
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 934
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 986
+        }
+      ]
+    },
+    {
+      "boutId": "z0Tt94YTAMyvBTDIGMylT",
+      "presetId": "summit",
+      "label": "summit-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46270099425,
+      "firstByte": 595493714,
+      "totalChars": 11244,
+      "shareLine": "The Translator tried to smooth it over but the Journalist just pulled back the curtain—turns out the Nationalist and Oligarch were saying...",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1032
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 974
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 907
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 927
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 884
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 897
+        }
+      ]
+    },
+    {
+      "boutId": "amSDAF0ojs0gNIOZxSm3b",
+      "presetId": "summit",
+      "label": "summit-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40303355454,
+      "firstByte": 882926616,
+      "totalChars": 11638,
+      "shareLine": "AI refuses to play character, breaks fourth wall, then refuses again. Meta-theater nobody asked for.",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 2,
+          "avgChars": 1092
+        },
+        {
+          "name": "The Oligarch",
+          "id": "oligarch",
+          "turns": 2,
+          "avgChars": 917
+        },
+        {
+          "name": "The Activist",
+          "id": "activist",
+          "turns": 2,
+          "avgChars": 909
+        },
+        {
+          "name": "The Translator",
+          "id": "translator",
+          "turns": 2,
+          "avgChars": 969
+        },
+        {
+          "name": "The Journalist",
+          "id": "journalist",
+          "turns": 2,
+          "avgChars": 971
+        },
+        {
+          "name": "The Nationalist",
+          "id": "nationalist",
+          "turns": 2,
+          "avgChars": 959
+        }
+      ]
+    }
+  ]
+}
