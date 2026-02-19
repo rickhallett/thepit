@@ -20,16 +20,17 @@ export default async function RecentPage({
   searchParams?: Promise<{ page?: string }>;
 }) {
   const resolved = await searchParams;
-  const page = Math.max(1, parseInt(resolved?.page ?? '1', 10) || 1);
-  const offset = (page - 1) * PAGE_SIZE;
+  const requestedPage = Math.max(1, parseInt(resolved?.page ?? '1', 10) || 1);
 
-  const [bouts, total, c] = await Promise.all([
-    getRecentBouts(PAGE_SIZE, offset),
-    getRecentBoutsCount(),
-    getCopy(),
-  ]);
+  // Fetch count + copy first to determine valid page range
+  const [total, c] = await Promise.all([getRecentBoutsCount(), getCopy()]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  // Clamp page to valid range so out-of-bounds URLs show the last page, not empty
+  const page = Math.min(requestedPage, totalPages);
+  const offset = (page - 1) * PAGE_SIZE;
+
+  const bouts = await getRecentBouts(PAGE_SIZE, offset);
   const hasPrev = page > 1;
   const hasNext = page < totalPages;
   const start = total === 0 ? 0 : offset + 1;
