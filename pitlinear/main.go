@@ -62,10 +62,7 @@ func main() {
 	}
 	// teamName is optional; commands that need it will require --team flag or positional arg.
 
-	client := cmd.NewClient(apiKey)
-	if *noCache {
-		client.SetCache(cmd.NewDiskCache(false))
-	}
+	client := cmd.NewClient(apiKey, !*noCache)
 
 	switch args[0] {
 	case "teams":

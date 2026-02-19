@@ -469,6 +469,7 @@ func TestResolveIdentifier(t *testing.T) {
 
 func TestResolveIdentifierInvalid(t *testing.T) {
 	client := NewClient("test")
+	client.SetCache(NewDiskCache(false))
 
 	_, err := client.resolveIdentifier("nohyphen")
 	if err == nil {

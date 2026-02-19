@@ -222,10 +222,18 @@ func TestCacheKey_Deterministic(t *testing.T) {
 }
 
 func TestCacheKey_CategorySeparation(t *testing.T) {
-	// Ensure "states" + "team-1" != "states\x00team" + "-1"
+	// Different categories with identical params must produce different keys.
 	k1 := cacheKey("states", "team-1")
 	k2 := cacheKey("labels", "team-1")
 	if k1 == k2 {
 		t.Error("different categories produced same key")
+	}
+
+	// Null-byte separator prevents collisions across param boundaries.
+	// "states" + \0 + "team-1" must differ from "states\x00team" + \0 + "-1".
+	k3 := cacheKey("states", "team-1")
+	k4 := cacheKey("states\x00team", "-1")
+	if k3 == k4 {
+		t.Error("null-byte boundary collision: different param splits produced same key")
 	}
 }

@@ -25,14 +25,19 @@ type Client struct {
 }
 
 // NewClient returns a Linear API client with a 10-second timeout.
-func NewClient(apiKey string) *Client {
+// If useCache is false, the disk cache is disabled (no directory created).
+func NewClient(apiKey string, useCache ...bool) *Client {
+	cacheEnabled := true
+	if len(useCache) > 0 {
+		cacheEnabled = useCache[0]
+	}
 	return &Client{
 		apiKey:  apiKey,
 		baseURL: linearAPI,
 		http: &http.Client{
 			Timeout: 10 * time.Second,
 		},
-		cache:       NewDiskCache(true),
+		cache:       NewDiskCache(cacheEnabled),
 		statesCache: make(map[string][]State),
 		labelsCache: make(map[string][]Label),
 	}
@@ -339,15 +344,7 @@ func (c *Client) resolveLabelID(teamID, name string) (string, error) {
 
 // resolveIdentifier converts "OCE-22" to an issue UUID. Cached on disk.
 func (c *Client) resolveIdentifier(identifier string) (string, error) {
-	// Check disk cache for identifier → UUID mapping.
-	upper := strings.ToUpper(identifier)
-	if cached := c.cache.Get("ident", upper); cached != nil {
-		var id string
-		if json.Unmarshal(cached, &id) == nil && id != "" {
-			return id, nil
-		}
-	}
-
+	// Validate format before checking cache.
 	parts := strings.SplitN(identifier, "-", 2)
 	if len(parts) != 2 {
 		return "", fmt.Errorf("invalid identifier %q (expected TEAM-123)", identifier)
@@ -356,6 +353,15 @@ func (c *Client) resolveIdentifier(identifier string) (string, error) {
 	num, err := strconv.ParseFloat(parts[1], 64)
 	if err != nil {
 		return "", fmt.Errorf("invalid number in identifier %q: %w", identifier, err)
+	}
+
+	// Check disk cache for identifier → UUID mapping.
+	upper := strings.ToUpper(identifier)
+	if cached := c.cache.Get("ident", upper); cached != nil {
+		var id string
+		if json.Unmarshal(cached, &id) == nil && id != "" {
+			return id, nil
+		}
 	}
 
 	team, err := c.TeamByKey(teamKey)

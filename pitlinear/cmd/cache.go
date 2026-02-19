@@ -126,7 +126,9 @@ func (c *DiskCache) Set(ttl time.Duration, category string, value any, params ..
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
 		return
 	}
-	os.Rename(tmp, path)
+	if err := os.Rename(tmp, path); err != nil {
+		os.Remove(tmp) // cleanup temp file on rename failure
+	}
 }
 
 // Delete removes a single cached entry.
@@ -155,7 +157,8 @@ func (c *DiskCache) Clear() (int, error) {
 		if e.IsDir() {
 			continue
 		}
-		if filepath.Ext(e.Name()) == ".json" {
+		ext := filepath.Ext(e.Name())
+		if ext == ".json" || ext == ".tmp" {
 			if err := os.Remove(filepath.Join(c.dir, e.Name())); err == nil {
 				removed++
 			}
