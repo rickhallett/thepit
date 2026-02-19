@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
 import { PRESETS, ARENA_PRESET_ID, DEFAULT_AGENT_COLOR } from '@/lib/presets';
-import { getMostReactedTurnIndex } from '@/lib/reactions';
+import { getMostReactedTurnIndex, getReactionCounts } from '@/lib/reactions';
 
 export const ogSize = { width: 1200, height: 630 };
 
@@ -41,12 +41,23 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
           color: a.color ?? DEFAULT_AGENT_COLOR,
         })) ?? [];
 
+  // Stats: turn count and total reactions
+  const turnCount = transcript.length;
+  let totalReactions = 0;
   // Hero message: surface the most-reacted turn as the OG quote.
   // Fallback chain: most-reacted turn > shareLine > first qualifying transcript entry.
   let topTurn: Awaited<ReturnType<typeof getMostReactedTurnIndex>> = null;
   if (db && bout) {
     try {
-      topTurn = await getMostReactedTurnIndex(boutId);
+      const [topResult, reactionMap] = await Promise.all([
+        getMostReactedTurnIndex(boutId),
+        getReactionCounts(boutId),
+      ]);
+      topTurn = topResult;
+      totalReactions = Object.values(reactionMap).reduce(
+        (sum, r) => sum + r.heart + r.fire,
+        0,
+      );
     } catch {
       // Non-fatal — fall through to other quote sources
     }
@@ -65,6 +76,7 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
     : null;
 
   const presetName = preset?.name ?? 'Custom Battle';
+  const topic = bout?.topic ?? null;
 
   return new ImageResponse(
     (
@@ -179,21 +191,71 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
             flexDirection: 'column',
             flex: 1,
             justifyContent: 'center',
-            gap: 32,
+            gap: 20,
           }}
         >
-          {/* Preset name */}
+          {/* Preset badge */}
           <div
             style={{
-              fontSize: 56,
-              fontWeight: 700,
-              color: '#f4f4f0',
-              lineHeight: 1.1,
               display: 'flex',
+              alignItems: 'center',
+              gap: 16,
             }}
           >
-            {presetName}
+            <div
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: '#0b0b0b',
+                backgroundColor: '#d7ff3f',
+                padding: '6px 16px',
+                borderRadius: 6,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                display: 'flex',
+              }}
+            >
+              {presetName}
+            </div>
+            {turnCount > 0 && (
+              <div
+                style={{
+                  fontSize: 16,
+                  color: '#a3a3a3',
+                  display: 'flex',
+                }}
+              >
+                {turnCount} turn{turnCount !== 1 ? 's' : ''}
+              </div>
+            )}
+            {totalReactions > 0 && (
+              <div
+                style={{
+                  fontSize: 16,
+                  color: '#a3a3a3',
+                  display: 'flex',
+                }}
+              >
+                {totalReactions} reaction{totalReactions !== 1 ? 's' : ''}
+              </div>
+            )}
           </div>
+
+          {/* Topic */}
+          {topic && (
+            <div
+              style={{
+                fontSize: 48,
+                fontWeight: 700,
+                color: '#f4f4f0',
+                lineHeight: 1.15,
+                display: 'flex',
+                maxWidth: '95%',
+              }}
+            >
+              {topic.length > 80 ? topic.slice(0, 77) + '...' : topic}
+            </div>
+          )}
 
           {/* Agents */}
           {agents.length > 0 && (
