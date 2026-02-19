@@ -347,6 +347,10 @@
       {
         "label": "Performance Metrics",
         "href": "/leaderboard"
+      },
+      {
+        "label": "Recent bouts",
+        "href": "/recent"
       }
     ],
     "overflow": [
