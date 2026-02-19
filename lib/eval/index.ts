@@ -14,4 +14,4 @@ export type {
   FormatEvalInput,
   BeliefStanceEvalInput,
 } from './types';
-export type { BeliefStanceInput, BeliefStanceResult } from './belief-stance';
+export type { BeliefStanceResult } from './belief-stance';
