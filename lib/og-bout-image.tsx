@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
 import { PRESETS, ARENA_PRESET_ID, DEFAULT_AGENT_COLOR } from '@/lib/presets';
+import { getMostReactedTurnIndex } from '@/lib/reactions';
 
 export const ogSize = { width: 1200, height: 630 };
 
@@ -40,13 +41,28 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
           color: a.color ?? DEFAULT_AGENT_COLOR,
         })) ?? [];
 
-  // Get a quote from the bout
+  // Hero message: surface the most-reacted turn as the OG quote.
+  // Fallback chain: most-reacted turn > shareLine > first qualifying transcript entry.
+  let topTurn: Awaited<ReturnType<typeof getMostReactedTurnIndex>> = null;
+  if (db && bout) {
+    try {
+      topTurn = await getMostReactedTurnIndex(boutId);
+    } catch {
+      // Non-fatal — fall through to other quote sources
+    }
+  }
+  const heroEntry = topTurn
+    ? transcript.find((t) => t.turn === topTurn!.turnIndex)
+    : null;
   const shareLine = bout?.shareLine;
-  const quoteEntry = shareLine
-    ? null
-    : transcript.find((t) => t.text && t.text.length > 20 && t.text.length < 200);
-  const displayQuote = shareLine ?? quoteEntry?.text ?? null;
-  const quoteAgent = quoteEntry?.agentName;
+  const quoteEntry = !heroEntry && !shareLine
+    ? transcript.find((t) => t.text && t.text.length > 20 && t.text.length < 200)
+    : null;
+  const displayQuote = heroEntry?.text ?? shareLine ?? quoteEntry?.text ?? null;
+  const quoteAgent = heroEntry?.agentName ?? quoteEntry?.agentName ?? null;
+  const reactionBadge = topTurn && heroEntry
+    ? { heart: topTurn.heartCount, fire: topTurn.fireCount }
+    : null;
 
   const presetName = preset?.name ?? 'Custom Battle';
 
@@ -261,15 +277,46 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
                 &ldquo;{displayQuote.slice(0, 150)}
                 {displayQuote.length > 150 ? '...' : ''}&rdquo;
               </div>
-              {quoteAgent && (
+              {(quoteAgent || reactionBadge) && (
                 <div
                   style={{
-                    fontSize: 18,
-                    color: '#d7ff3f',
                     display: 'flex',
+                    alignItems: 'center',
+                    gap: 16,
                   }}
                 >
-                  — {quoteAgent}
+                  {quoteAgent && (
+                    <div
+                      style={{
+                        fontSize: 18,
+                        color: '#d7ff3f',
+                        display: 'flex',
+                      }}
+                    >
+                      — {quoteAgent}
+                    </div>
+                  )}
+                  {reactionBadge && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: 10,
+                        fontSize: 16,
+                        color: '#a3a3a3',
+                      }}
+                    >
+                      {reactionBadge.fire > 0 && (
+                        <span style={{ display: 'flex' }}>
+                          {'🔥'} {reactionBadge.fire}
+                        </span>
+                      )}
+                      {reactionBadge.heart > 0 && (
+                        <span style={{ display: 'flex' }}>
+                          {'❤️'} {reactionBadge.heart}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -301,6 +348,13 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
         </div>
       </div>
     ),
-    { ...ogSize },
+    {
+      ...ogSize,
+      // Cache OG images at CDN edge for 1 hour, revalidate in background.
+      // Reduces repeated compute for popular bout share links.
+      headers: {
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+      },
+    },
   );
 }

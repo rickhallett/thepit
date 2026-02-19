@@ -1,7 +1,7 @@
 // Per-turn reaction counts (heart/fire) for bout turns.
 // Reactions are crowd signals used for research data and social proof.
 
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, desc } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
@@ -32,4 +32,28 @@ export async function getReactionCounts(boutId: string) {
   });
 
   return map;
+}
+
+/**
+ * Get the turn with the most total reactions (heart + fire) for a bout.
+ * Used for OG hero images — the most-reacted turn is the "highlight".
+ *
+ * Returns null if the bout has no reactions.
+ */
+export async function getMostReactedTurnIndex(boutId: string) {
+  const db = requireDb();
+  const [top] = await db
+    .select({
+      turnIndex: reactions.turnIndex,
+      totalCount: sql<number>`cast(count(*) as int)`,
+      heartCount: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'heart') as int)`,
+      fireCount: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'fire') as int)`,
+    })
+    .from(reactions)
+    .where(eq(reactions.boutId, boutId))
+    .groupBy(reactions.turnIndex)
+    .orderBy(desc(sql`count(*)`))
+    .limit(1);
+
+  return top && top.totalCount > 0 ? top : null;
 }
