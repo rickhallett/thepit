@@ -38,6 +38,9 @@ export const RESPONSE_LENGTHS: ResponseLengthConfig[] = [
 
 export const DEFAULT_RESPONSE_LENGTH: ResponseLength = 'standard';
 
+/** Default for the arena builder (custom bouts). Preset bouts keep DEFAULT_RESPONSE_LENGTH. */
+export const DEFAULT_ARENA_RESPONSE_LENGTH: ResponseLength = 'short';
+
 export const resolveResponseLength = (
   value?: string | null,
 ): ResponseLengthConfig => {

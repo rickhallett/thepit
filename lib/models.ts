@@ -147,7 +147,7 @@ export const MODEL_FAMILY: Record<ModelId, ModelFamily> = {
 // ---------------------------------------------------------------------------
 
 /** Default free-tier model. */
-export const DEFAULT_FREE_MODEL = MODEL_IDS.HAIKU;
+export const DEFAULT_FREE_MODEL = MODEL_IDS.SONNET;
 
 /** Default premium model options (comma-separated for env var compat). */
 export const DEFAULT_PREMIUM_MODELS = [
@@ -160,7 +160,7 @@ export const DEFAULT_PREMIUM_MODELS = [
 export const DEFAULT_PREMIUM_MODEL = MODEL_IDS.SONNET;
 
 /** Model used for first-bout promotion (free-tier users get one premium bout). */
-export const FIRST_BOUT_PROMOTION_MODEL = MODEL_IDS.OPUS_46;
+export const FIRST_BOUT_PROMOTION_MODEL = MODEL_IDS.SONNET;
 
 // ---------------------------------------------------------------------------
 // Deprecated model guard

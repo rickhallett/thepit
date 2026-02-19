@@ -132,34 +132,7 @@ describe('tier module', () => {
       expect(result.allowed).toBe(true);
     });
 
-    it('blocks free users who exceeded lifetime cap', async () => {
-      // First call: getUserTier
-      mockDb.select.mockImplementationOnce(() => ({
-        from: () => ({
-          where: () => ({
-            limit: async () => [{ subscriptionTier: 'free' }],
-          }),
-        }),
-      }));
-      // Second call: getFreeBoutsUsed
-      mockDb.select.mockImplementationOnce(() => ({
-        from: () => ({
-          where: () => ({
-            limit: async () => [{ freeBoutsUsed: 15 }],
-          }),
-        }),
-      }));
-      // getDailyBoutsUsed won't be reached (lifetime check fails first)
-
-      const { canRunBout } = await loadTier();
-      const result = await canRunBout('regular-user', false);
-      expect(result.allowed).toBe(false);
-      if (!result.allowed) {
-        expect(result.reason).toContain('15 lifetime bouts');
-      }
-    });
-
-    it('allows free users under lifetime cap and daily limit', async () => {
+    it('allows free users under daily limit (no lifetime cap)', async () => {
       // getUserTier
       mockDb.select.mockImplementationOnce(() => ({
         from: () => ({
@@ -168,15 +141,7 @@ describe('tier module', () => {
           }),
         }),
       }));
-      // getFreeBoutsUsed
-      mockDb.select.mockImplementationOnce(() => ({
-        from: () => ({
-          where: () => ({
-            limit: async () => [{ freeBoutsUsed: 5 }],
-          }),
-        }),
-      }));
-      // getDailyBoutsUsed
+      // getDailyBoutsUsed (free tier has no lifetime cap, goes straight to daily check)
       mockSelectCount(1);
 
       const { canRunBout } = await loadTier();
@@ -193,23 +158,15 @@ describe('tier module', () => {
           }),
         }),
       }));
-      // getFreeBoutsUsed (under lifetime cap)
-      mockDb.select.mockImplementationOnce(() => ({
-        from: () => ({
-          where: () => ({
-            limit: async () => [{ freeBoutsUsed: 2 }],
-          }),
-        }),
-      }));
-      // getDailyBoutsUsed: at daily limit (3 for free tier)
-      mockSelectCount(3);
+      // getDailyBoutsUsed: at daily limit (5 for free tier, no lifetime cap)
+      mockSelectCount(5);
 
       const { canRunBout } = await loadTier();
       const result = await canRunBout('regular-user', false);
       expect(result.allowed).toBe(false);
       if (!result.allowed) {
         expect(result.reason).toContain('Daily limit');
-        expect(result.reason).toContain('3 bouts/day');
+        expect(result.reason).toContain('5 bouts/day');
       }
     });
 
@@ -317,9 +274,9 @@ describe('tier module', () => {
       expect(canAccessModel('free', MODEL_IDS.HAIKU)).toBe(true);
     });
 
-    it('blocks free tier from sonnet', async () => {
+    it('allows free tier to use sonnet', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', MODEL_IDS.SONNET)).toBe(false);
+      expect(canAccessModel('free', MODEL_IDS.SONNET)).toBe(true);
     });
 
     it('blocks free tier from opus', async () => {
@@ -352,10 +309,12 @@ describe('tier module', () => {
   });
 
   describe('getAvailableModels', () => {
-    it('returns only haiku for free tier', async () => {
+    it('returns haiku and sonnet for free tier', async () => {
       const { getAvailableModels } = await loadTier();
       const models = getAvailableModels('free');
-      expect(models).toEqual([MODEL_IDS.HAIKU]);
+      expect(models).toContain(MODEL_IDS.HAIKU);
+      expect(models).toContain(MODEL_IDS.SONNET);
+      expect(models).not.toContain(MODEL_IDS.OPUS_45);
     });
 
     it('returns haiku and sonnet for pass tier', async () => {
@@ -397,8 +356,8 @@ describe('tier module', () => {
   describe('TIER_CONFIG', () => {
     it('has correct limits for free tier', async () => {
       const { TIER_CONFIG } = await loadTier();
-      expect(TIER_CONFIG.free.boutsPerDay).toBe(3);
-      expect(TIER_CONFIG.free.lifetimeBoutCap).toBe(15);
+      expect(TIER_CONFIG.free.boutsPerDay).toBe(5);
+      expect(TIER_CONFIG.free.lifetimeBoutCap).toBeNull();
       expect(TIER_CONFIG.free.maxAgents).toBe(1);
     });
 
