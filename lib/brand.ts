@@ -69,13 +69,13 @@ export const SOCIAL_CHANNELS: SocialChannel[] = [
   {
     key: 'github',
     label: 'GitHub',
-    url: 'https://github.thepit.cloud',
+    url: 'https://github.com/rickhallett/thepit',
     enabled: process.env.NEXT_PUBLIC_SOCIAL_GITHUB_ENABLED === 'true',
   },
   {
     key: 'linkedin',
     label: 'LinkedIn',
-    url: 'https://linkedin.thepit.cloud',
+    url: 'https://www.linkedin.com/in/rickhallett',
     enabled: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN_ENABLED === 'true',
   },
 ];
