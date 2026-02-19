@@ -42,5 +42,11 @@ export async function GET(
   const url = new URL(req.url);
   const destination = new URL(`/b/${link.boutId}`, url.origin);
 
+  // Forward viral attribution params so middleware can set the pit_ref cookie
+  const ref = url.searchParams.get('ref');
+  const pitSharer = url.searchParams.get('pit_sharer');
+  if (ref) destination.searchParams.set('ref', ref);
+  if (pitSharer) destination.searchParams.set('pit_sharer', pitSharer);
+
   return Response.redirect(destination.toString(), 302);
 }
