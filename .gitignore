@@ -80,3 +80,6 @@ backups/
 
 # auto-generated doc bundles
 docs/architecture-bundle.md
+
+# internal release reviews
+docs/release-review-*
