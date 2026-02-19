@@ -30,6 +30,7 @@ func mockLinear(t *testing.T, handler func(r gqlRequest) (any, int)) (*httptest.
 
 	client := NewClient("test-api-key")
 	client.baseURL = srv.URL
+	client.SetCache(NewDiskCache(false)) // disable disk cache in tests
 
 	t.Cleanup(srv.Close)
 	return srv, client
@@ -378,6 +379,7 @@ func TestUnauthorized(t *testing.T) {
 
 	client := NewClient("bad-key")
 	client.baseURL = srv.URL
+	client.SetCache(NewDiskCache(false))
 
 	_, err := client.Teams()
 	if err == nil {
@@ -397,6 +399,7 @@ func TestRateLimited(t *testing.T) {
 
 	client := NewClient("test-key")
 	client.baseURL = srv.URL
+	client.SetCache(NewDiskCache(false))
 
 	_, err := client.Teams()
 	if err == nil {
@@ -419,6 +422,7 @@ func TestGraphQLError(t *testing.T) {
 
 	client := NewClient("test-key")
 	client.baseURL = srv.URL
+	client.SetCache(NewDiskCache(false))
 
 	_, err := client.Teams()
 	if err == nil {

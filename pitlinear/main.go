@@ -18,6 +18,7 @@ func main() {
 	// Global flags.
 	envPath := flag.String("env", "", "path to .env file")
 	jsonOut := flag.Bool("json", false, "output as JSON")
+	noCache := flag.Bool("no-cache", false, "disable disk cache for this invocation")
 	flag.Usage = usage
 	flag.Parse()
 
@@ -30,6 +31,12 @@ func main() {
 	// Handle version before config loading (no API key needed).
 	if args[0] == "version" {
 		fmt.Printf("pitlinear %s\n", version)
+		return
+	}
+
+	// Handle cache commands before config loading (no API key needed).
+	if args[0] == "cache" {
+		runCache(args[1:])
 		return
 	}
 
@@ -56,6 +63,9 @@ func main() {
 	// teamName is optional; commands that need it will require --team flag or positional arg.
 
 	client := cmd.NewClient(apiKey)
+	if *noCache {
+		client.SetCache(cmd.NewDiskCache(false))
+	}
 
 	switch args[0] {
 	case "teams":
@@ -229,6 +239,47 @@ func runComments(client *cmd.Client, args []string, jsonOut bool) {
 	}
 }
 
+func runCache(args []string) {
+	if len(args) == 0 {
+		fatalf("cache", "subcommand required: clear, stats")
+	}
+
+	cache := cmd.NewDiskCache(true)
+
+	switch args[0] {
+	case "clear":
+		removed, err := cache.Clear()
+		if err != nil {
+			fatal("cache clear", err)
+		}
+		fmt.Printf("Removed %d cached entries.\n", removed)
+
+	case "stats":
+		entries, bytes, dir := cache.Stats()
+		if dir == "" {
+			fmt.Println("Cache is disabled.")
+			return
+		}
+		fmt.Printf("Cache directory: %s\n", dir)
+		fmt.Printf("Entries:         %d\n", entries)
+		fmt.Printf("Total size:      %s\n", formatBytes(bytes))
+
+	default:
+		fatalf("cache", "unknown subcommand %q (expected: clear, stats)", args[0])
+	}
+}
+
+func formatBytes(b int64) string {
+	switch {
+	case b >= 1024*1024:
+		return fmt.Sprintf("%.1f MB", float64(b)/1024/1024)
+	case b >= 1024:
+		return fmt.Sprintf("%.1f KB", float64(b)/1024)
+	default:
+		return fmt.Sprintf("%d B", b)
+	}
+}
+
 // resolveTeam returns the team key from --team flag, positional arg, or default.
 func resolveTeam(args []string, defaultTeam string) string {
 	if t := flagVal(args, "--team"); t != "" {
@@ -281,10 +332,14 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  comments                        Comment management\n")
 	fmt.Fprintf(os.Stderr, "    add <ref> --body <text>|--body -  Add comment\n")
 	fmt.Fprintf(os.Stderr, "    list <ref>                    List comments\n")
+	fmt.Fprintf(os.Stderr, "  cache                           Cache management\n")
+	fmt.Fprintf(os.Stderr, "    clear                         Remove all cached entries\n")
+	fmt.Fprintf(os.Stderr, "    stats                         Show cache statistics\n")
 	fmt.Fprintf(os.Stderr, "  version                         Show version\n\n")
 	fmt.Fprintf(os.Stderr, "Flags:\n")
-	fmt.Fprintf(os.Stderr, "  --env <path>  Path to .env file (default: auto-detect)\n")
-	fmt.Fprintf(os.Stderr, "  --json        Output as JSON\n\n")
+	fmt.Fprintf(os.Stderr, "  --env <path>    Path to .env file (default: auto-detect)\n")
+	fmt.Fprintf(os.Stderr, "  --json          Output as JSON\n")
+	fmt.Fprintf(os.Stderr, "  --no-cache      Disable disk cache for this invocation\n\n")
 	fmt.Fprintf(os.Stderr, "Environment:\n")
 	fmt.Fprintf(os.Stderr, "  LINEAR_API_KEY     Required. Linear API key.\n")
 	fmt.Fprintf(os.Stderr, "  LINEAR_TEAM_NAME   Optional. Default team key (e.g. OCE).\n\n")
