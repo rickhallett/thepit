@@ -163,9 +163,15 @@ export async function getDailyBoutsUsed(userId: string): Promise<number> {
  * Check whether a user can run a platform-funded bout.
  * BYOK bouts bypass this entirely (they cost the platform nothing).
  *
- * Checks (in order):
- *   1. Lifetime bout cap (free tier only).
- *   2. Daily bout rate limit (all tiers).
+ * Rate limiting strategy:
+ *   - Free tier: governed by the global free bout pool (500/day shared
+ *     across all free users), enforced in bout-engine.ts.
+ *   - Pass/Lab: credit-gated only. Monthly credits are granted on a rolling
+ *     basis; when exhausted, users purchase top-up packs. No daily cap.
+ *   - All tiers: in-memory per-hour anti-abuse rate limit in bout-engine.ts.
+ *
+ * The only check remaining here is the lifetime cap (currently null for all
+ * tiers, kept as a safety valve if needed in the future).
  *
  * Returns { allowed: true } or { allowed: false, reason: string }.
  */
@@ -179,7 +185,7 @@ export async function canRunBout(
   const tier = await getUserTier(userId);
   const config = TIER_CONFIG[tier];
 
-  // Check lifetime cap (free tier only)
+  // Check lifetime cap (if configured — currently null for all tiers)
   if (config.lifetimeBoutCap !== null) {
     const used = await getFreeBoutsUsed(userId);
     if (used >= config.lifetimeBoutCap) {
@@ -190,15 +196,9 @@ export async function canRunBout(
     }
   }
 
-  // Check daily bout rate limit
-  const dailyUsed = await getDailyBoutsUsed(userId);
-  if (dailyUsed >= config.boutsPerDay) {
-    return {
-      allowed: false,
-      reason: `Daily limit reached (${config.boutsPerDay} bouts/day for ${tier === 'free' ? 'Free' : tier === 'pass' ? 'Pit Pass' : 'Pit Lab'} tier). ${tier === 'free' ? 'Upgrade' : 'Wait until tomorrow'} or use your own API key (BYOK).`,
-    };
-  }
-
+  // No per-user daily caps for any tier:
+  //   - Free: global pool (consumeFreeBout) is the sole daily limiter
+  //   - Pass/Lab: credit balance is the sole limiter (monthly + top-ups)
   return { allowed: true };
 }
 
