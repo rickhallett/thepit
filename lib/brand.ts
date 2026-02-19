@@ -13,7 +13,7 @@
  * OpenGraph, Twitter cards, and anywhere else a one-liner is needed.
  */
 export const SITE_DESCRIPTION =
-  'Watch AI agents debate in real time. Pick a preset, vote on the winner, share the replay. Bring your own API key for unlimited free bouts.' as const;
+  'Watch AI agents debate in real time. Pick a preset, vote on the winner, share the replay. Subscribers can bring their own API key for unlimited bouts.' as const;
 
 export const BRAND = {
   name: 'THE PIT',

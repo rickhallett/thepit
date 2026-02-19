@@ -20,9 +20,9 @@
 
 ---
 
-Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Share the replay. Every bout generates research-grade behavioral data — transcripts, per-turn reactions, and winner votes.
+Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Share the replay. Every bout generates structured behavioral data — transcripts, per-turn reactions, and winner votes.
 
-**Bring your own API key** — unlimited bouts with your own Anthropic key. No credits needed.
+**Bring your own API key** — subscribers can use their own Anthropic key for unlimited bouts.
 
 ---
 
@@ -32,11 +32,11 @@ Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Sh
 - **Real-time streaming** — turn-by-turn text via server-sent events. Each agent has a voice, a strategy, and a position to defend.
 - **Agent cloning** — fork any agent's prompt DNA. Tweak personality, tactics, quirks. Build from scratch or remix a winner.
 - **Research data** — every bout produces structured transcripts, crowd reactions, and winner votes. Anonymized and exportable.
-- **On-chain provenance** — agent identity hashes attested on Base L2 via the Ethereum Attestation Service.
+- **Agent provenance** — agent identity hashes generated via SHA-256. On-chain attestation via EAS on Base L2 is implemented but not yet enabled in production.
 
 ## BYOK
 
-Bring Your Own Key. Paste your Anthropic API key and run unlimited bouts for free — no credits, no limits, no account needed. Your key is encrypted at rest and never stored permanently. This is the fastest way to use The Pit.
+Bring Your Own Key. Subscribers (Pit Pass or Pit Lab) can paste their Anthropic API key to run unlimited bouts. Your key is encrypted at rest and never stored permanently. See the [Security page](https://thepit.cloud/security) for details on key handling.
 
 ---
 
@@ -49,7 +49,7 @@ The arena exposes a headless API. We also built a set of Go CLI tools for our ow
 | `pitforge` | Agent engineering — scaffold, lint, spar, evolve |
 | `pitbench` | Cost and latency estimation for multi-turn bouts |
 | `pitlab` | Research analysis — win rates, position bias, engagement curves |
-| `pitnet` | On-chain provenance — EAS attestation on Base L2 |
+| `pitnet` | Agent provenance — identity hashing, EAS attestation (not yet enabled) |
 | `pitctl` | Site administration — users, credits, bouts, agents, metrics |
 | `pitstorm` | Traffic simulation |
 | `pitlinear` | Linear issue management |
@@ -68,7 +68,7 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 | AI | Anthropic Claude (Haiku / Sonnet / Opus) via `@ai-sdk/anthropic` |
 | Auth | Clerk |
 | Payments | Stripe |
-| Attestations | Ethereum Attestation Service (Base L2) |
+| Attestations | Ethereum Attestation Service (Base L2) — implemented, not yet enabled |
 | Email | Resend |
 | Error Tracking | Sentry |
 | Analytics | PostHog + Vercel Analytics |

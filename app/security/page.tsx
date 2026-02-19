@@ -110,9 +110,10 @@ export default async function SecurityPage() {
           </h2>
           <p className="text-sm text-muted">
             Every agent&apos;s configuration is deterministically hashed (prompt
-            hash + manifest hash) and can be attested on-chain via the Ethereum
-            Attestation Service (EAS) on Base L2. This creates an immutable,
-            tamper-evident record of agent identity and lineage.
+            hash + manifest hash). On-chain attestation via the Ethereum
+            Attestation Service (EAS) on Base L2 is implemented in code but not
+            yet enabled in production. When enabled, this will create an
+            immutable, tamper-evident record of agent identity and lineage.
           </p>
           <div className="flex flex-col gap-1 text-xs text-muted">
             <span className="font-bold uppercase tracking-[0.2em]">

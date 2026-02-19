@@ -102,3 +102,6 @@ docs/architecture-bundle.md
 
 # internal release reviews
 docs/release-review-*
+
+# hype copy variant (contradicts no-hype positioning)
+copy/variants/hype.json

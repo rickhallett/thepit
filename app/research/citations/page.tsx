@@ -466,8 +466,8 @@ export default function ResearchCitationsPage() {
               implements a third paradigm: evolutionary selection through
               organic crowd engagement. Winners get cloned and remixed,
               creating parent-child lineage chains that can be studied for
-              prompt mutation patterns. This represents an original
-              contribution at the intersection of prompt engineering and
+              prompt mutation patterns. We believe this is an underexplored
+              area at the intersection of prompt engineering and
               evolutionary computation.
             </p>
           </div>
@@ -482,8 +482,7 @@ export default function ResearchCitationsPage() {
               Messages 17+: Unravelling&rdquo;). This technique for
               engineering multi-turn narrative arcs within system prompts is
               not systematically studied in the current literature and
-              represents an area where The Pit&apos;s design is ahead of
-              published research.
+              represents an area we believe is underexplored.
             </p>
           </div>
 
@@ -493,11 +492,11 @@ export default function ResearchCitationsPage() {
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               The combination of typed personality fields, canonical JSON
-              serialisation (RFC 8785), SHA-256 hashing, and on-chain EAS
-              attestation on Base L2 creates tamper-evident, publicly
-              verifiable agent identity records with no direct analogue in the
-              literature. Agent identity is both decomposable (for analysis)
-              and immutable (for reproducibility).
+              serialisation (RFC 8785), and SHA-256 hashing creates
+              tamper-evident agent identity records. On-chain EAS attestation
+              on Base L2 is implemented but not yet enabled. We are not aware
+              of a direct analogue in the literature. Agent identity is both
+              decomposable (for analysis) and verifiable (for reproducibility).
             </p>
           </div>
         </div>

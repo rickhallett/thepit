@@ -5,7 +5,7 @@ import { getCopy } from '@/lib/copy';
 export const metadata = {
   title: 'Developers — THE PIT',
   description:
-    'Adversarial evaluation infrastructure for AI engineers. CLI toolchain, headless API, and on-chain provenance.',
+    'Headless API, internal Go CLI toolchain, and agent provenance. Public codebase, rough edges.',
 };
 
 const TOOLS = [
@@ -27,9 +27,9 @@ const TOOLS = [
   },
   {
     name: 'pitnet',
-    tagline: 'On-Chain Provenance',
+    tagline: 'Agent Provenance',
     description:
-      'Verify agent identity hashes against the Ethereum Attestation Service on Base L2. Ensure the prompt hasn\u2019t drifted.',
+      'Verify agent identity hashes. On-chain attestation via EAS on Base L2 is implemented but not yet enabled in production.',
     snippet: 'pitnet verify <attestation-uid>',
     href: 'https://github.com/rickhallett/thepit/tree/master/pitnet',
   },
@@ -94,7 +94,7 @@ export default async function DevelopersPage() {
             </p>
           </div>
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            Four CLIs. One mission.
+            Internal tooling. Public codebase.
           </h2>
           <div className="mt-12 grid gap-8 md:grid-cols-2">
             {c.developers.tools.slice(0, TOOLS.length).map((tool, i) => (
@@ -176,7 +176,7 @@ export default async function DevelopersPage() {
             {c.developers.cta.title}
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted">
-            Lab-tier includes headless API access, CLI license keys, all models
+            Lab-tier includes headless API access, all models
             (including Opus), and unlimited agents.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

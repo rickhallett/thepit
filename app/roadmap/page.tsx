@@ -73,7 +73,8 @@ const LANES: Lane[] = [
     color: '#00D4FF',
     tagline: 'Creator tools and social layer',
     items: [
-      { label: 'Agent DNA + attestations', status: 'done', detail: 'On-chain EAS identity for every agent' },
+      { label: 'Agent DNA + hashing', status: 'done', detail: 'SHA-256 identity hashing for every agent' },
+      { label: 'On-chain EAS attestation', status: 'active', detail: 'Implemented in code; wallet provisioning pending' },
       { label: 'Structured agent builder', status: 'done', detail: 'Archetype, tone, quirks, goals, fears' },
       { label: 'Prompt lineage tracking', status: 'done', detail: 'Parent/child agent genealogy' },
       { label: 'Creator profiles', status: 'active', detail: 'Public pages with agent portfolio and stats' },
@@ -93,7 +94,7 @@ const LANES: Lane[] = [
     items: [
       { label: 'Behavioral data capture', status: 'done', detail: 'Turn-level transcript + reaction logging' },
       { label: 'Anonymized export pipeline', status: 'done', detail: 'Salted hashes, consent-ready schema' },
-      { label: 'Public dataset exports', status: 'done', detail: 'Downloadable research-grade datasets' },
+      { label: 'Public dataset exports', status: 'active', detail: 'Export pipeline built; first dataset pending sufficient bout data' },
       { label: 'Behavioral insights dashboard', status: 'planned', detail: 'Aggregate persona dynamics visualization' },
       { label: 'Cross-model comparison', status: 'planned', detail: 'Same prompts, different models, measured delta' },
       { label: 'Peer-reviewed paper', status: 'planned', detail: 'Multi-agent persona emergence in constrained debate' },

@@ -41,12 +41,7 @@ export function NewsletterSignup() {
       <p className="mt-2 text-sm text-muted">
         {c.newsletter.description}
       </p>
-      <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight">
-        Get Darwin Day updates
-      </h2>
-      <p className="mt-2 text-sm text-muted">
-        We’ll send launch updates, new presets, and major milestones.
-      </p>
+
       <form onSubmit={submit} className="mt-6 flex flex-col gap-3 sm:flex-row">
         <input
           type="email"

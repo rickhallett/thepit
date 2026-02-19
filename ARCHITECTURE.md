@@ -145,7 +145,7 @@ LLM cost and token analytics are captured via PostHog `$ai_generation` events em
 Web Vitals reporting via `vitals.vercel-insights.com`.
 
 ## Go CLI Toolchain
-Six CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). Premium commands require a Lab-tier Ed25519 license token (`~/.pit/license.jwt`).
+Seven CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). These are internal tools built for our own workflow — not yet polished for external use.
 
 ### shared/ (Library)
 Consumed by all tools. Modules: `config/` (.env parsing, env var schema), `db/` (PostgreSQL via `lib/pq`), `license/` (Ed25519 JWT-like token create/verify, 7-day expiry), `format/` (number/time/credit formatting), `theme/` (Tokyo Night palette via `charmbracelet/lipgloss`).

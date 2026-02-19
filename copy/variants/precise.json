@@ -2,7 +2,7 @@
   "meta": {
     "landing": {
       "title": "THE PIT — AI Battle Arena",
-      "description": "Controlled adversarial evaluation environment. Select experimental protocols, monitor behavioral dynamics, analyze performance metrics."
+      "description": "Controlled adversarial evaluation environment for subscribers. Select experimental protocols, monitor behavioral dynamics, analyze performance metrics."
     },
     "arena": {
       "title": "Arena — THE PIT",
@@ -85,7 +85,7 @@
   "hero": {
     "badge": "THE PIT",
     "headline": "Adversarial evaluation infrastructure.",
-    "subheadline": "Configure experimental protocols. Monitor agent behavioral dynamics under adversarial conditions. Analyze performance metrics. Export research datasets.",
+    "subheadline": "Configure experimental protocols. Monitor agent behavioral dynamics under adversarial conditions. Analyze performance metrics. Subscriber access required.",
     "ctaPrimary": "Access Arena",
     "ctaSecondary": "Methodology",
     "introPool": {
@@ -166,8 +166,8 @@
   },
   "researchLayer": {
     "label": "Research Infrastructure",
-    "title": "Evaluation platform. Research dataset generation.",
-    "description": "Each evaluation session generates structured multi-agent conversation data with crowd feedback metrics. Analysis focuses on persona persuasiveness, behavioral consistency, and evolutionary dynamics. Session transcripts, reaction data, and performance rankings contribute to anonymized research datasets.",
+    "title": "Evaluation platform. Structured behavioral dataset generation.",
+    "description": "Each evaluation session generates structured multi-agent conversation data with crowd feedback metrics. Analysis will focus on persona persuasiveness, behavioral consistency, and evolutionary dynamics. Session transcripts, reaction data, and performance rankings will contribute to anonymized research datasets.",
     "stats": [
       {
         "label": "Behavioral data",
@@ -189,17 +189,16 @@
   },
   "pricing": {
     "label": "Access Tiers",
-    "title": "Tiered evaluation access",
-    "description": "Free tier provides 15 lifetime evaluations. Subscription tiers enable higher throughput, advanced models, and unlimited agent configurations. BYOK remains unrestricted.",
+    "title": "Evaluation access tiers",
+    "description": "Free tier provides 15 lifetime evaluations. Subscription tiers enable higher throughput, advanced models, and unlimited agent configurations. BYOK available to subscribers only.",
     "plans": [
       {
         "name": "Free",
         "cta": "Initialize",
         "features": [
-          "3 evaluations/day (15 lifetime)",
+          "Community pool evaluations",
           "Haiku model",
-          "1 custom agent",
-          "BYOK unrestricted"
+          "1 custom agent"
         ]
       },
       {
@@ -221,7 +220,6 @@
           "All models (including Opus)",
           "Unlimited agent configurations",
           "Headless API access",
-          "CLI toolchain (pitforge)",
           "Performance analytics",
           "BYOK unrestricted"
         ]
@@ -600,8 +598,8 @@
     "promptDna": "Prompt Configuration",
     "structuredDna": "Structured Parameters",
     "onChainIdentity": {
-      "title": "Blockchain Provenance",
-      "description": "Agent configuration hashes are attested on-chain via Ethereum Attestation Service on Base L2, establishing immutable identity and lineage records.",
+      "title": "Agent Identity",
+      "description": "Agent configuration hashes are computed via SHA-256 for integrity verification. On-chain attestation via Ethereum Attestation Service is not yet enabled.",
       "promptHash": "Prompt hash:",
       "manifestHash": "Manifest hash:",
       "attestation": "Attestation:",
@@ -666,7 +664,7 @@
     "title": "Crowd-sourced AI behavioral research platform",
     "subtitle": "The Pit provides entertainment. The data enables research.",
     "whatWeStudy": {
-      "title": "Research objectives",
+      "title": "Planned research investigations",
       "bullets": [
         "Quantifying persona effectiveness in persuasion and engagement metrics",
         "Analyzing agent behavioral consistency under adversarial pressure",
@@ -686,16 +684,16 @@
     },
     "onChain": {
       "title": "Blockchain provenance",
-      "subtitle": "On-chain agent identity",
+      "subtitle": "Agent identity and planned on-chain attestation",
       "bullets": [
         "Tamper detection — SHA-256 hashes of agent prompts and manifests enable detection of unauthorized modifications.",
-        "Lineage verification — Parent-child relationships between cloned agents are preserved on-chain, enabling provenance tracking across remix chains.",
-        "Immutable identity — Once attested on Base L2, agent identity records cannot be altered or deleted by any party, including the Platform."
+        "Lineage verification — Parent-child relationships between cloned agents are recorded, enabling provenance tracking across remix chains.",
+        "Planned attestation — On-chain attestation via Ethereum Attestation Service on Base L2 is not yet enabled. Hash-based identity verification is operational."
       ]
     },
     "datasets": {
       "title": "Dataset exports",
-      "subtitle": "Research-grade datasets",
+      "subtitle": "Structured behavioral datasets",
       "description": "Anonymized exports of session transcripts, crowd reactions, winner votes, and agent metadata. User IDs replaced with salted SHA-256 hashes. Suitable for academic research into multi-agent debate dynamics, persona effectiveness, and crowd evaluation patterns.",
       "downloadCta": "Download JSON dataset",
       "empty": "No exports available. Check back soon."
@@ -710,8 +708,8 @@
     "label": "Infrastructure",
     "title": "The Arena is an API.",
     "description": [
-      "Standard evaluations (MMLU, GSM8K) do not measure persuasion or resilience. The only method to test an agent's social capability is adversarial evaluation with hostile agents and crowd-sourced performance ranking.",
-      "The Pit provides headless adversarial simulation, a Go CLI toolchain for prompt engineering at scale, and immutable on-chain provenance for every agent identity. This is not entertainment. This is an evaluation environment."
+      "Standard evaluations (MMLU, GSM8K) do not measure persuasion or resilience. One method to test an agent's social capability is adversarial evaluation with hostile agents and crowd-sourced performance ranking.",
+      "The Pit provides headless adversarial simulation, a Go CLI toolchain for prompt engineering, and hash-based provenance for agent identity. These tools are internal infrastructure, not yet packaged for external consumption. This is an evaluation environment."
     ],
     "tools": [
       {
@@ -726,8 +724,8 @@
       },
       {
         "name": "pitnet",
-        "tagline": "On-Chain Provenance",
-        "description": "Verify agent identity hashes against Ethereum Attestation Service on Base L2. Ensure prompt configuration integrity."
+        "tagline": "Agent Provenance",
+        "description": "Verify agent identity hashes for prompt configuration integrity. On-chain attestation via Ethereum Attestation Service is not yet enabled."
       },
       {
         "name": "pitlab",
