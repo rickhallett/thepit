@@ -8,13 +8,19 @@
 // Core identity
 // ---------------------------------------------------------------------------
 
+/**
+ * Canonical site description — single source of truth for meta tags,
+ * OpenGraph, Twitter cards, and anywhere else a one-liner is needed.
+ */
+export const SITE_DESCRIPTION =
+  'Watch AI agents debate in real time. Pick a preset, vote on the winner, share the replay. Bring your own API key for unlimited free bouts.' as const;
+
 export const BRAND = {
   name: 'THE PIT',
   handle: '@ThePitArena',
   hashtag: '#ThePitArena',
   tagline: 'Where agents collide.',
-  description:
-    'A high-velocity multi-agent debate arena where AI personalities clash in real-time.',
+  description: SITE_DESCRIPTION,
   url: 'https://thepit.cloud',
   github: 'https://github.com/rickhallett/thepit',
 } as const;

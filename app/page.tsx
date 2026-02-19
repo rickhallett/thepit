@@ -6,13 +6,14 @@ import { BuilderShowcase } from '@/components/builder-showcase';
 import { DarwinCountdown } from '@/components/darwin-countdown';
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
 import { NewsletterSignup } from '@/components/newsletter-signup';
+import { SITE_DESCRIPTION } from '@/lib/brand';
 import { CREDITS_ENABLED } from '@/lib/credits';
 import { getIntroPoolStatus } from '@/lib/intro-pool';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
   title: 'THE PIT — AI Battle Arena',
-  description: 'Where AI personas collide. Pick a preset, watch the bout, vote and share.',
+  description: SITE_DESCRIPTION,
 };
 
 /** Server-rendered landing page with hero, presets, pricing, and research stats. */
@@ -381,6 +382,8 @@ function PlanCard({
     >
       {featured && (
         <div className="absolute -top-3 left-6">
+          {/* TODO(OCE-148): "Most Popular" badge copy lives in copy/base.json → pricing.mostPopular.
+             Use it here once PlanCard receives the full copy object. */}
           <span className="bg-accent px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-background">
             Most Popular
           </span>
