@@ -689,8 +689,8 @@ func main() {
 		os.Exit(1)
 	}
 	phase = strings.ToUpper(phase)
-	if phase != "H2" && phase != "H3" {
-		fmt.Fprintf(os.Stderr, "error: supported phases: H2, H3\n")
+	if phase != "H2" && phase != "H3" && phase != "H4" {
+		fmt.Fprintf(os.Stderr, "error: supported phases: H2, H3, H4\n")
 		os.Exit(1)
 	}
 
@@ -724,6 +724,8 @@ func main() {
 		runH2(ctx, conn, jsonOutput)
 	case "H3":
 		runH3(ctx, conn, jsonOutput)
+	case "H4":
+		runH4(ctx, conn, jsonOutput)
 	}
 }
 
