@@ -6,13 +6,14 @@ import { SignedOut } from '@clerk/nextjs';
 import Link from 'next/link';
 
 import { Arena } from '@/components/arena';
+import { BoutHero } from '@/components/bout-hero';
 import { TrackPageEvent } from '@/components/track-page-event';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { getCopy } from '@/lib/copy';
 import { ALL_PRESETS, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
-import { getReactionCounts } from '@/lib/reactions';
+import { getReactionCounts, getMostReactedTurnIndex } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
 export const dynamic = 'force-dynamic';
@@ -91,10 +92,11 @@ export default async function ReplayPage({
     notFound();
   }
 
-  const [reactionCounts, winnerVoteCounts, userWinnerVote] = await Promise.all([
+  const [reactionCounts, winnerVoteCounts, userWinnerVote, mostReactedTurn] = await Promise.all([
     getReactionCounts(resolved.id),
     getWinnerVoteCounts(resolved.id),
     userId ? getUserWinnerVote(resolved.id, userId) : Promise.resolve(null),
+    getMostReactedTurnIndex(resolved.id),
   ]);
 
   // Track replay views — any visitor viewing a bout they didn't create.
@@ -102,13 +104,26 @@ export default async function ReplayPage({
   // (users who arrive via shared links before signing up).
   const isReplay = !userId || bout.ownerId !== userId;
 
+  const transcript = (bout.transcript ?? []) as TranscriptEntry[];
+
   return (
     <>
       {isReplay && <TrackPageEvent event="bout_replayed" properties={{ bout_id: resolved.id, preset_id: bout.presetId }} />}
+      <BoutHero
+        presetName={preset.name}
+        agents={preset.agents.map((a) => ({ name: a.name, color: a.color }))}
+        shareLine={bout.shareLine}
+        transcript={transcript}
+        mostReactedTurn={mostReactedTurn ? {
+          turnIndex: mostReactedTurn.turnIndex,
+          heartCount: mostReactedTurn.heartCount,
+          fireCount: mostReactedTurn.fireCount,
+        } : null}
+      />
       <Arena
         boutId={resolved.id}
         preset={preset}
-        initialTranscript={(bout.transcript ?? []) as TranscriptEntry[]}
+        initialTranscript={transcript}
         shareLine={bout.shareLine}
         format={bout.responseFormat ?? null}
         length={bout.responseLength ?? null}
