@@ -70,10 +70,10 @@ With that caveat stated, here are the pre-registered metrics.
 
 | Metric | d | |d| | p (perm) | Interpretation |
 |--------|------|------|----------|----------------|
-| M1 Char Count | -0.561 | 0.561 | 0.083 | CLEAR by d, marginal by p |
+| M1 Char Count | -0.561 | 0.561 | 0.087 | CLEAR by d, marginal by p |
 | M2 Novelty Rate | 1.732 | 1.732 | <0.001 | CLEAR — massive novelty drop |
 | M3 Anchoring | 1.513 | 1.513 | <0.001 | CLEAR — first speaker's vocab persists |
-| M4 Question Density | -0.717 | 0.717 | 0.030 | CLEAR — Journalist asks more than Nationalist |
+| M4 Question Density | -0.717 | 0.717 | 0.026 | CLEAR — Journalist asks more than Nationalist |
 
 ### Interpretation
 

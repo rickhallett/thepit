@@ -361,6 +361,6 @@
       ]
     }
   ],
-  "decision": "Clear result: max |d| = 3.584 \u003e= 0.30. No LLM judge needed.",
+  "decision": "Clear result: max |d| = 3.584 >= 0.30. No LLM judge needed.",
   "thresholdHit": "clear"
 }
