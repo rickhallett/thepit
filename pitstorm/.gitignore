@@ -5,8 +5,9 @@ pitstorm
 # Test output
 coverage.out
 
-# Simulation results (JSON output, live status)
-results/
+# Simulation results (JSON output, live status) — ignore contents but
+# allow the hypotheses subdirectory (results/ alone blocks negation).
+results/*
 # Track hypothesis research data
 !results/hypotheses/
 
