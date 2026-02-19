@@ -164,7 +164,17 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     initPostHog();
   }, []);
 
-  if (!POSTHOG_KEY || (typeof window !== 'undefined' && getConsentState() !== 'accepted')) {
+  // Always render the PHProvider wrapper when the key exists to avoid a
+  // hydration mismatch (React error #418). The previous guard used
+  // `typeof window !== 'undefined' && getConsentState() !== 'accepted'`
+  // which produced different component trees on server vs client — the
+  // server short-circuited to the PHProvider path while the client
+  // rendered a bare fragment for users without consent.
+  //
+  // The PHProvider context is inert until posthog.__loaded is true.
+  // Actual tracking is already gated behind initPostHog() which runs
+  // in useEffect (client-only) and checks consent before initializing.
+  if (!POSTHOG_KEY) {
     return <>{children}</>;
   }
 
