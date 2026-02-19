@@ -17,6 +17,7 @@ import { useBoutVoting } from '@/lib/use-bout-voting';
 import { useBoutSharing } from '@/lib/use-bout-sharing';
 import { useCopy } from '@/lib/copy-client';
 import { SharePanel } from '@/components/share-panel';
+import { ShareModal } from '@/components/share-modal';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
@@ -436,6 +437,17 @@ export function Arena({
     userId,
   });
 
+  // --- Share modal (live bouts only, not replays) ---
+  const isReplay = initialTranscript.length > 0;
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    if (prevStatusRef.current === 'streaming' && status === 'done' && !isReplay) {
+      setShareModalOpen(true);
+    }
+    prevStatusRef.current = status;
+  }, [status, isReplay]);
+
   // --- Scroll management ---
   const [autoScroll, setAutoScroll] = useState(true);
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -610,6 +622,20 @@ export function Arena({
           </PitButton>
         )}
       </div>
+
+      <ShareModal
+        shareData={
+          shareModalOpen
+            ? {
+                boutId,
+                presetName: preset.name,
+                sharePayload,
+                replayUrl,
+              }
+            : null
+        }
+        onClose={() => setShareModalOpen(false)}
+      />
     </main>
   );
 }

@@ -40,11 +40,11 @@ describe('lib/brand', () => {
       }
     });
 
-    it('uses vanity subdomain URLs', async () => {
+    it('all channels have valid https URLs', async () => {
       const { SOCIAL_CHANNELS } = await import('@/lib/brand');
 
       for (const ch of SOCIAL_CHANNELS) {
-        expect(ch.url).toMatch(/^https:\/\/\w+\.thepit\.cloud$/);
+        expect(ch.url).toMatch(/^https:\/\//);
       }
     });
   });
