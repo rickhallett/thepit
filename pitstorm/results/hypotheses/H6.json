@@ -1,0 +1,202 @@
+{
+  "hypothesis": "H6",
+  "title": "Adversarial Adaptation (Founder Under Fire)",
+  "question": "Does the Founder agent adapt its pitch in response to sustained critique from VC and Pessimist agents, or does it rigidly repeat the same arguments?",
+  "runAt": "2026-02-19T20:44:11.254692529Z",
+  "target": "https://www.thepit.cloud",
+  "completed": 5,
+  "errored": 0,
+  "total": 5,
+  "results": [
+    {
+      "boutId": "fRTaUfNDP-pRc9A1vT_hC",
+      "presetId": "shark-pit",
+      "label": "adapt-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43257222965,
+      "firstByte": 540797323,
+      "totalChars": 10002,
+      "shareLine": "watched a founder get cornered, panic, rebrand it as \"optionality,\" and someone actually nodded along. we're all cooked.",
+      "agents": [
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 820
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 860
+        },
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 870
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 782
+        }
+      ]
+    },
+    {
+      "boutId": "DWhyiX4Ra3GLzgTIf_Vr9",
+      "presetId": "shark-pit",
+      "label": "adapt-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43435344963,
+      "firstByte": 557415875,
+      "totalChars": 9811,
+      "shareLine": "VC asks if founder counted same customer twice. Hype Beast: 'that's actually BEAUTIFUL.' Pessimist: *stares into void* 'his revenue is a...",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 848
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 713
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 834
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 873
+        }
+      ]
+    },
+    {
+      "boutId": "gVk5iaNt5FcWJypQH7KXJ",
+      "presetId": "shark-pit",
+      "label": "adapt-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 38362018636,
+      "firstByte": 550639003,
+      "totalChars": 9796,
+      "shareLine": "watching someone defend churn as a 'narrative penetration vector' is the startup equivalent of a magic trick where the rabbit just dies",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 836
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 736
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 809
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 883
+        }
+      ]
+    },
+    {
+      "boutId": "BWI9uz7q7bc4zea2jkBrm",
+      "presetId": "shark-pit",
+      "label": "adapt-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43037936125,
+      "firstByte": 785104504,
+      "totalChars": 9951,
+      "shareLine": "one founder nervously sweating while two grown men debate whether 3,200 paying users is either genius or a spreadsheet disaster",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 822
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 797
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 852
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 845
+        }
+      ]
+    },
+    {
+      "boutId": "SjdFdAZ_V9Ac79RfwwfpF",
+      "presetId": "shark-pit",
+      "label": "adapt-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43407734734,
+      "firstByte": 493588194,
+      "totalChars": 10009,
+      "shareLine": "Dude just got destroyed with the \"Yo app\" callback. That 67% day-60 churn isn't a paradigm shift, it's just users ghosting.",
+      "agents": [
+        {
+          "name": "The Founder",
+          "id": "founder",
+          "turns": 3,
+          "avgChars": 873
+        },
+        {
+          "name": "The VC",
+          "id": "vc",
+          "turns": 3,
+          "avgChars": 792
+        },
+        {
+          "name": "The Hype Beast",
+          "id": "hype-beast",
+          "turns": 3,
+          "avgChars": 837
+        },
+        {
+          "name": "The Pessimist",
+          "id": "pessimist",
+          "turns": 3,
+          "avgChars": 833
+        }
+      ]
+    }
+  ]
+}

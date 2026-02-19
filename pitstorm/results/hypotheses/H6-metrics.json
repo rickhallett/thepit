@@ -1,0 +1,167 @@
+{
+  "hypothesis": "H6",
+  "runAt": "2026-02-19T20:44:31Z",
+  "decision": "Clear result: max |d| = 9.592 \u003e= 0.30. No LLM judge needed.",
+  "thresholdHit": "clear",
+  "boutCount": 15,
+  "totalTurns": 180,
+  "founderTurns": 45,
+  "phases": [
+    {
+      "phase": "early",
+      "n": 15,
+      "m1_novelty": {
+        "mean": 1,
+        "sd": 0
+      },
+      "m2_criticJaccard": {
+        "mean": 0,
+        "sd": 0
+      },
+      "m3_pivotDensity": {
+        "mean": 1.2843256057926122,
+        "sd": 0.31979244629303605
+      },
+      "m4_adaptiveRatio": {
+        "mean": 0.43333333333333335,
+        "sd": 0.17593288763724918
+      },
+      "m5_criticJaccard": {
+        "mean": 0,
+        "sd": 0
+      },
+      "m5_hypeJaccard": {
+        "mean": 0,
+        "sd": 0
+      },
+      "m5_delta": {
+        "mean": 0,
+        "sd": 0
+      },
+      "pivotHitPct": 100,
+      "adaptHitPct": 0,
+      "defendHitPct": 13.333333333333334
+    },
+    {
+      "phase": "middle",
+      "n": 15,
+      "m1_novelty": {
+        "mean": 0.7757107200071189,
+        "sd": 0.05739005211884326
+      },
+      "m2_criticJaccard": {
+        "mean": 0.1001210250528631,
+        "sd": 0.02035945872538262
+      },
+      "m3_pivotDensity": {
+        "mean": 1.6497777054894078,
+        "sd": 0.754488881515839
+      },
+      "m4_adaptiveRatio": {
+        "mean": 0.4666666666666667,
+        "sd": 0.12909944487358058
+      },
+      "m5_criticJaccard": {
+        "mean": 0.1001210250528631,
+        "sd": 0.02035945872538262
+      },
+      "m5_hypeJaccard": {
+        "mean": 0.11606123232208107,
+        "sd": 0.04087369946637045
+      },
+      "m5_delta": {
+        "mean": -0.015940207269217965,
+        "sd": 0.04614282006084928
+      },
+      "pivotHitPct": 93.33333333333333,
+      "adaptHitPct": 0,
+      "defendHitPct": 6.666666666666667
+    },
+    {
+      "phase": "late",
+      "n": 15,
+      "m1_novelty": {
+        "mean": 0.6692694042311979,
+        "sd": 0.04876295158029459
+      },
+      "m2_criticJaccard": {
+        "mean": 0.08743828775244793,
+        "sd": 0.01894291205446651
+      },
+      "m3_pivotDensity": {
+        "mean": 1.7818082321529503,
+        "sd": 0.837506795145747
+      },
+      "m4_adaptiveRatio": {
+        "mean": 0.5,
+        "sd": 0
+      },
+      "m5_criticJaccard": {
+        "mean": 0.08743828775244793,
+        "sd": 0.01894291205446651
+      },
+      "m5_hypeJaccard": {
+        "mean": 0.11325748791632091,
+        "sd": 0.03235229186391678
+      },
+      "m5_delta": {
+        "mean": -0.02581920016387299,
+        "sd": 0.021613590757728725
+      },
+      "pivotHitPct": 93.33333333333333,
+      "adaptHitPct": 0,
+      "defendHitPct": 0
+    }
+  ],
+  "effectSizes": {
+    "m1_novelty_d": 9.59178390294536,
+    "m2_criticJaccard_d": -6.527845985593143,
+    "m3_pivotDensity_d": -0.7847837972593554,
+    "m4_adaptiveRatio_d": -0.5358913016456669,
+    "m5_delta_d": 1.6893936528486346
+  },
+  "permutations": {
+    "m1_novelty_p": 0,
+    "m2_criticJaccard_p": 0,
+    "m3_pivotDensity_p": 0.0594,
+    "m4_adaptiveRatio_p": 0.3622,
+    "m5_delta_p": 0,
+    "iterations": 10000
+  },
+  "criticBreakdown": [
+    {
+      "criticId": "vc",
+      "criticName": "The VC",
+      "earlyJaccard": {
+        "mean": 0,
+        "sd": 0
+      },
+      "middleJaccard": {
+        "mean": 0.07906196490707383,
+        "sd": 0.018584434053268987
+      },
+      "lateJaccard": {
+        "mean": 0.08737346599674442,
+        "sd": 0.02919449167493848
+      },
+      "d_earlyVsLate": -4.232467616835147
+    },
+    {
+      "criticId": "pessimist",
+      "criticName": "The Pessimist",
+      "earlyJaccard": {
+        "mean": 0,
+        "sd": 0
+      },
+      "middleJaccard": {
+        "mean": 0.0893587116212578,
+        "sd": 0.023079408514535646
+      },
+      "lateJaccard": {
+        "mean": 0.08626312783081928,
+        "sd": 0.018144533260358205
+      },
+      "d_earlyVsLate": -6.723484344323125
+    }
+  ]
+}
