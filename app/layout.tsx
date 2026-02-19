@@ -69,6 +69,8 @@ export default async function RootLayout({
 
   return (
     <ClerkProvider
+      signInFallbackRedirectUrl="/arena"
+      signUpFallbackRedirectUrl="/arena"
       appearance={{
         baseTheme: dark,
         variables: {

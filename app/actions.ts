@@ -66,8 +66,10 @@ export async function createBout(presetId: string, formData?: FormData) {
 
   // Require authentication for all bouts — captures every user for the
   // first-bout Opus promotion and prevents anonymous free-pool drain.
+  // Send to sign-up (not sign-in) since unauthenticated users triggering
+  // a bout are most likely new visitors who need to create an account.
   if (!userId) {
-    redirect('/sign-in?redirect_url=/arena');
+    redirect('/sign-up?redirect_url=/arena');
   }
 
   const db = requireDb();
