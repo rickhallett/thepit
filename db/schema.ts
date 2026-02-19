@@ -263,6 +263,10 @@ export const freeBoutPool = pgTable('free_bout_pool', {
   date: varchar('date', { length: 10 }).notNull(),
   used: integer('used').notNull().default(0),
   maxDaily: integer('max_daily').notNull(),
+  /** Cumulative platform spend (micro-credits) on free-tier bouts today. */
+  spendMicro: bigint('spend_micro', { mode: 'number' }).notNull().default(0),
+  /** Daily spend cap (micro-credits). Default £20 = 200,000 micro. */
+  spendCapMicro: bigint('spend_cap_micro', { mode: 'number' }).notNull().default(200_000),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

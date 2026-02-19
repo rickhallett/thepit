@@ -1,11 +1,16 @@
 // Global daily free-bout pool -- shared across all free-tier users.
 //
-// Hard-caps the platform's daily API spend on free-tier users. When the
-// pool is exhausted, free users see a message to upgrade or wait until
-// tomorrow. Paid subscribers are never affected.
+// Two independent caps protect platform spend:
+//   1. **Bout count cap** (FREE_BOUT_POOL_MAX, default 500/day)
+//      Limits the raw number of free bouts regardless of cost.
+//   2. **Spend cap** (FREE_BOUT_DAILY_SPEND_CAP_GBP, default £20/day)
+//      Limits cumulative GBP spend on free-tier bouts per day.
 //
-// Uses an atomic SQL update to prevent race conditions on concurrent
-// bout starts, modeled after the intro-pool pattern.
+// Both are enforced atomically via conditional SQL UPDATEs to prevent
+// race conditions on concurrent bout starts. Paid subscribers are
+// never affected by either cap.
+//
+// Uses the same atomic pattern as the intro-pool.
 
 import { eq, sql } from 'drizzle-orm';
 
@@ -15,6 +20,18 @@ import { freeBoutPool } from '@/db/schema';
 export const FREE_BOUT_POOL_MAX = Number(
   process.env.FREE_BOUT_POOL_MAX ?? '500',
 );
+
+/** Daily GBP spend cap for the free tier. Default £20. */
+export const FREE_BOUT_DAILY_SPEND_CAP_GBP = Number(
+  process.env.FREE_BOUT_DAILY_SPEND_CAP_GBP ?? '20',
+);
+
+/**
+ * Convert GBP to micro-credits for the spend cap.
+ * 1 credit = £0.01, 1 micro = £0.0001.
+ */
+const MICRO_VALUE_GBP = 0.0001;
+const spendCapMicro = Math.ceil(FREE_BOUT_DAILY_SPEND_CAP_GBP / MICRO_VALUE_GBP);
 
 /** Get today's date as YYYY-MM-DD in UTC. */
 function todayUTC(): string {
@@ -44,6 +61,8 @@ async function ensureTodayPool() {
       date,
       used: 0,
       maxDaily: FREE_BOUT_POOL_MAX,
+      spendMicro: 0,
+      spendCapMicro: spendCapMicro,
     })
     .onConflictDoNothing()
     .returning();
@@ -70,6 +89,9 @@ export type FreeBoutPoolStatus = {
   remaining: number;
   exhausted: boolean;
   date: string;
+  spendMicro: number;
+  spendCapMicro: number;
+  spendExhausted: boolean;
 };
 
 /**
@@ -84,42 +106,83 @@ export async function getFreeBoutPoolStatus(): Promise<FreeBoutPoolStatus> {
     remaining,
     exhausted: remaining <= 0,
     date: pool.date,
+    spendMicro: pool.spendMicro,
+    spendCapMicro: pool.spendCapMicro,
+    spendExhausted: pool.spendMicro >= pool.spendCapMicro,
   };
 }
 
 /**
- * Atomically consume one bout from the global free pool.
+ * Atomically consume one bout from the global free pool and record
+ * the estimated spend.
  *
- * Uses a conditional UPDATE that only increments `used` if the pool
- * has capacity, preventing race conditions where concurrent requests
- * could exceed the daily cap.
+ * Two conditions must both be satisfied for the UPDATE to succeed:
+ *   1. used < maxDaily           (bout count cap)
+ *   2. spendMicro + cost <= cap  (spend cap)
  *
- * @returns { consumed: true } if successful, or { consumed: false, remaining: 0 }
- *          if the pool is exhausted.
+ * @param estimatedCostMicro - Estimated bout cost in micro-credits.
+ * @returns { consumed: true } if successful, or { consumed: false }
+ *          with a reason if either cap is hit.
  */
-export async function consumeFreeBout(): Promise<
-  { consumed: true; remaining: number } | { consumed: false; remaining: number }
+export async function consumeFreeBout(
+  estimatedCostMicro: number = 0,
+): Promise<
+  | { consumed: true; remaining: number }
+  | { consumed: false; remaining: number; reason: 'count' | 'spend' }
 > {
   const pool = await ensureTodayPool();
   const db = requireDb();
 
-  // Atomic conditional update: only increment if used < maxDaily
+  // Atomic conditional update: increment count AND add spend, but only
+  // if both the bout count cap and spend cap have headroom.
   const [result] = await db
     .update(freeBoutPool)
     .set({
       used: sql`${freeBoutPool.used} + 1`,
+      spendMicro: sql`${freeBoutPool.spendMicro} + ${estimatedCostMicro}`,
       updatedAt: new Date(),
     })
     .where(
-      sql`${freeBoutPool.date} = ${pool.date} AND ${freeBoutPool.used} < ${freeBoutPool.maxDaily}`,
+      sql`${freeBoutPool.date} = ${pool.date}
+        AND ${freeBoutPool.used} < ${freeBoutPool.maxDaily}
+        AND ${freeBoutPool.spendMicro} + ${estimatedCostMicro} <= ${freeBoutPool.spendCapMicro}`,
     )
-    .returning({ used: freeBoutPool.used, maxDaily: freeBoutPool.maxDaily });
+    .returning({
+      used: freeBoutPool.used,
+      maxDaily: freeBoutPool.maxDaily,
+      spendMicro: freeBoutPool.spendMicro,
+      spendCapMicro: freeBoutPool.spendCapMicro,
+    });
 
   if (!result) {
-    // Update didn't match -- pool is exhausted
-    return { consumed: false, remaining: 0 };
+    // Determine which cap was hit for a helpful user message
+    const reason: 'count' | 'spend' =
+      pool.used >= pool.maxDaily ? 'count' : 'spend';
+    return { consumed: false, remaining: 0, reason };
   }
 
   const remaining = Math.max(0, result.maxDaily - result.used);
   return { consumed: true, remaining };
+}
+
+/**
+ * Settle actual spend on the free bout pool after a bout completes.
+ * Adjusts spendMicro by the delta between actual and estimated cost.
+ *
+ * @param deltaMicro - Positive means underestimated (charge more),
+ *                     negative means overestimated (refund).
+ */
+export async function settleFreeBoutSpend(deltaMicro: number): Promise<void> {
+  if (deltaMicro === 0) return;
+  const db = requireDb();
+  const date = todayUTC();
+
+  // Clamp to 0 to prevent negative spend totals on refunds
+  await db
+    .update(freeBoutPool)
+    .set({
+      spendMicro: sql`GREATEST(0, ${freeBoutPool.spendMicro} + ${deltaMicro})`,
+      updatedAt: new Date(),
+    })
+    .where(eq(freeBoutPool.date, date));
 }
