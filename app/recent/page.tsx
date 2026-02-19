@@ -1,8 +1,9 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
 
 import { BoutCard } from '@/components/bout-card';
 import { getCopy } from '@/lib/copy';
-import { getRecentBouts } from '@/lib/recent-bouts';
+import { getRecentBouts, getRecentBoutsCount } from '@/lib/recent-bouts';
 
 export const metadata: Metadata = {
   title: 'Recent Bouts — THE PIT',
@@ -11,8 +12,28 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function RecentPage() {
-  const [bouts, c] = await Promise.all([getRecentBouts(20, 0), getCopy()]);
+const PAGE_SIZE = 20;
+
+export default async function RecentPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const resolved = await searchParams;
+  const page = Math.max(1, parseInt(resolved?.page ?? '1', 10) || 1);
+  const offset = (page - 1) * PAGE_SIZE;
+
+  const [bouts, total, c] = await Promise.all([
+    getRecentBouts(PAGE_SIZE, offset),
+    getRecentBoutsCount(),
+    getCopy(),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const hasPrev = page > 1;
+  const hasNext = page < totalPages;
+  const start = total === 0 ? 0 : offset + 1;
+  const end = Math.min(offset + PAGE_SIZE, total);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -38,8 +59,37 @@ export default async function RecentPage() {
           </section>
         )}
 
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <nav className="flex items-center justify-center gap-4 text-xs uppercase tracking-[0.3em] text-muted">
+            {hasPrev ? (
+              <Link
+                href={page === 2 ? '/recent' : `/recent?page=${page - 1}`}
+                className="text-foreground transition-opacity hover:opacity-80"
+              >
+                &lt; PREV
+              </Link>
+            ) : (
+              <span className="opacity-30">&lt; PREV</span>
+            )}
+            <span className="border-l border-foreground/70 h-4" />
+            {hasNext ? (
+              <Link
+                href={`/recent?page=${page + 1}`}
+                className="text-foreground transition-opacity hover:opacity-80"
+              >
+                NEXT &gt;
+              </Link>
+            ) : (
+              <span className="opacity-30">NEXT &gt;</span>
+            )}
+          </nav>
+        )}
+
         <footer className="text-xs uppercase tracking-[0.3em] text-muted">
-          {c.recentBouts.showing.replace('{n}', String(bouts.length))}
+          {total === 0
+            ? c.recentBouts.showing.replace('{n}', '0')
+            : `Showing ${start}\u2013${end} of ${total} bouts`}
         </footer>
       </div>
     </main>

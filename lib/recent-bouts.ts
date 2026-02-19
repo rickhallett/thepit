@@ -85,3 +85,17 @@ export async function getRecentBouts(
     };
   });
 }
+
+/**
+ * Return the total number of completed bouts (for pagination).
+ */
+export async function getRecentBoutsCount(): Promise<number> {
+  const db = requireDb();
+
+  const [row] = await db
+    .select({ value: sql<number>`count(*)::int` })
+    .from(bouts)
+    .where(eq(bouts.status, 'completed'));
+
+  return row?.value ?? 0;
+}
