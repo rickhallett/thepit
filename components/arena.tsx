@@ -16,6 +16,7 @@ import { useBoutReactions } from '@/lib/use-bout-reactions';
 import { useBoutVoting } from '@/lib/use-bout-voting';
 import { useBoutSharing } from '@/lib/use-bout-sharing';
 import { useCopy } from '@/lib/copy-client';
+import { SharePanel } from '@/components/share-panel';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
@@ -423,6 +424,8 @@ export function Arena({
     copyTranscript,
     copyMessageShare,
     messageSharePayloads,
+    sharePayload,
+    replayUrl,
   } = useBoutSharing({
     boutId,
     preset,
@@ -574,6 +577,14 @@ export function Arena({
               votePending={votePending}
               votedLabel={votedLabel}
               onVote={castWinnerVote}
+            />
+          )}
+
+          {status === 'done' && messages.length > 0 && (
+            <SharePanel
+              boutId={boutId}
+              sharePayload={sharePayload}
+              replayUrl={replayUrl}
             />
           )}
 

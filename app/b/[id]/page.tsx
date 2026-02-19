@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
+import { SignedOut } from '@clerk/nextjs';
+import Link from 'next/link';
 
 import { Arena } from '@/components/arena';
 import { TrackPageEvent } from '@/components/track-page-event';
@@ -115,6 +117,16 @@ export default async function ReplayPage({
         initialWinnerVotes={winnerVoteCounts}
         initialUserVote={userWinnerVote}
       />
+      <SignedOut>
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-accent/60 bg-accent px-4 py-3 text-center">
+          <Link
+            href="/sign-up?redirect_url=/arena"
+            className="text-sm font-semibold uppercase tracking-[0.3em] text-background transition hover:opacity-80"
+          >
+            Create your own battle
+          </Link>
+        </div>
+      </SignedOut>
     </>
   );
 }
