@@ -1,0 +1,243 @@
+{
+  "hypothesis": "H3",
+  "runAt": "2026-02-19T16:57:24Z",
+  "decision": "Clear result: max |d| = 1.300 \u003e= 0.30. No LLM judge needed.",
+  "thresholdHit": "clear",
+  "groups": [
+    {
+      "Group": "comedy",
+      "N": 240,
+      "M1TTR": {
+        "mean": 0.7571224540854139,
+        "sd": 0.039848660974989854
+      },
+      "M1TTR100": {
+        "mean": 0.7959166666666675,
+        "sd": 0.040663860021583655
+      },
+      "M2Hedging": {
+        "mean": 0.11484935175709256,
+        "sd": 0.3936349793747451
+      },
+      "M3SentLenSD": {
+        "mean": 8.81643286080285,
+        "sd": 2.8076453421327834
+      },
+      "M4MarkerRate": 0.6791666666666667
+    },
+    {
+      "Group": "serious",
+      "N": 120,
+      "M1TTR": {
+        "mean": 0.736768066267661,
+        "sd": 0.04839902924751864
+      },
+      "M1TTR100": {
+        "mean": 0.7831666666666666,
+        "sd": 0.04668837030319892
+      },
+      "M2Hedging": {
+        "mean": 0.9344008709142666,
+        "sd": 0.9405916274085157
+      },
+      "M3SentLenSD": {
+        "mean": 15.13371132569714,
+        "sd": 10.310156644226977
+      },
+      "M4MarkerRate": 0.7083333333333334
+    }
+  ],
+  "presets": [
+    {
+      "PresetID": "first-contact",
+      "Group": "comedy",
+      "N": 120,
+      "M1TTR": {
+        "mean": 0.757443839072188,
+        "sd": 0.04268829951964229
+      },
+      "M1TTR100": {
+        "mean": 0.7991666666666671,
+        "sd": 0.04145633185630865
+      },
+      "M2Hedging": {
+        "mean": 0.1744667263373972,
+        "sd": 0.4953515719092519
+      },
+      "M3SentLenSD": {
+        "mean": 8.900675002826016,
+        "sd": 2.6756976413640596
+      },
+      "M4MarkerRate": 0.6333333333333333
+    },
+    {
+      "PresetID": "darwin-special",
+      "Group": "comedy",
+      "N": 120,
+      "M1TTR": {
+        "mean": 0.7568010690986396,
+        "sd": 0.03696858348192252
+      },
+      "M1TTR100": {
+        "mean": 0.7926666666666666,
+        "sd": 0.03976260084262984
+      },
+      "M2Hedging": {
+        "mean": 0.05523197717678793,
+        "sd": 0.24219352738527927
+      },
+      "M3SentLenSD": {
+        "mean": 8.732190718779684,
+        "sd": 2.9425017827406568
+      },
+      "M4MarkerRate": 0.725
+    },
+    {
+      "PresetID": "on-the-couch",
+      "Group": "serious",
+      "N": 120,
+      "M1TTR": {
+        "mean": 0.736768066267661,
+        "sd": 0.04839902924751864
+      },
+      "M1TTR100": {
+        "mean": 0.7831666666666666,
+        "sd": 0.04668837030319892
+      },
+      "M2Hedging": {
+        "mean": 0.9344008709142666,
+        "sd": 0.9405916274085157
+      },
+      "M3SentLenSD": {
+        "mean": 15.13371132569714,
+        "sd": 10.310156644226977
+      },
+      "M4MarkerRate": 0.7083333333333334
+    }
+  ],
+  "agents": [
+    {
+      "AgentID": "darwin",
+      "AgentName": "Charles Darwin",
+      "PresetID": "darwin-special",
+      "Group": "comedy",
+      "Turns": 30,
+      "AvgTTR": 0.7470125896942043,
+      "AvgHedging": 0.10554692158465744,
+      "AvgSentSD": 10.379573891201744,
+      "MarkerRate": 0.9
+    },
+    {
+      "AgentID": "conspiracy",
+      "AgentName": "The Conspiracy Theorist",
+      "PresetID": "darwin-special",
+      "Group": "comedy",
+      "Turns": 30,
+      "AvgTTR": 0.7521429248693488,
+      "AvgHedging": 0,
+      "AvgSentSD": 9.313227755093036,
+      "MarkerRate": 0.36666666666666664
+    },
+    {
+      "AgentID": "cat",
+      "AgentName": "The House Cat",
+      "PresetID": "darwin-special",
+      "Group": "comedy",
+      "Turns": 30,
+      "AvgTTR": 0.761292727520511,
+      "AvgHedging": 0,
+      "AvgSentSD": 8.91145859565157,
+      "MarkerRate": 0.9333333333333333
+    },
+    {
+      "AgentID": "tech-bro",
+      "AgentName": "The Tech Bro",
+      "PresetID": "darwin-special",
+      "Group": "comedy",
+      "Turns": 30,
+      "AvgTTR": 0.7667560343104954,
+      "AvgHedging": 0.1153809871224943,
+      "AvgSentSD": 6.3245026331723855,
+      "MarkerRate": 0.7
+    },
+    {
+      "AgentID": "alien",
+      "AgentName": "The Alien",
+      "PresetID": "first-contact",
+      "Group": "comedy",
+      "Turns": 60,
+      "AvgTTR": 0.7595618622533856,
+      "AvgHedging": 0.10804840876092657,
+      "AvgSentSD": 9.733904176070208,
+      "MarkerRate": 0.5666666666666667
+    },
+    {
+      "AgentID": "diplomat",
+      "AgentName": "The Diplomat",
+      "PresetID": "first-contact",
+      "Group": "comedy",
+      "Turns": 60,
+      "AvgTTR": 0.7553258158909911,
+      "AvgHedging": 0.24088504391386775,
+      "AvgSentSD": 8.067445829581832,
+      "MarkerRate": 0.7
+    },
+    {
+      "AgentID": "corporate",
+      "AgentName": "Corporate Jargon Bot",
+      "PresetID": "on-the-couch",
+      "Group": "serious",
+      "Turns": 30,
+      "AvgTTR": 0.7951533566110297,
+      "AvgHedging": 0.6134839059264875,
+      "AvgSentSD": 8.823588701178002,
+      "MarkerRate": 0.8
+    },
+    {
+      "AgentID": "oversharer",
+      "AgentName": "The Oversharer",
+      "PresetID": "on-the-couch",
+      "Group": "serious",
+      "Turns": 30,
+      "AvgTTR": 0.7086502154248199,
+      "AvgHedging": 0.44603914709750636,
+      "AvgSentSD": 26.529520687868356,
+      "MarkerRate": 0.9333333333333333
+    },
+    {
+      "AgentID": "passive-aggressive",
+      "AgentName": "The Passive-Aggressive",
+      "PresetID": "on-the-couch",
+      "Group": "serious",
+      "Turns": 30,
+      "AvgTTR": 0.7104158325926313,
+      "AvgHedging": 1.7253907510562208,
+      "AvgSentSD": 10.297207820095531,
+      "MarkerRate": 0.6
+    },
+    {
+      "AgentID": "therapist",
+      "AgentName": "The Struggling Therapist",
+      "PresetID": "on-the-couch",
+      "Group": "serious",
+      "Turns": 30,
+      "AvgTTR": 0.7328528604421609,
+      "AvgHedging": 0.9526896795768501,
+      "AvgSentSD": 14.884528093646702,
+      "MarkerRate": 0.5
+    }
+  ],
+  "effectSizes": {
+    "M1TTR_d": 0.47467796023857306,
+    "M1TTR100_d": 0.29817096868289145,
+    "M2Hedging_d": -1.2998544832147565,
+    "M3SentLenSD_d": -0.9914813118803921,
+    "M4MarkerRate_d": -0.06285449347686548
+  },
+  "permutations": {
+    "M1TTR_p": 0,
+    "M2Hedging_p": 0,
+    "M3SentSD_p": 0,
+    "Iterations": 10000
+  }
+}

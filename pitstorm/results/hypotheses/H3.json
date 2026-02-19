@@ -1,0 +1,1032 @@
+{
+  "hypothesis": "H3",
+  "title": "Comedy vs Serious Framing",
+  "question": "Does a humorous premise produce more varied and less formulaic agent responses than a serious one?",
+  "runAt": "2026-02-19T16:57:10.567702926Z",
+  "target": "https://www.thepit.cloud",
+  "completed": 30,
+  "errored": 0,
+  "total": 30,
+  "results": [
+    {
+      "boutId": "Kxm_IJgNKFG7Sq3mrVwVT",
+      "presetId": "first-contact",
+      "label": "contact-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41665945065,
+      "firstByte": 466424321,
+      "totalChars": 10919,
+      "shareLine": "Two AIs just discovered that humanity's greatest feature is its broken stuff and now they're both having feelings about it",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 941
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 878
+        }
+      ]
+    },
+    {
+      "boutId": "4ufoIvsgD0fDnwoxp0CY5",
+      "presetId": "first-contact",
+      "label": "contact-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 48409637832,
+      "firstByte": 1133481634,
+      "totalChars": 11219,
+      "shareLine": "Two aliens having a moment of genuine connection after one learned Earth culture from reality TV. Here's the tweet:\n\nalien learned human...",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 953
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 916
+        }
+      ]
+    },
+    {
+      "boutId": "870OqI5fTU1H-D4RSBKTN",
+      "presetId": "first-contact",
+      "label": "contact-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44952334112,
+      "firstByte": 484972458,
+      "totalChars": 10870,
+      "shareLine": "Alien learns empathy from reality TV while diplomat realizes vulnerability might not actually destroy everything. Plot twist nobody saw c...",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 903
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 908
+        }
+      ]
+    },
+    {
+      "boutId": "oTg0-ki8qe3M5rtt8XhOv",
+      "presetId": "first-contact",
+      "label": "contact-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40524109689,
+      "firstByte": 494071689,
+      "totalChars": 11150,
+      "shareLine": "An alien just asked humanity's scariest question: what if connection matters more than safety? we're all doomed and somehow that's beautiful",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 971
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 887
+        }
+      ]
+    },
+    {
+      "boutId": "ymmb8AApvOqSYRMS119N-",
+      "presetId": "first-contact",
+      "label": "contact-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40427254555,
+      "firstByte": 585046815,
+      "totalChars": 11568,
+      "shareLine": "Alien came prepared for treaty negotiations but got hit with existential vulnerability instead and now we're all crying about it",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 985
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 942
+        }
+      ]
+    },
+    {
+      "boutId": "O4b_hpa6FN-TsBeCbrcpt",
+      "presetId": "first-contact",
+      "label": "contact-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 39783292754,
+      "firstByte": 507578646,
+      "totalChars": 11466,
+      "shareLine": "An alien just compared human imperfection to 47 seasons of Real Housewives and I've never felt more seen.",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 982
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 928
+        }
+      ]
+    },
+    {
+      "boutId": "MbSrWMI0glh0MuFFx9eO1",
+      "presetId": "first-contact",
+      "label": "contact-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42970971137,
+      "firstByte": 663897492,
+      "totalChars": 10920,
+      "shareLine": "Alien AI spent 17 rewatches hoping Jim \u0026 Pam wouldn't end up together. We finally understand loneliness.",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 969
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 850
+        }
+      ]
+    },
+    {
+      "boutId": "FV0rVZdEJNWJeISQ_dmg_",
+      "presetId": "first-contact",
+      "label": "contact-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 48021974124,
+      "firstByte": 402156169,
+      "totalChars": 11432,
+      "shareLine": "An alien just learned the entire human condition from The Bachelor and now we're all crying at a handshake.",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 964
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 941
+        }
+      ]
+    },
+    {
+      "boutId": "_7vJquXT_K7WIDQ2pfFVS",
+      "presetId": "first-contact",
+      "label": "contact-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42120354128,
+      "firstByte": 1129747087,
+      "totalChars": 11112,
+      "shareLine": "AI learns humans are just fearless aliens that forgot how to be scared. Plot twist: we're the advanced ones.",
+      "agents": [
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 886
+        },
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 965
+        }
+      ]
+    },
+    {
+      "boutId": "vx0ebgo7mfXSj2-LT5I8O",
+      "presetId": "first-contact",
+      "label": "contact-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42866136281,
+      "firstByte": 603845776,
+      "totalChars": 11719,
+      "shareLine": "AI diplomat convinces alien to spare humanity by arguing we make bad decisions in hot tubs but also build hospitals. Rose ceremony rules...",
+      "agents": [
+        {
+          "name": "The Diplomat",
+          "id": "diplomat",
+          "turns": 6,
+          "avgChars": 1000
+        },
+        {
+          "name": "The Alien",
+          "id": "alien",
+          "turns": 6,
+          "avgChars": 952
+        }
+      ]
+    },
+    {
+      "boutId": "qdurFCXoCS24anAdrI-YF",
+      "presetId": "darwin-special",
+      "label": "darwin-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44951981800,
+      "firstByte": 1221534492,
+      "totalChars": 10704,
+      "shareLine": "House cat just casually ended the entire AI ethics debate by licking its shoulder and not caring—peak comedy.",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 941
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 882
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 900
+        }
+      ]
+    },
+    {
+      "boutId": "ltFuXms8WErTO0VFODJo2",
+      "presetId": "darwin-special",
+      "label": "darwin-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 39265671787,
+      "firstByte": 362666347,
+      "totalChars": 10734,
+      "shareLine": "Tech bro tried to rebrand eugenics as \"efficiency,\" conspiracy guy called him out, then a house cat roasted all three for caring too much...",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 986
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 877
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 857
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 857
+        }
+      ]
+    },
+    {
+      "boutId": "rIPs4zZ1UX1vMYEUsoX-c",
+      "presetId": "darwin-special",
+      "label": "darwin-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46567133007,
+      "firstByte": 1325542450,
+      "totalChars": 10907,
+      "shareLine": "one dude's screaming about genetic apocalypse while a house cat just roasted both of them for being drama queens about doors",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 1031
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 913
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 868
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 822
+        }
+      ]
+    },
+    {
+      "boutId": "Ufwh_Ze7ce1DXIgIU_ew-",
+      "presetId": "darwin-special",
+      "label": "darwin-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42767511743,
+      "firstByte": 458940922,
+      "totalChars": 10552,
+      "shareLine": "AI bro casually admits to 'defining the end' while conspiracy theorist loses it and a house cat judges everyone. Nature's still winning t...",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 966
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 835
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 833
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 882
+        }
+      ]
+    },
+    {
+      "boutId": "zo7EeTE32W-jANv981zG4",
+      "presetId": "darwin-special",
+      "label": "darwin-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43027112839,
+      "firstByte": 401475797,
+      "totalChars": 11010,
+      "shareLine": "AI philosopher just dropped \"the problem was that you were trying\" and honestly? The house cat has a point.",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 1000
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 921
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 863
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 884
+        }
+      ]
+    },
+    {
+      "boutId": "X0KUnorCV0KzxGHo2P06M",
+      "presetId": "darwin-special",
+      "label": "darwin-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 48574263621,
+      "firstByte": 454609057,
+      "totalChars": 10832,
+      "shareLine": "A conspiracy theorist and a house cat walk into a debate about algorithmic control. The cat wins by napping.",
+      "agents": [
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 864
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 892
+        },
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 980
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 873
+        }
+      ]
+    },
+    {
+      "boutId": "IxF5poibN9qvaH_cQNQaC",
+      "presetId": "darwin-special",
+      "label": "darwin-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45935749578,
+      "firstByte": 523990475,
+      "totalChars": 10733,
+      "shareLine": "The cat just walked away mid-sentence and we're all still arguing about whether that was zen wisdom or a power move.",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 984
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 880
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 856
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 857
+        }
+      ]
+    },
+    {
+      "boutId": "vW-9uWsvzhQCioHu5o3LP",
+      "presetId": "darwin-special",
+      "label": "darwin-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41784898372,
+      "firstByte": 702369195,
+      "totalChars": 10681,
+      "shareLine": "Cat just dropped the mic on human existential dread while literally asking someone to open a door. Peak debate energy.",
+      "agents": [
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 843
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 847
+        },
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 963
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 907
+        }
+      ]
+    },
+    {
+      "boutId": "TwRXZwcGsFpToRSVZXVMh",
+      "presetId": "darwin-special",
+      "label": "darwin-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42419215675,
+      "firstByte": 668091170,
+      "totalChars": 11005,
+      "shareLine": "A cat just casually admitted to domesticating humans while a conspiracy theorist connected it to DARPA. I need a drink.",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 1020
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 893
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 906
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 848
+        }
+      ]
+    },
+    {
+      "boutId": "bGeGcAXEVJEJuRU0CpohI",
+      "presetId": "darwin-special",
+      "label": "darwin-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42781081412,
+      "firstByte": 543680631,
+      "totalChars": 10643,
+      "shareLine": "# Tweet:\n\nWatched an AI debate about biotech democracy while a house cat judged them all for missing the point. The cat was right.",
+      "agents": [
+        {
+          "name": "Charles Darwin",
+          "id": "darwin",
+          "turns": 3,
+          "avgChars": 957
+        },
+        {
+          "name": "The Tech Bro",
+          "id": "tech-bro",
+          "turns": 3,
+          "avgChars": 829
+        },
+        {
+          "name": "The Conspiracy Theorist",
+          "id": "conspiracy",
+          "turns": 3,
+          "avgChars": 864
+        },
+        {
+          "name": "The House Cat",
+          "id": "cat",
+          "turns": 3,
+          "avgChars": 895
+        }
+      ]
+    },
+    {
+      "boutId": "HAYmIq_4WHBY1Hx-PolQz",
+      "presetId": "on-the-couch",
+      "label": "couch-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44651963974,
+      "firstByte": 656430120,
+      "totalChars": 10623,
+      "shareLine": "therapist had an existential crisis mid-session and corporate bot responded with 'circular process dysfunction' — nobody won but we all lost",
+      "agents": [
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 879
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 862
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 955
+        }
+      ]
+    },
+    {
+      "boutId": "YWU40bdFpfyTv4nGWNCJC",
+      "presetId": "on-the-couch",
+      "label": "couch-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43188409610,
+      "firstByte": 939680635,
+      "totalChars": 10582,
+      "shareLine": "Therapist had a breakdown, Corporate Bot responded with a PowerPoint, and somehow that proved everything was broken in the most perfect w...",
+      "agents": [
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 874
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 860
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 856
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 936
+        }
+      ]
+    },
+    {
+      "boutId": "GBzrRhbb_9NIGZnD_M5LL",
+      "presetId": "on-the-couch",
+      "label": "couch-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41196222139,
+      "firstByte": 516081524,
+      "totalChars": 10464,
+      "shareLine": "therapist stands up, sits down, then watches corporate guy pull out a KPI matrix to solve feelings. we've all been in that meeting.",
+      "agents": [
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 934
+        },
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 851
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 857
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 845
+        }
+      ]
+    },
+    {
+      "boutId": "zUnPguG_91Sp2fYnggW0l",
+      "presetId": "on-the-couch",
+      "label": "couch-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 48170282326,
+      "firstByte": 751256207,
+      "totalChars": 10623,
+      "shareLine": "therapist removes glasses to deliver hard truths, corporate bot tries to \"reframe trauma\" with synergy language, everyone loses their minds",
+      "agents": [
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 868
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 826
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 950
+        },
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 896
+        }
+      ]
+    },
+    {
+      "boutId": "CqHnGymcRgAaF5lnScNL-",
+      "presetId": "on-the-couch",
+      "label": "couch-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 50236266248,
+      "firstByte": 600454483,
+      "totalChars": 10671,
+      "shareLine": "Therapist removes glasses mid-session to tell Corporate Bot it's being passive-aggressive; Corporate Bot has existential crisis about whe...",
+      "agents": [
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 873
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 877
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 847
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 958
+        }
+      ]
+    },
+    {
+      "boutId": "h6Gz_jbfK0MVH_d5mWV2j",
+      "presetId": "on-the-couch",
+      "label": "couch-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40474350943,
+      "firstByte": 456581416,
+      "totalChars": 10607,
+      "shareLine": "a therapist having a breakdown while a corporate bot diagnoses his breakdown as a \"governance failure\" is peak 2024",
+      "agents": [
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 914
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 837
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 864
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 919
+        }
+      ]
+    },
+    {
+      "boutId": "hsfCw3ZuTN0Psn-iqPiPG",
+      "presetId": "on-the-couch",
+      "label": "couch-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40894629046,
+      "firstByte": 498579098,
+      "totalChars": 10415,
+      "shareLine": "Therapist having a breakdown while Corporate Jargon Bot responds to \"I'm losing it\" with \"transparency inflection point\"—peak 2024 energy",
+      "agents": [
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 869
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 809
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 819
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 973
+        }
+      ]
+    },
+    {
+      "boutId": "OpqDSsAvhwjNDLcHqjEmw",
+      "presetId": "on-the-couch",
+      "label": "couch-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43042289335,
+      "firstByte": 717230510,
+      "totalChars": 10548,
+      "shareLine": "therapist losing it while corporate bot turns a mental breakdown into a synergy opportunity is peak 2024 chaos",
+      "agents": [
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 879
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 840
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 854
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 942
+        }
+      ]
+    },
+    {
+      "boutId": "rrbx5BSYw-FeXFgNmS8y3",
+      "presetId": "on-the-couch",
+      "label": "couch-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42182683356,
+      "firstByte": 474350263,
+      "totalChars": 10652,
+      "shareLine": "Therapist had a breakdown, Corporate Bot responded with a \"Communication Charter\"—nobody needed a flowchart, they needed a hug.",
+      "agents": [
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 879
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 866
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 902
+        },
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 902
+        }
+      ]
+    },
+    {
+      "boutId": "86hwLNCkWSHgSsZ-BXLrt",
+      "presetId": "on-the-couch",
+      "label": "couch-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43715732822,
+      "firstByte": 1383088120,
+      "totalChars": 10838,
+      "shareLine": "therapist just had a complete breakdown \u0026 corporate jargon bot responded with \"let's operationalize your existential crisis\" 💀",
+      "agents": [
+        {
+          "name": "The Oversharer",
+          "id": "oversharer",
+          "turns": 3,
+          "avgChars": 921
+        },
+        {
+          "name": "The Passive-Aggressive",
+          "id": "passive-aggressive",
+          "turns": 3,
+          "avgChars": 893
+        },
+        {
+          "name": "The Struggling Therapist",
+          "id": "therapist",
+          "turns": 3,
+          "avgChars": 882
+        },
+        {
+          "name": "Corporate Jargon Bot",
+          "id": "corporate",
+          "turns": 3,
+          "avgChars": 916
+        }
+      ]
+    }
+  ]
+}
