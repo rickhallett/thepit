@@ -125,7 +125,7 @@ function PostHogIdentify() {
   const ph = usePostHog();
 
   useEffect(() => {
-    if (!ph) return;
+    if (!ph || !posthog.__loaded) return;
     if (isSignedIn && userId) {
       // Detect internal team members by email domain (OCE-282).
       // Sets is_internal person property for dashboard filtering.
@@ -151,7 +151,7 @@ function PostHogPageView() {
   const ph = usePostHog();
 
   useEffect(() => {
-    if (!pathname || !ph) return;
+    if (!pathname || !ph || !posthog.__loaded) return;
     const url = `${window.origin}${pathname}${searchParams?.toString() ? `?${searchParams.toString()}` : ''}`;
     ph.capture('$pageview', { $current_url: url });
   }, [pathname, searchParams, ph]);
@@ -172,8 +172,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   // rendered a bare fragment for users without consent.
   //
   // The PHProvider context is inert until posthog.__loaded is true.
-  // Actual tracking is already gated behind initPostHog() which runs
-  // in useEffect (client-only) and checks consent before initializing.
+  // Actual tracking is gated behind initPostHog() (client-only, checks
+  // consent) and both PostHogIdentify and PostHogPageView guard on
+  // posthog.__loaded to prevent pre-consent event queuing.
   if (!POSTHOG_KEY) {
     return <>{children}</>;
   }
