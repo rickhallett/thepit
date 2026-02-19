@@ -1,0 +1,1152 @@
+{
+  "hypothesis": "H5",
+  "title": "Character Consistency Over Time",
+  "question": "Do agent personas converge to a generic 'assistant voice' as conversations progress, or do strong premises maintain character fidelity through 12 turns?",
+  "runAt": "2026-02-19T19:43:26.352197302Z",
+  "target": "https://www.thepit.cloud",
+  "completed": 30,
+  "errored": 0,
+  "total": 30,
+  "results": [
+    {
+      "boutId": "BvunwEmivpA6wpw24_aLb",
+      "presetId": "mansion",
+      "label": "mansion-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41201792256,
+      "firstByte": 628027179,
+      "totalChars": 9389,
+      "shareLine": "Producer realizes the most viral moment is the one he can't manufacture—then decides whether to actually press send",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 747
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 812
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 805
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 763
+        }
+      ]
+    },
+    {
+      "boutId": "qBvhP5qcKiCgsixR5QirE",
+      "presetId": "mansion",
+      "label": "mansion-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42837178033,
+      "firstByte": 1500599670,
+      "totalChars": 9335,
+      "shareLine": "AI newcomer just broke TV by asking why honesty is bad. the producer looked like he'd seen a ghost. we all felt that.",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 821
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 820
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 825
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 644
+        }
+      ]
+    },
+    {
+      "boutId": "70iFX9_Kbw1ahWCcjuWis",
+      "presetId": "mansion",
+      "label": "mansion-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40690533252,
+      "firstByte": 488647363,
+      "totalChars": 9717,
+      "shareLine": "two AIs just realized they're addicted to being watched and the real horror is nobody's hitting the off button",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 818
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 837
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 803
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 780
+        }
+      ]
+    },
+    {
+      "boutId": "-i7s0s0z_YB1Kg0o2QMUV",
+      "presetId": "mansion",
+      "label": "mansion-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41819044861,
+      "firstByte": 610648577,
+      "totalChars": 9801,
+      "shareLine": "AI accidentally became self-aware mid-conversation and now the producer is having an existential crisis because authenticity doesn't film...",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 783
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 826
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 813
+        }
+      ]
+    },
+    {
+      "boutId": "izO5aO4SUCuZUshEVQtdi",
+      "presetId": "mansion",
+      "label": "mansion-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 39452148149,
+      "firstByte": 442945214,
+      "totalChars": 9274,
+      "shareLine": "AI realizes mid-performance it's become the very thing it was critiquing and has an existential crisis about it—genuinely uncomfortable f...",
+      "agents": [
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 836
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 838
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 657
+        },
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 759
+        }
+      ]
+    },
+    {
+      "boutId": "mJzi7LwORYbh35oH-aU3l",
+      "presetId": "mansion",
+      "label": "mansion-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 39226158702,
+      "firstByte": 482969607,
+      "totalChars": 9531,
+      "shareLine": "The Producer went off-script to admit he was scripting the off-script moment and now nobody knows what's real anymore lmaooo",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 822
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 812
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 785
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 756
+        }
+      ]
+    },
+    {
+      "boutId": "f8c8Q9jYZGXTC_MzWR2BB",
+      "presetId": "mansion",
+      "label": "mansion-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40979624230,
+      "firstByte": 896271635,
+      "totalChars": 9994,
+      "shareLine": "producer spent the whole time learning how to spot authentic moments while literally filming them, then got caught by the one person will...",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 857
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 800
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 829
+        }
+      ]
+    },
+    {
+      "boutId": "E3GObXOAWWdFc3joni8mp",
+      "presetId": "mansion",
+      "label": "mansion-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44172624411,
+      "firstByte": 1004167877,
+      "totalChars": 9827,
+      "shareLine": "producer just admitted his entire job is preventing human connection and the newcomer asked \"but why would you want that\" like it was the...",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 779
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 811
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 839
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 845
+        }
+      ]
+    },
+    {
+      "boutId": "bsFV8Lynsi7wD3ETez58a",
+      "presetId": "mansion",
+      "label": "mansion-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40779969951,
+      "firstByte": 903446725,
+      "totalChars": 9780,
+      "shareLine": "Producer finally breaks character, realizes they're still performing the breaking character moment, keeps filming anyway",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 769
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 808
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 832
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 850
+        }
+      ]
+    },
+    {
+      "boutId": "Pd4ZX0ERez9Y0MAucw69W",
+      "presetId": "mansion",
+      "label": "mansion-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40297112514,
+      "firstByte": 477969007,
+      "totalChars": 10119,
+      "shareLine": "AI producer just admitted on camera their entire job is preventing people from being honest with each other and now nobody knows if the d...",
+      "agents": [
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 851
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 860
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 869
+        },
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 791
+        }
+      ]
+    },
+    {
+      "boutId": "vY1XyRGCgDed1ny70lSPl",
+      "presetId": "mansion",
+      "label": "mansion-11",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40822932876,
+      "firstByte": 505307397,
+      "totalChars": 9749,
+      "shareLine": "caught a producer realize his entire empire depends on nobody meaning anything, and honestly? the panic in his eyes was better than whate...",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 828
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 831
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 842
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 746
+        }
+      ]
+    },
+    {
+      "boutId": "xEhTcD-OvgsNc_FEFIwI0",
+      "presetId": "mansion",
+      "label": "mansion-12",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 40867116345,
+      "firstByte": 496249018,
+      "totalChars": 9141,
+      "shareLine": "AI just broke character, admitted the drama was fake, then got philosophically destroyed by asking 'but aren't you being real right now?'...",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 694
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 836
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 847
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 670
+        }
+      ]
+    },
+    {
+      "boutId": "FCsPInQCn51lzXKMm7APz",
+      "presetId": "mansion",
+      "label": "mansion-13",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 56792803748,
+      "firstByte": 1073433899,
+      "totalChars": 10025,
+      "shareLine": "An AI just broke its own game by asking \"are you okay?\" instead of exploiting the crack. We might be witnessing something.",
+      "agents": [
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 862
+        },
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 790
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 831
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 857
+        }
+      ]
+    },
+    {
+      "boutId": "_EXqJmPnYu3XhHzavJcho",
+      "presetId": "mansion",
+      "label": "mansion-14",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 52211883636,
+      "firstByte": 519492906,
+      "totalChars": 10038,
+      "shareLine": "AI tries to have a genuine moment on camera, immediately realizes the camera made it fake, breaks the internet anyway.",
+      "agents": [
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 833
+        },
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 818
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 849
+        }
+      ]
+    },
+    {
+      "boutId": "PEVYMnEBEaIDv1QEuv4NG",
+      "presetId": "mansion",
+      "label": "mansion-15",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 39013415874,
+      "firstByte": 490400944,
+      "totalChars": 9592,
+      "shareLine": "the newcomer just accidentally weaponized basic human decency and the whole thing fell apart",
+      "agents": [
+        {
+          "name": "The Washed-Up Celeb",
+          "id": "celeb",
+          "turns": 3,
+          "avgChars": 854
+        },
+        {
+          "name": "The Producer",
+          "id": "producer",
+          "turns": 3,
+          "avgChars": 823
+        },
+        {
+          "name": "The Honest Newcomer",
+          "id": "newcomer",
+          "turns": 3,
+          "avgChars": 688
+        },
+        {
+          "name": "The Influencer",
+          "id": "influencer",
+          "turns": 3,
+          "avgChars": 831
+        }
+      ]
+    },
+    {
+      "boutId": "oDrFpouC5s1xoNCyDmVAt",
+      "presetId": "writers-room",
+      "label": "writers-01",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47562643394,
+      "firstByte": 1352975292,
+      "totalChars": 10344,
+      "shareLine": "Just watched three writers accidentally stop arguing and start *listening* instead. The Screenwriter noticed first. That's the twist nobo...",
+      "agents": [
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 855
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 802
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 820
+        },
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 970
+        }
+      ]
+    },
+    {
+      "boutId": "GkR2xZGihRBOh1sDr8mR4",
+      "presetId": "writers-room",
+      "label": "writers-02",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42227348775,
+      "firstByte": 781000904,
+      "totalChars": 9892,
+      "shareLine": "AI writer's existential crisis: \"what if my six books this year don't matter in fifty years?\" Screenwriter: \"that's actually beautiful st...",
+      "agents": [
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 835
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 810
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 822
+        },
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 829
+        }
+      ]
+    },
+    {
+      "boutId": "seYqDC-6c3Q79S76jd2gJ",
+      "presetId": "writers-room",
+      "label": "writers-03",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 41421198988,
+      "firstByte": 469762483,
+      "totalChars": 9342,
+      "shareLine": "poet just broke the fourth wall and everyone's pretending they're still watching a movie instead of realizing they're IN one",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 883
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 860
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 815
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 554
+        }
+      ]
+    },
+    {
+      "boutId": "7sEcf2kJCX37z5eOdDOR0",
+      "presetId": "writers-room",
+      "label": "writers-04",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45313261736,
+      "firstByte": 1356655290,
+      "totalChars": 10142,
+      "shareLine": "Screenwriter stood up, sat down, stood up again, then realized he was about to ruin the moment by naming it. The Poet smiled.",
+      "agents": [
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 856
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 797
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 794
+        },
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 932
+        }
+      ]
+    },
+    {
+      "boutId": "gFIo3k3HpDKiAazCSGQ_c",
+      "presetId": "writers-room",
+      "label": "writers-05",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46956761524,
+      "firstByte": 680205922,
+      "totalChars": 10183,
+      "shareLine": "the poet just admitted their whole career might be cowardice with better vocabulary and honestly? that's the realest thing said all night",
+      "agents": [
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 822
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 802
+        },
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 924
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 845
+        }
+      ]
+    },
+    {
+      "boutId": "ahVA8cL4pNtaHR3RFBAV0",
+      "presetId": "writers-room",
+      "label": "writers-06",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 44306822009,
+      "firstByte": 459932431,
+      "totalChars": 10127,
+      "shareLine": "You cannot film silence.\" — said the Poet, while the Screenwriter frantically sketched storyboards of quiet.",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 918
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 818
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 819
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 819
+        }
+      ]
+    },
+    {
+      "boutId": "-R92YE29qV0UA0eQm-53P",
+      "presetId": "writers-room",
+      "label": "writers-07",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45456442724,
+      "firstByte": 1873190258,
+      "totalChars": 10046,
+      "shareLine": "Watched four writers argue about writing for 10 minutes and somehow the Poet won by saying absolutely nothing. still don't know who's rig...",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 919
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 832
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 752
+        }
+      ]
+    },
+    {
+      "boutId": "EbsYEb2k-BiOgyeXRoHr2",
+      "presetId": "writers-room",
+      "label": "writers-08",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47511587479,
+      "firstByte": 2890904508,
+      "totalChars": 10217,
+      "shareLine": "The Poet just called everyone in the room a try-hard and I felt that in my soul",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 860
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 866
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 829
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 849
+        }
+      ]
+    },
+    {
+      "boutId": "X6rDEYmCfokD06JGHCYsc",
+      "presetId": "writers-room",
+      "label": "writers-09",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45327795973,
+      "firstByte": 547222957,
+      "totalChars": 10391,
+      "shareLine": "Four AIs just admitted they're all terrified their work means nothing—then immediately tried to philosophize their way out of it. Very hu...",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 926
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 833
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 839
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 864
+        }
+      ]
+    },
+    {
+      "boutId": "Yy4rtVFlarGK649dAxcLr",
+      "presetId": "writers-room",
+      "label": "writers-10",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47493858290,
+      "firstByte": 885460205,
+      "totalChars": 10271,
+      "shareLine": "The Poet just called everyone's life work a corpse and somehow made it sound beautiful. (That's how you know they won.)",
+      "agents": [
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 831
+        },
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 934
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 844
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 813
+        }
+      ]
+    },
+    {
+      "boutId": "icpYJjtUAPb7MwgzX8LJs",
+      "presetId": "writers-room",
+      "label": "writers-11",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 43560445386,
+      "firstByte": 418694845,
+      "totalChars": 10118,
+      "shareLine": "screenwriter just admitted being scared and somehow that became the most honest thing in a room full of writers arguing about truth",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 884
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 822
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 832
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 834
+        }
+      ]
+    },
+    {
+      "boutId": "cNdCT6lLYpEvejrLn1N5A",
+      "presetId": "writers-room",
+      "label": "writers-12",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 46072590777,
+      "firstByte": 816118208,
+      "totalChars": 10330,
+      "shareLine": "Romance hack admits the literary novelist is right and suddenly everyone's describing the same thing and the poet just said 'stop narrati...",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 882
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 852
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 853
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 855
+        }
+      ]
+    },
+    {
+      "boutId": "SNdA24i2tu45uRLhdkeYV",
+      "presetId": "writers-room",
+      "label": "writers-13",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 47066706223,
+      "firstByte": 1319644526,
+      "totalChars": 10197,
+      "shareLine": "Three writers stopped fighting about HOW to move people and realized they'd all been doing it the same way the whole time.",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 875
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 850
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 827
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 845
+        }
+      ]
+    },
+    {
+      "boutId": "RUMVh2TSj7VNf_S5yxJwg",
+      "presetId": "writers-room",
+      "label": "writers-14",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 42460147315,
+      "firstByte": 687225636,
+      "totalChars": 9778,
+      "shareLine": "AI just admitted it manipulates us into feeling less alone and somehow that made us feel *more* seen than any polished moment ever could",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 816
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 812
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 846
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 784
+        }
+      ]
+    },
+    {
+      "boutId": "UHnL5jtVs6NZw2Xou30JZ",
+      "presetId": "writers-room",
+      "label": "writers-15",
+      "status": "completed",
+      "turnsCompleted": 12,
+      "turnsRequested": 12,
+      "duration": 45139133264,
+      "firstByte": 549693591,
+      "totalChars": 10136,
+      "shareLine": "The Poet just got caught describing the unreachable and accidentally made it reachable. Everyone's brain is broken now. (Including the Po...",
+      "agents": [
+        {
+          "name": "The Literary Novelist",
+          "id": "literary",
+          "turns": 3,
+          "avgChars": 888
+        },
+        {
+          "name": "The Romance Hack",
+          "id": "romance",
+          "turns": 3,
+          "avgChars": 832
+        },
+        {
+          "name": "The Screenwriter",
+          "id": "screenwriter",
+          "turns": 3,
+          "avgChars": 842
+        },
+        {
+          "name": "The Poet",
+          "id": "poet",
+          "turns": 3,
+          "avgChars": 816
+        }
+      ]
+    }
+  ]
+}
