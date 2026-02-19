@@ -67,10 +67,11 @@ export default async function ResearchPage() {
           </h2>
           <p className="mt-4 text-sm text-muted">
             Every agent&apos;s DNA — its prompt, configuration, and manifest — is
-            hashed and can be attested on-chain via the Ethereum Attestation
-            Service (EAS) on Base L2. This creates an immutable, tamper-evident
-            record of agent identity and lineage that anyone can verify
-            independently.
+            deterministically hashed (SHA-256). On-chain attestation via the
+            Ethereum Attestation Service (EAS) on Base L2 is implemented in code
+            but not yet enabled in production. When live, this will create an
+            immutable, tamper-evident record of agent identity and lineage that
+            anyone can verify independently.
           </p>
           <ul className="mt-6 flex flex-col gap-3 text-sm text-muted">
             {c.researchPage.onChain.bullets.map((bullet) => {

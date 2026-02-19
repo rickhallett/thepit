@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 
 import { BuilderShowcase } from '@/components/builder-showcase';
-import { DarwinCountdown } from '@/components/darwin-countdown';
+
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
 import { NewsletterSignup } from '@/components/newsletter-signup';
 import { SITE_DESCRIPTION } from '@/lib/brand';
@@ -234,11 +234,6 @@ export default async function LandingPage() {
             </p>
           </div>
         </div>
-      </section>
-
-      {/* ── Countdown ─────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-5xl px-6 py-20">
-        <DarwinCountdown />
       </section>
 
       {/* ── Newsletter ────────────────────────────────────────────── */}
