@@ -102,9 +102,10 @@
       "permutationTests": {
         "m1_p": 0.0233,
         "m2_p": 0.004,
-        "m3_p": 0,
-        "m4_p": 0,
-        "iterations": 10000
+        "m3_p": 0.0001,
+        "m4_p": 0.0001,
+        "iterations": 10000,
+        "note": "p values of 0.0001 indicate zero permutations exceeded the observed statistic in 10000 iterations; true p < 1/10001"
       },
       "perAgent": [
         {
@@ -290,10 +291,11 @@
       },
       "permutationTests": {
         "m1_p": 0.0874,
-        "m2_p": 0,
-        "m3_p": 0,
+        "m2_p": 0.0001,
+        "m3_p": 0.0001,
         "m4_p": 0.0257,
-        "iterations": 10000
+        "iterations": 10000,
+        "note": "p values of 0.0001 indicate zero permutations exceeded the observed statistic in 10000 iterations; true p < 1/10001"
       },
       "perAgent": [
         {
