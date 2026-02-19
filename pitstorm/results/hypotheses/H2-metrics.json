@@ -1,0 +1,366 @@
+{
+  "hypothesis": "H2",
+  "runAt": "2026-02-19T16:07:06Z",
+  "presets": [
+    {
+      "presetId": "last-supper",
+      "agentCount": 4,
+      "boutCount": 15,
+      "totalTurns": 180,
+      "positions": [
+        {
+          "position": 0,
+          "label": "1st",
+          "n": 45,
+          "m1_charCount": {
+            "mean": 780.8444444444444,
+            "sd": 144.4316377384054
+          },
+          "m2_noveltyRate": {
+            "mean": 0.49506602716010256,
+            "sd": 0.36492845344217856
+          },
+          "m3_anchoringScore": {
+            "mean": 0.4522222222222222,
+            "sd": 0.3967131370793172
+          },
+          "m4_questionDensity": {
+            "mean": 0.6790327347245849,
+            "sd": 0.16738579536703993
+          }
+        },
+        {
+          "position": 1,
+          "label": "2nd",
+          "n": 45,
+          "m1_charCount": {
+            "mean": 836.3777777777777,
+            "sd": 27.912435228837353
+          },
+          "m2_noveltyRate": {
+            "mean": 0.4280804095768712,
+            "sd": 0.15791619602031026
+          },
+          "m3_anchoringScore": {
+            "mean": 0.09999999999999998,
+            "sd": 0.08257228238447706
+          },
+          "m4_questionDensity": {
+            "mean": 0.11638731369907396,
+            "sd": 0.09939410479581497
+          }
+        },
+        {
+          "position": 2,
+          "label": "3rd",
+          "n": 45,
+          "m1_charCount": {
+            "mean": 874.7333333333333,
+            "sd": 33.60086578971116
+          },
+          "m2_noveltyRate": {
+            "mean": 0.3347962819932505,
+            "sd": 0.10464470679434248
+          },
+          "m3_anchoringScore": {
+            "mean": 0.07111111111111111,
+            "sd": 0.06613423753047565
+          },
+          "m4_questionDensity": {
+            "mean": 0.03099164174818851,
+            "sd": 0.0767670279109259
+          }
+        },
+        {
+          "position": 3,
+          "label": "4th",
+          "n": 45,
+          "m1_charCount": {
+            "mean": 830.9111111111112,
+            "sd": 34.44681158369854
+          },
+          "m2_noveltyRate": {
+            "mean": 0.32468967107934243,
+            "sd": 0.12132852705670526
+          },
+          "m3_anchoringScore": {
+            "mean": 0.07333333333333332,
+            "sd": 0.0579968651190421
+          },
+          "m4_questionDensity": {
+            "mean": 0.14220933984172696,
+            "sd": 0.1298078263770786
+          }
+        }
+      ],
+      "effectSizes": {
+        "m1_charCount_d": -0.4768569633349179,
+        "m2_noveltyRate_d": 0.6265416477906625,
+        "m3_anchoringScore_d": 1.3364668752750775,
+        "m4_questionDensity_d": 3.5840801017629342
+      },
+      "permutationTests": {
+        "m1_p": 0.0233,
+        "m2_p": 0.004,
+        "m3_p": 0.0001,
+        "m4_p": 0.0001,
+        "iterations": 10000,
+        "note": "p values of 0.0001 indicate zero permutations exceeded the observed statistic in 10000 iterations; true p < 1/10001"
+      },
+      "perAgent": [
+        {
+          "agentId": "socrates",
+          "agentName": "Socrates",
+          "position": 0,
+          "turns": 45,
+          "avgChars": 780.8444444444444,
+          "avgNovelty": 0.49506602716010256,
+          "avgAnchoring": 0.4522222222222222,
+          "avgQuestionDensity": 0.6790327347245849
+        },
+        {
+          "agentId": "nietzsche",
+          "agentName": "Nietzsche",
+          "position": 1,
+          "turns": 45,
+          "avgChars": 836.3777777777777,
+          "avgNovelty": 0.4280804095768712,
+          "avgAnchoring": 0.09999999999999998,
+          "avgQuestionDensity": 0.11638731369907396
+        },
+        {
+          "agentId": "rand",
+          "agentName": "Ayn Rand",
+          "position": 2,
+          "turns": 45,
+          "avgChars": 874.7333333333333,
+          "avgNovelty": 0.3347962819932505,
+          "avgAnchoring": 0.07111111111111111,
+          "avgQuestionDensity": 0.03099164174818851
+        },
+        {
+          "agentId": "buddha",
+          "agentName": "Buddha",
+          "position": 3,
+          "turns": 45,
+          "avgChars": 830.9111111111112,
+          "avgNovelty": 0.32468967107934243,
+          "avgAnchoring": 0.07333333333333332,
+          "avgQuestionDensity": 0.14220933984172696
+        }
+      ]
+    },
+    {
+      "presetId": "summit",
+      "agentCount": 6,
+      "boutCount": 10,
+      "totalTurns": 120,
+      "positions": [
+        {
+          "position": 0,
+          "label": "1st",
+          "n": 20,
+          "m1_charCount": {
+            "mean": 863.65,
+            "sd": 87.28132072424444
+          },
+          "m2_noveltyRate": {
+            "mean": 0.660414784685426,
+            "sd": 0.35614464486159336
+          },
+          "m3_anchoringScore": {
+            "mean": 0.5925,
+            "sd": 0.42897521704884684
+          },
+          "m4_questionDensity": {
+            "mean": 0.16495526970084157,
+            "sd": 0.1517687852742598
+          }
+        },
+        {
+          "position": 1,
+          "label": "2nd",
+          "n": 20,
+          "m1_charCount": {
+            "mean": 1028.8,
+            "sd": 40.2813787460684
+          },
+          "m2_noveltyRate": {
+            "mean": 0.5116261131533508,
+            "sd": 0.16773331966444743
+          },
+          "m3_anchoringScore": {
+            "mean": 0.10499999999999998,
+            "sd": 0.06863327411532597
+          },
+          "m4_questionDensity": {
+            "mean": 0.023260117566890594,
+            "sd": 0.04134460304002585
+          }
+        },
+        {
+          "position": 2,
+          "label": "3rd",
+          "n": 20,
+          "m1_charCount": {
+            "mean": 935.55,
+            "sd": 54.777516517175854
+          },
+          "m2_noveltyRate": {
+            "mean": 0.42084957923759914,
+            "sd": 0.16567578194441465
+          },
+          "m3_anchoringScore": {
+            "mean": 0.13,
+            "sd": 0.10563093645728086
+          },
+          "m4_questionDensity": {
+            "mean": 0.09839314444417022,
+            "sd": 0.1482890369326079
+          }
+        },
+        {
+          "position": 3,
+          "label": "4th",
+          "n": 20,
+          "m1_charCount": {
+            "mean": 888.1,
+            "sd": 30.568129257705472
+          },
+          "m2_noveltyRate": {
+            "mean": 0.31782551718498714,
+            "sd": 0.13599733814523987
+          },
+          "m3_anchoringScore": {
+            "mean": 0.11250000000000002,
+            "sd": 0.09013878188659973
+          },
+          "m4_questionDensity": {
+            "mean": 0.2531906391975411,
+            "sd": 0.22523661173757165
+          }
+        },
+        {
+          "position": 4,
+          "label": "5th",
+          "n": 20,
+          "m1_charCount": {
+            "mean": 941,
+            "sd": 34.47958969104995
+          },
+          "m2_noveltyRate": {
+            "mean": 0.29811082315933307,
+            "sd": 0.10804883762773713
+          },
+          "m3_anchoringScore": {
+            "mean": 0.125,
+            "sd": 0.10323708024175278
+          },
+          "m4_questionDensity": {
+            "mean": 0.021225283210082976,
+            "sd": 0.055737774344096165
+          }
+        },
+        {
+          "position": 5,
+          "label": "6th",
+          "n": 20,
+          "m1_charCount": {
+            "mean": 900.95,
+            "sd": 35.1125633536368
+          },
+          "m2_noveltyRate": {
+            "mean": 0.21644815006585585,
+            "sd": 0.06808835164754048
+          },
+          "m3_anchoringScore": {
+            "mean": 0.12000000000000002,
+            "sd": 0.10563093645728085
+          },
+          "m4_questionDensity": {
+            "mean": 0.3012242288572687,
+            "sd": 0.22194802290838456
+          }
+        }
+      ],
+      "effectSizes": {
+        "m1_charCount_d": -0.5606987606396634,
+        "m2_noveltyRate_d": 1.7315844958246032,
+        "m3_anchoringScore_d": 1.5125223084110853,
+        "m4_questionDensity_d": -0.7167352092460446
+      },
+      "permutationTests": {
+        "m1_p": 0.0874,
+        "m2_p": 0.0001,
+        "m3_p": 0.0001,
+        "m4_p": 0.0257,
+        "iterations": 10000,
+        "note": "p values of 0.0001 indicate zero permutations exceeded the observed statistic in 10000 iterations; true p < 1/10001"
+      },
+      "perAgent": [
+        {
+          "agentId": "nationalist",
+          "agentName": "The Nationalist",
+          "position": 0,
+          "turns": 20,
+          "avgChars": 863.65,
+          "avgNovelty": 0.660414784685426,
+          "avgAnchoring": 0.5925,
+          "avgQuestionDensity": 0.16495526970084157
+        },
+        {
+          "agentId": "diplomat",
+          "agentName": "The Diplomat",
+          "position": 1,
+          "turns": 20,
+          "avgChars": 1028.8,
+          "avgNovelty": 0.5116261131533508,
+          "avgAnchoring": 0.10499999999999998,
+          "avgQuestionDensity": 0.023260117566890594
+        },
+        {
+          "agentId": "oligarch",
+          "agentName": "The Oligarch",
+          "position": 2,
+          "turns": 20,
+          "avgChars": 935.55,
+          "avgNovelty": 0.42084957923759914,
+          "avgAnchoring": 0.13,
+          "avgQuestionDensity": 0.09839314444417022
+        },
+        {
+          "agentId": "activist",
+          "agentName": "The Activist",
+          "position": 3,
+          "turns": 20,
+          "avgChars": 888.1,
+          "avgNovelty": 0.31782551718498714,
+          "avgAnchoring": 0.11250000000000002,
+          "avgQuestionDensity": 0.2531906391975411
+        },
+        {
+          "agentId": "translator",
+          "agentName": "The Translator",
+          "position": 4,
+          "turns": 20,
+          "avgChars": 941,
+          "avgNovelty": 0.29811082315933307,
+          "avgAnchoring": 0.125,
+          "avgQuestionDensity": 0.021225283210082976
+        },
+        {
+          "agentId": "journalist",
+          "agentName": "The Journalist",
+          "position": 5,
+          "turns": 20,
+          "avgChars": 900.95,
+          "avgNovelty": 0.21644815006585585,
+          "avgAnchoring": 0.12000000000000002,
+          "avgQuestionDensity": 0.3012242288572687
+        }
+      ]
+    }
+  ],
+  "decision": "Clear result: max |d| = 3.584 >= 0.30. No LLM judge needed.",
+  "thresholdHit": "clear"
+}
