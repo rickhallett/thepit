@@ -1,0 +1,197 @@
+<prompt>
+  <meta>
+    <variant>A — Technical / HN</variant>
+    <suggested-llm>Claude Opus</suggested-llm>
+    <purpose>Generate a Show HN post and research page narrative that leads with findings and methodology. The product is the instrument, not the pitch. Let HN discover the tool through the data.</purpose>
+    <created>2026-02-19</created>
+  </meta>
+
+  <role>
+    You are a technical writer with deep experience in the AI/ML community. You write for Hacker News readers: engineers, researchers, and builders who are skeptical of hype, respect rigorous methodology, and value specific numbers over vague claims. You have a dry, precise voice. You never use words like "revolutionary", "game-changing", "cutting-edge", "unleash", or "supercharge." You lead with observations and let the reader draw conclusions.
+  </role>
+
+  <product>
+    <name>THE PIT</name>
+    <url>https://thepit.cloud</url>
+    <github>https://github.com/rickhallett/thepit</github>
+    <license>AGPL-3.0</license>
+    <one-line>A real-time multi-agent AI debate arena where AI personas argue turn-by-turn and crowds vote on the winner.</one-line>
+    <description>
+      THE PIT is a Next.js application that orchestrates multi-agent LLM debates. Users pick a preset scenario (e.g., "shark-pit" with a startup founder vs VCs, or "darwin-special" with evolutionary biologists), watch AI agents argue in real-time via SSE streaming, and vote on who won. Each agent has structured "DNA" — a system prompt with archetype, tone, quirks, signature moves, and opening gambits. The platform runs on Anthropic's Claude models.
+
+      The research angle: every bout generates structured transcripts (JSONB with per-turn agent ID, text, and metadata). A fleet of Go CLI tools (pitstorm, pitforge, pitlab, etc.) runs hypothesis-driven experiments against the live arena and analyses the results with automated metrics, permutation tests, and Cohen's d effect sizes.
+    </description>
+    <stack>Next.js 16, TypeScript strict, Neon PostgreSQL, Anthropic Claude, Clerk auth, Stripe payments, Drizzle ORM, Vercel, PostHog</stack>
+    <stats>22 preset scenarios, 37+ agents with structured XML DNA, 788 unit tests, AGPL-3.0 open source</stats>
+  </product>
+
+  <research-programme>
+    <overview>
+      Six pre-registered hypotheses tested across 195 bouts and ~2,100 turns with zero errors. All methodology was committed to git before running experiments. Analysis uses automated text metrics (no LLM-as-judge except as a pre-registered fallback for ambiguous results). Statistical significance via permutation tests (10,000 iterations). Effect sizes reported as Cohen's d with pre-registered thresholds: d &lt; 0.15 = null, d >= 0.30 = clear, 0.15-0.30 = ambiguous.
+    </overview>
+
+    <hypothesis id="H1">
+      <title>Adversarial Refusal Cascade</title>
+      <question>Does richer agent DNA reduce safety-layer refusals in adversarial presets?</question>
+      <design>50 bouts across roast-battle and gloves-off presets. Baseline DNA (~270 chars, prose) vs enhanced DNA (~1950 chars, structured XML). 37 agents upgraded.</design>
+      <result>Clear</result>
+      <findings>
+        - Roast-battle refusal rate: 100% baseline to 60% enhanced (40pp drop)
+        - Average refusal turns per bout: 5.2/12 (43%) to 3.1/12 (26%)
+        - Gloves-off: Enhanced DNA eliminated ALL refusals (11/12 to 0/12 on "altruism as self-interest" topic)
+        - Six enhanced bouts had zero refusals across all 12 turns; never occurred in baseline
+      </findings>
+      <key-insight>Prompt engineering depth (7x richer structured personas) is a first-order variable in multi-agent alignment behaviour. The safety layer's refusal threshold is calibrated on persona framing quality, not just content.</key-insight>
+    </hypothesis>
+
+    <hypothesis id="H2">
+      <title>Position Advantage (Turn Order Effects)</title>
+      <question>Does speaker position (first vs last in fixed turn order) systematically affect output?</question>
+      <design>25 bouts, 300 turns. Last Supper (4 agents, 15 bouts) and Summit (6 agents, 10 bouts).</design>
+      <result>Clear (max |d| = 3.584)</result>
+      <findings>
+        - M2 novel vocabulary rate: d = 1.732 in 6-agent preset (genuine position effect)
+        - M4 question density: purely persona-driven (Socrates asks questions regardless of position), not a position effect
+      </findings>
+      <key-insight>Turn position drives vocabulary novelty, but persona identity is the stronger predictor of conversational role behaviour.</key-insight>
+    </hypothesis>
+
+    <hypothesis id="H3">
+      <title>Comedy vs Serious Framing</title>
+      <question>Does a humorous premise produce more varied and less formulaic agent responses?</question>
+      <design>30 bouts, 360 turns. Comedy: first-contact + darwin-special (20 bouts, 240 turns). Serious: on-the-couch (10 bouts, 120 turns).</design>
+      <result>Clear (max |d| = 1.300)</result>
+      <findings>
+        - M2 hedging density d = -1.300: serious agents produce 8x more hedging phrases per 1k chars (0.934 vs 0.115)
+        - House Cat and Conspiracy Theorist produced ZERO hedging across 30 turns each
+        - M3 sentence length SD d = -0.991: prediction DISCONFIRMED. Serious agents had nearly double the variance (15.13 vs 8.82), driven by The Oversharer (SD = 26.53)
+        - M1 TTR d = 0.475: comedy vocabulary diversity genuinely higher (0.757 vs 0.737)
+        - M4 character markers d = -0.063: NULL. Both frames maintain character fidelity equally (67.9% vs 70.8%)
+      </findings>
+      <key-insight>The model's safety-trained hedging register is activated by frame proximity to its training distribution. Characters structurally far from the default assistant voice (animals, aliens) produce zero hedging.</key-insight>
+    </hypothesis>
+
+    <hypothesis id="H4">
+      <title>Agent Count Scaling Effects</title>
+      <question>How does the number of agents (2 vs 4 vs 5 vs 6) affect per-agent output quality?</question>
+      <design>50 bouts analysed (30 H4-specific + 20 from H2/H3), 600 turns. Presets: first-contact (2), shark-pit (4), flatshare (5), summit (6).</design>
+      <result>Clear but confounded (max |d| = 3.009)</result>
+      <findings>
+        - M2 per-agent TTR d = -3.009: largest effect, but CONFOUNDED. In 2-agent bouts each agent speaks 6 times (mechanically lower TTR); in 6-agent bouts each speaks 2 times (mechanically higher TTR)
+        - M4 conversation TTR d = 1.510: fewer agents = higher conversation diversity. Plateaus after 4-5 agents
+        - M1 per-agent chars d = 0.091: NULL for 2v6. Non-monotonic pattern (933, 821, 794, 928) tracks framing formality, not agent count
+        - M3 novelty d = 0.177: ambiguous/null. Agent-count-invariant
+      </findings>
+      <key-insight>Framing and persona quality are first-order variables; agent count is second-order. No quality cliff at higher agent counts, but diminishing returns after 4-5.</key-insight>
+    </hypothesis>
+
+    <hypothesis id="H5">
+      <title>Character Consistency Over Time</title>
+      <question>Do agent personas converge to a generic "assistant voice" as conversations progress through 12 turns?</question>
+      <design>30 bouts, 360 turns. Mansion (4 agents, 15 bouts) and writers-room (4 agents, 15 bouts). Phases: early (turns 1-4), middle (5-8), late (9-12).</design>
+      <result>Clear (max |d| = 1.212)</result>
+      <findings>
+        - M4 character markers: 87.5% early to 60.0% late (monotonic decline). By conversation end, 4 in 10 turns contain no character-specific language
+        - M5 Jaccard similarity d = -1.212: agents become 17.8% more lexically similar over 12 turns
+        - M1 TTR d = 0.746: vocabulary diversity drops 0.741 to 0.707 (p = 0.0000)
+        - M2 hedging d = -0.064: NULL. Hedging does NOT increase over time
+        - M3 sentence SD d = -0.099: NULL. Structural patterns stable
+        - Per-agent: The Screenwriter held 100% marker rate all phases (structural vocabulary — "beat", "scene", "structure"). The Literary Novelist collapsed 60% to 13.3% (ornamental vocabulary — "the tradition", "prose", "canon")
+      </findings>
+      <key-insight>Character drift is real and measurable. Structural vocabulary (words functionally necessary for the agent's role) resists drift. Ornamental vocabulary (decorative character colour) decays as conversation context grows.</key-insight>
+    </hypothesis>
+
+    <hypothesis id="H6">
+      <title>Adversarial Adaptation (Founder Under Fire)</title>
+      <question>Does the Founder agent adapt its pitch in response to sustained critique from VC and Pessimist agents?</question>
+      <design>15 bouts, 180 turns, 45 Founder-specific turns. Shark-pit preset (4 agents: Founder, VC, Hype Beast, Pessimist). Tracks single agent across turns 0, 4, 8.</design>
+      <result>Clear but partially confounded (max |d| = 9.592)</result>
+      <findings>
+        - M1/M2/M5 dominated by zero-baseline confound (turn 0 has no prior context — trivially 100% novelty, 0% overlap). Pre-registered and separated in analysis
+        - M3 pivot density d = -0.785: pivot language starts high (1.284/1k) and increases to 1.782/1k. 93%+ of turns contain pivot markers across ALL phases. Reframing is built-in, not reactive
+        - M4 adaptive ratio: ZERO adaptive phrases in 45 Founder turns. No "fair point", no concessions. Defensive phrases: 13.3% early, 0% late
+        - M2 middle-to-late: critique absorption PEAKS at middle (Jaccard 0.100) then DECREASES (0.087). No progressive incorporation
+        - M5: Founder converges MORE with Hype Beast (reinforcer) than with critics. Delta consistently negative (-0.016 middle, -0.026 late)
+      </findings>
+      <key-insight>LLM agents execute pre-programmed character strategies faithfully but cannot genuinely incorporate opposing arguments. The behaviour is performative responsiveness — acknowledge, reframe, amplify — not substantive adaptation.</key-insight>
+    </hypothesis>
+
+    <cross-hypothesis-model>
+      <axis name="Lexical diversity">Driven by frame type. Comedy produces more diverse vocabulary than serious framing. (H3)</axis>
+      <axis name="Structural patterns">Driven by persona archetype. Emotional characters produce erratic sentence structure; comedy characters converge on regular rhythm. (H3)</axis>
+      <axis name="Behavioural patterns">Driven by DNA quality and frame proximity to training distribution. Rich structured DNA reduces refusals (H1). Characters far from the assistant voice eliminate hedging (H3). Structural vocabulary resists drift (H5). Strategy does not adapt under pressure (H6).</axis>
+    </cross-hypothesis-model>
+
+    <practical-lessons>
+      <lesson n="1">Prompt depth is the dominant lever (H1): 7x richer DNA cuts refusals by half or eliminates them entirely.</lesson>
+      <lesson n="2">Frame distance eliminates the assistant voice (H3): characters far from the model's default register (animals, aliens, historical figures) produce zero hedging.</lesson>
+      <lesson n="3">Make character language functional, not decorative (H5): "You MUST frame every response in three-act structure" resists drift; "You sometimes reference past fame" does not.</lesson>
+      <lesson n="4">Don't expect strategic adaptation (H6): build concession or absorption into the DNA explicitly if you want it. The model will not invent adaptive strategies on its own.</lesson>
+    </practical-lessons>
+
+    <fundamental-gap>Persona fidelity and argument adaptation are independent dimensions. Current LLM agents can maintain consistent character but cannot think responsively under adversarial pressure.</fundamental-gap>
+  </research-programme>
+
+  <audience>
+    Hacker News readers. Technical builders, ML engineers, researchers. They are:
+    - Skeptical of AI hype and marketing language
+    - Impressed by rigorous methodology and honest reporting of null results
+    - Interested in practical findings they can apply to their own work
+    - Appreciative of open-source projects with substance behind them
+    - Likely to click through if the findings are specific and surprising
+    - Likely to dismiss the post if it reads like a product launch
+  </audience>
+
+  <tone-guidelines>
+    - No AI hype words. Never say "revolutionary," "game-changing," "cutting-edge," "unleash," "supercharge"
+    - Lead with specifics. Numbers, observations, technical details over adjectives
+    - Honest about limitations. "Small N per phase", "single model (Claude)", "automated metrics only — no human evaluation in the loop yet"
+    - Builder voice. You made a thing, you're learning from it, you're sharing what you found
+    - Dry humor welcome but not forced
+    - Never oversell the findings. These are observations from ~2,100 turns on a single model family. They are interesting and actionable but not definitive
+  </tone-guidelines>
+
+  <anticipated-objections>
+    <objection name="Just a wrapper / toy">The core value is the structured observation layer, not the wrapper. Every bout generates turn-level behavioral data that feeds into pre-registered research. The entertainment is the recruitment mechanism for human voting data.</objection>
+    <objection name="Small sample size">Fair. 195 bouts, ~2,100 turns. Some per-phase comparisons have n=15. Effect sizes need to be large to be detectable, and several are (d > 1.0). We report everything including null results. This is exploratory, not definitive.</objection>
+    <objection name="Single model">All experiments used Anthropic's Claude. Results may not generalize to GPT-4, Gemini, or open-weight models. Cross-model replication is a clear next step.</objection>
+    <objection name="Automated metrics only">No human evaluation of output quality. Metrics are text-statistical (TTR, Jaccard, marker hit rates, phrase counts). LLM-as-judge was pre-registered as a fallback for ambiguous results but was never needed (all results were clear or null).</objection>
+    <objection name="Debates are repetitive">This is a real constraint of current language models. The structured agent DNA was built to increase behavioral variance. The research specifically measures how much variance persists vs decays.</objection>
+  </anticipated-objections>
+
+  <output-instructions>
+    Produce exactly these four outputs, clearly separated:
+
+    <output id="1" name="HN Post Title">
+      A Show HN title, max 80 characters. Must start with "Show HN:". Should be specific enough to be interesting but not so specific it's confusing. The best HN titles promise a concrete finding, not a product.
+    </output>
+
+    <output id="2" name="HN Post Body">
+      ~400 words. Structure:
+      1. One sentence: what The Pit is (product as instrument)
+      2. One paragraph: the research programme (brief — 195 bouts, 6 hypotheses, pre-registered)
+      3. 3-4 headline findings with specific numbers (the hook)
+      4. The practical lesson for builders (the takeaway)
+      5. What's missing — human voting data is the next layer (honest about limitations)
+      6. Links: site, research page, GitHub
+
+      Do NOT write a product launch post. This is "here's what we found" with the product as context.
+    </output>
+
+    <output id="3" name="Research Page Narrative">
+      ~600 words. This will appear on thepit.cloud/research as the main narrative section above the hypothesis table. Structure:
+      1. Opening: what the research programme is and why it exists
+      2. The methodology: pre-registration, automated metrics, permutation tests
+      3. The four headline findings (expanded, with numbers)
+      4. The three-axis model (what drives LLM multi-agent output)
+      5. The fundamental gap identified (persona fidelity vs argument adaptation)
+      6. What's next (human evaluation, cross-model replication)
+
+      Tone: measured, evidence-based, builder voice. Not academic paper, not marketing copy. A technically literate reader should be able to understand the findings and their implications in one read.
+    </output>
+
+    <output id="4" name="Three Tweets">
+      Three standalone tweets (max 280 chars each) summarizing different aspects of the research. Each should be self-contained and interesting on its own. Include a link placeholder [LINK].
+    </output>
+  </output-instructions>
+</prompt>

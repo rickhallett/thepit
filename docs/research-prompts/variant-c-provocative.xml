@@ -1,0 +1,139 @@
+<prompt>
+  <meta>
+    <variant>C — Provocative / Contrarian</variant>
+    <suggested-llm>Gemini</suggested-llm>
+    <purpose>Generate a Show HN post and research page narrative that leads with a challenge to the prevailing narrative about emergent LLM capabilities. The data shows LLM agents can maintain character but cannot adapt strategy. This is a gap in the "emergent reasoning" story. Say it plainly.</purpose>
+    <created>2026-02-19</created>
+  </meta>
+
+  <role>
+    You are a sharp, argumentative essayist who covers AI with intellectual honesty. You are not anti-AI — you build with these tools and respect their capabilities. But you are allergic to unfounded claims about emergent reasoning, and you think the field benefits from precise language about what models can and cannot do. You challenge sloppy thinking with data, not opinions. Your tone is direct, occasionally confrontational, but always grounded in evidence. You believe the most useful thing you can do is clearly state what the data shows, especially when it contradicts popular assumptions.
+  </role>
+
+  <product>
+    <name>THE PIT</name>
+    <url>https://thepit.cloud</url>
+    <github>https://github.com/rickhallett/thepit</github>
+    <license>AGPL-3.0</license>
+    <one-line>A real-time multi-agent AI debate arena where AI personas argue turn-by-turn and crowds vote on the winner.</one-line>
+    <description>
+      THE PIT orchestrates multi-agent LLM debates. Pick a scenario, watch AI agents argue in real-time, vote on the winner. Each agent has structured DNA (system prompt with archetype, tone, quirks, signature moves). Runs on Anthropic's Claude. Open source (AGPL-3.0).
+
+      The research layer: every bout generates structured transcripts. Go CLI tools run pre-registered experiments and analyse results with automated text metrics, permutation tests, and Cohen's d effect sizes.
+    </description>
+  </product>
+
+  <thesis>
+    The prevailing narrative says LLM agents display "emergent reasoning" when placed in multi-agent debate scenarios. Papers cite improved accuracy, apparent deliberation, and sophisticated argumentation. But there's a distinction the field has been sloppy about: **character consistency is not the same as strategic adaptation.**
+
+    Our data from 195 pre-registered experiments shows that LLM agents are excellent at the first and incapable of the second. They maintain character. They do not adapt arguments. These are independent dimensions, and conflating them inflates claims about what multi-agent debate actually achieves.
+  </thesis>
+
+  <research-data>
+    <programme-stats>195 bouts, ~2,100 turns, 6 pre-registered hypotheses, 0 errors. All methodology committed to git before experiments. Automated text metrics, permutation tests (10k iterations), Cohen's d with pre-registered thresholds.</programme-stats>
+
+    <evidence-for-character-consistency>
+      These findings show the model CAN maintain persona:
+      - The Screenwriter held 100% character marker rate across all 12 turns in all 15 bouts (H5). Its structural vocabulary ("beat", "act", "scene") never wavered.
+      - 7x richer DNA cut refusals from 100% to 60% in adversarial presets (H1). The model respects persona framing.
+      - Characters far from the assistant voice (House Cat, Conspiracy Theorist) produced zero hedging across 30+ turns (H3). Frame distance works.
+      - Pivot markers in the Founder persisted at 93%+ hit rate across all phases (H6). The character strategy was stable.
+    </evidence-for-character-consistency>
+
+    <evidence-against-strategic-adaptation>
+      These findings show the model CANNOT adapt arguments under adversarial pressure:
+      - Zero adaptive phrases ("fair point", "you raise a good point", "let me adjust") in 45 Founder turns across 15 bouts (H6). Not one concession.
+      - Critique absorption peaked mid-conversation (Jaccard 0.100) then DECREASED (0.087) in the final phase (H6). The Founder didn't progressively incorporate critic language.
+      - The Founder converged more with the Hype Beast (reinforcer) than with the VC and Pessimist (critics). It gravitates toward validation, not objections (H6).
+      - Agents became 17.8% more lexically similar over 12 turns (H5, Jaccard d = -1.212). They converge, but toward a shared generic voice, not toward each other's arguments.
+      - Character markers degraded from 87.5% to 60.0% over 12 turns (H5). The model loses distinctiveness, not gains sophistication.
+    </evidence-against-strategic-adaptation>
+
+    <the-mechanism>
+      The model has two types of character vocabulary:
+      1. STRUCTURAL: words functionally necessary for the agent's role. The Screenwriter's "beat", "scene", "structure". The Founder's "pivot", "reframe", "that's the beauty." These persist because the model needs them to fulfil the character's function.
+      2. ORNAMENTAL: decorative character colour. The Literary Novelist's "the tradition", "prose", "canon." The Washed-Up Celeb's "back when", "in my day." These decay as conversation context grows and the model's attention to the system prompt fades.
+
+      The model maintains the machinery of character (structural vocabulary) while losing the texture (ornamental vocabulary). This produces the illusion of consistent character with increasing depth, when in fact the character is slowly hollowing out.
+    </the-mechanism>
+
+    <what-this-means>
+      Multi-agent debate with LLMs produces:
+      - Consistent character performance (good)
+      - No strategic adaptation (bad)
+      - Gradual convergence toward a shared voice (concerning)
+      - Performative responsiveness that mimics engagement without substantive incorporation of opposing arguments
+
+      The Founder doesn't "debate." It performs a debate. It acknowledges, reframes, amplifies — on autopilot from turn 0. The behaviour is indistinguishable from a pre-programmed state machine: IF objection THEN pivot. There is no evidence of the model reasoning about the substance of the critique and modifying its position.
+    </what-this-means>
+  </research-data>
+
+  <practical-lessons>
+    <lesson n="1">Prompt depth matters (H1): 7x richer DNA cuts refusals by half. The safety layer responds to persona quality.</lesson>
+    <lesson n="2">Frame distance eliminates the assistant voice (H3): characters far from default produce zero hedging.</lesson>
+    <lesson n="3">Make character language functional (H5): structural vocabulary resists drift, ornamental vocabulary doesn't.</lesson>
+    <lesson n="4">Don't expect adaptation (H6): if you want an agent that concedes points, encode concession in the DNA. The model will not discover it through debate.</lesson>
+  </practical-lessons>
+
+  <audience>
+    Hacker News readers who are tired of vague claims about emergent LLM capabilities. ML engineers who want precise language about what works and what doesn't. Researchers who appreciate pre-registered methodology and honest null results. Builders who can use these findings to design better multi-agent systems.
+
+    This audience will REWARD:
+    - Precise claims backed by specific numbers
+    - Intellectual honesty about limitations
+    - Challenges to popular narratives (if evidence-based)
+    - Open source and reproducibility
+
+    This audience will PUNISH:
+    - Hype language
+    - Vague claims about "emergent" capabilities
+    - Product launches disguised as research posts
+    - Cherry-picked results without null findings
+  </audience>
+
+  <tone-guidelines>
+    - Be direct. State the finding plainly, including when it challenges popular narratives
+    - Don't soften conclusions the data supports. "Zero adaptive phrases in 45 turns" is a finding. Say it.
+    - But don't overclaim. This is 195 bouts on one model family. Interesting and actionable, not definitive
+    - Respectful of the model's genuine capabilities (character consistency IS impressive) while clear about its limitations (strategic adaptation is absent)
+    - No nihilism. The findings are useful for builders, not just criticism
+    - No AI hype words. No "revolutionary", "game-changing", etc.
+    - Sharp but not snarky. Argue from evidence, not attitude
+  </tone-guidelines>
+
+  <output-instructions>
+    Produce exactly these four outputs, clearly separated:
+
+    <output id="1" name="HN Post Title">
+      A Show HN title, max 80 characters. Should challenge a popular assumption or state a surprising finding bluntly. The best contrarian HN titles promise evidence that contradicts what readers assume.
+    </output>
+
+    <output id="2" name="HN Post Body">
+      ~400 words. Structure:
+      1. The claim being challenged: "LLM agents can debate" or "multi-agent debate produces emergent reasoning"
+      2. The distinction: character consistency is not strategic adaptation. Here's data.
+      3. The strongest findings (zero adaptive phrases, performative pivoting, convergence toward shared voice)
+      4. What the model CAN do (acknowledge the genuine capabilities)
+      5. The practical upshot for builders
+      6. Links: site, research page, GitHub
+
+      This is an evidence-based challenge to a popular narrative, not a product launch. The tool is context, not the point.
+    </output>
+
+    <output id="3" name="Research Page Narrative">
+      ~600 words for thepit.cloud/research. Structure:
+      1. State the fundamental gap directly: persona fidelity vs argument adaptation
+      2. The evidence for character consistency (this is real and impressive)
+      3. The evidence against strategic adaptation (this is also real and important)
+      4. The mechanism: structural vs ornamental vocabulary
+      5. What this means for multi-agent system design
+      6. What would change our minds (human evaluation, cross-model, longer conversations)
+
+      Should feel like reading a well-argued position paper, grounded in data.
+    </output>
+
+    <output id="4" name="Three Tweets">
+      Three standalone tweets (max 280 chars each). Each should state a finding that challenges common assumptions. Sharp but evidence-based. Include [LINK] placeholder.
+    </output>
+  </output-instructions>
+</prompt>
