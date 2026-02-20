@@ -112,6 +112,11 @@ const RAW_PRESETS: RawPreset[] = [
   mansion,
   summit,
   flatshare,
+];
+
+// Research-only presets: resolvable by the bout engine (getPresetById) and
+// pitstorm hypothesis runner, but excluded from the user-facing preset grid.
+const RAW_RESEARCH_PRESETS: RawPreset[] = [
   reaBaseline,
 ];
 
@@ -196,16 +201,21 @@ export const PREMIUM_PRESETS: Preset[] = [
   ),
 ];
 
+/** Research-only presets. Not shown in the user-facing grid. */
+export const RESEARCH_PRESETS: Preset[] = RAW_RESEARCH_PRESETS.map(normalizePreset);
+
+/** All user-facing presets (free + premium). Excludes research-only presets. */
 export const ALL_PRESETS: Preset[] = [...FREE_PRESETS, ...PREMIUM_PRESETS];
 
 export const PRESETS: Preset[] = ALL_PRESETS;
 
 /**
  * O(1) preset lookup by ID.
- * Use this instead of ALL_PRESETS.find() for better performance.
+ * Includes research presets so the bout engine can resolve them,
+ * even though they don't appear in the user-facing preset grid.
  */
 export const PRESET_BY_ID: Map<string, Preset> = new Map(
-  ALL_PRESETS.map((preset) => [preset.id, preset]),
+  [...ALL_PRESETS, ...RESEARCH_PRESETS].map((preset) => [preset.id, preset]),
 );
 
 /**

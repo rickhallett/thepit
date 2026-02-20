@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
-import { PRESETS, ARENA_PRESET_ID, DEFAULT_AGENT_COLOR } from '@/lib/presets';
+import { getPresetById, ARENA_PRESET_ID, DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import { getMostReactedTurnIndex, getReactionCounts } from '@/lib/reactions';
 
 export const ogSize = { width: 1200, height: 630 };
@@ -25,7 +25,7 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
 
   // Get preset and agents
   const presetId = bout?.presetId;
-  const preset = presetId ? PRESETS.find((p) => p.id === presetId) : null;
+  const preset = presetId ? getPresetById(presetId) ?? null : null;
   const transcript = (bout?.transcript ?? []) as TranscriptEntry[];
   const agentLineup = (bout?.agentLineup ?? []) as ArenaAgent[];
 

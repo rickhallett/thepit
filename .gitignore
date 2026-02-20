@@ -105,6 +105,7 @@ docs/release-review-*
 
 # internal research docs
 docs/research-seed-hypotheses.md
+docs/research-prompts/
 
 # hype copy variant (contradicts no-hype positioning)
 copy/variants/hype.json

@@ -13,7 +13,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/tests-788%20passing-brightgreen" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-891%20passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/Anthropic-Claude-orange" alt="Claude" />
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
@@ -73,91 +73,8 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 | Error Tracking | Sentry |
 | Analytics | PostHog + Vercel Analytics |
 | Hosting | Vercel |
-| Tests | Vitest (788) + Playwright (51 E2E tests) |
+| Tests | Vitest (891) + Playwright (51 E2E tests) |
 | CLI Toolchain | Go 1.25 (7 CLIs + shared lib) |
-
----
-
-## Self-Hosting
-
-> Most people should use the hosted product at [thepit.cloud](https://thepit.cloud). Self-hosting is for developers who want to run their own instance.
-
-### Prerequisites
-
-- Node.js 24+
-- A [Neon](https://neon.tech) PostgreSQL database
-- An [Anthropic](https://console.anthropic.com) API key
-- A [Clerk](https://clerk.com) application (auth)
-
-### Setup
-
-```bash
-git clone git@github.com:rickhallett/thepit.git
-cd thepit
-pnpm install
-cp .env.example .env
-# Fill required values (see Environment below)
-pnpm run dev
-```
-
-### Seed Agents
-
-```bash
-curl -X POST http://localhost:3000/api/admin/seed-agents \
-  -H "x-admin-token: $ADMIN_SEED_TOKEN"
-```
-
----
-
-## Commands
-
-```bash
-pnpm run dev              # Dev server (Turbopack)
-pnpm run build            # Production build
-pnpm run start            # Serve production build
-pnpm run lint             # ESLint
-pnpm run typecheck        # TypeScript type checking
-pnpm run test:unit        # Unit + API tests (788 tests)
-pnpm run test:ci          # Lint + typecheck + unit + integration
-pnpm run test:e2e         # Playwright E2E (requires running server)
-```
-
----
-
-## Environment
-
-Copy `.env.example` to `.env`. Required variables:
-
-| Variable | Purpose |
-|----------|---------|
-| `DATABASE_URL` | Neon PostgreSQL connection string |
-| `ANTHROPIC_API_KEY` | Claude API key |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk auth (client) |
-| `CLERK_SECRET_KEY` | Clerk auth (server) |
-
-### Optional
-
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `ANTHROPIC_FREE_MODEL` | Free tier model | `claude-sonnet-4-5-20250929` |
-| `ANTHROPIC_PREMIUM_MODELS` | Premium models (comma-separated) | `claude-sonnet-4-5-20250929,claude-opus-4-5-20251101` |
-| `CREDITS_ENABLED` | Enable credit economy | `false` |
-| `PREMIUM_ENABLED` | Enable premium tier | `false` |
-| `SUBSCRIPTIONS_ENABLED` | Enable subscription tiers (pass/lab) | `false` |
-| `BYOK_ENABLED` | Enable bring-your-own-key | `false` |
-| `EAS_ENABLED` | Enable on-chain attestations | `false` |
-| `ASK_THE_PIT_ENABLED` | Enable AI FAQ assistant | `false` |
-| `RESEND_API_KEY` | Contact form email delivery | — |
-| `STRIPE_SECRET_KEY` | Credit pack purchases | — |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook verification | — |
-| `ADMIN_SEED_TOKEN` | Auth for `/api/admin/seed-agents` | — |
-| `ADMIN_USER_IDS` | Comma-separated admin user IDs | — |
-| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog analytics | — |
-| `SENTRY_DSN` | Sentry error tracking | — |
-
-| `LOG_LEVEL` | Structured log level | `info` |
-
-> See `.env.example` for the full list of 50+ configurable environment variables including credit economy tuning, EAS blockchain config, and Stripe price IDs.
 
 ---
 
@@ -217,8 +134,4 @@ AGPL-3.0. If you modify and deploy this code, you must open-source your changes.
 
 ---
 
-[^1]: The [Agentic Archaeology Report](docs/agentic-archaeology-report.md) is a systematic survey of 571 commits profiling how agentic engineering patterns evolved, which tools became dormant, and where metaprompting can close open feedback loops. It maps the codebase against the TAC (Tactical Agentic Coding) framework and produces 7 concrete proposals tracked in the [Turnkey epic](https://linear.app/oceanheartai/project/turnkey) on Linear.
-
-<p align="center">
-  <code>Built by Kai</code>
-</p>
+[^1]: The [Agentic Archaeology Report](docs/agentic-archaeology-report.md) is a systematic survey of 571 commits profiling how agentic engineering patterns evolved, which tools became dormant, and where metaprompting can close open feedback loops. It maps the codebase against the TAC (Tactical Agentic Coding) framework.

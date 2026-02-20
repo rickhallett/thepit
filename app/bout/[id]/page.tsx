@@ -20,7 +20,7 @@ import {
   toMicroCredits,
 } from '@/lib/credits';
 import { getCopy } from '@/lib/copy';
-import { PRESETS, ARENA_PRESET_ID } from '@/lib/presets';
+import { getPresetById, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
 import { resolveResponseLength } from '@/lib/response-lengths';
 import { getReactionCounts } from '@/lib/reactions';
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   }
 
   const presetId = bout?.presetId;
-  const preset = presetId ? PRESETS.find((p) => p.id === presetId) : null;
+  const preset = presetId ? getPresetById(presetId) ?? null : null;
   const agentLineup = (bout?.agentLineup ?? []) as ArenaAgent[];
 
   // Build arena preset if needed
@@ -150,7 +150,7 @@ export default async function BoutPage({
     notFound();
   }
 
-  let preset = PRESETS.find((item) => item.id === resolvedPresetId);
+  let preset = getPresetById(resolvedPresetId);
   if (!preset && resolvedPresetId === ARENA_PRESET_ID && bout?.agentLineup) {
     preset = buildArenaPresetFromLineup(bout.agentLineup, bout.maxTurns);
   }

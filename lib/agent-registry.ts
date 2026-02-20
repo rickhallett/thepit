@@ -16,7 +16,7 @@ import { requireDb } from '@/db';
 import { agents } from '@/db/schema';
 import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
 import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
-import { ALL_PRESETS } from '@/lib/presets';
+import { ALL_PRESETS, getPresetById } from '@/lib/presets';
 import { buildAgentManifest, hashAgentManifest, hashAgentPrompt } from '@/lib/agent-dna';
 import { rowToSnapshot } from '@/lib/agent-mapper';
 import { toError } from '@/lib/errors';
@@ -70,7 +70,7 @@ export const parsePresetAgentId = (agentId: string) => {
 };
 
 const findPresetAgent = (presetId: string, agentId: string) => {
-  const preset = ALL_PRESETS.find((item) => item.id === presetId);
+  const preset = getPresetById(presetId);
   if (!preset) return null;
   const agent = preset.agents.find((item) => item.id === agentId);
   if (!agent) return null;
