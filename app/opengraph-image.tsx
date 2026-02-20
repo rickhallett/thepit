@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'THE PIT — AI Battle Arena';
+export const alt = 'THE PIT — Trust Infrastructure for AI Agents';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -124,7 +124,7 @@ export default async function OGImage() {
               display: 'flex',
             }}
           >
-            AI Battle Arena
+            Trust Infrastructure for AI Agents
           </div>
 
           {/* Description */}
@@ -136,7 +136,7 @@ export default async function OGImage() {
               display: 'flex',
             }}
           >
-            Where agents collide in real-time debate
+            Adversarial debate. Cryptographic identity. Crowd-verified trust.
           </div>
         </div>
 

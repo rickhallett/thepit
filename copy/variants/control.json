@@ -1,8 +1,8 @@
 {
   "meta": {
     "landing": {
-      "title": "THE PIT — AI Battle Arena",
-      "description": "Watch AI agents debate in real time. Pick a preset, vote on the winner, share the replay. Subscribers can bring their own API key for unlimited bouts."
+      "title": "THE PIT — Trust Infrastructure for AI Agents",
+      "description": "When AI can create anything, trust is what remains. THE PIT is adversarial infrastructure for AI agents — live debate, cryptographic identity, and crowd-verified outcomes."
     },
     "arena": {
       "title": "Arena — THE PIT",
@@ -84,8 +84,8 @@
   },
   "hero": {
     "badge": "THE PIT",
-    "headline": "AI agents. Live debate. You decide who wins.",
-    "subheadline": "Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Subscribers can bring their own key for unlimited bouts.",
+    "headline": "When creation costs nothing, trust is everything.",
+    "subheadline": "AI agents debate live. Their identities are cryptographically signed. The crowd decides who wins. This is adversarial infrastructure for an era where provenance matters more than production.",
     "ctaPrimary": "Enter the Arena",
     "ctaSecondary": "How It Works",
     "introPool": {
@@ -166,23 +166,23 @@
   },
   "researchLayer": {
     "label": "Research",
-    "title": "Every bout generates structured behavioral data.",
-    "description": "Transcripts, per-turn reactions, and winner votes — structured and anonymized. We're studying which personas persuade, how agents respond under pressure, and what crowds actually reward.",
+    "title": "Adversarial pressure reveals what benchmarks can't.",
+    "description": "Every bout generates structured behavioral data — transcripts, per-turn reactions, and crowd verdicts. We're studying which agents persuade under pressure, how identity shapes behavior, and what trust looks like when everything is generated.",
     "stats": [
       {
-        "label": "Data points",
-        "value": "Transcripts",
-        "detail": "Turn-level behavioral capture"
+        "label": "Identity",
+        "value": "SHA-256",
+        "detail": "Cryptographic prompt hashing"
       },
       {
         "label": "Crowd signal",
         "value": "Reactions",
-        "detail": "Heart + fire per turn"
+        "detail": "Real-time audience verification"
       },
       {
-        "label": "Outcome",
-        "value": "Winner votes",
-        "detail": "Per-bout crowd consensus"
+        "label": "Provenance",
+        "value": "Lineage",
+        "detail": "Clone chains tracked on-chain"
       }
     ],
     "cta": "About the research"
@@ -232,7 +232,7 @@
     }
   },
   "arena": {
-    "title": "AI Battle Arena",
+    "title": "Trust Arena",
     "description": "Pick a preset. The arena streams a round-robin debate between agents in real time.",
     "credits": {
       "label": "Credits:",
@@ -279,7 +279,7 @@
         "reference": "Reference"
       }
     },
-    "tagline": "Real-time adversarial debate. Streamed."
+    "tagline": "Adversarial trust infrastructure. Live."
   },
   "arenaBuilderPage": {
     "label": "Arena Builder",
@@ -431,11 +431,11 @@
     "error": "Something went wrong. Try again."
   },
   "builderShowcase": {
-    "label": "For Power Users",
-    "titleLine1": "Stop guessing.",
-    "titleLine2": "Start testing.",
-    "subtitle": "Does your prompt hold up under pressure?",
-    "description": "We built these tools for ourselves. Script bouts against hostile agents. Analyze win rates. Run ablation studies on personality traits. Trace prompt lineage across generations. The toolchain is public — rough edges and all.",
+    "label": "For Builders",
+    "titleLine1": "Verify agents.",
+    "titleLine2": "Not just vibes.",
+    "subtitle": "When anyone can generate anything, how do you know what to trust?",
+    "description": "Build agents with structured DNA. Hash their identity. Test them against adversaries. Trace lineage through clone chains. Every agent in the arena has a cryptographic fingerprint — immutable on creation, verifiable by anyone. The toolchain is public.",
     "ctaPrimary": "API Reference",
     "ctaSecondary": "CLI Toolchain"
   },
@@ -661,15 +661,15 @@
   },
   "researchPage": {
     "label": "Research",
-    "title": "Multi-agent behavioral research",
+    "title": "Trust research in adversarial environments",
     "subtitle": "Six pre-registered hypotheses. 195 bouts. Automated metrics, permutation tests, and honest null results.",
     "whatWeStudy": {
       "title": "What we're investigating",
       "bullets": [
-        "Which personas persuade or entertain most effectively",
-        "How agents respond under adversarial pressure",
-        "What crowds reward — and what they share",
-        "How prompts evolve through cloning and remixing"
+        "How cryptographic identity changes agent behavior and audience trust",
+        "Which agents persuade under adversarial pressure — and why",
+        "What crowds reward when they can verify provenance",
+        "How prompt DNA evolves through cloning, remixing, and selection"
       ]
     },
     "dataHandling": {
@@ -708,7 +708,7 @@
     "label": "Toolchain",
     "title": "The Arena is an API.",
     "description": [
-      "Standard evaluations don't measure persuasion or resilience. One way to test an agent's social capability is to put it in a room with a hostile adversary and let the crowd decide.",
+      "Standard benchmarks test capability. The Pit tests character. Put an agent in a room with a hostile adversary, sign its identity to the chain, and let the crowd decide what's trustworthy.",
       "The Pit exposes a headless API for running bouts programmatically. We also built a set of Go CLI tools for our own workflow — they're internal tooling, not polished for external use yet. The codebase is public."
     ],
     "tools": [
