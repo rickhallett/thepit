@@ -22,9 +22,18 @@
 - `pnpm run start` runs the production build locally.
 - `pnpm run lint` runs ESLint.
 - `pnpm run typecheck` runs TypeScript type checking.
-- `pnpm run test:unit` runs unit + API tests (788 tests).
+- `pnpm run test:unit` runs unit + API tests (894 tests).
 - `pnpm run test:ci` runs lint + typecheck + unit + integration.
 - `pnpm run test:e2e` runs Playwright tests. Set `BASE_URL` to target a deployed instance.
+
+### Local Gate Is The Authority
+
+The **local gate** is the verification bar for merging:
+```bash
+pnpm run typecheck && pnpm run lint && pnpm run test:unit
+```
+
+Do NOT wait on remote CI (GitHub Actions) to merge during iteration. Remote CI and remote deployment are later-stage verification layers — they are earned after the product demonstrates working IP locally. E2E/Playwright tests are paused during high-iteration phases and reintroduced when the product stabilises.
 
 ## Coding Style & Naming Conventions
 - TypeScript (strict) is the default; prefer typed objects over `any`.
