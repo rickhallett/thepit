@@ -1,7 +1,8 @@
 """Tests for Pydantic schema validation.
 
 These test that the schema rejects what it should reject and accepts what
-it should accept — behavioral tests, not tautological ones.
+it should accept. The schema is intentionally relaxed to handle real LLM
+output variance — only score range and type are strictly enforced.
 """
 
 import pytest
@@ -67,26 +68,38 @@ class TestMetricScore:
         with pytest.raises(ValidationError):
             MetricScore(**_valid_metric(score=7.5))
 
-    def test_empty_evidence_rejected(self):
-        with pytest.raises(ValidationError):
-            MetricScore(**_valid_metric(evidence=[]))
+    def test_empty_evidence_accepted(self):
+        """Empty evidence is allowed — many LLMs omit it."""
+        m = MetricScore(**_valid_metric(evidence=[]))
+        assert m.evidence == []
 
-    def test_short_justification_rejected(self):
-        with pytest.raises(ValidationError):
-            MetricScore(**_valid_metric(justification="Short"))
+    def test_empty_justification_accepted(self):
+        """Short/empty justification is allowed — some LLMs use different field names."""
+        m = MetricScore(**_valid_metric(justification=""))
+        assert m.justification == ""
+
+    def test_minimal_metric_accepted(self):
+        """Only id and score are truly required."""
+        m = MetricScore(id="101.1", score=5)
+        assert m.score == 5
+        assert m.name == ""
+        assert m.justification == ""
 
 
 class TestRecommendedAction:
     def test_valid_action_passes(self):
         RecommendedAction(priority=1, action="Do the thing", effort="medium", impact="high")
 
-    def test_invalid_effort_rejected(self):
-        with pytest.raises(ValidationError):
-            RecommendedAction(priority=1, action="Do the thing", effort="very high", impact="high")
+    def test_any_effort_string_accepted(self):
+        """Effort is now a free-form string, not a Literal."""
+        ra = RecommendedAction(priority=1, action="Do the thing", effort="very high", impact="high")
+        assert ra.effort == "very high"
 
-    def test_priority_zero_rejected(self):
-        with pytest.raises(ValidationError):
-            RecommendedAction(priority=0, action="Do the thing", effort="low", impact="low")
+    def test_default_fields(self):
+        """All fields have defaults — can construct with nothing."""
+        ra = RecommendedAction()
+        assert ra.priority == 0
+        assert ra.action == ""
 
 
 class TestPanelEvaluation:
@@ -107,10 +120,28 @@ class TestPanelEvaluation:
         with pytest.raises(ValidationError):
             PanelEvaluation(**_valid_evaluation(metrics=[]))
 
-    def test_empty_recommended_actions_rejected(self):
-        with pytest.raises(ValidationError):
-            PanelEvaluation(**_valid_evaluation(recommended_actions=[]))
+    def test_empty_recommended_actions_accepted(self):
+        """Empty recommended_actions is allowed — most LLMs omit them."""
+        pe = PanelEvaluation(**_valid_evaluation(recommended_actions=[]))
+        assert pe.recommended_actions == []
 
-    def test_short_assessment_rejected(self):
-        with pytest.raises(ValidationError):
-            PanelEvaluation(**_valid_evaluation(overall_assessment="Short."))
+    def test_empty_assessment_accepted(self):
+        """Short/empty assessment is allowed."""
+        pe = PanelEvaluation(**_valid_evaluation(overall_assessment=""))
+        assert pe.overall_assessment == ""
+
+    def test_optional_fields_default(self):
+        """Can construct with only required fields."""
+        pe = PanelEvaluation(
+            panel_id="101",
+            evaluator_model="test-model",
+            iteration=1,
+            temperature=0.5,
+            timestamp="2026-02-20T10:00:00Z",
+            metrics=[{"id": "101.1", "score": 7}],
+        )
+        assert pe.panel_name == ""
+        assert pe.overall_assessment == ""
+        assert pe.top_3_strengths == []
+        assert pe.top_3_risks == []
+        assert pe.recommended_actions == []
