@@ -201,7 +201,8 @@ export const PREMIUM_PRESETS: Preset[] = [
   ),
 ];
 
-const RESEARCH_PRESETS: Preset[] = RAW_RESEARCH_PRESETS.map(normalizePreset);
+/** Research-only presets. Not shown in the user-facing grid. */
+export const RESEARCH_PRESETS: Preset[] = RAW_RESEARCH_PRESETS.map(normalizePreset);
 
 /** All user-facing presets (free + premium). Excludes research-only presets. */
 export const ALL_PRESETS: Preset[] = [...FREE_PRESETS, ...PREMIUM_PRESETS];

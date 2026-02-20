@@ -3,6 +3,7 @@ import {
   ALL_PRESETS,
   FREE_PRESETS,
   PREMIUM_PRESETS,
+  RESEARCH_PRESETS,
   PRESET_BY_ID,
   ARENA_PRESET_ID,
   getPresetById,
@@ -41,10 +42,15 @@ describe('presets', () => {
     }
   });
 
-  it('PRESET_BY_ID size includes all user-facing and research presets', () => {
-    expect(PRESET_BY_ID.size).toBeGreaterThanOrEqual(ALL_PRESETS.length);
-    // Every user-facing preset must be in the lookup map
+  it('PRESET_BY_ID contains all user-facing presets', () => {
+    expect(PRESET_BY_ID.size).toBe(ALL_PRESETS.length + RESEARCH_PRESETS.length);
     for (const preset of ALL_PRESETS) {
+      expect(PRESET_BY_ID.has(preset.id)).toBe(true);
+    }
+  });
+
+  it('PRESET_BY_ID contains all research presets', () => {
+    for (const preset of RESEARCH_PRESETS) {
       expect(PRESET_BY_ID.has(preset.id)).toBe(true);
     }
   });

@@ -2,7 +2,7 @@
 // clone lineage (up to maxDepth generations of parent agents). Falls back to
 // preset definitions when the agent isn't yet in the database.
 
-import { ALL_PRESETS } from '@/lib/presets';
+import { getPresetById } from '@/lib/presets';
 import { requireDb } from '@/db';
 import { agents } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -24,7 +24,7 @@ export type AgentDetail = AgentSnapshot & {
 const findPresetAgentById = (agentId: string) => {
   const parsed = parsePresetAgentId(agentId);
   if (!parsed) return null;
-  const preset = ALL_PRESETS.find((item) => item.id === parsed.presetId);
+  const preset = getPresetById(parsed.presetId);
   if (!preset) return null;
   const agent = preset.agents.find((item) => item.id === parsed.agentId);
   if (!agent) return null;
