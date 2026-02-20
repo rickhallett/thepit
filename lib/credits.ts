@@ -228,25 +228,31 @@ export async function applyCreditDelta(
   metadata: Record<string, unknown>,
 ) {
   const db = requireDb();
-  await db.insert(creditTransactions).values({
-    userId,
-    deltaMicro,
-    source: reason,
-    referenceId:
-      typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
-    metadata,
+
+  // Wrap ledger insert + balance update in a transaction so they
+  // succeed or fail atomically.  Without this, a failed update
+  // would leave a dangling ledger entry with no balance change.
+  return db.transaction(async (tx) => {
+    await tx.insert(creditTransactions).values({
+      userId,
+      deltaMicro,
+      source: reason,
+      referenceId:
+        typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
+      metadata,
+    });
+
+    const [updated] = await tx
+      .update(credits)
+      .set({
+        balanceMicro: sql`GREATEST(0, ${credits.balanceMicro} + ${deltaMicro})`,
+        updatedAt: new Date(),
+      })
+      .where(eq(credits.userId, userId))
+      .returning();
+
+    return updated;
   });
-
-  const [updated] = await db
-    .update(credits)
-    .set({
-      balanceMicro: sql`GREATEST(0, ${credits.balanceMicro} + ${deltaMicro})`,
-      updatedAt: new Date(),
-    })
-    .where(eq(credits.userId, userId))
-    .returning();
-
-  return updated;
 }
 
 export async function getCreditTransactions(userId: string, limit = 20) {
@@ -284,40 +290,45 @@ export async function preauthorizeCredits(
   // Ensure account exists first
   await ensureCreditAccount(userId);
 
-  // Atomic conditional update: only deduct if balance >= amount
-  // This prevents race conditions by making check-and-deduct a single operation
-  const [result] = await db
-    .update(credits)
-    .set({
-      balanceMicro: sql`${credits.balanceMicro} - ${amountMicro}`,
-      updatedAt: new Date(),
-    })
-    .where(
-      sql`${credits.userId} = ${userId} AND ${credits.balanceMicro} >= ${amountMicro}`,
-    )
-    .returning({ balanceMicro: credits.balanceMicro });
+  // Wrap the conditional balance deduction + ledger insert in a
+  // transaction so they succeed or fail atomically.  Without this,
+  // a failed insert would leave the balance deducted with no ledger entry.
+  return db.transaction(async (tx) => {
+    // Atomic conditional update: only deduct if balance >= amount
+    // This prevents race conditions by making check-and-deduct a single operation
+    const [result] = await tx
+      .update(credits)
+      .set({
+        balanceMicro: sql`${credits.balanceMicro} - ${amountMicro}`,
+        updatedAt: new Date(),
+      })
+      .where(
+        sql`${credits.userId} = ${userId} AND ${credits.balanceMicro} >= ${amountMicro}`,
+      )
+      .returning({ balanceMicro: credits.balanceMicro });
 
-  if (!result) {
-    // Update didn't match - insufficient balance
-    const [current] = await db
-      .select({ balanceMicro: credits.balanceMicro })
-      .from(credits)
-      .where(eq(credits.userId, userId))
-      .limit(1);
-    return { success: false, balanceMicro: current?.balanceMicro ?? 0 };
-  }
+    if (!result) {
+      // Update didn't match - insufficient balance
+      const [current] = await tx
+        .select({ balanceMicro: credits.balanceMicro })
+        .from(credits)
+        .where(eq(credits.userId, userId))
+        .limit(1);
+      return { success: false, balanceMicro: current?.balanceMicro ?? 0 };
+    }
 
-  // Record the transaction after successful deduction
-  await db.insert(creditTransactions).values({
-    userId,
-    deltaMicro: -amountMicro,
-    source: reason,
-    referenceId:
-      typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
-    metadata,
+    // Record the transaction after successful deduction
+    await tx.insert(creditTransactions).values({
+      userId,
+      deltaMicro: -amountMicro,
+      source: reason,
+      referenceId:
+        typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
+      metadata,
+    });
+
+    return { success: true, balanceMicro: result.balanceMicro };
   });
-
-  return { success: true, balanceMicro: result.balanceMicro };
 }
 
 /**
