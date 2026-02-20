@@ -1,0 +1,24 @@
+{
+  "run_id": "106_gemini-3.1-pro-preview_iter1",
+  "panel_id": "106",
+  "panel_name": "API Design",
+  "model_requested": "gemini-3.1-pro-preview",
+  "model_reported": "gemini-3.1-pro-preview",
+  "iteration": 1,
+  "temperature": 0.3,
+  "timestamp": "2026-02-20T12:07:59.968087+00:00",
+  "input_tokens": 350962,
+  "output_tokens": 935,
+  "cost_usd": 0.7131,
+  "duration_seconds": 51.66,
+  "stop_reason": "stop",
+  "attempt": 1,
+  "sections_included": [
+    "B",
+    "A",
+    "D",
+    "E"
+  ],
+  "optional_included": true,
+  "raw_text": "{\n  \"panel_id\": \"106\",\n  \"106.1\": {\n    \"score\": 5,\n    \"evidence\": \"The API uses a mix of RESTful conventions (e.g., GET/POST `/api/feature-requests`, POST `/api/agents`) and RPC-style action endpoints (e.g., POST `/api/run-bout`, POST `/api/v1/bout`, POST `/api/ask-the-pit`, POST `/api/byok-stash`). Resources are identifiable, but actions are frequently encoded in the URL path rather than mapping strictly to HTTP methods on resource URLs.\"\n  },\n  \"106.2\": {\n    \"score\": 6,\n    \"evidence\": \"Error responses are standardized using `errorResponse` and `rateLimitResponse` in `lib/api-utils.ts`, returning a consistent `{ error: string, code?: string }` shape. HTTP status codes are used semantically (400, 401, 402, 403, 404, 409, 429, 500, 503, 504). Rate limit responses include standard headers (`Retry-After`, `X-RateLimit-*`) and structured metadata for client-side upgrade prompts. However, validation errors fail fast and return a single message rather than a structured list of all failing fields.\"\n  },\n  \"106.3\": {\n    \"score\": 5,\n    \"evidence\": \"Request validation is manual but rigorous across all routes. Handlers use `parseJsonBody` to catch invalid JSON, followed by manual type checks, string trimming, and length limit enforcement (e.g., in `/api/agents/route.ts`). `UNSAFE_PATTERN` is consistently applied to block URLs and scripts in free-text fields. Missing fields return clear 400 errors. It lacks schema-based validation (like Zod) for request bodies, which would elevate the score.\"\n  },\n  \"106.4\": {\n    \"score\": 8,\n    \"evidence\": \"The authentication and authorization model is robust and clear. It properly distinguishes between 401 (missing auth), 402 (insufficient tier/credits), and 403 (insufficient permissions, e.g., Lab tier required for `/api/v1/bout`). Admin routes use a timing-safe token comparison (`lib/admin-auth.ts`). Rate limits and pool consumption vary dynamically based on the user's tier. The OpenAPI spec explicitly documents the `clerkAuth` security scheme.\"\n  },\n  \"106.5\": {\n    \"score\": 7,\n    \"evidence\": \"The streaming API (`/api/run-bout/route.ts`) is well-designed using the AI SDK's `createUIMessageStream`. It emits structured, typed events (`start`, `data-turn`, `text-delta`, `data-share-line`). The `onError` callback gracefully catches mid-stream failures and maps them to safe, user-friendly messages (timeout, rate limit, overloaded). Partial state is recoverable as the engine saves the partial transcript to the database on error.\"\n  },\n  \"106.6\": {\n    \"score\": 8,\n    \"evidence\": \"The API is well-documented via a comprehensive OpenAPI 3.1 specification in `lib/openapi.ts`. It covers all public-facing endpoints (`/api/v1/bout`, `/api/agents`, `/api/reactions`, etc.) with detailed descriptions, request/response schemas, default values, and examples. The spec is served dynamically via `GET /api/openapi` to power a Scalar interactive documentation page.\"\n  },\n  \"106.7\": {\n    \"score\": 8,\n    \"evidence\": \"Operations are highly resilient to retries and race conditions. Bout execution checks existing status and returns 409 if already running or completed. Credit preauthorization and settlement (`lib/credits.ts`), as well as pool consumption (`lib/intro-pool.ts`), use atomic SQL conditional updates to prevent double-spend. Votes and reactions rely on database unique constraints and `onConflictDoNothing` for safe deduplication.\"\n  }\n}"
+}

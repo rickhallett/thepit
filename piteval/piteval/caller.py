@@ -79,7 +79,7 @@ def _call_openai(prompt: AssembledPrompt, api_key: str) -> dict[str, Any]:
     client = openai.OpenAI(api_key=api_key)
     response = client.chat.completions.create(
         model=prompt.model.api_model_id,
-        max_tokens=prompt.model.max_output_tokens,
+        max_completion_tokens=prompt.model.max_output_tokens,
         temperature=prompt.temperature,
         messages=[
             {"role": "system", "content": prompt.system},
@@ -282,6 +282,7 @@ class Caller:
         results: list[CallResult] = []
         total = len(prompts)
         total_cost = 0.0
+        failed = 0
 
         _log(f"\n{'=' * 60}")
         _log(f"Starting batch: {total} evaluation runs")
@@ -299,13 +300,20 @@ class Caller:
                 total_cost += existing.cost
                 continue
 
-            result = self.call(prompt)
-            results.append(result)
-            total_cost += result.cost
-            _log(f"  -> Cumulative cost: ${total_cost:.2f}")
+            try:
+                result = self.call(prompt)
+                results.append(result)
+                total_cost += result.cost
+                _log(f"  -> Cumulative cost: ${total_cost:.2f}")
+            except RuntimeError as e:
+                failed += 1
+                _log(f"  -> FAILED (skipping): {e}")
 
         _log(f"\n{'=' * 60}")
-        _log(f"Batch complete: {len(results)}/{total} runs, total cost: ${total_cost:.2f}")
+        _log(
+            f"Batch complete: {len(results)}/{total} runs, "
+            f"{failed} failed, total cost: ${total_cost:.2f}"
+        )
         _log(f"{'=' * 60}\n")
 
         return results

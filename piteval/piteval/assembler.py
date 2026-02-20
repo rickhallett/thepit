@@ -135,11 +135,19 @@ class Assembler:
         model: ModelConfig,
         include_optional: bool = True,
     ) -> bool:
-        """Check if a panel's prompt fits within a model's context window."""
+        """Check if a panel's prompt fits within a model's context window.
+
+        Applies a per-model safety multiplier because tiktoken (cl100k_base)
+        undercounts differently per provider tokenizer. Multipliers measured
+        from Pilot 1 actual API token counts vs estimates:
+            Anthropic: 1.30 (29% undercount)
+            Gemini:    1.20 (19% undercount)
+            GPT:       1.02 (0.3% undercount)
+        """
         estimated = self.estimate_prompt_tokens(panel, include_optional)
-        # Reserve space for output (max_output_tokens)
+        safety_estimate = int(estimated * model.token_estimate_multiplier)
         available = model.context_window - model.max_output_tokens
-        return estimated <= available
+        return safety_estimate <= available
 
     def assemble(
         self,
