@@ -15,7 +15,8 @@ import { log } from '@/lib/logger';
 import { toError } from '@/lib/errors';
 import { getRequestId } from '@/lib/request-context';
 import { buildAskThePitSystem } from '@/lib/xml-prompt';
-import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { askThePitSchema } from '@/lib/api-schemas';
 import { withLogging } from '@/lib/api-logging';
 
 export const runtime = 'nodejs';
@@ -75,18 +76,9 @@ async function rawPOST(req: Request) {
     return rateLimitResponse(rateCheck);
   }
 
-  const parsed = await parseJsonBody<{ message?: string }>(req);
+  const parsed = await parseValidBody(req, askThePitSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const message =
-    typeof payload.message === 'string' ? payload.message.trim() : '';
-  if (!message) {
-    return errorResponse('Missing message.', 400);
-  }
-  if (message.length > 2000) {
-    return errorResponse('Message must be 2000 characters or fewer.', 400);
-  }
+  const { message } = parsed.data;
 
   const requestId = getRequestId(req);
   if (!cachedSystemPrompt) {

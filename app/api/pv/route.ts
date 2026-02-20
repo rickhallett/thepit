@@ -10,7 +10,8 @@ import { requireDb } from '@/db';
 import { pageViews } from '@/db/schema';
 import { sha256Hex } from '@/lib/hash';
 import { log } from '@/lib/logger';
-import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, API_ERRORS } from '@/lib/api-utils';
+import { pageViewSchema } from '@/lib/api-schemas';
 import { withLogging } from '@/lib/api-logging';
 import { serverTrack } from '@/lib/posthog-server';
 
@@ -31,30 +32,11 @@ async function rawPOST(req: Request) {
     return errorResponse(API_ERRORS.FORBIDDEN, 403);
   }
 
-  const parsed = await parseJsonBody<{
-    path?: string;
-    sessionId?: string;
-    clientIp?: string;
-    referrer?: string;
-    userAgent?: string;
-    country?: string;
-    utm?: string;
-    userId?: string;
-    copyVariant?: string;
-    visitNumber?: number;
-    daysSinceLastVisit?: number | null;
-    isNewSession?: boolean;
-    referralCode?: string;
-  }>(req);
+  const parsed = await parseValidBody(req, pageViewSchema);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
 
-  const path = typeof payload.path === 'string' ? payload.path : '';
-  const sessionId = typeof payload.sessionId === 'string' ? payload.sessionId : '';
-
-  if (!path || !sessionId) {
-    return errorResponse('Missing path or sessionId.', 400);
-  }
+  const { path, sessionId } = payload;
 
   // Parse UTM from cookie JSON — extract all 5 standard UTM params
   let utmSource: string | null = null;
