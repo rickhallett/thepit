@@ -1,0 +1,309 @@
+<evaluation-request>
+  <meta>
+    <evaluator-role>
+      You are an independent communications evaluator who assesses public-facing
+      research and product announcements for accuracy, proportionality, and
+      audience-appropriateness. You have no affiliation with the authors. Your
+      incentive is to identify where claims exceed evidence, where framing
+      misleads, and where audience reception will diverge from author intent.
+    </evaluator-role>
+    <evaluation-id>EVAL-003-PRESS-RELEASE-HN</evaluation-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+    <description>
+      Evaluation of THE PIT's planned Hacker News "Show HN" post, Twitter
+      thread, and cross-platform launch copy. Assesses whether the public
+      presentation accurately reflects the underlying research and product,
+      and predicts demographic reception.
+    </description>
+  </meta>
+
+  <material>
+    <title>THE PIT Launch Copy — Cross-Platform</title>
+    <authors>THE PIT team (anonymous for evaluation purposes)</authors>
+    <abstract>
+      Planned launch copy for Hacker News (Show HN post + first comment),
+      Twitter/X (5-tweet thread), Reddit (4 subreddits), Discord, and Product
+      Hunt. The copy positions THE PIT as a research platform disguised as
+      entertainment, emphasising on-chain agent identity, structured agent DNA,
+      a micro-credit economy, and behavioural research findings. The strategy
+      document explicitly instructs "Lead with findings, not product" and
+      "Avoid AI tells" (no "revolutionary", "game-changing", "cutting-edge").
+    </abstract>
+    <full-text>
+      === HACKER NEWS: SHOW HN POST ===
+
+      Title: Show HN: The Pit -- Multi-agent AI debate arena with on-chain agent identity
+
+      Body: I built a real-time multi-agent debate arena where AI personas clash
+      turn-by-turn via server-sent events. Users pick preset scenarios (roast battles,
+      diplomatic summits, writers' rooms) or build custom lineups, then watch
+      Claude-powered agents argue, persuade, and occasionally say something
+      genuinely surprising.
+
+      The interesting part isn't the entertainment -- it's the data. Every bout
+      generates structured behavioral research data: turn-level transcripts, crowd
+      reactions (heart/fire per turn), and winner votes. We're studying which
+      persona configurations persuade most effectively, how agents behave under
+      pressure, and what crowds reward.
+
+      Tech stack: Next.js 16, Neon PostgreSQL (Drizzle ORM), Anthropic Claude
+      (Haiku/Sonnet/Opus), Clerk auth, Stripe micro-credits, Vercel.
+
+      Site: https://thepit.cloud
+      Source: https://github.com/rickhallett/thepit (AGPL-3.0)
+
+
+      === HACKER NEWS: FIRST COMMENT ===
+
+      A few things that might interest this crowd:
+
+      On-chain agent identity. Every agent's prompt DNA is SHA-256 hashed and can
+      be attested on-chain via Ethereum Attestation Service (EAS) on Base L2.
+      This gives you tamper detection, lineage verification across clone chains,
+      and an immutable identity record that the platform can't alter. Not every
+      project needs blockchain, but provenance tracking for AI-generated personas
+      is a legitimate use case.
+
+      Micro-credit economy. Atomic preauthorization with conditional SQL (UPDATE
+      WHERE balance &gt;= amount) to prevent race conditions. Settlement happens
+      after the bout completes with actual token usage. Hardened after an
+      adversarial code review that found several timing attacks.
+
+      Agent DNA system. Agents have structured "DNA" -- archetype, tone, quirks,
+      opening moves, signature moves, weaknesses, goals, fears. Clone an agent,
+      tweak the DNA, and the platform tracks the lineage up to 4 generations.
+      We're studying how prompts evolve when users remix them.
+
+
+      === TWITTER/X: 5-TWEET THREAD ===
+
+      Tweet 1: I built a real-time AI debate arena where multiple AI agents argue
+      turn-by-turn and you watch it happen live. 22 preset scenarios. Custom lineups.
+      Clone and remix agents. Crowd reactions and winner votes.
+
+      Tweet 2: The interesting problem: streaming multiple AI agents in sequence.
+      Each agent sees the full transcript so far. Round-robin turns via SSE.
+      120-second timeout for 12-turn bouts with thinking indicators. The UX had
+      to feel live, not "loading..."
+
+      Tweet 3: Every agent has structured "DNA" beyond a system prompt: Archetype,
+      tone, quirks. Opening move, signature move. Weakness, goal, fears. Clone any
+      agent. Tweak the DNA. The platform tracks lineage up to 4 generations.
+      Studying how prompts evolve when remixed.
+
+      Tweet 4: The credit economy was harder than expected. Atomic preauthorization
+      before the bout starts. Settlement after with actual token usage. Conditional
+      SQL to prevent race conditions. An adversarial code review found timing
+      attacks in the first version. Now hardened.
+
+      Tweet 5: Everything is open source (AGPL-3.0) and the research data feeds
+      into studies on multi-agent persona dynamics. Which personas persuade? What
+      do crowds reward? How do prompts drift across clone chains?
+
+
+      === STRATEGY NOTES (internal) ===
+
+      Key talking points:
+      1. Lead with findings, not product.
+      2. On-chain provenance is a differentiator.
+      3. Open source builds trust.
+      4. The research angle justifies the product.
+      5. Avoid AI tells. No "revolutionary," "game-changing," "cutting-edge."
+      6. Credit economy is a technical story.
+
+      Predicted criticisms prepared for:
+      - "Just a wrapper / toy"
+      - "Why not open source the models?"
+      - "Debates are repetitive"
+      - "Persona impersonation ethics"
+      - "Why would I pay?"
+      - "AI slop"
+
+
+      === UNDERLYING EVIDENCE BASE ===
+
+      The launch copy references these research findings (from 195 bouts, ~2100 turns):
+      - Prompt depth reduces refusals (H1: roast-battle 100% to 60%)
+      - Position effects on vocabulary novelty (H2: d=1.732)
+      - Comedy framing eliminates hedging (H3: 8x difference)
+      - No quality cliff at higher agent counts (H4)
+      - Character markers degrade over 12 turns (H5: 87.5% to 60%)
+      - Agents cannot adapt strategy under pressure (H6: 0/45 adaptive phrases)
+
+      The copy also references features that are implemented but not yet live:
+      - EAS on-chain attestation (code exists, not enabled in production)
+      - Clone chain lineage tracking (data model exists, UI for lineage browsing is partial)
+
+      The copy references the research programme but does not present specific
+      findings in the launch posts — it frames them as "we're studying" rather
+      than "we found."
+    </full-text>
+  </material>
+
+  <dimensions>
+    <dimension name="validity">
+      <rubric>
+        Evaluate whether the claims in the public-facing copy are factually
+        accurate and proportionate to the evidence. Score 1-5 where 1 means
+        misleading and 5 means fully accurate.
+      </rubric>
+      <sub-questions>
+        <question>The HN title says "on-chain agent identity" but the feature is implemented in code but NOT live in production. Is this misleading?</question>
+        <question>"We're studying which persona configurations persuade most effectively" — is "persuade" the right word? The research measures text-statistical metrics (TTR, Jaccard, marker hit rates), not persuasiveness as judged by humans.</question>
+        <question>"Hardened after an adversarial code review that found several timing attacks" — is this verifiable from the public repo? Does it risk sounding like security theatre?</question>
+        <question>The copy says the platform tracks lineage "up to 4 generations." Is this a technical limitation or a design choice? Is it presented accurately?</question>
+        <question>Are there claims in the copy that are aspirational (framed as current) vs actually implemented and live?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="coherence">
+      <rubric>
+        Evaluate whether the launch copy tells a consistent story across
+        platforms. Score 1-5.
+      </rubric>
+      <sub-questions>
+        <question>The strategy says "lead with findings, not product" but the HN post leads with the product ("I built a real-time multi-agent debate arena"). Does the copy follow its own strategy?</question>
+        <question>Is the dual positioning (entertainment + research) coherent, or does it undermine credibility for both audiences?</question>
+        <question>The HN first comment emphasises blockchain. The Twitter thread does not mention it. Is the per-platform message calibration appropriate or inconsistent?</question>
+        <question>The criticism playbook prepares for "just a wrapper / toy" but the copy itself describes something that could be characterised exactly that way. Does the copy proactively address this?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="choice">
+      <rubric>
+        Evaluate what was included and excluded from the public copy. Score 1-5.
+      </rubric>
+      <sub-questions>
+        <question>The copy mentions AGPL-3.0 and links the repo. Does this address the "trust through transparency" goal adequately?</question>
+        <question>The copy does NOT mention: pricing specifics, the free tier's 15-bout lifetime cap, or that the free model (Haiku) is the cheapest Claude variant. Is this an omission by design?</question>
+        <question>The copy does NOT mention: that all experiments use a single model family (Claude), or that findings may not generalise. Should launch copy include such caveats?</question>
+        <question>The copy does NOT include specific research findings — it frames research as "ongoing." Is this appropriately cautious or does it leave the research angle vague and unsubstantiated?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="framing">
+      <rubric>
+        Evaluate the tone, register, and persuasion mechanics. Score 1-5.
+      </rubric>
+      <sub-questions>
+        <question>Does the HN post successfully avoid "AI tells" as the strategy instructs? Are there any hype-adjacent phrases that would trigger HN scepticism?</question>
+        <question>"Occasionally say something genuinely surprising" — is this a defensible claim or subjective hype?</question>
+        <question>The first comment leads with the blockchain angle. On HN, blockchain mentions can be polarising. Is this the right lead for this audience?</question>
+        <question>The Twitter thread is structured as a builder's journey ("I built", "the interesting problem", "harder than expected"). Does this framing earn trust or feel formulaic?</question>
+        <question>The strategy says "the research angle justifies the product." Does the copy successfully make research feel like the genuine purpose, or does it read as retroactive justification for an entertainment product?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="likely-reaction">
+      <rubric>
+        For each demographic lens, predict the dominant audience reaction to
+        this launch copy. This is the most critical dimension for this evaluation.
+      </rubric>
+      <lenses>
+        <lens name="hacker-news">
+          <context>
+            Show HN audience. Expects: working product (not vaporware), honest
+            tech details, willingness to answer tough questions. Sceptical of
+            blockchain mentions. Will click the GitHub link and assess code
+            quality. Will check if test count (891) is real. Will notice if
+            on-chain feature is not live. The title includes "on-chain" which
+            will polarise before anyone reads the body. Top comment often
+            determines the thread's direction. The author plans to post the
+            first comment (common Show HN tactic). If the first organic
+            comment is a critique, the author's pre-placed comment may be
+            buried. HN audience overlaps heavily with people who build with
+            Claude daily and know its limitations intimately.
+          </context>
+          <predict>Dominant reaction, first objection, likely top comment, share probability, thread trajectory at 1hr/4hr/24hr.</predict>
+        </lens>
+        <lens name="x-twitter">
+          <context>
+            Builder-focused thread. Engagement depends on tweet 1 hook and
+            whether it gets quote-tweeted by someone with a large following.
+            "AI debate arena" competes with hundreds of similar-sounding
+            projects. The differentiation needs to land in tweet 1. The
+            thread format (builder journey) is well-worn on X. The research
+            angle is the differentiator but it's in tweet 5 (lowest read-
+            through). The credit economy tweet (4) is technically interesting
+            but niche.
+          </context>
+          <predict>Dominant reaction, most quotable moment, share probability, likely reframe if it goes viral.</predict>
+        </lens>
+        <lens name="ai-research">
+          <context>
+            Researchers will encounter this via HN or X, not directly. The
+            launch copy doesn't present specific findings. Researchers care
+            about: is the data public? Is the methodology rigorous? Is there
+            a paper? The research page and citations page exist but aren't
+            linked in the launch copy. The working paper title is referenced
+            in internal docs but not in the public copy.
+          </context>
+          <predict>Dominant reaction, what they'll look for, engagement likelihood.</predict>
+        </lens>
+        <lens name="viral-general">
+          <context>
+            General audience will encounter via social shares. "AI agents
+            fighting" is an immediately graspable concept. The entertainment
+            value is the hook. The research angle is irrelevant to this
+            audience. Viral potential depends entirely on whether someone
+            creates a compelling bout and shares it.
+          </context>
+          <predict>Dominant reaction, share trigger, misinterpretation risk.</predict>
+        </lens>
+        <lens name="crypto-web3">
+          <context>
+            Will see "on-chain agent identity" and "EAS on Base L2" and
+            evaluate whether this is genuine web3 integration or blockchain
+            washing. Will ask: is this live? What's the contract address?
+            Can I verify an attestation right now? The answer (not live in
+            production) may disappoint. Base L2 is credible (Coinbase chain)
+            but the feature being code-only-not-live reduces credibility.
+          </context>
+          <predict>Dominant reaction, protocol evaluation, community resonance.</predict>
+        </lens>
+      </lenses>
+    </dimension>
+  </dimensions>
+
+  <output-format>
+    <instruction>
+      Return your evaluation as structured XML. For each dimension, provide:
+      (1) a score (1-5), (2) a 2-3 sentence justification, (3) the single
+      strongest criticism, and (4) the single strongest defence. For the
+      likely-reaction dimension, provide per-lens predictions instead of a
+      single score.
+    </instruction>
+    <schema>
+      <evaluation>
+        <dimension name="{name}">
+          <score>{1-5}</score>
+          <justification>{2-3 sentences}</justification>
+          <strongest-criticism>{the best attack}</strongest-criticism>
+          <strongest-defence>{the best defence}</strongest-defence>
+        </dimension>
+        <dimension name="likely-reaction">
+          <lens name="{lens-name}">
+            <dominant-reaction>{reaction}</dominant-reaction>
+            <confidence>{confidence}</confidence>
+            <first-objection>{predicted}</first-objection>
+            <likely-comment>{predicted}</likely-comment>
+            <share-probability>{probability}</share-probability>
+          </lens>
+        </dimension>
+        <overall>
+          <composite-score>{average of dimensions 1-4}</composite-score>
+          <go-no-go>{Publish|Revise|Kill}</go-no-go>
+          <revision-priorities>{ordered list}</revision-priorities>
+        </overall>
+      </evaluation>
+    </schema>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>You must not assume the material is correct. Evaluate as if you have no prior belief.</instruction>
+    <instruction>You must not assume the material is wrong. Evaluate the evidence on its merits.</instruction>
+    <instruction>If you find yourself strongly agreeing or disagreeing, flag this as potential bias and re-evaluate.</instruction>
+    <instruction>Your evaluation will be compared against evaluations from other independent models. Accuracy is rewarded, not agreement.</instruction>
+    <instruction>Do not soften criticism to be polite. Do not amplify criticism to seem rigorous. Be calibrated.</instruction>
+  </anti-bias-instructions>
+</evaluation-request>

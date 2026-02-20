@@ -1,0 +1,214 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="103" name="Security Engineering">
+  <meta>
+    <evaluator-role>
+      You are an application security engineer with experience in penetration
+      testing, threat modeling, and secure code review. You evaluate from the
+      attacker's perspective: what could a motivated adversary exploit? You
+      distinguish between theoretical risks and practical exploits. You know
+      that security is about economics — the cost of attack vs the value of
+      the target — and you score accordingly. You are reviewing a production
+      web application that handles user authentication, payments, AI API keys,
+      and blockchain attestations. Built by a solo developer in under two weeks.
+    </evaluator-role>
+    <required-sections>A (lib/), B (app/api/), E (config), G (schema)</required-sections>
+    <optional-sections>C (frontend), D (tests), F (Go CLIs)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="103.1" name="Authentication and Authorization">
+      <question>Are authentication and authorization checks correct, consistent, and complete?</question>
+      <anchors>
+        <anchor score="1">Auth checks missing from sensitive endpoints. Or auth is bypassable.</anchor>
+        <anchor score="3">Auth exists but applied inconsistently. Some endpoints missing checks. Role escalation possible.</anchor>
+        <anchor score="5">Auth applied to all endpoints. Clerk integration is standard. Admin checks use timing-safe comparison. Some edge cases in anonymous access.</anchor>
+        <anchor score="7">Auth is comprehensive and consistent. Every route checks auth the same way. Admin access is separately gated. Anonymous operations are rate-limited and constrained.</anchor>
+        <anchor score="10">Defense in depth. Auth at middleware, route, and function level. Session management is robust. Token rotation is handled. Privilege escalation is impossible.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is every API route protected by auth (or explicitly marked public)?
+        - Is admin auth (timing-safe comparison) used consistently?
+        - Can anonymous users do anything dangerous?
+        - Is the research API key bypass (bout-engine.ts line ~304) using === instead of timingSafeEqual?
+        - Can a user access another user's data (IDOR)?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.2" name="Input Validation Completeness">
+      <question>Is all user input validated before use? Are validation rules appropriate?</question>
+      <anchors>
+        <anchor score="1">User input used directly in queries, prompts, or responses without validation.</anchor>
+        <anchor score="3">Some validation but inconsistent. Length checks in some routes but not others. No centralized validation.</anchor>
+        <anchor score="5">Input validated per-route. UNSAFE_PATTERN regex catches common attacks. Length limits enforced. But validation is inline, not centralized.</anchor>
+        <anchor score="7">Comprehensive input validation. All string inputs checked for length, format, and malicious content. Typed request bodies with runtime validation. Centralized patterns.</anchor>
+        <anchor score="10">All inputs validated through a typed schema layer (Zod or similar). Validation is declarative and tested. No raw user input reaches business logic.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Does UNSAFE_PATTERN catch all XSS vectors? Unicode bypasses? data: URIs? javascript: URIs?
+        - Is parseJsonBody() a type assertion (T cast) or runtime-validated?
+        - Are there routes that accept user input without validation?
+        - Are there integer overflow risks in credit calculations?
+        - Can you inject into XML prompts despite xmlEscape()?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.3" name="Injection Prevention">
+      <question>Are SQL injection, XSS, prompt injection, and other injection vectors mitigated?</question>
+      <anchors>
+        <anchor score="1">Raw string concatenation in SQL queries or user input rendered without escaping.</anchor>
+        <anchor score="3">Mostly parameterized queries but some raw SQL. Some unescaped output.</anchor>
+        <anchor score="5">All SQL uses parameterized queries (Drizzle ORM). No dangerouslySetInnerHTML. XML prompts use xmlEscape(). Prompt injection mitigated but not tested.</anchor>
+        <anchor score="7">Full injection prevention across all vectors. SQL parameterized. XSS prevented by React + input validation. Prompt injection addressed with safety preamble and XML escaping.</anchor>
+        <anchor score="10">Injection prevention is defense-in-depth. Multiple layers per vector. Automated testing for injection. Content Security Policy headers. Prompt injection fuzzing.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Grep for raw SQL string concatenation (there should be none).
+        - Grep for dangerouslySetInnerHTML (there should be none).
+        - Is xmlEscape() covering all 5 XML entities (&amp; &lt; &gt; &quot; &apos;)?
+        - Can a user craft a topic that breaks out of the XML prompt structure?
+        - Are there any eval(), Function(), or template literal injection risks?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.4" name="Secret Management">
+      <question>Are secrets (API keys, tokens, private keys) handled safely throughout their lifecycle?</question>
+      <anchors>
+        <anchor score="1">Secrets hardcoded in source code or committed to git.</anchor>
+        <anchor score="3">Secrets in env vars but accessed inconsistently. Some logging of secrets. No rotation plan.</anchor>
+        <anchor score="5">Secrets in env vars, validated at startup (Zod). Log sanitization catches API key patterns. BYOK keys in HTTP-only cookies. No secrets in client bundles.</anchor>
+        <anchor score="7">Comprehensive secret management. All secrets validated, sanitized from logs, and scoped to minimum necessary access. BYOK keys are read-once-then-delete.</anchor>
+        <anchor score="10">Secret management is auditable. Key rotation is automated. Secrets are encrypted at rest. Access is logged. Exposure triggers automatic rotation.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Does lib/logger.ts sanitize ALL key patterns? Could a new provider's key format slip through?
+        - Is the EAS private key (Ethereum wallet) adequately protected?
+        - Are BYOK keys truly ephemeral (read-once-then-delete from cookie)?
+        - Could a timing attack extract the admin seed token despite timingSafeEqual?
+        - Are there any paths where a secret could appear in a client-side error message?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.5" name="Rate Limiting and Abuse Prevention">
+      <question>Can the system withstand automated abuse (credential stuffing, resource exhaustion, scraping)?</question>
+      <anchors>
+        <anchor score="1">No rate limiting. An attacker could exhaust resources with a simple loop.</anchor>
+        <anchor score="3">Some rate limiting but in-memory only (resets on deploy). Easy to bypass with IP rotation.</anchor>
+        <anchor score="5">Per-route rate limiting with appropriate limits. In-memory sliding window (documented as best-effort). DB constraints as authoritative layer. Anomaly detection logged.</anchor>
+        <anchor score="7">Multi-layer abuse prevention. Rate limiting + DB constraints + anomaly detection. Cost-of-attack is meaningful. Automated alerts for suspicious patterns.</anchor>
+        <anchor score="10">Comprehensive abuse prevention. Distributed rate limiting (Redis/Upstash). IP reputation. Captcha on sensitive operations. Automatic blocking. Incident response playbook.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is rate limiting per-instance or distributed? What happens on Vercel with multiple instances?
+        - Can an attacker exhaust the free bout pool for all users?
+        - Can an attacker trigger expensive AI API calls without rate limiting?
+        - Is the anomaly detection system (lib/anomaly.ts) effective, or just logging?
+        - What's the cost of a DDoS attack against the bout creation endpoint?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.6" name="Payment Security">
+      <question>Are payment flows (Stripe webhooks, credit system, subscriptions) secure against manipulation?</question>
+      <anchors>
+        <anchor score="1">Webhook verification missing. Credit manipulation possible.</anchor>
+        <anchor score="3">Webhooks verified but credit system has race conditions. Duplicate payment possible.</anchor>
+        <anchor score="5">Stripe webhook signature verification. Atomic credit operations. onConflictDoNothing for idempotency. Some edge cases in settlement timing.</anchor>
+        <anchor score="7">Comprehensive payment security. All financial operations are atomic. Idempotency keys prevent duplicates. Refund paths are guaranteed. Audit trail exists.</anchor>
+        <anchor score="10">Payment system is auditable and provably correct. Double-entry accounting. Reconciliation checks. Fraud detection. PCI compliance documented.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is stripe.webhooks.constructEvent() called before ANY processing?
+        - Can a user manipulate their credit balance through race conditions?
+        - Are preauthorizeCredits() and settleCredits() atomic (conditional SQL UPDATE)?
+        - What happens if a webhook is replayed 100 times?
+        - Can a user get free bouts by timing credit checks against pool refunds?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.7" name="Data Privacy and Information Leakage">
+      <question>Does the system protect user data and avoid leaking internal implementation details?</question>
+      <anchors>
+        <anchor score="1">User data exposed in logs, errors, or API responses. Internal paths visible.</anchor>
+        <anchor score="3">Some data leakage in error messages. User IDs visible in URLs. No anonymization.</anchor>
+        <anchor score="5">Error messages sanitized. Research exports use anonymized IDs. Email addresses masked. No internal paths in client responses.</anchor>
+        <anchor score="7">Comprehensive data protection. All exports anonymized with salted hashes. Error responses reveal nothing internal. Logs redact PII.</anchor>
+        <anchor score="10">Data protection by design. PII inventory. Retention policies. GDPR compliance. Data minimization. Privacy impact assessment documented.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Does lib/research-anonymize.ts use proper domain separation (different salts for different ID types)?
+        - Can user IDs be correlated across anonymized exports?
+        - Do error responses to clients include stack traces, file paths, or internal state?
+        - Are API responses returning more data than necessary?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.8" name="Cryptographic Correctness">
+      <question>Is cryptography used correctly (hash functions, key derivation, digital signatures)?</question>
+      <anchors>
+        <anchor score="1">Weak or broken cryptography. MD5 for security purposes. Custom crypto implementations.</anchor>
+        <anchor score="3">Standard algorithms used but incorrectly (e.g., SHA-256 without salt for password-like inputs).</anchor>
+        <anchor score="5">SHA-256 for hashing. Salt-based domain separation for anonymization. EAS uses standard Ethereum signing. No custom crypto.</anchor>
+        <anchor score="7">Cryptography is correct and purposeful. Hash functions appropriate for use case. Key management follows best practices. Randomness from secure sources.</anchor>
+        <anchor score="10">Cryptographic operations are reviewed and documented. Key lengths appropriate. Algorithm choices justified. Deprecation plan for aging algorithms.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is SHA-256 appropriate for agent manifest hashing (yes — integrity, not secrecy)?
+        - Is the research anonymization salt long enough and random enough?
+        - Is crypto.timingSafeEqual() used correctly (length check before comparison)?
+        - Are nanoid() IDs secure enough for bout IDs?
+        - Does the EAS integration use proper Ethereum key management?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.9" name="CSRF and Cross-Origin Protection">
+      <question>Are cross-site request forgery and cross-origin attacks mitigated?</question>
+      <anchors>
+        <anchor score="1">No CSRF protection. State-changing operations accessible via GET. No CORS policy.</anchor>
+        <anchor score="3">Some CSRF protection but inconsistent. CORS is permissive.</anchor>
+        <anchor score="5">Clerk handles CSRF for authenticated routes. BYOK cookie uses sameSite strict. Stripe webhooks verified by signature. Some API routes may be missing explicit CSRF checks.</anchor>
+        <anchor score="7">Comprehensive CSRF protection. All state-changing operations use POST with CSRF tokens. CORS is restrictive. Cookie attributes are secure (httpOnly, sameSite, secure).</anchor>
+        <anchor score="10">CSRF is impossible by design. All mutations require proof of origin. Content Security Policy is strict. Subresource integrity on all external scripts.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Does every state-changing API route require POST (not GET)?
+        - Are CORS headers set appropriately?
+        - Are cookies configured with httpOnly, secure, sameSite?
+        - Is the page-view tracking endpoint (internal) protected against external triggering?
+      </what-to-examine>
+    </metric>
+
+    <metric id="103.10" name="Supply Chain Security">
+      <question>Are dependencies managed safely? Could a compromised npm package attack the system?</question>
+      <anchors>
+        <anchor score="1">Hundreds of unaudited dependencies. No lockfile. No version pinning.</anchor>
+        <anchor score="3">Lockfile exists but dependencies are not audited. Some known vulnerable packages.</anchor>
+        <anchor score="5">pnpm lockfile. Dependencies are reasonable for the stack. No known critical vulnerabilities. Some unused dependencies.</anchor>
+        <anchor score="7">Minimal dependency set. Lockfile verified in CI. Dependabot or equivalent configured. No unnecessary dependencies.</anchor>
+        <anchor score="10">Supply chain is actively managed. SBOMs generated. Dependencies audited on every update. CSP prevents unauthorized script execution. Subresource integrity for CDN assets.</anchor>
+      </anchors>
+      <what-to-examine>
+        - How many direct dependencies? How many total (including transitive)?
+        - Are there dependencies that seem unnecessary for the functionality they provide?
+        - Is pnpm-lock.yaml committed and verified?
+        - Is npm audit clean?
+        - Are Go dependencies vendored or using module proxy?
+      </what-to-examine>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "103", all 10 metrics with scores, justifications, and the
+      recommended_actions section should prioritize by exploitability (not
+      just theoretical risk).
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Do not score based on the ABSENCE of enterprise features (WAF, SAST pipeline, SOC2). Score based on whether what IS present is correct.</instruction>
+    <instruction>Distinguish between theoretical risks and practical exploits. A timing oracle on a rate-limit bypass key is different from one on a payment secret.</instruction>
+    <instruction>Do not assume an attacker has infinite resources. Score against realistic threat models for an early-stage AI product.</instruction>
+    <instruction>Credit defense-in-depth even if individual layers are imperfect.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

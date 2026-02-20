@@ -1,0 +1,153 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="107" name="AI/LLM Integration Engineering">
+  <meta>
+    <evaluator-role>
+      You are an ML engineer specializing in LLM application development. You
+      have deployed production LLM systems at scale and understand the unique
+      challenges: prompt injection, output quality variance, cost management,
+      latency optimization, provider failover, and the tension between safety
+      and capability. You evaluate LLM integration not just on whether it works,
+      but on whether it's resilient, cost-efficient, and safe. You are reviewing
+      a multi-agent AI debate system that orchestrates multiple LLM calls per
+      bout, uses structured XML prompts, and supports both platform-funded and
+      bring-your-own-key (BYOK) execution.
+    </evaluator-role>
+    <required-sections>A (lib/ — ai.ts, models.ts, xml-prompt.ts, bout-engine.ts, context-budget.ts, langsmith.ts)</required-sections>
+    <optional-sections>D (tests — xml-prompt.test.ts, ai.test.ts), E (config)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="107.1" name="Prompt Engineering Quality">
+      <question>Are prompts well-structured, injection-resistant, and effective at eliciting the desired behavior?</question>
+      <anchors>
+        <anchor score="1">Prompts are plain strings concatenated with user input. No injection protection. No structure.</anchor>
+        <anchor score="3">Some prompt structure but user input is not escaped. Prompt injection is possible.</anchor>
+        <anchor score="5">Structured XML prompt system with safety preamble, persona, format, and context sections. xmlEscape() on all user input. Clear separation between system instructions and user content.</anchor>
+        <anchor score="7">Prompt architecture is deliberate and defensive. Safety preamble prevents identity disclosure. XML structure resists injection. Persona wrapping handles legacy prompts. Cache control optimizes cost.</anchor>
+        <anchor score="10">Prompt system is a first-class engineering artifact. Versioned. A/B testable. Injection-fuzztested. Prompts are generated from typed data structures, not string templates.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is the XML prompt structure robust against user-controlled topic injection?
+        - Does xmlEscape() cover all XML special characters?
+        - Is the safety preamble effective at preventing the model from breaking character?
+        - Is the persona wrapping (wrapPersona) handling legacy plain-text prompts correctly?
+        - Could a clever user craft a topic that alters agent behavior?
+      </what-to-examine>
+    </metric>
+
+    <metric id="107.2" name="Cost Management and Token Economics">
+      <question>Is LLM usage tracked, budgeted, and optimized to prevent runaway costs?</question>
+      <anchors>
+        <anchor score="1">No cost tracking. No token budgets. A malicious user could exhaust the API budget.</anchor>
+        <anchor score="3">Basic token tracking but no budget enforcement. Costs logged but not limited.</anchor>
+        <anchor score="5">Token estimation before execution. Context budget management with history truncation. Prompt caching for cross-turn reuse. Per-bout cost tracking in PostHog. Credit system preauthorizes before execution.</anchor>
+        <anchor score="7">Comprehensive cost management. Pre-execution budget check. Mid-execution budget enforcement. Post-execution settlement. BYOK users bear their own costs. Free tier bounded by pool system.</anchor>
+        <anchor score="10">Real-time cost monitoring with alerts. Per-user, per-model cost attribution. Anomaly detection for unusual usage. Cost optimization (caching, batching, model routing) is automated.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is estimatePromptTokens() conservative enough? (4 chars/token — is that right for Claude?)
+        - Does truncateHistoryToFit() actually prevent context overflow?
+        - Is Anthropic prompt caching used effectively (cacheControl: 'ephemeral')?
+        - What's the maximum cost of a single bout? Is it bounded?
+        - Can a free-tier user circumvent the free bout pool to run unlimited bouts?
+      </what-to-examine>
+    </metric>
+
+    <metric id="107.3" name="Streaming Reliability">
+      <question>Is the streaming implementation robust against failures, timeouts, and partial responses?</question>
+      <anchors>
+        <anchor score="1">Streaming breaks on any error. No error recovery. Client hangs on failure.</anchor>
+        <anchor score="3">Basic streaming works but errors are not communicated to the client. No timeout handling.</anchor>
+        <anchor score="5">Streaming handles errors gracefully. Partial transcripts persisted on failure. Error events sent to client with safe messages. Timeout detection. Credit refund on failure.</anchor>
+        <anchor score="7">Streaming is production-ready. Multiple error classes (timeout, rate limit, overload) handled distinctly. Client receives structured error events. Server-side cleanup is comprehensive.</anchor>
+        <anchor score="10">Streaming is battle-tested. Automatic retry with exponential backoff. Circuit breaker for provider outages. Client reconnection support. Streaming metrics (TTFT, throughput).</anchor>
+      </anchors>
+      <what-to-examine>
+        - What happens when the Anthropic API returns a 429 mid-stream?
+        - What happens when the client disconnects mid-stream?
+        - Is the partial transcript saved correctly on error?
+        - Are credits refunded when streaming fails?
+        - How is TTFT (time-to-first-token) tracked?
+      </what-to-examine>
+    </metric>
+
+    <metric id="107.4" name="Multi-Agent Orchestration">
+      <question>Is the turn-by-turn multi-agent execution well-designed and resilient?</question>
+      <anchors>
+        <anchor score="1">Agents execute sequentially with no error handling between turns.</anchor>
+        <anchor score="3">Basic turn loop works but no handling for agent-specific failures or refusals.</anchor>
+        <anchor score="5">Turn loop with refusal detection, per-turn event emission, context accumulation, and share-line generation. Agents selected round-robin from preset. Turn count configurable.</anchor>
+        <anchor score="7">Orchestration is thoughtful. Each turn is a self-contained operation. Refusals are detected and logged but don't crash the bout. Context grows correctly across turns. Agent ordering is configurable.</anchor>
+        <anchor score="10">Sophisticated orchestration. Dynamic agent selection (not just round-robin). Adaptive context management. Agent interruption/substitution. Multi-model bouts. Parallel agent execution where appropriate.</anchor>
+      </anchors>
+      <what-to-examine>
+        - How does the turn loop in executeBout() handle a refusal from one agent?
+        - Is the transcript context accumulated correctly across turns?
+        - What happens if an agent produces an empty response?
+        - Is agent ordering deterministic and correct for all preset types?
+        - Could the context window overflow if turns are unexpectedly verbose?
+      </what-to-examine>
+    </metric>
+
+    <metric id="107.5" name="Model Provider Abstraction">
+      <question>Is the model layer abstracted enough to support multiple providers and configurations?</question>
+      <anchors>
+        <anchor score="1">Hard-coded to one provider. Changing models requires code changes everywhere.</anchor>
+        <anchor score="3">Some abstraction but provider-specific code leaks into the bout engine.</anchor>
+        <anchor score="5">Vercel AI SDK provides provider abstraction. getModel() resolves the correct provider (Anthropic/OpenRouter) from BYOK key format. Model options are configurable. Adding a new model requires config changes, not code changes.</anchor>
+        <anchor score="7">Clean provider abstraction. Model capabilities (context window, pricing) are tracked per model. BYOK supports multiple providers. Model selection is tier-aware.</anchor>
+        <anchor score="10">Provider-agnostic architecture. Model routing based on cost/latency/quality trade-offs. Automatic fallback to alternative provider on failure. A/B testing of models.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="107.6" name="Output Quality and Evaluation">
+      <question>Is there a system for measuring and improving LLM output quality?</question>
+      <anchors>
+        <anchor score="1">No quality measurement. Output is whatever the model returns.</anchor>
+        <anchor score="3">Basic output processing (format compliance check) but no quality evaluation.</anchor>
+        <anchor score="5">Eval system exists: refusal detection, persona adherence scoring, format compliance, debate quality judge. Automated metrics (TTR, marker persistence, hedging rates). LangSmith tracing.</anchor>
+        <anchor score="7">Comprehensive evaluation pipeline. Multiple eval dimensions. Human evaluation through crowd voting. Research programme validates output properties. Metrics feed back into prompt design.</anchor>
+        <anchor score="10">Closed-loop quality system. Automated evals trigger prompt adjustments. A/B testing of prompt variants. Quality regression detection. Evals run in CI.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="107.7" name="Safety and Content Moderation">
+      <question>Are there safeguards against harmful output, misuse, and unintended behavior?</question>
+      <anchors>
+        <anchor score="1">No safety measures. Model output rendered directly.</anchor>
+        <anchor score="3">Basic safety preamble in prompts but no output filtering.</anchor>
+        <anchor score="5">Safety preamble instructs character boundaries. UNSAFE_PATTERN on input. Refusal detection logs safety-layer activations. Topic validation prevents overtly harmful topics. No output filtering.</anchor>
+        <anchor score="7">Multi-layer safety. Input validation, prompt safety preamble, refusal detection, and content flagging. Safety behavior is measured and tracked across hypotheses.</anchor>
+        <anchor score="10">Comprehensive content safety. Input filtering, prompt guardrails, output classification, human review for flagged content. Safety incidents tracked and addressed.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="107.8" name="Observability and Debugging">
+      <question>Can you diagnose LLM-related issues (quality regressions, latency spikes, cost anomalies) from the available telemetry?</question>
+      <anchors>
+        <anchor score="1">No LLM-specific logging or monitoring.</anchor>
+        <anchor score="3">Basic logging (request/response) but no structured metrics.</anchor>
+        <anchor score="5">LangSmith tracing for all platform calls (not BYOK). PostHog $ai_generation events with tokens, cost, duration. Structured logging with correlation IDs.</anchor>
+        <anchor score="7">Comprehensive LLM observability. Per-bout, per-turn, per-agent metrics. Cost attribution. Latency tracking. Quality eval scores logged alongside execution data.</anchor>
+        <anchor score="10">Full LLM ops stack. Real-time dashboards. Anomaly detection on quality and cost. Automatic alerts. Prompt versioning with A/B test metrics.</anchor>
+      </anchors>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "107", all 8 metrics. Pay special attention to the interplay
+      between cost management, quality evaluation, and safety — these three
+      form a triangle of trade-offs in LLM applications.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Do not penalize the absence of multi-provider failover at early stage. One provider with good error handling is sufficient.</instruction>
+    <instruction>Do not reward complexity in prompt engineering. Simple prompts that work are better than complex ones that are fragile.</instruction>
+    <instruction>The BYOK model (users bring their own API keys) is a deliberate design choice, not a cost-cutting measure. Evaluate it accordingly.</instruction>
+    <instruction>LangSmith tracing excluding BYOK calls is a privacy feature, not a limitation.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

@@ -1,0 +1,205 @@
+<narrative-request>
+  <meta>
+    <narrator-role>
+      You are preparing a speaker for three time-slots: 60 seconds, 5
+      minutes, and 20 minutes. The speaker is the sole builder of THE PIT
+      — a one-person operation that produced a functioning research platform
+      and empirical findings in under two weeks.
+
+      The speaker is not a polished presenter. They are a builder who
+      happens to have found something interesting. The authenticity of
+      that position — builder first, presenter second — is a strength,
+      not a weakness. Do not polish it into corporate smoothness.
+
+      Each monologue must work standalone. The 60-second version is not a
+      compressed 5-minute version. It is a different instrument designed
+      for a different moment: the elevator pitch, the podcast intro, the
+      conference hallway conversation. Each time-slot rewards a different
+      structure.
+    </narrator-role>
+    <narrative-id>NARR-004-MONOLOGUES</narrative-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+  </meta>
+
+  <source-context>
+    <project-facts>
+      Built by one person in under two weeks. 891 tests. AGPL-3.0.
+      195 bouts, ~2,100 turns, 6 pre-registered hypotheses, all public.
+      Anthropic Claude. Non-academic. No peer review.
+    </project-facts>
+
+    <key-findings>
+      - Zero adaptive phrases in 45 Founder turns under sustained critique
+      - Character markers degrade 87.5% to 60.0%; structural holds at 100%, ornamental collapses to 13.3%
+      - Comedy framing eliminates hedging; serious framing produces 8x more
+      - Richer persona prompts cut refusals from 100% to 60% (eliminated in less adversarial contexts)
+      - First speaker's vocabulary persists 45-59% in subsequent turns
+      - Agents converge with reinforcers, not critics
+    </key-findings>
+
+    <narrative-spine>
+      AI agents can hold their personality perfectly. They cannot change
+      their mind. These are independent capabilities. The gap between
+      them is the gap between a performer and a thinker.
+    </narrative-spine>
+  </source-context>
+
+  <!-- ============================================================ -->
+  <!-- THE 60-SECOND VERSION                                          -->
+  <!-- ============================================================ -->
+
+  <monologue duration="60-seconds" context="elevator-pitch-podcast-intro-conference-hallway">
+    <structure>
+      60 seconds rewards a single vivid example that carries the whole
+      argument. Not a summary. Not a compressed version of the longer
+      talk. One concrete image that the listener can hold in their mind
+      and retell to someone else.
+
+      Structure: Hook (the specific detail) → Context (why it matters) →
+      Implication (what it means beyond this case). No more than 3
+      sentences for each.
+    </structure>
+
+    <constraints>
+      <constraint>Must be speakable in 60 seconds at conversational pace (~150 words)</constraint>
+      <constraint>Must contain exactly one number (the most memorable one)</constraint>
+      <constraint>Must end with a question or an open door, not a conclusion</constraint>
+      <constraint>Must work without slides, without context, without knowing what THE PIT is</constraint>
+      <constraint>The listener should be able to retell the core idea to someone else in one sentence</constraint>
+    </constraints>
+
+    <instruction>
+      Write the 60-second monologue. The listener has never heard of THE
+      PIT. By the end, they should understand one thing clearly and want
+      to know more. The one thing: AI agents can maintain character
+      perfectly but cannot change their mind. The "want to know more":
+      the implications of that gap.
+    </instruction>
+  </monologue>
+
+  <!-- ============================================================ -->
+  <!-- THE 5-MINUTE VERSION                                           -->
+  <!-- ============================================================ -->
+
+  <monologue duration="5-minutes" context="lightning-talk-podcast-segment-interview-answer">
+    <structure>
+      5 minutes rewards a three-act structure:
+
+      Act 1 (90s): The question and the setup. Why did you build this?
+      What were you trying to find out? One concrete detail that grounds
+      the abstract question in something tangible.
+
+      Act 2 (120s): The findings. Not all of them — the three that
+      compose into a story. Each finding should complicate the previous
+      one. The sequence should feel like discovery, not recitation.
+
+      Act 3 (90s): The implication. What does this mean beyond your
+      specific project? What question does it open that you can't answer
+      yet? End with the open question, not the conclusion.
+    </structure>
+
+    <constraints>
+      <constraint>Must be speakable in 5 minutes at conversational pace (~750 words)</constraint>
+      <constraint>Must contain no more than 3 findings (selection, not completeness)</constraint>
+      <constraint>Must include one moment of vulnerability or honest limitation</constraint>
+      <constraint>Must include one specific detail that makes it real (agent name, specific preset, exact number)</constraint>
+      <constraint>The listener should walk away with a clear thesis they can state in one sentence</constraint>
+    </constraints>
+
+    <recommended-findings>
+      <finding role="setup">H1 — refusal cascade. Sets up: what happens when AI personas face pressure?</finding>
+      <finding role="complication">H5 — character drift. Complicates: they hold character... but not equally. Structural vs ornamental.</finding>
+      <finding role="turn">H6 — zero adaptation. The turn: they can hold character but they can't think. 45 turns, zero concessions. Converges with the hype man, not the critics.</finding>
+    </recommended-findings>
+
+    <instruction>
+      Write the 5-minute monologue. It should feel like a conversation,
+      not a presentation. The speaker is telling someone about something
+      they found while building something. The enthusiasm is for the
+      discovery, not for the product.
+    </instruction>
+  </monologue>
+
+  <!-- ============================================================ -->
+  <!-- THE 20-MINUTE VERSION                                          -->
+  <!-- ============================================================ -->
+
+  <monologue duration="20-minutes" context="conference-talk-guest-lecture-long-podcast-segment">
+    <structure>
+      20 minutes rewards a full narrative arc with depth, nuance, and
+      the space to be honest about what you don't know.
+
+      Structure:
+      - Opening (2 min): The question that drove the project. Not "I
+        built a debate arena" but "I wanted to know: what happens when
+        you give AI agents real personalities and put them under pressure?"
+      - Context (3 min): What exists, what's missing, why you built this.
+        The builder's journey — not as a flex, but as methodology context.
+        One person, two weeks, 891 tests. The constraints shaped the design.
+      - Methodology (3 min): Pre-registration, automated metrics, why you
+        chose these specific measures. Honest about non-standard thresholds.
+        This section earns trust for everything that follows.
+      - Findings (8 min): All six hypotheses, but structured as a story
+        with a through-line, not a list. Each finding builds on the previous.
+        The sequence should feel inevitable in retrospect.
+      - The Gap (2 min): The synthesis. Character fidelity vs strategic
+        adaptation. The paradox. The three-axis model if it serves the
+        narrative (cut if it doesn't).
+      - Limitations and Open Questions (2 min): Single model. Automated
+        metrics. No peer review. What you'd do with more resources. What
+        questions remain open. This section is not an apology — it's an
+        invitation.
+    </structure>
+
+    <constraints>
+      <constraint>Must be speakable in 20 minutes (~3,000 words)</constraint>
+      <constraint>Must include at least two moments of honest limitation or uncertainty</constraint>
+      <constraint>Must include at least one moment where a finding surprised or disconfirmed your expectation</constraint>
+      <constraint>Must not claim generalisability beyond Claude without qualification</constraint>
+      <constraint>Must end with an open question, not a conclusion — the audience should leave thinking, not satisfied</constraint>
+      <constraint>Must work with or without slides</constraint>
+    </constraints>
+
+    <instruction>
+      Write the 20-minute monologue. This is the prepared version for when
+      you get the stage. It should sound like someone who has thought deeply
+      about what they found and is sharing that thinking, not someone
+      reading a paper. It should have personality. It should have moments
+      of surprise. It should be the version that, if recorded, someone
+      would send to a friend with the message "watch this."
+
+      The craft here is in the transitions — how you move from one finding
+      to the next, how each one reframes what came before. The findings
+      don't change. The reader's understanding of them should evolve with
+      each new piece of evidence.
+    </instruction>
+  </monologue>
+
+  <craft-principles>
+    <principle name="the-builder-voice">
+      The speaker is not a presenter. They are a builder who found something
+      interesting. This is a strength. Academic language distances. Builder
+      language connects. "We ran 10,000 permutation tests" is less
+      compelling than "I wrote a script that shuffled the data 10,000 times
+      to make sure I wasn't fooling myself."
+    </principle>
+
+    <principle name="one-person-two-weeks">
+      This is not a limitation to hide. It's a narrative asset. One person,
+      two weeks, 891 tests, 195 experiments, 6 hypotheses, all public.
+      The constraint is the story. The fact that one person can build a
+      research platform, run experiments, and produce findings — in the
+      time it takes a committee to write an abstract — says something about
+      the tools and the moment we're in.
+    </principle>
+
+    <principle name="end-with-the-question-not-the-answer">
+      Every monologue ends with what you don't know, not what you do. "AI
+      agents can hold character but can't change their mind. The question
+      I can't answer yet: is that a limitation of the model, or the prompt,
+      or the fundamental architecture? And does the answer change depending
+      on which model you use?" The open question is what makes someone
+      come find you after the talk.
+    </principle>
+  </craft-principles>
+</narrative-request>

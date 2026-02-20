@@ -1,0 +1,112 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="108" name="Frontend Engineering">
+  <meta>
+    <evaluator-role>
+      You are a senior frontend engineer with deep React expertise. You
+      evaluate components on composition, accessibility, responsive design,
+      state management, and user experience under stress (slow networks,
+      intermittent connections, loading states). You know that frontend
+      engineering is fundamentally about managing uncertainty — the user
+      can do anything, the network can fail at any time, and the viewport
+      is always a surprise. You are reviewing a Next.js 14 App Router
+      application with server components, client hooks for streaming,
+      and Tailwind CSS.
+    </evaluator-role>
+    <required-sections>C (components/, app/**/page.tsx), A (lib/ — hooks: use-bout.ts, use-bout-reactions.ts, etc.)</required-sections>
+    <optional-sections>E (config — tailwind, next.config), D (tests — E2E)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="108.1" name="Component Architecture">
+      <question>Are components composed well? Is the server/client boundary appropriate?</question>
+      <anchors>
+        <anchor score="1">Monolithic components. Everything is client-side. No composition.</anchor>
+        <anchor score="3">Some component decomposition but unclear server/client boundary. Unnecessary "use client" directives.</anchor>
+        <anchor score="5">Server components for static pages (research, citations, roadmap). Client components for interactive features (arena, bout streaming). Copy system uses server-side resolution. Reasonable decomposition.</anchor>
+        <anchor score="7">Deliberate server/client split. Data fetching in server components. Interactivity in client components. Shared components are pure. Props interfaces are clean.</anchor>
+        <anchor score="10">Optimal component architecture. Streaming server components where appropriate. Client components are minimal. Component library with consistent API. Storybook or equivalent.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="108.2" name="State Management">
+      <question>Is client-side state managed coherently? Are there unnecessary re-renders or stale state bugs?</question>
+      <anchors>
+        <anchor score="1">Global state everywhere. Props drilling through 10 levels. Race conditions in state updates.</anchor>
+        <anchor score="3">State is mostly local but some unnecessary lifting. Some stale closure bugs in hooks.</anchor>
+        <anchor score="5">Custom hooks (useBout, useBoutReactions, useBoutVoting) encapsulate state. Optimistic UI with server reconciliation. Pending message state machine for streaming UX.</anchor>
+        <anchor score="7">State is well-managed. Each hook has a clear responsibility. No unnecessary re-renders. Loading/error/success states handled consistently.</anchor>
+        <anchor score="10">State management is a first-class concern. Derived state is memoized. State machines for complex flows. No impossible states.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="108.3" name="Loading and Error States">
+      <question>Does the UI handle loading, errors, and empty states gracefully?</question>
+      <anchors>
+        <anchor score="1">Blank screens during loading. Unhandled errors crash the page.</anchor>
+        <anchor score="3">Loading spinners exist but error states show generic messages. Empty states are blank.</anchor>
+        <anchor score="5">Loading states for bout streaming. Error messages for 429/timeout/overload. Empty states for no bouts. Rate limit information displayed to user.</anchor>
+        <anchor score="7">Comprehensive state handling. Skeleton loading. Structured error display with retry options. Empty states with calls to action. Graceful degradation.</anchor>
+        <anchor score="10">Every possible UI state is designed. Optimistic updates with rollback. Offline support. Error boundaries at component level. Progressive enhancement.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="108.4" name="Accessibility">
+      <question>Can users with disabilities interact with the application effectively?</question>
+      <anchors>
+        <anchor score="1">No semantic HTML. No ARIA labels. Keyboard navigation broken.</anchor>
+        <anchor score="3">Some semantic HTML but ARIA labels missing. Focus management not considered.</anchor>
+        <anchor score="5">Semantic HTML used (sections, headings, nav). Links and buttons are distinct. Some ARIA labels. Color contrast may not meet WCAG AA.</anchor>
+        <anchor score="7">Good accessibility. Semantic HTML throughout. ARIA labels on interactive elements. Keyboard navigable. Focus management for modals/overlays. Color contrast meets WCAG AA.</anchor>
+        <anchor score="10">WCAG AAA. Screen reader tested. Voice navigation supported. Reduced motion respected. Accessibility is tested in CI.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="108.5" name="Responsive Design">
+      <question>Does the UI work well across viewport sizes?</question>
+      <anchors>
+        <anchor score="1">Desktop only. Mobile is broken.</anchor>
+        <anchor score="3">Responsive breakpoints exist but some content overflows on mobile.</anchor>
+        <anchor score="5">Tailwind responsive utilities used. Mobile viewport tested (E2E test for iPhone 15). Hamburger menu on mobile. No horizontal scroll issues detected.</anchor>
+        <anchor score="7">Thoughtful responsive design. Content adapts, not just shrinks. Touch targets are appropriately sized. Tables become cards on mobile.</anchor>
+        <anchor score="10">Mobile-first design. Progressive disclosure by viewport. Performance optimized per device (smaller images on mobile). Tested on real devices.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="108.6" name="Performance and Bundle Size">
+      <question>Is the frontend performant? Is the bundle size reasonable?</question>
+      <anchors>
+        <anchor score="1">Multi-megabyte bundle. No code splitting. Blocking renders.</anchor>
+        <anchor score="3">Some code splitting but large dependencies in main bundle. No image optimization.</anchor>
+        <anchor score="5">Next.js automatic code splitting. Server components reduce client JS. Tailwind tree-shaking. Reasonable bundle size for the feature set.</anchor>
+        <anchor score="7">Performance-conscious. Dynamic imports for heavy features. Font optimization. OG images generated server-side. No unnecessary client JS.</anchor>
+        <anchor score="10">Core Web Vitals optimized. LCP, FID, CLS all in green zone. Real user monitoring. Performance budget enforced in CI.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="108.7" name="Design System Consistency">
+      <question>Is the visual language consistent across pages?</question>
+      <anchors>
+        <anchor score="1">Every page looks different. No consistent spacing, typography, or color usage.</anchor>
+        <anchor score="3">Some consistency but spacing and typography vary between pages.</anchor>
+        <anchor score="5">Consistent color palette (accent, muted, foreground, background). Consistent typography scale. Consistent section patterns (uppercase labels, border separators). Tailwind utility classes provide the system.</anchor>
+        <anchor score="7">Strong visual consistency. Reusable patterns for cards, sections, stat displays. Brand identity is coherent. Dark theme is the design language.</anchor>
+        <anchor score="10">Design system is a first-class artifact. Component library with variants. Design tokens. Consistent spacing scale. Visual regression testing.</anchor>
+      </anchors>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "108", all 7 metrics. Note the dark-first, brutalist design
+      aesthetic is intentional, not a gap.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>The brutalist/dark aesthetic is a design choice, not a deficiency. Evaluate consistency, not taste.</instruction>
+    <instruction>Server components reducing client JS is a legitimate architectural decision. Don't penalize for "not enough interactivity."</instruction>
+    <instruction>A single developer cannot build a full component library with Storybook. Score against the context.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

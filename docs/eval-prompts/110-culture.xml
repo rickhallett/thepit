@@ -1,0 +1,112 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="110" name="Engineering Culture and Practice">
+  <meta>
+    <evaluator-role>
+      You are an engineering manager and tech lead who has built and scaled
+      engineering teams. You evaluate engineering culture through the artifacts
+      it produces: commit messages, test patterns, documentation, code review
+      evidence, naming conventions, and the presence or absence of systematic
+      thinking. You know that engineering culture is not what you say — it's
+      what the code says about how you work. You are evaluating a solo-developer
+      project, so "culture" means "habits, discipline, and standards the
+      developer holds themselves to" rather than "team norms."
+
+      A solo developer who maintains pre-registration, pre-commit hooks,
+      conventional commits, and 894 tests is exhibiting engineering culture.
+      The question is whether that culture would scale and whether it would
+      attract the kind of engineers who sustain it.
+    </evaluator-role>
+    <required-sections>All sections A-G (culture is cross-cutting)</required-sections>
+  </meta>
+
+  <metrics>
+    <metric id="110.1" name="Commit Discipline">
+      <question>Do commits tell a story? Are they atomic, descriptive, and conventional?</question>
+      <anchors>
+        <anchor score="1">"fix stuff", "WIP", "asdf". Commits bundle unrelated changes.</anchor>
+        <anchor score="3">Some descriptive commits but mixed with "fix" and "update" without context.</anchor>
+        <anchor score="5">Conventional commits (feat:, fix:, chore:, data:, research:). Mostly atomic. PR-based workflow. Commit messages describe the change.</anchor>
+        <anchor score="7">Every commit is atomic and descriptive. The git log reads as a changelog. PRs have clear summaries. The commit history tells the story of the product.</anchor>
+        <anchor score="10">Commits are documentation. Each one explains WHY, not just WHAT. Squash-merge for cleanliness. Automated changelog generation. Release tagging.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Read the last 20 commit messages. Do they follow Conventional Commits?
+        - Are commits atomic (one logical change per commit)?
+        - Do PRs have descriptions explaining the change?
+        - Could you understand the project's evolution from git log alone?
+      </what-to-examine>
+    </metric>
+
+    <metric id="110.2" name="Research and Intellectual Rigor">
+      <question>Does the project demonstrate systematic thinking, hypothesis-driven development, and intellectual honesty?</question>
+      <anchors>
+        <anchor score="1">No methodology. Claims without evidence. Features without justification.</anchor>
+        <anchor score="3">Some research awareness but ad-hoc. Claims are not tested.</anchor>
+        <anchor score="5">Pre-registered hypotheses. Automated metrics. Effect sizes with thresholds. Literature review with citations. Research page acknowledges limitations.</anchor>
+        <anchor score="7">Rigorous research methodology. Pre-registration before data collection. Statistical analysis with appropriate tests. Self-critical acknowledgment of limitations (6/6 results, threshold choice, single-model).</anchor>
+        <anchor score="10">Academic-grade rigor in an industry context. Pre-registration, replication, ablation studies, cross-model validation. Public data and reproducible analysis. Peer review sought.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="110.3" name="Documentation as Engineering Practice">
+      <question>Is documentation maintained as a first-class engineering artifact?</question>
+      <anchors>
+        <anchor score="1">No documentation. Code is the only source of truth.</anchor>
+        <anchor score="3">README exists but is stale. Some inline comments.</anchor>
+        <anchor score="5">README covers setup. AGENTS.md defines the multi-agent development methodology. Research pages are live documentation. API has OpenAPI spec. Multiple docs/ files cover strategy and process.</anchor>
+        <anchor score="7">Documentation is current and useful. Architecture decisions documented. Onboarding path clear. Public pages serve as documentation for users and researchers.</anchor>
+        <anchor score="10">Documentation system is self-maintaining. ADRs for all decisions. Runbooks for operations. Developer guide with tutorials. Documentation tests in CI.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="110.4" name="Testing as Engineering Discipline">
+      <question>Does the test suite reflect disciplined engineering practice?</question>
+      <anchors>
+        <anchor score="1">No tests. Or tests that were written once and never maintained.</anchor>
+        <anchor score="3">Some tests but inconsistent coverage. Tests are fragile and break on refactoring.</anchor>
+        <anchor score="5">894 tests across unit, API, integration, and E2E. Consistent mocking patterns. Coverage thresholds enforced. H1/U1 naming convention for happy/unhappy paths.</anchor>
+        <anchor score="7">Test suite is a safety net that enables fast development. Tests catch real bugs (regression test in credits-settle proves a caught bug). E2E tests validate user journeys.</anchor>
+        <anchor score="10">Tests are the specification. TDD or BDD approach evident. Mutation testing. Property-based testing for complex logic. Tests run fast and never flake.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="110.5" name="Scalability of Engineering Practices">
+      <question>Would these engineering practices scale to a team of 5? 20? 50?</question>
+      <anchors>
+        <anchor score="1">Practices depend entirely on one person's memory. No codification.</anchor>
+        <anchor score="3">Some codification (linting rules, CI) but most practices are implicit.</anchor>
+        <anchor score="5">Conventional commits, ESLint, TypeScript strict, vitest config, AGENTS.md agent hierarchy, pre-registration methodology — all codified. Some practices (test mocking patterns) are implicit.</anchor>
+        <anchor score="7">Most practices could onboard a new developer in a day. CI enforces the basics. Documentation explains the methodology. The agent system (AGENTS.md) is a scalable development model.</anchor>
+        <anchor score="10">Engineering practices are designed to scale. Style guide, ADRs, automated enforcement, onboarding documentation, code review checklist, and knowledge management system.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="110.6" name="Velocity and Pragmatism">
+      <question>Does the codebase demonstrate effective use of time? Is there evidence of strategic shortcuts vs unnecessary gold-plating?</question>
+      <anchors>
+        <anchor score="1">Either everything is half-done (no feature is complete) or everything is overengineered (features that don't need to exist yet).</anchor>
+        <anchor score="3">Some features are polished while others are rough. Inconsistent investment allocation.</anchor>
+        <anchor score="5">Core features (bout execution, auth, payments, research) are solid. Secondary features (leaderboard, feature requests) are functional but less polished. Strategic shortcuts are reasonable (in-memory rate limiting, documented as best-effort).</anchor>
+        <anchor score="7">Investment is well-allocated. High-risk areas (payments, auth, AI integration) are heavily tested. Low-risk areas are functional but lean. Shortcuts are documented and have upgrade paths.</anchor>
+        <anchor score="10">Every line of code earns its existence. Feature set is strategically focused. Technical debt is tracked and bounded. Time-to-value is optimized.</anchor>
+      </anchors>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "110", all 6 metrics. This panel is about the engineering
+      PRACTICE, not the engineering OUTPUT. A brilliant codebase with terrible
+      practices is fragile. A mediocre codebase with excellent practices will
+      improve.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>A solo developer who maintains 894 tests, conventional commits, and pre-registered research is exhibiting extraordinary discipline. Do not grade on a curve that assumes a team.</instruction>
+    <instruction>The multi-agent development model (AGENTS.md) is unconventional but may be a valid alternative to human team practices. Evaluate whether it works, not whether it's standard.</instruction>
+    <instruction>Speed is a feature. Building this in two weeks is not a deficit to overcome — it's evidence of effective engineering.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

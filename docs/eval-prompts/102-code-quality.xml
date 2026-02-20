@@ -1,0 +1,174 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="102" name="Code Quality and Craft">
+  <meta>
+    <evaluator-role>
+      You are a senior engineer who has led code review processes at multiple
+      companies. You value readability over cleverness, consistency over
+      perfection, and pragmatism over dogma. You evaluate code the way you
+      would in a pull request: does it communicate intent? Could a new team
+      member understand it? Does it follow its own patterns? You recognize
+      that code is read 10x more than it is written, and you evaluate
+      accordingly. You are reviewing a production TypeScript (strict mode)
+      + Go codebase built by a solo developer in under two weeks.
+    </evaluator-role>
+    <required-sections>A (lib/), B (app/api/), C (frontend)</required-sections>
+    <optional-sections>D (tests), E (config), F (Go CLIs)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="102.1" name="Naming Clarity">
+      <question>Do names (variables, functions, files, modules) communicate intent without requiring context?</question>
+      <anchors>
+        <anchor score="1">Single-letter variables, cryptic abbreviations, misleading names.</anchor>
+        <anchor score="3">Names are descriptive but inconsistent. Some modules use different conventions for the same concept.</anchor>
+        <anchor score="5">Names are generally clear. Some abbreviations require familiarity (e.g., TTR, BYOK). File names follow a discoverable convention.</anchor>
+        <anchor score="7">Names are precise and consistent. Domain vocabulary (bout, agent, preset, DNA, arena) is used uniformly. A new developer could navigate by name alone.</anchor>
+        <anchor score="10">Every name is self-documenting. Domain concepts have a glossary. Naming conventions are codified and enforced.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Are function names verbs (getBout, createAgent, settleCreditd)?
+        - Are type names nouns (AgentSnapshot, BoutContext, CreditTransaction)?
+        - Are boolean variables named as questions (isAdmin, canRunBout, hasActiveSubscription)?
+        - Is domain vocabulary consistent (is it always "bout" or sometimes "debate/match/session")?
+        - Are file names discoverable (could you guess what lib/tier.ts does)?
+      </what-to-examine>
+    </metric>
+
+    <metric id="102.2" name="Function Design">
+      <question>Are functions small, focused, and compose well?</question>
+      <anchors>
+        <anchor score="1">Multi-hundred-line functions doing everything. No decomposition.</anchor>
+        <anchor score="3">Some long functions (100+ lines) that mix concerns. Helper functions exist but are ad-hoc.</anchor>
+        <anchor score="5">Most functions are focused. A few integration functions (executeBout) are long but structured with clear phases. Pure functions are separated from side-effecting ones.</anchor>
+        <anchor score="7">Functions are consistently short. Long functions are broken into named phases. Pure functions dominate. Side effects are concentrated at the boundaries.</anchor>
+        <anchor score="10">Every function does one thing. Side effects are isolated to a thin outer layer. Business logic is pure functions that compose through pipelines.</anchor>
+      </anchors>
+      <what-to-examine>
+        - How long is the longest function? Is the length justified?
+        - Are pure functions (no DB, no API calls) clearly separated from impure ones?
+        - Can you test functions in isolation, or do they require full system setup?
+        - Is bout-engine.ts executeBout() a readable pipeline or a wall of code?
+      </what-to-examine>
+    </metric>
+
+    <metric id="102.3" name="Consistency of Patterns">
+      <question>When the codebase solves the same problem twice, does it use the same pattern?</question>
+      <anchors>
+        <anchor score="1">Every file invents its own approach to common problems.</anchor>
+        <anchor score="3">Some patterns are consistent but others vary. Error handling uses 3 different strategies.</anchor>
+        <anchor score="5">Core patterns are consistent (DB access, auth checks, rate limiting). Some secondary patterns (caching, validation) vary.</anchor>
+        <anchor score="7">Strong pattern consistency. API routes follow a template. DB operations use the same race-condition handling. Naming conventions are uniform.</anchor>
+        <anchor score="10">Every instance of a pattern is identical. Patterns are enforced by shared abstractions, not by convention. Deviation would be caught automatically.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Do all API routes check auth the same way?
+        - Do all DB operations handle races the same way (onConflictDoNothing + re-read)?
+        - Is rate limiting applied consistently across routes?
+        - Do all error responses use the same structure?
+        - Are there places where a pattern is followed in 8 files but broken in the 9th?
+      </what-to-examine>
+    </metric>
+
+    <metric id="102.4" name="Comment and Documentation Quality">
+      <question>Do comments explain WHY, not WHAT? Is self-documenting code used where possible?</question>
+      <anchors>
+        <anchor score="1">No comments. Or comments that restate the code. Or stale comments that contradict the code.</anchor>
+        <anchor score="3">Some comments but they explain what the code does rather than why. JSDoc is sparse.</anchor>
+        <anchor score="5">Key decisions are documented. Section headers in long files. Some functions have JSDoc. Comments are generally accurate.</anchor>
+        <anchor score="7">Comments explain non-obvious decisions. Complex algorithms are narrated. Public APIs have JSDoc. No stale comments.</anchor>
+        <anchor score="10">Every non-obvious decision has a comment explaining the trade-off. Public APIs have complete JSDoc with examples. README explains architecture decisions.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Are there "// why" comments for non-obvious decisions?
+        - Is bout-engine.ts narrated with phase comments?
+        - Are there stale comments that contradict the code?
+        - Do exported functions have JSDoc?
+        - Are magic numbers explained?
+      </what-to-examine>
+    </metric>
+
+    <metric id="102.5" name="Error Message Quality">
+      <question>When something goes wrong, do error messages help you fix it?</question>
+      <anchors>
+        <anchor score="1">"Error" or "Something went wrong" with no context.</anchor>
+        <anchor score="3">Error messages exist but don't include relevant context (which user? which operation? what was the input?).</anchor>
+        <anchor score="5">Error messages are descriptive. Most include the operation that failed. Some include relevant IDs or parameters.</anchor>
+        <anchor score="7">Error messages include: what happened, what was expected, and what to do about it. Structured logging with contextual metadata.</anchor>
+        <anchor score="10">Error messages are actionable. They include correlation IDs, relevant state, and suggest remediation. Internal errors carry full context; external errors are safely sanitized.</anchor>
+      </anchors>
+      <what-to-examine>
+        - What does the user see when a bout fails mid-stream?
+        - What does the operator see in logs when a credit operation fails?
+        - Do error messages include boutId, userId, or other correlation data?
+        - Are internal vs external error messages appropriately different?
+      </what-to-examine>
+    </metric>
+
+    <metric id="102.6" name="Dead Code and Technical Debt">
+      <question>Is the codebase free of dead code, unused imports, and accumulated cruft?</question>
+      <anchors>
+        <anchor score="1">Large sections of commented-out code. Unused files. TODO comments from months ago.</anchor>
+        <anchor score="3">Some dead code and unused variables. ESLint warnings about unused imports. A few stale TODO comments.</anchor>
+        <anchor score="5">Minimal dead code. ESLint catches most issues (warnings, not errors). Some tech debt acknowledged but not blocking.</anchor>
+        <anchor score="7">Clean codebase. No dead code. Few ESLint warnings. Tech debt is documented and tracked.</anchor>
+        <anchor score="10">Zero ESLint warnings. No dead code. No stale TODOs. Tech debt is explicitly managed with tickets.</anchor>
+      </anchors>
+      <what-to-examine>
+        - How many ESLint warnings are there? Are they real issues or noise?
+        - Are there commented-out code blocks?
+        - Are there files that appear unused?
+        - Are TODO/FIXME comments actionable or stale?
+      </what-to-examine>
+    </metric>
+
+    <metric id="102.7" name="Abstraction Level Appropriateness">
+      <question>Are abstractions at the right level — neither too granular (overengineered) nor too coarse (underengineered)?</question>
+      <anchors>
+        <anchor score="1">Either no abstractions (everything inline) or excessive abstraction (10 layers to add a field).</anchor>
+        <anchor score="3">Some over-abstraction (unnecessary wrapper classes) or under-abstraction (copy-pasted logic).</anchor>
+        <anchor score="5">Abstractions are reasonable. Some could be collapsed (too many layers) and some could be extracted (too much inline logic).</anchor>
+        <anchor score="7">Abstractions serve clear purposes. Each layer adds value. You could explain why each abstraction exists.</anchor>
+        <anchor score="10">Every abstraction earns its existence. Adding a new feature requires touching exactly the right number of files. No unnecessary indirection.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is there unnecessary indirection (wrapper functions that just call another function)?
+        - Is there copy-pasted logic that should be abstracted?
+        - Are there abstractions that feel premature (solving problems that don't exist yet)?
+        - Is the XML prompt builder at the right abstraction level?
+      </what-to-examine>
+    </metric>
+
+    <metric id="102.8" name="Readability Under Time Pressure">
+      <question>If you had to fix a production bug at 3am, could you navigate this codebase quickly?</question>
+      <anchors>
+        <anchor score="1">You would have no idea where to start. File organization gives no clues.</anchor>
+        <anchor score="3">You could probably find the right file but understanding the flow would take significant time.</anchor>
+        <anchor score="5">Major flows are traceable. You could find the bout execution path and the payment path within minutes.</anchor>
+        <anchor score="7">The codebase is organized for discoverability. Error messages point to the right module. Logging includes enough context to trace issues.</anchor>
+        <anchor score="10">The codebase is designed for on-call debugging. Structured logging, correlation IDs, and clear module boundaries mean you can go from alert to root cause in minutes.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Can you find where bout execution happens from the file structure alone?
+        - Do error logs include enough context to trace a user's journey?
+        - Is the middleware pipeline clear (which middleware runs in what order)?
+        - Could you bisect a bug to a specific module from the test suite?
+      </what-to-examine>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema defined in
+      the protocol document. Include panel_id "102", all 8 metrics with integer
+      scores 1-10, justifications, criticisms, defences, and evidence citations.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Do not confuse "code I would write differently" with "bad code." Different is not wrong unless it causes real problems.</instruction>
+    <instruction>Do not reward verbosity. More code is not more readable.</instruction>
+    <instruction>Do not penalize pragmatic shortcuts that are clearly temporary and documented.</instruction>
+    <instruction>Score the code as it is, not as you imagine it could be after 6 months of refactoring.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

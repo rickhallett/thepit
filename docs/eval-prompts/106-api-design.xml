@@ -1,0 +1,108 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="106" name="API Design">
+  <meta>
+    <evaluator-role>
+      You are an API architect who has designed and maintained public APIs used
+      by thousands of developers. You evaluate APIs on discoverability,
+      consistency, error communication, and developer experience. You know
+      that API design is a communication problem, not just a technical one.
+      You are reviewing a Next.js App Router API (REST-like, no GraphQL)
+      with a companion v1 sync endpoint for programmatic access.
+    </evaluator-role>
+    <required-sections>B (app/api/), A (lib/ — api-utils.ts, openapi.ts)</required-sections>
+    <optional-sections>D (tests — API tests), E (config)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="106.1" name="URL Structure and Resource Modeling">
+      <question>Do URLs follow REST conventions? Are resources modeled consistently?</question>
+      <anchors>
+        <anchor score="1">Random URL paths. Actions encoded in URLs (/doCreateBout). No resource hierarchy.</anchor>
+        <anchor score="3">Some REST conventions but mixed with RPC-style endpoints.</anchor>
+        <anchor score="5">Resources are identifiable (/api/agents, /api/bouts/[id]). Some non-RESTful patterns (POST /api/run-bout instead of POST /api/bouts).</anchor>
+        <anchor score="7">Consistent resource modeling. CRUD maps to HTTP methods. Sub-resources are hierarchical. Query parameters for filtering.</anchor>
+        <anchor score="10">Textbook REST. HATEOAS links. Versioned. Consistent pluralization. Pagination, filtering, and sorting are standardized.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="106.2" name="Error Response Quality">
+      <question>Do error responses communicate what went wrong, why, and what to do about it?</question>
+      <anchors>
+        <anchor score="1">Errors return generic 500 with no body.</anchor>
+        <anchor score="3">HTTP status codes are correct but error bodies are inconsistent.</anchor>
+        <anchor score="5">Structured error responses with { error: string } or { error: string, code: string }. Status codes are semantically correct (401, 402, 403, 404, 429). Rate limit headers included.</anchor>
+        <anchor score="7">Error responses include error code, human-readable message, and machine-parseable metadata. Rate limit headers standard. Validation errors list all failing fields.</anchor>
+        <anchor score="10">RFC 7807 problem details. Error responses include documentation links. Validation errors are field-level. Error codes are stable and documented.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="106.3" name="Request Validation Rigor">
+      <question>Are request bodies validated early, completely, and with clear error messages?</question>
+      <anchors>
+        <anchor score="1">No validation. Invalid requests cause cryptic 500 errors.</anchor>
+        <anchor score="3">Some validation but incomplete. Missing fields cause unclear errors.</anchor>
+        <anchor score="5">All routes validate required fields. Type checks are manual but thorough. Length limits enforced. UNSAFE_PATTERN checked. Missing fields return 400 with field name.</anchor>
+        <anchor score="7">Validation is comprehensive and consistent. All routes follow the same validation pattern. Error messages identify the exact field and constraint.</anchor>
+        <anchor score="10">Schema-based validation (Zod). Validation schemas shared with API documentation. Client SDKs use the same schemas for pre-validation.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="106.4" name="Authentication and Authorization Model">
+      <question>Is the auth model clear, consistent, and well-communicated?</question>
+      <anchors>
+        <anchor score="1">Auth requirements unclear. Some endpoints silently return empty data instead of 401.</anchor>
+        <anchor score="3">Auth checked but error messages don't distinguish 401 (not authenticated) from 403 (not authorized).</anchor>
+        <anchor score="5">Clear distinction between public, authenticated, and admin endpoints. 401 for missing auth, 402 for insufficient tier, 403 for insufficient permissions. Rate limits vary by auth status.</anchor>
+        <anchor score="7">Auth model is documented. Tier-based access is clear. BYOK flow is well-designed. Anonymous access is intentional and bounded.</anchor>
+        <anchor score="10">Auth model is self-documenting in the API. OpenAPI spec includes auth requirements per endpoint. SDKs handle token management.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="106.5" name="Streaming API Quality">
+      <question>Is the streaming API (bout execution via SSE) well-designed and resilient?</question>
+      <anchors>
+        <anchor score="1">Streaming is fragile. No error handling mid-stream. Client can't recover from disconnects.</anchor>
+        <anchor score="3">Basic streaming works but error events are not structured. No reconnection support.</anchor>
+        <anchor score="5">Structured event stream with typed events (start, text-delta, text-end, data-turn). Error events provide safe messages. Client handles 429 gracefully.</anchor>
+        <anchor score="7">Streaming API is robust. Events are typed and documented. Partial state is recoverable. Error classification maps to user-friendly messages.</anchor>
+        <anchor score="10">Production-grade streaming. Heartbeat/keepalive. Reconnection with resume. Backpressure handling. Streaming metrics (TTFT, latency).</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="106.6" name="API Documentation">
+      <question>Is the API documented well enough for a developer to integrate without reading the source code?</question>
+      <anchors>
+        <anchor score="1">No documentation. Integration requires reading source code.</anchor>
+        <anchor score="3">Some documentation (README) but incomplete. No endpoint reference.</anchor>
+        <anchor score="5">OpenAPI spec exists (lib/openapi.ts). Covers some endpoints. /developers page provides overview. Not all endpoints documented.</anchor>
+        <anchor score="7">OpenAPI spec covers all public endpoints. Request/response schemas included. Authentication documented. Examples provided.</anchor>
+        <anchor score="10">Interactive API documentation (Swagger UI or equivalent). SDKs generated from spec. Rate limits and error codes documented per endpoint. Changelog maintained.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="106.7" name="Idempotency and Safety">
+      <question>Are operations safe to retry? Are destructive operations protected?</question>
+      <anchors>
+        <anchor score="1">Retrying a request causes duplicates or corruption.</anchor>
+        <anchor score="3">Some operations are idempotent but others (credit operations) are not safe to retry.</anchor>
+        <anchor score="5">Bout creation checks existing status (409 for running/completed). Webhook processing uses onConflictDoNothing. Vote and reaction dedup via unique constraints.</anchor>
+        <anchor score="7">All operations are explicitly idempotent or explicitly non-idempotent. Idempotency is enforced by DB constraints, not application logic alone.</anchor>
+        <anchor score="10">Idempotency keys for all mutating operations. Exactly-once semantics. Client can safely retry any operation.</anchor>
+      </anchors>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "106", all 7 metrics.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Do not penalize the absence of a full public API if this is primarily a web application with a secondary API.</instruction>
+    <instruction>The streaming API (SSE for bout execution) is a first-class API surface and should be evaluated as such.</instruction>
+    <instruction>Credit the v1/bout sync endpoint as evidence of API maturity, even if it's minimal.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

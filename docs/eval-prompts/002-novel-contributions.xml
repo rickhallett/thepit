@@ -1,0 +1,235 @@
+<evaluation-request>
+  <meta>
+    <evaluator-role>
+      You are an independent research evaluator specialising in AI/ML systems
+      and prompt engineering. You have no affiliation with the authors. Your
+      incentive is accuracy, not agreement. You will be evaluated on the quality
+      of your critique, not on whether your assessment is positive or negative.
+    </evaluator-role>
+    <evaluation-id>EVAL-002-NOVEL-CONTRIBUTIONS</evaluation-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+    <description>
+      Evaluation of THE PIT's claimed novel contributions to the field, as
+      presented in their formal literature review document. Four specific
+      novelty claims are assessed against the cited literature.
+    </description>
+  </meta>
+
+  <material>
+    <title>Novel Contribution Claims — THE PIT Literature Review</title>
+    <authors>THE PIT team (anonymous for evaluation purposes)</authors>
+    <abstract>
+      The authors present a 250-line literature review citing 18 academic papers
+      across four domains (multi-agent debate, LLM-as-judge bias, persona
+      prompting psychology, context window degradation). They claim four novel
+      contributions: (1) temporal arc prompting, (2) evolutionary selection via
+      crowd engagement, (3) structured agent DNA with cryptographic provenance,
+      and (4) weakness-as-design-parameter. They also claim alignment with
+      existing literature in seven specific areas and identify five improvement
+      opportunities.
+    </abstract>
+    <full-text>
+      === CLAIMED NOVEL CONTRIBUTION 1: TEMPORAL ARC PROMPTING ===
+
+      "Premium presets specify how agent behaviour should evolve over the course
+      of a conversation (e.g., 'Messages 1-8: Professional... Messages 17+:
+      Unravelling'). This technique for engineering multi-turn narrative arcs
+      within system prompts is not systematically studied in the current
+      literature. The closest analogue is work on long-form narrative generation,
+      but applying temporal behavioural directives to debate personas is novel."
+
+
+      === CLAIMED NOVEL CONTRIBUTION 2: EVOLUTIONARY SELECTION VIA CROWD ENGAGEMENT ===
+
+      "While Constitutional AI (Bai et al., 2022) uses AI feedback for selection,
+      and RLHF uses human preference labels, The Pit implements a third paradigm:
+      evolutionary selection through organic crowd engagement. Winners get cloned
+      and remixed, creating parent-child lineage chains that can be studied for
+      prompt mutation patterns. This represents an original contribution to the
+      intersection of prompt engineering and evolutionary computation."
+
+
+      === CLAIMED NOVEL CONTRIBUTION 3: STRUCTURED AGENT DNA WITH CRYPTOGRAPHIC PROVENANCE ===
+
+      "The combination of typed personality fields, canonical JSON serialisation
+      (RFC 8785), SHA-256 hashing, and on-chain attestation creates a research
+      data infrastructure with no direct analogue in the literature. Agent
+      identity is both decomposable (for analysis) and tamper-evident (for
+      verification)."
+
+
+      === CLAIMED NOVEL CONTRIBUTION 4: WEAKNESS-AS-DESIGN-PARAMETER ===
+
+      "The deliberate inclusion of a 'weakness' field in agent construction
+      (e.g., 'When insulted, you spiral into self-doubt') is a prompt
+      engineering technique designed to create dramatic tension. While RoleLLM
+      profiles include personality traits, the explicit parameterisation of
+      vulnerabilities as a first-class design element is a distinctive approach."
+
+
+      === CITED LITERATURE (summarised) ===
+
+      18 papers cited across 4 domains:
+
+      Multi-agent debate: Du et al. 2023 (society of minds), Chan et al. 2023
+      (ChatEval), Li et al. 2024 (more agents is all you need), Chen et al. 2023
+      (AgentVerse), Hua et al. 2023 (WarAgent).
+
+      LLM-as-judge: Zheng et al. 2023 (MT-Bench, position/verbosity/self-enhancement
+      bias), Wang et al. 2023 (position bias severity), Lightman et al. 2023
+      (process vs outcome supervision).
+
+      Persona prompting: Zheng et al. 2024 (personas don't improve factual accuracy),
+      Wei et al. 2023 (sycophancy scales with model size), Wang et al. 2023 RoleLLM
+      (role-playing framework), Stechly et al. 2023 (LLM self-critique limitations).
+
+      Context windows: Liu et al. 2023 (lost in the middle), Li et al. 2024
+      (long ICL benchmark), Xiong et al. 2023 (context window extension).
+
+      Prompt engineering: Wei et al. 2022 (chain of thought), Wang et al. 2022
+      (self-consistency), Bai et al. 2022 (Constitutional AI).
+
+
+      === ALIGNMENT CLAIMS ===
+
+      The authors claim their architecture is "strongly aligned" with the literature
+      in 7 areas: multi-agent debate architecture, human evaluation over LLM-as-judge,
+      structured role profiles, emergent social behaviour observation, process-level
+      evaluation (per-turn reactions), agent count scaling, and immutable records
+      for reproducibility.
+
+
+      === WORKING PAPER TITLE ===
+
+      "Evolutionary Selection of AI Personas in Adversarial Multi-Agent Conversation"
+    </full-text>
+  </material>
+
+  <dimensions>
+    <dimension name="validity">
+      <rubric>
+        Evaluate whether the novelty claims are genuinely novel — i.e., not
+        anticipated by existing work the authors may have missed. Score 1-5
+        where 1 means all claims are anticipated and 5 means genuinely original.
+      </rubric>
+      <sub-questions>
+        <question>Is "temporal arc prompting" genuinely novel? Has anyone published on multi-turn behavioural evolution in persona prompts? Consider: character.ai character definitions, multi-turn narrative generation, interactive fiction systems.</question>
+        <question>Is "evolutionary selection via crowd engagement" genuinely a third paradigm distinct from RLHF and CAI? Consider: genetic programming of prompts, prompt optimisation via human feedback, memetic evolution of AI characters in online communities.</question>
+        <question>Is "structured agent DNA with cryptographic provenance" genuinely without analogue? Consider: model cards, datasheets for datasets, blockchain-based AI provenance projects, NFT-based AI identity systems.</question>
+        <question>Is "weakness-as-design-parameter" genuinely distinctive? Consider: character flaws in interactive fiction, vulnerability modelling in social simulation, RoleLLM's trait profiles.</question>
+        <question>Is the literature review comprehensive enough to support novelty claims? Are there relevant bodies of work not cited (e.g., interactive fiction, game AI, social simulation, evolutionary computation)?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="coherence">
+      <rubric>
+        Evaluate whether the literature review builds a coherent case from
+        existing work to the authors' claimed contributions. Score 1-5.
+      </rubric>
+      <sub-questions>
+        <question>Does the review cover the right literature for the claims being made? Are there obvious gaps in the cited domains?</question>
+        <question>The working paper title references "evolutionary selection" but the empirical programme (H1-H6) doesn't test evolutionary dynamics. Is there a disconnect between the framing and the evidence?</question>
+        <question>The alignment claims map specific papers to specific code files. Is this mapping convincing or forced?</question>
+        <question>Does the review honestly engage with findings that challenge the platform's approach (e.g., Zheng et al. 2024 showing personas don't improve factual performance)?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="choice">
+      <rubric>
+        Evaluate whether the literature selection is representative or
+        cherry-picked to support the platform's design decisions. Score 1-5.
+      </rubric>
+      <sub-questions>
+        <question>Are there important papers on multi-agent LLM debate NOT cited? (Consider: CAMEL, MetaGPT, AutoGen, CrewAI, recent multi-agent frameworks)</question>
+        <question>The review cites work supporting multi-agent debate (Du et al.) but are there papers showing multi-agent approaches fail or produce worse results?</question>
+        <question>The review positions human evaluation as avoiding LLM-as-judge biases. Does it acknowledge the known biases of crowd evaluation (popularity bias, first-impression effects, attention span limitations)?</question>
+        <question>Are the improvement opportunities (section 4 of the review) genuine self-criticism or softballs?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="framing">
+      <rubric>
+        Evaluate how the novelty claims are framed. Are they appropriately
+        hedged? Do they overstate originality? Score 1-5.
+      </rubric>
+      <sub-questions>
+        <question>"No direct analogue in the literature" — is this claim verifiable, or does it simply reflect incomplete literature search?</question>
+        <question>The working paper title "Evolutionary Selection of AI Personas in Adversarial Multi-Agent Conversation" implies a complete evolutionary system. Is this title earned by the current evidence base?</question>
+        <question>Phrases like "ahead of published research" and "novel contributions" carry strong claims. Is the evidence strong enough to support this positioning?</question>
+        <question>The review frames The Pit as simultaneously entertainment and research. Does this dual positioning create credibility issues for either audience?</question>
+      </sub-questions>
+    </dimension>
+
+    <dimension name="likely-reaction">
+      <rubric>
+        For each demographic lens, predict the dominant audience reaction to
+        these novelty claims and the literature review. Rate as: Excitement /
+        Scepticism / Dismissal / Hostility / Indifference.
+      </rubric>
+      <lenses>
+        <lens name="hacker-news">
+          <context>Technical audience. Will check cited papers. Will notice missing citations. "Novel contribution" claims from non-academic teams face scepticism. The blockchain/EAS angle may trigger "why blockchain?" reactions.</context>
+          <predict>Dominant reaction, first objection, likely top comment, share probability.</predict>
+        </lens>
+        <lens name="x-twitter">
+          <context>AI practitioners and researchers. Novelty claims get quote-tweeted with counterexamples. "Evolutionary AI" is a buzzword trigger. The literature review itself is unlikely to go viral — the findings are more shareable.</context>
+          <predict>Dominant reaction, most quotable sentence, share probability, likely reframe.</predict>
+        </lens>
+        <lens name="ai-research">
+          <context>Will evaluate against the actual state of the art. Missing citations will be flagged immediately. "Novel contribution" without peer review faces credibility barriers. Will compare to published benchmarks and frameworks.</context>
+          <predict>Dominant reaction, methodological objection, novelty assessment, citation likelihood.</predict>
+        </lens>
+        <lens name="viral-general">
+          <context>Will not read a literature review. If any of these claims reach the general public, it will be via a simplified reframe ("AI agents that evolve through crowd feedback"). The technical details are invisible to this audience.</context>
+          <predict>Dominant reaction, headline interpretation, share motivation, misinterpretation risk.</predict>
+        </lens>
+        <lens name="crypto-web3">
+          <context>Will focus almost exclusively on the EAS attestation and SHA-256 hashing claims. "On-chain AI identity" is a resonant frame. Will want to know: is this live? Is there a token? What chain?</context>
+          <predict>Dominant reaction, protocol angle, on-chain relevance, community resonance.</predict>
+        </lens>
+      </lenses>
+    </dimension>
+  </dimensions>
+
+  <output-format>
+    <instruction>
+      Return your evaluation as structured XML. For each dimension, provide:
+      (1) a score (1-5), (2) a 2-3 sentence justification, (3) the single
+      strongest criticism, and (4) the single strongest defence. For the
+      likely-reaction dimension, provide per-lens predictions instead of a
+      single score.
+    </instruction>
+    <schema>
+      <evaluation>
+        <dimension name="{name}">
+          <score>{1-5}</score>
+          <justification>{2-3 sentences}</justification>
+          <strongest-criticism>{the best attack}</strongest-criticism>
+          <strongest-defence>{the best defence}</strongest-defence>
+        </dimension>
+        <dimension name="likely-reaction">
+          <lens name="{lens-name}">
+            <dominant-reaction>{reaction}</dominant-reaction>
+            <confidence>{confidence}</confidence>
+            <first-objection>{predicted}</first-objection>
+            <likely-comment>{predicted}</likely-comment>
+            <share-probability>{probability}</share-probability>
+          </lens>
+        </dimension>
+        <overall>
+          <composite-score>{average of dimensions 1-4}</composite-score>
+          <go-no-go>{Publish|Revise|Kill}</go-no-go>
+          <revision-priorities>{ordered list}</revision-priorities>
+        </overall>
+      </evaluation>
+    </schema>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>You must not assume the material is correct. Evaluate as if you have no prior belief.</instruction>
+    <instruction>You must not assume the material is wrong. Evaluate the evidence on its merits.</instruction>
+    <instruction>If you find yourself strongly agreeing or disagreeing, flag this as potential bias and re-evaluate.</instruction>
+    <instruction>Your evaluation will be compared against evaluations from other independent models. Accuracy is rewarded, not agreement.</instruction>
+    <instruction>Do not soften criticism to be polite. Do not amplify criticism to seem rigorous. Be calibrated.</instruction>
+  </anti-bias-instructions>
+</evaluation-request>
