@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "coverage/**",
     "test-results/**",
+    // Python virtual environments contain vendored JS (matplotlib, sklearn)
+    "piteval/.venv/**",
+    "**/node_modules/**",
   ]),
 ]);
 
