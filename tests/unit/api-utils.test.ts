@@ -1,20 +1,25 @@
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod/v4';
 import {
-  parseJsonBody,
+  parseValidBody,
   errorResponse,
   rateLimitResponse,
   API_ERRORS,
 } from '@/lib/api-utils';
 
-describe('parseJsonBody', () => {
-  it('parses valid JSON and returns data', async () => {
+const testSchema = z.object({
+  foo: z.string(),
+});
+
+describe('parseValidBody', () => {
+  it('parses and validates valid JSON against schema', async () => {
     const req = new Request('http://localhost/api/test', {
       method: 'POST',
       body: JSON.stringify({ foo: 'bar' }),
       headers: { 'Content-Type': 'application/json' },
     });
 
-    const result = await parseJsonBody<{ foo: string }>(req);
+    const result = await parseValidBody(req, testSchema);
     expect(result.data).toEqual({ foo: 'bar' });
     expect(result.error).toBeUndefined();
   });
@@ -26,12 +31,38 @@ describe('parseJsonBody', () => {
       headers: { 'Content-Type': 'application/json' },
     });
 
-    const result = await parseJsonBody(req);
+    const result = await parseValidBody(req, testSchema);
     expect(result.data).toBeUndefined();
     expect(result.error).toBeInstanceOf(Response);
     expect(result.error!.status).toBe(400);
     const body = await result.error!.json();
     expect(body.error).toBe(API_ERRORS.INVALID_JSON);
+  });
+
+  it('returns 400 when body fails schema validation', async () => {
+    const req = new Request('http://localhost/api/test', {
+      method: 'POST',
+      body: JSON.stringify({ foo: 123 }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const result = await parseValidBody(req, testSchema);
+    expect(result.data).toBeUndefined();
+    expect(result.error).toBeInstanceOf(Response);
+    expect(result.error!.status).toBe(400);
+  });
+
+  it('returns 400 when required field is missing', async () => {
+    const req = new Request('http://localhost/api/test', {
+      method: 'POST',
+      body: JSON.stringify({}),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const result = await parseValidBody(req, testSchema);
+    expect(result.data).toBeUndefined();
+    expect(result.error).toBeInstanceOf(Response);
+    expect(result.error!.status).toBe(400);
   });
 });
 
