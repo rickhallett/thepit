@@ -345,6 +345,10 @@
       {
         "label": "Leaderboard",
         "href": "/leaderboard"
+      },
+      {
+        "label": "Recent",
+        "href": "/recent"
       }
     ],
     "overflow": [
