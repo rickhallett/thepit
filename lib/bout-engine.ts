@@ -8,6 +8,8 @@
 //   2. executeBout()         — turn loop, transcript, share line, DB persist, credit settle
 //   3. (caller)              — wrap in streaming or return JSON
 //
+
+import { timingSafeEqual } from 'crypto';
 // The streaming route passes an onTurnEvent callback to write SSE events.
 // The sync route omits it and gets the final result directly.
 
@@ -298,10 +300,13 @@ export async function validateBoutRequest(
   // This allows internal tooling (pitstorm hypothesis runner) to run
   // batches of bouts without hitting per-tier rate limits.
   const researchKey = req.headers.get('x-research-key');
-  const researchBypass =
-    !!researchKey &&
-    !!process.env.RESEARCH_API_KEY &&
-    researchKey === process.env.RESEARCH_API_KEY;
+  const expected = process.env.RESEARCH_API_KEY;
+  let researchBypass = false;
+  if (researchKey && expected) {
+    const a = Buffer.from(researchKey);
+    const b = Buffer.from(expected);
+    researchBypass = a.length === b.length && timingSafeEqual(a, b);
+  }
 
   if (researchBypass) {
     log.info('Research bypass active', { boutId, presetId });
