@@ -7,6 +7,27 @@
 import type { RateLimitResult } from '@/lib/rate-limit';
 import { log } from '@/lib/logger';
 
+// ─── Type utilities ──────────────────────────────────────────────────────────
+
+/**
+ * Exhaustiveness check for discriminated unions.
+ * Use in the `default` branch of a switch or the `else` of an if-chain
+ * to get a compile-time error if a new variant is added but not handled.
+ *
+ * @example
+ *   type Action = { type: 'a' } | { type: 'b' };
+ *   function handle(action: Action) {
+ *     switch (action.type) {
+ *       case 'a': return doA();
+ *       case 'b': return doB();
+ *       default: return assertNever(action);
+ *     }
+ *   }
+ */
+export function assertNever(x: never, msg?: string): never {
+  throw new Error(msg ?? `Unexpected value: ${JSON.stringify(x)}`);
+}
+
 // ─── Standard error messages ────────────────────────────────────────────────
 
 export const API_ERRORS = {

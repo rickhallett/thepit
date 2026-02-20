@@ -125,6 +125,7 @@ describe('POST /api/v1/bout', () => {
   describe('validation pass-through', () => {
     it('U4: returns validation error when validateBoutRequest fails', async () => {
       validateBoutRequestMock.mockResolvedValue({
+        ok: false,
         error: Response.json({ error: 'Missing boutId.' }, { status: 400 }),
       });
       const res = await POST(makeRequest({}));
@@ -135,7 +136,7 @@ describe('POST /api/v1/bout', () => {
 
   describe('successful bout execution', () => {
     it('H1: returns completed bout as JSON', async () => {
-      validateBoutRequestMock.mockResolvedValue({ context: mockContext });
+      validateBoutRequestMock.mockResolvedValue({ ok: true, context: mockContext });
       executeBoutMock.mockResolvedValue(mockResult);
 
       const res = await POST(makeRequest({ boutId: 'test-bout-123', presetId: 'darwin-special' }));
@@ -156,7 +157,7 @@ describe('POST /api/v1/bout', () => {
     });
 
     it('H2: calls executeBout without onEvent callback (no streaming)', async () => {
-      validateBoutRequestMock.mockResolvedValue({ context: mockContext });
+      validateBoutRequestMock.mockResolvedValue({ ok: true, context: mockContext });
       executeBoutMock.mockResolvedValue(mockResult);
 
       await POST(makeRequest({ boutId: 'test-bout-123', presetId: 'darwin-special' }));
@@ -169,7 +170,7 @@ describe('POST /api/v1/bout', () => {
 
   describe('error handling', () => {
     beforeEach(() => {
-      validateBoutRequestMock.mockResolvedValue({ context: mockContext });
+      validateBoutRequestMock.mockResolvedValue({ ok: true, context: mockContext });
     });
 
     it('U5: returns 504 on timeout errors', async () => {
@@ -222,7 +223,7 @@ describe('POST /api/v1/bout', () => {
         },
       }));
       vi.doMock('@/lib/bout-engine', () => ({
-        validateBoutRequest: vi.fn().mockResolvedValue({ context: mockContext }),
+        validateBoutRequest: vi.fn().mockResolvedValue({ ok: true, context: mockContext }),
         executeBout: vi.fn().mockResolvedValue(mockResult),
       }));
       vi.doMock('@/lib/logger', () => ({
