@@ -4,7 +4,8 @@ import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { createShortLink } from '@/lib/short-links';
 import { eq } from 'drizzle-orm';
-import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse } from '@/lib/api-utils';
+import { shortLinkSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
 
@@ -17,16 +18,9 @@ export const POST = withLogging(async function POST(req: Request) {
     return rateLimitResponse(rateCheck);
   }
 
-  const parsed = await parseJsonBody<{ boutId?: string }>(req);
+  const parsed = await parseValidBody(req, shortLinkSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const boutId =
-    typeof payload.boutId === 'string' ? payload.boutId.trim() : '';
-
-  if (!boutId || boutId.length > 21) {
-    return errorResponse('Valid boutId required.', 400);
-  }
+  const { boutId } = parsed.data;
 
   // Verify bout exists
   const db = requireDb();

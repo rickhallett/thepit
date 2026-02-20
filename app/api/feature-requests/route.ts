@@ -3,22 +3,13 @@ import { eq, ne, sql, desc } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { featureRequests, featureRequestVotes, users } from '@/db/schema';
-import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { ensureUserRecord } from '@/lib/users';
-import { UNSAFE_PATTERN } from '@/lib/validation';
+import { featureRequestSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
-
-const VALID_CATEGORIES = [
-  'agents',
-  'arena',
-  'presets',
-  'research',
-  'ui',
-  'other',
-] as const;
 
 /** GET /api/feature-requests — public list of non-declined requests with vote counts. */
 export const GET = withLogging(async function GET() {
@@ -87,48 +78,9 @@ export const POST = withLogging(async function POST(req: Request) {
     return rateLimitResponse(rateCheck);
   }
 
-  const parsed = await parseJsonBody<{
-    title?: string;
-    description?: string;
-    category?: string;
-  }>(req);
+  const parsed = await parseValidBody(req, featureRequestSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const title =
-    typeof payload.title === 'string' ? payload.title.trim() : '';
-  const description =
-    typeof payload.description === 'string' ? payload.description.trim() : '';
-  const category =
-    typeof payload.category === 'string' ? payload.category.trim() : '';
-
-  if (title.length < 5) {
-    return errorResponse('Title must be at least 5 characters.', 400);
-  }
-
-  if (title.length > 200) {
-    return errorResponse('Title must be 200 characters or fewer.', 400);
-  }
-
-  if (description.length < 20) {
-    return errorResponse('Description must be at least 20 characters.', 400);
-  }
-
-  if (description.length > 3000) {
-    return errorResponse('Description must be 3000 characters or fewer.', 400);
-  }
-
-  if (!VALID_CATEGORIES.includes(category as (typeof VALID_CATEGORIES)[number])) {
-    return errorResponse('Invalid category.', 400);
-  }
-
-  if (UNSAFE_PATTERN.test(title)) {
-    return errorResponse('Title must not contain URLs or scripts.', 400);
-  }
-
-  if (UNSAFE_PATTERN.test(description)) {
-    return errorResponse('Description must not contain URLs or scripts.', 400);
-  }
+  const { title, description, category } = parsed.data;
 
   await ensureUserRecord(userId);
 

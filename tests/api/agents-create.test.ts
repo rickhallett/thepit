@@ -503,7 +503,7 @@ describe('POST /api/agents — input validation', () => {
       makeRequest({ name: 'Bot https://evil.com', systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'Name must not contain URLs.' });
+    expect(await res.json()).toEqual({ error: 'Name must not contain URLs or scripts.' });
   });
 
   it('returns 400 when name contains www.', async () => {
@@ -511,7 +511,7 @@ describe('POST /api/agents — input validation', () => {
       makeRequest({ name: 'Bot www.evil.com', systemPrompt: 'ok' }),
     );
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'Name must not contain URLs.' });
+    expect(await res.json()).toEqual({ error: 'Name must not contain URLs or scripts.' });
   });
 
   it('returns 400 when name exceeds 80 characters', async () => {

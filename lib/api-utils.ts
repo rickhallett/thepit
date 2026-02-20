@@ -120,6 +120,8 @@ export function rateLimitResponse(
  *
  * Note: The `T` cast is a type assertion without runtime validation.
  * Callers must validate individual fields before trusting them.
+ *
+ * @deprecated Prefer `parseValidBody(req, schema)` for runtime-validated parsing.
  */
 export async function parseJsonBody<T>(
   req: Request,
@@ -130,4 +132,47 @@ export async function parseJsonBody<T>(
   } catch {
     return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
   }
+}
+
+// ─── Validated request parsing (Zod) ────────────────────────────────────────
+
+/**
+ * Parse and validate a JSON request body against a Zod schema.
+ * Combines JSON parsing + runtime type validation in one step.
+ *
+ * Returns the first Zod error message as the 400 response body,
+ * preserving the same error message style as the manual validation
+ * that this replaces.
+ *
+ * @example
+ *   import { contactSchema } from '@/lib/api-schemas';
+ *   const parsed = await parseValidBody(req, contactSchema);
+ *   if (parsed.error) return parsed.error;
+ *   const { name, email, message } = parsed.data;
+ */
+export async function parseValidBody<T>(
+  req: Request,
+  schema: { safeParse: (data: unknown) => { success: true; data: T } | { success: false; error: { issues: Array<{ message: string }> } } },
+): Promise<{ data: T; error?: never } | { data?: never; error: Response }> {
+  let raw: unknown;
+  try {
+    raw = await req.json();
+  } catch {
+    return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
+  }
+
+  const result = schema.safeParse(raw);
+  if (!result.success) {
+    // Return the first validation error — matches the existing pattern
+    // of returning a single error message per request.
+    //
+    // Zod's default "Invalid input: expected X, received Y" messages are
+    // replaced with the field's custom message when one is defined via
+    // .min()/.max()/.refine(). For missing-field type errors that don't
+    // hit those refinements, we still get the descriptive Zod default.
+    const firstIssue = result.error.issues[0]?.message ?? 'Invalid request body.';
+    return { error: errorResponse(firstIssue, 400) };
+  }
+
+  return { data: result.data };
 }

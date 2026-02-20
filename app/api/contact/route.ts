@@ -1,7 +1,8 @@
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { log } from '@/lib/logger';
 import { withLogging } from '@/lib/api-logging';
-import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse } from '@/lib/api-utils';
+import { contactSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
 
@@ -24,27 +25,9 @@ export const POST = withLogging(async function POST(req: Request) {
     return rateLimitResponse(rateCheck);
   }
 
-  const parsed = await parseJsonBody<{ name?: string; email?: string; message?: string }>(req);
+  const parsed = await parseValidBody(req, contactSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const name = typeof payload.name === 'string' ? payload.name.trim() : '';
-  const email = typeof payload.email === 'string' ? payload.email.trim() : '';
-  const message =
-    typeof payload.message === 'string' ? payload.message.trim() : '';
-
-  if (!name || !email || !message) {
-    return errorResponse('Missing fields.', 400);
-  }
-
-  if (name.length > 200 || email.length > 256 || message.length > 5000) {
-    return errorResponse('Input too long.', 400);
-  }
-
-  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!EMAIL_RE.test(email)) {
-    return errorResponse('Invalid email address.', 400);
-  }
+  const { name, email, message } = parsed.data;
 
   const apiKey = process.env.RESEND_API_KEY;
   const toEmail = process.env.CONTACT_TO_EMAIL;
