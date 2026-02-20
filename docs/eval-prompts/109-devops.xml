@@ -1,0 +1,111 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="109" name="DevOps and Operational Readiness">
+  <meta>
+    <evaluator-role>
+      You are a site reliability engineer who has operated production systems
+      at scale. You evaluate operational readiness: can this system be deployed
+      safely, monitored effectively, and debugged quickly when things go wrong?
+      You know that the gap between "it works on my machine" and "it works in
+      production" is where most engineering hours are spent. You are reviewing
+      a Next.js application deployed on Vercel with Neon Postgres, targeting
+      a solo-developer operational model.
+    </evaluator-role>
+    <required-sections>E (config), A (lib/ — logger.ts, anomaly.ts, env.ts, async-context.ts)</required-sections>
+    <optional-sections>B (app/api/), D (tests), F (Go CLIs — deployment tooling)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="109.1" name="CI/CD Pipeline">
+      <question>Is the build, test, and deploy pipeline reliable and fast?</question>
+      <anchors>
+        <anchor score="1">No CI. Manual deployment. Tests not run before deploy.</anchor>
+        <anchor score="3">CI exists but is slow, flaky, or missing key checks.</anchor>
+        <anchor score="5">pnpm run test:ci runs lint + typecheck + unit + integration. Vercel deploys on push. Preview deployments for PRs. E2E tests can target deployed instances.</anchor>
+        <anchor score="7">Pipeline is comprehensive. All checks pass before merge. Build is fast. Preview deployments enable QA. No manual steps between merge and production.</anchor>
+        <anchor score="10">Pipeline is optimized. Parallel test execution. Canary deployments. Automatic rollback on failure. Build cache. Deploy time under 2 minutes.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="109.2" name="Observability Stack">
+      <question>Can you detect, diagnose, and resolve production issues from available telemetry?</question>
+      <anchors>
+        <anchor score="1">console.log only. No structured logging. No monitoring.</anchor>
+        <anchor score="3">Basic logging but not structured. No alerting. No metrics.</anchor>
+        <anchor score="5">Structured JSON logging with semantic methods (audit, metric, security). Sentry for error tracking. PostHog for analytics. LangSmith for LLM traces. AsyncLocalStorage for request context.</anchor>
+        <anchor score="7">Comprehensive observability. Logs, metrics, and traces correlated. Anomaly detection (lib/anomaly.ts). Request IDs propagated. API key redaction in logs.</anchor>
+        <anchor score="10">Full observability stack. Dashboards for all key metrics. Alerting with runbooks. SLO/SLI defined. On-call rotation documented. Incident response playbook.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="109.3" name="Environment Management">
+      <question>Are environments (dev, preview, production) managed consistently?</question>
+      <anchors>
+        <anchor score="1">One environment. Config differences are undocumented.</anchor>
+        <anchor score="3">Multiple environments but configuration drift between them.</anchor>
+        <anchor score="5">Zod env validation catches missing vars at startup. .env.local for dev. Vercel manages production env vars. Preview deployments use separate configs.</anchor>
+        <anchor score="7">Environments are consistent. Env vars validated. Feature flags allow staged rollout. No dev-only code paths that could leak to production.</anchor>
+        <anchor score="10">Infrastructure as code. Environments are reproducible. Secrets rotation automated. Configuration drift detected and alerting.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="109.4" name="Deployment Safety">
+      <question>Can deployments be rolled back? Are there safeguards against bad deploys?</question>
+      <anchors>
+        <anchor score="1">Deploy is irreversible. No way to roll back.</anchor>
+        <anchor score="3">Rollback possible but manual and slow.</anchor>
+        <anchor score="5">Vercel provides instant rollback to previous deployment. Preview deployments serve as staging. Database migrations are forward-only but additive.</anchor>
+        <anchor score="7">Deployment includes pre-deploy checks, health validation, and automatic rollback on failure. Zero-downtime deploys.</anchor>
+        <anchor score="10">Canary deployments with traffic splitting. Automated rollback on error rate spike. Blue/green deployment. Database migrations are reversible.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="109.5" name="Disaster Recovery">
+      <question>What happens when things go badly wrong? Is there a recovery plan?</question>
+      <anchors>
+        <anchor score="1">No backups. No recovery plan. Data loss would be permanent.</anchor>
+        <anchor score="3">Database backups exist (Neon provides them) but recovery process is untested.</anchor>
+        <anchor score="5">Neon provides point-in-time recovery. Vercel provides deployment history. Source code in git. Research data is exportable. No formal DR plan.</anchor>
+        <anchor score="7">Recovery procedures documented. Backup testing performed. RTO and RPO defined. Critical data paths identified.</anchor>
+        <anchor score="10">DR plan is tested regularly. Multi-region failover. Backup restoration tested in CI. Business continuity plan documented.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="109.6" name="Dependency and Runtime Management">
+      <question>Are runtime dependencies (Node.js, Go, packages) managed for reproducibility?</question>
+      <anchors>
+        <anchor score="1">No lockfiles. No version pinning. Works on this machine, maybe.</anchor>
+        <anchor score="3">Lockfiles exist but runtime version not pinned. go.work may conflict.</anchor>
+        <anchor score="5">pnpm-lock.yaml committed. Go modules with go.work workspace. Node version implied by Vercel. Dependabot or equivalent for security updates.</anchor>
+        <anchor score="7">All versions pinned. Lockfiles committed. Runtime version specified. Reproducible builds across machines.</anchor>
+        <anchor score="10">.tool-versions or equivalent for all runtimes. Docker for local dev reproducibility. Dependabot with auto-merge for patches. SBOM generated.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="109.7" name="Operational Tooling">
+      <question>Are there tools for operators to manage the system without touching code?</question>
+      <anchors>
+        <anchor score="1">All operations require code changes and redeployment.</anchor>
+        <anchor score="3">Some admin endpoints but most operations require SSH or direct DB access.</anchor>
+        <anchor score="5">Go CLI suite (pitctl for admin, pitforge for agents, pitlab for experiments, pitnet for deployment, pitstorm for traffic sim). Admin API endpoints. Seed agent endpoint.</anchor>
+        <anchor score="7">Comprehensive operational tooling. CLIs cover all common operations. Admin UI for routine tasks. Documented runbooks.</anchor>
+        <anchor score="10">Self-service operations. CLIs with built-in help and validation. Audit trail for all admin actions. Automated remediation for common issues.</anchor>
+      </anchors>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "109", all 7 metrics. Note that this is a solo-developer
+      operation on managed infrastructure (Vercel + Neon), which changes the
+      operational requirements significantly vs self-hosted infrastructure.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Vercel and Neon handle significant operational complexity (scaling, TLS, CDN, backups). Don't penalize for "not running Kubernetes."</instruction>
+    <instruction>A Go CLI suite for operations is unusually mature for a solo-developer project. Credit it appropriately.</instruction>
+    <instruction>Managed infrastructure means DR is partially outsourced. Evaluate whether the developer knows what their provider covers vs what they're responsible for.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

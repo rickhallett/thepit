@@ -1,0 +1,112 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="111" name="Scalability and Production Readiness">
+  <meta>
+    <evaluator-role>
+      You are a performance engineer who has scaled systems from 0 to millions
+      of users. You think in terms of bottlenecks, failure modes, and capacity
+      planning. You know that premature optimization is the root of much
+      evil, but you also know that some architectural decisions made at
+      day 1 become expensive to fix at day 100. You evaluate whether this
+      system can handle its first 10,000 users, its first viral moment,
+      and its first production incident. You are reviewing a Vercel-deployed
+      Next.js app with Neon Postgres, targeting an audience of AI researchers,
+      developers, and tech enthusiasts.
+    </evaluator-role>
+    <required-sections>A (lib/), B (app/api/), E (config), G (schema)</required-sections>
+    <optional-sections>All other sections</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="111.1" name="Traffic Handling Capacity">
+      <question>Can the system handle a traffic spike (e.g., front page of HN)?</question>
+      <anchors>
+        <anchor score="1">System would crash under 10x normal traffic.</anchor>
+        <anchor score="3">System could handle some traffic increase but database or API rate limits would bottleneck quickly.</anchor>
+        <anchor score="5">Vercel auto-scales the compute layer. Neon scales connections (HTTP driver). Rate limiting prevents API abuse. Free bout pool caps spending. The bottleneck is Anthropic API rate limits, not the application.</anchor>
+        <anchor score="7">Traffic handling is well-designed. Read-heavy pages are static/cached. Write-heavy operations (bout creation) are rate-limited per user. No single point of failure in the application layer.</anchor>
+        <anchor score="10">Load tested. Capacity limits documented. Auto-scaling configured. CDN caching optimized. Graceful degradation under load. Circuit breakers for external dependencies.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="111.2" name="Database Scaling Path">
+      <question>Will the database strategy support growth? Where will it break first?</question>
+      <anchors>
+        <anchor score="1">Single database with full table scans on every request.</anchor>
+        <anchor score="3">Indexes exist but some queries won't scale (leaderboard, exports).</anchor>
+        <anchor score="5">Hot queries are indexed. Leaderboard cached for 5 minutes. JSONB columns avoid joins for complex data. Neon HTTP driver appropriate for serverless burst. First break point: leaderboard at ~100K bouts.</anchor>
+        <anchor score="7">Scaling path identified. Known bottlenecks documented with upgrade paths (SQL aggregation for leaderboard, pagination for exports). Connection model appropriate for deployment target.</anchor>
+        <anchor score="10">Database is scale-ready. Read replicas configured. Query explain plans for hot paths. Partitioning strategy for large tables. Performance monitoring with alerts.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="111.3" name="Cost Scaling Model">
+      <question>How do costs scale with usage? Are there runaway cost risks?</question>
+      <anchors>
+        <anchor score="1">Costs scale linearly with traffic. No caps. A viral moment could bankrupt the operator.</anchor>
+        <anchor score="3">Some cost controls but AI API costs are unbounded.</anchor>
+        <anchor score="5">Multi-layer cost control: free bout pool with daily cap + spend cap, credit system with preauthorization, BYOK offloads costs to users, tier-based rate limiting. Vercel and Neon have usage-based pricing but are bounded by traffic controls.</anchor>
+        <anchor score="7">Cost model is well-understood. AI costs bounded by pool caps and rate limits. Infrastructure costs scale sub-linearly (caching, static generation). BYOK is the primary scaling model for power users.</anchor>
+        <anchor score="10">Cost model is documented and monitored. Alerts for cost anomalies. Budget caps at infrastructure level. Cost optimization (model routing, caching, batching) automated.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="111.4" name="External Dependency Resilience">
+      <question>What happens when external services fail? (Anthropic, Clerk, Stripe, Neon, Vercel)</question>
+      <anchors>
+        <anchor score="1">Any external service failure crashes the application.</anchor>
+        <anchor score="3">Some error handling but the application becomes unusable when key services are down.</anchor>
+        <anchor score="5">Anthropic failures handled gracefully (error events to client, credit refund). Clerk failures block auth (expected). Stripe webhook failures are retried. Neon failures fail fast (requireDb guard). No provider failover.</anchor>
+        <anchor score="7">Graceful degradation for all external dependencies. Static pages work without any external service. AI features degrade gracefully. Payment failures are queued for retry.</anchor>
+        <anchor score="10">Full resilience. Circuit breakers for all external calls. Fallback providers. Cached responses for degraded mode. Health checks per dependency. Incident response per dependency.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="111.5" name="Data Growth Management">
+      <question>How does the system handle growing data volumes (bouts, reactions, page views)?</question>
+      <anchors>
+        <anchor score="1">No pagination. No archival. Tables grow unbounded.</anchor>
+        <anchor score="3">Some pagination but analytics tables (pageViews) grow without bounds.</anchor>
+        <anchor score="5">Bout listing is paginated. Transcript data is JSONB (bounded per bout). Page views indexed but no archival strategy. Research exports are batch operations.</anchor>
+        <anchor score="7">Data growth is managed. Pagination for all listing endpoints. Bounded per-entity data. Archival strategy for old data. Export mechanism for research.</anchor>
+        <anchor score="10">Data lifecycle management. Automated archival. Table partitioning by date. Cold storage for old data. Data retention policy documented and enforced.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="111.6" name="Concurrency Safety Under Load">
+      <question>Do the concurrency patterns hold under high concurrency?</question>
+      <anchors>
+        <anchor score="1">Race conditions under normal load. Data corruption likely.</anchor>
+        <anchor score="3">Some race conditions possible under high concurrency (documented as TODOs).</anchor>
+        <anchor score="5">Atomic SQL operations for financial data. Unique constraints for dedup. onConflictDoNothing for race-safe inserts. One known issue: SEC-RACE-006 (concurrent reactions return 500, documented and tested-but-skipped).</anchor>
+        <anchor score="7">Concurrency is handled systematically. All financial operations are atomic. All dedup is DB-enforced. Known issues are documented and bounded.</anchor>
+        <anchor score="10">Concurrency is provably correct. Load tested with concurrent users. No data corruption under any tested scenario. All race conditions documented and mitigated.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="111.7" name="Monitoring and Alerting for Scale">
+      <question>Would you know if the system was struggling before users complained?</question>
+      <anchors>
+        <anchor score="1">No monitoring. You would not know until users reported issues.</anchor>
+        <anchor score="3">Basic error tracking (Sentry) but no performance monitoring.</anchor>
+        <anchor score="5">Sentry for errors. PostHog for user analytics. LangSmith for LLM traces. Structured logging. Anomaly detection (lib/anomaly.ts) with optional webhook. No real-time dashboards.</anchor>
+        <anchor score="7">Monitoring covers errors, performance, and usage. Anomaly detection provides early warning. Key metrics (bout completion rate, API latency, error rate) are tracked.</anchor>
+        <anchor score="10">Full observability with alerting. SLOs defined. Error budget tracking. PagerDuty integration. Dashboards for all key metrics. Proactive scaling based on metrics.</anchor>
+      </anchors>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "111", all 7 metrics. Focus on the NEXT bottleneck — not
+      theoretical limits at 10M users, but practical limits at 1K-10K users.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Managed infrastructure (Vercel + Neon) handles significant scaling complexity. Don't penalize for "not running your own infrastructure."</instruction>
+    <instruction>The BYOK model is a legitimate scaling strategy — it offloads the most expensive resource (LLM API calls) to power users.</instruction>
+    <instruction>Perfect scaling readiness at launch is over-investment. Score for "appropriate readiness for the current stage."</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

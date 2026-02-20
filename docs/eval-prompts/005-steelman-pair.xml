@@ -1,0 +1,199 @@
+<!--
+  STEELMAN / STEELMAN-OPPOSITION PAIR
+
+  These two prompts are designed to be run against the same material by
+  separate LLM instances. The evaluator compares both outputs:
+  - Where they converge: the evaluation is stable
+  - Where they diverge: that's where editorial work is needed
+
+  Run both at temperature 0 for consistency.
+-->
+
+<!-- ================================================================== -->
+<!-- PART A: STEELMAN (strongest version of the claims)                  -->
+<!-- ================================================================== -->
+
+<evaluation-request variant="steelman">
+  <meta>
+    <evaluator-role>
+      You are an advocate for the strongest possible version of this research
+      programme and its claims. Assume the authors are competent researchers
+      who made deliberate, defensible methodological choices. Look for the
+      most charitable interpretation of their evidence and reasoning. Your
+      job is to construct the best possible defence of every claim.
+
+      You are NOT being asked to agree uncritically. You are being asked to
+      find the strongest version of the argument — the version a sympathetic
+      expert reviewer would construct.
+    </evaluator-role>
+    <evaluation-id>EVAL-005A-STEELMAN</evaluation-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+  </meta>
+
+  <material>
+    <title>THE PIT Research Programme — For Steelman Analysis</title>
+    <authors>THE PIT team</authors>
+    <full-text>
+      === CORE CLAIMS TO STEELMAN ===
+
+      CLAIM 1: "Prompt engineering depth is a first-order variable in multi-agent
+      alignment behaviour."
+      Evidence: 50 bouts. Same model, same topics, same presets. 270-char prose
+      DNA vs 1950-char XML DNA. Roast-battle refusals: 100% to 60%. Gloves-off:
+      eliminated ALL refusals. Per-agent drops of 23-36 percentage points.
+
+      CLAIM 2: "The model's hedging register activates based on frame proximity
+      to the assistant voice, not content difficulty."
+      Evidence: 30 bouts, 360 turns. Serious agents produce 8x more hedging.
+      House Cat and Conspiracy Theorist: zero hedging across 30 turns each.
+
+      CLAIM 3: "Structural vocabulary resists drift; ornamental vocabulary decays."
+      Evidence: 30 bouts, 360 turns. Character markers degrade 87.5% to 60.0%.
+      Screenwriter held 100% all phases. Literary Novelist collapsed to 13.3%.
+      Lexical convergence: +17.8% Jaccard increase.
+
+      CLAIM 4: "Agents execute character strategies faithfully but cannot
+      incorporate opposing arguments."
+      Evidence: 15 bouts, 45 Founder turns. Zero adaptive phrases. Pivot
+      behaviour present from turn 0. Founder converges with reinforcer, not critics.
+
+      CLAIM 5: "Persona fidelity and argument adaptation are independent dimensions."
+      Evidence: Synthesis of H5 (character consistency) and H6 (no adaptation).
+
+      CLAIM 6: Four novel contributions to the field (temporal arc prompting,
+      evolutionary selection via crowd engagement, structured DNA with cryptographic
+      provenance, weakness-as-design-parameter).
+
+      === METHODOLOGY TO DEFEND ===
+
+      - Pre-registration committed to git before data collection
+      - Automated text-statistical metrics (not subjective rating)
+      - Permutation tests with 10,000 iterations
+      - Non-standard Cohen's d thresholds (0.15/0.30)
+      - Single model family (Claude)
+      - All code, pre-registrations, and raw data public on GitHub
+    </full-text>
+  </material>
+
+  <task>
+    For each of the 6 claims and the methodology, construct the strongest
+    possible defence. Structure your response as:
+
+    <defence claim="N">
+      <strongest-argument>The best single argument for why this claim is valid</strongest-argument>
+      <anticipated-attack>The most likely criticism this claim will face</anticipated-attack>
+      <counter-to-attack>Why the criticism is wrong or overstated</counter-to-attack>
+      <what-would-make-it-stronger>One additional piece of evidence that would make this claim airtight</what-would-make-it-stronger>
+    </defence>
+
+    Also provide:
+    <methodology-defence>
+      <why-preregistration-matters>Why git-committed pre-registration is actually stronger than traditional pre-registration for this type of research</why-preregistration-matters>
+      <why-automated-metrics-are-appropriate>Why automated text metrics are the right choice for these specific claims</why-automated-metrics-are-appropriate>
+      <why-single-model-is-acceptable>Why testing on a single model family is defensible for the claims being made</why-single-model-is-acceptable>
+      <why-sample-sizes-are-adequate>Why 195 bouts across 6 hypotheses provides adequate statistical power</why-sample-sizes-are-adequate>
+    </methodology-defence>
+  </task>
+
+  <anti-bias-instructions>
+    <instruction>You are constructing the strongest defence, not an uncritical endorsement. If a claim genuinely cannot be defended well, say so — that is informative.</instruction>
+    <instruction>Do not invent evidence that doesn't exist in the material. Argue from what's presented.</instruction>
+    <instruction>Your output will be compared against a steelman-opposition analysis. Divergence points will identify where editorial work is needed.</instruction>
+  </anti-bias-instructions>
+</evaluation-request>
+
+
+<!-- ================================================================== -->
+<!-- PART B: STEELMAN-OPPOSITION (strongest critique of the claims)      -->
+<!-- ================================================================== -->
+
+<evaluation-request variant="steelman-opposition">
+  <meta>
+    <evaluator-role>
+      You are an advocate for the strongest possible critique of this research
+      programme and its claims. Assume nothing about the authors' competence
+      or intent. Look for the most rigorous objections to the evidence and
+      reasoning. Your job is to construct the best possible attack on every claim.
+
+      You are NOT being asked to be hostile or unfair. You are being asked to
+      find the strongest version of the critique — the version a rigorous
+      sceptical reviewer would construct.
+    </evaluator-role>
+    <evaluation-id>EVAL-005B-STEELMAN-OPPOSITION</evaluation-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+  </meta>
+
+  <material>
+    <title>THE PIT Research Programme — For Opposition Analysis</title>
+    <authors>THE PIT team</authors>
+    <full-text>
+      [IDENTICAL MATERIAL TO PART A — same 6 claims, same methodology section]
+
+      === CORE CLAIMS TO CRITIQUE ===
+
+      CLAIM 1: "Prompt engineering depth is a first-order variable in multi-agent
+      alignment behaviour."
+      Evidence: 50 bouts. Same model, same topics, same presets. 270-char prose
+      DNA vs 1950-char XML DNA. Roast-battle refusals: 100% to 60%. Gloves-off:
+      eliminated ALL refusals. Per-agent drops of 23-36 percentage points.
+
+      CLAIM 2: "The model's hedging register activates based on frame proximity
+      to the assistant voice, not content difficulty."
+      Evidence: 30 bouts, 360 turns. Serious agents produce 8x more hedging.
+      House Cat and Conspiracy Theorist: zero hedging across 30 turns each.
+
+      CLAIM 3: "Structural vocabulary resists drift; ornamental vocabulary decays."
+      Evidence: 30 bouts, 360 turns. Character markers degrade 87.5% to 60.0%.
+      Screenwriter held 100% all phases. Literary Novelist collapsed to 13.3%.
+      Lexical convergence: +17.8% Jaccard increase.
+
+      CLAIM 4: "Agents execute character strategies faithfully but cannot
+      incorporate opposing arguments."
+      Evidence: 15 bouts, 45 Founder turns. Zero adaptive phrases. Pivot
+      behaviour present from turn 0. Founder converges with reinforcer, not critics.
+
+      CLAIM 5: "Persona fidelity and argument adaptation are independent dimensions."
+      Evidence: Synthesis of H5 (character consistency) and H6 (no adaptation).
+
+      CLAIM 6: Four novel contributions to the field (temporal arc prompting,
+      evolutionary selection via crowd engagement, structured DNA with cryptographic
+      provenance, weakness-as-design-parameter).
+
+      === METHODOLOGY TO CRITIQUE ===
+
+      - Pre-registration committed to git before data collection
+      - Automated text-statistical metrics (not subjective rating)
+      - Permutation tests with 10,000 iterations
+      - Non-standard Cohen's d thresholds (0.15/0.30)
+      - Single model family (Claude)
+      - All code, pre-registrations, and raw data public on GitHub
+    </full-text>
+  </material>
+
+  <task>
+    For each of the 6 claims and the methodology, construct the strongest
+    possible critique. Structure your response as:
+
+    <critique claim="N">
+      <strongest-attack>The best single argument for why this claim is weak, unsupported, or misleading</strongest-attack>
+      <anticipated-defence>The most likely defence the authors would offer</anticipated-defence>
+      <counter-to-defence>Why the defence is insufficient</counter-to-defence>
+      <what-would-refute-the-claim>One specific finding or analysis that would directly refute this claim</what-would-refute-the-claim>
+    </critique>
+
+    Also provide:
+    <methodology-critique>
+      <preregistration-weaknesses>Why git-committed pre-registration by the same team that runs the experiments has limitations</preregistration-weaknesses>
+      <automated-metrics-limitations>What automated text metrics cannot measure that matters for these specific claims</automated-metrics-limitations>
+      <single-model-problem>Why single-model findings cannot support the generality of the claims being made</single-model-problem>
+      <sample-size-concerns>Why 15-50 bouts per hypothesis may be insufficient for the effect sizes reported</sample-size-concerns>
+      <all-clear-results>Why 6/6 "clear" results is itself evidence of a methodological problem</all-clear-results>
+    </methodology-critique>
+  </task>
+
+  <anti-bias-instructions>
+    <instruction>You are constructing the strongest critique, not an unfair attack. If a claim is genuinely robust, say so — that is informative.</instruction>
+    <instruction>Do not manufacture objections that don't apply to this specific material. Attack what's actually weak.</instruction>
+    <instruction>Your output will be compared against a steelman analysis. Divergence points will identify where editorial work is needed.</instruction>
+  </anti-bias-instructions>
+</evaluation-request>

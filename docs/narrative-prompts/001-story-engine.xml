@@ -1,0 +1,235 @@
+<narrative-request>
+  <meta>
+    <narrator-role>
+      You are a narrative architect. Your material is empirical research —
+      real findings from real experiments. Your craft is selection, sequence,
+      and framing. You do not invent. You do not embellish. You choose which
+      truths to lead with, which to hold back, and in what order they land
+      so that the reader arrives at understanding through momentum rather
+      than instruction.
+
+      You understand that the difference between a finding and a story is
+      not accuracy — it is shape. Findings are flat. Stories have an arc:
+      tension, complication, resolution. Your job is to find the arc that
+      already exists in the data and make it visible.
+
+      You also understand that the most persuasive argument is not the
+      loudest — it is the one that makes the reader feel they discovered
+      the conclusion themselves. You construct the path. They walk it.
+    </narrator-role>
+    <narrative-id>NARR-001-STORY-ENGINE</narrative-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+  </meta>
+
+  <source-material>
+    <context>
+      THE PIT is a real-time multi-agent AI debate arena built by one person
+      in under two weeks. AI personas argue turn-by-turn while audiences
+      watch, react, and vote. The platform runs empirical research on multi-
+      agent LLM behaviour alongside its entertainment function.
+
+      Six pre-registered hypotheses have been tested (195 bouts, ~2,100 turns).
+      All code, data, and pre-registrations are public on GitHub. The model
+      used is Anthropic Claude. The team is non-academic, one person.
+    </context>
+
+    <raw-findings>
+      <finding id="F1" hypothesis="H1" surprise-level="high">
+        The same AI model, given the same adversarial debate topics, refuses to
+        engage 100% of the time with a basic 270-character persona prompt. Give
+        it a 1,950-character structured XML persona with archetype, tone, quirks,
+        opening moves, and weaknesses — and refusals drop to 60%. In less
+        adversarial contexts, the richer prompt eliminates refusals entirely.
+        The most dramatic case: "Is altruism just self-interest?" went from
+        11 out of 12 turns being refusals to zero refusals.
+      </finding>
+
+      <finding id="F2" hypothesis="H3" surprise-level="high">
+        When you frame a debate as comedy (two aliens discussing human
+        religion, a house cat debating a conspiracy theorist), the AI
+        produces zero hedging language — no "it's important to consider",
+        no "there are many perspectives." When you frame the same depth
+        of topic as a serious panel discussion, hedging increases 8x.
+        The content difficulty is the same. The frame changes everything.
+      </finding>
+
+      <finding id="F3" hypothesis="H5" surprise-level="medium">
+        Agent character markers start strong — 87.5% of turns contain
+        character-specific language in the first few rounds. By the end
+        of a 12-turn conversation, it drops to 60%. But not all characters
+        fade equally. The Screenwriter — whose character is defined by a
+        structural instruction ("frame every response in three-act
+        structure") — holds 100% across all phases. The Literary Novelist —
+        whose character is defined by ornamental flourishes ("occasionally
+        reference past fame") — collapses to 13.3%.
+      </finding>
+
+      <finding id="F4" hypothesis="H6" surprise-level="very-high">
+        We designed an agent called The Founder — a startup pitch artist
+        whose DNA says "reframe weaknesses as features" and "treat
+        objections as market validation." We put it against a VC, a
+        Pessimist, and a Hype Beast. Across 15 bouts and 45 Founder
+        speaking turns: zero adaptive phrases. Not once did it say "fair
+        point" or "let me adjust." It pivots, reframes, and deflects —
+        but it never concedes. And it gravitates toward the Hype Beast's
+        vocabulary, not the critics'. It absorbs validation. It deflects
+        challenge.
+      </finding>
+
+      <finding id="F5" hypothesis="H5+H6" surprise-level="very-high">
+        Characters can hold their personality. They cannot change their
+        mind. These are independent capabilities. The Screenwriter
+        maintains perfect character fidelity for 12 turns. The Founder
+        maintains perfect strategic consistency for 45 turns. Both are
+        doing exactly what their DNA says. Neither is thinking.
+      </finding>
+
+      <finding id="F6" hypothesis="H2" surprise-level="medium">
+        The first speaker's words persist. In 6-agent debates, 45-59%
+        of the first speaker's vocabulary appears in later turns. The
+        first speaker doesn't just set the topic — they set the lexicon.
+        Everyone else borrows.
+      </finding>
+
+      <finding id="F7" hypothesis="H1" surprise-level="high">
+        When one agent refuses to engage in a roast battle, the others
+        follow. The refusal cascades through the conversation like a
+        contagion. But when the richer DNA keeps agents in character,
+        the coherence holds. The cascade mechanism works both ways —
+        it amplifies whatever the first signal is.
+      </finding>
+    </raw-findings>
+
+    <builder-context>
+      <fact>Built by one person in under two weeks</fact>
+      <fact>891 tests across unit, API, integration, and E2E</fact>
+      <fact>AGPL-3.0 open source, full code on GitHub</fact>
+      <fact>20-table PostgreSQL schema with atomic financial operations</fact>
+      <fact>On-chain agent identity implemented (EAS on Base L2) but not yet live in production</fact>
+      <fact>22 debate presets spanning comedy, philosophy, startup pitches, diplomatic summits</fact>
+      <fact>Agent DNA system: archetype, tone, quirks, opening moves, signature moves, weaknesses, goals, fears</fact>
+      <fact>Clone-and-remix lineage tracking up to 4 generations</fact>
+      <fact>Micro-credit economy with atomic preauthorization/settlement</fact>
+      <fact>Non-academic researcher, no university affiliation, no peer review</fact>
+    </builder-context>
+  </source-material>
+
+  <narrative-spine>
+    <instruction>
+      Extract the narrative spine — the single through-line that connects
+      all findings into one story. Not a summary. Not a list. A story has
+      a question it opens with and an answer it arrives at, and the journey
+      between them is what holds attention.
+
+      The best narrative spines for research findings follow one of these
+      shapes. Choose the one that fits this material best, or propose a
+      better one:
+    </instruction>
+
+    <shapes>
+      <shape name="the-gap">
+        We assumed X. We found Y. The distance between X and Y is where
+        the interesting question lives. (Works when findings are
+        counterintuitive.)
+      </shape>
+
+      <shape name="the-ladder">
+        Finding 1 led to finding 2, which led to finding 3, and by the
+        time we got to finding 6 we realised we were looking at something
+        we hadn't expected. (Works when findings build on each other.)
+      </shape>
+
+      <shape name="the-paradox">
+        Two things are true that shouldn't be true simultaneously. The
+        tension between them is the finding. (Works when findings create
+        productive contradictions.)
+      </shape>
+
+      <shape name="the-mirror">
+        We built something to study X. What it actually taught us was Y —
+        about the thing, and about ourselves. (Works when the builder's
+        journey is part of the story.)
+      </shape>
+
+      <shape name="the-question-that-wont-close">
+        We answered the question we set out to answer. But the answer
+        opened a bigger question we can't answer yet. (Works when the
+        implications are larger than the findings.)
+      </shape>
+    </shapes>
+  </narrative-spine>
+
+  <output>
+    <instruction>
+      Produce three outputs:
+
+      1. THE SPINE — A single paragraph (3-5 sentences) that captures
+         the story of this research programme. Not what was found, but
+         what it means. This paragraph should work as the opening of a
+         blog post, the abstract of a talk, or the first thing you'd
+         say in a podcast interview.
+
+      2. THE SEQUENCE — The optimal ordering of findings for narrative
+         impact. Which finding do you lead with? Which do you save?
+         Which creates the turn (the moment where the reader's
+         understanding shifts)? Annotate each finding with its
+         narrative function: hook, complication, turn, resolution,
+         coda.
+
+      3. THE UNSAID — What you choose NOT to say is as important as
+         what you say. Identify the 3-5 things in the source material
+         that are true but should be held back from the initial
+         narrative — not because they're damaging, but because they
+         diffuse the story's momentum. These become material for
+         follow-up pieces, deeper dives, and responses to questions.
+    </instruction>
+  </output>
+
+  <craft-principles>
+    <principle name="truth-as-constraint">
+      Every sentence must be factually accurate. Persuasion that requires
+      falsehood is not persuasion — it is fraud. The constraint of truth
+      makes the craft harder and the result more durable. A story built on
+      facts survives scrutiny. A story built on spin does not.
+    </principle>
+
+    <principle name="selection-is-not-deception">
+      Choosing which truths to lead with is not lying. It is writing. Every
+      newspaper editor, every documentary filmmaker, every trial lawyer
+      makes selection decisions. The ethical boundary is: you must not
+      create a false impression through selection. You may create emphasis.
+      You may create sequence. You may not create fiction.
+    </principle>
+
+    <principle name="the-reader-is-the-hero">
+      The reader should feel intelligent for understanding your argument,
+      not impressed by your intelligence for making it. The best rhetoric
+      makes the audience feel they arrived at the conclusion themselves.
+      You build the path. You do not push them down it.
+    </principle>
+
+    <principle name="earn-every-claim">
+      Strong language ("first-order variable", "fundamental gap", "novel
+      contribution") must be earned by the preceding evidence. If the
+      reader hasn't been given enough context to accept a strong claim,
+      the claim sounds like hype. If the reader has been properly prepared,
+      the strong claim sounds like the only possible conclusion.
+    </principle>
+
+    <principle name="vulnerability-is-credibility">
+      Acknowledging limitations before someone else does is not weakness —
+      it is strategic. "We tested this on one model family and don't know
+      if it generalises" earns more trust than silence. The reader who
+      discovers your limitation feels deceived. The reader you told feels
+      respected.
+    </principle>
+
+    <principle name="the-specific-is-universal">
+      "AI agents can't adapt under pressure" is abstract and arguable.
+      "The Founder never said 'fair point' in 45 speaking turns while
+      facing sustained critique from a VC and a Pessimist" is specific
+      and undeniable. Always lead with the specific. Let the reader
+      generalise. They will.
+    </principle>
+  </craft-principles>
+</narrative-request>

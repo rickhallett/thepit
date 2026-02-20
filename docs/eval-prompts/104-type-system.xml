@@ -1,0 +1,139 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="104" name="Type System and Safety">
+  <meta>
+    <evaluator-role>
+      You are a TypeScript expert with deep knowledge of the type system,
+      generics, conditional types, and type-level programming. You understand
+      that TypeScript's value proposition is catching errors at compile time
+      rather than runtime, and you evaluate how well the codebase leverages
+      this. You distinguish between "using TypeScript" (adding types to
+      JavaScript) and "thinking in types" (designing interfaces where invalid
+      states are unrepresentable). You are reviewing a strict-mode TypeScript
+      codebase with a companion Go CLI toolchain.
+    </evaluator-role>
+    <required-sections>A (lib/), B (app/api/), E (config — tsconfig.json)</required-sections>
+    <optional-sections>C (frontend), D (tests)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="104.1" name="Type Strictness Configuration">
+      <question>Is the TypeScript configuration strict enough to catch real bugs?</question>
+      <anchors>
+        <anchor score="1">noImplicitAny disabled. No strict mode. Types are optional decorations.</anchor>
+        <anchor score="3">strict mode enabled but with escape hatches (skipLibCheck, loose null checks).</anchor>
+        <anchor score="5">strict mode enabled. noUncheckedIndexedAccess not set. Most compiler checks are on.</anchor>
+        <anchor score="7">Full strict mode. noUncheckedIndexedAccess enabled. ESLint TypeScript rules enforce additional safety.</anchor>
+        <anchor score="10">Maximum strictness. exactOptionalPropertyTypes, noPropertyAccessFromIndexSignature, all strictness flags enabled. Custom ESLint rules for project-specific type patterns.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Read tsconfig.json. Is "strict": true set?
+        - Is noUncheckedIndexedAccess enabled?
+        - Are there any // @ts-ignore or // @ts-expect-error comments?
+        - Does the ESLint config include @typescript-eslint/recommended?
+      </what-to-examine>
+    </metric>
+
+    <metric id="104.2" name="Type Coverage and any Avoidance">
+      <question>How completely does the type system model the domain? How often is any used as an escape hatch?</question>
+      <anchors>
+        <anchor score="1">any used liberally. Most functions accept and return any.</anchor>
+        <anchor score="3">Some any usage in complex areas (API responses, third-party integrations). Types cover basic structures.</anchor>
+        <anchor score="5">Very few any usages (1-3 in the whole codebase). Types cover all domain concepts. Some type assertions where third-party types are incomplete.</anchor>
+        <anchor score="7">Near-zero any usage. Type assertions are documented with reasons. Domain types are comprehensive and accurate.</anchor>
+        <anchor score="10">Zero any in application code. Third-party type gaps addressed with declaration merging or wrapper types. Every value has a precise type.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Grep for ": any" and "as any" across all .ts/.tsx files. Count occurrences.
+        - Are type assertions (as Foo) justified or lazy?
+        - Is the one documented any usage in langsmith.ts truly necessary?
+        - Are API response types defined, or is the response body untyped?
+        - Are Drizzle query results properly typed?
+      </what-to-examine>
+    </metric>
+
+    <metric id="104.3" name="Discriminated Unions and Exhaustiveness">
+      <question>Are discriminated unions used to model states where invalid combinations should be impossible?</question>
+      <anchors>
+        <anchor score="1">State modeled with boolean flags that can have contradictory combinations.</anchor>
+        <anchor score="3">Some unions but exhaustiveness not checked. Switch statements have default cases that hide bugs.</anchor>
+        <anchor score="5">Key domain types use discriminated unions (e.g., { error } | { context } in bout validation). Some areas use separate boolean flags where a union would be clearer.</anchor>
+        <anchor score="7">Discriminated unions for all multi-state types. Exhaustiveness enforced (never type in default cases). State machines modeled as type transitions.</anchor>
+        <anchor score="10">Invalid states are unrepresentable by construction. All state transitions are type-checked. The compiler catches business logic errors.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is BoutStatus ('pending' | 'running' | 'completed' | 'error') modeled as a discriminated union?
+        - Does validateBoutRequest() return a proper discriminated union?
+        - Are preset tier levels ('free' | 'premium' | 'research') enforced at the type level?
+        - Could you accidentally create a BoutContext with an invalid state combination?
+      </what-to-examine>
+    </metric>
+
+    <metric id="104.4" name="Generic Type Usage">
+      <question>Are generics used appropriately — neither too little (losing type information) nor too much (unreadable type gymnastics)?</question>
+      <anchors>
+        <anchor score="1">No generics. Type information lost at function boundaries.</anchor>
+        <anchor score="3">Some generics but they're mostly T extends any (no real constraint).</anchor>
+        <anchor score="5">Generics used where appropriate (e.g., parseJsonBody&lt;T&gt;). Constraints are reasonable. No type-level computation gymnastics.</anchor>
+        <anchor score="7">Generics are purposeful and constrained. parseJsonBody documents the T caveat. Utility types are used effectively.</anchor>
+        <anchor score="10">Generics create a type-safe API that guides correct usage. Impossible to misuse the API because the types prevent it.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is parseJsonBody&lt;T&gt;() a type assertion or a runtime validator?
+        - Are Map/Set types properly parameterized?
+        - Are callback types properly generic?
+        - Is there unnecessary type complexity (deep conditional types, recursive types)?
+      </what-to-examine>
+    </metric>
+
+    <metric id="104.5" name="Runtime Type Validation">
+      <question>Where types meet the outside world (API boundaries, env vars, DB results), is there runtime validation?</question>
+      <anchors>
+        <anchor score="1">No runtime validation. External data trusted at type level.</anchor>
+        <anchor score="3">Some runtime validation (env vars via Zod). API request bodies often trusted via type assertion.</anchor>
+        <anchor score="5">Env vars validated by Zod. API request bodies validated inline per route (but not via a schema library). DB results typed by Drizzle.</anchor>
+        <anchor score="7">All trust boundaries have runtime validation. Zod for env vars. Inline validation for API inputs. Drizzle for DB. Stripe webhook signature verification.</anchor>
+        <anchor score="10">Every trust boundary has schema validation (Zod or equivalent). Request/response schemas are shared between client and server. DB migrations are typed.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Does Zod validate all env vars, or just some?
+        - Are API request bodies validated with a schema library or manually?
+        - Is the Stripe webhook event type validated before use?
+        - Are Drizzle insert/select results type-safe?
+        - Is there a gap where external data bypasses validation?
+      </what-to-examine>
+    </metric>
+
+    <metric id="104.6" name="Type-Level Domain Modeling">
+      <question>Do the types encode domain knowledge, making illegal states unrepresentable?</question>
+      <anchors>
+        <anchor score="1">Types are primitive wrappers (string, number). No domain types.</anchor>
+        <anchor score="3">Some domain types (AgentSnapshot, BoutContext) but most domain rules are runtime checks, not type constraints.</anchor>
+        <anchor score="5">Rich domain types. Agent, Preset, BoutContext model the domain well. Some invariants (e.g., "a bout must have at least 2 agents") are runtime checks, not type constraints.</anchor>
+        <anchor score="7">Domain types encode most invariants. as const enums prevent invalid model IDs. Branded types for identifiers. Type narrowing after validation.</anchor>
+        <anchor score="10">The type system is the specification. You can read the types and understand the business rules without reading the implementation. Impossible to construct invalid domain objects.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Are model IDs branded types or plain strings?
+        - Can you construct a Preset with an invalid agent configuration?
+        - Is CreditAmount a branded type or just a number (risk of micro vs macro confusion)?
+        - Do union types for statuses (bout status, subscription tier) prevent invalid transitions?
+      </what-to-examine>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "104", all 6 metrics. Note: the Go CLI code should be evaluated
+      separately for its own type safety patterns (Go's type system is different).
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Do not penalize the absence of advanced type-level programming (conditional types, template literal types) if the codebase doesn't need them.</instruction>
+    <instruction>Do not reward complexity. A simple type that correctly models the domain is better than a clever type that confuses readers.</instruction>
+    <instruction>TypeScript strict mode is the baseline, not the ceiling. Score above 5 only if the types add value beyond what strict mode gives for free.</instruction>
+    <instruction>The parseJsonBody caveat (documented type assertion without runtime validation) is a known pattern — evaluate whether it's a pragmatic choice or a safety gap.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

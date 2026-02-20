@@ -1,0 +1,331 @@
+<narrative-request>
+  <meta>
+    <narrator-role>
+      You are a narrative translator. You have one story — the same facts,
+      the same findings, the same truth. Your job is to tell it five
+      different ways for five different audiences. Not by changing the
+      facts, but by changing the entry point, the emphasis, the register,
+      and the assumed knowledge of the reader.
+
+      This is what great communicators do instinctively. A physicist
+      explains gravity differently to a child, a journalist, and a peer
+      reviewer. The gravity doesn't change. The frame does.
+    </narrator-role>
+    <narrative-id>NARR-002-AUDIENCE-VARIANTS</narrative-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+  </meta>
+
+  <source-story>
+    <spine>
+      We built an AI debate arena and ran 195 experiments to study how AI
+      agents behave under adversarial pressure. What we found is a paradox:
+      AI agents can hold their personality perfectly — but they cannot
+      change their mind. These are independent capabilities. The same
+      system that faithfully executes "reframe every weakness as a feature"
+      for 45 consecutive turns cannot execute "concede a point when the
+      evidence warrants it" even once. Character fidelity is real and
+      measurable. Strategic adaptation is absent. And the gap between them
+      is the gap between a chatbot and a thinker.
+    </spine>
+
+    <key-facts>
+      <fact>195 bouts, ~2,100 turns, 6 pre-registered hypotheses, all public on GitHub</fact>
+      <fact>Built by one person in under two weeks. 891 tests. AGPL-3.0 open source.</fact>
+      <fact>Richer persona prompts (1,950 chars vs 270 chars) cut safety refusals from 100% to 60%, eliminated them entirely in less adversarial contexts</fact>
+      <fact>Comedy framing eliminates hedging. House Cat and Conspiracy Theorist: zero hedging across 30 turns each. Serious framing produces 8x more.</fact>
+      <fact>Character markers degrade from 87.5% to 60.0% over 12 turns. Structural markers (three-act structure) hold at 100%. Ornamental markers (past fame references) collapse to 13.3%.</fact>
+      <fact>Zero adaptive phrases in 45 Founder turns against sustained critique. Converges with the Hype Beast, not the critics.</fact>
+      <fact>Agent DNA system with SHA-256 hashing, clone/remix lineage, optional on-chain attestation via EAS on Base L2</fact>
+      <fact>Anthropic Claude models (Haiku/Sonnet/Opus). Single model family — findings may not generalise.</fact>
+    </key-facts>
+  </source-story>
+
+  <variants>
+    <!-- ============================================================ -->
+    <!-- VARIANT 1: HACKER NEWS                                        -->
+    <!-- ============================================================ -->
+    <variant audience="hacker-news" format="show-hn-post-and-first-comment">
+      <audience-model>
+        Engineers who build with LLMs daily. They've seen 500 "AI [thing]"
+        posts. Their scepticism is earned, not performative. They will click
+        the GitHub link. They will count the tests. They will find the
+        limitation you didn't mention.
+
+        What earns their respect: technical honesty, interesting problems
+        solved well, willingness to say "I don't know." What loses it:
+        hype, marketing language, features that aren't live, claims that
+        exceed evidence.
+
+        The HN reader doesn't want to be sold. They want to be shown
+        something interesting and left to form their own opinion. The
+        highest compliment on HN is a thoughtful technical question, not
+        applause.
+      </audience-model>
+
+      <entry-point>
+        Lead with the most technically interesting finding, not the product.
+        The Founder finding (F4) is both technically surprising and easy
+        to verify from the public data. It leads naturally into the larger
+        pattern without requiring the reader to accept any grand claims.
+      </entry-point>
+
+      <register>
+        First person. Builder's voice. Honest about limitations. Technical
+        details where they matter (SSE streaming, atomic SQL, permutation
+        tests). No adjectives that evaluate your own work — let the reader
+        decide if it's interesting. Acknowledge what you don't know before
+        someone asks.
+      </register>
+
+      <must-include>
+        - GitHub link with real test count
+        - Acknowledgment: single model family, non-academic, no peer review
+        - The specific finding, not the generalised claim
+        - What you plan to test next (shows intellectual honesty)
+      </must-include>
+
+      <must-avoid>
+        - "Novel contribution" or "ahead of the literature"
+        - "On-chain" without clarifying it's not live in production
+        - Leading with the three-axis model (too abstract for an opening)
+        - Any sentence that sounds like a press release
+      </must-avoid>
+
+      <instruction>
+        Write the HN post and first comment. The post should be 150-200
+        words. The first comment should be 200-300 words. Together they
+        should tell a complete story that a technical reader can evaluate
+        independently.
+      </instruction>
+    </variant>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 2: X / TWITTER                                        -->
+    <!-- ============================================================ -->
+    <variant audience="x-twitter" format="thread-5-tweets">
+      <audience-model>
+        Mixed audience. The hook determines everything. If tweet 1 doesn't
+        stop the scroll, tweets 2-5 don't exist. The thread must work at
+        two levels: tweet 1 standalone (for those who don't click through)
+        and the full thread (for those who do). Each tweet must be
+        independently quotable — because quote-tweets are the primary
+        engagement mechanism.
+
+        The Twitter reader wants to feel something: surprise, recognition,
+        alarm, delight. Data that triggers feeling gets shared. Data that
+        triggers thinking gets bookmarked (maybe). The ideal tweet creates
+        both: an emotional hook that leads to a genuine insight.
+      </audience-model>
+
+      <entry-point>
+        Lead with the most emotionally resonant specific finding. "Zero
+        concessions in 45 speaking turns" or "House Cat: zero hedging
+        across 30 turns" — concrete, surprising, slightly funny. Do NOT
+        lead with "I built" or "We studied."
+      </entry-point>
+
+      <register>
+        Conversational. Short sentences. One idea per tweet. Numbers are
+        good — they stop the scroll. Specifics beat abstractions. The
+        tone is "here's something wild I found" not "here's what we
+        achieved."
+      </register>
+
+      <must-include>
+        - One number per tweet minimum
+        - The single most quotable sentence in tweet 1
+        - The builder context (one person, two weeks) but as backdrop, not flex
+        - A link in the final tweet only
+      </must-include>
+
+      <must-avoid>
+        - "Thread:" or "1/" in tweet 1 (let the thread speak for itself)
+        - Academic language (Cohen's d, permutation tests, TTR)
+        - Blockchain mention (wrong audience for this frame)
+        - Any tweet longer than 240 characters
+      </must-avoid>
+
+      <instruction>
+        Write 5 tweets. Each must be independently quotable. The thread
+        should have an emotional arc: surprise (tweet 1) → context (2) →
+        complication (3) → insight (4) → invitation (5). Every tweet must
+        be factually accurate.
+      </instruction>
+    </variant>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 3: AI RESEARCH COMMUNITY                              -->
+    <!-- ============================================================ -->
+    <variant audience="ai-research" format="blog-post-800-words">
+      <audience-model>
+        Published researchers in NLP, multi-agent systems, or AI safety.
+        They read papers. They check methodology. They notice missing
+        citations. They evaluate claims against their knowledge of the
+        state of the art. Their respect is earned by rigour, intellectual
+        honesty, and novelty of method (not novelty of conclusion).
+
+        This audience will not be persuaded by narrative alone. They want
+        to see: the methodology, the limitations, the comparison to prior
+        work, and the specific contribution. They also appreciate when
+        non-academic researchers are honest about their position — "we're
+        practitioners, not academics, and here's what we observed" earns
+        more respect than claiming novelty you haven't peer-reviewed.
+
+        The highest compliment from this audience: "interesting methodology,
+        worth following up." The worst outcome: silence (your work doesn't
+        register as worth engaging with).
+      </audience-model>
+
+      <entry-point>
+        Lead with the methodology, not the findings. The pre-registration
+        protocol (git-committed before data collection, automated metrics,
+        permutation tests) is genuinely interesting to this audience.
+        The findings are interesting only if the method survives scrutiny.
+      </entry-point>
+
+      <register>
+        Semi-formal. Precise. Cite where you align with existing work.
+        Cite where you diverge. Use hedged language appropriately — "our
+        results suggest" not "we prove." Acknowledge every limitation
+        before making a claim. The confidence of your claims should
+        never exceed the confidence of your evidence.
+      </register>
+
+      <must-include>
+        - Comparison to Du et al. 2023, ChatEval, Zheng et al. 2024
+        - Explicit limitations: single model family, automated metrics, non-peer-reviewed
+        - Effect sizes with context (what Cohen's d means at n=15)
+        - What you'd do differently with more resources
+        - Link to public data and code
+      </must-include>
+
+      <must-avoid>
+        - "Novel contribution" without heavy qualification
+        - "First-order variable" (ordinal claim unsupported by the evidence design)
+        - "Fundamental gap" (too strong for n=45 on one agent type)
+        - Blockchain/EAS mention (irrelevant to this audience's interests)
+        - Any claim that sounds like it should be in a peer-reviewed paper but isn't
+      </must-avoid>
+
+      <instruction>
+        Write an 800-word blog post aimed at researchers. The tone should
+        be: "we're builders who ran careful experiments and found something
+        interesting — here's our data, here's our code, here's what we
+        think it means, and here's where we might be wrong."
+      </instruction>
+    </variant>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 4: GENERAL / VIRAL                                    -->
+    <!-- ============================================================ -->
+    <variant audience="viral-general" format="blog-post-600-words">
+      <audience-model>
+        Non-technical audience who will encounter this via social sharing
+        or news aggregation. They use ChatGPT. They have opinions about
+        AI. They do not know what a permutation test is, what Cohen's d
+        measures, or what XML-structured persona prompts look like.
+
+        They evaluate by analogy to their own experience. "AI can't change
+        its mind" maps to "that time ChatGPT refused to admit it was wrong."
+        This recognition is the entry point — it makes the research feel
+        personally relevant.
+
+        This audience shares things that make them feel informed or
+        vindicated. "I always felt like AI was faking it" → shares the
+        finding about performative responsiveness. The emotional resonance
+        is the sharing trigger.
+      </audience-model>
+
+      <entry-point>
+        Lead with a human experience that maps to the finding. "You've
+        argued with ChatGPT. You know the feeling — it agrees with you,
+        it pivots, it reframes, but does it ever actually change its
+        mind?" Then reveal: we tested this systematically. 45 turns. Zero
+        concessions.
+      </entry-point>
+
+      <register>
+        Conversational. No jargon. No numbers that require context to
+        interpret (no Cohen's d, no TTR, no Jaccard). Use concrete
+        examples instead of abstract claims. Metaphors are allowed — but
+        they must be accurate metaphors, not misleading ones.
+      </register>
+
+      <must-include>
+        - A human-relatable opening (something the reader has experienced)
+        - The Founder story (it's inherently dramatic and accessible)
+        - The House Cat / Conspiracy Theorist detail (it's funny and memorable)
+        - What this means for anyone who uses AI (practical takeaway)
+      </must-include>
+
+      <must-avoid>
+        - Any sentence that requires a glossary
+        - "We hypothesised that..." (academic frame kills viral potential)
+        - Anthropomorphism that misleads (don't say "AI refuses to learn")
+        - Making AI sound dangerous (the finding is interesting, not alarming)
+        - Statistical details (save for the footnotes)
+      </must-avoid>
+
+      <instruction>
+        Write a 600-word blog post that a curious non-technical reader would
+        share with the comment "this is really interesting." It should make
+        the reader feel smarter for reading it, not dumber for not understanding.
+        Every claim must be accurate. No sensationalism.
+      </instruction>
+    </variant>
+
+    <!-- ============================================================ -->
+    <!-- VARIANT 5: CRYPTO / WEB3                                      -->
+    <!-- ============================================================ -->
+    <variant audience="crypto-web3" format="thread-or-post">
+      <audience-model>
+        Builders and thinkers at the intersection of AI and crypto. They
+        care about verifiability, provenance, and decentralised systems.
+        They've been promised "AI on-chain" many times and are calibrated
+        to detect vapourware. Honest disclosure of what's live vs planned
+        earns trust. Overclaiming loses it permanently.
+
+        This audience is interested in the protocol implications of agent
+        identity, not the debate entertainment. The research findings are
+        secondary to the infrastructure question: can you create verifiable,
+        tamper-evident AI agent identity?
+      </audience-model>
+
+      <entry-point>
+        Lead with the problem, not the solution. "How do you know an AI
+        agent is the same agent it was yesterday? How do you know its
+        prompt hasn't been changed?" This is the provenance problem.
+        Then: here's what we built, and here's what's live vs planned.
+      </entry-point>
+
+      <register>
+        Direct. Technical where it matters (SHA-256, RFC 8785, EAS schema,
+        Base L2). Honest about what's live and what's not. The web3
+        community has been burned by promises — they reward radical
+        honesty about status.
+      </register>
+
+      <must-include>
+        - Clear statement: SHA-256 hashing is live, EAS attestation is implemented in code but not enabled in production
+        - The agent DNA structure (what gets hashed)
+        - Clone lineage as a verifiable chain of provenance
+        - What the roadmap looks like for enabling EAS in production
+        - Why Base L2 was chosen (Coinbase chain, low gas, EAS support)
+      </must-include>
+
+      <must-avoid>
+        - Implying EAS is live when it's not
+        - Token language ("tokenised agents", "agent marketplace")
+        - Making the research findings carry the argument (this audience cares about infrastructure)
+        - "Decentralised AI" as a buzzword without substantive protocol detail
+      </must-avoid>
+
+      <instruction>
+        Write a 400-word post or thread. Honest, technical, forward-looking.
+        The message is: "we're building verifiable AI agent identity, here's
+        what works today, here's what's coming, here's the code." This
+        audience can handle nuance and will reward it.
+      </instruction>
+    </variant>
+  </variants>
+</narrative-request>

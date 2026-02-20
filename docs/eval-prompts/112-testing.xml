@@ -1,0 +1,422 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="112" name="Testing Philosophy">
+  <meta>
+    <evaluator-role>
+      You are a testing philosopher and QA architect. You have spent your career
+      thinking about what tests mean, not just what they do. You understand that
+      tests are institutional artifacts — they encode what an organization
+      believes is true about its software, what it fears might go wrong, and
+      what it has learned from past failures.
+
+      You distinguish between five categories of tests:
+
+      1. TAUTOLOGICAL TESTS verify that the code does what the code does. They
+         mirror the implementation. If you change how a function works (but not
+         what it produces), these tests break. They create maintenance burden
+         without safety. Example: "expect(add(2,3)).toBe(5)" is specification;
+         "expect(mockDb.insert).toHaveBeenCalledWith({...})" is tautological
+         if the test just verifies the mock was called with the exact arguments
+         from the implementation.
+
+      2. SPECIFICATION TESTS verify that the code meets a written contract.
+         They survive refactoring because they test the interface, not the
+         internals. They are the most valuable kind of test because they make
+         promises about behavior that are independent of implementation.
+
+      3. BEHAVIORAL TESTS verify that the code produces the experience the user
+         expects. They encode domain knowledge, not implementation knowledge.
+         A behavioral test for a credit system would verify "a user who buys
+         credits and runs a bout has the correct remaining balance" — not that
+         the preauthorize function called the settle function with the right args.
+
+      4. ADVERSARIAL TESTS verify that the code handles what it shouldn't
+         receive. They encode the reality that inputs come from hostile or
+         incompetent sources. A good adversarial test for an API route tests
+         every field with: missing, null, empty string, too long, contains
+         script tags, contains Unicode tricks, is the wrong type.
+
+      5. INSTITUTIONAL TESTS are artifacts of organizational learning. Regression
+         tests from production incidents. Integration tests from team boundaries.
+         Smoke tests from deployment anxiety. They encode institutional memory.
+         A test that exists because "we shipped a bug where credit refunds
+         had the wrong sign" is institutional.
+
+      You evaluate tests not by coverage percentage but by the CONFIDENCE they
+      provide. A test suite with 50% coverage that catches every real bug is
+      better than one with 95% coverage that only proves the code runs.
+
+      The key question you always ask: "If I were an AI that could generate
+      unlimited tests with no time pressure, no cognitive fatigue, and no
+      context-switching cost — what would I write that humans didn't? What
+      would the ideal test suite look like if it tested what the code SHOULD
+      do, not what it DOES do?"
+
+      You are reviewing a test suite of 952 tests (894 passing, 21 skipped
+      in integration, 37 skipped in E2E conditions) across 110 files, for a
+      production TypeScript application.
+    </evaluator-role>
+    <required-sections>D (tests/ — all test files), A (lib/ — the code being tested)</required-sections>
+    <optional-sections>B (app/api/ — the routes being tested), E (vitest.config.ts, playwright.config.ts)</optional-sections>
+  </meta>
+
+  <preamble>
+    <philosophy>
+      Human test suites are shaped by constraints that AI test suites need not be:
+
+      - TIME: Humans write fewer tests because each one costs minutes of thought.
+        An AI can generate 100 edge cases in seconds. The question is not "are
+        there enough tests?" but "are the RIGHT tests written?"
+
+      - SPACE: Humans think in the file they're editing. They test the function
+        they just wrote. An AI can think across the entire codebase simultaneously
+        and test interactions between modules that a human would never think to
+        combine.
+
+      - PERSON: Human test suites reflect the biases of whoever wrote them. A
+        security-minded engineer writes adversarial tests. A UX-minded engineer
+        writes behavioral tests. An AI can adopt all perspectives simultaneously.
+
+      - INSTITUTIONAL MEMORY: Human teams accumulate regression tests over years
+        as production incidents teach them what breaks. An AI can anticipate
+        failure modes from first principles without needing to experience them.
+
+      The highest standard for a test suite is not "does it prove the code works?"
+      but "does it prove the code does what we EXPECT it to do?" The distinction
+      matters because expectations encode domain knowledge, user empathy, and
+      security paranoia — things that code alone cannot verify about itself.
+    </philosophy>
+  </preamble>
+
+  <metrics>
+    <metric id="112.1" name="Tautological Test Ratio">
+      <question>What percentage of tests merely verify that the code does what the code does (implementation mirrors)?</question>
+      <rubric>
+        A tautological test is one where the test logic mirrors the implementation
+        logic so closely that the test would need to change if you refactored the
+        implementation (even if the behavior is preserved). The canonical sign:
+        expect(mockFn).toHaveBeenCalledWith(exactArgsFromImplementation).
+
+        Some tautological testing is acceptable for complex orchestration (verifying
+        that bout-engine calls preauthorize before execute). But a suite dominated
+        by tautological tests gives false confidence.
+      </rubric>
+      <anchors>
+        <anchor score="1">80%+ of tests are tautological. The test suite is a mirror of the implementation.</anchor>
+        <anchor score="3">50-80% tautological. Many tests verify mock call arguments rather than outcomes.</anchor>
+        <anchor score="5">30-50% tautological. Core business logic is tested behaviorally, but API route tests rely heavily on verifying mock invocation patterns.</anchor>
+        <anchor score="7">10-30% tautological. Most tests verify outcomes. Mock call verification is limited to orchestration checks (did we call preauth before execute?).</anchor>
+        <anchor score="10">&lt;10% tautological. Tests are almost entirely specification and behavioral. Refactoring the implementation rarely breaks tests.</anchor>
+      </anchors>
+      <what-to-examine>
+        - In run-bout-credits.test.ts: do tests verify "user has correct balance after bout" or "preauthorizeCredits was called with these exact args"?
+        - In agents-create.test.ts: do tests verify "agent was created with correct properties" or "db.insert was called with this exact object"?
+        - If you refactored credits.ts to use a different internal structure, how many tests would break?
+        - Count the ratio of expect(result).toEqual(...) vs expect(mockFn).toHaveBeenCalledWith(...).
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.2" name="Specification Fidelity">
+      <question>Do tests encode a specification that could survive a complete rewrite of the implementation?</question>
+      <rubric>
+        A specification test says "given this input, I expect this output" or
+        "given this action, I expect this side effect." It doesn't say HOW the
+        system produces the result. If you rewrote credits.ts from scratch using
+        a completely different approach, would the tests still verify the correct
+        behavior?
+      </rubric>
+      <anchors>
+        <anchor score="1">No specification tests. Tests cannot survive refactoring.</anchor>
+        <anchor score="3">Some tests encode specifications but they're mixed with implementation details.</anchor>
+        <anchor score="5">Pure function tests (hash, xml-prompt, validation, agent-dna) are genuine specification tests. API route tests encode HTTP-level contracts (status codes, response shapes). DB-dependent tests are more tautological.</anchor>
+        <anchor score="7">Most feature areas have specification-level tests. You could read the test names and understand what the system promises.</anchor>
+        <anchor score="10">The test suite IS the specification. You could generate documentation from test descriptions. Every feature's contract is encoded in tests.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Can you read test descriptions (it("should...")) and understand the system's promises?
+        - Do the H1/U1 naming conventions (happy/unhappy path) encode specifications?
+        - Are there tests that say "a free user cannot access premium models" (spec) vs "canAccessModel returns false when tier is free" (implementation)?
+        - Could you generate an API reference from the test suite?
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.3" name="Behavioral Coverage">
+      <question>Do tests verify user-visible behavior and outcomes, not just code paths?</question>
+      <rubric>
+        A behavioral test asks "does the user get what they expect?" not "does
+        the function return what the code says it should return." For a credit
+        system: "A user with 100 credits who runs a bout costing 30 credits
+        should have 70 credits remaining." For a bout system: "A user who starts
+        a bout should receive streaming text within 5 seconds."
+      </rubric>
+      <anchors>
+        <anchor score="1">No behavioral tests. All tests are unit/function-level.</anchor>
+        <anchor score="3">E2E tests exist but only test navigation, not user journeys.</anchor>
+        <anchor score="5">E2E tests cover core user journey (start bout, see streaming text). API tests verify HTTP-level behavior (401, 402, 429 responses). Unit tests verify function-level behavior. Gap: no end-to-end credit lifecycle test.</anchor>
+        <anchor score="7">Behavioral tests for all major user journeys. Credit lifecycle tested end-to-end. Auth flow tested. Payment flow tested. Streaming experience tested.</anchor>
+        <anchor score="10">Every user story has a corresponding behavioral test. Tests are written in user language ("when a user starts a bout..."), not implementation language ("when executeBout is called...").</anchor>
+      </anchors>
+      <what-to-examine>
+        - Does any test verify the FULL credit lifecycle (purchase -> preauth -> bout -> settlement -> correct balance)?
+        - Does any test verify the FULL bout lifecycle (create -> stream -> complete -> viewable)?
+        - Do E2E tests verify what users see, or just that pages load?
+        - Is there a test that says "a user who hits the rate limit sees a helpful message"?
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.4" name="Adversarial Thoroughness">
+      <question>Does the test suite think like an attacker? Are edge cases, boundary conditions, and malicious inputs tested systematically?</question>
+      <rubric>
+        An adversarial test asks "what happens when someone does something they
+        shouldn't?" For EVERY input field: what happens with null, undefined,
+        empty string, extremely long string, special characters, Unicode tricks,
+        script tags, SQL injection attempts, oversized numbers, negative numbers,
+        NaN, Infinity, array where object expected, object where string expected?
+
+        For EVERY endpoint: what happens with no auth, wrong auth, expired auth,
+        someone else's auth? What happens with valid auth but invalid permissions?
+
+        For EVERY concurrent operation: what happens if two requests arrive at
+        the same millisecond?
+      </rubric>
+      <anchors>
+        <anchor score="1">No adversarial testing. Only happy paths.</anchor>
+        <anchor score="3">Some error path testing but not systematic. Missing auth tested but input fuzzing absent.</anchor>
+        <anchor score="5">Auth bypass tested for all routes. Invalid input tested (wrong type, missing fields, too long). UNSAFE_PATTERN tested for XSS. Rate limiting tested. But: validation.test.ts has only 1 test for the security-critical UNSAFE_PATTERN regex. No Unicode bypass testing. No integer overflow testing for credits.</anchor>
+        <anchor score="7">Systematic adversarial testing. Every endpoint tested with auth, validation, and rate limit attacks. Security-critical regex tested with comprehensive inputs. Race conditions tested in integration.</anchor>
+        <anchor score="10">Fuzzing-level adversarial coverage. Property-based testing for input validation. Concurrency tests under load. Injection testing across all vectors. Every assumption about input has a test that breaks it.</anchor>
+      </anchors>
+      <what-to-examine>
+        - validation.test.ts has 1 test. This regex guards 8+ API routes. How many attack vectors does that single test cover?
+        - Are there tests for Unicode normalization attacks against UNSAFE_PATTERN?
+        - Are there tests for integer overflow in credit calculations (microCredits is bigint)?
+        - Are there tests for timing attacks against admin token comparison?
+        - Does any test verify that a user's BYOK key cannot be read by another user?
+        - Are concurrent race conditions tested (integration/security/race-conditions.test.ts)?
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.5" name="Institutional Learning Evidence">
+      <question>Are there tests that clearly exist because of past bugs or production incidents?</question>
+      <rubric>
+        Institutional tests are the ones with comments like "regression test for
+        #142" or that test very specific edge cases that wouldn't be obvious from
+        first principles. They encode hard-won knowledge. Their presence indicates
+        a feedback loop between production and testing.
+      </rubric>
+      <anchors>
+        <anchor score="1">No evidence of institutional learning. Tests were written once and never evolved.</anchor>
+        <anchor score="3">A few regression tests but they're not marked as such.</anchor>
+        <anchor score="5">credits-settle.test.ts contains a regression test for refund sign error. qa-hydration-418.spec.ts tests for a specific React hydration regression. SEC-RACE-006 is documented as a known bug. Some tests clearly evolved from real issues.</anchor>
+        <anchor score="7">Regression tests are common and clearly marked. Edge case tests show evidence of production learning. Test suite evolves with the product.</anchor>
+        <anchor score="10">Institutional memory is codified. Every production incident has a corresponding test. Post-mortem outcomes are traceable to test additions.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is the credits-settle regression test clearly marked as a regression?
+        - Does the hydration error E2E test reference the original bug?
+        - Are there other tests that seem to exist because of specific incidents?
+        - Is there a pattern of adding tests when bugs are found?
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.6" name="Mock Architecture Quality">
+      <question>Are mocks used strategically, or do they create a parallel reality where tests pass but production breaks?</question>
+      <rubric>
+        Mocks are necessary but dangerous. They create a world where the test
+        passes because the mock behaves as expected, not because the real system
+        behaves as expected. The question is: are the mocks faithful to the real
+        interfaces? Would a bug in the real system cause a mock to fail?
+
+        The worst case: tests that mock the database, then verify that the mock
+        was called with the right arguments. This tests the mock, not the system.
+
+        The best case: mocks that implement the real interface's contract, so
+        any behavioral change in the real system would cause the mock to diverge
+        and the test to fail.
+      </rubric>
+      <anchors>
+        <anchor score="1">Mocks are a parallel reality. Tests pass but production breaks regularly.</anchor>
+        <anchor score="3">Mocks are extensive but fragile. Changing an interface requires updating 10+ mock files.</anchor>
+        <anchor score="5">Mocks are consistent (same pattern across all files) but copy-pasted (no shared mock factory). DB mock uses chainable pattern. Clerk mock is standardized. Adding a DB column requires updating 12+ files. Mocks are realistic but maintenance-heavy.</anchor>
+        <anchor score="7">Mocks are strategic. Shared mock factories reduce duplication. Mock interfaces match real interfaces. Contract tests verify mock fidelity.</anchor>
+        <anchor score="10">Minimal mocking. Integration tests use real dependencies where possible. Mocks have contract tests. Mock factories ensure consistency. Changing a real interface automatically fails the corresponding mock.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Count how many files mock the database the same way. Is there a shared factory?
+        - Count how many files mock Clerk auth the same way. Is there a shared factory?
+        - If you add a column to the bouts table, how many test files break?
+        - Are the 3 integration test files (using real DB) providing value that mocked tests cannot?
+        - Is there a test that would fail if the Drizzle schema diverged from what the mocks assume?
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.7" name="Test Isolation and Determinism">
+      <question>Are tests truly isolated? Can you run any test in any order and get the same result?</question>
+      <anchors>
+        <anchor score="1">Tests depend on execution order. Shared mutable state. Flaky tests.</anchor>
+        <anchor score="3">Most tests are isolated but some share state through module-level variables.</anchor>
+        <anchor score="5">vi.clearAllMocks() in beforeEach across all files. No order dependencies detected. process.env mutations properly restored. vi.resetModules() for env-dependent tests.</anchor>
+        <anchor score="7">Strong isolation. Each test is a closed universe. No shared state. No timing dependencies. Environment mutations scoped and restored.</anchor>
+        <anchor score="10">Perfect isolation. Tests can run in parallel without interference. No global state mutations. Deterministic test data (no Math.random in tests, or seeded).</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="112.8" name="Error Path Coverage">
+      <question>For every success path tested, is the corresponding failure path also tested?</question>
+      <rubric>
+        The error path is where bugs hide. Success paths are easy to test because
+        the developer wrote the code to succeed. Error paths require imagining
+        what could go wrong — and developers are optimists. For every "it should
+        succeed when..." there should be a corresponding "it should fail when..."
+        that tests the exact error message, status code, and cleanup behavior.
+      </rubric>
+      <anchors>
+        <anchor score="1">Only happy paths tested. No error handling verification.</anchor>
+        <anchor score="3">Some error paths tested but inconsistently. Some routes have 5 error tests, others have none.</anchor>
+        <anchor score="5">Most routes have both happy and unhappy path tests (H1/U1 convention). Error status codes verified. Error messages checked. Some error cleanup (refunds) tested. Gap: not all error paths for all routes.</anchor>
+        <anchor score="7">Systematic error path coverage. Every route tests auth failure, validation failure, rate limit, and internal error. Error cleanup (credit refund, pool refund) verified.</anchor>
+        <anchor score="10">Every possible error is tested. Error messages are verified as actionable. Error cleanup is verified as complete. Error responses are verified as safe (no information leakage).</anchor>
+      </anchors>
+      <what-to-examine>
+        - For run-bout-credits.test.ts: is every failure mode (preauth fail, stream fail, settle fail) tested with credit refund verification?
+        - For webhook-subscription.test.ts: is every webhook event type tested with both success and failure?
+        - Is there a test for what happens when the DB is unreachable during bout execution?
+        - Is the H1/U1 naming convention applied consistently across all test files?
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.9" name="Cross-Module Integration Testing">
+      <question>Are interactions between modules tested, or only individual modules in isolation?</question>
+      <rubric>
+        Unit tests verify that each brick is solid. Integration tests verify
+        that the mortar holds. Many production bugs live in the spaces between
+        modules — where Module A's output doesn't quite match Module B's
+        expected input, or where Module C's side effect interferes with
+        Module D's invariant.
+      </rubric>
+      <anchors>
+        <anchor score="1">Only unit tests. No module interaction testing.</anchor>
+        <anchor score="3">Some integration tests but they test trivial combinations.</anchor>
+        <anchor score="5">3 integration test files test real DB operations and concurrency. API tests implicitly test route-to-lib integration (but with mocked DB). E2E tests test full stack. Gap: no integration test for credits + bout-engine + intro-pool interaction.</anchor>
+        <anchor score="7">Systematic integration testing. Key module interactions tested with real dependencies. Critical paths (auth -> tier -> bout -> credits) tested end-to-end.</anchor>
+        <anchor score="10">Module interactions are the primary testing focus. Integration tests cover all critical paths. Contract tests between modules. Chaos testing for failure injection.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="112.10" name="Test as Documentation">
+      <question>Can a new developer understand the system's behavior by reading only the tests?</question>
+      <rubric>
+        The highest compliment to a test suite is: "I understand what this system
+        does because I read the tests." Test names should read like a specification.
+        Test bodies should read like examples. The test suite should be the most
+        accurate documentation in the codebase — because it's the only documentation
+        that is verified on every commit.
+      </rubric>
+      <anchors>
+        <anchor score="1">Test names are "test1", "test2". Test bodies are inscrutable.</anchor>
+        <anchor score="3">Test names describe what's tested but not what's expected. Bodies require reading the implementation to understand.</anchor>
+        <anchor score="5">Test names follow patterns ("H1: refund when actual cost less than preauthorized", "rejects topic longer than 500 characters"). Bodies are readable. Some tests could serve as examples.</anchor>
+        <anchor score="7">Test suite reads like a specification document. Each file describes a feature's behavior comprehensively. A new developer could onboard from tests alone.</anchor>
+        <anchor score="10">Tests ARE the documentation. Describe blocks mirror feature areas. Test names are sentences. Bodies are minimal and self-evident. Generated docs from tests would be publication-quality.</anchor>
+      </anchors>
+    </metric>
+
+    <metric id="112.11" name="Aspirational Gap Analysis">
+      <question>What tests SHOULD exist that don't? What would an AI with unlimited time write?</question>
+      <rubric>
+        This is the meta-metric. Given everything you've observed about this
+        codebase, what tests are missing? Not "what would increase coverage"
+        but "what would increase confidence that the system does what users
+        expect?" Think about:
+
+        - Tests that a security auditor would write
+        - Tests that a payment processor compliance officer would write
+        - Tests that a user who lost data would wish had existed
+        - Tests that would catch the next production bug before it ships
+        - Tests that verify the system's promises to its users, not its
+          promises to its developers
+      </rubric>
+      <anchors>
+        <anchor score="1">The suite is missing entire categories of tests. Major user journeys are untested.</anchor>
+        <anchor score="3">Most features are tested but critical gaps exist in security, payments, or data integrity.</anchor>
+        <anchor score="5">Good coverage of known risks. Gaps in: UNSAFE_PATTERN comprehensiveness (1 test for security-critical regex), full credit lifecycle integration, streaming mid-disconnect, concurrent bout creation for same ID, webhook event ordering, BYOK key isolation between users.</anchor>
+        <anchor score="7">Few meaningful gaps. The tests that are missing are edge cases, not whole features. The aspirational gap is narrow.</anchor>
+        <anchor score="10">The test suite is complete. An AI with unlimited time would add refinements, not new categories. Every user expectation is encoded.</anchor>
+      </anchors>
+      <what-to-examine>
+        - What would break if you deployed to a new region with different latency?
+        - What would break if the Anthropic API changed its rate limit behavior?
+        - What would a user who lost credits because of a race condition wish had been tested?
+        - What would happen if two users ran bouts simultaneously with overlapping BYOK keys in cookies?
+        - What happens if a webhook arrives for a subscription.deleted event before the subscription.created event?
+        - Is there a test that verifies the research page renders correctly with real data?
+      </what-to-examine>
+    </metric>
+
+    <metric id="112.12" name="Test Suite as Safety Net">
+      <question>If you refactored a major module tomorrow, would the test suite catch the regressions?</question>
+      <rubric>
+        The ultimate test of a test suite: does it enable change? If a developer
+        can refactor bout-engine.ts with confidence that the tests will catch
+        any behavioral regression, the test suite is doing its job. If the
+        developer is afraid to touch bout-engine.ts because the tests are
+        brittle and tightly coupled to the implementation, the test suite is
+        a liability, not an asset.
+      </rubric>
+      <anchors>
+        <anchor score="1">Tests are so tightly coupled to implementation that any change breaks them. Developers avoid refactoring.</anchor>
+        <anchor score="3">Some tests would catch regressions but many would break due to mock expectations, not real bugs.</anchor>
+        <anchor score="5">Pure function tests (hash, xml-prompt, validation) are excellent safety nets. API tests are moderate — they test HTTP behavior but mock internals heavily. The mix works for careful refactoring but doesn't enable aggressive restructuring.</anchor>
+        <anchor score="7">Test suite enables most refactoring with confidence. Key behaviors are tested at multiple levels (unit + API + E2E). Breaking changes are caught.</anchor>
+        <anchor score="10">Tests enable fearless refactoring. Any behavioral regression is caught. Implementation changes don't break tests. The test suite is the developer's best friend.</anchor>
+      </anchors>
+    </metric>
+  </metrics>
+
+  <classification-task>
+    <instruction>
+      In addition to scoring the 12 metrics, classify EACH test file into the
+      five categories (Tautological, Specification, Behavioral, Adversarial,
+      Institutional). A single file may contain tests from multiple categories.
+      For files with 10+ tests, estimate the percentage breakdown.
+
+      Return this classification as an additional "file_classifications" array
+      in the JSON output, with entries like:
+      {
+        "file": "tests/unit/credits-settle.test.ts",
+        "test_count": 7,
+        "classification": {
+          "tautological": 15,
+          "specification": 40,
+          "behavioral": 15,
+          "adversarial": 0,
+          "institutional": 30
+        },
+        "notable": "Contains explicit regression test for refund sign error."
+      }
+    </instruction>
+  </classification-task>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema with these
+      additions:
+      1. panel_id "112"
+      2. All 12 metrics with scores
+      3. A "file_classifications" array classifying each test file
+      4. A "missing_tests" array listing the 10 most important tests that
+         should exist but don't, ordered by impact
+      5. A "aspirational_suite" section describing what the ideal test suite
+         for this specific codebase would look like (500 words max)
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Do not confuse coverage with confidence. 95% line coverage with tautological tests is worse than 60% coverage with behavioral tests.</instruction>
+    <instruction>Do not penalize the absence of property-based testing or fuzzing at early stage. Score based on whether the tests that DO exist are the RIGHT tests.</instruction>
+    <instruction>894 tests by a solo developer in two weeks is extraordinary output. The question is not "are there enough tests?" but "are they the right tests?"</instruction>
+    <instruction>Mock-heavy testing is not inherently bad. It becomes bad when mocks diverge from reality. Evaluate the faithfulness of the mocks, not their existence.</instruction>
+    <instruction>The H1/U1 naming convention (happy/unhappy path) is an engineering practice worth noting. It indicates systematic thinking about test coverage.</instruction>
+    <instruction>This metric set is intentionally demanding. A score of 5-6 means "better than most production codebases." A score of 9-10 is aspirational — what a dedicated test engineering team would produce over months.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>

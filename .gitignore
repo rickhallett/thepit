@@ -109,3 +109,14 @@ docs/research-prompts/
 
 # hype copy variant (contradicts no-hype positioning)
 copy/variants/hype.json
+
+# Go compiled binaries (rebuild with `go build .` in each dir)
+pitstorm/analyze
+pitstorm/evaluate
+pitstorm/pitstorm
+pitctl/pitctl
+pitforge/pitforge
+pitlab/pitlab
+pitlinear/pitlinear
+pitnet/pitnet
+pitbench/pitbench

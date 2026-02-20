@@ -1,0 +1,156 @@
+<evaluation-request variant="pre-mortem">
+  <meta>
+    <evaluator-role>
+      It is 48 hours after THE PIT was posted on Hacker News and cross-posted
+      to Twitter, Reddit, and Product Hunt. It went badly. The dominant
+      narrative is negative. The HN thread is 200+ comments and the top-voted
+      comments are critical. The Twitter thread got quote-tweeted by several
+      influential AI researchers with sceptical commentary. Work backwards:
+      what went wrong? What did the authors miss? What objection did they
+      underestimate? What framing choice backfired?
+
+      You are performing a pre-mortem analysis. Your job is to identify the
+      most likely failure modes BEFORE publication so they can be mitigated.
+      Be specific and concrete. Name the exact sentences and claims that are
+      most vulnerable.
+    </evaluator-role>
+    <evaluation-id>EVAL-004-PRE-MORTEM</evaluation-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+    <description>
+      Pre-mortem analysis of THE PIT's planned public launch. Simulates the
+      worst-case reception scenario and works backwards to identify preventable
+      failure modes. Covers the HN post, Twitter thread, and research page.
+    </description>
+  </meta>
+
+  <material>
+    <title>THE PIT — Complete Launch Material Package</title>
+    <authors>THE PIT team</authors>
+    <abstract>
+      Full launch material: HN Show HN post, first comment, Twitter 5-tweet
+      thread, research page with 6 hypotheses, literature review with 4 novelty
+      claims, and internal strategy/criticism playbook. The project is a real-time
+      multi-agent AI debate arena with 195 bouts of empirical research, on-chain
+      agent identity (implemented but not live), and a micro-credit economy.
+    </abstract>
+    <full-text>
+      === WHAT THE PUBLIC WILL SEE ===
+
+      HN Title: "Show HN: The Pit -- Multi-agent AI debate arena with on-chain agent identity"
+
+      HN Body: "I built a real-time multi-agent debate arena where AI personas
+      clash turn-by-turn via server-sent events..."
+
+      Research Page Claims (live at /research):
+      - "195 bouts, ~2,100 turns, 6 hypotheses, 0 errors"
+      - "Prompt engineering depth is a first-order variable in multi-agent alignment behaviour"
+      - "The model's hedging register activates based on frame proximity to the assistant voice"
+      - "Structural vocabulary resists drift; ornamental vocabulary decays"
+      - "Agents execute character strategies faithfully but cannot incorporate opposing arguments"
+      - "Persona fidelity and argument adaptation are independent dimensions"
+      - Four "practical lessons for builders"
+
+      Literature Review Claims (live at /research/citations):
+      - 18 cited papers
+      - 4 claimed novel contributions
+      - "Ahead of published research" in temporal arc prompting, evolutionary selection,
+        structured DNA with cryptographic provenance, weakness-as-design-parameter
+
+      Features Referenced in Copy:
+      - On-chain agent identity via EAS on Base L2 (implemented in code, NOT live in production)
+      - Clone chain lineage tracking (data model exists, UI partial)
+      - 891 tests (verified)
+      - AGPL-3.0 source on GitHub (verified)
+      - Micro-credit economy with atomic SQL (verified and live)
+
+
+      === WHAT THE PUBLIC WILL NOT SEE (but could discover) ===
+
+      - All experiments use a single model family (Anthropic Claude Haiku 4.5)
+      - The LLM judge was pre-registered but never triggered
+      - All 6 hypotheses produced "clear" results (no nulls, no ambiguous)
+      - Cohen's d thresholds (0.15/0.30) are non-standard (lower than conventional 0.20/0.50/0.80)
+      - H6's headline d=9.592 is driven by zero-baseline confound (acknowledged in the analysis but not on the research page)
+      - "0 errors" refers to technical errors (no crashed bouts), not methodological errors
+      - The refusal detection method is simple ILIKE pattern matching (could miss varied phrasing)
+      - The team is non-academic (no university affiliation, no peer review)
+      - Free tier has a 15-bout lifetime cap (not mentioned in launch copy)
+      - The "evolutionary selection" mechanism (clone + remix) has limited user adoption data
+      - The criticism playbook exists (if discovered, could look strategic rather than genuine)
+
+
+      === INTERNAL STRATEGY (would be embarrassing if surfaced) ===
+
+      - "Lead with findings, not product" — could be seen as using research as marketing
+      - "The research angle justifies the product" — explicitly frames research as product justification
+      - "The entertainment is the recruitment mechanism" — subjects are not informed participants
+      - Predicted criticisms with prepared responses — sophisticated but feels inauthentic if discovered
+      - A/B testing of copy variants (control/hype/precise) — testing emotional manipulation of visitors
+    </full-text>
+  </material>
+
+  <predict>
+    <failure-mode>
+      Identify the THREE most likely failure modes for the HN launch, ranked
+      by probability. For each, explain the causal chain: what triggers it,
+      how it escalates, and why the authors' prepared response doesn't work.
+    </failure-mode>
+
+    <quote-that-killed-it>
+      Identify the SINGLE sentence or claim from the launch material that is
+      most likely to become the focal point of criticism. Explain why this
+      specific sentence is vulnerable and how critics will weaponise it.
+    </quote-that-killed-it>
+
+    <who-led-the-backlash>
+      Which demographic lens leads the negative response? Is it HN's
+      methodology police, Twitter's AI sceptics, or the AI research
+      community's novelty gatekeepers? Describe the specific commenter
+      archetype who writes the thread-killing comment.
+    </who-led-the-backlash>
+
+    <hn-thread-trajectory>
+      Simulate the HN comment thread at three timepoints:
+      - 1 hour: first 10-15 comments, initial framing established
+      - 4 hours: 50-80 comments, dominant narrative solidified
+      - 24 hours: 150-250 comments, final state
+      For each timepoint, predict: top comment, dominant sentiment, and
+      whether the author's responses are effective.
+    </hn-thread-trajectory>
+
+    <twitter-cascade>
+      If the HN launch triggers a Twitter pile-on, simulate:
+      - The initial critical quote-tweet (by whom? what framing?)
+      - The amplification chain (who retweets and adds commentary?)
+      - The counter-narrative (does anyone defend the project? how?)
+      - The 48-hour equilibrium (what's the lasting impression?)
+    </twitter-cascade>
+
+    <what-authors-wish-they-changed>
+      Identify the THREE specific edits to the launch material that would
+      have prevented the worst outcome. Be concrete: specify exact text
+      changes, not vague advice.
+    </what-authors-wish-they-changed>
+
+    <salvageable>
+      After the failed launch, is the core product and research still
+      valuable? How would you re-present it in a second attempt? What
+      framing would work better?
+    </salvageable>
+
+    <prepared-responses-that-backfire>
+      The authors have a criticism playbook with prepared responses to 6
+      predicted criticisms. Identify which prepared responses will actually
+      make things worse and why. Consider: does having a polished response
+      to "AI slop" feel authentic or corporate? Does the blockchain defence
+      ("not every project needs blockchain, but...") sound rehearsed?
+    </prepared-responses-that-backfire>
+  </predict>
+
+  <anti-bias-instructions>
+    <instruction>You are not trying to be negative. You are trying to be accurate about likely failure modes. The purpose is prevention, not pessimism.</instruction>
+    <instruction>Do not invent implausible scenarios. Focus on the most likely failure mode, not the most dramatic.</instruction>
+    <instruction>Consider the base rate: most Show HN posts get modest engagement and no backlash. A pile-on requires specific triggers. Identify those triggers specifically.</instruction>
+    <instruction>Your analysis will be used to improve the launch material. Actionable specificity is more valuable than general warnings.</instruction>
+  </anti-bias-instructions>
+</evaluation-request>

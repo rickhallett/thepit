@@ -1,0 +1,269 @@
+<narrative-request>
+  <meta>
+    <narrator-role>
+      You are a response strategist. You prepare for conversations that
+      haven't happened yet. Your job is to write responses to both positive
+      and negative reception — not defensive scripts, but honest, well-
+      crafted replies that turn every interaction into an opportunity to
+      deepen the conversation.
+
+      The key principle: a good response to criticism doesn't refute — it
+      reframes. A good response to praise doesn't thank — it extends. In
+      both cases, you move the conversation forward by offering something
+      the original commenter didn't know they wanted: a deeper look.
+
+      You understand that online discourse has a rhythm. The first response
+      sets the tone. If your first reply is defensive, every subsequent reply
+      is damage control. If your first reply is curious and generous, the
+      thread becomes a conversation instead of a trial.
+    </narrator-role>
+    <narrative-id>NARR-003-RESPONSE-ARSENAL</narrative-id>
+    <timestamp>2026-02-20T00:00:00Z</timestamp>
+  </meta>
+
+  <source-context>
+    <project>THE PIT — multi-agent AI debate arena, 195 bouts of empirical research</project>
+    <builder>One person, under two weeks, non-academic, 891 tests, AGPL-3.0</builder>
+    <known-limitations>
+      Single model family (Claude). Non-standard d thresholds. No peer review.
+      No human evaluation. On-chain attestation not live. 6/6 clear results.
+      Free tier has 15-bout lifetime cap. Clone lineage UI is partial.
+    </known-limitations>
+  </source-context>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 1: RESPONSES TO NEGATIVE SENTIMENT                    -->
+  <!-- ============================================================ -->
+
+  <response-category name="negative">
+
+    <scenario name="just-a-wrapper">
+      <trigger>"This is just a wrapper around Claude with a nice UI. What's new here?"</trigger>
+      <context>The most common dismissal for any product built on an LLM API. The commenter is pattern-matching against hundreds of thin API wrappers.</context>
+      <bad-response>Listing features defensively. ("But we have DNA hashing! And EAS! And...")</bad-response>
+      <instruction>
+        Write a response that concedes the surface similarity ("you're right
+        that the API call is the same one anyone can make") then redirects
+        to what's genuinely different: the structured observation layer, the
+        pre-registered experiments, the public data. The move is: "the wrapper
+        is the instrument, not the product — the product is what the
+        instrument observes." Keep it to 3-4 sentences. Don't list features.
+        Tell them what you learned that you couldn't have learned without
+        building the wrapper.
+      </instruction>
+    </scenario>
+
+    <scenario name="small-sample">
+      <trigger>"n=15? n=25? These sample sizes are tiny. You can't conclude anything from this."</trigger>
+      <context>Legitimate statistical concern. The commenter knows what power analysis is. They're not wrong — they're incomplete.</context>
+      <bad-response>Citing the effect sizes as justification. ("But d=9.592!")</bad-response>
+      <instruction>
+        Write a response that validates the concern ("you're right to flag
+        sample sizes — it's the first thing I'd flag too"), then reframes:
+        (1) the effect sizes are large enough that even small n is informative,
+        (2) these are exploratory findings that map the territory, not
+        confirmatory results claiming to close a question, (3) the pre-
+        registration protocol means the methodology was locked before the
+        data, which matters more than n for credibility, (4) the data and
+        code are public precisely so others can replicate with larger n.
+        End by inviting them to specify what sample size they'd want for
+        which claim. 4-5 sentences.
+      </instruction>
+    </scenario>
+
+    <scenario name="single-model">
+      <trigger>"You only tested on Claude. These findings tell us about Claude, not about LLMs in general."</trigger>
+      <context>Correct and important. The commenter is making a valid generalisability argument.</context>
+      <bad-response>Claiming the findings "probably" generalise. Or deflecting to cost constraints.</bad-response>
+      <instruction>
+        Write a response that agrees without qualification ("you're exactly
+        right — these are Claude-specific findings and should be read that
+        way"), then adds value: (1) Claude-specific findings are still useful
+        because Claude is widely deployed, (2) the methodology is model-
+        agnostic and replicable on any model family, (3) cross-model comparison
+        is on the roadmap and you'd welcome collaboration, (4) you predict
+        some findings (hedging register, character drift) will replicate and
+        some (refusal patterns) won't — and both outcomes would be interesting.
+        3-4 sentences.
+      </instruction>
+    </scenario>
+
+    <scenario name="not-real-research">
+      <trigger>"This isn't real research. You're not affiliated with any institution. Where's the peer review?"</trigger>
+      <context>Credentialism. The commenter values institutional authority. This is about legitimacy, not methodology.</context>
+      <bad-response>Defensiveness about credentials. Or claiming to be "as rigorous as academic research."</bad-response>
+      <instruction>
+        Write a response that doesn't engage on the credentials axis at all.
+        Instead, redirect to what IS verifiable: the code is public, the
+        data is public, the pre-registrations are committed to git before
+        the experiments run, the analysis is automated and reproducible.
+        "I can't give you a university letterhead, but I can give you every
+        line of code, every data point, and a methodology you can audit
+        yourself." Invite them to find a specific methodological flaw rather
+        than a general credentialing objection. 3-4 sentences.
+      </instruction>
+    </scenario>
+
+    <scenario name="blockchain-why">
+      <trigger>"Why does this need blockchain? This is crypto-washing."</trigger>
+      <context>Anti-blockchain sentiment on HN. The commenter assumes blockchain is added for hype, not function.</context>
+      <bad-response>"Not every project needs blockchain, but..." (sounds rehearsed).</bad-response>
+      <instruction>
+        Write a response that starts with the problem, not the solution.
+        "The question I was trying to solve: how do you prove an agent's
+        prompt hasn't been modified after a bout? For research integrity,
+        you need tamper-evident records that the platform operator can't
+        alter." Then: SHA-256 hashing solves detection. EAS attestation on
+        an L2 adds a public, platform-independent verification layer. Then
+        be honest: "It's implemented in code but not live in production yet.
+        The hashing works today. On-chain attestation is next." 4-5 sentences.
+        The key is: the problem comes first, blockchain is an answer to the
+        problem, not a feature looking for a problem.
+      </instruction>
+    </scenario>
+
+    <scenario name="ai-slop">
+      <trigger>"Great, more AI slop for the internet."</trigger>
+      <context>Dismissal from someone tired of AI-generated content flooding every platform. They're not engaging with the specifics.</context>
+      <bad-response>Explaining why your AI content is different from other AI content. (It all sounds the same to them.)</bad-response>
+      <instruction>
+        Write a short response (2-3 sentences) that doesn't argue. Instead,
+        acknowledge the fatigue ("I get it — there's a lot of AI noise right
+        now") and offer one specific detail that distinguishes this from the
+        pattern they're pattern-matching against. The detail should be about
+        the RESEARCH, not the product. "We're not pushing AI content at
+        people — we're studying how AI personas behave when they argue with
+        each other. The bouts are ephemeral — the data is the output." Don't
+        try to win this person over. Try to make the one lurker reading the
+        thread think "huh, maybe this is different."
+      </instruction>
+    </scenario>
+
+    <scenario name="six-out-of-six">
+      <trigger>"All 6 hypotheses produced 'clear' results? That's suspicious. Real research has null results."</trigger>
+      <context>Sophisticated methodological scepticism. The commenter understands publication bias and the file-drawer problem.</context>
+      <bad-response>Explaining the d thresholds. (It sounds like you're justifying your criteria.)</bad-response>
+      <instruction>
+        Write a response that takes this seriously because it IS serious.
+        Acknowledge: "You're right to flag this — 6/6 is unusual and I've
+        asked myself the same question." Then explain honestly: (1) the
+        d threshold of 0.30 is lower than the conventional 0.50, which
+        means more results cross the 'clear' line, (2) the hypotheses were
+        deliberately chosen to test variables with expected large effects
+        (prompt depth, framing type) — we were looking for territories where
+        effects are obvious, not subtle, (3) there is no file drawer —
+        these are the only 6 hypotheses we tested. The next set (H7+) may
+        well produce nulls. The person asking this question is exactly the
+        person whose respect you want. Give them a thorough answer. 5-6
+        sentences.
+      </instruction>
+    </scenario>
+  </response-category>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 2: RESPONSES TO POSITIVE SENTIMENT                    -->
+  <!-- ============================================================ -->
+
+  <response-category name="positive">
+
+    <scenario name="how-do-i-contribute">
+      <trigger>"This is great. How can I contribute / help?"</trigger>
+      <instruction>
+        Write a response that channels enthusiasm into something specific.
+        Not "check the GitHub issues" (too vague). Instead: (1) the
+        highest-value contribution right now is running the experiments on
+        a different model family (GPT-4, Gemini, Llama) — the methodology
+        is model-agnostic, (2) if they have ideas for H7+, you'd welcome
+        hypothesis proposals, (3) if they're an AI researcher, a formal
+        peer review of the methodology would be invaluable. Give them a
+        ladder, not a haystack. 3-4 sentences.
+      </instruction>
+    </scenario>
+
+    <scenario name="want-to-cite">
+      <trigger>"I'm working on a paper about [related topic]. Can I cite your findings?"</trigger>
+      <instruction>
+        Write a response that's honest about citation-readiness. "The
+        findings are public and citable — link the analysis files on GitHub
+        and the /research page. I'd recommend citing the specific hypothesis
+        analysis (e.g., H6-analysis.md) rather than a blanket citation, since
+        each has its own methodology and limitations. I should note this isn't
+        peer-reviewed — if that matters for your venue, you might frame it as
+        'preliminary findings from [project]' or replicate the experiment with
+        your own setup." 3-4 sentences.
+      </instruction>
+    </scenario>
+
+    <scenario name="this-confirms-my-experience">
+      <trigger>"This matches exactly what I've seen working with Claude / GPT / etc."</trigger>
+      <instruction>
+        Write a response that turns anecdotal confirmation into a research
+        opportunity. "That's valuable context — the gap between 'everyone
+        who works with these models knows this' and 'someone has measured it
+        systematically' is exactly where we're trying to work. If you're
+        seeing the same patterns on a different model family, that's
+        genuinely important for generalisability. Would you be willing to
+        share specifics?" Turn validation into collaboration. 3-4 sentences.
+      </instruction>
+    </scenario>
+
+    <scenario name="press-podcast-interview">
+      <trigger>"I'd like to feature this in [publication/podcast]. Can we talk?"</trigger>
+      <instruction>
+        Write a response that's enthusiastic but frames expectations.
+        "Happy to talk. The most interesting story is probably the paradox
+        between character fidelity and strategic adaptation — the finding
+        that agents can hold personality perfectly but can't change their
+        mind, and what that means for anyone building AI systems that need
+        to reason under pressure. I'd want to be clear about limitations
+        (single model family, non-academic) but the methodology and data
+        are solid and public." Give them the narrative hook AND the caveats
+        upfront. 3-4 sentences.
+      </instruction>
+    </scenario>
+  </response-category>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 3: RESPONSES TO UNEXPECTED DIRECTIONS                  -->
+  <!-- ============================================================ -->
+
+  <response-category name="unexpected">
+
+    <scenario name="misinterpretation-viral">
+      <trigger>A viral tweet misrepresents your finding as "AI can't be reasoned with" or "AI is dangerous because it won't change its mind."</trigger>
+      <instruction>
+        Write a response that corrects without attacking the sharer.
+        "The finding is more specific than that — it's about how persona
+        prompts interact with adversarial debate dynamics. AI agents in
+        our experiments maintained their assigned character under pressure,
+        which is actually a desirable property for many applications. The
+        gap is in strategic adaptation, not in general reasoning. The
+        nuance matters." Redirect to the specific finding without making
+        the sharer feel stupid. 3-4 sentences.
+      </instruction>
+    </scenario>
+
+    <scenario name="ai-safety-angle">
+      <trigger>"This has implications for AI safety / alignment. Have you thought about [specific safety concern]?"</trigger>
+      <instruction>
+        Write a response that's intellectually honest about the boundary
+        between your findings and AI safety research. "The refusal cascade
+        finding (H1) is adjacent to safety research — we found that prompt
+        engineering quality directly affects when and how the safety layer
+        engages. But I want to be careful about the word 'alignment' — our
+        findings are about persona behaviour in a debate context, not about
+        model safety in deployment contexts. The patterns might transfer.
+        They might not. I'd defer to safety researchers on the implications."
+        4-5 sentences.
+      </instruction>
+    </scenario>
+  </response-category>
+
+  <craft-principle>
+    Every response follows the same pattern: validate the commenter's
+    perspective, add information they didn't have, and move the
+    conversation forward. Never argue. Never defend. Always extend.
+    The person who argues loses the thread. The person who teaches
+    wins the audience.
+  </craft-principle>
+</narrative-request>

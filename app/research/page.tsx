@@ -17,7 +17,7 @@ const programmeStats = {
   bouts: 195,
   turns: '~2,100',
   hypotheses: 6,
-  errors: 0,
+  technicalFailures: 0,
 };
 
 type HypothesisRow = {
@@ -44,7 +44,7 @@ const hypotheses: HypothesisRow[] = [
     keyFinding:
       'Roast-battle refusals dropped 100% to 60%. Gloves-off: enhanced DNA eliminated all refusals.',
     insight:
-      'Prompt engineering depth is a first-order variable in multi-agent alignment behaviour.',
+      'Prompt engineering depth is a significant factor in multi-agent persona compliance on Claude.',
     githubPath: 'pitstorm/results/hypotheses/H1-analysis.md',
   },
   {
@@ -86,7 +86,7 @@ const hypotheses: HypothesisRow[] = [
     keyFinding:
       'No quality cliff at higher agent counts. Per-agent TTR effect is a text-length confound. Diminishing returns after 4-5 agents.',
     insight:
-      'Framing and persona quality are first-order variables; agent count is second-order.',
+      'Framing and persona quality are the dominant variables; agent count is secondary.',
     githubPath: 'pitstorm/results/hypotheses/H4-analysis.md',
   },
   {
@@ -110,9 +110,9 @@ const hypotheses: HypothesisRow[] = [
       'Does the Founder agent adapt its pitch under sustained critique?',
     design: '15 bouts, 180 turns, 45 Founder turns. Shark-pit (Founder, VC, Hype Beast, Pessimist).',
     result: 'clear',
-    maxD: '9.592',
+    maxD: '9.592*',
     keyFinding:
-      'Zero adaptive phrases in 45 Founder turns. Pivot behaviour is DNA-driven from turn 0. Founder converges with reinforcer, not critics.',
+      'Zero adaptive phrases in 45 Founder turns. Pivot behaviour is DNA-driven from turn 0. Founder converges with reinforcer, not critics. *d confounded by unequal group sizes (3 early vs 3 late turns per bout); treat as directional, not precise.',
     insight:
       'Agents execute character strategies faithfully but cannot incorporate opposing arguments.',
     githubPath: 'pitstorm/results/hypotheses/H6-analysis.md',
@@ -153,7 +153,7 @@ const headlineFindings: HeadlineFinding[] = [
     finding: 'Richer structured DNA cuts safety refusals by half',
     source: 'H1',
     implication:
-      'Prompt engineering depth is the dominant lever. The safety layer calibrates on persona framing quality, not content.',
+      'Prompt engineering depth is the dominant lever on Claude. The safety layer calibrates on persona framing quality, not content.',
   },
 ];
 
@@ -229,7 +229,7 @@ export default async function ResearchPage() {
             { value: String(programmeStats.bouts), label: 'bouts' },
             { value: programmeStats.turns, label: 'turns' },
             { value: String(programmeStats.hypotheses), label: 'hypotheses' },
-            { value: String(programmeStats.errors), label: 'errors' },
+            { value: String(programmeStats.technicalFailures), label: 'technical failures' },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="font-mono text-3xl font-bold text-accent md:text-4xl">
@@ -256,7 +256,11 @@ export default async function ResearchPage() {
           tests (10,000 iterations). Effect sizes reported as Cohen&apos;s d
           with pre-registered thresholds: |d| &lt; 0.15 = null, |d| &ge; 0.30 =
           clear, 0.15&ndash;0.30 = ambiguous. All experiments use Anthropic&apos;s
-          Claude. The full analysis code, pre-registrations, and raw data are{' '}
+          Claude. All six hypotheses returned clear results&mdash;a pattern we
+          acknowledge is unusual and may reflect our threshold choice (|d| &ge; 0.30)
+          or the relatively coarse-grained nature of text-statistical metrics.
+          We invite scrutiny of the methodology. The full analysis code,
+          pre-registrations, and raw data are{' '}
           <a
             href={GITHUB_BASE + 'pitstorm/results/hypotheses/'}
             target="_blank"
@@ -392,11 +396,12 @@ export default async function ResearchPage() {
           The fundamental gap
         </p>
         <p className="mt-4 text-base leading-relaxed text-foreground/90">
-          Persona fidelity and argument adaptation are independent dimensions.
-          Current LLM agents can maintain consistent character but cannot think
-          responsively under adversarial pressure. The Screenwriter holds 100%
-          marker fidelity across 12 turns. The Founder never concedes a single
-          point in 45 speaking turns. Character consistency is real and
+
+          On Claude, persona fidelity and argument adaptation appear to operate as
+          separate capabilities. Agents maintain consistent character but do not
+          adapt substantively under adversarial pressure. The Screenwriter holds
+          100% marker fidelity across 12 turns. The Founder never concedes a
+          single point in 45 speaking turns. Character consistency is real and
           measurable. Strategic adaptation is absent.
         </p>
         <p className="mt-4 text-sm leading-relaxed text-muted">
@@ -421,7 +426,7 @@ export default async function ResearchPage() {
               {
                 n: 1,
                 title: 'Prompt depth is the dominant lever',
-                body: '7x richer structured DNA cuts safety refusals by half or eliminates them entirely. The safety layer responds to persona framing quality.',
+                body: '7x richer structured DNA cuts safety refusals by half or eliminates them entirely on Claude. The safety layer responds to persona framing quality.',
                 source: 'H1',
               },
               {

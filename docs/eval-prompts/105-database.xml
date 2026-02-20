@@ -1,0 +1,171 @@
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<evaluation-panel id="105" name="Database Engineering">
+  <meta>
+    <evaluator-role>
+      You are a database engineer with experience in schema design, query
+      optimization, and operational database management. You understand that
+      schema design is the hardest thing to change later, and you evaluate
+      accordingly. You know the difference between Neon's serverless HTTP
+      driver and traditional connection pooling, and you account for Neon's
+      constraints when evaluating. You are reviewing a Neon Postgres database
+      accessed via Drizzle ORM in a Next.js serverless environment.
+    </evaluator-role>
+    <required-sections>A (lib/ — especially credits.ts, intro-pool.ts, free-bout-pool.ts), G (schema)</required-sections>
+    <optional-sections>B (app/api/ — query patterns), D (tests — DB integration tests)</optional-sections>
+  </meta>
+
+  <metrics>
+    <metric id="105.1" name="Schema Design Quality">
+      <question>Is the schema normalized appropriately? Are data types correct? Are constraints enforced at the DB level?</question>
+      <anchors>
+        <anchor score="1">No constraints. Everything is varchar. No foreign keys. No indexes.</anchor>
+        <anchor score="3">Basic types correct but missing constraints. Some denormalization without clear justification.</anchor>
+        <anchor score="5">Schema is reasonable for 17 tables. Primary keys, foreign keys, unique constraints, and indexes present. Some JSONB columns where structured tables might be better (transcript, agentLineup).</anchor>
+        <anchor score="7">Well-designed schema. JSONB used appropriately for semi-structured data. Unique constraints prevent application-level race conditions. Indexes cover query patterns.</anchor>
+        <anchor score="10">Schema is a faithful model of the domain. Every constraint encodes a business rule. Migrations are reversible. Schema documentation explains each table's role.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Are foreign keys defined where expected (reactions.boutId -> bouts.id)?
+        - Are unique constraints used to prevent duplicate votes, reactions, signups?
+        - Is JSONB appropriate for transcript and agentLineup, or should these be normalized?
+        - Are column types appropriate (bigint for microcredits, varchar lengths)?
+        - Are nullable columns intentionally nullable?
+      </what-to-examine>
+    </metric>
+
+    <metric id="105.2" name="Index Coverage">
+      <question>Do indexes support the actual query patterns? Are there missing or redundant indexes?</question>
+      <anchors>
+        <anchor score="1">No indexes beyond primary keys.</anchor>
+        <anchor score="3">Some indexes but they don't match the actual query patterns. Missing indexes on hot columns.</anchor>
+        <anchor score="5">Indexes on frequently queried columns (createdAt, boutId, userId). Compound indexes where appropriate. No obvious redundancy.</anchor>
+        <anchor score="7">Indexes are optimized for the actual query workload. Compound indexes match WHERE + ORDER BY patterns. No unnecessary indexes bloating writes.</anchor>
+        <anchor score="10">Index strategy is documented. Covers all query patterns including time-range queries, pagination, and filtered listing. Partial indexes where appropriate.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Does the (status, createdAt) compound index on bouts match the listing query pattern?
+        - Is the pageViews table indexed for analytics queries?
+        - Are there queries that would benefit from an index but don't have one?
+        - Is the leaderboard query (full table scan) acceptable given the cache?
+      </what-to-examine>
+    </metric>
+
+    <metric id="105.3" name="Query Safety and Injection Prevention">
+      <question>Are all queries parameterized? Is there any risk of SQL injection?</question>
+      <anchors>
+        <anchor score="1">Raw string concatenation in SQL queries.</anchor>
+        <anchor score="3">Mostly parameterized but some raw SQL for complex queries.</anchor>
+        <anchor score="5">All queries use Drizzle's parameterized sql template literals. No raw string concatenation.</anchor>
+        <anchor score="7">100% parameterized. Drizzle's type system prevents accidental raw SQL. No escape hatches.</anchor>
+        <anchor score="10">SQL injection is impossible by construction. All queries go through the ORM. Raw SQL is lint-banned. Automated testing for injection.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Count all uses of sql`` template literals. Are values always interpolated as parameters?
+        - Is there any string concatenation that builds SQL dynamically?
+        - Are there any raw query escape hatches in the Drizzle configuration?
+        - Is the reset-prod-data.ts script (admin-only) safe?
+      </what-to-examine>
+    </metric>
+
+    <metric id="105.4" name="Concurrency and Race Condition Handling">
+      <question>Are concurrent operations handled safely? Can race conditions corrupt data?</question>
+      <anchors>
+        <anchor score="1">No concurrency handling. Read-then-write patterns without protection.</anchor>
+        <anchor score="3">Some awareness of concurrency but inconsistent. onConflictDoNothing in some places but not others.</anchor>
+        <anchor score="5">Consistent patterns: onConflictDoNothing + re-read for inserts. Conditional WHERE for atomic deductions. No explicit transactions (appropriate for Neon HTTP driver).</anchor>
+        <anchor score="7">Race conditions addressed systematically. Atomic operations for financial data. Unique constraints as the authoritative dedup layer. Documented concurrency model.</anchor>
+        <anchor score="10">Concurrency model is provably correct. All race conditions tested under load. Serializable isolation where needed. No data corruption possible under concurrent access.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is preauthorizeCredits() truly atomic (conditional UPDATE with WHERE balance >= amount)?
+        - Can two concurrent webhook events double-credit a user?
+        - Can the free bout pool go negative under concurrent consumption?
+        - Is introPool.claimedMicro protected against concurrent claims?
+        - What happens if two bout creation requests arrive for the same boutId simultaneously?
+      </what-to-examine>
+    </metric>
+
+    <metric id="105.5" name="Data Integrity Across Operations">
+      <question>Can the system reach an inconsistent state (e.g., credits deducted but bout not created)?</question>
+      <anchors>
+        <anchor score="1">No transaction support. Multi-step operations can leave partial state.</anchor>
+        <anchor score="3">Some operations are atomic but multi-step flows (preauth -> bout -> settle) can fail partway.</anchor>
+        <anchor score="5">Credit lifecycle has refund paths for all failure modes. Bout status tracks progress. Partial transcripts are persisted on error. No explicit transactions but compensating actions exist.</anchor>
+        <anchor score="7">All multi-step operations have compensating actions. Credit refunds are guaranteed on failure. Bout status is always consistent with the actual state.</anchor>
+        <anchor score="10">ACID guarantees for all financial operations. Saga pattern for multi-step flows. Reconciliation checks catch drift. Audit log enables full replay.</anchor>
+      </anchors>
+      <what-to-examine>
+        - If bout execution fails after preauth, is the credit refunded?
+        - If the Stripe webhook processes a payment but the DB update fails, what happens?
+        - Can a bout be stuck in 'running' status indefinitely?
+        - Is there a reconciliation mechanism to detect data drift?
+      </what-to-examine>
+    </metric>
+
+    <metric id="105.6" name="Connection Management">
+      <question>Is the database connection strategy appropriate for the deployment model?</question>
+      <anchors>
+        <anchor score="1">Long-lived connections in serverless. Connection pool exhaustion likely.</anchor>
+        <anchor score="3">Connection pooling exists but not tuned for serverless burst patterns.</anchor>
+        <anchor score="5">Uses Neon's HTTP driver (no persistent connections). Appropriate for Vercel serverless. requireDb() guard prevents operations without a connection.</anchor>
+        <anchor score="7">Connection strategy matches deployment model. No connection leaks. Graceful handling of connection failures.</anchor>
+        <anchor score="10">Connection management is optimized for the deployment model. Cold start impact minimized. Connection reuse where possible. Monitoring for connection issues.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Is the Neon HTTP driver used correctly (one query per HTTP request, no persistent pool)?
+        - Is the db object created at module load or lazily?
+        - What happens if DATABASE_URL is not set? Does it fail fast?
+        - Are there any connection-dependent patterns that break in serverless?
+      </what-to-examine>
+    </metric>
+
+    <metric id="105.7" name="Migration Safety">
+      <question>Can schema changes be applied safely without downtime?</question>
+      <anchors>
+        <anchor score="1">No migration strategy. Schema changes require manual intervention.</anchor>
+        <anchor score="3">Migrations exist but are not tested. No rollback capability.</anchor>
+        <anchor score="5">Drizzle migration system in use. Forward migrations work. Rollback is manual. No zero-downtime migration strategy documented.</anchor>
+        <anchor score="7">Migration system is reliable. New columns are nullable or have defaults. Existing columns are never removed in production without a deprecation period.</anchor>
+        <anchor score="10">Zero-downtime migrations. Expand/contract pattern. Migration testing in CI. Automated rollback on failure.</anchor>
+      </anchors>
+      <what-to-examine>
+        - Are Drizzle migrations used? Are migration files present?
+        - Could you add a new column to bouts without downtime?
+        - Are there any DROP TABLE or DROP COLUMN operations?
+        - Is the migration system tested in CI?
+      </what-to-examine>
+    </metric>
+
+    <metric id="105.8" name="Query Performance and Scaling Readiness">
+      <question>Will queries remain performant as data grows? Are there obvious scaling bottlenecks?</question>
+      <anchors>
+        <anchor score="1">Full table scans on every request. No pagination. No caching.</anchor>
+        <anchor score="3">Some queries are performant but others (leaderboard, exports) scan entire tables.</anchor>
+        <anchor score="5">Hot queries use indexes. Leaderboard uses in-memory cache. Pagination exists for listing. Some full-table scans for admin/export operations.</anchor>
+        <anchor score="7">Query patterns are scalable. Indexes cover hot paths. Caching mitigates expensive queries. Known scaling limits are documented.</anchor>
+        <anchor score="10">Query performance is monitored. Explain plans documented for hot paths. Scaling strategy documented (read replicas, partitioning, caching layers).</anchor>
+      </anchors>
+      <what-to-examine>
+        - What happens to the leaderboard query at 100K bouts? 1M bouts?
+        - Is the pageViews table indexed for the analytics dashboard?
+        - Are JSONB columns (transcript, agentLineup) ever queried by internal fields?
+        - Is there a LIMIT on any query that could return unbounded results?
+      </what-to-examine>
+    </metric>
+  </metrics>
+
+  <output-format>
+    <instruction>
+      Return a JSON object conforming to the universal output schema. Include
+      panel_id "105", all 8 metrics. Note the Neon HTTP driver constraint
+      (no multi-statement transactions) when evaluating data integrity.
+    </instruction>
+  </output-format>
+
+  <anti-bias-instructions>
+    <instruction>Do not penalize the absence of explicit transactions if compensating actions are reliable. The Neon HTTP driver doesn't support multi-statement transactions.</instruction>
+    <instruction>Do not score against enterprise database patterns (read replicas, partitioning) at startup scale.</instruction>
+    <instruction>Credit the onConflictDoNothing + re-read pattern as a valid alternative to SELECT FOR UPDATE in serverless contexts.</instruction>
+  </anti-bias-instructions>
+</evaluation-panel>
+]]>
