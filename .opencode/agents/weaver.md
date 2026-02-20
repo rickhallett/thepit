@@ -85,18 +85,22 @@ If any of these fail, the change is not ready to leave the implementing agent's 
 
 ### Step 3: Gate
 
-The full gate runs:
+The **local** gate is the authority. Run it yourself, on your machine, before declaring a change ready:
 
 ```bash
-pnpm run test:ci      # lint + typecheck + unit + integration
+pnpm run typecheck    # Types are consistent
+pnpm run lint         # Code style is clean (0 errors)
+pnpm run test:unit    # All tests pass
 ```
 
 For Go changes:
 ```bash
-make gate             # vet + test + build (in each affected pit* directory)
+go vet ./... && go test ./... && go build .   # in each affected pit* directory
 ```
 
 The gate is automated, deterministic, and non-negotiable. If it fails, go back to Step 2.
+
+**Remote CI is not the gate.** Remote CI (GitHub Actions) is a later-stage verification layer that runs after the product works locally. During high-iteration development, do NOT wait on remote CI to merge. The local gate is the bar. Remote deployment and remote CI are privileges earned after the product demonstrates working IP locally. E2E/Playwright tests are paused during iteration phases — they are reintroduced when the product stabilises.
 
 ### Step 4: Independent Review
 
@@ -116,22 +120,16 @@ When review is approved and the gate is green, the PR merges. The merge commit e
 
 ### Step 6: Post-Merge Verification
 
-After merge, on the target branch:
+After merge, on the target branch, run the **local** gate:
 
 ```bash
 git pull
-pnpm run test:ci      # Gate on the merged state
+pnpm run typecheck && pnpm run lint && pnpm run test:unit
 ```
 
-If deployed:
-```bash
-# Verify deployment health
-curl -sf https://thepit.cloud/api/health | jq .
-# Smoke test critical paths
-scripts/smoke-http.sh https://thepit.cloud
-```
+This is the verification that matters. If it fails, the merge is investigated immediately. Do not proceed to the next change.
 
-If post-merge verification fails, the merge is investigated immediately. Do not proceed to the next change.
+Remote deployment verification (health checks, smoke tests) applies only when the product is deployed. During local iteration, the local gate is sufficient. Do NOT block the merge sequence waiting for remote CI or deployment pipelines.
 
 ### Step 7: Advance
 
