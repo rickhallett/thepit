@@ -1,0 +1,25 @@
+{
+  "run_id": "104_gemini-3.1-pro-preview_iter1",
+  "panel_id": "104",
+  "panel_name": "Type System & Safety",
+  "model_requested": "gemini-3.1-pro-preview",
+  "model_reported": "gemini-3.1-pro-preview",
+  "iteration": 1,
+  "temperature": 0.3,
+  "timestamp": "2026-02-20T12:02:42.188997+00:00",
+  "input_tokens": 464346,
+  "output_tokens": 889,
+  "cost_usd": 0.9394,
+  "duration_seconds": 58.71,
+  "stop_reason": "stop",
+  "attempt": 1,
+  "sections_included": [
+    "A",
+    "B",
+    "E",
+    "C",
+    "D"
+  ],
+  "optional_included": true,
+  "raw_text": "{\n  \"104.1\": {\n    \"score\": 5,\n    \"evidence\": [\n      \"The `tsconfig.json` file has `\\\"strict\\\": true` enabled, providing a solid baseline for type safety.\",\n      \"`\\\"noUncheckedIndexedAccess\\\"` is not enabled, which leaves a gap for potential undefined errors when accessing arrays or records.\",\n      \"`\\\"skipLibCheck\\\": true` is present, which is standard but acts as an escape hatch for third-party type definitions.\"\n    ]\n  },\n  \"104.2\": {\n    \"score\": 7,\n    \"evidence\": [\n      \"The codebase has near-zero usage of `any`. It correctly prefers `unknown` for untyped data (e.g., in catch blocks and `lib/errors.ts`).\",\n      \"The few instances of `any` are appropriately constrained to generic function signatures, such as `withTracing<F extends (...args: any[]) => any>` in `lib/langsmith.ts`.\",\n      \"Type assertions are used pragmatically where necessary, such as `as unknown as Record<string, unknown>` in `lib/eas.ts` to handle poorly typed third-party SDK returns.\"\n    ]\n  },\n  \"104.3\": {\n    \"score\": 5,\n    \"evidence\": [\n      \"Key domain types use discriminated unions effectively, such as the return type of `parseJsonBody` (`{ data: T; error?: never } | { data?: never; error: Response }`) and `validateBoutRequest`.\",\n      \"State is modeled well using unions (e.g., `BoutStatus` as `'running' | 'completed' | 'error'`).\",\n      \"However, exhaustiveness checking is not strictly enforced by the compiler. For example, the switch statement in `lib/eval/format.ts` falls back to a default case that casts `formatId as string` rather than assigning to `never` to catch missing cases at compile time.\"\n    ]\n  },\n  \"104.4\": {\n    \"score\": 7,\n    \"evidence\": [\n      \"Generics are used purposefully to preserve type information across boundaries without introducing unnecessary complexity.\",\n      \"`parseJsonBody<T>` in `lib/api-utils.ts` uses generics to provide a clean, typed API for route handlers, while documenting the caveat that it is a type assertion.\",\n      \"Utility functions like `deepMerge<T>` and `deepFreeze<T>` in `lib/copy.ts` use generics effectively to return the exact type passed in.\"\n    ]\n  },\n  \"104.5\": {\n    \"score\": 7,\n    \"evidence\": [\n      \"Environment variables are strictly validated at startup using Zod in `lib/env.ts`, preventing the app from booting with invalid configuration.\",\n      \"API routes perform thorough inline runtime validation of request bodies (e.g., checking `typeof`, string lengths, and regex patterns for safety).\",\n      \"The Stripe webhook endpoint (`app/api/credits/webhook/route.ts`) properly verifies cryptographic signatures before processing events.\",\n      \"Database results are inherently type-safe through Drizzle ORM.\"\n    ]\n  },\n  \"104.6\": {\n    \"score\": 5,\n    \"evidence\": [\n      \"The domain is modeled well using union types derived from `as const` objects (e.g., `ModelId` from `MODEL_IDS` in `lib/models.ts`) and literal unions (`AgentTier`, `ResponseLengthId`).\",\n      \"However, the type system does not fully prevent illegal states. For example, micro-credits are typed simply as `number` rather than a branded type, leaving room for accidental mixing of macro and micro values.\",\n      \"Domain invariants, such as ensuring an arena bout has between 2 and 6 agents, are enforced via runtime checks in `app/actions.ts` rather than being encoded into the type system.\"\n    ]\n  }\n}"
+}

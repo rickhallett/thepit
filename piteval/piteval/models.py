@@ -48,6 +48,12 @@ class ModelConfig:
     long_context_threshold: int = 0  # 0 = no long-context pricing
     long_context_input_cost_per_mtok: float = 0.0
     long_context_output_cost_per_mtok: float = 0.0
+    # Token estimation safety multiplier — tiktoken cl100k_base undercounts
+    # differently per provider. Measured from Pilot 1 actual vs estimated:
+    #   Anthropic: +29% undercount → 1.30
+    #   Gemini:    +19% undercount → 1.20
+    #   GPT/OpenAI: +0.3% undercount → 1.02
+    token_estimate_multiplier: float = 1.0
 
     @property
     def temperatures(self) -> list[float]:
@@ -75,17 +81,19 @@ CLAUDE = ModelConfig(
     long_context_threshold=200_000,
     long_context_input_cost_per_mtok=6.0,  # 2x standard
     long_context_output_cost_per_mtok=22.5,  # 1.5x standard
+    token_estimate_multiplier=1.30,  # Pilot 1 measured: 881K actual / 682K estimated
 )
 
 GPT = ModelConfig(
     provider=ModelProvider.OPENAI,
     api_model_id="gpt-5.2",
     display_name="GPT-5.2",
-    context_window=400_000,
+    context_window=272_000,  # API enforces 272K input limit (400K total - 128K output reserve)
     input_cost_per_mtok=1.75,
     output_cost_per_mtok=14.0,
     env_var="OPENAI_API_KEY",
     temperature_center=0.5,
+    token_estimate_multiplier=1.02,  # Pilot 1 measured: ~0.3% undercount
 )
 
 GEMINI = ModelConfig(
@@ -97,6 +105,7 @@ GEMINI = ModelConfig(
     output_cost_per_mtok=12.0,
     env_var="GEMINI_API_KEY",
     temperature_center=0.5,
+    token_estimate_multiplier=1.20,  # Pilot 1 measured: 814K actual / 682K estimated
 )
 
 ALL_MODELS: list[ModelConfig] = [CLAUDE, GPT, GEMINI]

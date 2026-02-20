@@ -1,0 +1,25 @@
+{
+  "run_id": "109_gemini-3.1-pro-preview_iter1",
+  "panel_id": "109",
+  "panel_name": "DevOps & Operational Readiness",
+  "model_requested": "gemini-3.1-pro-preview",
+  "model_reported": "gemini-3.1-pro-preview",
+  "iteration": 1,
+  "temperature": 0.3,
+  "timestamp": "2026-02-20T12:16:57.780524+00:00",
+  "input_tokens": 681494,
+  "output_tokens": 985,
+  "cost_usd": 1.3748,
+  "duration_seconds": 63.57,
+  "stop_reason": "stop",
+  "attempt": 1,
+  "sections_included": [
+    "E",
+    "A",
+    "B",
+    "D",
+    "F"
+  ],
+  "optional_included": true,
+  "raw_text": "{\n  \"panel_id\": \"109\",\n  \"metrics\": [\n    {\n      \"metric_id\": \"109.1\",\n      \"score\": 7,\n      \"evidence\": [\n        \"The `package.json` defines a comprehensive `test:ci` script that runs linting, typechecking, unit tests, and integration tests.\",\n        \"End-to-end tests are configured via Playwright (`tests/e2e/`).\",\n        \"A `db:reset-ci` script uses the Neon CLI to manage database branching for CI environments.\",\n        \"Vercel is used for deployment, providing automatic preview deployments for PRs.\"\n      ]\n    },\n    {\n      \"metric_id\": \"109.2\",\n      \"score\": 8,\n      \"evidence\": [\n        \"`lib/logger.ts` provides structured JSON logging with semantic methods (`audit`, `metric`, `security`) and automatic API key redaction.\",\n        \"`lib/async-context.ts` uses `AsyncLocalStorage` to implicitly propagate `requestId`, `clientIp`, `userAgent`, and `path` across all log entries.\",\n        \"`lib/anomaly.ts` implements in-memory sliding window anomaly detection for burst traffic, credential probing, and error rate spikes, firing webhooks when thresholds are breached.\",\n        \"Sentry is integrated for error tracking, PostHog for analytics, and LangSmith for LLM traces (`lib/langsmith.ts`).\"\n      ]\n    },\n    {\n      \"metric_id\": \"109.3\",\n      \"score\": 8,\n      \"evidence\": [\n        \"`lib/env.ts` uses Zod to strictly validate server environment variables at startup, failing fast if required variables are missing.\",\n        \"Extensive use of feature flags (`PREMIUM_ENABLED`, `CREDITS_ENABLED`, `BYOK_ENABLED`, `SUBSCRIPTIONS_ENABLED`) allows for staged rollouts and environment-specific behavior.\",\n        \"The Go CLI tools share environment configuration parsing via `shared/config/config.go`, ensuring consistency between the Next.js app and operational tooling.\"\n      ]\n    },\n    {\n      \"metric_id\": \"109.4\",\n      \"score\": 6,\n      \"evidence\": [\n        \"Deployment safety relies heavily on Vercel's managed infrastructure, which provides atomic deployments and instant rollbacks.\",\n        \"Database schema changes are managed via Drizzle ORM (`drizzle.config.ts`, `drizzle/schema.ts`), which typically encourages additive, forward-only migrations.\",\n        \"Preview deployments act as staging environments before production.\"\n      ]\n    },\n    {\n      \"metric_id\": \"109.5\",\n      \"score\": 6,\n      \"evidence\": [\n        \"Disaster recovery is largely outsourced to managed providers: Neon for database point-in-time recovery and Vercel for deployment history.\",\n        \"Research data can be safely exported to JSON payloads via `lib/research-exports.ts` and the `pitctl export` command, providing an application-level data backup mechanism.\",\n        \"A `pre-destructive-guard.sh` script is referenced in `.gitignore`, indicating some local safeguards against accidental data loss.\"\n      ]\n    },\n    {\n      \"metric_id\": \"109.6\",\n      \"score\": 7,\n      \"evidence\": [\n        \"The `package.json` explicitly pins the package manager (`pnpm@10.28.2`) and the Node.js engine version (`>=24`).\",\n        \"Go dependencies are managed via a workspace (`go.work`), ensuring reproducible builds across the various CLI tools.\"\n      ]\n    },\n    {\n      \"metric_id\": \"109.7\",\n      \"score\": 9,\n      \"evidence\": [\n        \"An exceptionally mature suite of Go CLI tools exists for operations, far exceeding typical solo-developer projects.\",\n        \"`pitctl` handles database introspection, user management, credit ledger operations, bout inspection, and health alerts.\",\n        \"`pitstorm` provides a sophisticated traffic simulator with configurable personas and load profiles.\",\n        \"`pitbench` estimates costs and verifies platform margins.\",\n        \"Admin actions (e.g., granting credits, archiving agents) are exposed via API routes (`app/api/admin/`) and log an audit trail (`log.audit`).\"\n      ]\n    }\n  ]\n}"
+}
