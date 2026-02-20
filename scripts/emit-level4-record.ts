@@ -48,7 +48,11 @@ async function maybeReadJSON<T>(path: string | undefined): Promise<T | undefined
 }
 
 async function main() {
+  // Strip bare '--' separators injected by pnpm/npm before parseArgs sees them
+  const args = process.argv.slice(2).filter((a) => a !== '--')
+
   const { values } = parseArgs({
+    args,
     options: {
       window: { type: 'string' },
       run: { type: 'string' },
