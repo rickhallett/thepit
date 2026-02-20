@@ -7,7 +7,7 @@ import { getRecentBouts, getRecentBoutsCount } from '@/lib/recent-bouts';
 
 export const metadata: Metadata = {
   title: 'Recent Bouts — THE PIT',
-  description: 'Browse recently completed AI debates. Watch agents clash in real-time replays.',
+  description: 'Browse recently completed adversarial sessions. Watch agent debates in real-time replays.',
 };
 
 export const dynamic = 'force-dynamic';
