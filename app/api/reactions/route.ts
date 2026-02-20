@@ -3,13 +3,14 @@ import { and, eq } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
-import { errorResponse, parseJsonBody, rateLimitResponse } from '@/lib/api-utils';
+import { parseValidBody, rateLimitResponse } from '@/lib/api-utils';
 import {
   checkRateLimit,
   getClientIdentifier,
   type RateLimitConfig,
 } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
+import { reactionSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
 
@@ -20,45 +21,6 @@ const RATE_LIMIT_CONFIG: RateLimitConfig = {
   windowMs: 60 * 1000,
 };
 
-type ReactionPayload = {
-  boutId?: string;
-  turnIndex?: number;
-  reactionType?: string;
-};
-
-function validatePayload(payload: ReactionPayload):
-  | { error: Response }
-  | { boutId: string; turnIndex: number; reactionType: string } {
-  if (!payload || typeof payload !== 'object') {
-    return { error: errorResponse('Invalid request body.', 400) };
-  }
-
-  const boutId =
-    typeof payload.boutId === 'string' ? payload.boutId.trim() : '';
-  const reactionType =
-    typeof payload.reactionType === 'string'
-      ? payload.reactionType.trim()
-      : '';
-
-  if (!boutId || typeof payload.turnIndex !== 'number') {
-    return { error: errorResponse('Missing boutId or turnIndex.', 400) };
-  }
-
-  if (!/^[\w-]{10,30}$/.test(boutId)) {
-    return { error: errorResponse('Invalid boutId format.', 400) };
-  }
-
-  if (!Number.isInteger(payload.turnIndex) || payload.turnIndex < 0) {
-    return { error: errorResponse('turnIndex must be a non-negative integer.', 400) };
-  }
-
-  if (!['heart', 'fire'].includes(reactionType)) {
-    return { error: errorResponse('Invalid reaction type.', 400) };
-  }
-
-  return { boutId, turnIndex: payload.turnIndex, reactionType };
-}
-
 export const POST = withLogging(async function POST(req: Request) {
   const clientId = getClientIdentifier(req);
   const rateLimit = checkRateLimit(RATE_LIMIT_CONFIG, clientId);
@@ -67,12 +29,9 @@ export const POST = withLogging(async function POST(req: Request) {
     return rateLimitResponse(rateLimit);
   }
 
-  const parsed = await parseJsonBody<ReactionPayload>(req);
+  const parsed = await parseValidBody(req, reactionSchema);
   if (parsed.error) return parsed.error;
-
-  const validated = validatePayload(parsed.data);
-  if ('error' in validated) return validated.error;
-  const { boutId, turnIndex, reactionType } = validated;
+  const { boutId, turnIndex, reactionType } = parsed.data;
 
   const { userId } = await auth();
   const ip = getClientIdentifier(req);

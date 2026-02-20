@@ -5,7 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
-import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
 import { agents } from '@/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
@@ -22,6 +22,7 @@ import { resolveResponseLength } from '@/lib/response-lengths';
 import { ensureUserRecord } from '@/lib/users';
 import { SUBSCRIPTIONS_ENABLED, canCreateAgent, getUserTier } from '@/lib/tier';
 import { UNSAFE_PATTERN } from '@/lib/validation';
+import { agentCreateSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
 
@@ -56,46 +57,14 @@ function validateTextField(
 
 /** Create a new agent with tier-based slot limits and content validation. */
 export const POST = withLogging(async function POST(req: Request) {
-  const parsed = await parseJsonBody<{
-    name?: string;
-    systemPrompt?: string;
-    presetId?: string;
-    tier?: 'free' | 'premium' | 'custom';
-    model?: string;
-    responseLength?: string;
-    responseFormat?: string;
-    parentId?: string;
-    archetype?: string;
-    tone?: string;
-    quirks?: string[];
-    speechPattern?: string;
-    openingMove?: string;
-    signatureMove?: string;
-    weakness?: string;
-    goal?: string;
-    fears?: string;
-    customInstructions?: string;
-    clientManifestHash?: string;
-  }>(req);
+  const parsed = await parseValidBody(req, agentCreateSchema);
   if (parsed.error) return parsed.error;
   const payload = parsed.data;
 
-  const name = typeof payload.name === 'string' ? payload.name.trim() : '';
-  if (!name) {
-    return errorResponse('Missing name.', 400);
-  }
-  if (name.length > 80) {
-    return errorResponse('Name must be 80 characters or fewer.', 400);
-  }
-  if (/https?:\/\/|www\./i.test(name)) {
-    return errorResponse('Name must not contain URLs.', 400);
-  }
-  // FINDING-008: Apply UNSAFE_PATTERN to name for defense-in-depth against stored XSS
-  if (UNSAFE_PATTERN.test(name)) {
-    return errorResponse('Name must not contain URLs or scripts.', 400);
-  }
+  const { name } = payload;
 
-  // Validate all structured text fields for length and unsafe patterns
+  // Validate all structured text fields for safety constraints (UNSAFE_PATTERN).
+  // Length is handled by the Zod schema; UNSAFE_PATTERN requires domain-specific checks.
   for (const [field, limit] of Object.entries(TEXT_FIELD_LIMITS)) {
     const value = payload[field as keyof typeof payload];
     if (typeof value === 'string') {
@@ -104,16 +73,12 @@ export const POST = withLogging(async function POST(req: Request) {
     }
   }
 
-  const rawPrompt =
-    typeof payload.systemPrompt === 'string' ? payload.systemPrompt.trim() : '';
-  const customInstructions =
-    typeof payload.customInstructions === 'string'
-      ? payload.customInstructions.trim()
-      : rawPrompt || null;
+  const rawPrompt = payload.systemPrompt?.trim() ?? '';
+  const customInstructions = payload.customInstructions?.trim() || rawPrompt || null;
   const quirks = Array.isArray(payload.quirks)
     ? payload.quirks
-        .filter((q): q is string => typeof q === 'string')
-        .map((q) => q.trim())
+        .filter((q: string): q is string => typeof q === 'string')
+        .map((q: string) => q.trim())
         .filter(Boolean)
     : [];
 

@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { byokStashSchema } from '@/lib/api-schemas';
 import { isValidByokKey, detectProvider, isOpenRouterModel, ALL_MODEL_IDS } from '@/lib/models';
 import type { ByokProvider } from '@/lib/models';
 import { getUserTier, SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
@@ -88,27 +89,15 @@ export const POST = withLogging(async function POST(req: Request) {
     return rateLimitResponse(rateCheck);
   }
 
-  const parsed = await parseJsonBody<{ key?: string; model?: string }>(req);
+  const parsed = await parseValidBody(req, byokStashSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const key = typeof payload.key === 'string' ? payload.key.trim() : '';
-  if (!key) {
-    return errorResponse('Missing key.', 400);
-  }
-
-  if (key.length > KEY_MAX_LENGTH) {
-    return errorResponse('Key too long.', 400);
-  }
+  const { key, model } = parsed.data;
 
   if (!isValidByokKey(key)) {
     return errorResponse('Invalid key format. Expected sk-ant-* (Anthropic) or sk-or-v1-* (OpenRouter).', 400);
   }
 
   const provider = detectProvider(key)!;
-
-  // Validate model selection against curated list for each provider
-  const model = typeof payload.model === 'string' ? payload.model.trim() : undefined;
   if (model) {
     if (provider === 'openrouter' && !isOpenRouterModel(model)) {
       return errorResponse('Unsupported OpenRouter model.', 400);

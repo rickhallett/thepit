@@ -2,7 +2,8 @@ import { withLogging } from '@/lib/api-logging';
 import { generateResearchExport } from '@/lib/research-exports';
 import { requireAdmin } from '@/lib/admin-auth';
 import { log } from '@/lib/logger';
-import { errorResponse, parseJsonBody, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, API_ERRORS } from '@/lib/api-utils';
+import { researchExportSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
 
@@ -13,15 +14,9 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
-  const parsed = await parseJsonBody<{ version?: string }>(req);
+  const parsed = await parseValidBody(req, researchExportSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const version =
-    typeof payload.version === 'string' ? payload.version.trim() : '';
-  if (!version || version.length > 16) {
-    return errorResponse('version required (max 16 chars).', 400);
-  }
+  const { version } = parsed.data;
 
   const result = await generateResearchExport(version);
 

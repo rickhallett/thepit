@@ -3,9 +3,10 @@ import { eq, and, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { featureRequestVotes } from '@/db/schema';
-import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
+import { featureRequestVoteSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
 
@@ -24,14 +25,9 @@ export const POST = withLogging(async function POST(req: Request) {
     return rateLimitResponse(rateCheck);
   }
 
-  const parsed = await parseJsonBody<{ featureRequestId?: number }>(req);
+  const parsed = await parseValidBody(req, featureRequestVoteSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const featureRequestId = payload.featureRequestId;
-  if (typeof featureRequestId !== 'number' || !Number.isInteger(featureRequestId)) {
-    return errorResponse('Missing or invalid featureRequestId.', 400);
-  }
+  const { featureRequestId } = parsed.data;
 
   const db = requireDb();
 

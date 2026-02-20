@@ -2,23 +2,14 @@ import { auth } from '@clerk/nextjs/server';
 
 import { requireDb } from '@/db';
 import { paperSubmissions } from '@/db/schema';
-import { errorResponse, parseJsonBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { parseArxivId, fetchArxivMetadata } from '@/lib/arxiv';
 import { ensureUserRecord } from '@/lib/users';
-import { UNSAFE_PATTERN } from '@/lib/validation';
+import { paperSubmissionSchema } from '@/lib/api-schemas';
 
 export const runtime = 'nodejs';
-
-const VALID_AREAS = [
-  'agent-interaction',
-  'evaluation',
-  'persona',
-  'context-windows',
-  'prompt-engineering',
-  'other',
-] as const;
 
 export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
@@ -34,48 +25,13 @@ export const POST = withLogging(async function POST(req: Request) {
     return rateLimitResponse(rateCheck);
   }
 
-  const parsed = await parseJsonBody<{
-    arxivUrl?: string;
-    justification?: string;
-    relevanceArea?: string;
-  }>(req);
+  const parsed = await parseValidBody(req, paperSubmissionSchema);
   if (parsed.error) return parsed.error;
-  const payload = parsed.data;
-
-  const arxivUrl =
-    typeof payload.arxivUrl === 'string' ? payload.arxivUrl.trim() : '';
-  const justification =
-    typeof payload.justification === 'string'
-      ? payload.justification.trim()
-      : '';
-  const relevanceArea =
-    typeof payload.relevanceArea === 'string'
-      ? payload.relevanceArea.trim()
-      : '';
-
-  if (!arxivUrl) {
-    return errorResponse('arXiv URL required.', 400);
-  }
+  const { arxivUrl, justification, relevanceArea } = parsed.data;
 
   const arxivId = parseArxivId(arxivUrl);
   if (!arxivId) {
     return errorResponse('Invalid arXiv URL.', 400);
-  }
-
-  if (!VALID_AREAS.includes(relevanceArea as (typeof VALID_AREAS)[number])) {
-    return errorResponse('Invalid relevance area.', 400);
-  }
-
-  if (justification.length < 50) {
-    return errorResponse('Justification must be at least 50 characters.', 400);
-  }
-
-  if (justification.length > 2000) {
-    return errorResponse('Justification must be 2000 characters or fewer.', 400);
-  }
-
-  if (UNSAFE_PATTERN.test(justification)) {
-    return errorResponse('Justification must not contain URLs or scripts.', 400);
   }
 
   const metadata = await fetchArxivMetadata(arxivId);
