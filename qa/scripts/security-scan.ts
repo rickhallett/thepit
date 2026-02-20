@@ -252,8 +252,8 @@ async function runCustomTests(target: string): Promise<ScanResult> {
       while ((match = failureRegex.exec(output)) !== null) {
         findings.push({
           severity: 'high',
-          title: match[1],
-          description: match[2],
+          title: match[1] ?? '',
+          description: match[2] ?? '',
         })
       }
 

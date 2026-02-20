@@ -46,7 +46,7 @@ export function decodeByokCookie(
     return {
       provider: parts[0] as ByokProvider,
       modelId: parts[1] || undefined,
-      key: parts[2],
+      key: parts[2] ?? '',
     };
   }
   // Legacy format: raw Anthropic key (no encoding)

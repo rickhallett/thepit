@@ -501,7 +501,7 @@ export function Arena({
     const positions = ['self-start', 'self-center', 'self-end'];
     const map = new Map<string, string>();
     preset.agents.forEach((agent, index) => {
-      map.set(agent.id, positions[index % positions.length]);
+      map.set(agent.id, positions[index % positions.length] ?? 'self-start');
     });
     return map;
   }, [preset.agents]);

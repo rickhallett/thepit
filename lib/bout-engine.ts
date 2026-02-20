@@ -672,6 +672,7 @@ async function _executeBoutInner(
 
     for (let i = 0; i < preset.maxTurns; i += 1) {
       const agent = preset.agents[i % preset.agents.length];
+      if (!agent) continue;
       const turnId = `${boutId}-${i}-${agent.id}`;
 
       onEvent?.({ type: 'start', messageId: turnId });

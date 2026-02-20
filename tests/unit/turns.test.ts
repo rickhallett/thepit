@@ -37,8 +37,8 @@ describe('turns', () => {
   });
 
   it('has valid MIN/MAX constants', () => {
-    expect(MIN_TURNS).toBe(TURN_OPTIONS[0].id);
-    expect(MAX_TURNS).toBe(TURN_OPTIONS[TURN_OPTIONS.length - 1].id);
+    expect(MIN_TURNS).toBe(TURN_OPTIONS[0]!.id);
+    expect(MAX_TURNS).toBe(TURN_OPTIONS[TURN_OPTIONS.length - 1]!.id);
   });
 
   it('default is within range', () => {

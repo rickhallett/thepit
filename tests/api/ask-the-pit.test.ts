@@ -144,7 +144,7 @@ describe('ask-the-pit route', () => {
 
     // Verify streamText was called with expected shape
     expect(streamTextMock).toHaveBeenCalledTimes(1);
-    const callArgs = streamTextMock.mock.calls[0][0];
+    const callArgs = streamTextMock.mock.calls[0]![0];
     expect(callArgs.maxOutputTokens).toBe(2000);
     expect(callArgs.messages).toEqual([
       {

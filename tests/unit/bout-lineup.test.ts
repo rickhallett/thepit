@@ -15,9 +15,9 @@ describe('buildArenaPresetFromLineup', () => {
     expect(preset.name).toBe('Arena Mode');
     expect(preset.tier).toBe('free');
     expect(preset.agents).toHaveLength(2);
-    expect(preset.agents[0].id).toBe('a1');
-    expect(preset.agents[0].color).toBe('#ff0000');
-    expect(preset.agents[0].avatar).toBe('star');
+    expect(preset.agents[0]!.id).toBe('a1');
+    expect(preset.agents[0]!.color).toBe('#ff0000');
+    expect(preset.agents[0]!.avatar).toBe('star');
   });
 
   it('applies DEFAULT_AGENT_COLOR when agent has no color', () => {
@@ -26,7 +26,7 @@ describe('buildArenaPresetFromLineup', () => {
     ];
 
     const preset = buildArenaPresetFromLineup(lineup);
-    expect(preset.agents[0].color).toBe(DEFAULT_AGENT_COLOR);
+    expect(preset.agents[0]!.color).toBe(DEFAULT_AGENT_COLOR);
   });
 
   it('preserves undefined avatar', () => {
@@ -35,7 +35,7 @@ describe('buildArenaPresetFromLineup', () => {
     ];
 
     const preset = buildArenaPresetFromLineup(lineup);
-    expect(preset.agents[0].avatar).toBeUndefined();
+    expect(preset.agents[0]!.avatar).toBeUndefined();
   });
 
   it('handles empty lineup', () => {

@@ -71,7 +71,7 @@ describe('contact form', () => {
 
     // Verify fetch was called to Resend API
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-    const [url, opts] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    const [url, opts] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
     expect(url).toBe('https://api.resend.com/emails');
     expect(opts.method).toBe('POST');
     expect(opts.headers.Authorization).toBe('Bearer test-resend-key');
@@ -181,7 +181,7 @@ describe('contact form', () => {
 
     expect(res.status).toBe(200);
 
-    const [, opts] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    const [, opts] = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0]!;
     const body = JSON.parse(opts.body);
 
     // Name should be escaped in html body

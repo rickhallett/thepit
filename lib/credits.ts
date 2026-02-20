@@ -90,7 +90,7 @@ export const estimateTokensFromText = (text: string, min = 0) =>
 
 /** Default fallback pricing (haiku) for unrecognized model IDs.
  *  Computed from the merged MODEL_PRICES_GBP map so env overrides apply. */
-const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP[MODEL_IDS.HAIKU];
+const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP[MODEL_IDS.HAIKU]!;
 
 export const getModelPricing = (modelId: string) => {
   const pricing = MODEL_PRICES_GBP[modelId];

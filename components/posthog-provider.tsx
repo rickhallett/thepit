@@ -71,7 +71,7 @@ function initPostHog(): boolean {
       .split('; ')
       .find((c) => c.startsWith('pit_utm='));
     if (utmCookie) {
-      const utm = JSON.parse(decodeURIComponent(utmCookie.split('=')[1]));
+      const utm = JSON.parse(decodeURIComponent(utmCookie.split('=')[1] ?? ''));
       const superProps: Record<string, string> = {};
       if (utm.utm_source) superProps.utm_source = utm.utm_source;
       if (utm.utm_medium) superProps.utm_medium = utm.utm_medium;

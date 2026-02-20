@@ -95,5 +95,5 @@ export const POST = withLogging(async function POST(req: Request) {
     })
     .returning({ id: featureRequests.id });
 
-  return Response.json({ ok: true, id: created.id });
+  return Response.json({ ok: true, id: created!.id });
 }, 'feature-requests');

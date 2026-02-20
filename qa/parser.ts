@@ -36,6 +36,7 @@ export function parseQAReport(content: string): ParsedTest[] {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
+    if (!line) continue
 
     // Track category headers (## 1. Navigation & Layout)
     if (line.startsWith('## ')) {
@@ -56,17 +57,17 @@ export function parseQAReport(content: string): ParsedTest[] {
       // Look for expected behavior on next line
       let expectedBehavior = ''
       if (i + 1 < lines.length) {
-        const behaviorMatch = BEHAVIOR_REGEX.exec(lines[i + 1])
+        const behaviorMatch = BEHAVIOR_REGEX.exec(lines[i + 1] ?? '')
         if (behaviorMatch) {
-          expectedBehavior = behaviorMatch[1]
+          expectedBehavior = behaviorMatch[1] ?? ''
         }
       }
 
       tests.push({
-        id,
+        id: id ?? '',
         category: currentCategory,
         subcategory: currentSubcategory,
-        description,
+        description: description ?? '',
         expectedBehavior,
         qa: qa === 'x',
         func: func === 'x',
@@ -122,8 +123,8 @@ export function summarize(tests: ParsedTest[]): {
   const byCategory: Record<string, number> = {}
 
   for (const test of tests) {
-    const prefix = test.id.split('-')[0]
-    byCategory[prefix] = (byCategory[prefix] || 0) + 1
+    const prefix = test.id.split('-')[0] ?? ''
+    byCategory[prefix] = (byCategory[prefix] ?? 0) + 1
   }
 
   return {

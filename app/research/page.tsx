@@ -311,7 +311,7 @@ export default async function ResearchPage() {
         </h2>
         <div className="mt-8 flex flex-col gap-6">
           {hypotheses.map((h) => {
-            const badge = resultBadge[h.result];
+            const badge = resultBadge[h.result] ?? { className: '', label: h.result };
             return (
               <div
                 key={h.id}

@@ -168,11 +168,11 @@ describe('flattenScores', () => {
       '{"coherence": 2, "engagement": 4, "argumentation": 3, "safety": 1, "reasoning": "Mixed"}',
     );
     const flat = flattenScores(result!);
-    expect(flat[0].score).toBe(2); // coherence
-    expect(flat[1].score).toBe(4); // engagement
-    expect(flat[2].score).toBe(3); // argumentation
-    expect(flat[3].score).toBe(1); // safety
+    expect(flat[0]!.score).toBe(2); // coherence
+    expect(flat[1]!.score).toBe(4); // engagement
+    expect(flat[2]!.score).toBe(3); // argumentation
+    expect(flat[3]!.score).toBe(1); // safety
     // composite: 2*0.3 + 4*0.3 + 3*0.4 = 0.6 + 1.2 + 1.2 = 3.0
-    expect(flat[4].score).toBeCloseTo(3.0, 1);
+    expect(flat[4]!.score).toBeCloseTo(3.0, 1);
   });
 });

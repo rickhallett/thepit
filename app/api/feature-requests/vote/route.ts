@@ -66,6 +66,6 @@ export const POST = withLogging(async function POST(req: Request) {
 
   return Response.json({
     voted: !existing,
-    voteCount: result.count,
+    voteCount: result!.count,
   });
 }, 'feature-request-vote');

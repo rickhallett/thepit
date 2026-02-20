@@ -114,10 +114,10 @@ export default async function DevelopersPage() {
                   {tool.description}
                 </p>
                 <code className="mt-auto block rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
-                  $ {TOOLS[i].snippet}
+                  $ {TOOLS[i]?.snippet}
                 </code>
                 <a
-                  href={TOOLS[i].href}
+                  href={TOOLS[i]?.href}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-1 text-[10px] uppercase tracking-[0.3em] text-muted/50 transition hover:text-accent"
@@ -157,7 +157,7 @@ export default async function DevelopersPage() {
                     {s.label}
                   </h3>
                   <code className="block rounded bg-black/50 px-3 py-2 font-mono text-xs text-accent">
-                    $ {STEPS[i].command}
+                    $ {STEPS[i]?.command}
                   </code>
                   <p className="text-sm leading-relaxed text-muted">
                     {s.description}

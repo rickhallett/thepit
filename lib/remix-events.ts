@@ -85,6 +85,7 @@ export async function recordRemixEvent({
       metadata: metadata ?? {},
     })
     .returning({ id: remixEvents.id });
+  if (!row) throw new Error('Insert returned no rows');
 
   // Distribute rewards (best-effort, non-blocking for the caller)
   if (shouldReward) {

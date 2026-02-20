@@ -390,9 +390,9 @@ describe('run-bout arena mode', () => {
     await executePromise;
 
     // streamText should have been called with the DB-provided topic
-    const firstCall = streamTextMock.mock.calls[0];
+    const firstCall = streamTextMock.mock.calls[0]!;
     expect(firstCall).toBeDefined();
-    const messages = firstCall[0].messages;
+    const messages = firstCall[0]!.messages;
     const userMessage = messages.find(
       (m: { role: string }) => m.role === 'user',
     );
@@ -460,8 +460,8 @@ describe('run-bout arena mode', () => {
 
     // First turn should use Agent X, second Agent Y (if enough turns)
     if (turnWrites.length >= 2) {
-      expect(turnWrites[0][0].data.agentName).toBe('Agent X');
-      expect(turnWrites[1][0].data.agentName).toBe('Agent Y');
+      expect(turnWrites[0]![0].data.agentName).toBe('Agent X');
+      expect(turnWrites[1]![0].data.agentName).toBe('Agent Y');
     }
   });
 

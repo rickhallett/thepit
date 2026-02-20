@@ -135,6 +135,7 @@ export async function generateResearchExport(
       id: researchExports.id,
       generatedAt: researchExports.generatedAt,
     });
+  if (!row) throw new Error('Insert returned no rows');
 
   return {
     id: row.id,

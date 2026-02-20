@@ -314,7 +314,7 @@ async function getOrCreateStripeCustomer(userId: string): Promise<string> {
   });
 
   if (existing.data.length > 0) {
-    const customerId = existing.data[0].id;
+    const customerId = existing.data[0]!.id;
     await db
       .update(users)
       .set({ stripeCustomerId: customerId, updatedAt: new Date() })

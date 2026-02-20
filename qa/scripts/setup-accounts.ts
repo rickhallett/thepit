@@ -113,7 +113,7 @@ async function main() {
       })
 
       if (existingUsers.data.length > 0) {
-        userId = existingUsers.data[0].id
+        userId = existingUsers.data[0]!.id
         console.log(`    ✓ User exists in Clerk: ${userId}`)
       } else {
         // Create user in Clerk
