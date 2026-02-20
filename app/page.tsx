@@ -108,7 +108,7 @@ export default async function LandingPage() {
                 title={step.title}
                 heading={step.heading}
                 description={step.description}
-                color={['#d7ff3f', '#00D4FF', '#FF4444', '#C084FC'][i]}
+                color={['#d7ff3f', '#00D4FF', '#FF4444', '#C084FC'][i] ?? '#d7ff3f'}
               />
             ))}
           </div>
@@ -194,29 +194,29 @@ export default async function LandingPage() {
           </p>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <PlanCard
-              name={c.pricing.plans[0].name}
+              name={c.pricing.plans[0]!.name}
               price={0}
               period=""
               href={isSignedIn ? '/arena' : '/sign-up?redirect_url=/arena'}
-              cta={c.pricing.plans[0].cta}
-              features={c.pricing.plans[0].features}
+              cta={c.pricing.plans[0]!.cta}
+              features={c.pricing.plans[0]!.features}
             />
             <PlanCard
-              name={c.pricing.plans[1].name}
+              name={c.pricing.plans[1]!.name}
               price={3}
               period="/mo"
               featured
               href={isSignedIn ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade'}
-              cta={c.pricing.plans[1].cta}
-              features={c.pricing.plans[1].features}
+              cta={c.pricing.plans[1]!.cta}
+              features={c.pricing.plans[1]!.features}
             />
             <PlanCard
-              name={c.pricing.plans[2].name}
+              name={c.pricing.plans[2]!.name}
               price={10}
               period="/mo"
               href={isSignedIn ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade'}
-              cta={c.pricing.plans[2].cta}
-              features={c.pricing.plans[2].features}
+              cta={c.pricing.plans[2]!.cta}
+              features={c.pricing.plans[2]!.features}
             />
           </div>
 

@@ -222,8 +222,8 @@ export const wrapPersona = (prompt: string): string => {
   );
 
   if (rulesMatch) {
-    const instructions = rulesMatch[1].trim();
-    const rulesText = rulesMatch[2].trim();
+    const instructions = rulesMatch[1]!.trim();
+    const rulesText = rulesMatch[2]!.trim();
     const ruleItems = rulesText
       .split(/\n/)
       .map((r) => r.replace(/^\s*-\s*/, '').trim())
@@ -286,7 +286,7 @@ export function truncateHistoryToFit(
   let keepFrom = history.length; // index to start keeping from
 
   for (let i = history.length - 1; i >= 0; i--) {
-    const turnTokens = estimatePromptTokens(xmlEscape(history[i]));
+    const turnTokens = estimatePromptTokens(xmlEscape(history[i]!));
     if (accumulatedTokens + turnTokens > availableTokens) {
       break;
     }

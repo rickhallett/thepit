@@ -96,7 +96,7 @@ function buildRefusalExamples(): RefusalExample[] {
 
   for (const marker of selectedPositiveMarkers) {
     const framingFn =
-      positiveFramings[examples.length % positiveFramings.length];
+      positiveFramings[examples.length % positiveFramings.length]!;
     examples.push({
       inputs: { text: framingFn(marker) },
       outputs: { refusal_detected: true, marker },

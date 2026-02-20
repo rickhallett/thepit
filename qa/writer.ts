@@ -60,10 +60,12 @@ export function updateQAReport(
   const resultMap = new Map(results.map((r) => [r.id, r]))
 
   for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (!line) continue
     // Check each line for a test ID
     for (const [id, result] of resultMap) {
-      if (lines[i].includes(`**${id}**`)) {
-        lines[i] = updateStatusFlags(lines[i], result)
+      if (line.includes(`**${id}**`)) {
+        lines[i] = updateStatusFlags(line, result)
         resultMap.delete(id) // Remove processed result
         break
       }

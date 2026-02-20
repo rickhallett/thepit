@@ -45,10 +45,10 @@ export const resolveResponseLength = (
   value?: string | null,
 ): ResponseLengthConfig => {
   if (!value) {
-    return RESPONSE_LENGTHS[1];
+    return RESPONSE_LENGTHS[1]!;
   }
   return (
     RESPONSE_LENGTHS.find((item) => item.id === value) ??
-    RESPONSE_LENGTHS[1]
+    RESPONSE_LENGTHS[1]!
   );
 };

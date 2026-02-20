@@ -91,8 +91,8 @@ describe('agent-detail edge cases', () => {
     const result = await getAgentDetail('child', 2);
     expect(result).toBeDefined();
     expect(result!.lineage).toHaveLength(2);
-    expect(result!.lineage[0].id).toBe('p1');
-    expect(result!.lineage[1].id).toBe('p2');
+    expect(result!.lineage[0]!.id).toBe('p1');
+    expect(result!.lineage[1]!.id).toBe('p2');
   });
 
   // U2: Circular parentId → stops at maxDepth

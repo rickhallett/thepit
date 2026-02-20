@@ -217,9 +217,9 @@ describe('agent-registry', () => {
       const { getAgentSnapshots } = await loadRegistry();
       const result = await getAgentSnapshots();
       expect(result).toHaveLength(1);
-      expect(result[0].id).toBe('preset:roast-battle:judge');
-      expect(result[0].presetName).toBe('Roast Battle');
-      expect(result[0].color).toBe('#FF0000');
+      expect(result[0]!.id).toBe('preset:roast-battle:judge');
+      expect(result[0]!.presetName).toBe('Roast Battle');
+      expect(result[0]!.color).toBe('#FF0000');
     });
 
     it('falls back to preset definitions when DB is empty', async () => {
@@ -229,10 +229,10 @@ describe('agent-registry', () => {
       const result = await getAgentSnapshots();
       // fixturePresets has 1 preset with 2 agents
       expect(result).toHaveLength(2);
-      expect(result[0].id).toBe('preset:roast-battle:judge');
-      expect(result[0].name).toBe('The Judge');
-      expect(result[0].presetName).toBe('Roast Battle');
-      expect(result[1].id).toBe('preset:roast-battle:hype');
+      expect(result[0]!.id).toBe('preset:roast-battle:judge');
+      expect(result[0]!.name).toBe('The Judge');
+      expect(result[0]!.presetName).toBe('Roast Battle');
+      expect(result[1]!.id).toBe('preset:roast-battle:hype');
     });
 
     it('falls back gracefully when DB throws', async () => {

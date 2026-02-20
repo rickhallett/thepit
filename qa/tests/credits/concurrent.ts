@@ -32,14 +32,14 @@ registerTest({
 
     // Without auth, both should fail
     // With auth and limited credits, at most one should succeed
-    const successCount = [res1, res2].filter(r => r.status === 200).length
+    const successCount = [res1, res2].filter(r => r!.status === 200).length
 
     // Check neither caused server error
-    if (res1.status === 500 || res2.status === 500) {
+    if (res1!.status === 500 || res2!.status === 500) {
       return {
         passed: false,
         error: 'Race condition caused server error',
-        evidence: `Statuses: ${res1.status}, ${res2.status}`,
+        evidence: `Statuses: ${res1!.status}, ${res2!.status}`,
       }
     }
 
@@ -54,7 +54,7 @@ registerTest({
 
     return {
       passed: true,
-      evidence: `Race condition handled. Statuses: ${res1.status}, ${res2.status}`,
+      evidence: `Race condition handled. Statuses: ${res1!.status}, ${res2!.status}`,
     }
   },
 })

@@ -25,13 +25,13 @@ export function parseArxivId(url: string): string | null {
   const modernRe =
     /^https?:\/\/(?:www\.)?arxiv\.org\/(?:abs|pdf|html)\/(\d{4}\.\d{4,5})(?:v\d+)?(?:\.pdf)?$/i;
   const modernMatch = trimmed.match(modernRe);
-  if (modernMatch) return modernMatch[1];
+  if (modernMatch) return modernMatch[1] ?? null;
 
   // Match old-style IDs: category/NNNNNNN
   const oldRe =
     /^https?:\/\/(?:www\.)?arxiv\.org\/(?:abs|pdf|html)\/([\w-]+\/\d{7})(?:v\d+)?(?:\.pdf)?$/i;
   const oldMatch = trimmed.match(oldRe);
-  if (oldMatch) return oldMatch[1];
+  if (oldMatch) return oldMatch[1] ?? null;
 
   return null;
 }
@@ -101,25 +101,25 @@ export async function fetchArxivMetadata(
  */
 function extractTag(xml: string, tag: string): string | null {
   const entryMatch = xml.match(/<entry>([\s\S]*?)<\/entry>/);
-  if (!entryMatch) return null;
+  if (!entryMatch?.[1]) return null;
   const entry = entryMatch[1];
 
   const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`);
   const match = entry.match(re);
-  return match ? match[1].trim() : null;
+  return match?.[1]?.trim() ?? null;
 }
 
 /** Extract all author names from <author><name>...</name></author> tags. */
 function extractAuthors(xml: string): string {
   const entryMatch = xml.match(/<entry>([\s\S]*?)<\/entry>/);
   if (!entryMatch) return '';
-  const entry = entryMatch[1];
+  const entry = entryMatch[1]!;
 
   const names: string[] = [];
   const re = /<author>\s*<name>([^<]+)<\/name>/g;
   let match;
   while ((match = re.exec(entry)) !== null) {
-    names.push(match[1].trim());
+    names.push(match[1]!.trim());
   }
   return names.join(', ');
 }

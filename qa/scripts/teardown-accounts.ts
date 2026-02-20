@@ -97,7 +97,7 @@ async function main() {
         continue
       }
 
-      const userId = existingUsers.data[0].id
+      const userId = existingUsers.data[0]!.id
 
       // Delete from database first (foreign key safe order)
       await db.delete(credits).where(eq(credits.userId, userId))

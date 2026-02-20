@@ -31,11 +31,11 @@ describe.skipIf(!serverReachable)('Security: Race Conditions', () => {
       const [res1, res2] = await Promise.all(boutRequests.map(fn => fn()))
 
       // Check neither caused server error
-      expect(res1.status).not.toBe(500)
-      expect(res2.status).not.toBe(500)
+      expect(res1!.status).not.toBe(500)
+      expect(res2!.status).not.toBe(500)
 
       // If both succeeded, that's a race condition bug (double-spend)
-      const successCount = [res1, res2].filter(r => r.status === 200).length
+      const successCount = [res1, res2].filter(r => r!.status === 200).length
       expect(successCount).toBeLessThanOrEqual(1)
     })
 

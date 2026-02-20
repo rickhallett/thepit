@@ -21,7 +21,7 @@ export function getAgentDisplayName(id: string): string {
   if (id.includes(':')) {
     const segments = id.split(':').filter(Boolean);
     const lastSegment = segments[segments.length - 1];
-    return titleCase(lastSegment);
+    return titleCase(lastSegment ?? id);
   }
 
   // Otherwise, just title-case the whole thing

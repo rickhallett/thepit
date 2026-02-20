@@ -182,7 +182,7 @@ const normalizePackPreset = (
     id: slugify(agent.name) || `agent-${index + 1}`,
     name: agent.name,
     systemPrompt: agent.systemPrompt,
-    color: PREMIUM_AGENT_COLORS[index % PREMIUM_AGENT_COLORS.length],
+    color: PREMIUM_AGENT_COLORS[index % PREMIUM_AGENT_COLORS.length] ?? '#d7ff3f',
   })),
   tier: 'premium',
   group: groupLabel,

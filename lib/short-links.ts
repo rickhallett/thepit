@@ -51,7 +51,7 @@ export async function createShortLink(
     .returning({ slug: shortLinks.slug });
 
   if (result.length > 0) {
-    return { slug: result[0].slug, created: true };
+    return { slug: result[0]!.slug, created: true };
   }
 
   // Race: another request created the link between our SELECT and INSERT.
@@ -62,6 +62,7 @@ export async function createShortLink(
     .where(eq(shortLinks.boutId, boutId))
     .limit(1);
 
+  if (!raced) throw new Error('Short link not found after race');
   return { slug: raced.slug, created: false };
 }
 

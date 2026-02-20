@@ -87,7 +87,7 @@ export function selectVariant(randomValue?: number): string {
   }
 
   // Edge case: floating point — return last variant.
-  return weighted[weighted.length - 1][0];
+  return weighted[weighted.length - 1]![0];
 }
 
 /**

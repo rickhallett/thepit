@@ -224,7 +224,7 @@ describe('lib/leaderboard', () => {
     expect(players.length).toBeGreaterThanOrEqual(2);
     // user1 has 2 bouts, user2 has 1 bout
     for (let i = 1; i < players.length; i++) {
-      expect(players[i - 1].boutsCreated).toBeGreaterThanOrEqual(players[i].boutsCreated);
+      expect(players[i - 1]!.boutsCreated).toBeGreaterThanOrEqual(players[i]!.boutsCreated);
     }
   });
 });

@@ -109,7 +109,7 @@ describeIf('db integration', () => {
     const updated = await applyCreditDelta(userId, 500, 'test', {
       referenceId: 'integration',
     });
-    expect(updated.balanceMicro).toBe(500);
+    expect(updated!.balanceMicro).toBe(500);
 
     const balance = await getCreditBalanceMicro(userId);
     expect(balance).toBe(500);
