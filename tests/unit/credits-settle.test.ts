@@ -18,6 +18,7 @@ const { mockDb, creditsTable, creditTransactionsTable } = vi.hoisted(() => {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
+    transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(db)),
   };
   return { mockDb: db, creditsTable: credits, creditTransactionsTable: creditTransactions };
 });
