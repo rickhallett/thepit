@@ -38,7 +38,7 @@ async function rawPOST(req: Request) {
   // Shared validation (parsing, idempotency, tier, credits, rate limit)
   const validation = await validateBoutRequest(req);
 
-  if ('error' in validation) {
+  if (!validation.ok) {
     return validation.error;
   }
 

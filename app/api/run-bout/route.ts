@@ -18,7 +18,7 @@ export const maxDuration = 120;
 async function rawPOST(req: Request) {
   const validation = await validateBoutRequest(req);
 
-  if ('error' in validation) {
+  if (!validation.ok) {
     return validation.error;
   }
 

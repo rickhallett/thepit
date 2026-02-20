@@ -151,15 +151,20 @@ export type TurnEvent =
 
 // ─── Phase 1: Validation ─────────────────────────────────────────────
 
+/** Tagged result of validateBoutRequest — discriminate on `ok`. */
+export type BoutValidation =
+  | { ok: false; error: Response }
+  | { ok: true; context: BoutContext };
+
 /**
  * Validate and prepare a bout request.
  *
- * Returns either an error Response (caller should return it immediately)
- * or a BoutContext with all validated/resolved state needed to execute.
+ * Returns a tagged union: `{ ok: false, error }` or `{ ok: true, context }`.
+ * Callers discriminate on `ok` for compile-time exhaustiveness.
  */
 export async function validateBoutRequest(
   req: Request,
-): Promise<{ error: Response } | { context: BoutContext }> {
+): Promise<BoutValidation> {
   let payload: {
     presetId?: string;
     boutId?: string;
@@ -173,11 +178,11 @@ export async function validateBoutRequest(
   try {
     payload = await req.json();
   } catch {
-    return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
+    return { ok: false, error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
   }
 
   if (!payload || typeof payload !== 'object') {
-    return { error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
+    return { ok: false, error: errorResponse(API_ERRORS.INVALID_JSON, 400) };
   }
 
   const requestId = getRequestId(req);
@@ -192,22 +197,22 @@ export async function validateBoutRequest(
   let { presetId } = payload;
 
   if (!boutId) {
-    return { error: errorResponse('Missing boutId.', 400) };
+    return { ok: false, error: errorResponse('Missing boutId.', 400) };
   }
 
   if (topic.length > 500) {
-    return { error: errorResponse('Topic must be 500 characters or fewer.', 400) };
+    return { ok: false, error: errorResponse('Topic must be 500 characters or fewer.', 400) };
   }
 
   if (UNSAFE_PATTERN.test(topic)) {
-    return { error: errorResponse(API_ERRORS.UNSAFE_CONTENT, 400) };
+    return { ok: false, error: errorResponse(API_ERRORS.UNSAFE_CONTENT, 400) };
   }
 
   let db: ReturnType<typeof requireDb>;
   try {
     db = requireDb();
   } catch {
-    return { error: errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 503) };
+    return { ok: false, error: errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 503) };
   }
 
   // Idempotency check
@@ -227,10 +232,10 @@ export async function validateBoutRequest(
       Array.isArray(existingBout.transcript) && existingBout.transcript.length > 0;
 
     if (existingBout.status === 'running' && hasTranscript) {
-      return { error: errorResponse('Bout is already running.', 409) };
+      return { ok: false, error: errorResponse('Bout is already running.', 409) };
     }
     if (existingBout.status === 'completed') {
-      return { error: errorResponse('Bout has already completed.', 409) };
+      return { ok: false, error: errorResponse('Bout has already completed.', 409) };
     }
   }
 
@@ -239,7 +244,7 @@ export async function validateBoutRequest(
   }
 
   if (!presetId) {
-    return { error: errorResponse('Missing presetId.', 400) };
+    return { ok: false, error: errorResponse('Missing presetId.', 400) };
   }
 
   // Preset resolution
@@ -258,7 +263,7 @@ export async function validateBoutRequest(
       .where(eq(bouts.id, boutId))
       .limit(1);
     if (!row?.agentLineup) {
-      return { error: errorResponse('Unknown preset.', 404) };
+      return { ok: false, error: errorResponse('Unknown preset.', 404) };
     }
     preset = buildArenaPresetFromLineup(row.agentLineup, row.maxTurns);
     if (!topic && row.topic) {
@@ -275,7 +280,7 @@ export async function validateBoutRequest(
   }
 
   if (!preset) {
-    return { error: errorResponse('Unknown preset.', 404) };
+    return { ok: false, error: errorResponse('Unknown preset.', 404) };
   }
 
   const requestedModel =
@@ -292,7 +297,7 @@ export async function validateBoutRequest(
 
   // Ownership check
   if (existingBout?.ownerId && existingBout.ownerId !== userId) {
-    return { error: errorResponse(API_ERRORS.FORBIDDEN, 403) };
+    return { ok: false, error: errorResponse(API_ERRORS.FORBIDDEN, 403) };
   }
 
   // Research API key bypass: when a valid X-Research-Key header is present,
@@ -331,6 +336,7 @@ export async function validateBoutRequest(
     );
     if (!boutRateCheck.success) {
       return {
+        ok: false as const,
         error: rateLimitResponse(boutRateCheck, {
           message: `Rate limit exceeded. Max ${boutMaxRequests} bouts per hour.`,
           limit: boutMaxRequests,
@@ -361,17 +367,18 @@ export async function validateBoutRequest(
 
     const boutCheck = await canRunBout(userId, isByok);
     if (!boutCheck.allowed) {
-      return { error: errorResponse(boutCheck.reason, 402) };
+      return { ok: false, error: errorResponse(boutCheck.reason, 402) };
     }
 
     if (isByok) {
       if (!byokData?.key) {
-        return { error: errorResponse('BYOK key required.', 400) };
+        return { ok: false, error: errorResponse('BYOK key required.', 400) };
       }
       modelId = 'byok';
     } else if (requestedModel && PREMIUM_MODEL_OPTIONS.includes(requestedModel)) {
       if (!canAccessModel(tier, requestedModel)) {
         return {
+          ok: false,
           error: errorResponse(
             'Your plan does not include access to this model. Upgrade or use BYOK.',
             402,
@@ -413,7 +420,7 @@ export async function validateBoutRequest(
         const msg = poolResult.reason === 'spend'
           ? 'Daily free tier spend cap reached. Upgrade your plan or try again tomorrow.'
           : 'Daily free bout pool exhausted. Upgrade your plan or use your own API key (BYOK).';
-        return { error: errorResponse(msg, 429) };
+        return { ok: false, error: errorResponse(msg, 429) };
       }
       freePoolDate = poolResult.poolDate;
       await incrementFreeBoutsUsed(userId);
@@ -421,7 +428,7 @@ export async function validateBoutRequest(
   } else {
     const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
     if (preset.tier === 'premium' && !premiumEnabled) {
-      return { error: errorResponse('Premium required.', 402) };
+      return { ok: false, error: errorResponse('Premium required.', 402) };
     }
 
     const allowPremiumModels = preset.tier === 'premium' || preset.id === ARENA_PRESET_ID;
@@ -431,11 +438,11 @@ export async function validateBoutRequest(
         : DEFAULT_PREMIUM_MODEL_ID;
     } else if (isByok) {
       if (!byokData?.key) {
-        return { error: errorResponse('BYOK key required.', 400) };
+        return { ok: false, error: errorResponse('BYOK key required.', 400) };
       }
       modelId = 'byok';
     } else if (requestedModel === 'byok') {
-      return { error: errorResponse('BYOK not enabled.', 400) };
+      return { ok: false, error: errorResponse('BYOK not enabled.', 400) };
     }
   }
 
@@ -455,13 +462,13 @@ export async function validateBoutRequest(
       // Anonymous user — check if intro pool has credits
       const poolStatus = await getIntroPoolStatus();
       if (poolStatus.exhausted || poolStatus.remainingMicro < preauthMicro) {
-        return { error: errorResponse(API_ERRORS.AUTH_REQUIRED, 401) };
+        return { ok: false, error: errorResponse(API_ERRORS.AUTH_REQUIRED, 401) };
       }
 
       // Consume from intro pool for anonymous bout
       const poolConsume = await consumeIntroPoolAnonymous(preauthMicro);
       if (!poolConsume.consumed) {
-        return { error: errorResponse('Intro pool exhausted. Sign in to continue.', 402) };
+        return { ok: false, error: errorResponse('Intro pool exhausted. Sign in to continue.', 402) };
       }
 
       introPoolConsumedMicro = preauthMicro;
@@ -478,7 +485,7 @@ export async function validateBoutRequest(
       });
 
       if (!preauth.success) {
-        return { error: errorResponse('Insufficient credits.', 402) };
+        return { ok: false, error: errorResponse('Insufficient credits.', 402) };
       }
     }
   }
@@ -499,10 +506,11 @@ export async function validateBoutRequest(
       .onConflictDoNothing();
   } catch (error) {
     log.error('Failed to ensure bout exists', toError(error), { boutId });
-    return { error: errorResponse('Service temporarily unavailable.', 503) };
+    return { ok: false, error: errorResponse('Service temporarily unavailable.', 503) };
   }
 
   return {
+    ok: true as const,
     context: {
       boutId,
       presetId,
