@@ -114,7 +114,7 @@ vi.mock('@/lib/tier', () => ({
   canAccessModel: vi.fn(() => true),
   incrementFreeBoutsUsed: vi.fn(),
 }));
-vi.mock('@/app/api/byok-stash/route', () => ({
+vi.mock('@/lib/byok', () => ({
   readAndClearByokKey: vi.fn(() => null),
 }));
 

@@ -27,7 +27,7 @@ import { serverTrack, serverCaptureAIGeneration, flushServerAnalytics } from '@/
 import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
-import { readAndClearByokKey } from '@/app/api/byok-stash/route';
+import { readAndClearByokKey } from '@/lib/byok';
 import {
   DEFAULT_PREMIUM_MODEL_ID,
   FREE_MODEL_ID,

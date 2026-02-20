@@ -5,67 +5,21 @@ import { checkRateLimit } from '@/lib/rate-limit';
 import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { byokStashSchema } from '@/lib/api-schemas';
 import { isValidByokKey, detectProvider, isOpenRouterModel, ALL_MODEL_IDS } from '@/lib/models';
-import type { ByokProvider } from '@/lib/models';
 import { getUserTier, SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
+import { encodeByokCookie, BYOK_COOKIE_NAME, BYOK_MAX_AGE_SECONDS } from '@/lib/byok';
+
+// Re-export for backward compatibility (tests, etc.)
+export { encodeByokCookie, decodeByokCookie, readAndClearByokKey } from '@/lib/byok';
 
 export const runtime = 'nodejs';
 
-const COOKIE_NAME = 'pit_byok';
-const MAX_AGE_SECONDS = 60;
-const KEY_MAX_LENGTH = 256;
 const RATE_LIMIT = { name: 'byok-stash', maxRequests: 10, windowMs: 60_000 };
-
-// ---------------------------------------------------------------------------
-// Cookie encoding: provider:model:key
-// ---------------------------------------------------------------------------
-
-/** Separator used to encode provider + model + key in the cookie value. */
-const COOKIE_SEP = ':||:';
-
-/**
- * Encode a BYOK stash cookie value.
- * Format: provider:||:modelId:||:key (or just the raw key for backward compat).
- */
-export function encodeByokCookie(
-  provider: ByokProvider,
-  key: string,
-  modelId?: string,
-): string {
-  return `${provider}${COOKIE_SEP}${modelId ?? ''}${COOKIE_SEP}${key}`;
-}
-
-/**
- * Decode a BYOK stash cookie value.
- * Handles both new format (provider:||:model:||:key) and legacy format (raw key).
- */
-export function decodeByokCookie(
-  value: string,
-): { provider: ByokProvider; modelId: string | undefined; key: string } {
-  const parts = value.split(COOKIE_SEP);
-  if (parts.length === 3) {
-    return {
-      provider: parts[0] as ByokProvider,
-      modelId: parts[1] || undefined,
-      key: parts[2] ?? '',
-    };
-  }
-  // Legacy format: raw Anthropic key (no encoding)
-  return { provider: 'anthropic', modelId: undefined, key: value };
-}
 
 /**
  * Stash a BYOK key in a short-lived, HTTP-only cookie.
  * The key is read once by /api/run-bout and then deleted.
  * This eliminates the sessionStorage XSS window entirely.
  * Requires authentication to prevent cookie jar pollution.
- *
- * Accepts keys from:
- *   - Anthropic: sk-ant-*
- *   - OpenRouter: sk-or-v1-*
- *
- * When an OpenRouter key is submitted, an optional `model` field selects
- * the OpenRouter model ID (e.g. 'openai/gpt-4o'). If omitted, the
- * default curated model is used.
  */
 export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
@@ -111,26 +65,15 @@ export const POST = withLogging(async function POST(req: Request) {
   const cookieValue = encodeByokCookie(provider, key, model);
 
   const jar = await cookies();
-  jar.set(COOKIE_NAME, cookieValue, {
+  jar.set(BYOK_COOKIE_NAME, cookieValue, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/api/run-bout',
-    maxAge: MAX_AGE_SECONDS,
+    maxAge: BYOK_MAX_AGE_SECONDS,
   });
 
   return Response.json({ ok: true, provider });
 }, 'byok-stash');
 
-/**
- * Read and delete the stashed BYOK key (used internally by run-bout).
- * Returns the decoded provider, model, and key — or null if no cookie.
- */
-export function readAndClearByokKey(
-  jar: Awaited<ReturnType<typeof cookies>>,
-): { provider: ByokProvider; modelId: string | undefined; key: string } | null {
-  const cookie = jar.get(COOKIE_NAME);
-  if (!cookie?.value) return null;
-  jar.delete(COOKIE_NAME);
-  return decodeByokCookie(cookie.value);
-}
+
