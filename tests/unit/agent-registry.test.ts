@@ -98,6 +98,7 @@ vi.mock('@/db/schema', () => ({
 
 vi.mock('@/lib/presets', () => ({
   ALL_PRESETS: fixturePresets,
+  getPresetById: (id: string) => fixturePresets.find((p) => p.id === id),
 }));
 
 vi.mock('@/lib/response-formats', () => ({
