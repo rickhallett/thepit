@@ -128,7 +128,7 @@ vi.mock('@/lib/response-formats', () => ({
   resolveResponseFormat: resolveResponseFormatMock,
 }));
 
-vi.mock('@/app/api/byok-stash/route', () => ({
+vi.mock('@/lib/byok', () => ({
   readAndClearByokKey: vi.fn(() => null),
 }));
 

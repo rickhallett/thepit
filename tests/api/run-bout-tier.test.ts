@@ -151,7 +151,7 @@ vi.mock('@/lib/response-formats', () => ({
   })),
 }));
 
-vi.mock('@/app/api/byok-stash/route', () => ({
+vi.mock('@/lib/byok', () => ({
   readAndClearByokKey: readAndClearByokKeyMock,
 }));
 
@@ -517,7 +517,7 @@ describe('run-bout tier-based access control', () => {
         instruction: 'Respond in Markdown.',
       })),
     }));
-    vi.doMock('@/app/api/byok-stash/route', () => ({
+    vi.doMock('@/lib/byok', () => ({
       readAndClearByokKey: readAndClearByokKeyMock,
     }));
     vi.doMock('next/headers', () => ({
