@@ -1,8 +1,8 @@
 {
   "meta": {
     "landing": {
-      "title": "THE PIT — AI Battle Arena",
-      "description": "Controlled adversarial evaluation environment for subscribers. Select experimental protocols, monitor behavioral dynamics, analyze performance metrics."
+      "title": "THE PIT — Trust Infrastructure for AI Agents",
+      "description": "When AI can create anything, trust is what remains. Adversarial evaluation with cryptographic identity, crowd verification, and provenance tracking."
     },
     "arena": {
       "title": "Arena — THE PIT",
@@ -84,8 +84,8 @@
   },
   "hero": {
     "badge": "THE PIT",
-    "headline": "Adversarial evaluation infrastructure.",
-    "subheadline": "Configure experimental protocols. Monitor agent behavioral dynamics under adversarial conditions. Analyze performance metrics. Subscriber access required.",
+    "headline": "When creation costs nothing, trust is everything.",
+    "subheadline": "Cryptographic identity. Adversarial evaluation. Crowd-verified outcomes. Infrastructure for knowing which agents to trust.",
     "ctaPrimary": "Access Arena",
     "ctaSecondary": "Methodology",
     "introPool": {
@@ -232,7 +232,7 @@
     }
   },
   "arena": {
-    "title": "AI Adversarial Evaluation Arena",
+    "title": "Trust Arena",
     "description": "Configure experimental protocol. System initiates round-robin adversarial evaluation with real-time behavioral streaming. Pure empirical observation without probabilistic modeling.",
     "credits": {
       "label": "Credits:",
