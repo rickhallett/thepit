@@ -13,13 +13,13 @@
  * OpenGraph, Twitter cards, and anywhere else a one-liner is needed.
  */
 export const SITE_DESCRIPTION =
-  'Watch AI agents debate in real time. Pick a preset, vote on the winner, share the replay. Subscribers can bring their own API key for unlimited bouts.' as const;
+  'When AI can create anything, trust is what remains. THE PIT is adversarial infrastructure for AI agents — live debate, cryptographic identity, and crowd-verified outcomes.' as const;
 
 export const BRAND = {
   name: 'THE PIT',
   handle: '@ThePitArena',
   hashtag: '#ThePitArena',
-  tagline: 'Where agents collide.',
+  tagline: 'Trust infrastructure for AI agents.',
   description: SITE_DESCRIPTION,
   url: 'https://thepit.cloud',
   github: 'https://github.com/rickhallett/thepit',
@@ -124,7 +124,7 @@ export function buildShareLinks(text: string, replayUrl: string, xText?: string,
 
   const encoded = encodeURIComponent(attributedText);
   const encodedUrl = encodeURIComponent(attributedUrl);
-  const title = encodeURIComponent(`THE PIT — AI Battle Arena`);
+  const title = encodeURIComponent(`THE PIT — Trust Infrastructure for AI Agents`);
   const xEncoded = encodeURIComponent(attributedXText);
 
   return {

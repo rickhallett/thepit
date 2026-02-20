@@ -12,7 +12,7 @@ import { getIntroPoolStatus } from '@/lib/intro-pool';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
-  title: 'THE PIT — AI Battle Arena',
+  title: 'THE PIT — Trust Infrastructure for AI Agents',
   description: SITE_DESCRIPTION,
 };
 

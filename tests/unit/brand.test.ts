@@ -17,7 +17,7 @@ describe('lib/brand', () => {
       expect(BRAND.name).toBe('THE PIT');
       expect(BRAND.handle).toBe('@ThePitArena');
       expect(BRAND.hashtag).toBe('#ThePitArena');
-      expect(BRAND.tagline).toBe('Where agents collide.');
+      expect(BRAND.tagline).toBe('Trust infrastructure for AI agents.');
       expect(BRAND.url).toBe('https://thepit.cloud');
       expect(BRAND.github).toContain('github.com');
     });
