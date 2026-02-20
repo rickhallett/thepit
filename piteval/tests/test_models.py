@@ -3,6 +3,7 @@
 from piteval.models import (
     ALL_MODELS,
     CLAUDE,
+    GEMINI,
     GPT,
     PANELS,
     TOTAL_METRICS,
@@ -55,6 +56,20 @@ class TestModelConfigs:
 
     def test_get_model_by_api_id(self):
         assert get_model("claude-sonnet-4-6") is CLAUDE
+
+    def test_claude_has_1m_context_window(self):
+        assert CLAUDE.context_window == 1_000_000
+
+    def test_claude_long_context_pricing_configured(self):
+        assert CLAUDE.long_context_threshold == 200_000
+        assert CLAUDE.long_context_input_cost_per_mtok == 6.0  # 2x standard
+        assert CLAUDE.long_context_output_cost_per_mtok == 22.5  # 1.5x standard
+
+    def test_gpt_and_gemini_have_no_long_context_premium(self):
+        for model in [GPT, GEMINI]:
+            assert model.long_context_threshold == 0, (
+                f"{model.display_name} should have no long-context threshold"
+            )
 
     def test_get_model_unknown_raises(self):
         try:

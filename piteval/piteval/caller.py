@@ -34,14 +34,17 @@ def _load_api_key(env_var: str) -> str:
 
     key = os.environ.get(env_var)
     if not key:
-        raise OSError(
-            f"Missing API key: {env_var}. Set it in your environment or .env file."
-        )
+        raise OSError(f"Missing API key: {env_var}. Set it in your environment or .env file.")
     return key
 
 
 def _call_anthropic(prompt: AssembledPrompt, api_key: str) -> dict[str, Any]:
-    """Call Anthropic's Messages API."""
+    """Call Anthropic's Messages API.
+
+    Uses the context-1m-2025-08-07 beta header to enable 1M context window.
+    Long-context pricing applies automatically when input exceeds 200K tokens.
+    See: docs/eval-briefs/002-long-context-cost-decision.md
+    """
     import anthropic
 
     client = anthropic.Anthropic(api_key=api_key)
@@ -51,6 +54,7 @@ def _call_anthropic(prompt: AssembledPrompt, api_key: str) -> dict[str, Any]:
         temperature=prompt.temperature,
         system=prompt.system,
         messages=[{"role": "user", "content": prompt.user}],
+        extra_headers={"anthropic-beta": "context-1m-2025-08-07"},
     )
 
     # Extract text content
@@ -158,9 +162,22 @@ class CallResult:
 
     @property
     def cost(self) -> float:
-        """Compute actual cost in USD."""
-        input_cost = (self.input_tokens / 1_000_000) * self.prompt.model.input_cost_per_mtok
-        output_cost = (self.output_tokens / 1_000_000) * self.prompt.model.output_cost_per_mtok
+        """Compute actual cost in USD, accounting for long-context pricing.
+
+        When a model has a long_context_threshold and the input exceeds it,
+        ALL tokens (not just those above the threshold) are billed at
+        the premium rate. This matches Anthropic's billing model.
+        """
+        model = self.prompt.model
+        threshold = model.long_context_threshold
+        if threshold > 0 and self.input_tokens > threshold:
+            input_rate = model.long_context_input_cost_per_mtok
+            output_rate = model.long_context_output_cost_per_mtok
+        else:
+            input_rate = model.input_cost_per_mtok
+            output_rate = model.output_cost_per_mtok
+        input_cost = (self.input_tokens / 1_000_000) * input_rate
+        output_cost = (self.output_tokens / 1_000_000) * output_rate
         return input_cost + output_cost
 
     @property
