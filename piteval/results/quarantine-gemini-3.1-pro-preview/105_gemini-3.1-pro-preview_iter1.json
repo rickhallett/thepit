@@ -1,0 +1,24 @@
+{
+  "run_id": "105_gemini-3.1-pro-preview_iter1",
+  "panel_id": "105",
+  "panel_name": "Database Engineering",
+  "model_requested": "gemini-3.1-pro-preview",
+  "model_reported": "gemini-3.1-pro-preview",
+  "iteration": 1,
+  "temperature": 0.3,
+  "timestamp": "2026-02-20T12:04:59.010941+00:00",
+  "input_tokens": 358648,
+  "output_tokens": 1042,
+  "cost_usd": 0.7298,
+  "duration_seconds": 48.54,
+  "stop_reason": "stop",
+  "attempt": 1,
+  "sections_included": [
+    "A",
+    "G",
+    "B",
+    "D"
+  ],
+  "optional_included": true,
+  "raw_text": "{\n  \"105.1\": {\n    \"score\": 10,\n    \"evidence\": [\n      \"The schema in db/schema.ts is highly normalized with 17+ tables.\",\n      \"Data types are carefully chosen: bigint for micro-credits to avoid floating-point errors, varchar(21) for nanoid primary keys.\",\n      \"JSONB is used appropriately for semi-structured, read-heavy data like bout transcripts and ephemeral arena agent lineups.\",\n      \"Foreign keys are defined with appropriate onDelete behaviors (cascade, set null).\",\n      \"Unique constraints enforce business rules at the DB level (e.g., reactions_unique_idx, winner_votes_unique, agent_flags_unique).\"\n    ]\n  },\n  \"105.2\": {\n    \"score\": 9,\n    \"evidence\": [\n      \"Indexes are explicitly defined to match query patterns.\",\n      \"bouts_status_created_at_idx supports the paginated listing in recent-bouts.ts.\",\n      \"credit_txn_reference_id_idx supports the Stripe webhook idempotency check.\",\n      \"page_views has indexes on path, session_id, and created_at for analytics queries.\",\n      \"The leaderboard query performs large scans, but this is mitigated by an in-memory cache (leaderboard.ts).\"\n    ]\n  },\n  \"105.3\": {\n    \"score\": 10,\n    \"evidence\": [\n      \"Drizzle ORM is used exclusively for database access.\",\n      \"All dynamic queries use Drizzle's parameterized methods or the sql`` template literal, which safely parameterizes interpolated values.\",\n      \"No raw string concatenation is used to build SQL queries anywhere in the codebase.\"\n    ]\n  },\n  \"105.4\": {\n    \"score\": 10,\n    \"evidence\": [\n      \"Concurrency is handled exceptionally well for a serverless environment without multi-statement transactions.\",\n      \"preauthorizeCredits() uses an atomic conditional UPDATE (WHERE balance_micro >= amount) to prevent double-spend.\",\n      \"consumeFreeBout() uses an atomic UPDATE checking both count and spend caps.\",\n      \"claimIntroCredits() calculates remaining credits dynamically within the SQL UPDATE statement.\",\n      \"Insert races (e.g., ensureUserRecord, ensureCreditAccount) are handled using onConflictDoNothing() followed by a re-read.\"\n    ]\n  },\n  \"105.5\": {\n    \"score\": 9,\n    \"evidence\": [\n      \"Multi-step operations have robust compensating actions in the absence of explicit transactions.\",\n      \"In executeBout() (lib/bout-engine.ts), if the LLM stream fails, the catch block updates the bout status to 'error' and explicitly refunds preauthorized credits, intro pool credits, and free pool spend.\",\n      \"Stripe webhook processing (app/api/credits/webhook/route.ts) uses referenceId lookups to ensure idempotency for checkout sessions.\"\n    ]\n  },\n  \"105.6\": {\n    \"score\": 10,\n    \"evidence\": [\n      \"Uses Neon's HTTP driver (@neondatabase/serverless and drizzle-orm/neon-http).\",\n      \"This is the optimal connection strategy for Next.js/Vercel serverless environments, completely avoiding connection pool exhaustion.\",\n      \"The db instance is lazily initialized and guarded by requireDb(), which fails fast if DATABASE_URL is missing.\"\n    ]\n  },\n  \"105.7\": {\n    \"score\": 9,\n    \"evidence\": [\n      \"Drizzle migrations are present and well-structured (drizzle/ folder).\",\n      \"Migrations use IF NOT EXISTS and DO $$ BEGIN ... END $$ blocks to ensure idempotency.\",\n      \"Migration 0005_add_foreign_keys.sql includes documented orphan cleanup queries to be run before applying constraints in production.\",\n      \"Migration 0007_bouts-status-index.sql attempts to use CREATE INDEX CONCURRENTLY.\"\n    ]\n  },\n  \"105.8\": {\n    \"score\": 8,\n    \"evidence\": [\n      \"Hot paths are indexed and paginated (e.g., getRecentBouts uses limit/offset and a LEFT JOIN to a grouped subquery to avoid N+1).\",\n      \"The leaderboard query (lib/leaderboard.ts) aggregates across multiple tables and will become a bottleneck as data grows, but it is currently protected by a 5-minute in-memory cache.\",\n      \"JSONB columns are fetched whole and not queried by internal fields, avoiding expensive JSON scans.\"\n    ]\n  }\n}"
+}

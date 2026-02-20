@@ -120,3 +120,13 @@ pitlab/pitlab
 pitlinear/pitlinear
 pitnet/pitnet
 pitbench/pitbench
+
+# Python (piteval)
+piteval/.venv/
+piteval/.pytest_cache/
+piteval/.mypy_cache/
+piteval/.ruff_cache/
+__pycache__/
+*.pyc
+piteval/results/_*
+piteval/results/*.png

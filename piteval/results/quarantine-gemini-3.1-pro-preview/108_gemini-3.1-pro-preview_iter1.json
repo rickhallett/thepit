@@ -1,0 +1,24 @@
+{
+  "run_id": "108_gemini-3.1-pro-preview_iter1",
+  "panel_id": "108",
+  "panel_name": "Frontend Engineering",
+  "model_requested": "gemini-3.1-pro-preview",
+  "model_reported": "gemini-3.1-pro-preview",
+  "iteration": 1,
+  "temperature": 0.3,
+  "timestamp": "2026-02-20T12:14:22.305587+00:00",
+  "input_tokens": 438875,
+  "output_tokens": 755,
+  "cost_usd": 0.8868,
+  "duration_seconds": 52.17,
+  "stop_reason": "stop",
+  "attempt": 1,
+  "sections_included": [
+    "C",
+    "A",
+    "E",
+    "D"
+  ],
+  "optional_included": true,
+  "raw_text": "{\n  \"108.1\": {\n    \"score\": 9,\n    \"evidence\": \"The codebase demonstrates an excellent understanding of the Next.js App Router server/client boundary. Pages like `app/arena/page.tsx` and `app/agents/page.tsx` are Server Components that fetch data in parallel and pass minimal required props to Client Components like `<ArenaBuilder>` and `<AgentsCatalog>`. The copy system is resolved server-side and provided via context, keeping the client bundle clean.\"\n  },\n  \"108.2\": {\n    \"score\": 9,\n    \"evidence\": \"Client-side state is highly cohesive and well-encapsulated in custom hooks. `lib/use-bout.ts` manages a complex streaming state machine, including a clever 'pending message' buffer to simulate a thinking delay. `lib/use-bout-reactions.ts` implements optimistic UI updates with automatic rollback on API failure. There is no unnecessary global state.\"\n  },\n  \"108.3\": {\n    \"score\": 9,\n    \"evidence\": \"Loading and error states are handled comprehensively. Route-level loading is managed with skeleton screens in `loading.tsx` files (e.g., `app/arena/loading.tsx`). The `Arena` component handles specific streaming errors gracefully, including a dedicated `<RateLimitUpgradePrompt>` for 429s. Empty states are present for lists like recent bouts and agent catalogs.\"\n  },\n  \"108.4\": {\n    \"score\": 8,\n    \"evidence\": \"Good accessibility practices are evident. Semantic HTML is used throughout (`<main>`, `<article>`, `<nav>`). A 'skip to content' link is present in `app/layout.tsx`. Interactive elements have appropriate ARIA attributes (e.g., `aria-expanded` in `SiteHeader`, `aria-label` in `AskThePit`). Modals implement escape-key listeners to close. Focus trapping in modals could be slightly improved, but overall it is very solid.\"\n  },\n  \"108.5\": {\n    \"score\": 9,\n    \"evidence\": \"Responsive design is thoughtfully implemented using Tailwind utility classes. The `SiteHeader` includes a mobile hamburger menu. Wide data tables like `LeaderboardTable` use `overflow-x-auto` to prevent breaking the mobile viewport. The project even includes specific E2E tests (`tests/e2e/mobile-responsive.spec.ts`) to assert no horizontal overflow on mobile devices.\"\n  },\n  \"108.6\": {\n    \"score\": 8,\n    \"evidence\": \"Performance is prioritized through the architecture. Heavy data fetching and copy resolution occur on the server. Non-critical client features are code-split, such as the `AskThePit` component which is dynamically imported via `next/dynamic` in `components/ask-the-pit-lazy.tsx`. OG images are generated dynamically on the edge.\"\n  },\n  \"108.7\": {\n    \"score\": 8,\n    \"evidence\": \"The brutalist, dark-mode aesthetic is applied consistently across all pages. Reusable UI primitives like `PitButton` and `PitBadge` encapsulate common styles. There is a strong, consistent typographic scale (e.g., uppercase tracking for labels) and consistent use of border and background opacities (`border-foreground/70`, `bg-black/60`).\"\n  }\n}"
+}

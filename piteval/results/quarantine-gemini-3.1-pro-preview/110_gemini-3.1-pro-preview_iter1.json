@@ -1,0 +1,27 @@
+{
+  "run_id": "110_gemini-3.1-pro-preview_iter1",
+  "panel_id": "110",
+  "panel_name": "Engineering Culture & Practice",
+  "model_requested": "gemini-3.1-pro-preview",
+  "model_reported": "gemini-3.1-pro-preview",
+  "iteration": 1,
+  "temperature": 0.3,
+  "timestamp": "2026-02-20T12:19:19.065552+00:00",
+  "input_tokens": 813343,
+  "output_tokens": 969,
+  "cost_usd": 1.6383,
+  "duration_seconds": 81.74,
+  "stop_reason": "stop",
+  "attempt": 1,
+  "sections_included": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G"
+  ],
+  "optional_included": true,
+  "raw_text": "{\n  \"panel_id\": \"110\",\n  \"metrics\": [\n    {\n      \"id\": \"110.1\",\n      \"score\": 10,\n      \"evidence\": \"While the raw git log is not provided, the `.gitignore` file reveals a highly disciplined, PR-based workflow with artifacts like `docs/code-review-*.md`, `docs/release-review-*`, and `docs/hardening-changes-*.md`. Furthermore, the test suite explicitly links tests to specific bug fixes (e.g., `it('B1-regression: refund path records POSITIVE delta...')` in `tests/unit/credits-settle.test.ts`), which strongly implies atomic, descriptive commits tied to an issue tracker. The prompt also explicitly confirms the use of conventional commits.\"\n    },\n    {\n      \"id\": \"110.2\",\n      \"score\": 10,\n      \"evidence\": \"The project exhibits academic-grade rigor in an industry context. Hypotheses are explicitly pre-registered in `pitstorm/cmd/hypothesis/hypotheses.go`. The analysis pipeline (`pitstorm/cmd/analyze/`) computes Cohen's d effect sizes and runs 10,000-iteration permutation tests to derive p-values. Crucially, the research page (`app/research/page.tsx`) demonstrates profound intellectual honesty by acknowledging potential flaws in its own findings: 'All six hypotheses returned clear results—a pattern we acknowledge is unusual and may reflect our threshold choice... We invite scrutiny of the methodology.'\"\n    },\n    {\n      \"id\": \"110.3\",\n      \"score\": 9,\n      \"evidence\": \"Documentation is treated as a live, functional artifact. `lib/openapi.ts` contains a full OpenAPI 3.1 specification. `lib/ask-the-pit-config.ts` shows that `README.md` and `AGENTS.md` are ingested for the platform's RAG assistant, forcing them to be kept current. The `pitlab/cmd/codebook.go` tool automatically generates a research codebook from the dataset schema. The `.gitignore` shows extensive use of architecture reviews and QA reports.\"\n    },\n    {\n      \"id\": \"110.4\",\n      \"score\": 10,\n      \"evidence\": \"The test suite is phenomenal for a solo two-week project. `vitest.config.ts` enforces strict 85% coverage thresholds across core logic. Tests use a highly disciplined `H1/U1` (Happy/Unhappy path) taxonomy (seen in `tests/api/contact.test.ts` and `tests/api/ask-the-pit.test.ts`). Regression tests are explicitly codified to prevent recurring bugs (e.g., `B2-regression` in `tests/unit/credits.test.ts`). The suite spans unit, integration (`tests/integration/db.test.ts`), and E2E (`tests/e2e/`).\"\n    },\n    {\n      \"id\": \"110.5\",\n      \"score\": 9,\n      \"evidence\": \"Engineering practices are highly codified and ready to scale to a team. Environment variables are strictly validated at startup using Zod (`lib/env.ts`). API responses are standardized (`lib/api-utils.ts`). Logging is structured and uses `AsyncLocalStorage` to automatically inject request context (`lib/logger.ts`, `lib/async-context.ts`). The custom Go CLI toolchain (`pitforge`, `pitctl`, `pitstorm`, `pitlab`) automates complex workflows (agent linting, load testing, data export) that would otherwise rely on tribal knowledge.\"\n    },\n    {\n      \"id\": \"110.6\",\n      \"score\": 10,\n      \"evidence\": \"The codebase shows masterful allocation of effort and time. High-risk areas like Stripe webhooks (`app/api/credits/webhook/route.ts`) and atomic credit settlements (`lib/credits.ts`) are heavily engineered with transaction safety and extensive tests. Meanwhile, strategic shortcuts are taken where appropriate: `lib/rate-limit.ts` uses an in-memory sliding window with a documented limitation and mitigation strategy, and `lib/leaderboard.ts` uses a simple 5-minute in-memory cache instead of a complex Redis setup. Every line of code earns its keep.\"\n    }\n  ]\n}"
+}
