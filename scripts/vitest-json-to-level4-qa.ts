@@ -31,7 +31,11 @@ function countFromAssertions(report: VitestReport): { total: number; passed: num
 }
 
 async function main() {
+  // Strip bare '--' separators injected by pnpm/npm before parseArgs sees them
+  const args = process.argv.slice(2).filter((a) => a !== '--')
+
   const { values } = parseArgs({
+    args,
     options: {
       in: { type: 'string' },
       out: { type: 'string' },
