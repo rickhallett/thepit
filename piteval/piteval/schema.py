@@ -1,6 +1,12 @@
 """Pydantic models for evaluation output schema validation.
 
-Matches the universal JSON output schema from 100-protocol.md exactly.
+Relaxed schema that accommodates real LLM output variance while preserving
+the fields that matter for statistical analysis (panel_id, metric scores).
+
+Metadata fields (iteration, temperature, timestamp, evaluator_model) are
+injected by the parser from the result envelope, not expected from LLM output.
+
+Field name normalization happens in parser.py before validation.
 """
 
 from __future__ import annotations
@@ -12,15 +18,20 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class MetricScore(BaseModel):
-    """A single metric evaluation result."""
+    """A single metric evaluation result.
+
+    Only id and score are strictly required. LLMs produce wildly different
+    field names for justification, criticism, etc. — the parser normalizes
+    these before validation, but if normalization fails the field is optional.
+    """
 
     id: str = Field(description="Metric ID, e.g. '101.1'")
-    name: str = Field(description="Metric name, e.g. 'Module Boundary Clarity'")
+    name: str = Field(default="", description="Metric name (optional, some models omit)")
     score: int = Field(ge=1, le=10, description="Integer score 1-10")
-    justification: str = Field(min_length=10, description="Why this score was given")
-    strongest_criticism: str = Field(min_length=10, description="Best argument for a lower score")
-    strongest_defence: str = Field(min_length=10, description="Best argument for a higher score")
-    evidence: list[str] = Field(min_length=1, description="Specific code references")
+    justification: str = Field(default="", description="Why this score was given")
+    strongest_criticism: str = Field(default="", description="Best argument for a lower score")
+    strongest_defence: str = Field(default="", description="Best argument for a higher score")
+    evidence: list[str] = Field(default_factory=list, description="Specific code references")
 
     @field_validator("score")
     @classmethod
@@ -33,36 +44,39 @@ class MetricScore(BaseModel):
 class RecommendedAction(BaseModel):
     """A prioritized recommended action from an evaluation."""
 
-    priority: int = Field(ge=1, description="Priority rank (1 = highest)")
-    action: str = Field(min_length=5, description="What to do")
-    effort: Literal["low", "medium", "high"] = Field(description="Estimated effort")
-    impact: Literal["low", "medium", "high"] = Field(description="Expected impact")
+    priority: int | str = Field(default=0, description="Priority rank")
+    action: str = Field(default="", description="What to do")
+    effort: str = Field(default="", description="Estimated effort")
+    impact: str = Field(default="", description="Expected impact")
 
 
 class PanelEvaluation(BaseModel):
     """Complete output from a single panel evaluation run.
 
-    This is the universal output schema that every evaluator must produce.
+    Core required fields: panel_id, evaluator_model, iteration, temperature,
+    timestamp, metrics (with at least id + score per metric).
+
+    Everything else is best-effort — LLMs don't reliably produce identical
+    schemas even with explicit instructions.
     """
 
     panel_id: str = Field(description="Panel ID, e.g. '101'")
-    panel_name: str = Field(description="Panel name, e.g. 'Architecture & Systems Design'")
+    panel_name: str = Field(default="", description="Panel name")
     evaluator_model: str = Field(description="Model ID used for this evaluation")
     iteration: int = Field(ge=1, description="Iteration number (1-based)")
     temperature: float = Field(ge=0.0, le=2.0, description="Temperature used")
     timestamp: str = Field(description="ISO 8601 timestamp")
     metrics: list[MetricScore] = Field(min_length=1, description="Metric scores")
-    overall_assessment: str = Field(min_length=20, description="2-3 sentence synthesis")
-    top_3_strengths: list[str] = Field(min_length=1, max_length=5)
-    top_3_risks: list[str] = Field(min_length=1, max_length=5)
-    recommended_actions: list[RecommendedAction] = Field(min_length=1)
+    overall_assessment: str = Field(default="", description="2-3 sentence synthesis")
+    top_3_strengths: list[str] = Field(default_factory=list)
+    top_3_risks: list[str] = Field(default_factory=list)
+    recommended_actions: list[RecommendedAction] = Field(default_factory=list)
 
     @field_validator("timestamp")
     @classmethod
     def validate_timestamp(cls, v: str) -> str:
         """Ensure timestamp is valid ISO 8601."""
         try:
-            # Try parsing — accepts multiple ISO formats
             datetime.fromisoformat(v.replace("Z", "+00:00"))
         except ValueError as e:
             raise ValueError(f"Invalid ISO 8601 timestamp: {v}") from e
