@@ -41,8 +41,12 @@ describe('presets', () => {
     }
   });
 
-  it('PRESET_BY_ID size matches ALL_PRESETS length', () => {
-    expect(PRESET_BY_ID.size).toBe(ALL_PRESETS.length);
+  it('PRESET_BY_ID size includes all user-facing and research presets', () => {
+    expect(PRESET_BY_ID.size).toBeGreaterThanOrEqual(ALL_PRESETS.length);
+    // Every user-facing preset must be in the lookup map
+    for (const preset of ALL_PRESETS) {
+      expect(PRESET_BY_ID.has(preset.id)).toBe(true);
+    }
   });
 
   it('getPresetById returns correct preset', () => {

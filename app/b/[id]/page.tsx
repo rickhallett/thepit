@@ -11,7 +11,7 @@ import { TrackPageEvent } from '@/components/track-page-event';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { getCopy } from '@/lib/copy';
-import { ALL_PRESETS, ARENA_PRESET_ID } from '@/lib/presets';
+import { getPresetById, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
 import { getReactionCounts, getMostReactedTurnIndex } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
@@ -40,7 +40,7 @@ export async function generateMetadata({
     return { title: c.meta.bout.notFoundTitle };
   }
 
-  const preset = ALL_PRESETS.find((p) => p.id === bout.presetId);
+  const preset = bout.presetId ? getPresetById(bout.presetId) : undefined;
   const presetName = preset?.name ?? 'Arena Mode';
   const agents = preset?.agents.map((a) => a.name).join(' vs ') ?? '';
   const title = `${presetName} ${c.meta.bout.titleSuffix}`;
@@ -84,7 +84,7 @@ export default async function ReplayPage({
     notFound();
   }
 
-  let preset = ALL_PRESETS.find((item) => item.id === bout.presetId);
+  let preset = bout.presetId ? getPresetById(bout.presetId) : undefined;
   if (!preset && bout.presetId === ARENA_PRESET_ID && bout.agentLineup) {
     preset = buildArenaPresetFromLineup(bout.agentLineup, bout.maxTurns);
   }

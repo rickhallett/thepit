@@ -105,9 +105,7 @@ docs/release-review-*
 
 # internal research docs
 docs/research-seed-hypotheses.md
-
-# internal strategy docs (not for public distribution)
-docs/research-prompts/hn-post-draft.md
+docs/research-prompts/
 
 # hype copy variant (contradicts no-hype positioning)
 copy/variants/hype.json
