@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn';
 // Change this to the real YouTube video ID when ready.
 // e.g. "dQw4w9WgXcQ"
 // ---------------------------------------------------------------------------
-const YOUTUBE_VIDEO_ID = 'VIDEO_ID_PLACEHOLDER';
+const YOUTUBE_VIDEO_ID = 'aYhWhmWaIPg';
 
 // ---------------------------------------------------------------------------
 // VideoExplainerButton — self-contained button + modal
