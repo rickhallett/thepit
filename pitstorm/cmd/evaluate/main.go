@@ -31,7 +31,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -171,7 +170,7 @@ func anthropicCall(ctx context.Context, apiKey, model, prompt string) (string, e
 }
 
 func geminiCall(ctx context.Context, apiKey, model, prompt string) (string, error) {
-	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", model, apiKey)
+	url := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent", model)
 	body := map[string]interface{}{
 		"contents": []map[string]interface{}{
 			{
@@ -193,6 +192,7 @@ func geminiCall(ctx context.Context, apiKey, model, prompt string) (string, erro
 		return "", err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-goog-api-key", apiKey)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
@@ -435,12 +435,19 @@ func runJudge(ctx context.Context, variants []VariantOutput, clients map[string]
 		{"gemini", "gemini-2.0-flash"},
 	}
 
+	firstCall := true
 	for _, jm := range judgeModels {
 		client, ok := clients[jm.key]
 		if !ok {
 			fmt.Fprintf(os.Stderr, "  SKIP judge %s: no API key\n", jm.key)
 			continue
 		}
+
+		// Rate-limit delay between sequential LLM calls.
+		if !firstCall {
+			time.Sleep(2 * time.Second)
+		}
+		firstCall = false
 
 		fmt.Fprintf(os.Stderr, "  [JUDGE] %s (%s)...", client.name, jm.model)
 
@@ -493,15 +500,23 @@ func computeConsensus(ballots []JudgeBallot, variantIDs []string) ConsensusResul
 		critSums[vid] = &CriteriaSet{VariantID: vid}
 	}
 
+	knownVIDs := make(map[string]bool, len(variantIDs))
+	for _, vid := range variantIDs {
+		knownVIDs[vid] = true
+	}
+
 	for _, b := range ballots {
-		// Scores.
+		// Scores — skip unknown variant IDs from LLM output.
 		for _, s := range b.Scores {
+			if !knownVIDs[s.VariantID] {
+				continue
+			}
 			meanScores[s.VariantID] += s.Score
 			scoreCounts[s.VariantID]++
 		}
-		// Ranking.
+		// Ranking — skip unknown variant IDs to prevent nil map panic.
 		for rank, vid := range b.Ranking {
-			if rank < len(variantIDs) {
+			if rank < len(variantIDs) && knownVIDs[vid] {
 				rankDistrib[vid][rank]++
 			}
 		}
@@ -809,6 +824,7 @@ func main() {
 	variantsFlag := flag.String("variants", "", "JSON file with pre-generated variants (skips generate phase)")
 	outputFlag := flag.String("output", "results/evaluate/", "Output directory for results")
 	jsonFlag := flag.Bool("json", false, "Emit JSON instead of human-readable report")
+	timeoutFlag := flag.Int("timeout", 15, "Timeout in minutes for the full pipeline")
 	flag.Parse()
 
 	phase := strings.ToLower(*phaseFlag)
@@ -856,7 +872,23 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", strings.Join(names, ", "))
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	// Resolve prompts directory — try flag value, then repo-root-relative paths.
+	promptsDir := *promptsFlag
+	if _, err := os.Stat(promptsDir); err != nil {
+		// Try from repo root (running from pitstorm/ or repo root).
+		alternatives := []string{
+			"docs/research-prompts/",
+			"../docs/research-prompts/",
+		}
+		for _, alt := range alternatives {
+			if _, err := os.Stat(alt); err == nil {
+				promptsDir = alt
+				break
+			}
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(*timeoutFlag)*time.Minute)
 	defer cancel()
 
 	var variants []VariantOutput
@@ -883,7 +915,7 @@ func main() {
 				fmt.Fprintf(os.Stderr, "\n  Phase 1: Generate\n")
 			}
 			var err error
-			variants, err = runGenerate(ctx, *promptsFlag, clients)
+			variants, err = runGenerate(ctx, promptsDir, clients)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error generating: %v\n", err)
 				os.Exit(1)
@@ -970,6 +1002,3 @@ func main() {
 
 	emitReport(report, *jsonFlag)
 }
-
-// Suppress unused import warning.
-var _ = math.Abs
