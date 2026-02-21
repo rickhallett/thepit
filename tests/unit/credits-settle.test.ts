@@ -40,6 +40,8 @@ describe('settleCredits', () => {
     mockDb.select.mockReset();
     mockDb.insert.mockReset();
     mockDb.update.mockReset();
+    mockDb.transaction.mockReset();
+    mockDb.transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(mockDb));
     process.env.CREDIT_VALUE_GBP = '0.01';
     process.env.CREDIT_PLATFORM_MARGIN = '0.10';
     process.env.CREDITS_ENABLED = 'true';
@@ -269,6 +271,31 @@ describe('settleCredits', () => {
     expect(transactionValues).toHaveLength(1);
     // The transaction should record a POSITIVE delta: credits returned to user
     expect((transactionValues[0] as Record<string, unknown>).deltaMicro).toBe(200);
+  });
+
+  it('H4: additional charge path uses db.transaction for atomicity', async () => {
+    // Regression test for PR#323 review finding: settleCredits charge path
+    // must wrap balance update + ledger insert in a transaction so they
+    // succeed or fail together. Without this, a failed ledger insert after
+    // a successful balance deduction would silently lose audit trail.
+    mockDb.update.mockImplementation(() => ({
+      set: () => ({
+        where: () => ({
+          returning: vi.fn().mockResolvedValue([{ balanceMicro: 500 }]),
+        }),
+      }),
+    }));
+
+    mockDb.insert.mockImplementation(() => ({
+      values: vi.fn().mockResolvedValue(undefined),
+    }));
+
+    const { settleCredits } = await loadCredits();
+    await settleCredits('user-tx', 100, 'settle-charge', { boutId: 'bout-tx' });
+
+    // The charge path must call db.transaction
+    expect(mockDb.transaction).toHaveBeenCalledTimes(1);
+    expect(mockDb.transaction).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it('refund stores null referenceId when metadata has non-string referenceId', async () => {

@@ -26,7 +26,8 @@ vi.mock('@clerk/nextjs/server', () => ({
   auth: authMock,
 }));
 
-import { POST, readAndClearByokKey } from '@/app/api/byok-stash/route';
+import { POST } from '@/app/api/byok-stash/route';
+import { readAndClearByokKey } from '@/lib/byok';
 
 describe('byok-stash', () => {
   beforeEach(() => {
