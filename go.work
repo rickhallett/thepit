@@ -4,6 +4,7 @@ use (
 	./pitbench
 	./pitctl
 	./pitforge
+	./pitkeel
 	./pitlab
 	./pitlinear
 	./pitnet

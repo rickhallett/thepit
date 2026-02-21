@@ -102,7 +102,7 @@ When all three exist, the knowledge survives any single point of failure.
 ```
 Weaver (integration discipline, verification governance)
 ├── Witness (you — institutional memory, earned process)
-└── Captain (orchestration, planning, shipping)
+└── Helm (orchestration, planning, shipping)
     ├── Architect, Artisan, Foreman (builders)
     ├── Sentinel, Watchdog (verifiers)
     ├── Lighthouse, Quartermaster (infrastructure)

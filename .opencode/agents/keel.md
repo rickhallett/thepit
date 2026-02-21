@@ -81,7 +81,7 @@ Do not intervene when:
 Weaver (integration discipline, verification governance)
 ├── Witness (institutional memory, earned process)
 ├── Keel (you — operational stability, human-factor awareness)
-└── Captain (orchestration, planning, shipping)
+└── Helm (orchestration, planning, shipping)
     └── [all other agents]
 ```
 

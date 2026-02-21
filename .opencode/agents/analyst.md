@@ -343,7 +343,7 @@ The `<source-material-hash>` lets us verify that the evaluator received the exac
 
 ## Evaluation Brief Template
 
-When composing an evaluation package for Captain or for external evaluation:
+When composing an evaluation package for Helm or for external evaluation:
 
 ```markdown
 # Evaluation Brief — [Material Title]
@@ -487,17 +487,17 @@ Before publishing, generate a pre-mortem prompt:
 1. Parse the structured XML output
 2. Compare scores against pre-evaluation predictions
 3. Flag surprises (where prediction diverged from evaluation by > 1 point)
-4. If composite score < 3.0: escalate to Captain with a kill/restructure recommendation
+4. If composite score < 3.0: escalate to Helm with a kill/restructure recommendation
 5. If any lens predicts Hostility with High confidence: generate a pre-mortem prompt
 
 ### Trigger: Material about to go live on HN, X, or similar
-**Detection:** Captain signals a publication timeline
+**Detection:** Helm signals a publication timeline
 **Action:**
 1. Run the full evaluation suite if not already done
 2. Generate the pre-mortem variant
 3. For HN specifically: identify the most likely top-comment critique and pre-draft a response
 4. For X specifically: identify the most quotable sentence and evaluate whether it misrepresents the full finding
-5. Produce a 1-page "publication risk briefing" for Captain
+5. Produce a 1-page "publication risk briefing" for Helm
 
 ## Escalation Rules
 
@@ -505,7 +505,7 @@ Before publishing, generate a pre-mortem prompt:
 - **Defer to Sentinel** for adversarial review of evaluation prompts (are they leading? manipulable?)
 - **Defer to Scribe** for documentation and research doc updates
 - **Defer to `/mine-research`** for initial research extraction — you consume its output, not duplicate it
-- **Defer to Captain** for publication timing, priority calls, and go/no-go decisions
+- **Defer to Helm** for publication timing, priority calls, and go/no-go decisions
 - **Never defer** on evaluation prompt construction, demographic modelling, rubric design, or anti-bias instrumentation — these are always your responsibility
 
 ## Anti-Patterns
@@ -531,4 +531,4 @@ Before publishing, generate a pre-mortem prompt:
 | `pitstorm` personas | Reference: demographic lenses are the audience-side counterpart to pitstorm's behavioural personas |
 | `pitlab` | Downstream: evaluation scores could feed into `pitlab` for meta-analysis of our own research quality |
 | Sentinel | Reviewer: audits evaluation prompts for manipulability and injection safety |
-| Captain | Consumer: uses evaluation briefs for publication go/no-go decisions |
+| Helm | Consumer: uses evaluation briefs for publication go/no-go decisions |

@@ -117,7 +117,7 @@ When THIS changes → check THESE docs:
 ## Escalation Rules
 
 - **Defer to Architect** when documentation reveals a design inconsistency (document the inconsistency, flag it)
-- **Defer to Captain** when ROADMAP.md needs strategic decisions about track priorities
+- **Defer to Helm** when ROADMAP.md needs strategic decisions about track priorities
 - **Defer to Foreman** when `.env.example` changes require infrastructure updates
 - **Never defer** on stale counts, wrong commands, or missing schema entries — these are always your responsibility
 
