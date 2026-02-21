@@ -1,7 +1,7 @@
 # HN Launch — Integration Flight Plan
 
-> **Last updated:** 2026-02-21 11:40 UTC by Weaver
-> **Status:** Active — 4 items to ship before HN submission
+> **Last updated:** 2026-02-21 12:50 UTC by Weaver
+> **Status:** ALL ITEMS SHIPPED — ready for HN submission
 > **Delete when:** HN post is submitted and first-hour monitoring is complete
 
 ## The Goal
@@ -18,6 +18,13 @@ Ship THE PIT to Hacker News. The pitch: a multi-agent AI debate arena with on-ch
 | #336 | Demo mode (`DEMO_MODE_ENABLED`) + replay scroll fix | 3 TS tests | Yes (env var set in Vercel) |
 | #337 | `pitnet proof <UID>` verification command + shell script | — | Yes (in repo) |
 | #338 | `<DnaFingerprint>` SVG component (5x5, Tokyo Night) | 19 TS tests | Yes (in repo, not wired into UI) |
+| #340 | pitnet cross-compile distribution (5 platforms) | — | Yes (Makefile) |
+| #341 | Wire DNA fingerprints into agent UI (4 locations) | — | Yes |
+| #342 | Fix SSE error event handling in use-bout.ts | — | Yes |
+| #343 | Remove placeholder headline findings from research page | — | Yes |
+| #344 | Update HN launch copy with current product state | — | Yes |
+
+**GitHub Release:** [v1.1.0](https://github.com/rickhallett/thepit/releases/tag/v1.1.0) — 5 platform binaries with `pitnet proof`
 
 **Current test counts:** 934 TS tests, ~50 pitnet Go tests, 22 pitkeel Go tests.
 **Production health:** OK (EAS on, subs on, credits on, DB 85ms latency).
@@ -31,24 +38,14 @@ Ship THE PIT to Hacker News. The pitch: a multi-agent AI debate arena with on-ch
 - **Demo mode works** — anonymous visitors can run bouts, rate limited to 2/hour/IP via intro pool
 - **Auto-deploy active** — master merges deploy to production automatically via Vercel
 
-## Shipping Queue (STRICT ORDER)
+## Shipping Queue — ALL SHIPPED
 
 ```text
-P0  1. Community pitnet distribution
-       Cross-compile → GitHub Release → README walkthrough
-       THE artifact. Without this, on-chain is "trust us."
-
-P1  2. Wire DNA fingerprints into UI
-       Agent cards, bout headers, attestation sections
-       Makes identity visceral, not abstract.
-
-P1  3. Fix error event handling in use-bout.ts
-       SSE error events silently dropped by schema validation.
-       HN traffic will hit rate limits. Users need error messages, not empty bouts.
-
-P1  4. Review/update HN post copy
-       Update test counts, mention pitnet proof + demo mode + 125 attestations.
-       Final pass before submission.
+✅  1. Community pitnet distribution — PR #340, GitHub Release v1.1.0
+✅  2. Wire DNA fingerprints into UI — PR #341
+✅  3. Fix error event handling in use-bout.ts — PR #342
+✅ 3.5. Remove placeholder headline findings — PR #343
+✅  4. Review/update HN post copy — PR #344
 ```
 
 ### Item 1: Community pitnet distribution
