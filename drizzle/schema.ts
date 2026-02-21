@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm"
 
 export const agentTier = pgEnum("agent_tier", ['free', 'premium', 'custom'])
 export const boutStatus = pgEnum("bout_status", ['running', 'completed', 'error'])
+export const reactionType = pgEnum("reaction_type", ['heart', 'fire'])
 export const userTier = pgEnum("user_tier", ['free', 'pass', 'lab'])
 
 
@@ -42,7 +43,7 @@ export const reactions = pgTable("reactions", {
 	id: serial().primaryKey().notNull(),
 	boutId: varchar("bout_id", { length: 21 }).notNull(),
 	turnIndex: integer("turn_index").notNull(),
-	reactionType: varchar("reaction_type", { length: 32 }).notNull(),
+	reactionType: reactionType("reaction_type").notNull(),
 	userId: varchar("user_id", { length: 128 }),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
