@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 
 import { BuilderShowcase } from '@/components/builder-showcase';
+import { VideoExplainerButton } from '@/components/video-modal';
 
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
 import { NewsletterSignup } from '@/components/newsletter-signup';
@@ -57,6 +58,7 @@ export default async function LandingPage() {
             >
               {c.hero.ctaSecondary}
             </Link>
+            <VideoExplainerButton />
           </div>
           {poolStatus && (
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted">
