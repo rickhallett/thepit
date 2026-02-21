@@ -71,4 +71,18 @@ describe('lib/reactions', () => {
     expect(map[1]).toEqual({ heart: 0, fire: 5 });
     expect(map[2]).toEqual({ heart: 1, fire: 3 });
   });
+
+  it('throws on unknown reaction type via assertNever guard', async () => {
+    // If a corrupted or unexpected reaction type comes from the DB,
+    // the assertNever guard in the switch statement should throw
+    // rather than silently dropping the data.
+    setupSelect([
+      { turnIndex: 0, reactionType: 'lol', count: 1 },
+    ]);
+
+    const { getReactionCounts } = await import('@/lib/reactions');
+    await expect(getReactionCounts('bout-corrupt')).rejects.toThrow(
+      /Unknown reaction type: lol/,
+    );
+  });
 });

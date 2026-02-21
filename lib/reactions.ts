@@ -5,6 +5,12 @@ import { eq, sql, desc } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
+import { assertNever } from '@/lib/api-utils';
+
+/** Single source of truth for valid reaction types. Derive all other
+ *  representations (Zod enum, TypeScript union) from this tuple. */
+export const REACTION_TYPES = ['heart', 'fire'] as const;
+export type ReactionType = (typeof REACTION_TYPES)[number];
 
 export type ReactionCountMap = Record<number, { heart: number; fire: number }>;
 
@@ -23,10 +29,16 @@ export async function getReactionCounts(boutId: string) {
   const map: ReactionCountMap = {};
   rows.forEach((row) => {
     const entry = map[row.turnIndex] ?? { heart: 0, fire: 0 };
-    if (row.reactionType === 'heart') {
-      entry.heart = Number(row.count);
-    } else if (row.reactionType === 'fire') {
-      entry.fire = Number(row.count);
+    const type = row.reactionType as ReactionType;
+    switch (type) {
+      case 'heart':
+        entry.heart = Number(row.count);
+        break;
+      case 'fire':
+        entry.fire = Number(row.count);
+        break;
+      default:
+        assertNever(type, `Unknown reaction type: ${row.reactionType}`);
     }
     map[row.turnIndex] = entry;
   });

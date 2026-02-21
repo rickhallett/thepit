@@ -13,6 +13,7 @@
 
 import { z } from 'zod/v4';
 import { UNSAFE_PATTERN } from '@/lib/validation';
+import { REACTION_TYPES } from '@/lib/reactions';
 
 // ---------------------------------------------------------------------------
 // Shared refinements
@@ -68,7 +69,7 @@ export const reactionSchema = z.object({
   turnIndex: z.number({ message: 'Missing boutId or turnIndex.' })
     .int('turnIndex must be a non-negative integer.')
     .refine((n) => n >= 0, 'turnIndex must be a non-negative integer.'),
-  reactionType: z.enum(['heart', 'fire'], { message: 'Invalid reaction type.' }),
+  reactionType: z.enum(REACTION_TYPES, { message: 'Invalid reaction type.' }),
 });
 export type ReactionBody = z.infer<typeof reactionSchema>;
 

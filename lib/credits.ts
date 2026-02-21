@@ -351,26 +351,37 @@ export async function settleCredits(
   const db = requireDb();
 
   if (deltaMicro > 0) {
-    // Additional charge: cap at available balance atomically
-    const [result] = await db
-      .update(credits)
-      .set({
-        balanceMicro: sql`${credits.balanceMicro} - LEAST(${deltaMicro}, GREATEST(0, ${credits.balanceMicro}))`,
-        updatedAt: new Date(),
-      })
-      .where(eq(credits.userId, userId))
-      .returning({ balanceMicro: credits.balanceMicro });
+    // Additional charge: cap at available balance atomically.
+    // Wrapped in a transaction so the balance deduction and ledger entry
+    // succeed or fail together — prevents silent balance loss if the
+    // ledger insert fails after the balance update.
+    await db.transaction(async (tx) => {
+      const [result] = await tx
+        .update(credits)
+        .set({
+          balanceMicro: sql`${credits.balanceMicro} - LEAST(${deltaMicro}, GREATEST(0, ${credits.balanceMicro}))`,
+          updatedAt: new Date(),
+        })
+        .where(eq(credits.userId, userId))
+        .returning({ balanceMicro: credits.balanceMicro });
 
-    if (result) {
-      await db.insert(creditTransactions).values({
-        userId,
-        deltaMicro: -deltaMicro,
-        source: reason,
-        referenceId:
-          typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
-        metadata: { ...metadata, atomicSettlement: true },
-      });
-    }
+      if (result) {
+        await tx.insert(creditTransactions).values({
+          userId,
+          deltaMicro: -deltaMicro,
+          source: reason,
+          referenceId:
+            typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
+          metadata: {
+            ...metadata,
+            atomicSettlement: true,
+            // Record the intended charge so audit reconciliation can detect
+            // when the SQL cap (LEAST/GREATEST) reduced the actual deduction.
+            intendedChargeMicro: deltaMicro,
+          },
+        });
+      }
+    });
   } else if (deltaMicro < 0) {
     // Refund: unconditionally add funds back.
     // deltaMicro is negative (actualCost - preauth < 0), so negate it to
