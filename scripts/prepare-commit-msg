@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook — appends pitkeel signals to commit messages.
+#
+# Pitkeel output is appended as a trailing block after the commit message.
+# Signals are only appended when they are non-nominal (warnings present).
+# The output goes to stderr so agents and humans see it in the terminal,
+# and is appended to the commit message file so it persists in git log.
+#
+# Install:
+#   ln -sf ../../scripts/prepare-commit-msg .git/hooks/prepare-commit-msg
+#
+# Uninstall:
+#   rm .git/hooks/prepare-commit-msg
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip for merges, squashes, and amends — only run on fresh commits.
+case "$COMMIT_SOURCE" in
+  merge|squash)
+    exit 0
+    ;;
+esac
+
+# Find pitkeel binary — check if built, or build on the fly.
+PITKEEL="$(git rev-parse --show-toplevel)/pitkeel/pitkeel"
+if [ ! -x "$PITKEEL" ]; then
+  # Try to build it silently
+  (cd "$(git rev-parse --show-toplevel)/pitkeel" && go build -o pitkeel . 2>/dev/null)
+fi
+
+# If still not available, skip silently — don't block commits.
+if [ ! -x "$PITKEEL" ]; then
+  exit 0
+fi
+
+# Capture hook output (plain text, no ANSI).
+KEEL_OUTPUT=$("$PITKEEL" hook 2>/dev/null)
+
+# If pitkeel failed or produced no output, skip silently.
+if [ -z "$KEEL_OUTPUT" ]; then
+  exit 0
+fi
+
+# Print to stderr so it appears in terminal output for human/agent attention.
+printf '\n%s\n' "$KEEL_OUTPUT" >&2
+
+# Only append to commit message if there are actual signals (not just "nominal").
+if echo "$KEEL_OUTPUT" | grep -qv "^keel: nominal$"; then
+  printf '\n%s\n' "$KEEL_OUTPUT" >> "$COMMIT_MSG_FILE"
+fi
+
+exit 0
