@@ -120,8 +120,7 @@ func RunProof(args []string) {
 	fmt.Println()
 
 	// --- Schema match ---
-	schemaMatch := strings.EqualFold(att.Schema, "0x"+abi.SchemaUID) ||
-		strings.EqualFold(att.Schema, abi.SchemaUID)
+	schemaMatch := strings.EqualFold(att.Schema, abi.SchemaUID)
 	fmt.Println("Schema Verification")
 	fmt.Println("─────────────────────────────────────────────────────────────")
 	fmt.Printf("  Expected:         %s\n", abi.SchemaUID)
