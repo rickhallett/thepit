@@ -440,12 +440,22 @@ export function Arena({
   // --- Share modal (live bouts only, not replays) ---
   const isReplay = initialTranscript.length > 0;
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const prevStatusRef = useRef(status);
+  // Track whether we actually witnessed streaming in this component lifecycle.
+  // The old `useRef(status)` "previous value" pattern is fragile: React may
+  // batch rapid idle→streaming→done transitions (or skip intermediate renders
+  // during hydration/concurrent mode), leaving prevStatusRef stale.  A
+  // dedicated flag that is only set when we *render* in the 'streaming' state
+  // avoids false positives from skipped renders or re-used component instances.
+  const hasStreamedRef = useRef(false);
   useEffect(() => {
-    if (prevStatusRef.current === 'streaming' && status === 'done' && !isReplay) {
-      setShareModalOpen(true);
+    if (status === 'streaming') {
+      hasStreamedRef.current = true;
     }
-    prevStatusRef.current = status;
+    if (hasStreamedRef.current && status === 'done' && !isReplay) {
+      setShareModalOpen(true);
+      // Reset so the modal doesn't re-fire on subsequent renders.
+      hasStreamedRef.current = false;
+    }
   }, [status, isReplay]);
 
   // --- Scroll management ---
