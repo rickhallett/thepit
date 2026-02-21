@@ -227,7 +227,7 @@ export function useBout({
         if (event.type === 'error') {
           setErrorDetail({
             code: 0,
-            message: event.errorText ?? event.data?.text ?? 'The arena short-circuited.',
+            message: event.errorText ?? 'The arena short-circuited.',
           });
           setStatus('error');
           return;

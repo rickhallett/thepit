@@ -35,9 +35,10 @@ dist: clean
 	GOOS=darwin  GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST)/pitnet-darwin-amd64/pitnet .
 	GOOS=darwin  GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST)/pitnet-darwin-arm64/pitnet .
 	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST)/pitnet-windows-amd64/pitnet.exe .
-	@# Bundle verification script with each archive
+	@# Bundle verification script with each archive (fail fast if missing)
+	@test -f ../scripts/verify-attestation.sh || { echo "error: ../scripts/verify-attestation.sh not found"; exit 1; }
 	@for dir in $(DIST)/pitnet-*/; do \
-		cp ../scripts/verify-attestation.sh "$$dir" 2>/dev/null || true; \
+		cp ../scripts/verify-attestation.sh "$$dir"; \
 	done
 	@# Create archives
 	cd $(DIST) && tar czf pitnet-linux-amd64.tar.gz  pitnet-linux-amd64/
