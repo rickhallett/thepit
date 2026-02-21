@@ -13,12 +13,12 @@ Prove that THE PIT's on-chain attestation system works end-to-end: TS writes att
 - **125 attestations** exist on-chain on Base mainnet under schema UID `0x026a50b7a0728afcedaa43113558312d894333f705028153eceafd8084e544d2`
 - **Schema verified**: On-chain schema string matches both `lib/eas.ts:38-39` and `pitnet/internal/abi/abi.go:26` exactly
 - **Live decode works**: `pitnet verify` successfully decodes attestation `0x13da22148f63504eac18935143f20349a619b7ebeaf416f0fa5362db923f0724` from Base mainnet — all fields correct
-- **Signer key**: `0xf951daD46F0A7d7402556DCaa70Ee4F8bC979824` — never committed to git. Balance: 0.0034 ETH on Base mainnet, 0 on Sepolia
+- **Signer key**: `0xf951daD46F0A7d7402556DCaa70Ee4F8bC979824` — never committed to git. Check live balance: `cast balance 0xf951daD46F0A7d7402556DCaa70Ee4F8bC979824 --rpc-url https://mainnet.base.org`
 - **ABI encoding bug found and fixed**: Go's `encodeString()` added a spurious 32-byte slot for empty strings. Fixed in PR #333
 
 ## PR Dependency Graph
 
-```
+```text
 PR #333 — ABI encoding fix + parity tests
   Status: Pushed, awaiting review
   Branch: feat/attestation-verification (from master)
@@ -67,7 +67,7 @@ PR #??? — Community pitnet distribution
 
 ## Merge Sequence (ENFORCED)
 
-```
+```text
 1. PR #333 (ABI fix)           — merge first, post-merge verify
 2. Verification script PR      — can merge in any order relative to (3)
 3. Visual DNA fingerprints PR  — can merge in any order relative to (2)
@@ -76,7 +76,7 @@ PR #??? — Community pitnet distribution
 
 **Why #333 before distribution:** You don't ship a binary with a known encoding bug to the community you're asking to verify your attestations. The decoder was correct, but if anyone uses `pitnet audit` (which re-encodes locally and compares), the bug would surface.
 
-**Why (2) and (3) are order-independent:** Zero file overlap, zero functional dependency. Different domains (Go CLI script vs React components). Can be developed and merged in parallel.
+**Why (2) and (3) are order-independent:** Zero file overlap, zero functional dependency. They are in different domains (Go CLI script vs React components) and can be developed and merged in parallel.
 
 ## Branching Strategy
 
