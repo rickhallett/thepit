@@ -65,6 +65,7 @@ type StreamEvent = {
     text?: string;
   };
   delta?: string;
+  errorText?: string;
 };
 
 export function useBout({
@@ -226,7 +227,7 @@ export function useBout({
         if (event.type === 'error') {
           setErrorDetail({
             code: 0,
-            message: event.data?.text ?? 'The arena short-circuited.',
+            message: event.errorText ?? event.data?.text ?? 'The arena short-circuited.',
           });
           setStatus('error');
           return;
