@@ -8,6 +8,7 @@ import { useCopy } from '@/lib/copy-client';
 import { buildAgentDetailHref } from '@/lib/agent-links';
 import { buildAttestationUrl } from '@/lib/attestation-links';
 import { CloneAgentButton } from '@/components/clone-agent-button';
+import { DnaFingerprint } from '@/components/dna-fingerprint';
 
 export type AgentDetails = {
   id: string;
@@ -66,9 +67,12 @@ export function AgentDetailsModal({
             <p className="text-xs uppercase tracking-[0.35em] text-muted">
               {c.agentDetail.dnaTitle}
             </p>
-            <h2 className="mt-2 text-2xl uppercase tracking-tight">
-              {agent.name}
-            </h2>
+            <div className="mt-2 flex items-center gap-3">
+              <DnaFingerprint hash={agent.manifestHash ?? agent.promptHash ?? ''} size={40} />
+              <h2 className="text-2xl uppercase tracking-tight">
+                {agent.name}
+              </h2>
+            </div>
             {agent.presetName && (
               <p className="mt-1 text-xs uppercase tracking-[0.3em] text-muted">
                 {agent.presetName}
@@ -137,13 +141,15 @@ export function AgentDetailsModal({
         </div>
 
         <div className="mt-6 grid gap-2 text-xs text-muted">
-          <div>
+          <div className="flex items-center gap-2">
+            {agent.promptHash && <DnaFingerprint hash={agent.promptHash} size={16} />}
             {c.agentDetail.onChainIdentity.promptHash}{' '}
             <span className="text-foreground">
               {agent.promptHash ?? c.agentDetail.onChainIdentity.pending}
             </span>
           </div>
-          <div>
+          <div className="flex items-center gap-2">
+            {agent.manifestHash && <DnaFingerprint hash={agent.manifestHash} size={16} />}
             {c.agentDetail.onChainIdentity.manifestHash}{' '}
             <span className="text-foreground">
               {agent.manifestHash ?? c.agentDetail.onChainIdentity.pending}

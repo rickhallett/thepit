@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { AgentIcon } from '@/components/agent-icon';
+import { DnaFingerprint } from '@/components/dna-fingerprint';
 import { cn } from '@/lib/cn';
 import { useCopy } from '@/lib/copy-client';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
@@ -223,6 +224,7 @@ export function LeaderboardTable({
                       title={entry.name}
                       className="flex items-center gap-3 uppercase tracking-[0.2em] transition hover:text-accent"
                     >
+                      <DnaFingerprint hash={entry.manifestHash ?? entry.promptHash ?? ''} size={20} className="shrink-0" />
                       <span
                         className="flex items-center justify-center rounded-full border-2 px-2 py-0.5"
                         style={{
