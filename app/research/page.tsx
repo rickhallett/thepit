@@ -119,44 +119,6 @@ const hypotheses: HypothesisRow[] = [
   },
 ];
 
-type HeadlineFinding = {
-  metric: string;
-  finding: string;
-  source: string;
-  implication: string;
-};
-
-const headlineFindings: HeadlineFinding[] = [
-  {
-    metric: '87.5% \u2192 60.0%',
-    finding: 'Character markers degrade over 12 turns',
-    source: 'H5, d = 0.655',
-    implication:
-      'By conversation end, 4 in 10 turns contain no character-specific language. Make character vocabulary functional, not decorative.',
-  },
-  {
-    metric: '0 / 45',
-    finding: 'Zero adaptive phrases in 45 Founder turns',
-    source: 'H6',
-    implication:
-      'Agents perform responsiveness without substantive adaptation. Build concession into the DNA if you want it.',
-  },
-  {
-    metric: '8x',
-    finding: 'Serious framing produces 8x more hedging than comedy',
-    source: 'H3, d = 1.300',
-    implication:
-      'The assistant voice activates by frame proximity. Characters far from the default register (animals, aliens) eliminate hedging entirely.',
-  },
-  {
-    metric: '7x DNA \u2192 \u00bd refusals',
-    finding: 'Richer structured DNA cuts safety refusals by half',
-    source: 'H1',
-    implication:
-      'Prompt engineering depth is the dominant lever on Claude. The safety layer calibrates on persona framing quality, not content.',
-  },
-];
-
 type AxisRow = {
   axis: string;
   driver: string;
@@ -271,34 +233,6 @@ export default async function ResearchPage() {
           </a>
           .
         </p>
-      </section>
-
-      {/* ---- Headline findings ---- */}
-      <section className="border-y-2 border-foreground/70 bg-black/40">
-        <div className="mx-auto max-w-4xl px-6 py-16">
-          <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Headline findings
-          </p>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            {headlineFindings.map((f) => (
-              <div
-                key={f.finding}
-                className="border-2 border-foreground/20 bg-black/60 p-6"
-              >
-                <p className="font-mono text-2xl font-bold text-accent">
-                  {f.metric}
-                </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
-                  {f.finding}
-                </p>
-                <p className="mt-1 text-xs text-muted">{f.source}</p>
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  {f.implication}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* ---- Hypothesis table ---- */}
