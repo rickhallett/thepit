@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { AgentDetailsModal } from '@/components/agent-details-modal';
 import { AgentIcon } from '@/components/agent-icon';
+import { DnaFingerprint } from '@/components/dna-fingerprint';
 import { cn } from '@/lib/cn';
 import { useCopy } from '@/lib/copy-client';
 import type { AgentSnapshot } from '@/lib/agent-registry';
@@ -134,6 +135,7 @@ export function AgentsCatalog({
             >
               <div className="min-w-0">
                 <p className="flex items-center gap-2 text-sm uppercase tracking-[0.25em]">
+                  <DnaFingerprint hash={agent.manifestHash ?? agent.promptHash ?? ''} size={20} className="shrink-0" />
                   <AgentIcon avatar={agent.avatar} size={14} className="shrink-0" />
                   {agent.name}
                 </p>

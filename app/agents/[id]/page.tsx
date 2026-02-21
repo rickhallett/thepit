@@ -9,6 +9,7 @@ import { buildAttestationUrl } from '@/lib/attestation-links';
 import { getRemixStats } from '@/lib/remix-events';
 import { MICRO_PER_CREDIT } from '@/lib/credits';
 import { CloneAgentButton } from '@/components/clone-agent-button';
+import { DnaFingerprint } from '@/components/dna-fingerprint';
 import { isAdmin } from '@/lib/admin';
 import { archiveAgent, restoreAgent } from '@/app/actions';
 import { getUserDisplayName } from '@/lib/users';
@@ -43,9 +44,12 @@ export default async function AgentDetailPage({
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
             {c.agentDetail.dnaTitle}
           </p>
-          <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            {detail.name}
-          </h1>
+          <div className="mt-3 flex items-center gap-4">
+            <DnaFingerprint hash={detail.manifestHash ?? detail.promptHash ?? ''} size={48} />
+            <h1 className="font-sans text-3xl uppercase tracking-tight md:text-4xl">
+              {detail.name}
+            </h1>
+          </div>
           {detail.presetName && (
             <p className="mt-2 text-xs uppercase tracking-[0.3em] text-muted">
               {detail.presetName}
@@ -198,13 +202,15 @@ export default async function AgentDetailPage({
           <p className="text-sm text-muted">
             {c.agentDetail.onChainIdentity.description}
           </p>
-          <div>
+          <div className="flex items-center gap-2">
+            {detail.promptHash && <DnaFingerprint hash={detail.promptHash} size={16} />}
             {c.agentDetail.onChainIdentity.promptHash}{' '}
             <span className="text-foreground">
               {detail.promptHash ?? c.agentDetail.onChainIdentity.pending}
             </span>
           </div>
-          <div>
+          <div className="flex items-center gap-2">
+            {detail.manifestHash && <DnaFingerprint hash={detail.manifestHash} size={16} />}
             {c.agentDetail.onChainIdentity.manifestHash}{' '}
             <span className="text-foreground">
               {detail.manifestHash ?? c.agentDetail.onChainIdentity.pending}
