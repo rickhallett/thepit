@@ -53,7 +53,7 @@ export const agentTier = pgEnum('agent_tier', ['free', 'premium', 'custom']);
 
 export const userTier = pgEnum('user_tier', ['free', 'pass', 'lab']);
 
-export const reactionTypeEnum = pgEnum('reaction_type', ['heart', 'fire']);
+export const reactionType = pgEnum('reaction_type', ['heart', 'fire']);
 
 export const bouts = pgTable('bouts', {
   id: varchar('id', { length: 21 }).primaryKey(),
@@ -173,7 +173,7 @@ export const reactions = pgTable('reactions', {
   id: serial('id').primaryKey(),
   boutId: varchar('bout_id', { length: 21 }).notNull().references(() => bouts.id, { onDelete: 'cascade' }),
   turnIndex: integer('turn_index').notNull(),
-  reactionType: reactionTypeEnum('reaction_type').notNull(),
+  reactionType: reactionType('reaction_type').notNull(),
   userId: varchar('user_id', { length: 128 }).references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
