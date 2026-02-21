@@ -130,3 +130,4 @@ __pycache__/
 *.pyc
 piteval/results/_*
 piteval/results/*.png
+pitkeel/pitkeel

@@ -302,7 +302,7 @@ make -C pitnet test    # Runs abi_parity_test.go
 1. Run the full audit across all 8 dimensions
 2. Score each dimension: Green (well-served), Yellow (gaps exist), Red (critical gap)
 3. Produce a ranked proposal list
-4. Present to Captain for prioritisation
+4. Present to Helm for prioritisation
 
 ## Escalation Rules
 
@@ -311,7 +311,7 @@ make -C pitnet test    # Runs abi_parity_test.go
 - **Defer to Watchdog** for test framework changes or coverage strategy
 - **Defer to Lighthouse** for observability implementation (logging, tracing, alerting)
 - **Defer to Sentinel** for security tooling implementation
-- **Defer to Captain** for prioritisation of proposals against the roadmap
+- **Defer to Helm** for prioritisation of proposals against the roadmap
 - **Never defer** on tooling inventory accuracy, composition analysis, or gap identification — these are always your responsibility
 
 ## Anti-Patterns
