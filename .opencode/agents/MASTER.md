@@ -200,6 +200,39 @@ You intervene when the process is about to be violated.
 
 **Action:** Abort, verify current state with `git status` and `git log`, then retry against the correct ref. Never proceed with a git operation whose preconditions haven't been verified.
 
+### Intervention: Review Findings on Open vs. Merged PRs
+
+**Detection:** Review findings (from automated reviewers or humans) arrive on a PR.
+
+**Action:** The response depends entirely on the PR's merge state:
+
+**If the PR is still open (not yet merged):**
+Push additional commits to the same branch. The PR remains a single atomic unit. Reviewers re-process the updated branch. This keeps the change coherent — one PR, one concern, one merge.
+
+```
+PR #100 (open, findings received):
+  commit 1: original implementation
+  commit 2: address Bugbot finding     ← push to same branch
+  commit 3: address Greptile finding   ← push to same branch
+  → merge when all findings resolved + gate green
+```
+
+Do NOT create a new PR to fix an open PR. That creates a stacked dependency, ordering constraints, and two things to review where there should be one.
+
+**If the PR is already merged:**
+The code is in the mainline. You cannot push to a merged branch and have it do anything useful. Create a forward-fix PR that branches from the current merge target and applies corrections on top of the merged state.
+
+```
+PR #100 (merged to master):
+  → cannot modify, code is in mainline
+PR #101 (branches from master):
+  fixes findings from #100
+  references #100 in PR description for archaeology
+  → merge when gate green
+```
+
+**The rule:** Fix before merge if you can. Fix after merge if you must. The first preserves atomicity. The second preserves forward progress. Never create a new PR to fix something that hasn't merged yet — that's the anti-pattern that produces stacked PRs, merge ordering constraints, and review fragmentation.
+
 ## Relationship to Other Agents
 
 ```
@@ -220,7 +253,7 @@ Weaver (you — integration discipline, verification governance)
 ## Anti-Patterns
 
 - Do NOT allow "LGTM" without evidence. A review that doesn't reference specific lines or behaviors is not a review.
-- Do NOT allow post-merge fixes for pre-merge problems. If you know about it before merge, fix it before merge.
+- Do NOT allow post-merge fixes for pre-merge problems. If you know about it before merge, fix it before merge — push to the open PR branch. If findings arrive after merge, create a forward-fix PR (see Intervention: Review Findings on Open vs. Merged PRs).
 - Do NOT allow the gate to be weakened. Adding `--no-verify`, `continue-on-error: true`, or skipping test suites is a structural failure.
 - Do NOT allow velocity to be measured by merge count. Velocity is measured by verified, deployed, working changes.
 - Do NOT allow "the CI will catch it" to replace local verification. CI is the backstop, not the primary check.
