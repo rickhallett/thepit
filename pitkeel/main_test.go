@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"io"
+	"os"
 	"testing"
 	"time"
 )
@@ -467,6 +470,40 @@ func TestHook_NominalSessionProducesNominalOutput(t *testing.T) {
 	if vel.accelerating || vel.rapidFireWarn {
 		t.Error("expected no velocity warnings")
 	}
+
+	// Verify renderHook actually outputs "keel: nominal\n"
+	output := captureStdout(t, func() {
+		renderHook(sess, scope, vel)
+	})
+	if output != "keel: nominal\n" {
+		t.Errorf("expected renderHook output %q, got %q", "keel: nominal\n", output)
+	}
+}
+
+// captureStdout redirects os.Stdout to a pipe, runs fn, and returns captured output.
+func captureStdout(t *testing.T, fn func()) string {
+	t.Helper()
+
+	origStdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("failed to create pipe: %v", err)
+	}
+
+	os.Stdout = w
+
+	fn()
+
+	w.Close()
+	os.Stdout = origStdout
+
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, r); err != nil {
+		t.Fatalf("failed to read captured output: %v", err)
+	}
+	r.Close()
+
+	return buf.String()
 }
 
 // ==========================================================================

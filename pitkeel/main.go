@@ -324,7 +324,7 @@ func analyseVelocity(commits []commit) velocitySignal {
 			sig.rapidFire++
 		}
 	}
-	sig.rapidFireWarn = sig.rapidFire >= 2 // 3+ commits in <5min intervals
+	sig.rapidFireWarn = sig.rapidFire >= 2 // 2+ rapid-fire intervals = 3+ commits in <5min windows
 
 	return sig
 }
@@ -431,12 +431,15 @@ func renderVelocity(sig velocitySignal) {
 func renderHook(sess sessionSignal, scope scopeSignal, vel velocitySignal) {
 	var signals []string
 
-	// Session signals
+	// Session signals — only surface when actionable (fatigue or no-break warning).
+	// A nominal session (fatigue=none, breaks taken) is not worth annotating.
 	if sess.totalCommitsToday > 0 {
-		cs := sess.currentSession
-		signals = append(signals, fmt.Sprintf("session: %s (%d commits, %s)",
-			formatDurationPlain(cs.duration), len(cs.commits),
-			sess.fatigueLevel+" fatigue"))
+		if sess.fatigueLevel != "none" {
+			cs := sess.currentSession
+			signals = append(signals, fmt.Sprintf("session: %s (%d commits, %s)",
+				formatDurationPlain(cs.duration), len(cs.commits),
+				sess.fatigueLevel+" fatigue"))
+		}
 
 		if sess.noBreaksDetected {
 			signals = append(signals, "session: no breaks in 2h+ session")

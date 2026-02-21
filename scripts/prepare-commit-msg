@@ -16,8 +16,9 @@ COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"
 
 # Skip for merges, squashes, and amends — only run on fresh commits.
+# Git passes "commit" as COMMIT_SOURCE for --amend, -c, and -C.
 case "$COMMIT_SOURCE" in
-  merge|squash)
+  merge|squash|commit)
     exit 0
     ;;
 esac
