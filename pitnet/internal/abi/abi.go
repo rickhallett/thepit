@@ -25,6 +25,9 @@ import (
 // SchemaString is the EAS schema registered on-chain.
 const SchemaString = "string agentId,string name,string presetId,string tier,bytes32 promptHash,bytes32 manifestHash,string parentId,string ownerId,uint64 createdAt"
 
+// SchemaUID is the on-chain EAS schema UID registered on Base mainnet.
+const SchemaUID = "0x026a50b7a0728afcedaa43113558312d894333f705028153eceafd8084e544d2"
+
 // AttestationData holds the fields for an agent attestation.
 type AttestationData struct {
 	AgentID      string

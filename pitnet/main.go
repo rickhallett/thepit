@@ -27,13 +27,17 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Status command is free — shows Base L2 connectivity.
+	// Free commands — no license required.
+	// proof and status are community-accessible verification tools.
 	switch args[0] {
 	case "version":
 		fmt.Printf("pitnet %s\n", version)
 		return
 	case "status":
 		cmd.RunStatus(args[1:])
+		return
+	case "proof":
+		cmd.RunProof(args[1:])
 		return
 	}
 
@@ -60,6 +64,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "Usage:\n")
 	fmt.Fprintf(os.Stderr, "  pitnet <command> [flags]\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")
+	fmt.Fprintf(os.Stderr, "  proof <uid> [flags]     Generate a verification proof report (no license required)\n")
 	fmt.Fprintf(os.Stderr, "  submit [flags]          Encode an attestation payload for an agent\n")
 	fmt.Fprintf(os.Stderr, "  verify <uid> [flags]    Verify an attestation UID on-chain\n")
 	fmt.Fprintf(os.Stderr, "  audit [flags]           Audit all attested agents against on-chain data\n")
