@@ -230,10 +230,9 @@ func encodeString(s string) []byte {
 	padUint256(lenSlot, uint64(len(data)))
 
 	// Data padded to 32-byte boundary.
+	// Empty strings have paddedLen=0: just the length slot (value 0), no data slot.
+	// This matches the Solidity ABI spec and the EAS SDK's SchemaEncoder.
 	paddedLen := ((len(data) + 31) / 32) * 32
-	if paddedLen == 0 {
-		paddedLen = 32 // empty strings still get one 32-byte slot
-	}
 	padded := make([]byte, paddedLen)
 	copy(padded, data)
 
