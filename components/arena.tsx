@@ -459,7 +459,8 @@ export function Arena({
   }, [status, isReplay]);
 
   // --- Scroll management ---
-  const [autoScroll, setAutoScroll] = useState(true);
+  // Disable auto-scroll on replay so the user reads from the top.
+  const [autoScroll, setAutoScroll] = useState(!isReplay);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
