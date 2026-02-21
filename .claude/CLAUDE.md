@@ -107,6 +107,17 @@ This applies to code you write AND to agentic workflows you design.
 
 ---
 
+## Session State
+
+Before starting work, check `.claude/state/` for active flight plans. These are operational state files — PR dependency graphs, merge sequences, branching strategies, and decisions with reasoning. They survive context blowouts and prevent the next session from re-deriving conclusions that have already been verified.
+
+- **Read** any active state file before making integration decisions
+- **Update** the state file when PRs merge, decisions change, or new dependencies are discovered
+- **Delete** the state file when its scope is fully merged and post-merge verified
+- State files are committed to the repo — they are part of the verification fabric, not ephemeral notes
+
+---
+
 ## Session Completion
 
 Work is not complete until changes are:
