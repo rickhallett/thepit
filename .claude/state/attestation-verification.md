@@ -1,111 +1,153 @@
-# Attestation Verification — Integration Flight Plan
+# HN Launch — Integration Flight Plan
 
-> **Last updated:** 2026-02-21 08:05 UTC by Weaver
-> **Status:** Active — 3 branches ready, awaiting review + push
-> **Delete when:** All PRs below are merged and post-merge verified
+> **Last updated:** 2026-02-21 11:40 UTC by Weaver
+> **Status:** Active — 4 items to ship before HN submission
+> **Delete when:** HN post is submitted and first-hour monitoring is complete
 
 ## The Goal
 
-Prove that THE PIT's on-chain attestation system works end-to-end: TS writes attestations to Base mainnet via EAS, Go reads them back and verifies them, community members can independently verify any agent's identity. This is the HN launch artifact.
+Ship THE PIT to Hacker News. The pitch: a multi-agent AI debate arena with on-chain agent identity. The artifact: a downloadable binary (`pitnet proof`) that lets anyone verify attestations independently. The demo: anonymous visitors can run bouts without signing up.
 
-## What We Know (verified, not assumed)
+## What's Shipped (verified, deployed, on master)
 
-- **125 attestations** exist on-chain on Base mainnet under schema UID `0x026a50b7a0728afcedaa43113558312d894333f705028153eceafd8084e544d2`
-- **Schema verified**: On-chain schema string matches both `lib/eas.ts:38-39` and `pitnet/internal/abi/abi.go:26` exactly
-- **Live decode works**: `pitnet verify` successfully decodes attestation `0x13da22148f63504eac18935143f20349a619b7ebeaf416f0fa5362db923f0724` from Base mainnet — all fields correct
-- **Signer key**: `0xf951daD46F0A7d7402556DCaa70Ee4F8bC979824` — never committed to git. Check live balance: `cast balance 0xf951daD46F0A7d7402556DCaa70Ee4F8bC979824 --rpc-url https://mainnet.base.org`
-- **ABI encoding bug found and fixed**: Go's `encodeString()` added a spurious 32-byte slot for empty strings. Fixed in PR #333
+| PR | What | Tests added | Deployed |
+|----|------|-------------|----------|
+| #333 | ABI encoding fix + cross-implementation parity tests | 15 Go parity tests | Yes |
+| #334 | Share modal timing fix (empty bout → modal race) | — | Yes |
+| #335 | "What is this?" video explainer button + modal | — | Yes |
+| #336 | Demo mode (`DEMO_MODE_ENABLED`) + replay scroll fix | 3 TS tests | Yes (env var set in Vercel) |
+| #337 | `pitnet proof <UID>` verification command + shell script | — | Yes (in repo) |
+| #338 | `<DnaFingerprint>` SVG component (5x5, Tokyo Night) | 19 TS tests | Yes (in repo, not wired into UI) |
 
-## PR Dependency Graph
+**Current test counts:** 934 TS tests, ~50 pitnet Go tests, 22 pitkeel Go tests.
+**Production health:** OK (EAS on, subs on, credits on, DB 85ms latency).
 
-```text
-PR #333 — ABI encoding fix + parity tests
-  Status: Pushed, awaiting review
-  Branch: feat/attestation-verification (from master)
-  Files:  pitnet/internal/abi/abi.go
-          pitnet/internal/abi/abi_parity_test.go
-          scripts/eas-abi-golden.ts
-  Gate:   Green (15 Go tests, 912 TS tests, typecheck, lint)
+## What's Verified (not assumed)
 
-PR #??? — Verification proof command + shell script
-  Status: Built, gate green, NOT pushed
-  Branch: feat/verification-proof (from master @ b074612)
-  Commit: 9f762b4
-  Files:  pitnet/cmd/proof.go (NEW)
-          pitnet/internal/abi/abi.go (adds SchemaUID constant — line 28)
-          pitnet/main.go (wires proof command)
-          scripts/verify-attestation.sh (NEW)
-  Depends on #333: NO — uses abi.Decode which was correct before the fix
-  Overlap with #333: pitnet/internal/abi/abi.go — BUT different hunks
-    #333 modifies lines 230-236 (encodeString fix)
-    This PR adds lines 28-30 (SchemaUID constant)
-    Git will auto-merge. If conflict: trivial rebase.
-  Gate: Go vet + test clean. Tested live against Base mainnet attestation.
-  Key design: `pitnet proof` is license-free (dispatched before requireLicense).
-             Plain text output (no ANSI) — pasteable into issues/blogs.
+- **125 attestations** on Base mainnet under schema `0x026a50...d2`
+- **Signer key** `0xf951da...824` — not in git. Check balance: `cast balance 0xf951daD46F0A7d7402556DCaa70Ee4F8bC979824 --rpc-url https://mainnet.base.org`
+- **TS ↔ Go ABI parity** — golden-value tests prove cross-implementation encoding consistency (#333)
+- **`pitnet proof` works live** — tested against mainnet attestation `0x13da22...0724`, full verification report produced
+- **Demo mode works** — anonymous visitors can run bouts, rate limited to 2/hour/IP via intro pool
+- **Auto-deploy active** — master merges deploy to production automatically via Vercel
 
-PR #??? — Visual DNA fingerprints (identicons on agent cards)
-  Status: Built, gate green, NOT pushed
-  Branch: feat/dna-fingerprints (from master @ b074612)
-  Commit: 178c65c
-  Files:  components/dna-fingerprint.tsx (NEW)
-          tests/unit/dna-fingerprint.test.ts (NEW — 19 tests)
-  Depends on #333: NO — reads hash strings, no Go dependency
-  Overlap with #333: NONE
-  Overlap with verification proof: NONE
-  Gate: 931 TS tests pass (912 existing + 19 new), typecheck clean, lint clean.
-  Key design: 5x5 symmetric SVG grid, 16-color Tokyo Night palette,
-             zero new dependencies, SSR-compatible, graceful invalid hash handling.
-
-PR #??? — Community pitnet distribution
-  Status: Not started
-  Branch: TBD (from master)
-  Files:  Makefile or goreleaser config, possibly README
-  Depends on #333: YES — merge #333 FIRST so distributed binary carries the encoding fix
-  Overlap with #333: NONE (infrastructure, not code)
-```
-
-## Merge Sequence (ENFORCED)
+## Shipping Queue (STRICT ORDER)
 
 ```text
-1. PR #333 (ABI fix)           — merge first, post-merge verify
-2. Verification script PR      — can merge in any order relative to (3)
-3. Visual DNA fingerprints PR  — can merge in any order relative to (2)
-4. Community distribution PR   — merge LAST (must include #333's fix in the binary)
+P0  1. Community pitnet distribution
+       Cross-compile → GitHub Release → README walkthrough
+       THE artifact. Without this, on-chain is "trust us."
+
+P1  2. Wire DNA fingerprints into UI
+       Agent cards, bout headers, attestation sections
+       Makes identity visceral, not abstract.
+
+P1  3. Fix error event handling in use-bout.ts
+       SSE error events silently dropped by schema validation.
+       HN traffic will hit rate limits. Users need error messages, not empty bouts.
+
+P1  4. Review/update HN post copy
+       Update test counts, mention pitnet proof + demo mode + 125 attestations.
+       Final pass before submission.
 ```
 
-**Why #333 before distribution:** You don't ship a binary with a known encoding bug to the community you're asking to verify your attestations. The decoder was correct, but if anyone uses `pitnet audit` (which re-encodes locally and compares), the bug would surface.
+### Item 1: Community pitnet distribution
 
-**Why (2) and (3) are order-independent:** Zero file overlap, zero functional dependency. They are in different domains (Go CLI script vs React components) and can be developed and merged in parallel.
+**Branch:** `feat/pitnet-distribution` (from master)
+
+**What to build:**
+- Cross-compile matrix in pitnet/Makefile: `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, `windows/amd64`
+- Produce tarballs/zips with binary + `scripts/verify-attestation.sh`
+- Create GitHub Release with `gh release create` and attach all archives
+- Write a short verification README section (5 lines: download, chmod, run proof, see output)
+
+**Files:** `pitnet/Makefile`, possibly `pitnet/README.md` or root `README.md`
+**Depends on:** Nothing (all prerequisite PRs merged)
+**Key constraint:** Binary must include the ABI fix from #333 and the proof command from #337. Both are on master. Verified.
+**Overlap with other items:** None.
+
+### Item 2: Wire DNA fingerprints into UI
+
+**Branch:** `feat/wire-dna-fingerprints` (from master)
+
+**What to build:**
+- Render `<DnaFingerprint hash={agent.promptHash} />` on:
+  - Agent detail page (`app/agents/[id]/page.tsx` or equivalent)
+  - Bout transcript header (agent name row in `components/arena.tsx`)
+  - Attestation link sections (wherever easscan.org links appear)
+- Import the existing component from `components/dna-fingerprint.tsx`
+- Pass `size` prop appropriate to each context (16px inline, 32px on cards, 48px on detail)
+
+**Files to investigate:**
+- `components/arena.tsx` — agent name/avatar in message cards
+- `app/agents/[id]/page.tsx` or equivalent agent detail page
+- Any attestation link UI (grep for `easscan`)
+
+**Depends on:** #338 (merged)
+**Overlap with other items:** None — pure frontend, no Go, no API changes.
+
+### Item 3: Fix error event handling in use-bout.ts
+
+**Branch:** `fix/sse-error-handling` (from master)
+
+**The bug:** `lib/use-bout.ts` line 281-293. The SSE stream is parsed through `uiMessageChunkSchema` (Vercel AI SDK). Error events `{"type":"error","errorText":"..."}` don't conform to this schema, so `value.success` is `false` at line 290 and the event is silently dropped via `continue`. The `handleEvent` function at line 226-232 correctly handles error events — they just never reach it.
+
+**The fix:** Before the schema validation loop, intercept raw events and check for `type: "error"`. Or: parse error events separately before passing through the schema. Or: add error events to the schema union. Need to investigate the Vercel AI SDK's `parseJsonEventStream` to find the cleanest approach.
+
+**Files:** `lib/use-bout.ts`
+**Depends on:** Nothing
+**Overlap with other items:** None
+
+### Item 4: Review/update HN post copy
+
+**File:** `docs/press-release-strategy.md`
+
+**What needs updating:**
+- Test count: was "425 tests" in some docs → now 934 TS + ~50 Go + 22 pitkeel
+- Mention `pitnet proof` as downloadable verification binary
+- Mention demo mode (no sign-up required to try it)
+- Mention 125 on-chain attestations on Base mainnet
+- Link to GitHub Release (once Item 1 ships)
+- Review first comment for accuracy against current product state
+- Reference the video explainer ("What is this?" button on landing page)
+
+**Depends on:** Items 1-3 being shipped (so copy reflects final state)
+**This ships last.**
+
+## What's NOT in scope for HN launch
+
+Parked deliberately. These are real but not blocking:
+
+| Item | Why parked |
+|------|-----------|
+| Demo mode UX polish (hide credit/sub UI for anon) | Functional but slightly confusing. Cosmetic. |
+| Live chain integration test (Base Sepolia) | 125 mainnet attestations ARE the live proof. Test would be belt-and-suspenders. |
+| pitnet CLI test coverage | `proof.go` works manually. Tests are good practice but not launch-blocking. |
+| E2E Playwright attestation flow | Playwright tests paused during iteration per AGENTS.md. |
+| `pitnet submit` completion | TS write path handles attestation creation. CLI submit is future work. Documented. |
+| Error event schema in `use-bout.ts` — full Vercel AI SDK investigation | The fix in Item 3 is targeted. A deeper SDK integration audit is future work. |
+| Video-to-chain hashing | Interesting attestation extension. Research item, not launch item. |
 
 ## Branching Strategy
 
-All new branches fork from **master**, not from each other. This avoids cascade rebases if any PR gets review changes. The work is genuinely independent — verified by checking `git diff` file lists for overlap.
-
-## Strategic Context
-
-- **The human is Captain.** The orchestration agent is Helm (renamed from Captain in PR #331).
-- **Product thesis:** Agent authenticity and attestation will matter as agents become commercially significant. THE PIT sits at the intersection of entertainment (watch agents battle, share replays) and verification (provable lineage, on-chain identity).
-- **HN moment:** Community-testable `pitnet verify` is the release artifact. "Weary-eyed blockchain-fatigued technicians will want to verify it themselves."
-- **Visual layer matters:** DNA fingerprints (identicon-style hash visualisations) take the project from tinker's-interest to something visceral — referenced Pokémon, identity ownership.
-- **Not a PhD:** Find what we have, prove it works, ship it.
+All branches fork from **master**. No stacking. Each item is independent — verified by file overlap analysis. Merge in queue order. Post-merge verify each.
 
 ## Operational Notes
 
-- **pitkeel hook active**: Every commit gets operational signals appended. Binary at `pitkeel/pitkeel` (gitignored, rebuild with `go build .` in pitkeel/).
-- **CI note**: `security` check fails on all PRs (pre-existing `minimatch` transitive dep, issue #330). Local gate is merge authority.
-- **Test counts**: 931 TS unit tests (912 base + 19 DNA fingerprint) + 22 pitkeel Go tests + ~50 pitnet/pitforge Go tests
+- **pitkeel hook active**: Every commit gets operational signals. Binary at `pitkeel/pitkeel` (gitignored).
+- **CI note**: `security` check fails on all PRs (pre-existing `minimatch` dep, issue #330). Local gate is merge authority.
+- **Auto-deploy**: Vercel deploys master → production automatically. Each merge is a deploy.
+- **DEMO_MODE_ENABLED=true** is set in Vercel production. To disable: `printf 'false' | vercel env add DEMO_MODE_ENABLED production`.
+- **Rate limiting for HN traffic**: Anonymous tier is 2 bouts/hour/IP. Intro pool is 15,000 credits. If HN traffic exceeds this, disable demo mode — auth wall returns instantly.
 
 ## Decisions Made (with reasoning)
 
 | Decision | Reasoning | Reversible? |
 |----------|-----------|-------------|
-| Branch all new work from master, not from feat/attestation-verification | Zero file overlap verified. Avoids cascade rebases if #333 gets review changes | Yes — can rebase onto any base |
-| Merge #333 before distribution PR | Encoding bug would surface in `pitnet audit` if community runs it | Yes — but embarrassing to ship then fix |
-| Merge #333 before verification-proof PR | Not strictly required (different hunks in abi.go), but cleaner to merge the fix first then rebase proof if needed | Yes |
-| Allow DNA fingerprints to merge in any order relative to others | Zero Go code, zero file overlap, completely different domain | Yes |
-| Don't block on remote CI for merges | Local gate is authority (BUILDING.md). CI `security` check is a known false positive (#330) | Yes — reintroduce when product stabilises |
-| `pitnet proof` is license-free | The whole point is community verification without permission gates | No — this is a product principle |
-| `pitnet proof` output is plain text, not styled | ANSI escapes corrupt in GitHub issues, blog posts, HN comments. The existing `verify` command keeps styled output for terminal use. | Yes |
-| DNA fingerprints use SVG, not Canvas | SSR-compatible, scales without pixelation, testable without DOM mocks, no useEffect needed | Yes — but would require rewrite |
-| Zero new npm dependencies for DNA fingerprints | Only uses clsx (already in package.json). Avoids supply chain surface for a visual component. | Yes |
+| Ship pitnet distribution first | Without the binary, the on-chain thesis is unverifiable claims. The binary IS the pitch. | Yes — but launch impact is degraded |
+| Wire DNA fingerprints before HN | Visceral identity > abstract identity. A 5x5 grid next to an agent name is worth 1000 words about "cryptographic identity." | Yes |
+| Fix SSE error handling before HN | HN traffic will hit rate limits. Empty bouts with share modals is a terrible first impression. | Yes — but embarrassing |
+| Update HN copy last | Copy must reflect shipped state. Updating it before the other items land means updating it twice. | Yes |
+| Skip demo mode UX polish | Functional > polished. Credit/sub UI visible to anon users is confusing but not blocking. Fix post-launch. | Yes |
+| Skip Sepolia integration test | 125 mainnet attestations are stronger proof than a testnet round-trip. Ship the proof command, not the test. | Yes |
+| Anonymous rate limit at 2/hour/IP | Conservative. Can increase if demo mode works well. Can disable entirely if abuse detected. | Yes — env var flip |
