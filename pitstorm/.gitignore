@@ -1,15 +1,19 @@
-# Binary
+# Binaries
 pitstorm
 !pitstorm/
+/analyze
+/evaluate
 
 # Test output
 coverage.out
 
 # Simulation results (JSON output, live status) — ignore contents but
-# allow the hypotheses subdirectory (results/ alone blocks negation).
+# allow the hypotheses and evaluate subdirectories.
 results/*
 # Track hypothesis research data
 !results/hypotheses/
+# Track evaluate-and-vote outputs
+!results/evaluate/
 
 # Credentials (contains plaintext passwords and session tokens)
 accounts.json
