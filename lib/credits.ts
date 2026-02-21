@@ -372,7 +372,13 @@ export async function settleCredits(
           source: reason,
           referenceId:
             typeof metadata.referenceId === 'string' ? metadata.referenceId : null,
-          metadata: { ...metadata, atomicSettlement: true },
+          metadata: {
+            ...metadata,
+            atomicSettlement: true,
+            // Record the intended charge so audit reconciliation can detect
+            // when the SQL cap (LEAST/GREATEST) reduced the actual deduction.
+            intendedChargeMicro: deltaMicro,
+          },
         });
       }
     });

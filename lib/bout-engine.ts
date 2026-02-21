@@ -682,7 +682,9 @@ async function _executeBoutInner(
       const agent = preset.agents[i % preset.agents.length];
       if (!agent) {
         throw new Error(
-          `Agent not found at index ${i % preset.agents.length} — preset.agents is empty or corrupted (boutId=${boutId})`,
+          preset.agents.length === 0
+            ? `preset.agents is empty — no agents defined for preset (boutId=${boutId})`
+            : `Agent not found at index ${i % preset.agents.length} — preset.agents is corrupted (boutId=${boutId})`,
         );
       }
       const turnId = `${boutId}-${i}-${agent.id}`;

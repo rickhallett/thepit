@@ -7,8 +7,10 @@ import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
 import { assertNever } from '@/lib/api-utils';
 
-/** Valid reaction types — kept in sync with reactionSchema z.enum in api-schemas.ts. */
-export type ReactionType = 'heart' | 'fire';
+/** Single source of truth for valid reaction types. Derive all other
+ *  representations (Zod enum, TypeScript union) from this tuple. */
+export const REACTION_TYPES = ['heart', 'fire'] as const;
+export type ReactionType = (typeof REACTION_TYPES)[number];
 
 export type ReactionCountMap = Record<number, { heart: number; fire: number }>;
 
