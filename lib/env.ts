@@ -62,6 +62,7 @@ const serverEnvSchema = z.object({
   EAS_ENABLED: boolFlag,
   ASK_THE_PIT_ENABLED: boolFlag,
   CREDITS_ADMIN_ENABLED: boolFlag,
+  DEMO_MODE_ENABLED: boolFlag,
 
   // --- Credit economy ---
   CREDITS_STARTING_CREDITS: numStr(500),

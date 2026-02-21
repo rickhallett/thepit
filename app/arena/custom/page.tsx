@@ -6,6 +6,7 @@ import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { BYOK_ENABLED } from '@/lib/credits';
 import { getAgentSnapshots } from '@/lib/agent-registry';
 import { getCopy } from '@/lib/copy';
+import { env } from '@/lib/env';
 import { getUserTier, SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
 
 import { createArenaBout } from '../../actions';
@@ -72,6 +73,7 @@ export default async function ArenaBuilderPage({
           byokEnabled={BYOK_ENABLED && userTier !== 'free'}
           initialAgentIds={initialAgentIds}
           initialTopic={initialTopic}
+          demoMode={env.DEMO_MODE_ENABLED}
         />
 
         <footer className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground/70 pt-8 text-xs uppercase tracking-[0.3em] text-muted">

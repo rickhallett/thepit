@@ -171,6 +171,10 @@ vi.mock('nanoid', () => ({
   nanoid: () => 'fixed-nanoid-1234567',
 }));
 
+vi.mock('@/lib/env', () => ({
+  env: { DEMO_MODE_ENABLED: false },
+}));
+
 // ---------------------------------------------------------------------------
 // Import the server actions under test (AFTER mocks)
 // ---------------------------------------------------------------------------
@@ -385,6 +389,51 @@ describe('server actions', () => {
       expect(url).toContain('/bout/fixed-nanoid-1234567');
       expect(url).toContain('presetId=darwin-special');
       expect(mockDb.insert).toHaveBeenCalled();
+    });
+  });
+
+  // ================================================================
+  // createBout — demo mode
+  // ================================================================
+  describe('createBout — demo mode', () => {
+    it('redirects unauthenticated user to sign-up when demo mode is off', async () => {
+      authMock.mockResolvedValue({ userId: null });
+      const url = await catchRedirect(() => createBout('darwin-special'));
+      expect(url).toContain('/sign-up');
+    });
+
+    it('allows unauthenticated bout creation when demo mode is on', async () => {
+      authMock.mockResolvedValue({ userId: null });
+      const envModule = await import('@/lib/env');
+      Object.defineProperty(envModule.env, 'DEMO_MODE_ENABLED', { value: true, writable: true });
+
+      const url = await catchRedirect(() => createBout('darwin-special'));
+      expect(url).toContain('/bout/fixed-nanoid-1234567');
+      expect(mockDb.insert).toHaveBeenCalled();
+      // Verify ownerId is null for anonymous demo bout
+      const insertCall = mockDb.insert.mock.results[0];
+      const valuesCall = insertCall?.value?.values;
+      if (valuesCall) {
+        expect(valuesCall).toHaveBeenCalledWith(
+          expect.objectContaining({ ownerId: null }),
+        );
+      }
+      // ensureUserRecord should NOT be called for anonymous users
+      expect(mockEnsureUserRecord).not.toHaveBeenCalled();
+
+      Object.defineProperty(envModule.env, 'DEMO_MODE_ENABLED', { value: false, writable: true });
+    });
+
+    it('still calls ensureUserRecord for authenticated users in demo mode', async () => {
+      authMock.mockResolvedValue({ userId: 'user_test' });
+      const envModule = await import('@/lib/env');
+      Object.defineProperty(envModule.env, 'DEMO_MODE_ENABLED', { value: true, writable: true });
+
+      const url = await catchRedirect(() => createBout('darwin-special'));
+      expect(url).toContain('/bout/fixed-nanoid-1234567');
+      expect(mockEnsureUserRecord).toHaveBeenCalledWith('user_test');
+
+      Object.defineProperty(envModule.env, 'DEMO_MODE_ENABLED', { value: false, writable: true });
     });
   });
 

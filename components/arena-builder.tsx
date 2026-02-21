@@ -39,6 +39,7 @@ export function ArenaBuilder({
   byokEnabled = false,
   initialAgentIds = [],
   initialTopic = '',
+  demoMode = false,
 }: {
   agents: ArenaAgentOption[];
   action: (formData: FormData) => Promise<void>;
@@ -48,6 +49,7 @@ export function ArenaBuilder({
   byokEnabled?: boolean;
   initialAgentIds?: string[];
   initialTopic?: string;
+  demoMode?: boolean;
 }) {
   const c = useCopy();
   const [query, setQuery] = useState('');
@@ -291,7 +293,7 @@ export function ArenaBuilder({
         {selected.map((id) => (
           <input key={id} type="hidden" name="agentIds" value={id} />
         ))}
-        <SignedIn>
+        {demoMode ? (
           <button
             type="submit"
             disabled={selected.length < 2}
@@ -304,17 +306,34 @@ export function ArenaBuilder({
           >
             {c.arenaBuilderComponent.launchBout}
           </button>
-        </SignedIn>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button
-              type="button"
-              className="rounded-full border-2 border-accent/70 px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
-            >
-              {c.arenaBuilderComponent.signInToLaunch}
-            </button>
-          </SignInButton>
-        </SignedOut>
+        ) : (
+          <>
+            <SignedIn>
+              <button
+                type="submit"
+                disabled={selected.length < 2}
+                className={cn(
+                  'rounded-full border-2 px-4 py-3 text-xs uppercase tracking-[0.3em] transition',
+                  selected.length < 2
+                    ? 'border-foreground/30 text-muted'
+                    : 'border-accent text-accent hover:bg-accent hover:text-background',
+                )}
+              >
+                {c.arenaBuilderComponent.launchBout}
+              </button>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="rounded-full border-2 border-accent/70 px-4 py-3 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+                >
+                  {c.arenaBuilderComponent.signInToLaunch}
+                </button>
+              </SignInButton>
+            </SignedOut>
+          </>
+        )}
       </section>
 
       <section className="border-2 border-foreground/60 bg-black/50 p-6">
