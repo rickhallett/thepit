@@ -14,6 +14,7 @@
 import { z } from 'zod/v4';
 import { UNSAFE_PATTERN } from '@/lib/validation';
 import { REACTION_TYPES } from '@/lib/reactions';
+import { asBoutId, asAgentId, type BoutId, type AgentId } from '@/lib/domain-ids';
 
 // ---------------------------------------------------------------------------
 // Shared refinements
@@ -65,7 +66,8 @@ export type AskThePitBody = z.infer<typeof askThePitSchema>;
 /** POST /api/reactions */
 export const reactionSchema = z.object({
   boutId: z.string({ message: 'Missing boutId or turnIndex.' }).trim()
-    .refine((s) => /^[\w-]{10,30}$/.test(s), 'Invalid boutId format.'),
+    .refine((s) => /^[\w-]{10,30}$/.test(s), 'Invalid boutId format.')
+    .transform((s): BoutId => asBoutId(s)),
   turnIndex: z.number({ message: 'Missing boutId or turnIndex.' })
     .int('turnIndex must be a non-negative integer.')
     .refine((n) => n >= 0, 'turnIndex must be a non-negative integer.'),
@@ -77,14 +79,19 @@ export type ReactionBody = z.infer<typeof reactionSchema>;
 export const shortLinkSchema = z.object({
   boutId: z.string({ message: 'Valid boutId required.' }).trim()
     .min(1, 'Valid boutId required.')
-    .max(21, 'Valid boutId required.'),
+    .max(21, 'Valid boutId required.')
+    .transform((s): BoutId => asBoutId(s)),
 });
 export type ShortLinkBody = z.infer<typeof shortLinkSchema>;
 
 /** POST /api/winner-vote */
 export const winnerVoteSchema = z.object({
-  boutId: z.string({ message: 'Missing boutId or agentId.' }).trim().min(1, 'Missing boutId or agentId.'),
-  agentId: z.string({ message: 'Missing boutId or agentId.' }).trim().min(1, 'Missing boutId or agentId.'),
+  boutId: z.string({ message: 'Missing boutId or agentId.' }).trim()
+    .min(1, 'Missing boutId or agentId.')
+    .transform((s): BoutId => asBoutId(s)),
+  agentId: z.string({ message: 'Missing boutId or agentId.' }).trim()
+    .min(1, 'Missing boutId or agentId.')
+    .transform((s): AgentId => asAgentId(s)),
 });
 export type WinnerVoteBody = z.infer<typeof winnerVoteSchema>;
 
