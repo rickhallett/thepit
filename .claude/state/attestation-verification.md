@@ -1,7 +1,7 @@
 # Attestation Verification — Integration Flight Plan
 
-> **Last updated:** 2026-02-21 by Weaver
-> **Status:** Active — 3 parallel workstreams, 1 PR awaiting review
+> **Last updated:** 2026-02-21 08:05 UTC by Weaver
+> **Status:** Active — 3 branches ready, awaiting review + push
 > **Delete when:** All PRs below are merged and post-merge verified
 
 ## The Goal
@@ -27,21 +27,35 @@ PR #333 — ABI encoding fix + parity tests
           scripts/eas-abi-golden.ts
   Gate:   Green (15 Go tests, 912 TS tests, typecheck, lint)
 
-PR #??? — Verification proof script
-  Status: Not started
-  Branch: TBD (from master)
-  Files:  scripts/verify-attestation.sh (or similar) — NEW
-          possibly pitnet/cmd/verify.go adjustments
+PR #??? — Verification proof command + shell script
+  Status: Built, gate green, NOT pushed
+  Branch: feat/verification-proof (from master @ b074612)
+  Commit: 9f762b4
+  Files:  pitnet/cmd/proof.go (NEW)
+          pitnet/internal/abi/abi.go (adds SchemaUID constant — line 28)
+          pitnet/main.go (wires proof command)
+          scripts/verify-attestation.sh (NEW)
   Depends on #333: NO — uses abi.Decode which was correct before the fix
-  Overlap with #333: NONE
+  Overlap with #333: pitnet/internal/abi/abi.go — BUT different hunks
+    #333 modifies lines 230-236 (encodeString fix)
+    This PR adds lines 28-30 (SchemaUID constant)
+    Git will auto-merge. If conflict: trivial rebase.
+  Gate: Go vet + test clean. Tested live against Base mainnet attestation.
+  Key design: `pitnet proof` is license-free (dispatched before requireLicense).
+             Plain text output (no ANSI) — pasteable into issues/blogs.
 
 PR #??? — Visual DNA fingerprints (identicons on agent cards)
-  Status: Not started
-  Branch: TBD (from master)
-  Files:  components/ (new component), possibly app/ routes
-  Depends on #333: NO — reads hash strings from existing data model
+  Status: Built, gate green, NOT pushed
+  Branch: feat/dna-fingerprints (from master @ b074612)
+  Commit: 178c65c
+  Files:  components/dna-fingerprint.tsx (NEW)
+          tests/unit/dna-fingerprint.test.ts (NEW — 19 tests)
+  Depends on #333: NO — reads hash strings, no Go dependency
   Overlap with #333: NONE
-  Overlap with verification script: NONE
+  Overlap with verification proof: NONE
+  Gate: 931 TS tests pass (912 existing + 19 new), typecheck clean, lint clean.
+  Key design: 5x5 symmetric SVG grid, 16-color Tokyo Night palette,
+             zero new dependencies, SSR-compatible, graceful invalid hash handling.
 
 PR #??? — Community pitnet distribution
   Status: Not started
@@ -80,7 +94,7 @@ All new branches fork from **master**, not from each other. This avoids cascade 
 
 - **pitkeel hook active**: Every commit gets operational signals appended. Binary at `pitkeel/pitkeel` (gitignored, rebuild with `go build .` in pitkeel/).
 - **CI note**: `security` check fails on all PRs (pre-existing `minimatch` transitive dep, issue #330). Local gate is merge authority.
-- **Test counts**: 912 TS unit tests + 22 pitkeel Go tests + ~50 pitnet/pitforge Go tests
+- **Test counts**: 931 TS unit tests (912 base + 19 DNA fingerprint) + 22 pitkeel Go tests + ~50 pitnet/pitforge Go tests
 
 ## Decisions Made (with reasoning)
 
@@ -88,5 +102,10 @@ All new branches fork from **master**, not from each other. This avoids cascade 
 |----------|-----------|-------------|
 | Branch all new work from master, not from feat/attestation-verification | Zero file overlap verified. Avoids cascade rebases if #333 gets review changes | Yes — can rebase onto any base |
 | Merge #333 before distribution PR | Encoding bug would surface in `pitnet audit` if community runs it | Yes — but embarrassing to ship then fix |
-| Allow (2) and (3) to merge in any order | Verified: different domains (Go CLI vs React), no shared files, no shared state | Yes |
+| Merge #333 before verification-proof PR | Not strictly required (different hunks in abi.go), but cleaner to merge the fix first then rebase proof if needed | Yes |
+| Allow DNA fingerprints to merge in any order relative to others | Zero Go code, zero file overlap, completely different domain | Yes |
 | Don't block on remote CI for merges | Local gate is authority (BUILDING.md). CI `security` check is a known false positive (#330) | Yes — reintroduce when product stabilises |
+| `pitnet proof` is license-free | The whole point is community verification without permission gates | No — this is a product principle |
+| `pitnet proof` output is plain text, not styled | ANSI escapes corrupt in GitHub issues, blog posts, HN comments. The existing `verify` command keeps styled output for terminal use. | Yes |
+| DNA fingerprints use SVG, not Canvas | SSR-compatible, scales without pixelation, testable without DOM mocks, no useEffect needed | Yes — but would require rewrite |
+| Zero new npm dependencies for DNA fingerprints | Only uses clsx (already in package.json). Avoids supply chain surface for a visual component. | Yes |
