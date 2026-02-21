@@ -49,6 +49,7 @@ export function PresetCard({
   premiumModels = [],
   defaultPremiumModel,
   byokEnabled = false,
+  demoMode = false,
 }: {
   preset: Preset;
   action: (formData: FormData) => Promise<void>;
@@ -57,6 +58,7 @@ export function PresetCard({
   premiumModels?: string[];
   defaultPremiumModel?: string;
   byokEnabled?: boolean;
+  demoMode?: boolean;
 }) {
   const c = useCopy();
   const showInput = Boolean(preset.requiresInput || preset.inputLabel);
@@ -176,19 +178,25 @@ export function PresetCard({
             </p>
           )}
         </div>
-        <SignedIn>
+        {demoMode ? (
           <SubmitButton locked={locked} />
-        </SignedIn>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button
-              type="button"
-              className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
-            >
-              {c.presetCard.signInToPlay}
-            </button>
-          </SignInButton>
-        </SignedOut>
+        ) : (
+          <>
+            <SignedIn>
+              <SubmitButton locked={locked} />
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="rounded-full border-2 border-accent/70 px-4 py-2 text-xs uppercase tracking-[0.3em] text-accent transition hover:bg-accent hover:text-background"
+                >
+                  {c.presetCard.signInToPlay}
+                </button>
+              </SignInButton>
+            </SignedOut>
+          </>
+        )}
       </div>
 
       {locked && isPremium && (

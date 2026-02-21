@@ -32,6 +32,7 @@ import {
 import { resolveTurns } from '@/lib/turns';
 import { getFormString } from '@/lib/form-utils';
 import { log } from '@/lib/logger';
+import { env } from '@/lib/env';
 
 /**
  * Resolve the app URL for redirects (e.g. Stripe checkout success/cancel).
@@ -65,11 +66,10 @@ export async function createBout(presetId: string, formData?: FormData) {
 
   const { userId } = await auth();
 
-  // Require authentication for all bouts — captures every user for the
-  // first-bout Opus promotion and prevents anonymous free-pool drain.
-  // Send to sign-up (not sign-in) since unauthenticated users triggering
-  // a bout are most likely new visitors who need to create an account.
-  if (!userId) {
+  // Require authentication unless demo mode is enabled.
+  // Demo mode lets anonymous visitors run bouts without signing up —
+  // the bout engine handles anonymous users via intro pool + IP rate limiting.
+  if (!userId && !env.DEMO_MODE_ENABLED) {
     redirect('/sign-up?redirect_url=/arena');
   }
 
@@ -82,14 +82,16 @@ export async function createBout(presetId: string, formData?: FormData) {
   const lengthConfig = resolveResponseLength(length);
   const formatConfig = resolveResponseFormat(format);
 
-  await ensureUserRecord(userId);
+  if (userId) {
+    await ensureUserRecord(userId);
+  }
 
   await db.insert(bouts).values({
     id,
     presetId,
     status: 'running',
     transcript: [],
-    ownerId: userId,
+    ownerId: userId ?? null,
     topic: topic ?? null,
     responseLength: lengthConfig.id,
     responseFormat: formatConfig.id,
@@ -115,8 +117,8 @@ export async function createBout(presetId: string, formData?: FormData) {
 export async function createArenaBout(formData: FormData) {
   const { userId } = await auth();
 
-  // Require authentication for all bouts.
-  if (!userId) {
+  // Require authentication unless demo mode is enabled.
+  if (!userId && !env.DEMO_MODE_ENABLED) {
     redirect('/sign-in?redirect_url=/arena/custom');
   }
 
@@ -150,7 +152,9 @@ export async function createArenaBout(formData: FormData) {
     throw new Error('One or more agents could not be found.');
   }
 
-  await ensureUserRecord(userId);
+  if (userId) {
+    await ensureUserRecord(userId);
+  }
 
   const db = requireDb();
   const id = nanoid();
@@ -159,7 +163,7 @@ export async function createArenaBout(formData: FormData) {
     presetId: ARENA_PRESET_ID,
     status: 'running',
     transcript: [],
-    ownerId: userId,
+    ownerId: userId ?? null,
     topic: topic || null,
     responseLength: lengthConfig.id,
     responseFormat: formatConfig.id,

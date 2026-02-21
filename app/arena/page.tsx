@@ -30,6 +30,7 @@ import {
 } from '@/lib/tier';
 import { ALL_PRESETS } from '@/lib/presets';
 import { getCopy } from '@/lib/copy';
+import { env } from '@/lib/env';
 
 import {
   createBout,
@@ -70,7 +71,8 @@ export default async function ArenaPage() {
 
   // Legacy premium flag (used when subscriptions are disabled)
   const premiumEnabled = !subsEnabled && process.env.PREMIUM_ENABLED === 'true';
-  const showCreditPrompt = creditsEnabled && !userId;
+  const demoMode = env.DEMO_MODE_ENABLED;
+  const showCreditPrompt = creditsEnabled && !userId && !demoMode;
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -83,6 +85,11 @@ export default async function ArenaPage() {
           <p className="max-w-2xl text-sm text-muted">
             {c.arena.description}
           </p>
+          {demoMode && !userId && (
+            <span className="inline-block rounded-full border-2 border-yellow-400/70 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-yellow-400">
+              Demo Mode — No sign-up required
+            </span>
+          )}
           {creditsEnabled && creditBalanceMicro !== null && (
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.3em] text-muted">
               <span className="rounded-full border-2 border-foreground/60 px-3 py-1">
@@ -220,6 +227,7 @@ export default async function ArenaPage() {
                   : DEFAULT_PREMIUM_MODEL_ID
               }
               byokEnabled={BYOK_ENABLED && userTier !== 'free'}
+              demoMode={demoMode}
             />
           ))}
         </section>

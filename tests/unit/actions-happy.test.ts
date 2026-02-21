@@ -179,6 +179,10 @@ vi.mock('nanoid', () => ({
   nanoid: () => 'fixed-nanoid-1234567',
 }));
 
+vi.mock('@/lib/env', () => ({
+  env: { DEMO_MODE_ENABLED: false },
+}));
+
 // ---------------------------------------------------------------------------
 // Import the server actions under test (AFTER mocks)
 // ---------------------------------------------------------------------------
