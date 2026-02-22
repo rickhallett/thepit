@@ -11,10 +11,9 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js" />
   <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/tests-1%2C007%20passing-brightgreen" alt="Tests" />
-  <img src="https://img.shields.io/badge/Anthropic-Claude-orange" alt="Claude" />
+  <img src="https://img.shields.io/badge/Go-1.25-00ADD8" alt="Go" />
+  <img src="https://img.shields.io/badge/tests-1%2C046%20passing-brightgreen" alt="Tests" />
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
 
@@ -77,7 +76,7 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 | Error Tracking | Sentry |
 | Analytics | PostHog + Vercel Analytics |
 | Hosting | Vercel |
-| Tests | Vitest (1,007) + Playwright (7 E2E specs) |
+| Tests | Vitest (1,046) + Playwright (7 E2E specs) |
 | CLI Toolchain | Go 1.25 (8 CLIs + shared lib) |
 
 ---
