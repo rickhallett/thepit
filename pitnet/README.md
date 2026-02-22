@@ -76,6 +76,15 @@ pitnet audit --rpc <url> --db <connection-string>
 
 Queries all agents with attestation UIDs in the database, verifies each on-chain, and compares promptHash + manifestHash. Reports pass/fail per agent with a summary. Uses `DATABASE_URL` from `.env` by default.
 
+### `proof` — Verification report (free)
+
+```bash
+pitnet proof <attestation-uid>
+pitnet proof <attestation-uid> --rpc <url>
+```
+
+Fetches an attestation by UID, decodes all fields, and prints a human-readable verification report. Designed for community use — included in the GitHub Release v1.1.0 cross-compiled binaries (linux/darwin amd64+arm64, windows/amd64).
+
 ### `version`
 
 ```bash

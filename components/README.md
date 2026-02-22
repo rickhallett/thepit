@@ -2,7 +2,7 @@
 
 # components/
 
-32 React components across a mostly flat directory with a `ui/` subdirectory for primitives. All but six (`SiteFooter`, `AgentIcon`, `BoutCard`, `BuilderShowcase`, `ui/badge.tsx`, `ui/button.tsx`) are marked `'use client'`. Styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
+38 React components across a mostly flat directory with a `ui/` subdirectory for primitives. Styling is applied directly via Tailwind classes with a consistent brutalist design vocabulary.
 
 ## Component Inventory
 
@@ -139,9 +139,9 @@ All components use Tailwind CSS v4 directly. The `cn()` utility (`clsx` + `tailw
 
 ## Design Decisions & Trade-offs
 
-- **Minimal UI primitive layer** — A `ui/` subdirectory contains `button.tsx` and `badge.tsx` as shared primitives. Most components apply Tailwind classes directly. This works well at the current scale (32 components) because the design vocabulary is tight and consistent.
+- **Minimal UI primitive layer** — A `ui/` subdirectory contains `button.tsx` and `badge.tsx` as shared primitives. Most components apply Tailwind classes directly. This works well at the current scale (38 components) because the design vocabulary is tight and consistent.
 - **Mostly flat directory** — Top-level components are grouped by naming convention (e.g., `agent-*`, `leaderboard-*`, `feature-request-*`) with a `ui/` subdirectory for shared primitives. Consider introducing more subdirectories if component count doubles.
-- **Nearly all client components** — All but six (`SiteFooter`, `AgentIcon`, `BoutCard`, `BuilderShowcase`, `ui/badge`, `ui/button`) lack `'use client'`. This is appropriate: the client components handle user interaction (forms, streaming, modals, counters). Server components are the page-level files in `app/`.
+- **Nearly all client components** — Most components are marked `'use client'`. This is appropriate: the client components handle user interaction (forms, streaming, modals, counters). Server components are the page-level files in `app/`.
 
 ---
 

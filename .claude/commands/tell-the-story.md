@@ -46,7 +46,7 @@ The argument `$ARGUMENTS` determines scope. It can be a single phase, a specific
       <step>Read the pre-registrations: `pitstorm/results/hypotheses/H2-preregistration.md` through `H6-preregistration.md`</step>
       <step>Read the live research page: `app/research/page.tsx` — extract all hardcoded findings, stats, and claims</step>
       <step>Read the literature review: `docs/research-citations.md` — extract all cited papers, novelty claims, and alignment claims</step>
-      <step>Read the press strategy: `docs/press-release-strategy.md` and `docs/criticism-playbook.md`</step>
+      <step>Read the criticism playbook: `docs/criticism-playbook.md`</step>
       <step>Read the landing copy: `docs/landing-v3-final.md`</step>
       <step>Read the social playbook: `docs/social-content-playbook.md`</step>
       <step>Read the audience models: `docs/audience-models/demographic-lenses-v1.md`</step>

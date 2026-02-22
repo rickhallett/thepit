@@ -20,6 +20,8 @@ Project documentation organized by purpose. These are operational and planning d
 | [hardening-changes-2026-02-10.md](hardening-changes-2026-02-10.md) | Feb 10, 2026 | Implementation details for security hardening changes |
 | [release-review-2026-02-11.md](release-review-2026-02-11.md) | Feb 11, 2026 | Pre-release review and sign-off |
 | [launch-hardening-report-2026-02-13.md](launch-hardening-report-2026-02-13.md) | Feb 13, 2026 | Launch hardening: GDPR consent, security fixes, accessibility, documentation audit |
+| [review-action-plan-2026-02-13.md](review-action-plan-2026-02-13.md) | Feb 13, 2026 | Review action plan and follow-up |
+| [release-review-2026-02-19.md](release-review-2026-02-19.md) | Feb 19, 2026 | Full-stack release readiness review (HN launch assessment) |
 
 ## Strategy & Marketing
 
@@ -35,6 +37,7 @@ Project documentation organized by purpose. These are operational and planning d
 |----------|-------------|
 | [research-page-v1.md](research-page-v1.md) | Content for the public research explainer page |
 | [research-citations.md](research-citations.md) | Literature review and academic citations |
+| [research-seed-hypotheses.md](research-seed-hypotheses.md) | Seed hypotheses for the research programme |
 
 ## Technical Reviews
 
@@ -57,6 +60,7 @@ Project documentation organized by purpose. These are operational and planning d
 |----------|-------------|
 | [specs/reduce-deps.md](specs/reduce-deps.md) | Dependency reduction specification |
 | [specs/llm-qa-automation.md](specs/llm-qa-automation.md) | LLM-driven QA automation framework specification |
+| [specs/level4-thin-contract.md](specs/level4-thin-contract.md) | Level-4 thin data contract specification |
 
 ## What Goes Where
 

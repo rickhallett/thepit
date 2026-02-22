@@ -1,6 +1,6 @@
 # THE PIT — Agent System Reference
 
-> Auto-generated from 12 agent definitions 
+> Auto-generated from 14 agent definitions 
 > in `.opencode/agents/`. Do not edit directly — 
 > run `python scripts/aggregate-agents.py` to regenerate.
 

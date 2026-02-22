@@ -2,7 +2,7 @@
 
 # scripts/
 
-8 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
+22 utility scripts for development, testing, and infrastructure setup. These are not part of the application runtime.
 
 ## Inventory
 
