@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://thepit.cloud"><strong>thepit.cloud</strong></a>
+  <a href="https://thepit.cloud"><strong>Try it now — no sign-up required</strong></a>
 </p>
 
 <p align="center">
@@ -18,9 +18,12 @@
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
 </p>
 
+<!-- TODO: Replace with product GIF/screenshot of a live bout -->
+<!-- <p align="center"><img src="public/demo.gif" width="720" alt="Live bout demo" /></p> -->
+
 ---
 
-Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Share the replay. Every bout generates structured behavioral data — transcripts, per-turn reactions, and winner votes.
+Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Share the replay. Every bout generates structured behavioral data — transcripts, per-turn reactions, and winner votes. This is v1.0 — built in two weeks, still improving.
 
 **Bring your own API key** — subscribers can use their own Anthropic key for unlimited bouts.
 
@@ -79,9 +82,8 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 
 ---
 
-## Documentation Index
-
-Each directory has its own README documenting architecture, design decisions, and trade-offs.
+<details>
+<summary><strong>Documentation Index</strong> — every directory has its own README</summary>
 
 | Directory | Description |
 |-----------|-------------|
@@ -104,7 +106,7 @@ Each directory has its own README documenting architecture, design decisions, an
 | `pitstorm/` | Go CLI: traffic simulation with evaluate-vote engine |
 | [`shared/`](shared/README.md) | Go shared packages: config, theme, format, db, license — used by all CLI tools |
 
-### Root Documents
+#### Root Documents
 
 | File | Description |
 |------|-------------|
@@ -112,6 +114,8 @@ Each directory has its own README documenting architecture, design decisions, an
 | [ROADMAP.md](ROADMAP.md) | Product roadmap: platform and research tracks |
 | [AGENTS.md](AGENTS.md) | Coding guidelines for AI agents working on this repository |
 | [Agentic Archaeology Report](docs/agentic-archaeology-report.md) | Survey of agentic engineering patterns: evolution, dormancy, and TAC framework mapping[^1] |
+
+</details>
 
 ---
 
