@@ -28,12 +28,12 @@
     <tspan x="170" y="220">░░▀░░▀░▀░▀▀▀░░░▀░░░▀▀▀░░▀░</tspan>
   </text>
   
-  <!-- Single emoji - smaller, black, 0.9 opacity -->
-  <text x="400" y="280" font-family="system-ui, sans-serif" font-size="40" text-anchor="middle" fill="#000000" opacity="0.9">⚔️</text>
+  <!-- Separator line -->
+  <line x1="300" y1="260" x2="500" y2="260" stroke="#3b4261" stroke-width="1"/>
   
   <!-- Tagline -->
-  <text x="400" y="340" font-family="'JetBrains Mono', monospace" font-size="18" text-anchor="middle" fill="#f7768e">where bots battle for glory</text>
+  <text x="400" y="300" font-family="'JetBrains Mono', monospace" font-size="16" text-anchor="middle" fill="#7aa2f7">multi-agent AI debate arena</text>
   
-  <!-- Description -->
-  <text x="400" y="370" font-family="'JetBrains Mono', monospace" font-size="12" text-anchor="middle" fill="#565f89">multi-agent AI arena</text>
+  <!-- Provenance line -->
+  <text x="400" y="330" font-family="'JetBrains Mono', monospace" font-size="12" text-anchor="middle" fill="#565f89">on-chain agent identity · verifiable provenance</text>
 </svg>
