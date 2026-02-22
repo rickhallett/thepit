@@ -26,7 +26,7 @@ Ship THE PIT to Hacker News. The pitch: a multi-agent AI debate arena with on-ch
 
 **GitHub Release:** [v1.1.0](https://github.com/rickhallett/thepit/releases/tag/v1.1.0) — 5 platform binaries with `pitnet proof`
 
-**Current test counts:** 934 TS tests, ~50 pitnet Go tests, 22 pitkeel Go tests.
+**Current test counts:** 1,007 TS tests, ~80 pitnet Go tests (+10 chain integration with `-tags chain`), 22 pitkeel Go tests.
 **Production health:** OK (EAS on, subs on, credits on, DB 85ms latency).
 
 ## What's Verified (not assumed)
@@ -118,8 +118,8 @@ Parked deliberately. These are real but not blocking:
 | Item | Why parked |
 |------|-----------|
 | Demo mode UX polish (hide credit/sub UI for anon) | Functional but slightly confusing. Cosmetic. |
-| Live chain integration test (Base Sepolia) | 125 mainnet attestations ARE the live proof. Test would be belt-and-suspenders. |
-| pitnet CLI test coverage | `proof.go` works manually. Tests are good practice but not launch-blocking. |
+| ~~Live chain integration test (Base Sepolia)~~ | **SHIPPED** — PR #347: 7 live chain integration tests against Base mainnet with retry logic. |
+| ~~pitnet CLI test coverage~~ | **SHIPPED** — PR #347: proof helper unit tests + binary subprocess integration tests. |
 | E2E Playwright attestation flow | Playwright tests paused during iteration per AGENTS.md. |
 | `pitnet submit` completion | TS write path handles attestation creation. CLI submit is future work. Documented. |
 | Error event schema in `use-bout.ts` — full Vercel AI SDK investigation | The fix in Item 3 is targeted. A deeper SDK integration audit is future work. |
