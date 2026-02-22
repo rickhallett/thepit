@@ -58,6 +58,7 @@ app/
 ├── terms/page.tsx          Terms of service (static)
 ├── privacy/page.tsx        Privacy policy (static)
 ├── disclaimer/page.tsx     AI disclaimer (static)
+├── developers/page.tsx     Developer documentation and CLI toolchain overview
 │
 ├── s/[slug]/route.ts       Short link resolver (302 redirect to /b/:boutId)
 ├── docs/api/route.ts       Scalar-powered API reference page
@@ -141,7 +142,7 @@ Three distinct patterns:
 - **Single server actions file** — All 8 actions in one file centralizes mutation logic but could grow unwieldy as features expand. If action count exceeds ~15, consider splitting by domain (e.g., `actions/bout.ts`, `actions/billing.ts`).
 - **Dual bout URLs** — `/bout/[id]` is the live page with `searchParams` for configuration; `/b/[id]` is the clean replay URL. Both render the same `<Arena>` component with different data strategies. The tradeoff is a marginal increase in route surface area for significantly cleaner share URLs.
 - **No middleware-level auth** — Authentication is checked per-route rather than in middleware. This is intentional: most pages (landing, legal, research, roadmap) are public. Gating at middleware would require maintaining an allow-list.
-- **No route groups** — The flat structure keeps URLs predictable and avoids the cognitive overhead of parenthesized groups. This works well at the current route count (~21 pages) but may need revisiting if the route tree grows significantly.
+- **No route groups** — The flat structure keeps URLs predictable and avoids the cognitive overhead of parenthesized groups. This works well at the current route count (~22 pages) but may need revisiting if the route tree grows significantly.
 
 ---
 

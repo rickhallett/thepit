@@ -12,7 +12,7 @@
 - `pitforge/` — agent creation and management CLI.
 - `pitlab/` — experiment and analysis CLI.
 - `pitlinear/` — Linear issue tracker CLI (see below).
-- `pitnet/` — network and deployment CLI.
+- `pitnet/` — on-chain provenance CLI (EAS attestation on Base L2).
 - `pitstorm/` — traffic simulation CLI.
 - `pitbench/` — benchmarking CLI.
 
@@ -22,7 +22,7 @@
 - `pnpm run start` runs the production build locally.
 - `pnpm run lint` runs ESLint.
 - `pnpm run typecheck` runs TypeScript type checking.
-- `pnpm run test:unit` runs unit + API tests (894 tests).
+- `pnpm run test:unit` runs unit + API tests (1,007 tests).
 - `pnpm run test:ci` runs lint + typecheck + unit + integration.
 - `pnpm run test:e2e` runs Playwright tests. Set `BASE_URL` to target a deployed instance.
 

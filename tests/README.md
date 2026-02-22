@@ -2,18 +2,18 @@
 
 # tests/
 
-96 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
+111 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
 
 ## Directory Structure
 
 ```
 tests/
-├── unit/               58 test files — pure function tests, mocked DB/external deps
+├── unit/               69 test files — pure function tests, mocked DB/external deps
 ├── api/                32 test files — API route handler tests with mocked deps
 ├── integration/         3 test files — real DB + security integration tests
 │   ├── db.test.ts                    — real DB operations via TEST_DATABASE_URL
 │   └── security/                     — auth bypass and race condition tests
-└── e2e/                 3 test files — Playwright browser tests
+└── e2e/                 7 test files — Playwright browser tests
 ```
 
 ## Running Tests
@@ -28,7 +28,7 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 
 ## Test Coverage by Domain
 
-### Unit Tests (55 files in `tests/unit/`)
+### Unit Tests (69 files in `tests/unit/`)
 
 | Domain | Files | What's Tested |
 |--------|-------|---------------|
@@ -70,13 +70,17 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 | `security/auth-bypass.test.ts` | Authorization bypass testing: endpoint protection, token validation, timing-safe comparisons. |
 | `security/race-conditions.test.ts` | Concurrent request handling: reaction deduplication, credit race conditions. |
 
-### E2E Tests (3 files)
+### E2E Tests (7 files)
 
 | File | Description |
 |------|-------------|
 | `bout.spec.ts` | Core user flow: navigate home, click "Enter", verify redirect to `/bout/...`, wait for streaming text (60s timeout). Skips when `CREDITS_ENABLED=true`. |
 | `citations.spec.ts` | Research citations page: arXiv link validation (HTTP 200), inline anchor integrity, internal navigation. |
 | `mobile-responsive.spec.ts` | Mobile viewport (iPhone 15): horizontal overflow checks, hamburger menu, filter bounds on /agents, /arena, /leaderboard. |
+| `qa-hydration-418.spec.ts` | QA hydration checks. |
+| `qa-og-images.spec.ts` | OG image meta tag verification. |
+| `qa-pagination.spec.ts` | Pagination behavior verification. |
+| `qa-unleashed.spec.ts` | Unleashed feature E2E tests. |
 
 ## Configuration
 
@@ -123,10 +127,10 @@ Common mock helpers (`setupSelect()`, `setupInsert()`, `setupUpdate()`) are defi
 
 ## Design Decisions & Trade-offs
 
-- **No shared test utilities** — Mock setup helpers are duplicated across ~88 test files. This maximizes isolation (no hidden shared state) but increases maintenance cost when DB mock patterns change. Extracting a `tests/helpers/` module with shared mock factories would reduce duplication. This is the most impactful improvement opportunity in the test layer.
+- **No shared test utilities** — Mock setup helpers are duplicated across ~101 test files. This maximizes isolation (no hidden shared state) but increases maintenance cost when DB mock patterns change. Extracting a `tests/helpers/` module with shared mock factories would reduce duplication. This is the most impactful improvement opportunity in the test layer.
 - **CI enforced via GitHub Actions** — `.github/workflows/ci.yml` runs the full gate (lint + typecheck + unit + integration) on every push and PR. `.github/workflows/e2e.yml` runs Playwright against Vercel preview deployments on `deployment_status` events.
 - **Coverage targets are selective** — 11 critical lib modules have enforced 85% coverage (agent-dna, agent-prompts, agent-registry, credits, free-bout-pool, rate-limit, referrals, response-formats, response-lengths, tier, validation). Other modules have no minimum. This focuses coverage enforcement on the highest-risk code without creating busywork for UI-adjacent modules.
-- **Three E2E tests** — Playwright specs cover the core bout flow, citation validation, and mobile responsiveness. This is appropriate for the current scale but leaves some rendering regressions uncovered. Additional E2E specs for agent creation, leaderboard, and replay viewing would improve confidence.
+- **Seven E2E tests** — Playwright specs cover the core bout flow, citation validation, mobile responsiveness, hydration checks, OG images, pagination, and the unleashed feature. E2E tests are paused during high-iteration phases and not part of `test:ci`.
 
 ---
 

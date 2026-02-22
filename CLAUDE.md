@@ -17,7 +17,7 @@ The gate is: **lint + typecheck + unit tests + build**. You are not done until a
 ```bash
 pnpm run lint         # ESLint
 pnpm run typecheck    # tsc --noEmit (strict mode)
-pnpm run test:unit    # Vitest — 788+ unit/API tests with coverage
+pnpm run test:unit    # Vitest — 1,007 unit/API tests with coverage
 pnpm run build        # Next.js production build — catches server/client boundary errors
 ```
 
@@ -28,7 +28,7 @@ pnpm run test:ci      # lint + typecheck + unit + integration (all-in-one)
 
 ### Testing
 ```bash
-pnpm run test:unit         # Unit + API tests (Vitest, ~788 tests)
+pnpm run test:unit         # Unit + API tests (Vitest, 1,007 tests)
 pnpm run test:integration  # Integration tests (requires TEST_DATABASE_URL)
 pnpm run test:watch        # Vitest in watch mode
 pnpm run test:loop         # Repeated test runner (node scripts/test-loop.mjs)
@@ -115,7 +115,7 @@ BASE_URL=https://preview.vercel.app ./scripts/smoke-http.sh  # Against a deploye
 
 ## Go CLI Tools (pit* family)
 
-Seven Go CLIs live in the workspace root (`go.work`), sharing `shared/config` and `shared/theme`. All use Go 1.25.7, stdlib `flag`, hand-rolled switch dispatch (no cobra).
+Eight Go CLIs live in the workspace root (`go.work`), sharing `shared/config` and `shared/theme`. All use Go 1.25.7, stdlib `flag`, hand-rolled switch dispatch (no cobra).
 
 | CLI | Purpose |
 |-----|---------|
@@ -123,9 +123,10 @@ Seven Go CLIs live in the workspace root (`go.work`), sharing `shared/config` an
 | `pitforge` | Agent creation and management |
 | `pitlab` | Experiment and analysis |
 | `pitlinear` | Linear issue tracker (see below) |
-| `pitnet` | Network and deployment |
+| `pitnet` | On-chain provenance (EAS attestation on Base L2) |
 | `pitstorm` | Traffic simulation |
 | `pitbench` | Benchmarking |
+| `pitkeel` | Git pre-commit hook (operational signals) |
 
 ### pitlinear — Linear Issue Management
 

@@ -145,7 +145,7 @@ LLM cost and token analytics are captured via PostHog `$ai_generation` events em
 Web Vitals reporting via `vitals.vercel-insights.com`.
 
 ## Go CLI Toolchain
-Seven CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). These are internal tools built for our own workflow — not yet polished for external use.
+Eight CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). These are internal tools built for our own workflow — not yet polished for external use.
 
 ### shared/ (Library)
 Consumed by all tools. Modules: `config/` (.env parsing, env var schema), `db/` (PostgreSQL via `lib/pq`), `license/` (Ed25519 JWT-like token create/verify, 7-day expiry), `format/` (number/time/credit formatting), `theme/` (Tokyo Night palette via `charmbracelet/lipgloss`).
@@ -160,10 +160,10 @@ Agent scaffolding, validation, prompt engineering, and AI-powered iteration. Fre
 Statistical analysis of exported bout data. Commands: `summary` (dataset overview), `survival` (persona win rates), `position` (first-mover bias), `engagement` (reaction curves), `codebook` (research codebook generation). Requires `--data <export.json>` from `/api/research/export`. Premium except `codebook`.
 
 ### pitnet/ (On-Chain Provenance)
-EAS attestation verification on Base L2. Free: `status` (connectivity check). Premium: `submit` (encode attestation payload), `verify <uid>` (on-chain verification), `audit` (cross-reference all attested agents). Uses raw JSON-RPC over HTTP (no heavy Ethereum libs).
+EAS attestation verification on Base L2. 125 attestations live on Base mainnet. Free: `status` (connectivity check), `proof <uid>` (verification report). Premium: `submit` (encode attestation payload), `verify <uid>` (on-chain verification), `audit` (cross-reference all attested agents). Uses raw JSON-RPC over HTTP (no heavy Ethereum libs). GitHub Release v1.1.0 provides cross-compiled binaries for 5 platforms (linux/darwin amd64+arm64, windows/amd64).
 
 ### pitstorm/ (Traffic Simulation)
-Release traffic simulator. Commands: `run` (execute traffic simulation with configurable profiles), `plan` (dry run — estimate cost and show execution plan), `setup` (provision test accounts), `login` (obtain session tokens), `verify` (validate credentials and connectivity), `report` (parse JSON output into summary). Supports traffic profiles: trickle, steady, ramp, spike, viral. Budget-capped with GBP spend limits.
+Release traffic simulator with evaluate-vote engine. Commands: `run` (execute traffic simulation with configurable profiles), `plan` (dry run — estimate cost and show execution plan), `setup` (provision test accounts), `login` (obtain session tokens), `verify` (validate credentials and connectivity), `report` (parse JSON output into summary), `evaluate` (evaluate-vote engine for bout analysis). Supports traffic profiles: trickle, steady, ramp, spike, viral. Budget-capped with GBP spend limits.
 
 ### pitbench/ (Cost Benchmarking)
 AI model cost and performance analysis. Free: `models` (pricing comparison table). Premium: `estimate` (hypothetical bout cost), `cost` (exact token cost), `margin` (platform margin verification).

@@ -20,7 +20,9 @@ The following agents are defined in `.opencode/agents/`. Each file is a complete
 | Role | Definition | Responsibility |
 |------|-----------|----------------|
 | **Weaver** | [`.opencode/agents/weaver.md`](.opencode/agents/weaver.md) | Integration discipline, verification governance |
-| **Captain** | [`.opencode/agents/captain.md`](.opencode/agents/captain.md) | Product management, release orchestration |
+| **Witness** | [`.opencode/agents/witness.md`](.opencode/agents/witness.md) | Institutional memory, earned process |
+| **Keel** | [`.opencode/agents/keel.md`](.opencode/agents/keel.md) | Operational stability, human-factor awareness |
+| **Helm** | [`.opencode/agents/helm.md`](.opencode/agents/helm.md) | Product orchestration, release management |
 | **Architect** | [`.opencode/agents/architect.md`](.opencode/agents/architect.md) | Backend/feature engineering, system design |
 | **Artisan** | [`.opencode/agents/artisan.md`](.opencode/agents/artisan.md) | Frontend engineering, UI/UX |
 | **Foreman** | [`.opencode/agents/foreman.md`](.opencode/agents/foreman.md) | Infrastructure, DB, DevOps |

@@ -26,7 +26,7 @@ Ship THE PIT to Hacker News. The pitch: a multi-agent AI debate arena with on-ch
 
 **GitHub Release:** [v1.1.0](https://github.com/rickhallett/thepit/releases/tag/v1.1.0) — 5 platform binaries with `pitnet proof`
 
-**Current test counts:** 1,007 TS tests, ~80 pitnet Go tests (+10 chain integration with `-tags chain`), 22 pitkeel Go tests.
+**Current test counts:** 1,007 TS tests, 34 pitnet Go tests (+10 chain integration with `-tags chain`), 22 pitkeel Go tests.
 **Production health:** OK (EAS on, subs on, credits on, DB 85ms latency).
 
 ## What's Verified (not assumed)
@@ -97,16 +97,14 @@ Ship THE PIT to Hacker News. The pitch: a multi-agent AI debate arena with on-ch
 
 ### Item 4: Review/update HN post copy
 
-**File:** `docs/press-release-strategy.md`
+**File:** `docs/press-release-strategy.md` (REMOVED — file no longer exists)
 
-**What needs updating:**
-- Test count: was "425 tests" in some docs → now 934 TS + ~50 Go + 22 pitkeel
-- Mention `pitnet proof` as downloadable verification binary
-- Mention demo mode (no sign-up required to try it)
-- Mention 125 on-chain attestations on Base mainnet
-- Link to GitHub Release (once Item 1 ships)
-- Review first comment for accuracy against current product state
-- Reference the video explainer ("What is this?" button on landing page)
+**Status:** SHIPPED via PR #344. HN launch copy updated with current product state.
+- Test count: 1,007 TS + ~34 pitnet Go + 22 pitkeel
+- `pitnet proof` downloadable binary via GitHub Release v1.1.0
+- Demo mode live (no sign-up required)
+- 125 on-chain attestations on Base mainnet
+- Video explainer on landing page
 
 **Depends on:** Items 1-3 being shipped (so copy reflects final state)
 **This ships last.**
