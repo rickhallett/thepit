@@ -98,9 +98,17 @@ export const getAgentDetail = async (
       .where(eq(agents.id, currentParent))
       .limit(1);
 
-    if (!parentRow) break;
-    lineage.push({ id: parentRow.id, name: parentRow.name });
-    currentParent = parentRow.parentId ?? null;
+    if (parentRow) {
+      lineage.push({ id: parentRow.id, name: parentRow.name });
+      currentParent = parentRow.parentId ?? null;
+    } else {
+      /* Parent not in DB — try preset definitions (preset agents are not persisted) */
+      const presetMatch = findPresetAgentById(currentParent);
+      if (presetMatch) {
+        lineage.push({ id: currentParent, name: presetMatch.agent.name });
+      }
+      break; /* Preset agents have no parentId — end of chain */
+    }
     depth += 1;
   }
 
