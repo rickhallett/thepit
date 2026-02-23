@@ -18,7 +18,7 @@ describe('response lengths', () => {
 
   it('resolves known values', () => {
     const long = resolveResponseLength('long');
-    expect(long).toMatchObject({ id: 'long', maxOutputTokens: 320 });
+    expect(long).toMatchObject({ id: 'long', maxOutputTokens: 450 });
   });
 
   it('defines ordered configs', () => {
