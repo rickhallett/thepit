@@ -59,7 +59,7 @@ describe('intro-pool', () => {
     mockCredits.ensureCreditAccount.mockReset();
     mockCredits.applyCreditDelta.mockReset();
     process.env.INTRO_POOL_TOTAL_CREDITS = '15000';
-    process.env.INTRO_POOL_DRAIN_PER_MIN = '1';
+    process.env.INTRO_POOL_HALF_LIFE_DAYS = '3';
     process.env.INTRO_SIGNUP_CREDITS = '100';
     process.env.INTRO_REFERRAL_CREDITS = '50';
   });
@@ -106,12 +106,12 @@ describe('intro-pool', () => {
   });
 
   describe('getIntroPoolStatus', () => {
-    it('H2: calculates remaining after time drain', async () => {
+    it('H2: calculates remaining after half-life decay', async () => {
       const startedAt = new Date(Date.now() - 10 * 60_000); // 10 minutes ago
       const poolRow = makePoolRow({
         initialMicro: 100_000,
         claimedMicro: 5_000,
-        drainRateMicroPerMinute: 100,
+        drainRateMicroPerMinute: 0, // legacy column, ignored by half-life calc
         startedAt,
       });
 
@@ -124,15 +124,17 @@ describe('intro-pool', () => {
       const { getIntroPoolStatus } = await loadIntroPool();
       const status = await getIntroPoolStatus();
 
-      // remaining = 100_000 - 5_000 - (10 * 100) = 94_000
-      expect(status.remainingMicro).toBe(94_000);
-      expect(status.remainingCredits).toBe(940); // floor(94000 / 100)
+      // Exponential decay: remaining = floor(100_000 * 0.5^(10/4320)) - 5_000
+      // 0.5^(10/4320) ≈ 0.998397, so decayed ≈ 99839, remaining ≈ 94839
+      expect(status.remainingMicro).toBeGreaterThan(94_800);
+      expect(status.remainingMicro).toBeLessThan(95_000);
+      expect(status.remainingCredits).toBe(Math.floor(status.remainingMicro / 100));
       expect(status.exhausted).toBe(false);
     });
 
-    it('U1: pool fully drained by time → exhausted=true', async () => {
-      // Pool started 100_000 minutes ago with drain rate of 100/min
-      // That drains 10_000_000 micro, way more than the 100_000 initial
+    it('U1: pool fully decayed by time → exhausted=true', async () => {
+      // Pool started 100_000 minutes ago (~69 days). With 3-day half-life,
+      // 0.5^(69/3) ≈ 0. Pool is effectively zero from exponential decay.
       const startedAt = new Date(Date.now() - 100_000 * 60_000);
       const poolRow = makePoolRow({
         initialMicro: 100_000,

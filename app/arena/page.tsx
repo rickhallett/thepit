@@ -7,7 +7,7 @@ import { PresetCard } from '@/components/preset-card';
 import { CheckoutBanner } from '@/components/checkout-banner';
 import { BuyCreditsButton } from '@/components/buy-credits-button';
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
-import { FreeBoutCounter } from '@/components/free-bout-counter';
+// FreeBoutCounter removed — free bout pool replaced by intro pool half-life decay
 import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import {
@@ -20,7 +20,7 @@ import {
   getCreditBalanceMicro,
 } from '@/lib/credits';
 import { getIntroPoolStatus } from '@/lib/intro-pool';
-import { getFreeBoutPoolStatus } from '@/lib/free-bout-pool';
+// free-bout-pool import removed — replaced by intro pool half-life
 import {
   SUBSCRIPTIONS_ENABLED,
   getUserTier,
@@ -53,13 +53,12 @@ export default async function ArenaPage() {
   const { userId } = await auth();
 
   // Fire independent queries in parallel to avoid sequential DB waterfalls
-  const [userTier, creditBalanceMicro, creditHistory, poolStatus, freeBoutPoolStatus] =
+  const [userTier, creditBalanceMicro, creditHistory, poolStatus] =
     await Promise.all([
       subsEnabled && userId ? getUserTier(userId) : Promise.resolve(null),
       creditsEnabled && userId ? getCreditBalanceMicro(userId) : Promise.resolve(null),
       creditsEnabled && userId ? getCreditTransactions(userId, 12) : Promise.resolve([] as Awaited<ReturnType<typeof getCreditTransactions>>),
       creditsEnabled ? getIntroPoolStatus() : Promise.resolve(null),
-      subsEnabled ? getFreeBoutPoolStatus() : Promise.resolve(null),
     ]);
 
   // Tier-dependent follow-up (needs userTier result)
@@ -155,16 +154,7 @@ export default async function ArenaPage() {
               {c.arena.credits.signInPrompt}
             </p>
           )}
-          {/* Free bout pool counter */}
-          {freeBoutPoolStatus && (
-            <div className="mt-4 max-w-sm">
-              <FreeBoutCounter
-                used={freeBoutPoolStatus.used}
-                max={freeBoutPoolStatus.max}
-                remaining={freeBoutPoolStatus.remaining}
-              />
-            </div>
-          )}
+          {/* Free bout pool removed — intro pool half-life is the sole anonymous gate */}
           {poolStatus && (
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-muted">
               <span className="rounded-full border-2 border-accent/70 px-3 py-1 text-accent">
@@ -173,8 +163,7 @@ export default async function ArenaPage() {
               <span>
                 <IntroPoolCounter
                   remainingCredits={poolStatus.remainingCredits}
-                  drainRatePerMinute={poolStatus.drainRatePerMinute}
-                  startedAt={poolStatus.startedAt}
+                  halfLifeDays={poolStatus.halfLifeDays}
                 />{' '}
                 {c.arena.credits.creditsLeft}
               </span>

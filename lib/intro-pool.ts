@@ -1,9 +1,14 @@
-// Community intro credit pool -- a shared pool of credits that drains over time.
+// Community intro credit pool — a shared pool of credits that decays via half-life.
 //
-// Creates viral acquisition pressure: new users claim signup bonuses from the
-// pool, and referrers earn bonus credits. The pool drains at a configurable
-// rate per minute even without claims, creating urgency ("claim before it's gone").
-// All claims use atomic SQL to prevent race conditions on concurrent signups.
+// The pool starts at INTRO_POOL_TOTAL_CREDITS and decays exponentially:
+//   remaining(t) = initial × 0.5^(t / halfLife) − claimed
+//
+// This creates honest, communal scarcity: compute costs money, the pool decays,
+// sign up to keep going. No dark patterns, no fake countdown. The half-life
+// mechanic is transparent and defensible to technical audiences.
+//
+// Claims (signup bonuses, referral bonuses, anonymous bouts) further reduce
+// the pool. All claims use atomic SQL to prevent race conditions.
 
 import { eq, sql } from 'drizzle-orm';
 
@@ -12,10 +17,11 @@ import { introPool } from '@/db/schema';
 import { MICRO_PER_CREDIT, ensureCreditAccount, applyCreditDelta } from '@/lib/credits';
 
 export const INTRO_POOL_TOTAL_CREDITS = Number(
-  process.env.INTRO_POOL_TOTAL_CREDITS ?? '15000',
+  process.env.INTRO_POOL_TOTAL_CREDITS ?? '10000',
 );
-export const INTRO_POOL_DRAIN_PER_MIN = Number(
-  process.env.INTRO_POOL_DRAIN_PER_MIN ?? '1',
+/** Half-life in days. Pool halves every N days via exponential decay. */
+export const INTRO_POOL_HALF_LIFE_DAYS = Number(
+  process.env.INTRO_POOL_HALF_LIFE_DAYS ?? '3',
 );
 export const INTRO_SIGNUP_CREDITS = Number(
   process.env.INTRO_SIGNUP_CREDITS ?? '0',
@@ -24,21 +30,28 @@ export const INTRO_REFERRAL_CREDITS = Number(
   process.env.INTRO_REFERRAL_CREDITS ?? '50',
 );
 
+/** Half-life in minutes. Used in TS for computeRemainingMicro.
+ *  In SQL expressions, multiply by 60 to convert to seconds (EXTRACT EPOCH returns seconds). */
+const HALF_LIFE_MINUTES = INTRO_POOL_HALF_LIFE_DAYS * 24 * 60;
+
 const toMicro = (credits: number) =>
   Math.max(0, Math.round(credits * MICRO_PER_CREDIT));
 
 type PoolSnapshot = {
   initialMicro: number;
   claimedMicro: number;
-  drainRateMicroPerMinute: number;
   startedAt: Date;
 };
 
+/**
+ * Compute remaining credits using exponential half-life decay.
+ * remaining = initial × 0.5^(elapsedMinutes / halfLifeMinutes) − claimed
+ */
 const computeRemainingMicro = (row: PoolSnapshot) => {
   const elapsedMs = Date.now() - row.startedAt.getTime();
-  const elapsedMinutes = Math.floor(elapsedMs / 60000);
-  const drained = elapsedMinutes * row.drainRateMicroPerMinute;
-  return Math.max(0, row.initialMicro - row.claimedMicro - drained);
+  const elapsedMinutes = elapsedMs / 60000;
+  const decayed = row.initialMicro * Math.pow(0.5, elapsedMinutes / HALF_LIFE_MINUTES);
+  return Math.max(0, Math.floor(decayed) - row.claimedMicro);
 };
 
 export async function ensureIntroPool() {
@@ -56,7 +69,9 @@ export async function ensureIntroPool() {
       .values({
         initialMicro: toMicro(INTRO_POOL_TOTAL_CREDITS),
         claimedMicro: 0,
-        drainRateMicroPerMinute: toMicro(INTRO_POOL_DRAIN_PER_MIN),
+        // Legacy column — decay is now computed via half-life, not linear drain.
+        // Store 0 so any old linear computation returns initialMicro - claimed.
+        drainRateMicroPerMinute: 0,
       })
       .returning();
 
@@ -80,7 +95,8 @@ export async function getIntroPoolStatus() {
   return {
     remainingMicro,
     remainingCredits,
-    drainRatePerMinute: INTRO_POOL_DRAIN_PER_MIN,
+    halfLifeDays: INTRO_POOL_HALF_LIFE_DAYS,
+    initialCredits: INTRO_POOL_TOTAL_CREDITS,
     startedAt: pool.startedAt.toISOString(),
     exhausted: remainingMicro <= 0,
   };
@@ -110,9 +126,7 @@ export async function claimIntroCredits(params: {
   }
 
   // Atomic claim: Calculate remaining in SQL and only increment if sufficient
-  // The remaining calculation accounts for time-based drain
-  // remaining = initial - claimed - (elapsed_minutes * drain_rate)
-  //
+  // remaining = FLOOR(initial * 0.5^(elapsed_s / half_life_s)) - claimed
   // We use LEAST to cap the claim at what's actually available
   const [result] = await db
     .update(introPool)
@@ -121,8 +135,8 @@ export async function claimIntroCredits(params: {
         ${requestedMicro},
         GREATEST(
           0,
-          ${introPool.initialMicro} - ${introPool.claimedMicro} -
-          (EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / 60)::bigint * ${introPool.drainRateMicroPerMinute}
+          FLOOR(${introPool.initialMicro} * POWER(0.5, EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / ${HALF_LIFE_MINUTES * 60}))
+          - ${introPool.claimedMicro}
         )
       )`,
       updatedAt: new Date(),
@@ -132,7 +146,6 @@ export async function claimIntroCredits(params: {
       claimedMicro: introPool.claimedMicro,
       initialMicro: introPool.initialMicro,
       startedAt: introPool.startedAt,
-      drainRateMicroPerMinute: introPool.drainRateMicroPerMinute,
     });
 
   if (!result) {
@@ -191,8 +204,8 @@ export async function consumeIntroPoolAnonymous(microCredits: number): Promise<{
     .set({
       claimedMicro: sql`${introPool.claimedMicro} + CASE
         WHEN (
-          ${introPool.initialMicro} - ${introPool.claimedMicro} -
-          (EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / 60)::bigint * ${introPool.drainRateMicroPerMinute}
+          FLOOR(${introPool.initialMicro} * POWER(0.5, EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / ${HALF_LIFE_MINUTES * 60}))
+          - ${introPool.claimedMicro}
         ) >= ${microCredits}
         THEN ${microCredits}
         ELSE 0
@@ -204,7 +217,6 @@ export async function consumeIntroPoolAnonymous(microCredits: number): Promise<{
       claimedMicro: introPool.claimedMicro,
       initialMicro: introPool.initialMicro,
       startedAt: introPool.startedAt,
-      drainRateMicroPerMinute: introPool.drainRateMicroPerMinute,
     });
 
   if (!result) {

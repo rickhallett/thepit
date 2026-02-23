@@ -91,7 +91,7 @@
     "introPool": {
       "label": "Intro pool",
       "remaining": "credits remaining",
-      "drainRate": "drains 1 credit/min",
+      "drainRate": "shared pool — compute costs money",
       "drained": "Pool drained — sign up for credits"
     }
   },

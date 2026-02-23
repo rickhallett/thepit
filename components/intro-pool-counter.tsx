@@ -6,29 +6,31 @@ import { cn } from '@/lib/cn';
 
 export function IntroPoolCounter({
   remainingCredits,
-  drainRatePerMinute,
-  startedAt,
+  halfLifeDays,
   className,
 }: {
+  /** Server-computed remaining (accounts for claims). Used as baseline for client-side decay. */
   remainingCredits: number;
-  drainRatePerMinute: number;
-  startedAt: string;
+  halfLifeDays: number;
   className?: string;
 }) {
   const [value, setValue] = useState(remainingCredits);
 
   useEffect(() => {
-    const started = new Date(startedAt).getTime();
+    // Use the server-rendered remainingCredits as the baseline truth,
+    // then apply exponential decay from that snapshot forward.
+    // This accounts for claimedMicro (which the client doesn't track).
+    const snapshotTime = Date.now();
+    const halfLifeMs = halfLifeDays * 24 * 60 * 60 * 1000;
     const tick = () => {
-      const elapsedMs = Date.now() - started;
-      const drained = (elapsedMs / 60000) * drainRatePerMinute;
-      const next = Math.max(0, Math.floor(remainingCredits - drained));
-      setValue(next);
+      const elapsed = Date.now() - snapshotTime;
+      const decayed = remainingCredits * Math.pow(0.5, elapsed / halfLifeMs);
+      setValue(Math.max(0, Math.floor(decayed)));
     };
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [drainRatePerMinute, remainingCredits, startedAt]);
+  }, [halfLifeDays, remainingCredits]);
 
   return (
     <span className={cn('font-mono text-foreground', className)}>
