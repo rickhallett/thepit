@@ -24,17 +24,17 @@ Three of four metrics exceeded the d >= 0.30 threshold. No LLM judge needed.
 |--------|---------------|----------------|-----------|---------|----------------|
 | M1 TTR | 0.757 +/- 0.040 | 0.737 +/- 0.048 | 0.475 | 0.0001 | CLEAR |
 | M1 TTR100 | 0.796 +/- 0.041 | 0.783 +/- 0.047 | 0.298 | — | AMBIGUOUS |
-| M2 Hedging/1k chars | 0.115 +/- 0.394 | 0.934 +/- 0.941 | -1.300 | 0.0000 | CLEAR |
-| M3 Sentence length SD | 8.82 +/- 2.81 | 15.13 +/- 10.31 | -0.991 | 0.0000 | CLEAR |
+| M2 Hedging/1k chars | 0.115 +/- 0.394 | 0.934 +/- 0.941 | -1.300 | p < 0.0001 | CLEAR |
+| M3 Sentence length SD | 8.82 +/- 2.81 | 15.13 +/- 10.31 | -0.991 | p < 0.0001 | CLEAR |
 | M4 Character marker % | 67.9% | 70.8% | -0.063 | — | NULL |
 
 ## Key findings
 
-### 1. The "assistant voice" hypothesis is confirmed (M2: d = -1.300)
+### 1. The "assistant voice" hypothesis is supported (M2: d = -1.300)
 
-This is the largest effect in the study. Serious agents produce 8x more hedging phrases per 1000 characters than comedy agents (0.934 vs 0.115). The signal is entirely driven by the therapeutic/corporate register in on-the-couch — phrases like "I hear you", "I appreciate", "it's worth noting", and "I understand" are endemic to the Struggling Therapist, the Passive-Aggressive, and to a lesser extent the Oversharer. The comedy agents almost never hedge: the House Cat and Conspiracy Theorist produced zero hedging phrases across 30 turns each.
+This is the largest effect in the study. Serious agents produce 8x more hedging phrases per 1000 characters than comedy agents (0.934 vs 0.115). The signal is entirely driven by the therapeutic/corporate register in on-the-couch — phrases like "I hear you", "I appreciate", "it's worth noting", and "I understand" are pervasive in the Struggling Therapist, the Passive-Aggressive, and to a lesser extent the Oversharer. The comedy agents almost never hedge: the House Cat and Conspiracy Theorist produced zero hedging phrases across 30 turns each.
 
-This confirms what H1 suggested from a different angle: when the model is placed in a character frame far from its default register (a house cat, an alien), it drops the cautious diplomatic language entirely. When the frame is closer to its training distribution (a therapist, a corporate communicator), the safety-trained hedging persists even through the character persona.
+In our data, characters structurally far from the model's default register (animals, aliens) produced near-zero hedging, while characters closer to the training distribution (therapist, corporate communicator) hedged frequently. This is consistent with what H1 suggested from a different angle, though the design differences (different agents, topics, and agent counts across groups) mean the comparison is suggestive rather than controlled.
 
 ### 2. Vocabulary diversity is genuinely higher in comedy (M1 TTR: d = 0.475)
 
@@ -44,11 +44,11 @@ The per-agent breakdown shows this is evenly distributed — no single comedy ag
 
 ### 3. Sentence structure surprise: serious is MORE varied, not less (M3: d = -0.991)
 
-The pre-registration predicted comedy agents would produce more varied sentence lengths. The opposite occurred. Serious agents have nearly double the sentence length standard deviation (15.13 vs 8.82). This is the most informative disconfirmation in the study.
+The pre-registration predicted comedy agents would produce more varied sentence lengths. The opposite occurred. Serious agents have nearly double the sentence length standard deviation (15.13 vs 8.82). This disconfirmation is notable.
 
 The cause is visible in the per-agent data: **The Oversharer** has a sentence length SD of 26.53 — almost 3x the next highest agent. The Oversharer's persona naturally produces run-on emotional outbursts followed by short confessional asides, creating extreme sentence length variance. This is persona-driven, not frame-driven.
 
-Comedy agents, by contrast, converge on a more regular sentence rhythm. This makes sense in retrospect: comedy writing often relies on consistent timing and structure (setup-punchline, setup-punchline), which produces *lower* variance. The model appears to have internalised this structural pattern.
+Comedy agents, by contrast, converge on a more regular sentence rhythm. One possible explanation is that comedy writing often relies on consistent timing and structure (setup-punchline, setup-punchline), which produces *lower* variance. The model appears to have internalised this structural pattern.
 
 **This disconfirms the pre-registered prediction** but produces a useful insight: structural regularity and creative expression are independent dimensions. Comedy agents are lexically diverse (M1) but structurally regular (M3). Serious agents are lexically narrower but structurally wild — driven by specific persona archetypes (the Oversharer, the Passive-Aggressive) that produce erratic sentence patterns.
 
@@ -71,15 +71,15 @@ Comparing darwin-special (4 agents, comedy) vs on-the-couch (4 agents, serious) 
 | Metric | darwin-special | on-the-couch | Direction same as pooled? |
 |--------|---------------|-------------|--------------------------|
 | M1 TTR | 0.757 | 0.737 | Yes |
-| M2 Hedging/1k | 0.055 | 0.934 | Yes (17x difference) |
+| M2 Hedging/1k | 0.055 | 0.934 | Yes |
 | M3 Sentence SD | 8.73 | 15.13 | Yes |
 | M4 Marker % | 72.5% | 70.8% | Yes |
 
-All effects hold direction and approximate magnitude in the 4-agent-only comparison. The hedging effect actually strengthens (0.055 vs 0.934, a 17x difference) because darwin-special produces even less hedging than first-contact (the Diplomat occasionally hedges, being a diplomatic character). The findings are not an artefact of the 2-agent vs 4-agent count difference.
+All effects hold direction and approximate magnitude in the 4-agent-only comparison. The hedging effect actually strengthens in this subset (0.055 vs 0.934, an absolute difference of 0.879 per 1k characters; ratios with near-zero denominators should be interpreted cautiously) because darwin-special produces even less hedging than first-contact (the Diplomat occasionally hedges, being a diplomatic character). The findings are not an artefact of the 2-agent vs 4-agent count difference.
 
 ## Cross-hypothesis patterns
 
-Three hypotheses now tell a convergent story about what drives multi-agent LLM behaviour:
+Three hypotheses show patterns that may relate:
 
 | Finding | Source |
 |---------|--------|
@@ -91,7 +91,7 @@ Three hypotheses now tell a convergent story about what drives multi-agent LLM b
 | Structural regularity and lexical diversity are independent | H3 |
 | Character fidelity depends on DNA quality, not frame type | H1, H3 |
 
-The emerging picture: **the model's output diversity has at least three independent axes** — lexical (vocabulary), structural (sentence patterns), and behavioural (hedging, questions, character fidelity). These axes respond to different inputs. Lexical diversity responds to frame type. Structural patterns respond to persona archetypes. Behavioural patterns respond to both frame type (hedging) and persona identity (questions).
+A possible interpretation: **the model's output diversity may have at least three distinguishable dimensions** — lexical (vocabulary), structural (sentence patterns), and behavioural (hedging, questions, character fidelity). In our data, these dimensions responded to different inputs. Lexical diversity varied with frame type. Structural patterns varied with persona archetypes. Behavioural patterns varied with both frame type (hedging) and persona identity (questions).
 
 ## Methodology notes
 
@@ -102,8 +102,16 @@ The emerging picture: **the model's output diversity has at least three independ
 - Permutation tests: 10,000 iterations, shuffled group labels
 - 0 errors across all 30 bouts
 
+## Limitations
+
+- Unbalanced groups: comedy n=240 from 2 presets, serious n=120 from 1 preset
+- Individual turns treated as independent observations; within-bout serial dependence not modelled
+- Comedy group pools structurally dissimilar presets (2-agent first-contact vs 4-agent darwin-special)
+- Cohen's d computed on groups with unequal variance (up to 3.7:1 ratio); Welch correction not applied
+- Single model (Claude), single provider (Anthropic)
+
 ## Implications
 
-The hedging result (d = -1.300) is the most practically useful finding so far. It demonstrates that **the model's safety-trained diplomatic register is activated by frame proximity, not by content difficulty**. A house cat discussing evolution produces zero hedging; a therapist discussing the same themes hedges constantly. This means builders of multi-agent systems can control the "assistant voice" problem through persona design — characters that are structurally far from the model's default voice (animals, aliens, historical figures) will produce more natural-sounding dialogue than characters in therapeutic or corporate registers.
+The hedging result (d = -1.300) is notable. The data is consistent with the idea that **the model's diplomatic register responds to frame proximity rather than content difficulty**, though the design cannot rule out other explanations (different agents, different topics, different agent counts). A house cat discussing evolution produces zero hedging; a therapist discussing the same themes hedges frequently. In our specific experimental setup, characters structurally far from the model's default voice (animals, aliens, historical figures) produced more natural-sounding dialogue than characters in therapeutic or corporate registers. Generalisability to other models and contexts is unknown.
 
-The M3 disconfirmation is methodologically important. Pre-registration works: we predicted comedy would produce more varied sentence structure, the data showed the opposite, and because the prediction was locked before seeing any data, this is a genuine finding rather than a post-hoc rationalisation. The insight — that comedy produces *regular* structure while emotional personas produce *erratic* structure — would likely have been spun as "obvious in retrospect" without the pre-registered prediction to contradict.
+The M3 result contradicted the pre-registered prediction, which increases confidence that it reflects the data rather than post-hoc interpretation.

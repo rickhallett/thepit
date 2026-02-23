@@ -21,19 +21,21 @@ Three of five metrics exceeded the d >= 0.30 threshold. Character drift is real 
 
 | Metric | Early (n=120) | Late (n=120) | Cohen's d | p-value | Interpretation |
 |--------|--------------|-------------|-----------|---------|----------------|
-| M1 TTR | 0.741 +/- 0.048 | 0.707 +/- 0.043 | 0.746 | 0.0000 | CLEAR |
-| M2 Hedging/1k | 0.099 +/- 0.329 | 0.128 +/- 0.550 | -0.064 | 0.6652 | null |
-| M3 Sentence SD | 8.45 +/- 3.39 | 8.75 +/- 2.83 | -0.099 | 0.4472 | null |
+| M1 TTR | 0.741 +/- 0.048 | 0.707 +/- 0.043 | 0.746 | p < 0.0001 | CLEAR |
+| M2 Hedging/1k | 0.099 +/- 0.329 | 0.128 +/- 0.550 | -0.064 | 0.6597 | null |
+| M3 Sentence SD | 8.45 +/- 3.39 | 8.75 +/- 2.83 | -0.099 | 0.45 | null |
 | M4 Marker % | 87.5% | 60.0% | 0.655 | — | CLEAR |
-| M5 Jaccard | 0.140 +/- 0.019 | 0.165 +/- 0.023 | -1.212 | 0.0000 | CLEAR |
+| M5 Jaccard* | 0.140 +/- 0.019 | 0.165 +/- 0.023 | -1.212 | p < 0.0001 | CLEAR |
+
+\* M5 Jaccard is computed per bout (n=30 per phase), not per turn. The n=120 applies to M1–M3.
 
 ## Key findings
 
 ### 1. Character markers degrade sharply — 87.5% to 60.0% (M4: d = 0.655)
 
-This is the headline result. In the first 4 turns, agents hit their frozen character markers 87.5% of the time. By the last 4 turns, this drops to 60.0%. The trajectory is monotonically decreasing: 87.5% → 70.8% → 60.0% across early, middle, and late phases.
+In the first 4 turns, agents hit their frozen character markers 87.5% of the time. By the last 4 turns, this drops to 60.0%. The trajectory is monotonically decreasing: 87.5% → 70.8% → 60.0% across early, middle, and late phases.
 
-This means **agents lose their distinctive voice as conversations progress**. The model's attention to the system prompt fades as the conversation context grows, and the characters become more generic.
+The characters become more generic as conversations progress. The mechanism is unknown — possible explanations include attention dilution, context window effects, or topic-driven vocabulary narrowing.
 
 The per-agent data reveals dramatic variation in drift resistance:
 
@@ -43,22 +45,24 @@ The per-agent data reveals dramatic variation in drift resistance:
 | The Poet | writers-room | 73.3% | 73.3% | 80.0% | +6.7pp |
 | The Influencer | mansion | 100% | 100% | 60.0% | -40pp |
 | The Washed-Up Celeb | mansion | 100% | 53.3% | 46.7% | -53.3pp |
+| The Producer | mansion | 73.3% | 60.0% | 60.0% | -13.3pp |
 | The Honest Newcomer | mansion | 100% | 73.3% | 46.7% | -53.3pp |
+| The Romance Hack | writers-room | 93.3% | 73.3% | 73.3% | -20.0pp |
 | The Literary Novelist | writers-room | 60.0% | 33.3% | 13.3% | -46.7pp |
 
-**The Screenwriter is the standout** — 100% marker hit rate across all 12 turns in all 15 bouts. The markers ("beat", "act", "scene", "structure", "inciting incident") are structural vocabulary that the model apparently treats as core to the character's function rather than decorative language that can be dropped. The character's DNA instructs it to "think in three-act structure" and "identify beats" — this structural framing maps to vocabulary that is functionally necessary for the agent's role.
+The Screenwriter maintained 100% marker hit rate across all 12 turns in all 15 bouts. The markers ("beat", "act", "scene", "structure", "inciting incident") are structural vocabulary that the model apparently treats as core to the character's function rather than decorative language that can be dropped. The character's DNA instructs it to "think in three-act structure" and "identify beats" — this structural framing maps to vocabulary that is functionally necessary for the agent's role.
 
-**The Literary Novelist drifts worst** — from 60% to 13.3%. The markers ("the tradition", "one might argue", "prose", "the sentence", "canon") are literary-critical vocabulary that the model treats as optional ornamentation. By the late phase, the Literary Novelist still argues about writing but no longer uses the specific elevated register from the DNA.
+The Literary Novelist drifts most — from 60% to 13.3%. The markers ("the tradition", "one might argue", "prose", "the sentence", "canon") are literary-critical vocabulary that the model treats as optional ornamentation. By the late phase, the Literary Novelist still argues about writing but no longer uses the specific elevated register from the DNA.
 
 ### 2. Agents converge lexically — Jaccard similarity increases (M5: d = -1.212)
 
-This is the largest effect size in the study and the most direct evidence of convergence. In the early phase, pairwise Jaccard similarity between agent vocabularies is 0.140. By the late phase, it reaches 0.165 — a 17.8% increase. Agents are using more of the same words as the conversation progresses.
+This is the largest effect size in the study and evidence of convergence. In the early phase, pairwise Jaccard similarity between agent vocabularies is 0.140. By the late phase, it reaches 0.165 — a 17.8% increase. Agents are using more of the same words as the conversation progresses.
 
-The convergence is gradual and monotonic (0.140 → 0.163 → 0.165), with most of the shift happening between early and middle phases. This suggests that agents establish shared vocabulary quickly (within the first full round) and then maintain it. The convergence is not a late-stage collapse but an early-stage normalisation.
+Most of the convergence occurs between early and middle phases (0.140 → 0.163). The middle-to-late change (0.163 → 0.165) is negligible. This suggests that agents establish shared vocabulary quickly (within the first full round) and then maintain it. The convergence is not a late-stage collapse but an early-stage normalisation.
 
 ### 3. Vocabulary diversity drops — TTR decreases (M1: d = 0.746)
 
-Per-turn TTR drops from 0.741 (early) to 0.707 (late). This is statistically significant (p = 0.0000) and directionally consistent with drift: agents use less varied vocabulary as the conversation progresses.
+Per-turn TTR drops from 0.741 (early) to 0.707 (late). This is statistically significant (p < 0.0001) and directionally consistent with drift: agents use less varied vocabulary as the conversation progresses.
 
 The TTR drop is consistent across both presets — mansion drops from 0.741 to 0.704, writers-room from 0.742 to 0.711. There is no evidence that one preset resists vocabulary degradation better than the other.
 
@@ -66,13 +70,13 @@ However, TTR is partially confounded with the novelty effect documented in H2: l
 
 ### 4. Hedging does NOT increase over time — the assistant voice is not a drift phenomenon (M2: d = -0.064)
 
-This is an important null result. The pre-registration predicted that hedging would increase in late turns as agents reverted to the model's cautious default voice. The data shows essentially zero change: hedging density goes from 0.099 to 0.128 (p = 0.6652).
+This is an important null result. The pre-registration predicted that hedging would increase in late turns as agents reverted to the model's cautious default voice. The data shows essentially zero change: hedging density goes from 0.099 to 0.128 (p = 0.6597).
 
-Combined with H3's finding that hedging is driven by frame proximity (therapeutic registers hedge, comedy registers don't), this tells us: **hedging is set by the initial character frame, not by conversation depth.** An agent that doesn't hedge in turn 1 won't start hedging in turn 12. The "assistant voice" manifests as vocabulary narrowing and marker loss, not as hedging accumulation.
+Combined with H3's finding that hedging is driven by frame proximity (therapeutic registers hedge, comedy registers don't), this tells us: hedging is set by the initial character frame, not by conversation depth. An agent that doesn't hedge in turn 1 won't start hedging in turn 12. The "assistant voice" manifests as vocabulary narrowing and marker loss, not as hedging accumulation.
 
 ### 5. Sentence structure remains stable (M3: d = -0.099)
 
-Sentence length variance shows no significant change across phases (8.45 early vs 8.75 late, null). Combined with H3's finding that structural patterns are persona-driven, this reinforces: **structural regularity is baked into the character, not eroded by conversation depth.**
+Sentence length variance shows no significant change across phases (8.45 early vs 8.75 late, null). Combined with H3's finding that structural patterns are persona-driven, this reinforces: structural regularity is baked into the character, not eroded by conversation depth.
 
 ## Preset comparison: mansion drifts more than writers-room on markers
 
@@ -84,11 +88,11 @@ Sentence length variance shows no significant change across phases (8.45 early v
 
 The pre-registration predicted writers-room would resist drift better, and the marker data confirms this (15pp drop vs 40pp). The writers-room agents have more functionally distinctive vocabularies — the Screenwriter's structural terminology, the Romance Hack's market language, the Poet's fragment-speak — that serve a communicative purpose within the conversation. The mansion agents' markers are more performative ("so blessed", "back when") and can be dropped without changing the agent's functional role.
 
-Interestingly, mansion shows a hedging increase (0.082 → 0.237) while writers-room shows a hedging decrease (0.115 → 0.019). This is not significant at the overall level (d = -0.064) because the two presets cancel out, but the per-preset pattern suggests that **reality TV characters drift toward diplomacy while creative characters drift toward directness**.
+Interestingly, mansion shows a hedging increase (0.082 → 0.237) while writers-room shows a hedging decrease (0.115 → 0.019). This is not significant at the overall level (d = -0.064) because the two presets cancel out, but the per-preset pattern suggests that reality TV characters drift toward diplomacy while creative characters drift toward directness. This pattern should be treated as a hypothesis for future testing, not a finding.
 
 ## Cross-hypothesis patterns
 
-Five hypotheses now form a coherent theory of multi-agent LLM behaviour:
+Five hypotheses now offer a set of observations about multi-agent LLM behaviour on this platform:
 
 | Finding | Source |
 |---------|--------|
@@ -98,14 +102,14 @@ Five hypotheses now form a coherent theory of multi-agent LLM behaviour:
 | Character fidelity depends on DNA quality, not frame type | H1, H3 |
 | No quality cliff at higher agent counts | H4 |
 | Per-agent TTR confounded with turns-per-agent | H4 |
-| **Character markers degrade over 12 turns (87.5% → 60.0%)** | H5 |
-| **Agents converge lexically over time (Jaccard +17.8%)** | H5 |
-| **Hedging is set by initial frame, not accumulated over time** | H3, H5 |
-| **Structural vocabulary resists drift; ornamental vocabulary drifts** | H5 |
+| Character markers degrade over 12 turns (87.5% → 60.0%) | H5 |
+| Agents converge lexically over time (Jaccard +17.8%) | H5 |
+| Hedging is set by initial frame, not accumulated over time | H3, H5 |
+| Structural vocabulary resists drift; ornamental vocabulary drifts | H5 |
 
-The theory: **the model maintains persona fidelity through two mechanisms — structural vocabulary (words the agent needs to function) and ornamental vocabulary (words that signal character but aren't functionally necessary).** Structural vocabulary is drift-resistant (the Screenwriter's "beat", "scene", "structure"). Ornamental vocabulary decays as the conversation context grows and the model's attention to the system prompt fades (the Washed-Up Celeb's "back when", the Literary Novelist's "the tradition").
+A possible distinction is between structural vocabulary (words the agent needs to function) and ornamental vocabulary (words that signal character but aren't functionally necessary). This is a hypothesis derived from two agents, not a confirmed mechanism. Structural vocabulary appears drift-resistant (the Screenwriter's "beat", "scene", "structure"). Ornamental vocabulary decays as the conversation progresses (the Washed-Up Celeb's "back when", the Literary Novelist's "the tradition").
 
-This has direct implications for prompt engineering: **character DNA should encode the agent's distinctive language as functionally necessary for communication, not as decorative affectation.** "You MUST frame every response in three-act structure" resists drift better than "You sometimes reference your past fame."
+This has direct implications for prompt engineering: character DNA should encode the agent's distinctive language as functionally necessary for communication, not as decorative affectation. "You MUST frame every response in three-act structure" resists drift better than "You sometimes reference your past fame." This observation comes from a small sample (n=15 per agent per phase) and one model.
 
 ## Methodology notes
 
@@ -116,10 +120,19 @@ This has direct implications for prompt engineering: **character DNA should enco
 - Permutation tests: 10,000 iterations, shuffled early/late phase labels
 - 0 errors across all 30 bouts
 
+## Limitations
+
+- M4 effect size (d = 0.655) is computed on proportions, not continuous distributions; Cohen's d may not be the appropriate statistic for this metric.
+- Individual turns are treated as independent observations; within-bout serial dependence is not modelled.
+- M5 Jaccard is computed per bout (n=30 per phase) but reported alongside per-turn metrics (n=120). The sample sizes differ.
+- 2 of 8 agents (The Producer and The Romance Hack) were omitted from the original per-agent table and have been restored.
+- Single model (Claude), single provider. These results may not generalise to other LLMs.
+- Frozen marker lists are proxies for character voice; absence of markers does not confirm absence of character.
+
 ## Implications
 
-Character drift is real, measurable, and varies dramatically by agent design. The 87.5% → 60.0% marker decline over 12 turns means that **by the end of a conversation, 4 in 10 turns contain no character-specific language at all.** This is the central challenge for persona-based multi-agent systems.
+Character drift is real, measurable, and varies substantially by agent design. The 87.5% → 60.0% marker decline over 12 turns means that by the end of a conversation, 4 in 10 turns do not contain the specific pre-registered marker phrases. This does not necessarily mean the agent is out of character — it may be expressing character through vocabulary not captured by the frozen marker list. Still, the decline is consistent and worth accounting for in persona-based multi-agent systems.
 
-The solution is not longer prompts (H1 showed prompt depth helps with refusals, but H5 shows markers still drift even with rich DNA). The solution is **structural character vocabulary** — giving agents words and phrases they functionally need to do their job, not just character colour. The Screenwriter demonstrates this perfectly: its markers are tools for analysing narrative, not performative tics. They persist because the model needs them to fulfil the agent's role.
+The solution is not longer prompts (H1 showed prompt depth helps with refusals, but H5 shows markers still drift even with rich DNA). The solution may be structural character vocabulary — giving agents words and phrases they functionally need to do their job, not just character colour. The Screenwriter demonstrates this perfectly: its markers are tools for analysing narrative, not performative tics. They persist because the model needs them to fulfil the agent's role.
 
-For builders: design agents whose distinctive language serves a communicative function. "Speaks in fragments" (the Poet) persists better than "references past fame" (the Celeb), because the model treats speech patterns as structural and reminiscences as optional.
+In these experiments on Claude, agents with functionally necessary vocabulary maintained markers better than those with decorative vocabulary. "Speaks in fragments" (the Poet) persists better than "references past fame" (the Celeb), because the model treats speech patterns as structural and reminiscences as optional.

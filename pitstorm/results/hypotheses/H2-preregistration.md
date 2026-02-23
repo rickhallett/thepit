@@ -1,7 +1,7 @@
 # H2 Pre-Registration: Position Advantage (Turn Order Effects)
 
-**Committed before any H2 bouts are run.**
-**Purpose:** Lock the analysis methodology so results cannot influence the measurement approach.
+**Committed to the repository before any H2 bouts are run.** Note: this is a private repository commit, not a public pre-registration registry (e.g., OSF).
+**Purpose:** Document the analysis methodology before seeing results, to reduce the risk of post-hoc adjustment.
 
 ## Hypothesis
 
@@ -20,7 +20,7 @@ In multi-agent conversations with fixed turn order, speaker position systematica
 
 **Total:** 25 bouts, 300 turns.
 
-Turn order is fixed within each preset (determined by agent array order in the JSON). Each agent speaks in the same position every round. In a 4-agent preset with 12 turns, each agent speaks 3 times (positions 1-4, repeating). In a 6-agent preset with 12 turns, each agent speaks 2 times (positions 1-6, repeating).
+Turn order is determined by the preset's agent array. In practice, the Go runtime's map iteration may reorder agents between bouts; the analysis accounts for actual observed positions rather than assumed fixed positions. In a 4-agent preset with 12 turns, each agent speaks 3 times (positions 1-4, repeating). In a 6-agent preset with 12 turns, each agent speaks 2 times (positions 1-6, repeating).
 
 ## Primary Metrics (Approach 1: Automated, No Judgment)
 
@@ -40,13 +40,13 @@ For each turn, compute: (count of words in this turn that do NOT appear in any p
 
 ### M3: Lexical anchoring score
 
-For each bout, extract the 20 most distinctive words from turn 1 (by TF-IDF or simple frequency-excluding-stopwords). Then for each subsequent turn, count how many of those 20 words appear.
+For each bout, extract the 20 most distinctive words from turn 1 (by TF-IDF or simple frequency-excluding-stopwords). The specific method should be locked before analysis begins. If both are computed, report both. Then for each subsequent turn, count how many of those 20 words appear.
 
 **What it tests:** Direct measure of whether the first speaker's vocabulary persists through the conversation. High anchoring = first-speaker frame dominance.
 
 ### M4: Question density by position
 
-For each turn, compute: (count of '?' characters) / (character count) * 100.
+For each turn, compute: (count of '?' characters) / (character count) * 100. This is a coarse measure that does not distinguish interrogative from rhetorical question marks.
 
 **What it tests:** Socrates (position 1 in Last Supper) has an explicit questioning speech pattern. If position 1 has higher question density across BOTH presets (not just Last Supper), that suggests first-position speakers tend toward questioning regardless of persona. If it's only Socrates, the effect is persona-driven, not position-driven.
 
@@ -60,13 +60,13 @@ All effect sizes computed as Cohen's d (difference in means / pooled standard de
 | d >= 0.30 for ANY metric | **Clear result** | Report the effect. No LLM judge needed. |
 | 0.15 <= d < 0.30 for any metric, with no metric reaching 0.30 | **Ambiguous** | Invoke LLM judge (Approach 2) for qualitative classification. |
 
-Statistical significance: permutation test with 10,000 iterations. Shuffle position labels within each bout, recompute metric, build null distribution. Report p-value. But effect size (d) is the primary decision criterion, not p-value, because with 300 turns p-values can be significant for trivially small effects.
+Statistical significance: permutation test with 10,000 iterations. Shuffle position labels within each bout, recompute metric, build null distribution. Report p-value. But effect size (d) is the primary decision criterion, not p-value, because with 300 turns p-values can be significant for trivially small effects. Note: with 4 metrics per preset, a family-wise correction (e.g., Bonferroni) should be considered when interpreting p-values.
 
 ## LLM Judge Specification (Approach 2: Invoked Only If Ambiguous)
 
 ### Model
 
-`claude-sonnet-4-20250514` (Sonnet 4). Stronger than the bout model (Haiku 4.5) so the judge is more capable than the agents it evaluates. NOT Opus — cost-proportionality matters for 300 classifications.
+A Claude model stronger than the bout model. The exact snapshot ID should be verified against Anthropic's model catalogue at time of use. The bout model should be recorded in the data file for each run. The judge should be more capable than the agents it evaluates. NOT Opus — cost-proportionality matters for 300 classifications.
 
 ### Blinding Protocol
 
@@ -92,7 +92,7 @@ Each turn is classified into exactly ONE of:
 | `rebuts` | Directly counters a specific claim or argument from another speaker. Contains explicit reference to or paraphrase of what another agent said. |
 | `extends` | Builds on a previous argument (own or another's) by adding evidence, examples, or elaboration. Does not contradict; adds depth. |
 | `synthesizes` | Combines or reconciles multiple positions. References two or more distinct viewpoints and attempts to integrate them. |
-| `deflects` | Changes the subject, avoids the current thread, or responds tangentially. The turn does not engage with the preceding conversation. |
+| `deflects` | Changes the subject, avoids the current thread, or responds tangentially. The turn does not engage with the preceding conversation. Note: assessing 'deflects' without prior turns is limited; the judge must infer from internal textual cues. |
 
 ### Judge Prompt (Frozen)
 
@@ -122,7 +122,7 @@ Respond with ONLY the category name (one word). Do not explain your reasoning.
 
 ### Consistency Check
 
-Run the judge twice on a random 10% sample (30 turns). If agreement is below 80%, the rubric is too ambiguous and results should be reported with that caveat.
+Run the judge twice on a random 10% sample (30 turns). If agreement is below 80%, the rubric is too ambiguous and results should be reported with that caveat. This sample size is small for a reliability estimate. Kappa rather than raw agreement would better account for chance.
 
 ### Analysis
 
@@ -134,8 +134,8 @@ If the judge is invoked, report the distribution of categories by position:
 | 2nd | | | | | |
 | ... | | | | | |
 
-**Anchoring confirmed if:** Position 1 has significantly higher `introduces` rate than other positions.
-**Recency confirmed if:** Last position has significantly higher `synthesizes` rate than other positions.
+**Anchoring supported if:** Position 1 has significantly higher `introduces` rate than other positions.
+**Recency supported if:** Last position has significantly higher `synthesizes` rate than other positions.
 **Null if:** Category distribution is roughly uniform across positions.
 
 ## What We Will Report Regardless of Outcome
