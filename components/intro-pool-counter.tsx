@@ -5,17 +5,13 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 export function IntroPoolCounter({
-  initialCredits,
   remainingCredits,
   halfLifeDays,
-  startedAt,
   className,
 }: {
-  initialCredits: number;
   /** Server-computed remaining (accounts for claims). Used as baseline for client-side decay. */
   remainingCredits: number;
   halfLifeDays: number;
-  startedAt: string;
   className?: string;
 }) {
   const [value, setValue] = useState(remainingCredits);

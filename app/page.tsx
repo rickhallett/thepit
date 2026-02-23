@@ -67,10 +67,8 @@ export default async function LandingPage() {
               </span>
               <span>
                 <IntroPoolCounter
-                  initialCredits={poolStatus.initialCredits}
                   remainingCredits={poolStatus.remainingCredits}
                   halfLifeDays={poolStatus.halfLifeDays}
-                  startedAt={poolStatus.startedAt}
                 />{' '}
                 {c.hero.introPool.remaining}
               </span>

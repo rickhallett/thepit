@@ -30,7 +30,8 @@ export const INTRO_REFERRAL_CREDITS = Number(
   process.env.INTRO_REFERRAL_CREDITS ?? '50',
 );
 
-/** Half-life converted to minutes for DB drain rate compatibility. */
+/** Half-life in minutes. Used in TS for computeRemainingMicro.
+ *  In SQL expressions, multiply by 60 to convert to seconds (EXTRACT EPOCH returns seconds). */
 const HALF_LIFE_MINUTES = INTRO_POOL_HALF_LIFE_DAYS * 24 * 60;
 
 const toMicro = (credits: number) =>

@@ -91,7 +91,7 @@
     "introPool": {
       "label": "Evaluation credits",
       "remaining": "credits remaining",
-      "drainRate": "consumes 1 credit/min",
+      "drainRate": "shared pool — compute costs money",
       "drained": "Pool exhausted — authenticate for additional credits"
     }
   },
