@@ -484,6 +484,7 @@ export interface AgentNewCopy {
   label: string;
   title: string;
   description: string;
+  authRequired: string;
 }
 
 export interface AgentCloneCopy {
@@ -493,6 +494,7 @@ export interface AgentCloneCopy {
   source: string;
   preset: string;
   lineagePreserved: string;
+  authRequired: string;
 }
 
 // ---------------------------------------------------------------------------

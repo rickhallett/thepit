@@ -616,7 +616,8 @@
   "agentNew": {
     "label": "Agent Lab",
     "title": "Build an Agent",
-    "description": "Shape an agent with structured DNA. Every field contributes to the final prompt, and the preview updates as you type."
+    "description": "Shape an agent with structured DNA. Every field contributes to the final prompt, and the preview updates as you type.",
+    "authRequired": "Sorry, every agent needs a human! Please see /research, thank you!"
   },
   "agentClone": {
     "label": "Agent Lab",
@@ -624,7 +625,8 @@
     "descriptionTemplate": "Cloning {name}. Tweak any field to make it your own. The new agent will inherit lineage from the original.",
     "source": "Source:",
     "preset": "Preset:",
-    "lineagePreserved": "Lineage preserved"
+    "lineagePreserved": "Lineage preserved",
+    "authRequired": "Sorry, every agent needs a human! Please see /research, thank you!"
   },
   "recentBouts": {
     "title": "Recent Bouts",

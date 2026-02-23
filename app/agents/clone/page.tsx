@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 
 import { getCopy } from '@/lib/copy';
 import { getAgentDetail } from '@/lib/agent-detail';
@@ -19,6 +21,7 @@ export default async function CloneAgentPage({
   searchParams: { source?: string } | Promise<{ source?: string }>;
 }) {
   const c = await getCopy();
+  const { userId } = await auth();
   const resolved = await searchParams;
   const sourceId = resolved.source;
 
@@ -78,7 +81,29 @@ export default async function CloneAgentPage({
           </div>
         </header>
 
-        <AgentBuilder initialValues={initialValues} />
+        {userId ? (
+          <AgentBuilder initialValues={initialValues} />
+        ) : (
+          <div className="border-2 border-foreground/20 bg-black/30 p-8">
+            <p className="text-sm text-muted">
+              {c.agentClone.authRequired.split('/research').map((part, i) =>
+                i === 0 ? (
+                  <span key={i}>{part}</span>
+                ) : (
+                  <span key={i}>
+                    <Link
+                      href="/research"
+                      className="text-accent underline underline-offset-4 transition hover:text-foreground"
+                    >
+                      /research
+                    </Link>
+                    {part}
+                  </span>
+                ),
+              )}
+            </p>
+          </div>
+        )}
       </div>
     </main>
   );

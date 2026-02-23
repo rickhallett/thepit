@@ -1,8 +1,12 @@
+import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
+
 import { AgentBuilder } from '@/components/agent-builder';
 import { getCopy } from '@/lib/copy';
 
 export default async function NewAgentPage() {
   const c = await getCopy();
+  const { userId } = await auth();
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -19,7 +23,29 @@ export default async function NewAgentPage() {
           </p>
         </header>
 
-        <AgentBuilder />
+        {userId ? (
+          <AgentBuilder />
+        ) : (
+          <div className="border-2 border-foreground/20 bg-black/30 p-8">
+            <p className="text-sm text-muted">
+              {c.agentNew.authRequired.split('/research').map((part, i) =>
+                i === 0 ? (
+                  <span key={i}>{part}</span>
+                ) : (
+                  <span key={i}>
+                    <Link
+                      href="/research"
+                      className="text-accent underline underline-offset-4 transition hover:text-foreground"
+                    >
+                      /research
+                    </Link>
+                    {part}
+                  </span>
+                ),
+              )}
+            </p>
+          </div>
+        )}
       </div>
     </main>
   );
