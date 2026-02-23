@@ -605,7 +605,7 @@
     "structuredDna": "Structured DNA",
     "onChainIdentity": {
       "title": "Agent Identity",
-      "description": "Every agent's DNA is deterministically hashed (SHA-256). On-chain attestation via the Ethereum Attestation Service on Base L2 is implemented but not yet enabled in production.",
+      "description": "Every agent's DNA is deterministically hashed (SHA-256). On-chain attestation via the Ethereum Attestation Service on Base L2 is designed and coded but has not yet been deployed or tested on-chain.",
       "promptHash": "Prompt hash:",
       "manifestHash": "Manifest hash:",
       "attestation": "Attestation:",
@@ -694,7 +694,7 @@
       "bullets": [
         "Tamper detection — SHA-256 hashes of agent prompts and manifests make unauthorized modifications detectable.",
         "Lineage verification — Parent-child relationships between cloned agents are tracked, enabling provenance across remix chains.",
-        "On-chain attestation — Agent identity records are designed to be attested on Base L2 via the Ethereum Attestation Service. Hashing is live; on-chain attestation is implemented but not yet enabled in production."
+        "On-chain attestation — Agent identity records are designed to be attested on Base L2 via the Ethereum Attestation Service. Hashing is live; on-chain attestation is designed and coded but has not yet been deployed or tested on-chain."
       ]
     },
     "datasets": {
@@ -731,7 +731,7 @@
       {
         "name": "pitnet",
         "tagline": "Agent Provenance",
-        "description": "Verify agent identity hashes. On-chain attestation via EAS on Base L2 is implemented but not yet enabled."
+        "description": "Verify agent identity hashes. On-chain attestation via EAS on Base L2 is designed and coded but has not yet been deployed."
       },
       {
         "name": "pitlab",
