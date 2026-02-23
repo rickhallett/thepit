@@ -377,15 +377,7 @@ function PlanCard({
           : 'border-foreground/50 bg-black/40 hover:shadow-[6px_6px_0_rgba(255,255,255,0.1)]'
       }`}
     >
-      {featured && (
-        <div className="absolute -top-3 left-6">
-          {/* TODO(OCE-148): "Most Popular" badge copy lives in copy/base.json → pricing.mostPopular.
-             Use it here once PlanCard receives the full copy object. */}
-          <span className="bg-accent px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-background">
-            Most Popular
-          </span>
-        </div>
-      )}
+      {/* "Most Popular" badge removed — Captain's QA decision (too generic for HN) */}
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-muted">{name}</p>
         <p className="mt-2 font-sans text-3xl uppercase tracking-tight">

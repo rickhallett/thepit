@@ -75,7 +75,7 @@ export const SOCIAL_CHANNELS: SocialChannel[] = [
   {
     key: 'linkedin',
     label: 'LinkedIn',
-    url: 'https://www.linkedin.com/in/rickhallett',
+    url: 'https://www.linkedin.com/in/richardhallett86/',
     enabled: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN_ENABLED === 'true',
   },
 ];

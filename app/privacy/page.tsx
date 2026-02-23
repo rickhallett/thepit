@@ -46,10 +46,10 @@ export default async function PrivacyPage() {
             For any questions about this Privacy Policy or your data rights,
             contact us at:{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href="mailto:rickhallett@icloud.com"
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              rickhallett@icloud.com
             </a>
           </p>
         </section>
@@ -656,10 +656,10 @@ export default async function PrivacyPage() {
           <p className="text-sm text-muted">
             To exercise any of these rights, contact us at{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href="mailto:rickhallett@icloud.com"
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              rickhallett@icloud.com
             </a>
             . We will respond to your request within one month. In complex cases
             or where we receive a high volume of requests, we may extend this
@@ -705,10 +705,10 @@ export default async function PrivacyPage() {
             We would appreciate the opportunity to address your concerns before
             you approach the ICO, so please contact us first at{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href="mailto:rickhallett@icloud.com"
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              rickhallett@icloud.com
             </a>
             .
           </p>
@@ -756,10 +756,10 @@ export default async function PrivacyPage() {
             practicable. If you believe we may have collected data from a child
             under 13, please contact us at{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href="mailto:rickhallett@icloud.com"
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              rickhallett@icloud.com
             </a>
             .
           </p>
@@ -811,10 +811,10 @@ export default async function PrivacyPage() {
             <li>
               Email:{' '}
               <a
-                href="mailto:privacy@thepit.cloud"
+                href="mailto:rickhallett@icloud.com"
                 className="text-accent underline"
               >
-                privacy@thepit.cloud
+                rickhallett@icloud.com
               </a>
             </li>
             <li>
