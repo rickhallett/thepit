@@ -40,7 +40,6 @@ const toMicro = (credits: number) =>
 type PoolSnapshot = {
   initialMicro: number;
   claimedMicro: number;
-  drainRateMicroPerMinute: number;
   startedAt: Date;
 };
 
@@ -127,9 +126,7 @@ export async function claimIntroCredits(params: {
   }
 
   // Atomic claim: Calculate remaining in SQL and only increment if sufficient
-  // The remaining calculation accounts for time-based drain
-  // remaining = initial - claimed - (elapsed_minutes * drain_rate)
-  //
+  // remaining = FLOOR(initial * 0.5^(elapsed_s / half_life_s)) - claimed
   // We use LEAST to cap the claim at what's actually available
   const [result] = await db
     .update(introPool)
@@ -149,7 +146,6 @@ export async function claimIntroCredits(params: {
       claimedMicro: introPool.claimedMicro,
       initialMicro: introPool.initialMicro,
       startedAt: introPool.startedAt,
-      drainRateMicroPerMinute: introPool.drainRateMicroPerMinute,
     });
 
   if (!result) {
@@ -221,7 +217,6 @@ export async function consumeIntroPoolAnonymous(microCredits: number): Promise<{
       claimedMicro: introPool.claimedMicro,
       initialMicro: introPool.initialMicro,
       startedAt: introPool.startedAt,
-      drainRateMicroPerMinute: introPool.drainRateMicroPerMinute,
     });
 
   if (!result) {

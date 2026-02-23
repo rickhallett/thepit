@@ -59,7 +59,7 @@ describe('intro-pool', () => {
     mockCredits.ensureCreditAccount.mockReset();
     mockCredits.applyCreditDelta.mockReset();
     process.env.INTRO_POOL_TOTAL_CREDITS = '15000';
-    process.env.INTRO_POOL_DRAIN_PER_MIN = '1';
+    process.env.INTRO_POOL_HALF_LIFE_DAYS = '3';
     process.env.INTRO_SIGNUP_CREDITS = '100';
     process.env.INTRO_REFERRAL_CREDITS = '50';
   });
