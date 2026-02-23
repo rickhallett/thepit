@@ -31,7 +31,7 @@ export default async function AgentsPage() {
                 {c.agents.description}
               </p>
               <p className="mt-2 text-xs text-muted/70">
-                Reactions: {'♥'} = like &middot; {'🔥'} = hot take
+                {c.agents.reactionsHint}
               </p>
             </div>
             <Link

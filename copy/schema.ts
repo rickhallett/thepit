@@ -219,6 +219,9 @@ export interface ArenaComponentCopy {
     label: string;
     description: string;
     tweakAndRerun: string;
+    comingSoonTitle: string;
+    comingSoonBody: string;
+    roadmapLinkText: string;
   };
   latest: string;
 }
@@ -436,6 +439,7 @@ export interface AgentsCopy {
   title: string;
   pageTitle: string;
   description: string;
+  reactionsHint: string;
   createAgent: string;
   searchPlaceholder: string;
   presetFilter: string;

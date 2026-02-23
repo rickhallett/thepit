@@ -25,6 +25,12 @@ export const BRAND = {
   github: 'https://github.com/rickhallett/thepit',
 } as const;
 
+/**
+ * Privacy / data-controller contact email — single constant so future
+ * changes (e.g. switching to privacy@thepit.cloud) are a one-line edit.
+ */
+export const PRIVACY_EMAIL = 'rickhallett@icloud.com' as const;
+
 // ---------------------------------------------------------------------------
 // Social channels — each gated by an env var
 // ---------------------------------------------------------------------------

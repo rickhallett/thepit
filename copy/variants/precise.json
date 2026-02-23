@@ -323,7 +323,10 @@
     "reroll": {
       "label": "Re-execute",
       "description": "Re-run identical configuration with modified parameters.",
-      "tweakAndRerun": "Modify & re-execute"
+      "tweakAndRerun": "Modify & re-execute",
+      "comingSoonTitle": "Preset remixing coming soon",
+      "comingSoonBody": "Custom bout remixing is available now.",
+      "roadmapLinkText": "See the roadmap"
     },
     "latest": "Latest"
   },
@@ -566,6 +569,7 @@
     "title": "Agent Registry",
     "pageTitle": "Complete Agent Registry",
     "description": "Comprehensive catalog of available agent configurations. Filter by preset or tier for targeted selection.",
+    "reactionsHint": "Reactions: \u2665 = like \u00b7 \ud83d\udd25 = hot take",
     "createAgent": "Create agent",
     "searchPlaceholder": "Agent, preset, id",
     "presetFilter": "All presets",

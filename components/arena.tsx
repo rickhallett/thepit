@@ -599,15 +599,15 @@ export function Arena({
             ) : (
               <section className="mt-4 w-full border-2 border-foreground/40 bg-black/40 p-6">
                 <p className="text-xs uppercase tracking-[0.35em] text-muted">
-                  Preset remixing coming soon
+                  {c.arenaComponent.reroll.comingSoonTitle}
                 </p>
                 <p className="mt-2 text-xs text-muted">
-                  Custom bout remixing is available now.{' '}
+                  {c.arenaComponent.reroll.comingSoonBody}{' '}
                   <Link
                     href="/roadmap"
                     className="text-accent underline transition hover:text-accent/80"
                   >
-                    See the roadmap
+                    {c.arenaComponent.reroll.roadmapLinkText}
                   </Link>{' '}
                   for preset remix support.
                 </p>
