@@ -218,6 +218,16 @@ export const newsletterSignups = pgTable('newsletter_signups', {
   emailIdx: uniqueIndex('newsletter_signups_email_idx').on(table.email),
 }));
 
+export const contactSubmissions = pgTable('contact_submissions', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 256 }).notNull(),
+  email: varchar('email', { length: 256 }).notNull(),
+  message: text('message').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export const agents = pgTable('agents', {
   id: varchar('id', { length: 128 }).primaryKey(),
   name: varchar('name', { length: 128 }).notNull(),
