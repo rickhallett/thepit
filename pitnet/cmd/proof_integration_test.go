@@ -53,7 +53,7 @@ func TestLiveProofEndToEnd(t *testing.T) {
 
 	// Verify key sections of the proof output.
 	expectedStrings := []string{
-		"THE PIT — On-Chain Attestation Verification Proof",
+		"The Pit — On-Chain Attestation Verification Proof",
 		"Base L2 Mainnet",
 		"FOUND on Base L2 mainnet",
 		"SUCCESS (all 9 schema fields decoded)",

@@ -2,7 +2,7 @@
 
 # pitctl
 
-Site administration CLI for [THE PIT](https://thepit.cloud). Reads the project `.env` file and queries Neon Postgres directly — no ORM, no server dependency.
+Site administration CLI for [The Pit](https://thepit.cloud). Reads the project `.env` file and queries Neon Postgres directly — no ORM, no server dependency.
 
 ## Install
 

@@ -10,7 +10,7 @@ export default function NotFound() {
         href="/"
         className="border-2 border-foreground/60 px-4 py-2 text-xs uppercase tracking-[0.3em] transition hover:border-accent hover:text-accent"
       >
-        Back to THE PIT
+        Back to The Pit
       </Link>
     </div>
   );

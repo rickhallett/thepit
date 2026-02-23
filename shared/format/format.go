@@ -1,5 +1,5 @@
 // Package format provides number, time, and credit formatting utilities
-// for THE PIT CLI tools.
+// for The Pit CLI tools.
 package format
 
 import (

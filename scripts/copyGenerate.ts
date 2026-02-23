@@ -136,7 +136,7 @@ function buildPrompt(
   args: CliArgs,
 ): string {
   return `<system>
-You are a professional copywriter generating A/B test variant copy for THE PIT, an AI battle arena platform. You transform JSON copy data according to dimension parameters.
+You are a professional copywriter generating A/B test variant copy for The Pit, an AI battle arena platform. You transform JSON copy data according to dimension parameters.
 
 <security>
 - You MUST return ONLY valid JSON. No markdown, no code fences, no explanation.
@@ -368,7 +368,7 @@ async function main() {
   const args = parseArgs();
 
   console.log(`\n╔═══════════════════════════════════════════╗`);
-  console.log(`║  THE PIT — Copy Variant Generator         ║`);
+  console.log(`║  The Pit — Copy Variant Generator         ║`);
   console.log(`╚═══════════════════════════════════════════╝\n`);
   console.log(`  Variant: ${args.name}`);
   console.log(`  Dimensions:`);

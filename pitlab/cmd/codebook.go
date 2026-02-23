@@ -12,7 +12,7 @@ import (
 func RunCodebook(ds *dataset.Dataset) {
 	stats := ds.Stats()
 
-	fmt.Printf("\n  %s\n\n", theme.Title.Render("Research Codebook — THE PIT"))
+	fmt.Printf("\n  %s\n\n", theme.Title.Render("Research Codebook — The Pit"))
 	fmt.Printf("  %s\n\n", strings.Repeat("─", 60))
 
 	// Dataset metadata.

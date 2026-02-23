@@ -60,7 +60,7 @@ func main() {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "\n%s\n\n",
-		theme.Title.Render("pitnet — on-chain provenance for THE PIT"))
+		theme.Title.Render("pitnet — on-chain provenance for The Pit"))
 	fmt.Fprintf(os.Stderr, "Usage:\n")
 	fmt.Fprintf(os.Stderr, "  pitnet <command> [flags]\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")

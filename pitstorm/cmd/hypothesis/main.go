@@ -1,4 +1,4 @@
-// hypothesis — systematic bout runner for THE PIT research experiments.
+// hypothesis — systematic bout runner for The Pit research experiments.
 //
 // Each hypothesis is a named batch of bouts with a documented research
 // question. Bouts are run sequentially against the production API with

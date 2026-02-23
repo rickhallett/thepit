@@ -1,5 +1,5 @@
 // Package abi implements Solidity ABI encoding for the EAS attestation schema
-// used by THE PIT. This is a minimal, purpose-built encoder — it handles only
+// used by The Pit. This is a minimal, purpose-built encoder — it handles only
 // the types needed for our schema (string, bytes32, uint64) rather than the
 // full ABI specification.
 //

@@ -2,7 +2,7 @@
 
 # pitbench
 
-Cost and performance benchmarking tool for [THE PIT](https://thepit.cloud). Estimates bout costs, calculates exact costs from token counts, verifies platform margin, and displays model pricing. Faithful Go port of `lib/credits.ts`.
+Cost and performance benchmarking tool for [The Pit](https://thepit.cloud). Estimates bout costs, calculates exact costs from token counts, verifies platform margin, and displays model pricing. Faithful Go port of `lib/credits.ts`.
 
 ## Install
 

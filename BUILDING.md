@@ -1,4 +1,4 @@
-# Building THE PIT
+# Building The Pit
 
 This is not a style guide, a process document, or a manifesto. It is a record of what we learned building this system — what worked, what didn't, and why the codebase looks the way it does. If you're reading this because you just joined and the commit history seems unusually disciplined for a pre-launch product, this is why.
 

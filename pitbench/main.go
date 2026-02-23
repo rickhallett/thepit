@@ -56,7 +56,7 @@ func main() {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "\n%s\n\n",
-		theme.Title.Render("pitbench — cost & performance benchmarking for THE PIT"))
+		theme.Title.Render("pitbench — cost & performance benchmarking for The Pit"))
 	fmt.Fprintf(os.Stderr, "Usage:\n")
 	fmt.Fprintf(os.Stderr, "  pitbench <command> [flags]\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")

@@ -45,7 +45,7 @@ func main() {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "\n%s\n\n",
-		theme.Title.Render("pitstorm — release traffic simulator for THE PIT"))
+		theme.Title.Render("pitstorm — release traffic simulator for The Pit"))
 	fmt.Fprintf(os.Stderr, "Usage:\n")
 	fmt.Fprintf(os.Stderr, "  pitstorm <command> [flags]\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")

@@ -59,7 +59,7 @@ function resolveHeroQuote({
   if (shareLine?.trim()) {
     return {
       text: shareLine.trim(),
-      agentName: 'THE PIT',
+      agentName: 'The Pit',
     };
   }
 

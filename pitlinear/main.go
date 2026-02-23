@@ -312,7 +312,7 @@ func parseListOpts(args []string) cmd.ListOpts {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "\n%s\n\n",
-		theme.Title.Render("pitlinear — Linear issue tracker CLI for THE PIT"))
+		theme.Title.Render("pitlinear — Linear issue tracker CLI for The Pit"))
 	fmt.Fprintf(os.Stderr, "Usage:\n")
 	fmt.Fprintf(os.Stderr, "  pitlinear [flags] <command> [subcommand] [args...]\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")

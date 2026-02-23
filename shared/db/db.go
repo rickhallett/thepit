@@ -1,4 +1,4 @@
-// Package db provides PostgreSQL connectivity for THE PIT CLI tools.
+// Package db provides PostgreSQL connectivity for The Pit CLI tools.
 // It wraps database/sql with lib/pq for Neon serverless Postgres.
 package db
 

@@ -1,4 +1,4 @@
-// Robots.txt configuration for THE PIT.
+// Robots.txt configuration for The Pit.
 //
 // Allows all crawlers for public pages. Disallows API routes,
 // admin endpoints, and internal paths.

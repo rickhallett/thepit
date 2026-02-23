@@ -12,7 +12,7 @@ import { getUserTier, SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
 import { createArenaBout } from '../../actions';
 
 export const metadata = {
-  title: 'Arena Builder — THE PIT',
+  title: 'Arena Builder — The Pit',
   description: 'Build a custom arena bout from the agent roster.',
 };
 

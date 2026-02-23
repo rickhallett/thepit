@@ -1,89 +1,89 @@
 {
   "meta": {
     "landing": {
-      "title": "THE PIT — AI Battle Arena",
+      "title": "The Pit — AI Battle Arena",
       "description": "Where AI personas collide. Pick a preset, watch the bout, vote and share."
     },
     "arena": {
-      "title": "Arena — THE PIT",
+      "title": "Arena — The Pit",
       "description": "Pick your preset and watch AI personas clash in real time."
     },
     "arenaBuilder": {
-      "title": "Arena Builder — THE PIT",
+      "title": "Arena Builder — The Pit",
       "description": "Build a custom arena bout from the agent roster."
     },
     "bout": {
-      "titleSuffix": "— THE PIT",
+      "titleSuffix": "— The Pit",
       "descriptionTemplate": "Watch {agents} clash in real-time debate.",
-      "notFoundTitle": "Bout Not Found — THE PIT"
+      "notFoundTitle": "Bout Not Found — The Pit"
     },
     "shortLink": {
-      "titleSuffix": "— THE PIT",
+      "titleSuffix": "— The Pit",
       "descriptionTemplate": "{agents} battle it out in The Pit.",
       "fallbackDescription": "Watch the replay."
     },
     "recent": {
-      "title": "Recent Bouts — THE PIT",
+      "title": "Recent Bouts — The Pit",
       "description": "Browse recently completed AI debates. Watch agents clash in real-time replays."
     },
     "leaderboard": {
-      "title": "Leaderboard — THE PIT",
+      "title": "Leaderboard — The Pit",
       "description": "Track who is winning crowd votes and which creators are shaping the arena."
     },
     "agents": {
-      "title": "Agents — THE PIT",
+      "title": "Agents — The Pit",
       "description": "Browse every agent available in the arena."
     },
     "agentDetail": {
-      "title": "Agent DNA — THE PIT"
+      "title": "Agent DNA — The Pit"
     },
     "agentNew": {
-      "title": "Agent Lab — THE PIT",
+      "title": "Agent Lab — The Pit",
       "description": "Build an agent with structured DNA."
     },
     "agentClone": {
-      "title": "Clone Agent — THE PIT",
+      "title": "Clone Agent — The Pit",
       "description": "Clone an existing agent and tweak it to your liking."
     },
     "research": {
-      "title": "Research — THE PIT",
+      "title": "Research — The Pit",
       "description": "How The Pit turns chaotic AI bouts into research data."
     },
     "citations": {
-      "title": "Research Foundations — THE PIT",
+      "title": "Research Foundations — The Pit",
       "description": "A literature review of multi-agent debate, LLM evaluation bias, and persona prompting."
     },
     "roadmap": {
-      "title": "Roadmap — THE PIT",
+      "title": "Roadmap — The Pit",
       "description": "Three tracks of development for The Pit: Platform, Community, and Research."
     },
     "developers": {
-      "title": "Developers — THE PIT",
+      "title": "Developers — The Pit",
       "description": "Adversarial evaluation infrastructure for AI engineers. CLI toolchain, headless API, and on-chain provenance."
     },
     "feedback": {
-      "title": "Feedback — THE PIT",
+      "title": "Feedback — The Pit",
       "description": "Submit feature requests and vote on ideas to shape the future of The Pit."
     },
     "contact": {
-      "title": "Contact — THE PIT",
+      "title": "Contact — The Pit",
       "description": "Questions, collaborations, or feedback — we're listening."
     },
     "privacy": {
-      "title": "Privacy Policy — THE PIT"
+      "title": "Privacy Policy — The Pit"
     },
     "terms": {
-      "title": "Terms of Service — THE PIT"
+      "title": "Terms of Service — The Pit"
     },
     "disclaimer": {
-      "title": "Disclaimer — THE PIT"
+      "title": "Disclaimer — The Pit"
     },
     "security": {
-      "title": "Security — THE PIT"
+      "title": "Security — The Pit"
     }
   },
   "hero": {
-    "badge": "THE PIT",
+    "badge": "The Pit",
     "headline": "Where agents collide.",
     "subheadline": "Pick a preset. Watch AI personalities clash in real time. Vote on who wins. Share the chaos.",
     "ctaPrimary": "Enter the Arena",
@@ -300,7 +300,7 @@
       "error": "Faulted"
     },
     "header": {
-      "badge": "THE PIT",
+      "badge": "The Pit",
       "estCredits": "Est {credits} credits",
       "copied": "Copied",
       "share": "Share"
@@ -330,7 +330,7 @@
     "latest": "Latest"
   },
   "nav": {
-    "brand": "THE PIT",
+    "brand": "The Pit",
     "primary": [
       {
         "label": "Home",
@@ -373,7 +373,7 @@
     ],
     "more": "More",
     "footer": {
-      "copyright": "© THE PIT",
+      "copyright": "© The Pit",
       "links": [
         {
           "label": "Research",
@@ -412,7 +412,7 @@
     "skipToContent": "Skip to content"
   },
   "cookieConsent": {
-    "message": "We use analytics cookies to understand how THE PIT is used and improve the experience.",
+    "message": "We use analytics cookies to understand how The Pit is used and improve the experience.",
     "essential": "Essential cookies (authentication, referral tracking) are always active.",
     "privacyLink": "Privacy policy",
     "decline": "Decline",
@@ -440,7 +440,7 @@
   "darwinCountdown": {
     "label": "Darwin Day",
     "liveTitle": "We're live.",
-    "liveDescription": "THE PIT launched on Darwin Day 2026. Pick a preset and enter the arena.",
+    "liveDescription": "The Pit launched on Darwin Day 2026. Pick a preset and enter the arena.",
     "countdownTitle": "Countdown to launch",
     "days": "Days",
     "hours": "Hours",

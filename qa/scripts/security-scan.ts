@@ -309,7 +309,7 @@ function generateHtmlReport(results: ScanResult[]): string {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Security Scan Report - THE PIT</title>
+  <title>Security Scan Report - The Pit</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
     h1 { color: #1a1a1a; }
@@ -402,7 +402,7 @@ async function main(): Promise<void> {
 
   if (values.help) {
     console.log(`
-Security Scan Runner for THE PIT
+Security Scan Runner for The Pit
 
 Usage:
   tsx qa/scripts/security-scan.ts [options]
@@ -429,7 +429,7 @@ Examples:
   }
 
   console.log(`
-🛡️  THE PIT Security Scan
+🛡️  The Pit Security Scan
 ================================
 Target: ${options.target}
 Mode: ${options.quick ? 'Quick' : 'Full'}

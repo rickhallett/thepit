@@ -41,7 +41,7 @@ import {
 } from '../actions';
 
 export const metadata = {
-  title: 'Arena — THE PIT',
+  title: 'Arena — The Pit',
   description: 'Pick your preset and watch AI personas clash in real time.',
 };
 

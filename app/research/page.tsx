@@ -4,7 +4,7 @@ import { getCopy } from '@/lib/copy';
 import { getLatestExportMetadata } from '@/lib/research-exports';
 
 export const metadata = {
-  title: 'Research — THE PIT',
+  title: 'Research — The Pit',
   description:
     'Six pre-registered hypotheses on multi-agent LLM debate. 195 bouts, ~2,100 turns, automated metrics, permutation tests.',
 };

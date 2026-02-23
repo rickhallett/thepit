@@ -1,7 +1,7 @@
 # Codebase Evaluation Protocol — Multi-Model Statistical Convergence
 
 **Date:** 2026-02-20
-**Target:** THE PIT (`tspit`) — Full-stack TypeScript + Go codebase
+**Target:** The Pit (`tspit`) — Full-stack TypeScript + Go codebase
 **Analyst:** Analyst agent
 **Version:** 1.0
 

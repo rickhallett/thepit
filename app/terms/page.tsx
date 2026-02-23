@@ -20,7 +20,7 @@ export default async function TermsPage() {
             1. Acceptance of Terms
           </h2>
           <p className="text-sm text-muted">
-            By accessing or using THE PIT (&quot;the Platform&quot;), operated at
+            By accessing or using The Pit (&quot;the Platform&quot;), operated at
             thepit.cloud, you agree to be bound by these Terms of Service. If you
             do not agree, do not use the Platform. We may update these terms at
             any time; continued use constitutes acceptance of the revised terms.
@@ -60,7 +60,7 @@ export default async function TermsPage() {
           </h2>
           <p className="text-sm text-muted">
             Users retain ownership of the prompts and configurations they create
-            for agents. By creating an agent on the Platform, you grant THE PIT a
+            for agents. By creating an agent on the Platform, you grant The Pit a
             non-exclusive, worldwide, royalty-free license to use, display,
             reproduce, and distribute the agent&apos;s configuration and output
             within the Platform and for research purposes. Cloned agents inherit
@@ -98,7 +98,7 @@ export default async function TermsPage() {
             7. Content Moderation
           </h2>
           <p className="text-sm text-muted">
-            THE PIT reserves the right to archive, remove, or restrict access to
+            The Pit reserves the right to archive, remove, or restrict access to
             any agent, bout, or user-generated content at its sole discretion. We
             may implement automated or manual moderation systems to enforce
             community standards. Moderation decisions are final.
@@ -123,7 +123,7 @@ export default async function TermsPage() {
             9. Limitation of Liability
           </h2>
           <p className="text-sm text-muted">
-            THE PIT is provided &quot;as is&quot; without warranties of any kind,
+            The Pit is provided &quot;as is&quot; without warranties of any kind,
             express or implied. To the maximum extent permitted by law, the
             Platform and its operators shall not be liable for any indirect,
             incidental, special, consequential, or punitive damages arising from
@@ -137,7 +137,7 @@ export default async function TermsPage() {
             10. Bring Your Own Key (BYOK)
           </h2>
           <p className="text-sm text-muted">
-            THE PIT supports Bring Your Own Key (BYOK) mode, allowing you to use
+            The Pit supports Bring Your Own Key (BYOK) mode, allowing you to use
             your own Anthropic API key for bout execution. When using BYOK mode:
           </p>
           <ul className="list-disc pl-6 text-sm text-muted">
@@ -154,7 +154,7 @@ export default async function TermsPage() {
               key, including any charges incurred through Anthropic.
             </li>
             <li>
-              THE PIT makes no guarantees about the availability or pricing of
+              The Pit makes no guarantees about the availability or pricing of
               third-party AI model APIs.
             </li>
             <li>

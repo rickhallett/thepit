@@ -62,7 +62,7 @@ func RunProof(args []string) {
 
 	// --- Header ---
 	fmt.Println("=============================================================")
-	fmt.Println("  THE PIT — On-Chain Attestation Verification Proof")
+	fmt.Println("  The Pit — On-Chain Attestation Verification Proof")
 	fmt.Println("=============================================================")
 	fmt.Println()
 	fmt.Println("Chain Parameters")

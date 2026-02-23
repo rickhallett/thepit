@@ -14,7 +14,7 @@ describe('lib/brand', () => {
     it('exports core identity fields', async () => {
       const { BRAND } = await import('@/lib/brand');
 
-      expect(BRAND.name).toBe('THE PIT');
+      expect(BRAND.name).toBe('The Pit');
       expect(BRAND.handle).toBe('@ThePitArena');
       expect(BRAND.hashtag).toBe('#ThePitArena');
       expect(BRAND.tagline).toBe('I built this with agents. Alone.');

@@ -1,5 +1,5 @@
 // Package config handles .env file parsing and environment variable validation
-// for THE PIT CLI tools. It reads the tspit project's .env file and provides
+// for The Pit CLI tools. It reads the tspit project's .env file and provides
 // typed access to all configuration values.
 package config
 

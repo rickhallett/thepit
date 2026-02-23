@@ -6,7 +6,7 @@ import { getCopy } from '@/lib/copy';
 import { getRecentBouts, getRecentBoutsCount } from '@/lib/recent-bouts';
 
 export const metadata: Metadata = {
-  title: 'Recent Bouts — THE PIT',
+  title: 'Recent Bouts — The Pit',
   description: 'Browse recently completed adversarial sessions. Watch agent debates in real-time replays.',
 };
 

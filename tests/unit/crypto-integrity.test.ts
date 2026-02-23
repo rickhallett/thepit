@@ -1,6 +1,6 @@
 // Cryptographic Integrity Test Suite
 //
-// 10 attack scenarios that would prove THE PIT's cryptographic pipeline is
+// 10 attack scenarios that would prove The Pit's cryptographic pipeline is
 // broken. Each test exercises the real code and asserts a specific, falsifiable
 // property. If any test fails, the pipeline cannot be trusted.
 //

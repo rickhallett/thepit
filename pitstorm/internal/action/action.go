@@ -1,4 +1,4 @@
-// Package action provides typed API actions for every endpoint on THE PIT.
+// Package action provides typed API actions for every endpoint on The Pit.
 // Each action wraps the client's Do/DoStream with proper request/response
 // types, making them composable building blocks for persona behaviours.
 package action

@@ -1,4 +1,4 @@
-// Package client provides an HTTP client for interacting with THE PIT's
+// Package client provides an HTTP client for interacting with The Pit's
 // web endpoints and API. It handles connection pooling, authentication
 // injection (Clerk session tokens), retries with exponential backoff,
 // and response validation.

@@ -77,7 +77,7 @@ Records are **append-only**. No updates after creation.
 
 ### Signer Wallet Setup (Pending)
 We need a dedicated signer wallet before EAS can go live in prod.
-1. Create a new EVM wallet dedicated to THE PIT attestations.
+1. Create a new EVM wallet dedicated to The Pit attestations.
 2. Export and securely store the private key (for `EAS_SIGNER_PRIVATE_KEY`).
 3. Fund the wallet with Base ETH for gas (schema creation + attestations).
 4. Create the EAS schema on Base and copy the Schema UID.

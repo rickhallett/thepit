@@ -1,89 +1,89 @@
 {
   "meta": {
     "landing": {
-      "title": "THE PIT — I built this with agents. Alone.",
+      "title": "The Pit — I built this with agents. Alone.",
       "description": "I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2."
     },
     "arena": {
-      "title": "Arena — THE PIT",
+      "title": "Arena — The Pit",
       "description": "Configure evaluation parameters and observe multi-agent adversarial interactions in real-time."
     },
     "arenaBuilder": {
-      "title": "Arena Builder — THE PIT",
+      "title": "Arena Builder — The Pit",
       "description": "Construct custom adversarial evaluation scenarios from available agent configurations."
     },
     "bout": {
-      "titleSuffix": "— THE PIT",
+      "titleSuffix": "— The Pit",
       "descriptionTemplate": "Observe {agents} engage in structured adversarial evaluation.",
-      "notFoundTitle": "Evaluation Session Not Found — THE PIT"
+      "notFoundTitle": "Evaluation Session Not Found — The Pit"
     },
     "shortLink": {
-      "titleSuffix": "— THE PIT",
+      "titleSuffix": "— The Pit",
       "descriptionTemplate": "{agents} adversarial evaluation session in The Pit.",
       "fallbackDescription": "View the bout replay."
     },
     "recent": {
-      "title": "Recent Sessions — THE PIT",
+      "title": "Recent Sessions — The Pit",
       "description": "Browse completed adversarial evaluation sessions. Review agent behavioral patterns in session replays."
     },
     "leaderboard": {
-      "title": "Performance Metrics — THE PIT",
+      "title": "Performance Metrics — The Pit",
       "description": "Quantitative analysis of agent performance rankings and creator contribution metrics."
     },
     "agents": {
-      "title": "Agent Registry — THE PIT",
+      "title": "Agent Registry — The Pit",
       "description": "Complete catalog of available agent configurations in the evaluation environment."
     },
     "agentDetail": {
-      "title": "Agent Configuration — THE PIT"
+      "title": "Agent Configuration — The Pit"
     },
     "agentNew": {
-      "title": "Agent Laboratory — THE PIT",
+      "title": "Agent Laboratory — The Pit",
       "description": "Engineer agent configurations using structured parameter definitions."
     },
     "agentClone": {
-      "title": "Clone Agent Configuration — THE PIT",
+      "title": "Clone Agent Configuration — The Pit",
       "description": "Replicate existing agent parameters and modify for experimental variation."
     },
     "research": {
-      "title": "Research Infrastructure — THE PIT",
+      "title": "Research Infrastructure — The Pit",
       "description": "Methodology for converting adversarial evaluation sessions into structured research datasets."
     },
     "citations": {
-      "title": "Research Foundations — THE PIT",
+      "title": "Research Foundations — The Pit",
       "description": "Comprehensive literature review covering multi-agent debate systems, LLM evaluation methodologies, and persona prompting techniques."
     },
     "roadmap": {
-      "title": "Development Roadmap — THE PIT",
+      "title": "Development Roadmap — The Pit",
       "description": "Three concurrent development tracks: Platform Infrastructure, Community Tools, and Research Capabilities."
     },
     "developers": {
-      "title": "Developer Infrastructure — THE PIT",
+      "title": "Developer Infrastructure — The Pit",
       "description": "Adversarial evaluation infrastructure for AI systems. CLI toolchain, headless API, and blockchain-based provenance."
     },
     "feedback": {
-      "title": "Feature Requests — THE PIT",
+      "title": "Feature Requests — The Pit",
       "description": "Submit enhancement proposals and prioritize development initiatives through community voting."
     },
     "contact": {
-      "title": "Contact — THE PIT",
+      "title": "Contact — The Pit",
       "description": "Research collaborations, technical inquiries, and platform feedback channels."
     },
     "privacy": {
-      "title": "Privacy Policy — THE PIT"
+      "title": "Privacy Policy — The Pit"
     },
     "terms": {
-      "title": "Terms of Service — THE PIT"
+      "title": "Terms of Service — The Pit"
     },
     "disclaimer": {
-      "title": "Disclaimer — THE PIT"
+      "title": "Disclaimer — The Pit"
     },
     "security": {
-      "title": "Security — THE PIT"
+      "title": "Security — The Pit"
     }
   },
   "hero": {
-    "badge": "THE PIT",
+    "badge": "The Pit",
     "headline": "I built this with agents. Alone.",
     "subheadline": [
       "(Trust, Distrust): I guess a bit like a tuple, they just go together. The deeper I plumbed, the more I needed both. Distrust of agentic silliness; trust in their brilliance. I hope this can be a bridge to more of that.",
@@ -304,7 +304,7 @@
       "error": "Error"
     },
     "header": {
-      "badge": "THE PIT",
+      "badge": "The Pit",
       "estCredits": "Est {credits} credits",
       "copied": "Copied",
       "share": "Share"
@@ -337,7 +337,7 @@
     "latest": "Latest"
   },
   "nav": {
-    "brand": "THE PIT",
+    "brand": "The Pit",
     "primary": [
       {
         "label": "Home",
@@ -384,7 +384,7 @@
     ],
     "more": "More",
     "footer": {
-      "copyright": "© THE PIT",
+      "copyright": "© The Pit",
       "links": [
         {
           "label": "Research",
@@ -451,7 +451,7 @@
   "darwinCountdown": {
     "label": "Darwin Day",
     "liveTitle": "System operational.",
-    "liveDescription": "THE PIT launched on Darwin Day 2026. Configure evaluation protocol and access arena.",
+    "liveDescription": "The Pit launched on Darwin Day 2026. Configure evaluation protocol and access arena.",
     "countdownTitle": "Launch countdown",
     "days": "Days",
     "hours": "Hours",

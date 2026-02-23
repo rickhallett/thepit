@@ -55,7 +55,7 @@ export async function generateMetadata({
       title,
       description,
       type: 'article',
-      siteName: 'THE PIT',
+      siteName: 'The Pit',
     },
     twitter: {
       card: 'summary_large_image',
