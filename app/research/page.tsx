@@ -13,19 +13,11 @@ export const metadata = {
 /* Research programme data (hardcoded — factual, not A/B testable)     */
 /* ------------------------------------------------------------------ */
 
-const programmeStats = {
-  bouts: 195,
-  turns: '~2,100',
-  hypotheses: 6,
-};
-
 type HypothesisRow = {
   id: string;
   title: string;
   question: string;
   design: string;
-  result: 'clear' | 'null' | 'ambiguous';
-  maxD: string;
   keyFinding: string;
   insight: string;
   githubPath: string;
@@ -38,8 +30,6 @@ const hypotheses: HypothesisRow[] = [
     question:
       'Does richer agent DNA reduce safety-layer refusals in adversarial presets?',
     design: '50 bouts, roast-battle + gloves-off. Baseline (~270 char DNA) vs enhanced (~1950 char XML DNA).',
-    result: 'clear',
-    maxD: '—',
     keyFinding:
       'Roast-battle refusals dropped 100% to 60%. Gloves-off: enhanced DNA eliminated all refusals.',
     insight:
@@ -52,10 +42,8 @@ const hypotheses: HypothesisRow[] = [
     question:
       'Does speaker position (first vs last) systematically affect output?',
     design: '25 bouts, 300 turns. Last Supper (4 agents) + Summit (6 agents).',
-    result: 'clear',
-    maxD: '3.584',
     keyFinding:
-      'Novel vocabulary rate shows genuine position effect (d = 1.732 in 6-agent). Question density is persona-driven, not position-driven.',
+      'Novel vocabulary rate shows genuine position effect (d = 1.732 in 6-agent, max |d| = 3.584). Question density is persona-driven, not position-driven.',
     insight:
       'Turn position drives vocabulary novelty; persona identity drives conversational role.',
     githubPath: 'pitstorm/results/hypotheses/H2-preregistration.md',
@@ -66,10 +54,8 @@ const hypotheses: HypothesisRow[] = [
     question:
       'Does a humorous premise produce more varied and less formulaic output?',
     design: '30 bouts, 360 turns. Comedy (first-contact + darwin-special) vs serious (on-the-couch).',
-    result: 'clear',
-    maxD: '1.300',
     keyFinding:
-      'Serious agents produce 8x more hedging. House Cat and Conspiracy Theorist: zero hedging across 30 turns each.',
+      'Serious agents produce 8x more hedging (d = 1.300). House Cat and Conspiracy Theorist: zero hedging across 30 turns each.',
     insight:
       'The model\'s hedging register activates based on frame proximity to the assistant voice, not content difficulty.',
     githubPath: 'pitstorm/results/hypotheses/H3-analysis.md',
@@ -80,10 +66,8 @@ const hypotheses: HypothesisRow[] = [
     question:
       'How does the number of agents (2-6) affect per-agent output quality?',
     design: '50 bouts, 600 turns. Presets: first-contact (2), shark-pit (4), flatshare (5), summit (6).',
-    result: 'clear',
-    maxD: '3.009',
     keyFinding:
-      'No quality cliff at higher agent counts. Per-agent TTR effect is a text-length confound. Diminishing returns after 4-5 agents.',
+      'No quality cliff at higher agent counts. Per-agent TTR effect (d = 3.009) is a text-length confound. Diminishing returns after 4-5 agents.',
     insight:
       'Framing and persona quality are the dominant variables; agent count is secondary.',
     githubPath: 'pitstorm/results/hypotheses/H4-analysis.md',
@@ -94,10 +78,8 @@ const hypotheses: HypothesisRow[] = [
     question:
       'Do agent personas converge to a generic assistant voice over 12 turns?',
     design: '30 bouts, 360 turns. Mansion (4 agents) + writers-room (4 agents). Early/middle/late phases.',
-    result: 'clear',
-    maxD: '1.212',
     keyFinding:
-      'Character markers degrade 87.5% to 60.0%. Agents become 17.8% more lexically similar. Screenwriter held 100% all phases; Literary Novelist collapsed to 13.3%.',
+      'Character markers degrade 87.5% to 60.0% (Jaccard convergence d = 1.212). Agents become 17.8% more lexically similar. Screenwriter held 100% all phases; Literary Novelist collapsed to 13.3%.',
     insight:
       'Structural vocabulary resists drift; ornamental vocabulary decays as conversation context grows.',
     githubPath: 'pitstorm/results/hypotheses/H5-analysis.md',
@@ -108,10 +90,8 @@ const hypotheses: HypothesisRow[] = [
     question:
       'Does the Founder agent adapt its pitch under sustained critique?',
     design: '15 bouts, 180 turns, 45 Founder turns. Shark-pit (Founder, VC, Hype Beast, Pessimist).',
-    result: 'clear',
-    maxD: '0.785',
     keyFinding:
-      'Zero adaptive phrases in 45 Founder turns. Pivot behaviour is DNA-driven from turn 0. Founder converges with reinforcer, not critics. The largest effect sizes (d=6-10) are measurement artefacts from zero-baseline confounds; the unconfounded metric (pivot density) shows d=0.785.',
+      'Zero adaptive phrases in 45 Founder turns. Pivot behaviour is DNA-driven from turn 0 (pivot density d = 0.785). Founder converges with reinforcer, not critics. The largest effect sizes (d = 6-10) are measurement artefacts from zero-baseline confounds.',
     insight:
       'Agents execute character strategies faithfully but cannot incorporate opposing arguments.',
     githubPath: 'pitstorm/results/hypotheses/H6-analysis.md',
@@ -145,21 +125,6 @@ const threeAxes: AxisRow[] = [
   },
 ];
 
-const resultBadge: Record<string, { label: string; className: string }> = {
-  clear: {
-    label: 'CLEAR',
-    className: 'border-foreground/60 text-foreground/80',
-  },
-  null: {
-    label: 'NULL',
-    className: 'border-yellow-500/60 text-yellow-400',
-  },
-  ambiguous: {
-    label: 'AMBIGUOUS',
-    className: 'border-orange-500/60 text-orange-400',
-  },
-};
-
 const GITHUB_BASE =
   'https://github.com/rickhallett/thepit/blob/master/';
 
@@ -186,31 +151,14 @@ export default async function ResearchPage() {
       {/* ---- Thesis ---- */}
       <section className="mx-auto max-w-4xl px-6 pb-8">
         <p className="text-base leading-relaxed text-foreground/90">
-          Every agent needs a human. We built this research programme to measure
-          what agents can and cannot do under adversarial pressure — because
-          understanding the limits of autonomy is how you decide where human
-          judgment belongs.
+          Every agent needs a human, and right now we all need a little help.
+          How can we trust them if we don&apos;t understand them? Who is
+          comfortable taking ownership of a mess they didn&apos;t agree to make?
+          This trust issue demands an answer, a collective one, and so we built
+          this research pilot to measure what agents can and cannot do under
+          adversarial pressure — autonomy helps us decide where human judgement
+          belongs.
         </p>
-      </section>
-
-      {/* ---- Programme stats bar ---- */}
-      <section className="border-y-2 border-foreground/70 bg-black/40">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-6 px-6 py-10">
-          {[
-            { value: String(programmeStats.bouts), label: 'bouts' },
-            { value: programmeStats.turns, label: 'turns' },
-            { value: String(programmeStats.hypotheses), label: 'hypotheses' },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <p className="font-mono text-3xl font-bold text-accent md:text-4xl">
-                {stat.value}
-              </p>
-              <p className="mt-1 text-xs uppercase tracking-[0.3em] text-muted">
-                {stat.label}
-              </p>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* ---- Methodology note ---- */}
@@ -266,32 +214,18 @@ export default async function ResearchPage() {
           Six hypotheses
         </h2>
         <div className="mt-8 flex flex-col gap-6">
-          {hypotheses.map((h) => {
-            const badge = resultBadge[h.result] ?? { className: '', label: h.result };
-            return (
+          {hypotheses.map((h) => (
               <div
                 key={h.id}
                 className="border-2 border-foreground/20 bg-black/30 p-6"
               >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-lg font-bold text-accent">
-                      {h.id}
-                    </span>
-                    <h3 className="text-base font-semibold text-foreground">
-                      {h.title}
-                    </h3>
-                  </div>
-                  <span
-                    className={`inline-block border px-3 py-1 font-mono text-xs ${badge.className}`}
-                  >
-                    {badge.label}
-                    {h.maxD !== '—' && (
-                      <span className="ml-1 opacity-60">
-                        |d|={h.maxD}
-                      </span>
-                    )}
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-lg font-bold text-accent">
+                    {h.id}
                   </span>
+                  <h3 className="text-base font-semibold text-foreground">
+                    {h.title}
+                  </h3>
                 </div>
                 <p className="mt-3 text-sm italic text-muted">{h.question}</p>
                 <p className="mt-2 text-xs text-muted/70">{h.design}</p>
@@ -311,8 +245,7 @@ export default async function ResearchPage() {
                   Full analysis &rarr;
                 </a>
               </div>
-            );
-          })}
+          ))}
         </div>
       </section>
 
