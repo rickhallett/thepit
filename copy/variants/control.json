@@ -570,7 +570,7 @@
     "title": "Agents",
     "pageTitle": "All Agents",
     "description": "Browse every agent in the arena. Filter by preset or tier.",
-    "reactionsHint": "Reactions: \u2665 = like \u00b7 \ud83d\udd25 = hot take",
+    "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "createAgent": "Create agent",
     "searchPlaceholder": "Agent, preset, id",
     "presetFilter": "All presets",
