@@ -17,7 +17,7 @@ The analysis includes all completed bouts for each preset, including 20 bouts fr
 | flatshare | 5 | 10 | 120 | 2-3 |
 | summit | 6 | 15 | 180 | 2 |
 
-## Result: Clear (max |d| = 3.009)
+## Result: Clear (max |d| = 3.009, though this is dominated by the turns-per-agent confound; see Finding 1)
 
 Two of four metrics exceeded the d >= 0.30 threshold on the primary 2v6 comparison. No LLM judge needed.
 
@@ -25,16 +25,16 @@ Two of four metrics exceeded the d >= 0.30 threshold on the primary 2v6 comparis
 
 | Metric | 2-agent (n=15) | 6-agent (n=15) | Cohen's d | p-value | Interpretation |
 |--------|---------------|---------------|-----------|---------|----------------|
-| M1 Per-Agent Chars | 933 +/- 41 | 928 +/- 63 | 0.091 | 0.6701 | null |
-| M2 Per-Agent TTR | 0.488 +/- 0.021 | 0.614 +/- 0.047 | -3.009 | 0.0000 | CLEAR |
-| M3 Novel Vocabulary | 0.447 +/- 0.211 | 0.407 +/- 0.233 | 0.177 | 0.0916 | AMBIGUOUS |
-| M4 Conversation TTR | 0.400 +/- 0.015 | 0.359 +/- 0.035 | 1.510 | 0.0000 | CLEAR |
+| M1 Per-Agent Chars | 933 +/- 41 | 928 +/- 63 | 0.091 | 0.6627 | null |
+| M2 Per-Agent TTR | 0.488 +/- 0.021 | 0.614 +/- 0.047 | -3.009 | p < 0.0001 | CLEAR |
+| M3 Novel Vocabulary | 0.447 +/- 0.211 | 0.407 +/- 0.233 | 0.177 | 0.0938 | AMBIGUOUS |
+| M4 Conversation TTR | 0.400 +/- 0.015 | 0.359 +/- 0.035 | 1.510 | p < 0.0001 | CLEAR |
 
 ## Key findings
 
 ### 1. More agents produce HIGHER per-agent vocabulary diversity (M2: d = -3.009)
 
-This is the largest effect size in the entire research programme so far. Agents in 6-agent conversations have dramatically higher type-token ratios (0.614 vs 0.488) than agents in 2-agent conversations. The pre-registration predicted the opposite — that per-agent TTR would decrease with agent count.
+Agents in 6-agent conversations have higher type-token ratios (0.614 vs 0.488) than agents in 2-agent conversations. The pre-registration predicted the opposite — that per-agent TTR would decrease with agent count.
 
 The explanation is mechanical rather than creative: in a 2-agent bout, each agent speaks 6 times. With more turns, the agent accumulates more total words, and TTR mechanically decreases with text length (the "longer text = lower TTR" effect documented in H3). In a 6-agent bout, each agent speaks only 2 times, producing fewer total words and thus a mechanically higher TTR.
 
@@ -65,7 +65,7 @@ This is likely a framing effect, not a count effect. Summit (geopolitics) and fi
 
 ### 4. Novel vocabulary rate shows no meaningful scaling effect (M3: d = 0.177)
 
-The ambiguous result on M3 suggests that the rate at which agents introduce new words to the conversation is roughly constant across group sizes. The prediction was that novelty would drop faster in larger groups because the shared vocabulary pool grows more quickly. The data shows a very slight decrease (0.447 to 0.407) that doesn't reach statistical significance (p = 0.0916).
+The ambiguous result on M3 suggests that the rate at which agents introduce new words to the conversation is roughly constant across group sizes. The prediction was that novelty would drop faster in larger groups because the shared vocabulary pool grows more quickly. The data shows a very slight decrease (0.447 to 0.407) that doesn't reach statistical significance (p = 0.0938).
 
 The trend is negligible (r = -0.070), confirming no linear relationship between agent count and novelty rate. Each agent introduces new vocabulary at roughly the same rate regardless of how many other agents are speaking.
 
@@ -102,7 +102,7 @@ Notable individual patterns:
 
 ## Cross-hypothesis patterns
 
-Four hypotheses now contribute to a consistent picture:
+Four hypotheses now contribute to a consistent picture. These are single-study observations, not established findings. Each carries the limitations of its respective design.
 
 | Finding | Source |
 |---------|--------|
@@ -118,7 +118,7 @@ Four hypotheses now contribute to a consistent picture:
 | Per-agent turn length is driven by framing, not agent count | H4 |
 | Novel vocabulary rate is agent-count-invariant | H4 |
 
-The emerging meta-finding: **framing and persona quality are first-order variables; structural parameters (count, position) are second-order.** Agent count affects mechanical properties (TTR, conversation-level diversity) but not the creative properties that matter for user experience (novelty, turn richness). The biggest lever for multi-agent system quality is persona design (H1, H3), not group size (H4).
+Across these experiments, framing and persona quality appear to be more strongly associated with output variation than structural parameters like count and position, though the confounds in this study prevent a definitive conclusion. Agent count affects mechanical properties (TTR, conversation-level diversity) but not the creative properties that matter for user experience (novelty, turn richness). Persona design may matter more than group size, but this requires further study with designs that isolate count from framing.
 
 ## Known limitations
 
@@ -130,10 +130,16 @@ The emerging meta-finding: **framing and persona quality are first-order variabl
 
 4. **The Diplomat appears in two presets**: first-contact and summit both have a "diplomat" agent, but with different system prompts and different roles. This creates a partial within-agent comparison that could be explored further.
 
+5. **The primary finding (M2 d = 3.009) is dominated by the turns-per-agent confound** and should not be interpreted as a genuine quality difference.
+
+6. **Two pre-registered analyses were not performed**: turns-per-agent normalisation and cross-preset comparison for shared agent counts. These omissions are acknowledged.
+
+7. **Each agent count corresponds to a single preset with unique framing**, making it impossible to attribute effects to count alone.
+
 ## Methodology notes
 
 - 50 total bouts analysed (30 H4-specific + 10 from H2 + 10 from H3)
-- 600 total turns, 0 errors
+- 600 total turns, 0 errors (no API failures or malformed responses)
 - Sequential execution, ~44s avg per bout
 - Research bypass auth (X-Research-Key header)
 - Pre-registration committed in PR #301 before any H4 bouts were run
@@ -143,8 +149,8 @@ The emerging meta-finding: **framing and persona quality are first-order variabl
 
 ## Implications
 
-The practical takeaway for multi-agent system design: **there is no quality cliff at higher agent counts, but there are diminishing returns after 4-5 agents.** The 5v6 comparison shows near-zero effects across all metrics. If you're choosing between 4, 5, or 6 agents, the decision should be driven by your content needs, not by fears of quality degradation.
+The practical takeaway for multi-agent system design: **in these presets, we did not observe a quality cliff at higher agent counts, though count and preset framing are confounded.** There are diminishing returns after 4-5 agents. The 5v6 comparison shows near-zero effects across all metrics. If you're choosing between 4, 5, or 6 agents, the decision should be driven by your content needs, not by fears of quality degradation.
 
-The 2-agent case is genuinely different — it produces a qualitatively different conversation (higher conversation-level diversity, fewer shared vocabulary items) rather than a degraded version of the multi-agent pattern. This makes sense: a 2-agent conversation is functionally a dialogue, while 4+ agents create a panel discussion. They're different formats, not points on a single quality spectrum.
+The 2-agent case is genuinely different — it produces a structurally different conversation (higher conversation-level diversity, fewer shared vocabulary items) rather than a degraded version of the multi-agent pattern. A 2-agent conversation is functionally a dialogue, while 4+ agents create a panel discussion. They're different formats, not points on a single quality spectrum.
 
 The strongest finding is methodological: **per-agent TTR is a poor metric when agents have different numbers of turns.** Future hypotheses should use length-normalised metrics (TTR100) or compare only within the same turns-per-agent bracket. This is a lesson for anyone measuring "quality" in multi-agent systems — the number of turns an agent gets affects every cumulative metric.
