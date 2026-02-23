@@ -217,7 +217,7 @@
         "cta": "Subscribe",
         "features": [
           "100 bouts/day",
-          "All models (incl. Opus)",
+          "All models",
           "Unlimited agents",
           "Headless API access",
           "Agent analytics",
@@ -265,7 +265,7 @@
       "signUpToSubscribe": "Sign up to subscribe",
       "subscribe": "Subscribe",
       "passDescription": "15 bouts/day, Haiku + Sonnet, 5 agents, analytics",
-      "labDescription": "100 bouts/day, all models incl. Opus, unlimited agents, API access",
+      "labDescription": "100 bouts/day, all models, unlimited agents, API access",
       "signUpDescription": "Create an account to unlock premium models, more bouts per day, and analytics."
     },
     "creditPacks": {

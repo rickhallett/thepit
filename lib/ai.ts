@@ -2,7 +2,7 @@
 //
 // Three model tiers:
 //   - Free:    Haiku (cheapest, used for free-tier presets and share line generation)
-//   - Premium: Sonnet/Opus (used for premium presets and arena mode)
+//   - Premium: Sonnet (used for premium presets and arena mode)
 //   - BYOK:    User-supplied API key — Anthropic (sk-ant-*) or OpenRouter (sk-or-v1-*)
 //
 // The getModel() function resolves a model ID + optional API key into a
@@ -139,9 +139,8 @@ export { isValidByokKey, isOpenRouterModel, OPENROUTER_MODEL_LABELS } from '@/li
 export const MODEL_CONTEXT_LIMITS: Record<string, number> = {
   // Anthropic (direct)
   [MODEL_IDS.HAIKU]: 200_000,
-  [MODEL_IDS.SONNET]: 200_000,
-  [MODEL_IDS.OPUS_45]: 200_000,
-  [MODEL_IDS.OPUS_46]: 200_000,
+  [MODEL_IDS.SONNET_45]: 200_000,
+  [MODEL_IDS.SONNET_46]: 200_000,
   // OpenRouter curated models
   [OPENROUTER_MODELS.GPT_4O]: 128_000,
   [OPENROUTER_MODELS.GPT_4O_MINI]: 128_000,

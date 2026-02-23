@@ -20,7 +20,7 @@
   ],
   "turn_order": "sequential",
   "max_turns": {
-    "standard": 12,
+    "standard": 6,
     "juiced": 24,
     "unleashed": 48
   }

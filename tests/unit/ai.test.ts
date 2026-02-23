@@ -25,9 +25,9 @@ describe('lib/ai', () => {
     delete process.env.ANTHROPIC_BYOK_MODEL;
   });
 
-  it('FREE_MODEL_ID defaults to sonnet model', async () => {
+  it('FREE_MODEL_ID defaults to haiku model', async () => {
     const { FREE_MODEL_ID } = await import('@/lib/ai');
-    expect(FREE_MODEL_ID).toBe(MODEL_IDS.SONNET);
+    expect(FREE_MODEL_ID).toBe(MODEL_IDS.HAIKU);
   });
 
   it('PREMIUM_MODEL_OPTIONS is an array of model IDs', async () => {
@@ -73,10 +73,10 @@ describe('lib/ai', () => {
     const { createAnthropic } = await import('@ai-sdk/anthropic');
     const { getModel } = await import('@/lib/ai');
 
-    const model = getModel('byok', 'sk-ant-test-key-123', MODEL_IDS.SONNET);
+    const model = getModel('byok', 'sk-ant-test-key-123', MODEL_IDS.SONNET_45);
 
     expect(createAnthropic).toHaveBeenCalledWith({ apiKey: 'sk-ant-test-key-123' });
-    expect(model).toEqual({ modelId: MODEL_IDS.SONNET });
+    expect(model).toEqual({ modelId: MODEL_IDS.SONNET_45 });
   });
 
   it('getModel with OpenRouter apiKey creates OpenRouter provider', async () => {
@@ -117,7 +117,7 @@ describe('lib/ai', () => {
 
     getModel();
     getModel('byok');
-    getModel(MODEL_IDS.SONNET);
+    getModel(MODEL_IDS.SONNET_45);
 
     // createOpenRouter should only be called via the mock setup, not by getModel
     expect(createOpenRouter).not.toHaveBeenCalled();

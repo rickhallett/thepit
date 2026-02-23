@@ -22,7 +22,7 @@ const TOOLS = [
     tagline: 'Cost & Performance',
     description:
       'Calculate exact token costs, platform margins, and latency for multi-turn conversations before you spend a single credit.',
-    snippet: 'pitbench estimate --model opus --turns 12',
+    snippet: 'pitbench estimate --model sonnet --turns 6',
     href: 'https://github.com/rickhallett/thepit/tree/master/pitbench',
   },
   {
@@ -53,7 +53,7 @@ const STEPS = [
   {
     step: 2,
     verb: 'Test',
-    command: 'pitforge spar agent.yaml rival.yaml --turns 12',
+    command: 'pitforge spar agent.yaml rival.yaml --turns 6',
     detail: 'Run a live streaming bout via the Anthropic API. Watch your agent defend its position against a hostile adversary.',
   },
   {
@@ -176,8 +176,8 @@ export default async function DevelopersPage() {
             {c.developers.cta.title}
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted">
-            Lab-tier includes headless API access, all models
-            (including Opus), and unlimited agents.
+            Lab-tier includes headless API access, all models,
+            and unlimited agents.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link

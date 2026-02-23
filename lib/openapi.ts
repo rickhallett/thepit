@@ -58,8 +58,8 @@ export const spec = {
                   },
                   model: {
                     type: 'string',
-                    description: 'Model to use. Options depend on your tier: free tier gets Haiku, Pass gets Sonnet, Lab gets all models including Opus. Use "byok" for your own API key.',
-                    example: MODEL_IDS.SONNET,
+                    description: 'Model to use. Options depend on your tier: free tier gets Haiku, paid tiers get Sonnet. Use "byok" for your own API key.',
+                    example: MODEL_IDS.SONNET_46,
                   },
                   length: {
                     type: 'string',

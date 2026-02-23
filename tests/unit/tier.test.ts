@@ -245,32 +245,31 @@ describe('tier module', () => {
       expect(canAccessModel('free', MODEL_IDS.HAIKU)).toBe(true);
     });
 
-    it('allows free tier to use sonnet', async () => {
+    it('allows free tier to use sonnet 4.5', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', MODEL_IDS.SONNET)).toBe(true);
+      expect(canAccessModel('free', MODEL_IDS.SONNET_45)).toBe(true);
     });
 
-    it('blocks free tier from opus', async () => {
+    it('allows free tier to use sonnet 4.6', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', MODEL_IDS.OPUS_45)).toBe(false);
+      expect(canAccessModel('free', MODEL_IDS.SONNET_46)).toBe(true);
     });
 
-    it('allows pass tier to use sonnet', async () => {
+    it('allows pass tier to use sonnet 4.5', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('pass', MODEL_IDS.SONNET)).toBe(true);
+      expect(canAccessModel('pass', MODEL_IDS.SONNET_45)).toBe(true);
     });
 
-    it('blocks pass tier from opus', async () => {
+    it('allows pass tier to use sonnet 4.6', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('pass', MODEL_IDS.OPUS_45)).toBe(false);
+      expect(canAccessModel('pass', MODEL_IDS.SONNET_46)).toBe(true);
     });
 
     it('allows lab tier to use all models', async () => {
       const { canAccessModel } = await loadTier();
       expect(canAccessModel('lab', MODEL_IDS.HAIKU)).toBe(true);
-      expect(canAccessModel('lab', MODEL_IDS.SONNET)).toBe(true);
-      expect(canAccessModel('lab', MODEL_IDS.OPUS_45)).toBe(true);
-      expect(canAccessModel('lab', MODEL_IDS.OPUS_46)).toBe(true);
+      expect(canAccessModel('lab', MODEL_IDS.SONNET_45)).toBe(true);
+      expect(canAccessModel('lab', MODEL_IDS.SONNET_46)).toBe(true);
     });
 
     it('denies unknown models by default (fail-closed)', async () => {
@@ -284,22 +283,22 @@ describe('tier module', () => {
       const { getAvailableModels } = await loadTier();
       const models = getAvailableModels('free');
       expect(models).toContain(MODEL_IDS.HAIKU);
-      expect(models).toContain(MODEL_IDS.SONNET);
-      expect(models).not.toContain(MODEL_IDS.OPUS_45);
+      expect(models).toContain(MODEL_IDS.SONNET_45);
+      expect(models).toContain(MODEL_IDS.SONNET_46);
     });
 
     it('returns haiku and sonnet for pass tier', async () => {
       const { getAvailableModels } = await loadTier();
       const models = getAvailableModels('pass');
       expect(models).toContain(MODEL_IDS.HAIKU);
-      expect(models).toContain(MODEL_IDS.SONNET);
-      expect(models).not.toContain(MODEL_IDS.OPUS_45);
+      expect(models).toContain(MODEL_IDS.SONNET_45);
+      expect(models).toContain(MODEL_IDS.SONNET_46);
     });
 
     it('returns all models for lab tier', async () => {
       const { getAvailableModels } = await loadTier();
       const models = getAvailableModels('lab');
-      expect(models.length).toBeGreaterThanOrEqual(4);
+      expect(models.length).toBeGreaterThanOrEqual(3);
     });
   });
 

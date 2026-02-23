@@ -52,14 +52,13 @@ export const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
 /** GBP/USD exchange rate used for pricing conversions. */
 export const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
 
-// Prices per million tokens in GBP (converted from USD at ~0.732 GBP/USD).
-// Combined with CREDIT_PLATFORM_MARGIN (default 10%), these yield ~10% margin
-// over actual Anthropic API costs.
+// Base GBP prices per million tokens. These are intentionally set above raw
+// API cost to maintain headroom. CREDIT_PLATFORM_MARGIN (default 10%) is
+// applied on top of these base rates during cost estimation.
 const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
-  [MODEL_IDS.HAIKU]: { in: 0.732, out: 3.66 },
-  [MODEL_IDS.SONNET]: { in: 2.196, out: 10.98 },
-  [MODEL_IDS.OPUS_45]: { in: 3.66, out: 18.3 },
-  [MODEL_IDS.OPUS_46]: { in: 3.66, out: 18.3 },
+  [MODEL_IDS.HAIKU]: { in: 1, out: 5 },
+  [MODEL_IDS.SONNET_45]: { in: 3, out: 15 },
+  [MODEL_IDS.SONNET_46]: { in: 3, out: 15 },
 };
 
 const ENV_MODEL_PRICES = (() => {

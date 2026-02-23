@@ -43,7 +43,7 @@ export type TierConfig = {
   /** Lifetime cap on platform-funded bouts (null = unlimited). */
   lifetimeBoutCap: number | null;
   /** Which model families this tier can access. */
-  models: ('haiku' | 'sonnet' | 'opus')[];
+  models: ('haiku' | 'sonnet')[];
   /** Max custom agents the user can own. */
   maxAgents: number;
   /** Whether the user can access the API. */
@@ -72,7 +72,7 @@ export const TIER_CONFIG: Record<UserTier, TierConfig> = {
   lab: {
     boutsPerDay: 100,
     lifetimeBoutCap: null,
-    models: ['haiku', 'sonnet', 'opus'],
+    models: ['haiku', 'sonnet'],
     maxAgents: Infinity,
     apiAccess: true,
     agentAnalytics: true,

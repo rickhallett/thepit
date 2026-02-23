@@ -217,7 +217,7 @@
         "cta": "Subscribe",
         "features": [
           "100 evaluations/day",
-          "All models (including Opus)",
+          "All models",
           "Unlimited agent configurations",
           "Headless API access",
           "Performance analytics",
@@ -265,7 +265,7 @@
       "signUpToSubscribe": "Authenticate to subscribe",
       "subscribe": "Subscribe",
       "passDescription": "15 evaluations/day, Haiku + Sonnet, 5 agents, analytics",
-      "labDescription": "100 evaluations/day, all models including Opus, unlimited agents, API access",
+      "labDescription": "100 evaluations/day, all models, unlimited agents, API access",
       "signUpDescription": "Authenticate to access premium evaluation models, increased evaluation quotas, and comprehensive analytics."
     },
     "creditPacks": {

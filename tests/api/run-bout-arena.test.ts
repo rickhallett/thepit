@@ -20,9 +20,8 @@ const {
   };
   const MODELS = {
     HAIKU: 'claude-haiku-4-5-20251001',
-    SONNET: 'claude-sonnet-4-5-20250929',
-    OPUS_45: 'claude-opus-4-5-20251101',
-    OPUS_46: 'claude-opus-4-6',
+    SONNET_45: 'claude-sonnet-4-5-20250929',
+    SONNET_46: 'claude-sonnet-4-6',
   } as const;
   return {
     mockDb: db,
@@ -76,10 +75,10 @@ vi.mock('@/lib/free-bout-pool', () => ({
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    MODELS.SONNET,
-    MODELS.OPUS_45,
+    MODELS.SONNET_46,
+    MODELS.SONNET_45,
   ],
-  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
+  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));
@@ -454,7 +453,7 @@ describe('run-bout arena mode', () => {
         (call[0] as { type?: string }).type === 'data-turn',
     );
 
-    // The dynamic preset has maxTurns=12, but streamText is mocked to
+    // The dynamic preset has maxTurns=6, but streamText is mocked to
     // yield once per call, so we should see turns written
     expect(turnWrites.length).toBeGreaterThan(0);
 

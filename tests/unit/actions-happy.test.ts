@@ -151,13 +151,13 @@ vi.mock('@/lib/agent-registry', () => ({
 }));
 
 vi.mock('@/lib/response-lengths', () => ({
-  DEFAULT_RESPONSE_LENGTH: 'standard',
+  DEFAULT_RESPONSE_LENGTH: 'short',
   resolveResponseLength: vi.fn().mockReturnValue({
-    id: 'standard',
-    label: 'Standard',
-    hint: '',
-    maxOutputTokens: 200,
-    outputTokensPerTurn: 120,
+    id: 'short',
+    label: 'Short',
+    hint: '1-2 sentences',
+    maxOutputTokens: 120,
+    outputTokensPerTurn: 80,
   }),
 }));
 

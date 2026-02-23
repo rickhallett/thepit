@@ -53,8 +53,8 @@ vi.mock('@/lib/agent-registry', () => ({
 }));
 vi.mock('@/lib/tier', () => ({ SUBSCRIPTIONS_ENABLED: false }));
 vi.mock('@/lib/response-lengths', () => ({
-  DEFAULT_RESPONSE_LENGTH: 'standard',
-  resolveResponseLength: vi.fn(() => ({ id: 'standard', label: 'Standard', hint: '' })),
+  DEFAULT_RESPONSE_LENGTH: 'short',
+  resolveResponseLength: vi.fn(() => ({ id: 'short', label: 'Short', hint: '1-2 sentences' })),
 }));
 vi.mock('@/lib/response-formats', () => ({
   DEFAULT_RESPONSE_FORMAT: 'spaced',

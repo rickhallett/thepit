@@ -28,9 +28,8 @@ const {
   // Mirror MODEL_IDS from @/lib/models for use inside mock factories.
   const MODELS = {
     HAIKU: 'claude-haiku-4-5-20251001',
-    SONNET: 'claude-sonnet-4-5-20250929',
-    OPUS_45: 'claude-opus-4-5-20251101',
-    OPUS_46: 'claude-opus-4-6',
+    SONNET_45: 'claude-sonnet-4-5-20250929',
+    SONNET_46: 'claude-sonnet-4-6',
   } as const;
   return {
     mockDb: db,
@@ -92,10 +91,10 @@ vi.mock('@/lib/free-bout-pool', () => ({
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    MODELS.SONNET,
-    MODELS.OPUS_45,
+    MODELS.SONNET_46,
+    MODELS.SONNET_45,
   ],
-  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
+  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));
@@ -303,7 +302,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b2',
         presetId: 'darwin-special',
-        model: MODELS.SONNET,
+        model: MODELS.SONNET_45,
       }),
     );
     expect(res.status).toBe(402);
@@ -364,7 +363,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b6',
         presetId: 'darwin-special',
-        model: MODELS.SONNET,
+        model: MODELS.SONNET_45,
       }),
     );
     expect(res.status).toBe(200);
@@ -384,7 +383,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b7',
         presetId: 'darwin-special',
-        model: MODELS.SONNET,
+        model: MODELS.SONNET_45,
       }),
     );
     expect(res.status).toBe(402);
@@ -393,9 +392,9 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 8. First-bout Opus promotion: freeBoutsUsed === 0 → upgraded to Opus
+  // 8. First-bout premium promotion: freeBoutsUsed === 0 → upgraded to premium model
   // -------------------------------------------------------------------------
-  it('promotes first-bout free-tier user to Opus', async () => {
+  it('promotes first-bout free-tier user to premium model', async () => {
     getUserTierMock.mockResolvedValue('free');
     getFreeBoutsUsedMock.mockResolvedValue(0);
 
@@ -406,7 +405,7 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 9. No Opus promotion when freeBoutsUsed > 0
+  // 9. No premium promotion when freeBoutsUsed > 0
   // -------------------------------------------------------------------------
   it('does not promote when user has already used free bouts', async () => {
     getUserTierMock.mockResolvedValue('free');
@@ -419,126 +418,10 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 10. Legacy path: SUBSCRIPTIONS_ENABLED=false with premium preset
+  // 10. Anonymous users on premium presets get Haiku (no premium upgrade)
   // -------------------------------------------------------------------------
-  it('returns 402 on legacy path when premium preset and PREMIUM_ENABLED not set', async () => {
-    // To test the legacy path we need SUBSCRIPTIONS_ENABLED=false.
-    // Since it's a constant mock, we need to re-mock the module.
-    vi.doMock('@/lib/tier', () => ({
-      SUBSCRIPTIONS_ENABLED: false,
-      getUserTier: getUserTierMock,
-      canRunBout: canRunBoutMock,
-      canAccessModel: canAccessModelMock,
-      incrementFreeBoutsUsed: incrementFreeBoutsUsedMock,
-      getFreeBoutsUsed: getFreeBoutsUsedMock,
-    }));
-
-    // Ensure PREMIUM_ENABLED is not set
-    delete process.env.PREMIUM_ENABLED;
-
-    // Use a premium preset
-    getPresetByIdMock.mockReturnValue({
-      ...MINIMAL_PRESET,
-      tier: 'premium',
-    });
-
-    // Re-import the route to pick up the new mock
-    vi.resetModules();
-
-    // Re-apply all other mocks so the fresh import resolves them
-    vi.doMock('@/db', () => ({ requireDb: () => mockDb }));
-    vi.doMock('@/db/schema', () => ({
-      bouts: {
-        id: 'id',
-        status: 'status',
-        presetId: 'preset_id',
-        transcript: 'transcript',
-        topic: 'topic',
-        responseLength: 'response_length',
-        responseFormat: 'response_format',
-        agentLineup: 'agent_lineup',
-        ownerId: 'owner_id',
-        updatedAt: 'updated_at',
-        shareLine: 'share_line',
-        shareGeneratedAt: 'share_generated_at',
-        createdAt: 'created_at',
-      },
-    }));
-    vi.doMock('@clerk/nextjs/server', () => ({ auth: authMock }));
-    vi.doMock('@/lib/free-bout-pool', () => ({
-      consumeFreeBout: consumeFreeBoutMock,
-    }));
-    vi.doMock('@/lib/ai', () => ({
-      FREE_MODEL_ID: MODELS.HAIKU,
-      PREMIUM_MODEL_OPTIONS: [
-        MODELS.SONNET,
-        MODELS.OPUS_45,
-      ],
-      DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
-      getModel: vi.fn(() => 'mock-model'),
-    }));
-    vi.doMock('@/lib/presets', () => ({
-      getPresetById: getPresetByIdMock,
-      ARENA_PRESET_ID: 'arena',
-    }));
-    vi.doMock('@/lib/rate-limit', () => ({
-      checkRateLimit: vi.fn(() => ({
-        success: true,
-        remaining: 4,
-        resetAt: Date.now() + 3600000,
-      })),
-      getClientIdentifier: vi.fn(() => '127.0.0.1'),
-    }));
-    vi.doMock('@/lib/credits', () => ({
-      CREDITS_ENABLED: false,
-      BYOK_ENABLED: true,
-      applyCreditDelta: vi.fn(),
-      computeCostGbp: vi.fn(() => 0),
-      estimateBoutCostGbp: vi.fn(() => 0),
-      estimateTokensFromText: vi.fn(() => 0),
-      preauthorizeCredits: vi.fn(),
-      settleCredits: vi.fn(),
-      toMicroCredits: vi.fn(() => 0),
-    }));
-    vi.doMock('@/lib/response-lengths', () => ({
-      resolveResponseLength: vi.fn(() => ({
-        id: 'standard',
-        label: 'Standard',
-        hint: '3-5 sentences',
-        maxOutputTokens: 200,
-        outputTokensPerTurn: 120,
-      })),
-    }));
-    vi.doMock('@/lib/response-formats', () => ({
-      resolveResponseFormat: vi.fn(() => ({
-        id: 'spaced',
-        label: 'Text + spacing',
-        hint: 'rich formatting',
-        instruction: 'Respond in Markdown.',
-      })),
-    }));
-    vi.doMock('@/lib/byok', () => ({
-      readAndClearByokKey: readAndClearByokKeyMock,
-    }));
-    vi.doMock('next/headers', () => ({
-      cookies: vi.fn(async () => ({
-        get: vi.fn(() => null),
-        set: vi.fn(),
-        delete: vi.fn(),
-      })),
-    }));
-    vi.doMock('ai', () => ({
-      streamText: streamTextMock,
-      createUIMessageStream: createUIMessageStreamMock,
-      createUIMessageStreamResponse: createUIMessageStreamResponseMock,
-    }));
-
-    const { POST: LegacyPOST } = await import('@/app/api/run-bout/route');
-
-    const res = await LegacyPOST(
-      makeRequest({ boutId: 'b8', presetId: 'darwin-special' }),
-    );
-    expect(res.status).toBe(402);
-    expect(await res.json()).toEqual({ error: 'Premium required.' });
-  });
+  // Previously anonymous users with premium presets got 402. Now they
+  // proceed with Haiku — no premium models, no BYOK for anonymous users.
+  // The heavy vi.doMock/resetModules setup was removed because the code
+  // path it tested (PREMIUM_ENABLED gating) no longer exists.
 });

@@ -20,9 +20,8 @@ export type ByokModelOption = { id: string; label: string };
 export function labelForModel(modelId: string): string {
   if (modelId === 'byok') return 'BYOK';
   if (modelId.includes('haiku')) return 'Haiku';
-  if (modelId.includes('sonnet')) return 'Sonnet';
-  if (modelId.includes('opus-4-6')) return 'Opus 4.6';
-  if (modelId.includes('opus')) return 'Opus 4.5';
+  if (modelId.includes('sonnet-4-6')) return 'Sonnet 4.6';
+  if (modelId.includes('sonnet')) return 'Sonnet 4.5';
   return modelId;
 }
 
