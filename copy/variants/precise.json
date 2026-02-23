@@ -622,7 +622,8 @@
   "agentNew": {
     "label": "Agent Laboratory",
     "title": "Engineer Agent Configuration",
-    "description": "Define agent using structured parameter framework. Each field contributes to final prompt compilation with real-time preview updates."
+    "description": "Define agent using structured parameter framework. Each field contributes to final prompt compilation with real-time preview updates.",
+    "authRequired": "Sorry, every agent needs a human! Please see /research, thank you!"
   },
   "agentClone": {
     "label": "Agent Laboratory",
@@ -630,7 +631,8 @@
     "descriptionTemplate": "Cloning {name}. Modify parameters for custom variation. New agent inherits lineage from source configuration.",
     "source": "Source:",
     "preset": "Preset:",
-    "lineagePreserved": "Lineage preserved"
+    "lineagePreserved": "Lineage preserved",
+    "authRequired": "Sorry, every agent needs a human! Please see /research, thank you!"
   },
   "recentBouts": {
     "title": "Recent Evaluation Sessions",

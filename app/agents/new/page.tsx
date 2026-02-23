@@ -1,8 +1,11 @@
+import { auth } from '@clerk/nextjs/server';
+
 import { AgentBuilder } from '@/components/agent-builder';
+import { AuthRequiredPrompt } from '@/components/auth-required-prompt';
 import { getCopy } from '@/lib/copy';
 
 export default async function NewAgentPage() {
-  const c = await getCopy();
+  const [c, { userId }] = await Promise.all([getCopy(), auth()]);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -19,7 +22,11 @@ export default async function NewAgentPage() {
           </p>
         </header>
 
-        <AgentBuilder />
+        {userId ? (
+          <AgentBuilder />
+        ) : (
+          <AuthRequiredPrompt message={c.agentNew.authRequired} />
+        )}
       </div>
     </main>
   );

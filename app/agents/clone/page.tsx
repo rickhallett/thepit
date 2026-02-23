@@ -1,9 +1,11 @@
 import { notFound, redirect } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 
 import { getCopy } from '@/lib/copy';
 import { getAgentDetail } from '@/lib/agent-detail';
 import { decodeAgentId } from '@/lib/agent-links';
 import { AgentBuilder } from '@/components/agent-builder';
+import { AuthRequiredPrompt } from '@/components/auth-required-prompt';
 import type { AgentBuilderInitialValues } from '@/components/agent-builder';
 import type { ResponseLength } from '@/lib/response-lengths';
 import type { ResponseFormatId } from '@/lib/response-formats';
@@ -18,12 +20,32 @@ export default async function CloneAgentPage({
 }: {
   searchParams: { source?: string } | Promise<{ source?: string }>;
 }) {
-  const c = await getCopy();
+  const [c, { userId }] = await Promise.all([getCopy(), auth()]);
   const resolved = await searchParams;
   const sourceId = resolved.source;
 
   if (!sourceId) {
     redirect('/agents/new');
+  }
+
+  /* Gate agent detail behind auth — unauth users must not see agent metadata */
+  if (!userId) {
+    return (
+      <main className="min-h-screen bg-background text-foreground">
+        <div className="mx-auto flex min-h-screen max-w-6xl flex-col gap-8 px-6 py-10">
+          <header className="border-b-2 border-foreground/70 pb-6">
+            <p className="text-xs uppercase tracking-[0.4em] text-accent">
+              {c.agentClone.label}
+            </p>
+            <h1 className="mt-3 font-sans text-3xl uppercase tracking-tight md:text-4xl">
+              {c.agentClone.title}
+            </h1>
+          </header>
+
+          <AuthRequiredPrompt message={c.agentClone.authRequired} />
+        </div>
+      </main>
+    );
   }
 
   const agentId = decodeAgentId(sourceId);
