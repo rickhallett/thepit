@@ -285,14 +285,16 @@ export async function validateBoutRequest(
   const requestedModel =
     typeof payload.model === 'string' ? payload.model.trim() : '';
 
-  // BYOK key from cookie (structured: provider + model + key)
+  const { userId } = await auth();
+
+  // BYOK key from cookie (structured: provider + model + key).
+  // Only read (and clear) for authenticated users — anonymous users cannot
+  // use BYOK, and clearing their cookie silently would lose the key.
   let byokData: ByokKeyData | null = null;
-  if (requestedModel === 'byok') {
+  if (requestedModel === 'byok' && userId) {
     const jar = await cookies();
     byokData = readAndClearByokKey(jar);
   }
-
-  const { userId } = await auth();
 
   // Ownership check
   if (existingBout?.ownerId && existingBout.ownerId !== userId) {

@@ -174,6 +174,8 @@ const DEPRECATED_MODELS = [
   'claude-3-opus-20240229',
   'claude-3-5-sonnet-20240620',
   'claude-3-5-sonnet-20241022',
+  'claude-opus-4-5-20251101',
+  'claude-opus-4-6',
 ];
 
 /**

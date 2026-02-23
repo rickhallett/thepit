@@ -52,9 +52,9 @@ export const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
 /** GBP/USD exchange rate used for pricing conversions. */
 export const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
 
-// Simplified GBP prices per million tokens charged as the base rate to users.
-// CREDIT_PLATFORM_MARGIN (default 10%) is applied on top of these values.
-// Prices are intentionally rounded above raw API cost to include platform margin.
+// Base GBP prices per million tokens. These are intentionally set above raw
+// API cost to maintain headroom. CREDIT_PLATFORM_MARGIN (default 10%) is
+// applied on top of these base rates during cost estimation.
 const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
   [MODEL_IDS.HAIKU]: { in: 1, out: 5 },
   [MODEL_IDS.SONNET_45]: { in: 3, out: 15 },
