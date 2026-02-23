@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -38,6 +39,8 @@ func main() {
 		renderScope(analyseScope(commits, func(hash string) []string { return commitFiles(hash) }))
 		fmt.Println()
 		renderVelocity(analyseVelocity(commits))
+		fmt.Println()
+		renderWellness(analyseWellness(time.Now(), repoRoot()))
 		return
 	}
 
@@ -58,6 +61,8 @@ func main() {
 			analyseScope(commits, func(hash string) []string { return commitFiles(hash) }),
 			analyseVelocity(commits),
 		)
+	case "wellness":
+		renderWellness(analyseWellness(time.Now(), repoRoot()))
 	case "version":
 		fmt.Println(version)
 	default:
@@ -74,6 +79,7 @@ func usage() {
 	fmt.Println("  pitkeel session      session duration + break awareness")
 	fmt.Println("  pitkeel scope        scope drift from first commit")
 	fmt.Println("  pitkeel velocity     commits per hour")
+	fmt.Println("  pitkeel wellness     daily wellness checks (whoop.log, captain's log)")
 	fmt.Println("  pitkeel hook         hook output (no ANSI, for commit messages)")
 	fmt.Println("  pitkeel version      print version")
 }
@@ -86,6 +92,37 @@ type commit struct {
 	hash string
 	when time.Time
 	msg  string
+}
+
+// --------------------------------------------------------------------------
+// Analysis: Wellness — daily file-existence checks, pure functions
+// --------------------------------------------------------------------------
+
+type wellnessSignal struct {
+	whoopPresent       bool
+	whoopPath          string
+	captainsLogPresent bool
+	captainsLogPath    string
+	date               string // YYYY-MM-DD for display
+}
+
+func analyseWellness(now time.Time, root string) wellnessSignal {
+	year := now.Format("2006")
+	month := now.Format("01")
+	day := now.Format("02")
+	sig := wellnessSignal{
+		date:            now.Format("2006-01-02"),
+		whoopPath:       filepath.Join(root, "docs", "internal", "doctor", "captain", "whoop-"+now.Format("2006-01-02")+".log"),
+		captainsLogPath: filepath.Join(root, "docs", "internal", "captain", "captainslog", year, month, day+".md"),
+	}
+	sig.whoopPresent = fileExists(sig.whoopPath)
+	sig.captainsLogPresent = fileExists(sig.captainsLogPath)
+	return sig
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 // --------------------------------------------------------------------------
@@ -424,6 +461,24 @@ func renderVelocity(sig velocitySignal) {
 	}
 }
 
+func renderWellness(sig wellnessSignal) {
+	fmt.Println(theme.Title.Render("Wellness") + theme.Muted.Render("  "+sig.date))
+
+	if sig.whoopPresent {
+		fmt.Println(theme.Accent.Render("  ✓ Whoop.log complete"))
+	} else {
+		fmt.Println(theme.Warning.Render("  ✗ Whoop.log not found"))
+		fmt.Printf("    Expected: %s\n", theme.Muted.Render(sig.whoopPath))
+	}
+
+	if sig.captainsLogPresent {
+		fmt.Println(theme.Accent.Render("  ✓ Captain's log complete"))
+	} else {
+		fmt.Println(theme.Warning.Render("  ✗ Captain's log not found"))
+		fmt.Printf("    Expected: %s\n", theme.Muted.Render(sig.captainsLogPath))
+	}
+}
+
 // --------------------------------------------------------------------------
 // Rendering: hook output (no ANSI, for commit message appending)
 // --------------------------------------------------------------------------
@@ -477,6 +532,14 @@ func renderHook(sess sessionSignal, scope scopeSignal, vel velocitySignal) {
 // --------------------------------------------------------------------------
 // Git helpers — IO layer, not tested directly
 // --------------------------------------------------------------------------
+
+func repoRoot() string {
+	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	if err != nil {
+		return "."
+	}
+	return strings.TrimSpace(string(out))
+}
 
 func todayCommits() []commit {
 	today := time.Now().Format("2006-01-02")
