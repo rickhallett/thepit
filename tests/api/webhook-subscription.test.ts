@@ -79,6 +79,10 @@ vi.mock('@/lib/credits', () => ({
   applyCreditDelta: mockApplyCreditDelta,
   ensureCreditAccount: mockEnsureCreditAccount,
   MICRO_PER_CREDIT: 100,
+  SUBSCRIPTION_GRANT_PASS: 300,
+  SUBSCRIPTION_GRANT_LAB: 600,
+  MONTHLY_CREDITS_PASS: 300,
+  MONTHLY_CREDITS_LAB: 600,
 }));
 
 vi.mock('@/lib/tier', () => ({
@@ -123,15 +127,29 @@ const setWebhookSecret = (val: string | undefined) => {
   }
 };
 
-/** Configure mockDb.select to return a chainable query that resolves to `rows`. */
-const setupSelect = (rows: unknown[]) => {
-  mockDb.select.mockImplementation(() => ({
-    from: () => ({
-      where: () => ({
-        limit: async () => rows,
+/** Configure mockDb.select to return a chainable query that resolves to `rows`.
+ *  When called with an array of arrays, each call returns the next set of rows
+ *  (for handlers that make multiple select queries, e.g. idempotency + user lookup). */
+const setupSelect = (rows: unknown[] | unknown[][]) => {
+  if (Array.isArray(rows[0])) {
+    // Multiple return values — one per call
+    let callIndex = 0;
+    mockDb.select.mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          limit: async () => (rows as unknown[][])[callIndex++] ?? [],
+        }),
       }),
-    }),
-  }));
+    }));
+  } else {
+    mockDb.select.mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          limit: async () => rows,
+        }),
+      }),
+    }));
+  }
 };
 
 /** Configure mockDb.update to record calls and resolve. */
@@ -552,7 +570,286 @@ describe('POST /api/credits/webhook', () => {
   });
 
   // ------------------------------------------------------------------
-  // 17. Always returns { received: true } for recognized events
+  // 17. subscription.created: grants one-time credits (pass = 300)
+  // ------------------------------------------------------------------
+  it('customer.subscription.created: grants 300 credits for pass tier', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.created',
+      data: {
+        object: {
+          id: 'sub_grant_pass',
+          status: 'active',
+          customer: 'cus_grant',
+          metadata: { userId: 'user_grant_pass' },
+          items: { data: [{ price: { id: 'price_pass' } }] },
+          current_period_end: 1700000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('pass');
+    // First select: hasExistingGrant (no existing grant)
+    setupSelect([]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_grant_pass');
+    expect(mockApplyCreditDelta).toHaveBeenCalledWith(
+      'user_grant_pass',
+      300 * 100, // 300 credits * MICRO_PER_CREDIT
+      'subscription_grant',
+      expect.objectContaining({
+        referenceId: 'sub_grant_pass:subscription_grant',
+        tier: 'pass',
+        credits: 300,
+      }),
+    );
+  });
+
+  // ------------------------------------------------------------------
+  // 18. subscription.created: grants one-time credits (lab = 600)
+  // ------------------------------------------------------------------
+  it('customer.subscription.created: grants 600 credits for lab tier', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.created',
+      data: {
+        object: {
+          id: 'sub_grant_lab',
+          status: 'active',
+          customer: 'cus_grant2',
+          metadata: { userId: 'user_grant_lab' },
+          items: { data: [{ price: { id: 'price_lab' } }] },
+          current_period_end: 1700000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('lab');
+    // hasExistingGrant returns no match
+    setupSelect([]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    expect(mockApplyCreditDelta).toHaveBeenCalledWith(
+      'user_grant_lab',
+      600 * 100,
+      'subscription_grant',
+      expect.objectContaining({
+        referenceId: 'sub_grant_lab:subscription_grant',
+        tier: 'lab',
+        credits: 600,
+      }),
+    );
+  });
+
+  // ------------------------------------------------------------------
+  // 19. subscription.updated (upgrade): grants incremental credits
+  // ------------------------------------------------------------------
+  it('customer.subscription.updated: grants incremental 300 credits on pass-to-lab upgrade', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: 'sub_upgrade',
+          status: 'active',
+          customer: 'cus_upgrade',
+          metadata: { userId: 'user_upgrade' },
+          items: { data: [{ price: { id: 'price_lab' } }] },
+          current_period_end: 1800000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('lab');
+    // First select: user tier lookup (pass), second: hasExistingGrant (no match)
+    setupSelect([[{ tier: 'pass' }], []]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // Incremental grant: lab(600) - pass(300) = 300
+    expect(mockApplyCreditDelta).toHaveBeenCalledWith(
+      'user_upgrade',
+      300 * 100,
+      'subscription_upgrade_grant',
+      expect.objectContaining({
+        referenceId: 'sub_upgrade:upgrade_grant:pass:lab',
+        from_tier: 'pass',
+        to_tier: 'lab',
+        credits: 300,
+      }),
+    );
+  });
+
+  // ------------------------------------------------------------------
+  // 20. invoice.payment_succeeded: grants monthly credits on renewal
+  // ------------------------------------------------------------------
+  it('invoice.payment_succeeded: grants monthly 300 credits for pass tier on renewal', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'invoice.payment_succeeded',
+      data: {
+        object: {
+          id: 'inv_monthly',
+          customer: 'cus_monthly',
+          subscription: 'sub_monthly',
+          billing_reason: 'subscription_cycle',
+          subscription_details: { metadata: { userId: 'user_monthly' } },
+          lines: { data: [{ price: { id: 'price_pass' } }] },
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('pass');
+    // hasExistingGrant returns no match
+    setupSelect([]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_monthly');
+    expect(mockApplyCreditDelta).toHaveBeenCalledWith(
+      'user_monthly',
+      300 * 100,
+      'monthly_grant',
+      expect.objectContaining({
+        referenceId: 'inv_monthly:monthly_grant',
+        tier: 'pass',
+        credits: 300,
+      }),
+    );
+  });
+
+  // ------------------------------------------------------------------
+  // 21. subscription.created: skips duplicate grant (idempotency)
+  // ------------------------------------------------------------------
+  it('customer.subscription.created: skips grant when referenceId already exists', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.created',
+      data: {
+        object: {
+          id: 'sub_idem',
+          status: 'active',
+          customer: 'cus_idem',
+          metadata: { userId: 'user_idem' },
+          items: { data: [{ price: { id: 'price_pass' } }] },
+          current_period_end: 1700000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('pass');
+    // hasExistingGrant finds existing transaction — duplicate
+    setupSelect([{ id: 1 }]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // Tier update still happens (idempotent SET), but grant is skipped
+    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockApplyCreditDelta).not.toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
+  // 22. subscription.updated (upgrade): skips duplicate grant (idempotency)
+  // ------------------------------------------------------------------
+  it('customer.subscription.updated: skips upgrade grant when referenceId already exists', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: 'sub_upg_idem',
+          status: 'active',
+          customer: 'cus_upg_idem',
+          metadata: { userId: 'user_upg_idem' },
+          items: { data: [{ price: { id: 'price_lab' } }] },
+          current_period_end: 1800000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('lab');
+    // First select: user tier lookup (pass), second: hasExistingGrant (found — duplicate)
+    setupSelect([[{ tier: 'pass' }], [{ id: 1 }]]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // Tier update still happens, but credit grant is skipped
+    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockApplyCreditDelta).not.toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
+  // 23. invoice.payment_succeeded: skips monthly grant on initial invoice
+  // ------------------------------------------------------------------
+  it('invoice.payment_succeeded: skips monthly grant when billing_reason is subscription_create', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'invoice.payment_succeeded',
+      data: {
+        object: {
+          id: 'inv_initial',
+          customer: 'cus_initial',
+          subscription: 'sub_initial',
+          billing_reason: 'subscription_create',
+          subscription_details: { metadata: { userId: 'user_initial' } },
+          lines: { data: [{ price: { id: 'price_pass' } }] },
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('pass');
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // Tier restore still happens, but monthly grant is skipped
+    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockApplyCreditDelta).not.toHaveBeenCalled();
+    expect(mockEnsureCreditAccount).not.toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
+  // 24. invoice.payment_succeeded: skips duplicate monthly grant (idempotency)
+  // ------------------------------------------------------------------
+  it('invoice.payment_succeeded: skips monthly grant when referenceId already exists', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'invoice.payment_succeeded',
+      data: {
+        object: {
+          id: 'inv_dup_monthly',
+          customer: 'cus_dup_monthly',
+          subscription: 'sub_dup_monthly',
+          billing_reason: 'subscription_cycle',
+          subscription_details: { metadata: { userId: 'user_dup_monthly' } },
+          lines: { data: [{ price: { id: 'price_lab' } }] },
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('lab');
+    // hasExistingGrant finds existing transaction — duplicate
+    setupSelect([{ id: 1 }]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // Tier restore still happens, but monthly grant is skipped
+    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockApplyCreditDelta).not.toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
+  // 25. Always returns { received: true } for recognized events
   // ------------------------------------------------------------------
   it('returns { received: true } for recognized events', async () => {
     mockStripe.webhooks.constructEvent.mockReturnValue({

@@ -65,7 +65,7 @@ const serverEnvSchema = z.object({
   DEMO_MODE_ENABLED: boolFlag,
 
   // --- Credit economy ---
-  CREDITS_STARTING_CREDITS: numStr(500),
+  CREDITS_STARTING_CREDITS: numStr(100),
   CREDIT_VALUE_GBP: numStr(0.01),
   CREDIT_PLATFORM_MARGIN: numStr(0.10),
   CREDIT_TOKEN_CHARS_PER: numStr(4),
@@ -84,8 +84,14 @@ const serverEnvSchema = z.object({
   // --- Intro pool ---
   INTRO_POOL_TOTAL_CREDITS: numStr(15000),
   INTRO_POOL_DRAIN_PER_MIN: numStr(1),
-  INTRO_SIGNUP_CREDITS: numStr(100),
+  INTRO_SIGNUP_CREDITS: numStr(0),
   INTRO_REFERRAL_CREDITS: numStr(50),
+
+  // --- Subscription credit grants ---
+  SUBSCRIPTION_GRANT_PASS: numStr(300),
+  SUBSCRIPTION_GRANT_LAB: numStr(600),
+  MONTHLY_CREDITS_PASS: numStr(300),
+  MONTHLY_CREDITS_LAB: numStr(600),
 
   // --- Stripe (required when SUBSCRIPTIONS_ENABLED) ---
   STRIPE_SECRET_KEY: z.string().optional(),

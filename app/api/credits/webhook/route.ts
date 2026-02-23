@@ -12,6 +12,10 @@ import {
   applyCreditDelta,
   ensureCreditAccount,
   MICRO_PER_CREDIT,
+  SUBSCRIPTION_GRANT_PASS,
+  SUBSCRIPTION_GRANT_LAB,
+  MONTHLY_CREDITS_PASS,
+  MONTHLY_CREDITS_LAB,
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
@@ -48,13 +52,30 @@ async function updateUserSubscription(params: {
 }
 
 /**
+ * Check whether a credit grant with the given referenceId already exists.
+ * Used to make all grant paths idempotent against Stripe webhook retries.
+ */
+async function hasExistingGrant(referenceId: string): Promise<boolean> {
+  const db = requireDb();
+  const [existing] = await db
+    .select({ id: creditTransactions.id })
+    .from(creditTransactions)
+    .where(eq(creditTransactions.referenceId, referenceId))
+    .limit(1);
+  return !!existing;
+}
+
+/**
  * Handle Stripe webhook events for credit purchases and subscription lifecycle.
  *
  * Idempotency:
  * - checkout.session.completed: guarded by creditTransactions.referenceId lookup.
- * - Subscription/invoice events: naturally idempotent — updateUserSubscription
+ * - subscription_grant: guarded by referenceId `{subscriptionId}:subscription_grant`.
+ * - subscription_upgrade_grant: guarded by referenceId `{subscriptionId}:upgrade_grant`.
+ * - monthly_grant: guarded by referenceId `{invoiceId}:monthly_grant`.
+ *   Stripe webhook retries will hit the dedup check and skip.
+ * - Subscription tier updates: naturally idempotent — updateUserSubscription
  *   is a SET (not increment), so replayed events write the same values.
- *   Out-of-order delivery is mitigated by Stripe's per-object ordering.
  */
 export const POST = withLogging(async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -147,10 +168,29 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
+        // One-time credit grant on new subscription (idempotent)
+        const grantCredits = tier === 'lab'
+          ? SUBSCRIPTION_GRANT_LAB
+          : tier === 'pass'
+            ? SUBSCRIPTION_GRANT_PASS
+            : 0;
+        const subscriptionGrantRef = `${subscription.id}:subscription_grant`;
+        if (grantCredits > 0 && !(await hasExistingGrant(subscriptionGrantRef))) {
+          await ensureCreditAccount(userId);
+          await applyCreditDelta(
+            userId,
+            grantCredits * MICRO_PER_CREDIT,
+            'subscription_grant',
+            { referenceId: subscriptionGrantRef, tier, credits: grantCredits },
+          );
+          log.info('Subscription grant applied', { userId, tier, credits: grantCredits });
+        }
+
         await serverTrack(userId, 'subscription_started', {
           tier,
           subscription_id: subscription.id,
           status: subscription.status,
+          grant_credits: grantCredits,
         });
         await serverIdentify(userId, { current_tier: tier });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
@@ -203,10 +243,37 @@ export const POST = withLogging(async function POST(req: Request) {
         });
 
         if (newTierRank > oldTierRank) {
+          // Incremental credit grant on upgrade (difference between tiers)
+          const grantMap: Record<UserTier, number> = {
+            free: 0,
+            pass: SUBSCRIPTION_GRANT_PASS,
+            lab: SUBSCRIPTION_GRANT_LAB,
+          };
+          const incrementalGrant = grantMap[tier] - grantMap[oldTier];
+          // Include tier transition in referenceId so a user who downgrades
+          // then re-upgrades on the same subscription gets a fresh grant.
+          const upgradeGrantRef = `${subscription.id}:upgrade_grant:${oldTier}:${tier}`;
+          if (incrementalGrant > 0 && !(await hasExistingGrant(upgradeGrantRef))) {
+            await ensureCreditAccount(userId);
+            await applyCreditDelta(
+              userId,
+              incrementalGrant * MICRO_PER_CREDIT,
+              'subscription_upgrade_grant',
+              {
+                referenceId: upgradeGrantRef,
+                from_tier: oldTier,
+                to_tier: tier,
+                credits: incrementalGrant,
+              },
+            );
+            log.info('Upgrade grant applied', { userId, from: oldTier, to: tier, credits: incrementalGrant });
+          }
+
           await serverTrack(userId, 'subscription_upgraded', {
             from_tier: oldTier,
             to_tier: tier,
             subscription_id: subscription.id,
+            grant_credits: incrementalGrant,
           });
         } else if (newTierRank < oldTierRank) {
           await serverTrack(userId, 'subscription_downgraded', {
@@ -315,6 +382,7 @@ export const POST = withLogging(async function POST(req: Request) {
       id: string;
       customer: string;
       subscription?: string;
+      billing_reason?: string;
       subscription_details?: { metadata?: Record<string, string> };
       lines?: { data: Array<{ price: { id: string } }> };
     };
@@ -345,6 +413,34 @@ export const POST = withLogging(async function POST(req: Request) {
           currentPeriodEnd: null, // Will be updated by subscription.updated event
           stripeCustomerId: invoice.customer,
         });
+
+        // Monthly recurring credit grant — only on renewal invoices.
+        // Stripe fires both customer.subscription.created AND
+        // invoice.payment_succeeded on initial subscribe. The one-time grant
+        // is handled by subscription.created; skip the monthly grant for the
+        // first invoice to avoid double-granting.
+        const isRenewal = invoice.billing_reason !== 'subscription_create';
+        const monthlyCredits = tier === 'lab'
+          ? MONTHLY_CREDITS_LAB
+          : tier === 'pass'
+            ? MONTHLY_CREDITS_PASS
+            : 0;
+        const monthlyGrantRef = `${invoice.id}:monthly_grant`;
+        if (isRenewal && monthlyCredits > 0 && !(await hasExistingGrant(monthlyGrantRef))) {
+          await ensureCreditAccount(userId);
+          await applyCreditDelta(
+            userId,
+            monthlyCredits * MICRO_PER_CREDIT,
+            'monthly_grant',
+            {
+              referenceId: monthlyGrantRef,
+              tier,
+              credits: monthlyCredits,
+            },
+          );
+          log.info('Monthly credit grant applied', { userId, tier, credits: monthlyCredits });
+        }
+
         log.info('Payment succeeded, tier restored', { userId, tier });
       }
     }

@@ -18,7 +18,7 @@ export const INTRO_POOL_DRAIN_PER_MIN = Number(
   process.env.INTRO_POOL_DRAIN_PER_MIN ?? '1',
 );
 export const INTRO_SIGNUP_CREDITS = Number(
-  process.env.INTRO_SIGNUP_CREDITS ?? '100',
+  process.env.INTRO_SIGNUP_CREDITS ?? '0',
 );
 export const INTRO_REFERRAL_CREDITS = Number(
   process.env.INTRO_REFERRAL_CREDITS ?? '50',
