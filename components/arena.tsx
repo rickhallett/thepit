@@ -371,6 +371,7 @@ export function Arena({
   initialTranscript,
   shareLine,
   initialReactions,
+  initialUserReactions,
   initialWinnerVotes,
   initialUserVote,
 }: {
@@ -384,6 +385,7 @@ export function Arena({
   initialTranscript: TranscriptEntry[];
   shareLine?: string | null;
   initialReactions?: ReactionCountMap;
+  initialUserReactions?: string[];
   initialWinnerVotes?: WinnerVoteCounts;
   initialUserVote?: string | null;
 }) {
@@ -414,6 +416,7 @@ export function Arena({
   const { reactions, sendReaction, reactionsGivenRef, hasReacted } = useBoutReactions(
     boutId,
     initialReactions,
+    initialUserReactions,
   );
   const { winnerVotes, userVote, voteError, votePending, castWinnerVote } =
     useBoutVoting(boutId, initialWinnerVotes, initialUserVote);

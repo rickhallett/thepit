@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
@@ -52,26 +52,47 @@ export const POST = withLogging(async function POST(req: Request) {
     )
     .limit(1);
 
+  let action: 'added' | 'removed';
+
   if (existing) {
     // Remove existing reaction (toggle off)
     await db.delete(reactions).where(eq(reactions.id, existing.id));
-    return Response.json({ ok: true, action: 'removed' }, {
-      headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) },
-    });
+    action = 'removed';
+  } else {
+    // Add new reaction (toggle on)
+    await db
+      .insert(reactions)
+      .values({
+        boutId,
+        turnIndex,
+        reactionType,
+        userId: dedupeUserId,
+      })
+      .onConflictDoNothing();
+    action = 'added';
   }
 
-  // Add new reaction (toggle on)
-  await db
-    .insert(reactions)
-    .values({
-      boutId,
-      turnIndex,
-      reactionType,
-      userId: dedupeUserId,
+  // Return absolute counts for this turn so the client can reconcile
+  // without delta arithmetic. This eliminates optimistic update drift.
+  const [counts] = await db
+    .select({
+      heart: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'heart') as int)`,
+      fire: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'fire') as int)`,
     })
-    .onConflictDoNothing();
+    .from(reactions)
+    .where(
+      and(
+        eq(reactions.boutId, boutId),
+        eq(reactions.turnIndex, turnIndex),
+      ),
+    );
 
-  return Response.json({ ok: true, action: 'added' }, {
+  return Response.json({
+    ok: true,
+    action,
+    counts: counts ?? { heart: 0, fire: 0 },
+    turnIndex,
+  }, {
     headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) },
   });
 }, 'reactions');
