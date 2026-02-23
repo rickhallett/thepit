@@ -91,8 +91,8 @@ vi.mock('@/lib/free-bout-pool', () => ({
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    MODELS.SONNET_45,
     MODELS.SONNET_46,
+    MODELS.SONNET_45,
   ],
   DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
   getModel: vi.fn(() => 'mock-model'),
@@ -392,7 +392,7 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 8. First-bout premium promotion: freeBoutsUsed === 0 → upgraded to Opus
+  // 8. First-bout premium promotion: freeBoutsUsed === 0 → upgraded to premium model
   // -------------------------------------------------------------------------
   it('promotes first-bout free-tier user to premium model', async () => {
     getUserTierMock.mockResolvedValue('free');
@@ -470,8 +470,8 @@ describe('run-bout tier-based access control', () => {
     vi.doMock('@/lib/ai', () => ({
       FREE_MODEL_ID: MODELS.HAIKU,
       PREMIUM_MODEL_OPTIONS: [
-        MODELS.SONNET_45,
         MODELS.SONNET_46,
+        MODELS.SONNET_45,
       ],
       DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
       getModel: vi.fn(() => 'mock-model'),

@@ -149,8 +149,8 @@ export const DEFAULT_FREE_MODEL = MODEL_IDS.HAIKU;
 
 /** Default premium model options (comma-separated for env var compat). */
 export const DEFAULT_PREMIUM_MODELS = [
-  MODEL_IDS.SONNET_45,
   MODEL_IDS.SONNET_46,
+  MODEL_IDS.SONNET_45,
 ].join(',');
 
 /** Default premium model (first in the premium list). */

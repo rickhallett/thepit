@@ -53,7 +53,7 @@ const STEPS = [
   {
     step: 2,
     verb: 'Test',
-    command: 'pitforge spar agent.yaml rival.yaml --turns 12',
+    command: 'pitforge spar agent.yaml rival.yaml --turns 6',
     detail: 'Run a live streaming bout via the Anthropic API. Watch your agent defend its position against a hostile adversary.',
   },
   {

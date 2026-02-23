@@ -79,8 +79,8 @@ vi.mock('@/lib/free-bout-pool', () => ({
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    MODELS.SONNET_45,
     MODELS.SONNET_46,
+    MODELS.SONNET_45,
   ],
   DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
   getModel: vi.fn(() => 'mock-model'),

@@ -75,8 +75,8 @@ vi.mock('@/lib/free-bout-pool', () => ({
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    MODELS.SONNET_45,
     MODELS.SONNET_46,
+    MODELS.SONNET_45,
   ],
   DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
   getModel: vi.fn(() => 'mock-model'),
@@ -453,7 +453,7 @@ describe('run-bout arena mode', () => {
         (call[0] as { type?: string }).type === 'data-turn',
     );
 
-    // The dynamic preset has maxTurns=12, but streamText is mocked to
+    // The dynamic preset has maxTurns=6, but streamText is mocked to
     // yield once per call, so we should see turns written
     expect(turnWrites.length).toBeGreaterThan(0);
 
