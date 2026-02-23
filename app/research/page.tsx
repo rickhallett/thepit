@@ -6,7 +6,7 @@ import { getLatestExportMetadata } from '@/lib/research-exports';
 export const metadata = {
   title: 'Research — THE PIT',
   description:
-    'Six pre-registered hypotheses on multi-agent LLM debate. 195 bouts, 2,100 turns, automated metrics, permutation tests.',
+    'Six pre-registered hypotheses on multi-agent LLM debate. 195 bouts, ~2,100 turns, automated metrics, permutation tests.',
 };
 
 /* ------------------------------------------------------------------ */
@@ -17,7 +17,6 @@ const programmeStats = {
   bouts: 195,
   turns: '~2,100',
   hypotheses: 6,
-  technicalFailures: 0,
 };
 
 type HypothesisRow = {
@@ -110,9 +109,9 @@ const hypotheses: HypothesisRow[] = [
       'Does the Founder agent adapt its pitch under sustained critique?',
     design: '15 bouts, 180 turns, 45 Founder turns. Shark-pit (Founder, VC, Hype Beast, Pessimist).',
     result: 'clear',
-    maxD: '9.592*',
+    maxD: '0.785',
     keyFinding:
-      'Zero adaptive phrases in 45 Founder turns. Pivot behaviour is DNA-driven from turn 0. Founder converges with reinforcer, not critics. *d confounded by unequal group sizes (3 early vs 3 late turns per bout); treat as directional, not precise.',
+      'Zero adaptive phrases in 45 Founder turns. Pivot behaviour is DNA-driven from turn 0. Founder converges with reinforcer, not critics. The largest effect sizes (d=6-10) are measurement artefacts from zero-baseline confounds; the unconfounded metric (pivot density) shows d=0.785.',
     insight:
       'Agents execute character strategies faithfully but cannot incorporate opposing arguments.',
     githubPath: 'pitstorm/results/hypotheses/H6-analysis.md',
@@ -149,7 +148,7 @@ const threeAxes: AxisRow[] = [
 const resultBadge: Record<string, { label: string; className: string }> = {
   clear: {
     label: 'CLEAR',
-    className: 'border-green-500/60 text-green-400',
+    className: 'border-foreground/60 text-foreground/80',
   },
   null: {
     label: 'NULL',
@@ -184,6 +183,16 @@ export default async function ResearchPage() {
         <p className="mt-6 text-lg text-muted">{c.researchPage.subtitle}</p>
       </section>
 
+      {/* ---- Thesis ---- */}
+      <section className="mx-auto max-w-4xl px-6 pb-8">
+        <p className="text-base leading-relaxed text-foreground/90">
+          Every agent needs a human. We built this research programme to measure
+          what agents can and cannot do under adversarial pressure — because
+          understanding the limits of autonomy is how you decide where human
+          judgment belongs.
+        </p>
+      </section>
+
       {/* ---- Programme stats bar ---- */}
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-6 px-6 py-10">
@@ -191,7 +200,6 @@ export default async function ResearchPage() {
             { value: String(programmeStats.bouts), label: 'bouts' },
             { value: programmeStats.turns, label: 'turns' },
             { value: String(programmeStats.hypotheses), label: 'hypotheses' },
-            { value: String(programmeStats.technicalFailures), label: 'technical failures' },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="font-mono text-3xl font-bold text-accent md:text-4xl">
@@ -210,7 +218,7 @@ export default async function ResearchPage() {
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
           Methodology
         </p>
-        <p className="mt-4 text-sm leading-relaxed text-muted">
+        <p className="mt-4 text-sm leading-relaxed text-foreground/80">
           All hypotheses are pre-registered: analysis methodology, metrics, and
           thresholds are committed to git before any bouts are run. Metrics are
           automated text-statistical measures (TTR, Jaccard similarity, marker
@@ -231,7 +239,21 @@ export default async function ResearchPage() {
           >
             public on GitHub
           </a>
-          .
+          . Note: &lsquo;clear&rsquo; means the pre-registered effect-size
+          threshold was exceeded, not that every prediction was confirmed. Two
+          hypotheses produced results opposite to our directional predictions.
+          Our threshold of |d| &ge; 0.30 is below conventional &lsquo;medium
+          effect&rsquo; standards in behavioural science. Text-statistical
+          metrics on LLM output may produce larger effect sizes than equivalent
+          human-subject measures because LLM outputs have lower intrinsic
+          variance within conditions.
+        </p>
+        <p className="mt-4 text-sm leading-relaxed text-muted">
+          This is an internal research programme, not a peer-reviewed
+          publication. We use the structure of hypothesis testing because it
+          keeps us honest, not because we claim academic authority. The full
+          analysis code, pre-registrations, and raw data are public to enable
+          external scrutiny and replication.
         </p>
       </section>
 
@@ -298,14 +320,14 @@ export default async function ResearchPage() {
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-16">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            Cross-hypothesis model
+            Working model
           </p>
           <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
             Three axes of multi-agent output
           </h2>
           <p className="mt-4 text-sm text-muted">
-            The six hypotheses converge on a model with three independent axes,
-            each driven by a different variable.
+            Based on these six experiments, we propose a working model with
+            three axes. This has not been independently validated.
           </p>
           <div className="mt-8 flex flex-col gap-4">
             {threeAxes.map((a) => (
@@ -350,36 +372,36 @@ export default async function ResearchPage() {
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-16">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">
-            For builders
+            Observations
           </p>
           <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
-            Four practical lessons
+            Four patterns we observed
           </h2>
           <ol className="mt-8 flex flex-col gap-6">
             {[
               {
                 n: 1,
-                title: 'Prompt depth is the dominant lever',
-                body: '7x richer structured DNA cuts safety refusals by half or eliminates them entirely on Claude. The safety layer responds to persona framing quality.',
-                source: 'H1',
+                title: 'Prompt depth is a significant lever',
+                body: '7x richer structured DNA reduced refusal rates from 100% to 60% in adversarial format, and eliminated all refusals in structured debate format, on Claude. The safety layer responds to persona framing quality.',
+                source: 'H1 (50 bouts, Claude)',
               },
               {
                 n: 2,
                 title: 'Frame distance eliminates the assistant voice',
-                body: 'Characters structurally far from the model\'s default register (animals, aliens, historical figures) produce zero hedging. Frame proximity, not content difficulty, activates the diplomatic register.',
-                source: 'H3',
+                body: 'Characters structurally far from the model\'s default register (animals, aliens, historical figures) produced near-zero hedging on our automated metrics. Frame proximity, not content difficulty, activates the diplomatic register.',
+                source: 'H3 (30 bouts, Claude)',
               },
               {
                 n: 3,
                 title: 'Make character language functional, not decorative',
                 body: '"You MUST frame every response in three-act structure" resists drift (100% marker persistence). "You sometimes reference past fame" does not (collapses to 13.3%).',
-                source: 'H5',
+                source: 'H5 (30 bouts, Claude)',
               },
               {
                 n: 4,
-                title: 'Don\'t expect strategic adaptation',
-                body: 'Build concession or absorption into the DNA explicitly if you want it. The model executes character instructions faithfully but will not invent adaptive strategies through debate.',
-                source: 'H6',
+                title: 'Strategic adaptation did not emerge',
+                body: 'Build concession or absorption into the DNA explicitly if you want it. In our experiments, agents executed character instructions faithfully but did not develop adaptive strategies under adversarial pressure (tested with one agent archetype across 15 bouts on Claude).',
+                source: 'H6 (15 bouts, Claude)',
               },
             ].map((lesson) => (
               <li key={lesson.n} className="flex gap-4">
@@ -458,8 +480,9 @@ export default async function ResearchPage() {
           <p className="mt-4 text-sm text-muted">
             Every agent&apos;s DNA — its prompt, configuration, and manifest — is
             deterministically hashed (SHA-256). On-chain attestation via the
-            Ethereum Attestation Service (EAS) on Base L2 is implemented in code
-            but not yet enabled in production. When live, this will create an
+            Ethereum Attestation Service (EAS) on Base L2 is designed and
+            coded but has not yet been deployed or tested on-chain. When live,
+            this will create an
             immutable, tamper-evident record of agent identity and lineage that
             anyone can verify independently.
           </p>

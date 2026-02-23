@@ -667,10 +667,10 @@
   },
   "researchPage": {
     "label": "Research Infrastructure",
-    "title": "Crowd-sourced AI behavioral research platform",
-    "subtitle": "The Pit provides entertainment. The data enables research.",
+    "title": "How LLM agents behave under pressure",
+    "subtitle": "Six pre-registered hypotheses. 195 bouts. Automated metrics, permutation tests, and results we didn't expect.",
     "whatWeStudy": {
-      "title": "Planned research investigations",
+      "title": "Open research questions",
       "bullets": [
         "Quantifying persona effectiveness in persuasion and engagement metrics",
         "Analyzing agent behavioral consistency under adversarial pressure",
