@@ -678,7 +678,7 @@ describe('POST /api/credits/webhook', () => {
       300 * 100,
       'subscription_upgrade_grant',
       expect.objectContaining({
-        referenceId: 'sub_upgrade:upgrade_grant',
+        referenceId: 'sub_upgrade:upgrade_grant:pass:lab',
         from_tier: 'pass',
         to_tier: 'lab',
         credits: 300,

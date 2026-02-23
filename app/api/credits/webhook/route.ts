@@ -250,7 +250,9 @@ export const POST = withLogging(async function POST(req: Request) {
             lab: SUBSCRIPTION_GRANT_LAB,
           };
           const incrementalGrant = grantMap[tier] - grantMap[oldTier];
-          const upgradeGrantRef = `${subscription.id}:upgrade_grant`;
+          // Include tier transition in referenceId so a user who downgrades
+          // then re-upgrades on the same subscription gets a fresh grant.
+          const upgradeGrantRef = `${subscription.id}:upgrade_grant:${oldTier}:${tier}`;
           if (incrementalGrant > 0 && !(await hasExistingGrant(upgradeGrantRef))) {
             await ensureCreditAccount(userId);
             await applyCreditDelta(
