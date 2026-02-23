@@ -17,8 +17,8 @@ export const RESPONSE_LENGTHS: ResponseLengthConfig[] = [
     id: 'short',
     label: 'Short',
     hint: '2-4 sentences',
-    maxOutputTokens: 200,
-    outputTokensPerTurn: 120,
+    maxOutputTokens: 266,
+    outputTokensPerTurn: 160,
   },
   {
     id: 'standard',

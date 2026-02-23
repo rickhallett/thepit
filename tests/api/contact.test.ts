@@ -4,14 +4,26 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 /* Hoisted mocks                                                       */
 /* ------------------------------------------------------------------ */
 
-const { checkRateLimitMock, getClientIdentifierMock } = vi.hoisted(() => ({
-  checkRateLimitMock: vi.fn(),
-  getClientIdentifierMock: vi.fn(),
-}));
+const { checkRateLimitMock, getClientIdentifierMock, mockInsert } = vi.hoisted(() => {
+  const mockInsert = vi.fn().mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) });
+  return {
+    checkRateLimitMock: vi.fn(),
+    getClientIdentifierMock: vi.fn(),
+    mockInsert,
+  };
+});
 
 vi.mock('@/lib/rate-limit', () => ({
   checkRateLimit: checkRateLimitMock,
   getClientIdentifier: getClientIdentifierMock,
+}));
+
+vi.mock('@/db', () => ({
+  requireDb: () => ({ insert: mockInsert }),
+}));
+
+vi.mock('@/db/schema', () => ({
+  contactSubmissions: { id: 'id', name: 'name', email: 'email', message: 'message', createdAt: 'created_at' },
 }));
 
 /* ------------------------------------------------------------------ */
@@ -112,27 +124,30 @@ describe('contact form', () => {
     expect(await res.json()).toEqual({ error: 'Invalid JSON.' });
   });
 
-  it('U5: RESEND_API_KEY not set → 501 "Contact email not configured."', async () => {
+  it('U5: RESEND_API_KEY not set → 200 (DB capture succeeds, email skipped)', async () => {
     delete process.env.RESEND_API_KEY;
 
     const res = await POST(
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
-    expect(res.status).toBe(501);
-    expect(await res.json()).toEqual({ error: 'Contact email not configured.' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    /* Email fetch should NOT be called when key is missing */
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  it('U6: CONTACT_TO_EMAIL not set → 501 "Contact email not configured."', async () => {
+  it('U6: CONTACT_TO_EMAIL not set → 200 (DB capture succeeds, email skipped)', async () => {
     delete process.env.CONTACT_TO_EMAIL;
 
     const res = await POST(
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
-    expect(res.status).toBe(501);
-    expect(await res.json()).toEqual({ error: 'Contact email not configured.' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
-  it('U7: Resend API returns 500 → 500 "Email delivery failed."', async () => {
+  it('U7: Resend API returns 500 → 200 (DB capture succeeds, email failure logged)', async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
       new Response('Internal Server Error', { status: 500 }),
     );
@@ -140,8 +155,8 @@ describe('contact form', () => {
     const res = await POST(
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
-    expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: 'Email delivery failed.' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
   });
 
   it('U8: rate limit exceeded → 429', async () => {
@@ -158,7 +173,7 @@ describe('contact form', () => {
     expect(await res.json()).toMatchObject({ error: 'Rate limit exceeded.', code: 'RATE_LIMITED' });
   });
 
-  it('U9: Resend API fetch throws (timeout/network) → 502', async () => {
+  it('U9: Resend API fetch throws (timeout/network) → 200 (DB capture succeeds, email failure logged)', async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(
       new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
     );
@@ -166,8 +181,8 @@ describe('contact form', () => {
     const res = await POST(
       makeJsonReq({ name: 'Alice', email: 'a@b.com', message: 'hi' }),
     );
-    expect(res.status).toBe(502);
-    expect(await res.json()).toEqual({ error: 'Email delivery failed — please try again.' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
   });
 
   it('U10: HTML special chars in fields are escaped in email body', async () => {

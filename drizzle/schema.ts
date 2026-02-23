@@ -193,6 +193,14 @@ export const newsletterSignups = pgTable("newsletter_signups", {
 	uniqueIndex("newsletter_signups_email_idx").using("btree", table.email.asc().nullsLast().op("text_ops")),
 ]);
 
+export const contactSubmissions = pgTable("contact_submissions", {
+	id: serial().primaryKey().notNull(),
+	name: varchar({ length: 256 }).notNull(),
+	email: varchar({ length: 256 }).notNull(),
+	message: text().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+});
+
 export const agentFlags = pgTable("agent_flags", {
 	id: serial().primaryKey().notNull(),
 	agentId: varchar("agent_id", { length: 128 }).notNull(),
