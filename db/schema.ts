@@ -175,6 +175,7 @@ export const reactions = pgTable('reactions', {
   turnIndex: integer('turn_index').notNull(),
   reactionType: reactionType('reaction_type').notNull(),
   userId: varchar('user_id', { length: 128 }).references(() => users.id, { onDelete: 'set null' }),
+  clientFingerprint: varchar('client_fingerprint', { length: 192 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -184,7 +185,7 @@ export const reactions = pgTable('reactions', {
     table.boutId,
     table.turnIndex,
     table.reactionType,
-    table.userId,
+    table.clientFingerprint,
   ),
 }));
 

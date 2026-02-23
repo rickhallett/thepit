@@ -61,7 +61,7 @@ vi.mock('@/db', () => ({
 }));
 
 vi.mock('@/db/schema', () => ({
-  reactions: { id: Symbol('reactions.id') },
+  reactions: { id: Symbol('reactions.id'), clientFingerprint: Symbol('reactions.clientFingerprint') },
 }));
 
 vi.mock('drizzle-orm', () => ({
@@ -125,12 +125,13 @@ describe('reactions success paths', () => {
     expect(body.counts).toEqual({ heart: 1, fire: 0 });
     expect(body.turnIndex).toBe(0);
 
-    // Verify insert was called with correct values including userId
+    // Verify insert was called with correct values including userId and fingerprint
     expect(mockValues).toHaveBeenCalledWith({
       boutId: 'bout-test-abc12',
       turnIndex: 0,
       reactionType: 'heart',
       userId: 'user_abc',
+      clientFingerprint: 'user_abc',
     });
     expect(mockOnConflict).toHaveBeenCalled();
   });
@@ -149,12 +150,13 @@ describe('reactions success paths', () => {
     expect(body.counts).toEqual({ heart: 1, fire: 0 });
     expect(body.turnIndex).toBe(3);
 
-    // Anonymous users get an IP-based deduplication ID
+    // Anonymous users: userId is null (FK-safe), fingerprint used for dedup
     expect(mockValues).toHaveBeenCalledWith({
       boutId: 'bout-test-def34',
       turnIndex: 3,
       reactionType: 'fire',
-      userId: 'anon:127.0.0.1',
+      userId: null,
+      clientFingerprint: 'anon:127.0.0.1',
     });
   });
 
