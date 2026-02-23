@@ -19,7 +19,7 @@ export const BRAND = {
   name: 'THE PIT',
   handle: '@ThePitArena',
   hashtag: '#ThePitArena',
-  tagline: 'Trust infrastructure for AI agents.',
+  tagline: 'I built this with agents. Alone.',
   description: SITE_DESCRIPTION,
   url: 'https://thepit.cloud',
   github: 'https://github.com/rickhallett/thepit',

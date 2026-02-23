@@ -672,7 +672,7 @@
   "researchPage": {
     "label": "Research Infrastructure",
     "title": "How LLM agents behave under pressure",
-    "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results we didn't expect.",
+    "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results I didn't expect.",
     "whatWeStudy": {
       "title": "Open research questions",
       "bullets": [

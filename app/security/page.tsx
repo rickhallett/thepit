@@ -188,8 +188,8 @@ export default async function SecurityPage() {
             <Link href="/contact" className="text-accent underline">
               contact form
             </Link>{' '}
-            or by opening a GitHub issue. I take all reports seriously and will
-            respond promptly.
+            or by opening a GitHub issue. All reports are taken seriously and
+            will receive a prompt response.
           </p>
         </section>
       </div>
