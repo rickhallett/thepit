@@ -34,7 +34,7 @@ Three of four metrics exceeded the d >= 0.30 threshold. No LLM judge needed.
 
 This is the largest effect in the study. Serious agents produce 8x more hedging phrases per 1000 characters than comedy agents (0.934 vs 0.115). The signal is entirely driven by the therapeutic/corporate register in on-the-couch — phrases like "I hear you", "I appreciate", "it's worth noting", and "I understand" are pervasive in the Struggling Therapist, the Passive-Aggressive, and to a lesser extent the Oversharer. The comedy agents almost never hedge: the House Cat and Conspiracy Theorist produced zero hedging phrases across 30 turns each.
 
-In our data, characters structurally far from the model's default register (animals, aliens) produced near-zero hedging, while characters closer to the training distribution (therapist, corporate communicator) hedged frequently. This is consistent with what H1 suggested from a different angle, though the design differences (different agents, topics, and agent counts across groups) mean the comparison is suggestive rather than controlled.
+In my data, characters structurally far from the model's default register (animals, aliens) produced near-zero hedging, while characters closer to the training distribution (therapist, corporate communicator) hedged frequently. This is consistent with what H1 suggested from a different angle, though the design differences (different agents, topics, and agent counts across groups) mean the comparison is suggestive rather than controlled.
 
 ### 2. Vocabulary diversity is genuinely higher in comedy (M1 TTR: d = 0.475)
 
@@ -91,7 +91,7 @@ Three hypotheses show patterns that may relate:
 | Structural regularity and lexical diversity are independent | H3 |
 | Character fidelity depends on DNA quality, not frame type | H1, H3 |
 
-A possible interpretation: **the model's output diversity may have at least three distinguishable dimensions** — lexical (vocabulary), structural (sentence patterns), and behavioural (hedging, questions, character fidelity). In our data, these dimensions responded to different inputs. Lexical diversity varied with frame type. Structural patterns varied with persona archetypes. Behavioural patterns varied with both frame type (hedging) and persona identity (questions).
+A possible interpretation: **the model's output diversity may have at least three distinguishable dimensions** — lexical (vocabulary), structural (sentence patterns), and behavioural (hedging, questions, character fidelity). In my data, these dimensions responded to different inputs. Lexical diversity varied with frame type. Structural patterns varied with persona archetypes. Behavioural patterns varied with both frame type (hedging) and persona identity (questions).
 
 ## Methodology notes
 
@@ -112,6 +112,6 @@ A possible interpretation: **the model's output diversity may have at least thre
 
 ## Implications
 
-The hedging result (d = -1.300) is notable. The data is consistent with the idea that **the model's diplomatic register responds to frame proximity rather than content difficulty**, though the design cannot rule out other explanations (different agents, different topics, different agent counts). A house cat discussing evolution produces zero hedging; a therapist discussing the same themes hedges frequently. In our specific experimental setup, characters structurally far from the model's default voice (animals, aliens, historical figures) produced more natural-sounding dialogue than characters in therapeutic or corporate registers. Generalisability to other models and contexts is unknown.
+The hedging result (d = -1.300) is notable. The data is consistent with the idea that **the model's diplomatic register responds to frame proximity rather than content difficulty**, though the design cannot rule out other explanations (different agents, different topics, different agent counts). A house cat discussing evolution produces zero hedging; a therapist discussing the same themes hedges frequently. In my specific experimental setup, characters structurally far from the model's default voice (animals, aliens, historical figures) produced more natural-sounding dialogue than characters in therapeutic or corporate registers. Generalisability to other models and contexts is unknown.
 
 The M3 result contradicted the pre-registered prediction, which increases confidence that it reflects the data rather than post-hoc interpretation.

@@ -13,7 +13,7 @@ import { getIntroPoolStatus } from '@/lib/intro-pool';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
-  title: 'THE PIT — Trust Infrastructure for AI Agents',
+  title: 'THE PIT — I built this with agents. Alone.',
   description: SITE_DESCRIPTION,
 };
 
@@ -42,9 +42,17 @@ export default async function LandingPage() {
           <h1 className="font-sans text-5xl uppercase tracking-tight md:text-7xl">
             {c.hero.headline}
           </h1>
-          <p className="max-w-2xl text-lg text-muted">
-            {c.hero.subheadline}
-          </p>
+          {Array.isArray(c.hero.subheadline) ? (
+            <div className="max-w-2xl space-y-4 text-lg text-muted">
+              {c.hero.subheadline.map((p: string, i: number) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
+          ) : (
+            <p className="max-w-2xl text-lg text-muted">
+              {c.hero.subheadline}
+            </p>
+          )}
           <div className="flex flex-wrap gap-4">
             <Link
               href="/arena"

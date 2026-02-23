@@ -466,7 +466,7 @@ export default function ResearchCitationsPage() {
               implements a third paradigm: evolutionary selection through
               organic crowd engagement. Winners get cloned and remixed,
               creating parent-child lineage chains that can be studied for
-              prompt mutation patterns. We believe this is an underexplored
+              prompt mutation patterns. I believe this is an underexplored
               area at the intersection of prompt engineering and
               evolutionary computation.
             </p>
@@ -482,7 +482,7 @@ export default function ResearchCitationsPage() {
               Messages 17+: Unravelling&rdquo;). This technique for
               engineering multi-turn narrative arcs within system prompts is
               not systematically studied in the current literature and
-              represents an area we believe is underexplored.
+              represents an area I believe is underexplored.
             </p>
           </div>
 
@@ -494,7 +494,7 @@ export default function ResearchCitationsPage() {
               The combination of typed personality fields, canonical JSON
               serialisation (RFC 8785), and SHA-256 hashing creates
               tamper-evident agent identity records. On-chain EAS attestation
-              on Base L2 is implemented but not yet enabled. We are not aware
+              on Base L2 is implemented but not yet enabled. I am not aware
               of a direct analogue in the literature. Agent identity is both
               decomposable (for analysis) and verifiable (for reproducibility).
             </p>
@@ -511,7 +511,7 @@ export default function ResearchCitationsPage() {
             3. Improvement opportunities
           </p>
           <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
-            Where the research suggests we can do better
+            Where the research suggests the platform can do better
           </h2>
 
           <div className="mt-8 flex flex-col gap-10">
@@ -728,8 +728,8 @@ export default function ResearchCitationsPage() {
         <p className="mt-4 text-sm text-muted">
           Know a paper that belongs here? Submit an arXiv link with a brief
           explanation of its relevance to multi-agent debate, evaluation, or
-          prompt engineering. Submissions are reviewed by our team and added to
-          this page when accepted.
+          prompt engineering. Submissions are reviewed and added to this page
+          when accepted.
         </p>
         <div className="mt-8">
           <PaperSubmissionForm />

@@ -21,11 +21,11 @@ import { CopyProvider } from '@/lib/copy-client';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'THE PIT — Trust Infrastructure for AI Agents',
+  title: 'THE PIT — I built this with agents. Alone.',
   description: SITE_DESCRIPTION,
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thepit.cloud'),
   openGraph: {
-    title: 'THE PIT — Trust Infrastructure for AI Agents',
+    title: 'THE PIT — I built this with agents. Alone.',
     description: SITE_DESCRIPTION,
     siteName: 'THE PIT',
     locale: 'en_GB',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@ThePitArena',
     creator: '@ThePitArena',
-    title: 'THE PIT — Trust Infrastructure for AI Agents',
+    title: 'THE PIT — I built this with agents. Alone.',
     description: SITE_DESCRIPTION,
   },
 };

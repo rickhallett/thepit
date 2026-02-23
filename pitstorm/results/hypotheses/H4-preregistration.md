@@ -32,7 +32,7 @@ The number of agents in a conversation (2, 4, 5, or 6) affects per-agent output 
 
 For each agent in each bout, compute the mean character count (Unicode runes) across all of that agent's turns.
 
-**What it tests:** If larger groups compress individual contributions, we expect per-agent character count to decrease with agent count. This is the most direct measure of "how much space does each agent get?"
+**What it tests:** If larger groups compress individual contributions, I expect per-agent character count to decrease with agent count. This is the most direct measure of "how much space does each agent get?"
 
 ### M2: Per-Agent Type-Token Ratio (TTR)
 
@@ -54,9 +54,9 @@ For each bout, compute TTR across ALL turns from ALL agents concatenated. This m
 
 ## Effect Size Computation
 
-H4 compares 4 groups (not 2 like H3), so we compute pairwise Cohen's d for the primary comparison: smallest group (N=2, first-contact) vs largest group (N=6, summit). Additional pairwise comparisons (2v4, 2v5, 4v5, 4v6, 5v6) are reported but the primary decision is based on the 2v6 contrast.
+H4 compares 4 groups (not 2 like H3), so I compute pairwise Cohen's d for the primary comparison: smallest group (N=2, first-contact) vs largest group (N=6, summit). Additional pairwise comparisons (2v4, 2v5, 4v5, 4v6, 5v6) are reported but the primary decision is based on the 2v6 contrast.
 
-Additionally, we compute a **linear trend** test: Pearson correlation between agent count and each metric's group mean. A significant negative correlation for M1-M3 would indicate a consistent scaling degradation.
+Additionally, I compute a **linear trend** test: Pearson correlation between agent count and each metric's group mean. A significant negative correlation for M1-M3 would indicate a consistent scaling degradation.
 
 | Threshold | Interpretation | Action |
 |-----------|---------------|--------|
@@ -84,7 +84,7 @@ Statistical significance: permutation test with 10,000 iterations. Shuffle agent
 4. **Existing data mix:** The analysis includes bouts from H2/H3 alongside H4-specific bouts. These earlier bouts were run at different times and may have different Anthropic API behaviour.
 5. **Unequal group sizes:** 5 bouts for first-contact and summit vs 10 for shark-pit and flatshare. This means the 2-agent and 6-agent groups have fewer data points.
 
-## What We Will Report Regardless of Outcome
+## What I Will Report Regardless of Outcome
 
 1. All four metrics (M1-M4) with means, SDs, and effect sizes — per group and per preset
 2. The 2v6 primary comparison with Cohen's d and permutation p-value

@@ -51,7 +51,7 @@ export interface MetaCopy {
 export interface HeroCopy {
   badge: string;
   headline: string;
-  subheadline: string;
+  subheadline: string | string[];
   ctaPrimary: string;
   ctaSecondary: string;
   introPool: {

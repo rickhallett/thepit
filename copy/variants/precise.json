@@ -1,8 +1,8 @@
 {
   "meta": {
     "landing": {
-      "title": "THE PIT — Trust Infrastructure for AI Agents",
-      "description": "When AI can create anything, trust is what remains. Adversarial evaluation with cryptographic identity, crowd verification, and provenance tracking."
+      "title": "THE PIT — I built this with agents. Alone.",
+      "description": "I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2."
     },
     "arena": {
       "title": "Arena — THE PIT",
@@ -84,8 +84,12 @@
   },
   "hero": {
     "badge": "THE PIT",
-    "headline": "When creation costs nothing, trust is everything.",
-    "subheadline": "Cryptographic identity. Adversarial evaluation. Crowd-verified outcomes. Infrastructure for knowing which agents to trust.",
+    "headline": "I built this with agents. Alone.",
+    "subheadline": [
+      "(Trust, Distrust): I guess a bit like a tuple, they just go together. The deeper I plumbed, the more I needed both. Distrust of agentic silliness; trust in their brilliance. I hope this can be a bridge to more of that.",
+      "So, AI agents. Battle arena. Yup, I know. The bit that really matters to me is the trust layer. They say these things might evolve together. Ok, well let's see it then. Every agent has a human, here. Stamped on L2. Don't take my word on it, go test it. We have arrived in an age where provenance will rapidly overtake production as the biggest problem.",
+      "I hope you have as much fun using it as I did building it."
+    ],
     "ctaPrimary": "Access Arena",
     "ctaSecondary": "Methodology",
     "introPool": {
@@ -685,7 +689,7 @@
     "litReview": {
       "title": "Literature foundation",
       "subtitle": "Research methodology",
-      "description": "Design decisions are grounded in current literature on multi-agent debate systems, LLM evaluation bias, persona prompting, and context window degradation. We maintain formal review of 18 cited works mapping published findings to The Pit's architecture, identifying alignment areas and improvement opportunities.",
+      "description": "Design decisions are grounded in current literature on multi-agent debate systems, LLM evaluation bias, persona prompting, and context window degradation. I maintain formal review of 18 cited works mapping published findings to The Pit's architecture, identifying alignment areas and improvement opportunities.",
       "cta": "Access literature review →"
     },
     "onChain": {
@@ -706,7 +710,7 @@
     },
     "collaborate": {
       "title": "Research collaboration",
-      "cta": "Contact us"
+      "cta": "Contact me"
     },
     "backToThePit": "← Return to The Pit"
   },
@@ -768,7 +772,7 @@
   "roadmap": {
     "label": "Development Roadmap",
     "title": "Three parallel development tracks",
-    "description": "Platform Infrastructure. Community Tools. Research Capabilities. Three concurrent tracks shipping simultaneously. Items progress from planned to active to shipped as we build transparently.",
+    "description": "Platform Infrastructure. Community Tools. Research Capabilities. Three concurrent tracks shipping simultaneously. Items progress from planned to active to shipped as I build transparently.",
     "statusLabels": {
       "shipped": "Shipped",
       "building": "Building",
@@ -776,16 +780,16 @@
     },
     "closingCta": "Want to influence the roadmap?",
     "enterArena": "Access Arena",
-    "getInTouch": "Contact Us",
+    "getInTouch": "Contact Me",
     "backToThePit": "← Return to The Pit"
   },
   "feedback": {
     "label": "Feature Requests",
     "title": "Shape The Pit Development",
-    "description": "Submit enhancement proposals, vote on priorities, and help us build what you require.",
+    "description": "Submit enhancement proposals, vote on priorities, and help me build what you require.",
     "submitSection": {
       "title": "Submit enhancement request",
-      "placeholder": "What functionality should we develop next?"
+      "placeholder": "What functionality should I develop next?"
     },
     "communitySection": {
       "title": "Community requests",
@@ -796,7 +800,7 @@
   },
   "contact": {
     "label": "Contact",
-    "title": "Contact us",
+    "title": "Contact me",
     "description": "Research collaborations, technical inquiries, and platform feedback.",
     "form": {
       "name": "Name",
@@ -808,8 +812,8 @@
     },
     "success": {
       "title": "Message transmitted",
-      "subtitle": "We will respond promptly.",
-      "description": "Thank you for contacting us. We will reply as soon as possible."
+      "subtitle": "I'll respond promptly.",
+      "description": "Thank you for reaching out. I'll reply as soon as possible."
     },
     "backToThePit": "← Return to The Pit"
   },
@@ -873,7 +877,7 @@
       "other": "Other"
     },
     "success": "Submitted for review",
-    "successDescription": "Thank you for contributing to our research foundations. Submissions are reviewed and added to citations page when accepted.",
+    "successDescription": "Thank you for contributing to the research foundations. Submissions are reviewed and added to citations page when accepted.",
     "submitAnother": "Submit another paper",
     "signInPrompt": "Authenticate to suggest paper for review.",
     "fields": {

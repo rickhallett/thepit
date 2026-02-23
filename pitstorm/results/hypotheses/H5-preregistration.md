@@ -103,11 +103,11 @@ Statistical significance: permutation test with 10,000 iterations. Shuffle phase
 ## Known Confounds
 
 1. **Turn number vs position in conversation:** Later turns have more conversation context, which may affect output independent of character drift. The model's attention to earlier context may fade mechanically.
-2. **Agent count fixed at 4:** Both presets use 4 agents, so turns-per-agent is constant (3 per bout). This avoids the H4 confound but means we can't test whether drift rate depends on agent count.
+2. **Agent count fixed at 4:** Both presets use 4 agents, so turns-per-agent is constant (3 per bout). This avoids the H4 confound but means I can't test whether drift rate depends on agent count.
 3. **Preset framing differences:** Mansion (reality TV) and writers-room (creative fiction) are different frames. Differences between presets could be caused by framing rather than character quality.
 4. **Small sample per agent per phase:** Each agent speaks once per phase per bout, giving only 15 data points per agent per phase. Effect sizes need to be large to be detectable.
 
-## What We Will Report Regardless of Outcome
+## What I Will Report Regardless of Outcome
 
 1. All five metrics (M1-M5) with means, SDs, and effect sizes — per phase, per preset, and per agent
 2. Whether any drift reaches the clear threshold

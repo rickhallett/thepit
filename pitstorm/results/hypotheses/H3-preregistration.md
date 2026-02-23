@@ -33,7 +33,7 @@ For each turn, compute: (count of unique lowercased words) / (total word count).
 
 **What it tests:** Higher TTR = more diverse vocabulary per turn. If comedy framing encourages more creative expression, comedy turns should have higher TTR than serious turns.
 
-**Note:** TTR is sensitive to text length (longer texts mechanically produce lower TTR). We report both raw TTR and length-normalised TTR (computed on the first 100 words of each turn) as a robustness check.
+**Note:** TTR is sensitive to text length (longer texts mechanically produce lower TTR). I report both raw TTR and length-normalised TTR (computed on the first 100 words of each turn) as a robustness check.
 
 ### M2: Hedging Phrase Density
 
@@ -132,7 +132,7 @@ Statistical significance: permutation test with 10,000 iterations. Shuffle group
 3. **on-the-couch is not purely serious:** It has dark comedy elements (Corporate Jargon Bot, Passive-Aggressive). The "serious" label is relative to first-contact and darwin-special, not absolute.
 4. **Marker list bias:** The frozen markers were extracted from agent DNA before seeing any bout data, but the choice of which phrases to include is subjective. A marker that seems distinctive from the DNA might rarely appear in actual output.
 
-## What We Will Report Regardless of Outcome
+## What I Will Report Regardless of Outcome
 
 1. All four metrics (M1-M4) with means, SDs, and effect sizes — per group and per preset
 2. Whether the ambiguity threshold was hit

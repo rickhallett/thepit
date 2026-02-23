@@ -13,7 +13,7 @@
  * OpenGraph, Twitter cards, and anywhere else a one-liner is needed.
  */
 export const SITE_DESCRIPTION =
-  'When AI can create anything, trust is what remains. THE PIT is adversarial infrastructure for AI agents — live debate, cryptographic identity, and crowd-verified outcomes.' as const;
+  'I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2.' as const;
 
 export const BRAND = {
   name: 'THE PIT',
@@ -130,7 +130,7 @@ export function buildShareLinks(text: string, replayUrl: string, xText?: string,
 
   const encoded = encodeURIComponent(attributedText);
   const encodedUrl = encodeURIComponent(attributedUrl);
-  const title = encodeURIComponent(`THE PIT — Trust Infrastructure for AI Agents`);
+  const title = encodeURIComponent(`THE PIT — I built this with agents. Alone.`);
   const xEncoded = encodeURIComponent(attributedXText);
 
   return {

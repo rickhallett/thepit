@@ -149,7 +149,7 @@ Across these experiments, framing and persona quality appear to be more strongly
 
 ## Implications
 
-The practical takeaway for multi-agent system design: **in these presets, we did not observe a quality cliff at higher agent counts, though count and preset framing are confounded.** There are diminishing returns after 4-5 agents. The 5v6 comparison shows near-zero effects across all metrics. If you're choosing between 4, 5, or 6 agents, the decision should be driven by your content needs, not by fears of quality degradation.
+The practical takeaway for multi-agent system design: **in these presets, I did not observe a quality cliff at higher agent counts, though count and preset framing are confounded.** There are diminishing returns after 4-5 agents. The 5v6 comparison shows near-zero effects across all metrics. If you're choosing between 4, 5, or 6 agents, the decision should be driven by your content needs, not by fears of quality degradation.
 
 The 2-agent case is genuinely different — it produces a structurally different conversation (higher conversation-level diversity, fewer shared vocabulary items) rather than a degraded version of the multi-agent pattern. A 2-agent conversation is functionally a dialogue, while 4+ agents create a panel discussion. They're different formats, not points on a single quality spectrum.
 

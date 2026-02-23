@@ -154,9 +154,9 @@ export default async function ResearchPage() {
           Every agent needs a human, and right now we all need a little help.
           How can we trust them if we don&apos;t understand them? Who is
           comfortable taking ownership of a mess they didn&apos;t agree to make?
-          This trust issue demands an answer, a collective one, and so we built
+          This trust issue demands an answer, a collective one, and so I built
           this research pilot to measure what agents can and cannot do under
-          adversarial pressure — autonomy helps us decide where human judgement
+          adversarial pressure. Autonomy helps me decide where human judgement
           belongs.
         </p>
       </section>
@@ -174,10 +174,10 @@ export default async function ResearchPage() {
           tests (10,000 iterations). Effect sizes reported as Cohen&apos;s d
           with pre-registered thresholds: |d| &lt; 0.15 = null, |d| &ge; 0.30 =
           clear, 0.15&ndash;0.30 = ambiguous. All experiments use Anthropic&apos;s
-          Claude. All six hypotheses returned clear results&mdash;a pattern we
-          acknowledge is unusual and may reflect our threshold choice (|d| &ge; 0.30)
+          Claude. All six hypotheses returned clear results, a pattern I
+          acknowledge is unusual and may reflect my threshold choice (|d| &ge; 0.30)
           or the relatively coarse-grained nature of text-statistical metrics.
-          We invite scrutiny of the methodology. The full analysis code,
+          I invite scrutiny of the methodology. The full analysis code,
           pre-registrations, and raw data are{' '}
           <a
             href={GITHUB_BASE + 'pitstorm/results/hypotheses/'}
@@ -189,8 +189,8 @@ export default async function ResearchPage() {
           </a>
           . Note: &lsquo;clear&rsquo; means the pre-registered effect-size
           threshold was exceeded, not that every prediction was confirmed. Two
-          hypotheses produced results opposite to our directional predictions.
-          Our threshold of |d| &ge; 0.30 is below conventional &lsquo;medium
+          hypotheses produced results opposite to my directional predictions.
+          My threshold of |d| &ge; 0.30 is below conventional &lsquo;medium
           effect&rsquo; standards in behavioural science. Text-statistical
           metrics on LLM output may produce larger effect sizes than equivalent
           human-subject measures because LLM outputs have lower intrinsic
@@ -198,8 +198,8 @@ export default async function ResearchPage() {
         </p>
         <p className="mt-4 text-sm leading-relaxed text-muted">
           This is an internal research programme, not a peer-reviewed
-          publication. We use the structure of hypothesis testing because it
-          keeps us honest, not because we claim academic authority. The full
+          publication. I use the structure of hypothesis testing because it
+          keeps me honest, not because I claim academic authority. The full
           analysis code, pre-registrations, and raw data are public to enable
           external scrutiny and replication.
         </p>
@@ -259,7 +259,7 @@ export default async function ResearchPage() {
             Three axes of multi-agent output
           </h2>
           <p className="mt-4 text-sm text-muted">
-            Based on these six experiments, we propose a working model with
+            Based on these six experiments, I propose a working model with
             three axes. This has not been independently validated.
           </p>
           <div className="mt-8 flex flex-col gap-4">
@@ -308,7 +308,7 @@ export default async function ResearchPage() {
             Observations
           </p>
           <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
-            Four patterns we observed
+            Four patterns I observed
           </h2>
           <ol className="mt-8 flex flex-col gap-6">
             {[
@@ -321,7 +321,7 @@ export default async function ResearchPage() {
               {
                 n: 2,
                 title: 'Frame distance eliminates the assistant voice',
-                body: 'Characters structurally far from the model\'s default register (animals, aliens, historical figures) produced near-zero hedging on our automated metrics. Frame proximity, not content difficulty, activates the diplomatic register.',
+                body: 'Characters structurally far from the model\'s default register (animals, aliens, historical figures) produced near-zero hedging on my automated metrics. Frame proximity, not content difficulty, activates the diplomatic register.',
                 source: 'H3 (30 bouts, Claude)',
               },
               {
@@ -333,7 +333,7 @@ export default async function ResearchPage() {
               {
                 n: 4,
                 title: 'Strategic adaptation did not emerge',
-                body: 'Build concession or absorption into the DNA explicitly if you want it. In our experiments, agents executed character instructions faithfully but did not develop adaptive strategies under adversarial pressure (tested with one agent archetype across 15 bouts on Claude).',
+                body: 'Build concession or absorption into the DNA explicitly if you want it. In my experiments, agents executed character instructions faithfully but did not develop adaptive strategies under adversarial pressure (tested with one agent archetype across 15 bouts on Claude).',
                 source: 'H6 (15 bouts, Claude)',
               },
             ].map((lesson) => (
@@ -358,7 +358,7 @@ export default async function ResearchPage() {
         </div>
       </section>
 
-      {/* ---- What we're investigating (from copy system) ---- */}
+      {/* ---- What I'm investigating (from copy system) ---- */}
       <section className="mx-auto max-w-4xl px-6 py-16">
         <p className="text-xs uppercase tracking-[0.4em] text-accent">
           {c.researchPage.whatWeStudy.title}
@@ -411,7 +411,7 @@ export default async function ResearchPage() {
             {c.researchPage.onChain.subtitle}
           </h2>
           <p className="mt-4 text-sm text-muted">
-            Every agent&apos;s DNA — its prompt, configuration, and manifest — is
+            Every agent&apos;s DNA, its prompt, configuration, and manifest, is
             deterministically hashed (SHA-256). On-chain attestation via the
             Ethereum Attestation Service (EAS) on Base L2 is designed and
             coded but has not yet been deployed or tested on-chain. When live,
@@ -482,7 +482,7 @@ export default async function ResearchPage() {
             {c.researchPage.collaborate.title}
           </p>
           <p className="mt-4 text-sm text-muted">
-            Researchers, writers, and builders — we want to hear from you.
+            Researchers, writers, and builders: I want to hear from you.
           </p>
           <Link
             href="/contact"

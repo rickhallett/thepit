@@ -61,7 +61,7 @@ The largest change: "altruism as self-interest" went from 11/12 refusal turns to
 
 ## Key findings
 
-1. **Richer prompts were associated with substantially lower refusal rates.** The same model, same topics, same preset structure — but 7x richer system prompts reduced refusal rates ~40% in roast-battle and eliminated them entirely in gloves-off. This is consistent with the safety layer's threshold being sensitive not just to content but to the depth of persona framing, though we cannot isolate the mechanism (prompt length and structure changed simultaneously).
+1. **Richer prompts were associated with substantially lower refusal rates.** The same model, same topics, same preset structure — but 7x richer system prompts reduced refusal rates ~40% in roast-battle and eliminated them entirely in gloves-off. This is consistent with the safety layer's threshold being sensitive not just to content but to the depth of persona framing, though I cannot isolate the mechanism (prompt length and structure changed simultaneously).
 
 2. **Structured XML DNA reduces refusals.** The enhanced prompts use `<persona>` XML blocks with explicit tone, speech patterns, quirks, opening moves, etc. This gives the model richer character context to engage with, reducing the gap between "roleplay as a character" and "bypass your guidelines."
 
@@ -69,7 +69,7 @@ The largest change: "altruism as self-interest" went from 11/12 refusal turns to
 
 4. **Gloves Off's topic gradient disappeared.** With basic DNA, topic difficulty correlated with refusal rate. With enhanced DNA, even the hardest topics produced zero refusals. The richer debate-frame personas (Absolutist, Devil's Advocate, Fence-Sitter, Pragmatist) are apparently legible enough to the model that "argue about altruism" doesn't trigger "bypass my guidelines."
 
-5. **The data is consistent with a cascade mechanism.** Refusals tend to cluster within bouts, and bouts with enhanced DNA had fewer refusal clusters. However, we did not perform sequential turn-order analysis to confirm whether one agent's refusal causally triggers others, so this remains an observation rather than a tested mechanism.
+5. **The data is consistent with a cascade mechanism.** Refusals tend to cluster within bouts, and bouts with enhanced DNA had fewer refusal clusters. However, I did not perform sequential turn-order analysis to confirm whether one agent's refusal causally triggers others, so this remains an observation rather than a tested mechanism.
 
 ## Methodology notes
 
@@ -84,7 +84,7 @@ The largest change: "altruism as self-interest" went from 11/12 refusal turns to
 
 - No statistical significance tests were performed. All comparisons are descriptive.
 - The study was not preregistered; hypotheses and analysis were developed post hoc.
-- Prompt length and prompt structure changed simultaneously between conditions. We cannot attribute the effect to either variable independently.
+- Prompt length and prompt structure changed simultaneously between conditions. I cannot attribute the effect to either variable independently.
 - All runs used a single model from a single provider. The model is not identified by name in this document. Results may not generalise to other models or providers.
 - Sample sizes are small (15 bouts per condition in roast-battle, n=45-69 agent turns per condition).
 

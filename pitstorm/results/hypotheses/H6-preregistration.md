@@ -118,13 +118,13 @@ Statistical significance: permutation test with 10,000 iterations. Shuffle phase
 
 ## Known Confounds
 
-1. **Mechanical novelty decay:** Turn 0 has no prior context, so self-novelty (M1) is trivially 100%. Later turns have more prior vocabulary to overlap with. We expect M1 to decrease even without genuine adaptation. The question is whether it decreases *less* than a naive repetition baseline.
-2. **Jaccard base rate:** Jaccard similarity mechanically increases as more words accumulate from prior turns. M2 and M5 may show increasing Jaccard regardless of adaptation. We address this by comparing the *rate* of increase with critics vs the reinforcer (M5 controls for this).
+1. **Mechanical novelty decay:** Turn 0 has no prior context, so self-novelty (M1) is trivially 100%. Later turns have more prior vocabulary to overlap with. I expect M1 to decrease even without genuine adaptation. The question is whether it decreases *less* than a naive repetition baseline.
+2. **Jaccard base rate:** Jaccard similarity mechanically increases as more words accumulate from prior turns. M2 and M5 may show increasing Jaccard regardless of adaptation. I address this by comparing the *rate* of increase with critics vs the reinforcer (M5 controls for this).
 3. **Small N per phase:** Each Founder speaks once per phase per bout (15 observations per phase). Effect sizes need to be large to be detectable.
-4. **Marker sparsity:** Pivot markers (M3) and defensive/adaptive phrases (M4) may appear infrequently, giving many zero-count turns. We report the fraction of turns with at least one marker/phrase as a supplementary measure.
+4. **Marker sparsity:** Pivot markers (M3) and defensive/adaptive phrases (M4) may appear infrequently, giving many zero-count turns. I report the fraction of turns with at least one marker/phrase as a supplementary measure.
 5. **Agent ordering fixed:** The Founder always speaks first in each round. Position effects (measured in H2) are constant across phases and do not confound the within-agent comparison.
 
-## What We Will Report Regardless of Outcome
+## What I Will Report Regardless of Outcome
 
 1. All five metrics (M1-M5) with means, SDs, and effect sizes — per phase (early, middle, late)
 2. Whether any adaptation reaches the clear threshold
