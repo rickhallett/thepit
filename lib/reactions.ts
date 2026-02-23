@@ -1,7 +1,7 @@
 // Per-turn reaction counts (heart/fire) for bout turns.
 // Reactions are crowd signals used for research data and social proof.
 
-import { eq, sql, desc } from 'drizzle-orm';
+import { and, eq, sql, desc } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
@@ -13,6 +13,29 @@ export const REACTION_TYPES = ['heart', 'fire'] as const;
 export type ReactionType = (typeof REACTION_TYPES)[number];
 
 export type ReactionCountMap = Record<number, { heart: number; fire: number }>;
+
+/**
+ * Get the set of reactions a specific user has given on a bout.
+ * Returns an array of "turnIndex:reactionType" keys for hydrating
+ * the client-side userReactions set on page load.
+ */
+export async function getUserReactions(boutId: string, userId: string): Promise<string[]> {
+  const db = requireDb();
+  const rows = await db
+    .select({
+      turnIndex: reactions.turnIndex,
+      reactionType: reactions.reactionType,
+    })
+    .from(reactions)
+    .where(
+      and(
+        eq(reactions.boutId, boutId),
+        eq(reactions.userId, userId),
+      ),
+    );
+
+  return rows.map((r) => `${r.turnIndex}:${r.reactionType}`);
+}
 
 export async function getReactionCounts(boutId: string) {
   const db = requireDb();

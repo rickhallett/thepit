@@ -13,7 +13,7 @@ import { bouts, type TranscriptEntry } from '@/db/schema';
 import { getCopy } from '@/lib/copy';
 import { getPresetById, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
-import { getReactionCounts, getMostReactedTurnIndex } from '@/lib/reactions';
+import { getReactionCounts, getMostReactedTurnIndex, getUserReactions } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
 export const dynamic = 'force-dynamic';
@@ -92,8 +92,9 @@ export default async function ReplayPage({
     notFound();
   }
 
-  const [reactionCounts, winnerVoteCounts, userWinnerVote, mostReactedTurn] = await Promise.all([
+  const [reactionCounts, userReactionKeys, winnerVoteCounts, userWinnerVote, mostReactedTurn] = await Promise.all([
     getReactionCounts(resolved.id),
+    userId ? getUserReactions(resolved.id, userId) : Promise.resolve([]),
     getWinnerVoteCounts(resolved.id),
     userId ? getUserWinnerVote(resolved.id, userId) : Promise.resolve(null),
     getMostReactedTurnIndex(resolved.id),
@@ -129,6 +130,7 @@ export default async function ReplayPage({
         length={bout.responseLength ?? null}
         topic={bout.topic ?? null}
         initialReactions={reactionCounts}
+        initialUserReactions={userReactionKeys}
         initialWinnerVotes={winnerVoteCounts}
         initialUserVote={userWinnerVote}
       />

@@ -23,7 +23,7 @@ import { getCopy } from '@/lib/copy';
 import { getPresetById, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
 import { resolveResponseLength } from '@/lib/response-lengths';
-import { getReactionCounts } from '@/lib/reactions';
+import { getReactionCounts, getUserReactions } from '@/lib/reactions';
 import { getUserWinnerVote, getWinnerVoteCounts } from '@/lib/winner-votes';
 
 export const dynamic = 'force-dynamic';
@@ -207,8 +207,9 @@ export default async function BoutPage({
           ),
         )
       : null;
-  const [reactionCounts, winnerVoteCounts, userWinnerVote] = await Promise.all([
+  const [reactionCounts, userReactionKeys, winnerVoteCounts, userWinnerVote] = await Promise.all([
     getReactionCounts(resolvedParams.id),
+    userId ? getUserReactions(resolvedParams.id, userId) : Promise.resolve([]),
     getWinnerVoteCounts(resolvedParams.id),
     userId ? getUserWinnerVote(resolvedParams.id, userId) : Promise.resolve(null),
   ]);
@@ -225,6 +226,7 @@ export default async function BoutPage({
       initialTranscript={transcript}
       shareLine={shareLine}
       initialReactions={reactionCounts}
+      initialUserReactions={userReactionKeys}
       initialWinnerVotes={winnerVoteCounts}
       initialUserVote={userWinnerVote}
     />

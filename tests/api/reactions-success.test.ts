@@ -67,6 +67,10 @@ vi.mock('@/db/schema', () => ({
 vi.mock('drizzle-orm', () => ({
   and: vi.fn((...args: unknown[]) => args),
   eq: vi.fn((a: unknown, b: unknown) => [a, b]),
+  sql: Object.assign(
+    (strings: TemplateStringsArray, ...values: unknown[]) => ({ strings, values }),
+    { raw: (s: string) => s },
+  ),
 }));
 
 /* ------------------------------------------------------------------ */
@@ -84,11 +88,19 @@ describe('reactions success paths', () => {
     });
     authMock.mockResolvedValue({ userId: null });
 
-    // Reset select chain for each test (default: no existing reaction → insert path)
-    const mockLimit = vi.fn().mockResolvedValue([]);
-    const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });
-    const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
-    mockSelect.mockReturnValue({ from: mockFrom });
+    // Reset select chain for each test.
+    // Call 1: existence check → empty (no existing reaction → insert path)
+    // Call 2: absolute counts query → { heart: 1, fire: 0 }
+    const existenceLimit = vi.fn().mockResolvedValue([]);
+    const existenceWhere = vi.fn().mockReturnValue({ limit: existenceLimit });
+    const existenceFrom = vi.fn().mockReturnValue({ where: existenceWhere });
+
+    const countsWhere = vi.fn().mockResolvedValue([{ heart: 1, fire: 0 }]);
+    const countsFrom = vi.fn().mockReturnValue({ where: countsWhere });
+
+    mockSelect
+      .mockReturnValueOnce({ from: existenceFrom })   // 1st call: existence check
+      .mockReturnValueOnce({ from: countsFrom });      // 2nd call: absolute counts
   });
 
   function makeReq(body: unknown) {
@@ -110,6 +122,8 @@ describe('reactions success paths', () => {
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.action).toBe('added');
+    expect(body.counts).toEqual({ heart: 1, fire: 0 });
+    expect(body.turnIndex).toBe(0);
 
     // Verify insert was called with correct values including userId
     expect(mockValues).toHaveBeenCalledWith({
@@ -132,6 +146,8 @@ describe('reactions success paths', () => {
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.action).toBe('added');
+    expect(body.counts).toEqual({ heart: 1, fire: 0 });
+    expect(body.turnIndex).toBe(3);
 
     // Anonymous users get an IP-based deduplication ID
     expect(mockValues).toHaveBeenCalledWith({

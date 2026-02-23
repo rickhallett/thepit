@@ -17,11 +17,14 @@ const reactionKey = (turn: number, type: 'heart' | 'fire') => `${turn}:${type}`;
 export function useBoutReactions(
   boutId: string,
   initialReactions?: ReactionCountMap,
+  initialUserReactions?: string[],
 ) {
   const [reactions, setReactions] = useState<ReactionCountMap>(
     initialReactions ?? {},
   );
-  const [userReactions, setUserReactions] = useState<UserReactionSet>(new Set());
+  const [userReactions, setUserReactions] = useState<UserReactionSet>(
+    () => new Set(initialUserReactions ?? []),
+  );
   const reactionsGivenRef = useRef(0);
   const pendingRef = useRef<Set<string>>(new Set());
 
@@ -75,30 +78,27 @@ export function useBoutReactions(
       }
 
       const data = await res.json();
-      // Reconcile with server response
-      if (data.action === 'added' && isRemoving) {
-        // Server added but we expected remove — re-sync
+
+      // Server returns absolute counts — set them directly instead of
+      // delta arithmetic. This eliminates all optimistic update drift.
+      if (data.counts && data.turnIndex !== undefined) {
+        setReactions((prev) => ({
+          ...prev,
+          [data.turnIndex]: {
+            heart: data.counts.heart ?? 0,
+            fire: data.counts.fire ?? 0,
+          },
+        }));
+      }
+
+      // Reconcile userReactions with server's actual action
+      if (data.action === 'added') {
         setUserReactions((prev) => new Set(prev).add(key));
-        setReactions((prev) => {
-          const current = prev[turn] ?? { heart: 0, fire: 0 };
-          return {
-            ...prev,
-            [turn]: { ...current, [reactionType]: (current[reactionType] ?? 0) + 1 },
-          };
-        });
-      } else if (data.action === 'removed' && !isRemoving) {
-        // Server removed but we expected add — re-sync
+      } else if (data.action === 'removed') {
         setUserReactions((prev) => {
           const next = new Set(prev);
           next.delete(key);
           return next;
-        });
-        setReactions((prev) => {
-          const current = prev[turn] ?? { heart: 0, fire: 0 };
-          return {
-            ...prev,
-            [turn]: { ...current, [reactionType]: Math.max(0, (current[reactionType] ?? 0) - 1) },
-          };
         });
       }
 
