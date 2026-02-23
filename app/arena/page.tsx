@@ -86,7 +86,7 @@ export default async function ArenaPage() {
             {c.arena.description}
           </p>
           <p className="text-xs text-muted/70">
-            {c.agents.reactionsHint}
+            {c.arena.reactionsHint}
           </p>
           {demoMode && !userId && (
             <span className="inline-block rounded-full border-2 border-yellow-400/70 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-yellow-400">

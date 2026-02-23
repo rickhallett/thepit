@@ -234,6 +234,7 @@
   "arena": {
     "title": "Trust Arena",
     "description": "Pick a preset. The arena streams a round-robin debate between agents in real time.",
+    "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "credits": {
       "label": "Credits:",
       "rateLabel": "1 credit = £{rate}",

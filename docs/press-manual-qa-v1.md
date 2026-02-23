@@ -476,3 +476,22 @@ A little melodramatic, perhaps. Please forgive the tired, slurred lazy typing.
 
 Thank you for all of your efforts.
 You are an inspiration.
+
+---
+
+## Defect Resolution Log
+
+Tracking status changes against the QA findings above. Updated by Weaver as fixes are verified.
+
+| Ref | Description | Status | Resolution | PR |
+|-----|-------------|--------|------------|-----|
+| 2.2.4 | Privacy email doesn't exist | **RESOLVED** | Replaced with `rickhallett@icloud.com` via `PRIVACY_EMAIL` constant in `lib/brand.ts` | #355 |
+| 2.2.4 | Reddit external link not resolved | **RESOLVED** | `NEXT_PUBLIC_SOCIAL_REDDIT_ENABLED=false` in production + local env | #355 |
+| 2.2.4 | Discord external link confusing | **RESOLVED** | `NEXT_PUBLIC_SOCIAL_DISCORD_ENABLED=false` in production + local env | #355 |
+| 2.2.4 | LinkedIn URL incorrect | **RESOLVED** | URL corrected to `/in/richardhallett86/`, `NEXT_PUBLIC_SOCIAL_LINKEDIN_ENABLED=false` in production + local env | #355 |
+| 2.5.3 | No DNA fingerprint on agent detail page | **STRUCK** | Confirmed working 23 Feb 2026. Component was merged in PR #338; original QA likely hit agents before hash population. Captain verified across all agents + on-chain attestation hashes. | N/A |
+| 2.5.4 | DNA fingerprint not present | **STRUCK** | Same as 2.5.3 above. | N/A |
+| — | MOST POPULAR badge (S2) | **RESOLVED** | Removed from pricing tier card | #355 |
+| — | Re-roll on preset bouts (S23) | **RESOLVED** | Hidden for presets, "coming soon" with roadmap link shown instead | #355 |
+| — | Share modal auto-open (S22) | **RESOLVED** | ShareModal archived, inline SharePanel is sole share surface | #355 |
+| — | Emoji CTA (S11) | **RESOLVED** | Added `reactionsHint` to both `/agents` and `/arena` pages via copy dictionary | #355 |

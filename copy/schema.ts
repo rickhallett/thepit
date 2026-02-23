@@ -119,6 +119,7 @@ export interface PricingCopy {
 export interface ArenaCopy {
   title: string;
   description: string;
+  reactionsHint: string;
   credits: {
     label: string;
     rateLabel: string;
