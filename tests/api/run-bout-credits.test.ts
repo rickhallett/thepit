@@ -630,7 +630,8 @@ describe('run-bout anonymous intro-pool flow (CREDITS_ENABLED=true)', () => {
     vi.mocked(getIntroPoolStatus).mockResolvedValue({
       remainingMicro: 999999,
       remainingCredits: 9999,
-      drainRatePerMinute: 1,
+      halfLifeDays: 3,
+      initialCredits: 10000,
       startedAt: new Date().toISOString(),
       exhausted: false,
     });
@@ -657,7 +658,8 @@ describe('run-bout anonymous intro-pool flow (CREDITS_ENABLED=true)', () => {
     vi.mocked(getIntroPoolStatus).mockResolvedValue({
       remainingMicro: 999999,
       remainingCredits: 9999,
-      drainRatePerMinute: 1,
+      halfLifeDays: 3,
+      initialCredits: 10000,
       startedAt: new Date().toISOString(),
       exhausted: false,
     });

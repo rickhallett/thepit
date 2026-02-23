@@ -78,12 +78,9 @@ const serverEnvSchema = z.object({
   BYOK_FEE_GBP_PER_1K_TOKENS: numStr(0.0002),
   BYOK_MIN_GBP: numStr(0.001),
 
-  // --- Free bout pool ---
-  FREE_BOUT_POOL_MAX: numStr(500),
-
-  // --- Intro pool ---
-  INTRO_POOL_TOTAL_CREDITS: numStr(15000),
-  INTRO_POOL_DRAIN_PER_MIN: numStr(1),
+  // --- Intro pool (half-life decay) ---
+  INTRO_POOL_TOTAL_CREDITS: numStr(10000),
+  INTRO_POOL_HALF_LIFE_DAYS: numStr(3),
   INTRO_SIGNUP_CREDITS: numStr(0),
   INTRO_REFERRAL_CREDITS: numStr(50),
 

@@ -69,7 +69,8 @@ import {
   incrementFreeBoutsUsed,
   getFreeBoutsUsed,
 } from '@/lib/tier';
-import { consumeFreeBout, settleFreeBoutSpend } from '@/lib/free-bout-pool';
+// free-bout-pool removed — intro pool half-life is the sole anonymous cost gate.
+// Authenticated free-tier users are now gated by credits only (no daily pool cap).
 import { FIRST_BOUT_PROMOTION_MODEL } from '@/lib/models';
 import { UNSAFE_PATTERN } from '@/lib/validation';
 import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
@@ -121,10 +122,6 @@ export type BoutContext = {
   preauthMicro: number;
   /** Micro-credits consumed from the intro pool for anonymous bouts. Zero for authenticated bouts. */
   introPoolConsumedMicro: number;
-  /** Estimated cost (micro) charged to the free bout pool. Zero for non-free or BYOK bouts. */
-  freePoolSpendMicro: number;
-  /** The pool date the free bout was charged against. Used for midnight-safe settlement. */
-  freePoolDate: string | null;
   /** User tier at the time of validation. */
   tier: 'anonymous' | 'free' | 'pass' | 'lab';
   requestId: string;
@@ -359,8 +356,7 @@ export async function validateBoutRequest(
   // Tier-based access control
   const isByok = requestedModel === 'byok' && BYOK_ENABLED;
   let modelId = FREE_MODEL_ID;
-  let freePoolSpendMicro = 0;
-  let freePoolDate: string | null = null;
+  // freePoolSpendMicro/freePoolDate removed — no daily pool cap.
 
   if (SUBSCRIPTIONS_ENABLED && userId) {
     // Reuse tier resolved above for rate limiting — avoids a redundant DB read.
@@ -409,21 +405,8 @@ export async function validateBoutRequest(
     }
 
     if (!isByok && tier === 'free') {
-      // Compute estimated cost early so the free bout pool can enforce
-      // both the bout count cap AND the daily spend cap atomically.
-      freePoolSpendMicro = toMicroCredits(
-        estimateBoutCostGbp(preset.maxTurns, modelId, lengthConfig.outputTokensPerTurn),
-      );
-      const poolResult = await consumeFreeBout(freePoolSpendMicro);
-      if (!poolResult.consumed) {
-        freePoolSpendMicro = 0;
-        freePoolDate = null; // Not consumed — reset
-        const msg = poolResult.reason === 'spend'
-          ? 'Daily free tier spend cap reached. Upgrade your plan or try again tomorrow.'
-          : 'Daily free bout pool exhausted. Upgrade your plan or use your own API key (BYOK).';
-        return { ok: false, error: errorResponse(msg, 429) };
-      }
-      freePoolDate = poolResult.poolDate;
+      // Free-tier users are now gated by their credit balance only
+      // (no daily pool cap). Track bout usage for analytics.
       await incrementFreeBoutsUsed(userId);
     }
   } else {
@@ -508,8 +491,6 @@ export async function validateBoutRequest(
       userId,
       preauthMicro,
       introPoolConsumedMicro,
-      freePoolSpendMicro,
-      freePoolDate,
       tier: currentTier,
       requestId,
       db,
@@ -596,7 +577,7 @@ async function _executeBoutInner(
   ctx: BoutContext,
   onEvent?: (event: TurnEvent) => void,
 ): Promise<BoutResult> {
-  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokData, userId, preauthMicro, introPoolConsumedMicro, freePoolSpendMicro, freePoolDate, requestId, db } = ctx;
+  const { boutId, presetId, preset, topic, lengthConfig, formatConfig, modelId, byokData, userId, preauthMicro, introPoolConsumedMicro, requestId, db } = ctx;
 
   const boutStartTime = Date.now();
   log.info('Bout stream starting', {
@@ -1082,18 +1063,7 @@ async function _executeBoutInner(
 
     }
 
-    // Settle free pool daily spend: reconcile estimated vs actual cost.
-    // This is independent of the credit system — free pool caps operate
-    // even when CREDITS_ENABLED is false. Moved outside the credits block
-    // so settlement always runs for free-tier bouts.
-    if (freePoolSpendMicro > 0) {
-      const actualCostForPool = computeCostGbp(inputTokens, outputTokens, modelId);
-      const actualMicroForPool = toMicroCredits(actualCostForPool);
-      const poolSpendDelta = actualMicroForPool - freePoolSpendMicro;
-      if (poolSpendDelta !== 0) {
-        await settleFreeBoutSpend(poolSpendDelta, freePoolDate ?? undefined);
-      }
-    }
+    // Free bout pool settlement removed — no daily pool cap to reconcile.
 
     // Flush batched $ai_generation events (serverCaptureAIGeneration uses
     // capture() for latency, not captureImmediate). shutdown() drains the
@@ -1180,15 +1150,7 @@ async function _executeBoutInner(
       await refundIntroPool(introPoolConsumedMicro);
     }
 
-    // Error-path free pool refund: return the estimated spend to the daily pool.
-    // Without this, failed bouts permanently consume pool budget.
-    if (freePoolSpendMicro > 0) {
-      const actualCostForPool = computeCostGbp(inputTokens, outputTokens, modelId);
-      const actualMicroForPool = toMicroCredits(actualCostForPool);
-      const refundDelta = -(freePoolSpendMicro - actualMicroForPool);
-      log.info('Refunding free pool on error', { boutId, freePoolSpendMicro, actualMicroForPool, refundDelta });
-      await settleFreeBoutSpend(refundDelta, freePoolDate ?? undefined);
-    }
+    // Free pool error-path refund removed — no daily pool cap.
 
     // Flush batched $ai_generation events on error path too.
     try {

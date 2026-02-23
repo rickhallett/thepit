@@ -5,30 +5,30 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/cn';
 
 export function IntroPoolCounter({
-  remainingCredits,
-  drainRatePerMinute,
+  initialCredits,
+  halfLifeDays,
   startedAt,
   className,
 }: {
-  remainingCredits: number;
-  drainRatePerMinute: number;
+  initialCredits: number;
+  halfLifeDays: number;
   startedAt: string;
   className?: string;
 }) {
-  const [value, setValue] = useState(remainingCredits);
+  const [value, setValue] = useState(initialCredits);
 
   useEffect(() => {
     const started = new Date(startedAt).getTime();
+    const halfLifeMs = halfLifeDays * 24 * 60 * 60 * 1000;
     const tick = () => {
-      const elapsedMs = Date.now() - started;
-      const drained = (elapsedMs / 60000) * drainRatePerMinute;
-      const next = Math.max(0, Math.floor(remainingCredits - drained));
-      setValue(next);
+      const elapsed = Date.now() - started;
+      const decayed = initialCredits * Math.pow(0.5, elapsed / halfLifeMs);
+      setValue(Math.max(0, Math.floor(decayed)));
     };
     tick();
     const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, [drainRatePerMinute, remainingCredits, startedAt]);
+  }, [halfLifeDays, initialCredits, startedAt]);
 
   return (
     <span className={cn('font-mono text-foreground', className)}>

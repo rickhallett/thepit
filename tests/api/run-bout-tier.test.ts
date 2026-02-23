@@ -311,16 +311,14 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 3. Free bout pool exhausted → 429
+  // 3. Free bout pool removed — free-tier users gated by credits only.
+  //    This test now verifies free-tier users can run bouts (credits gate tested elsewhere).
   // -------------------------------------------------------------------------
-  it('returns 429 when free bout pool is exhausted', async () => {
+  it('allows free tier user to run bout (no daily pool cap)', async () => {
     getUserTierMock.mockResolvedValue('free');
-    consumeFreeBoutMock.mockResolvedValue({ consumed: false, remaining: 0 });
 
     const res = await POST(makeRequest({ boutId: 'b3', presetId: 'darwin-special' }));
-    expect(res.status).toBe(429);
-    const body3 = await res.json();
-    expect(body3.error).toContain('pool exhausted');
+    expect(res.status).toBe(200);
   });
 
   // -------------------------------------------------------------------------
@@ -340,15 +338,13 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 5. Free tier: consumeFreeBout + incrementFreeBoutsUsed called
+  // 5. Free tier: incrementFreeBoutsUsed called (pool consumption removed)
   // -------------------------------------------------------------------------
-  it('consumes from free pool and increments for free tier users', async () => {
+  it('increments free bouts used for free tier users', async () => {
     getUserTierMock.mockResolvedValue('free');
-    consumeFreeBoutMock.mockResolvedValue({ consumed: true, remaining: 42 });
 
     const res = await POST(makeRequest({ boutId: 'b5', presetId: 'darwin-special' }));
     expect(res.status).toBe(200);
-    expect(consumeFreeBoutMock).toHaveBeenCalled();
     expect(incrementFreeBoutsUsedMock).toHaveBeenCalledWith('user-1');
   });
 
