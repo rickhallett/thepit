@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -504,6 +505,70 @@ func captureStdout(t *testing.T, fn func()) string {
 	r.Close()
 
 	return buf.String()
+}
+
+// ==========================================================================
+// Wellness Signal — Intent Tests
+// ==========================================================================
+
+func TestWellness_MissingFilesDetected(t *testing.T) {
+	// Intent: when neither whoop nor captainslog exists, both are flagged.
+	tmpDir := t.TempDir()
+	now := time.Date(2026, 2, 23, 4, 0, 0, 0, time.UTC)
+
+	sig := analyseWellness(now, tmpDir)
+
+	if sig.whoopPresent {
+		t.Error("expected whoop not present in empty dir")
+	}
+	if sig.captainsLogPresent {
+		t.Error("expected captains log not present in empty dir")
+	}
+	if sig.date != "2026-02-23" {
+		t.Errorf("expected date 2026-02-23, got %q", sig.date)
+	}
+}
+
+func TestWellness_PresentFilesDetected(t *testing.T) {
+	// Intent: when both files exist, both are flagged as present.
+	tmpDir := t.TempDir()
+	now := time.Date(2026, 2, 23, 4, 0, 0, 0, time.UTC)
+
+	// Create the expected directory structure and files
+	whoopDir := filepath.Join(tmpDir, "docs", "internal", "doctor", "captain")
+	logDir := filepath.Join(tmpDir, "docs", "internal", "captain", "captainslog", "2026", "02")
+	os.MkdirAll(whoopDir, 0o755)
+	os.MkdirAll(logDir, 0o755)
+	os.WriteFile(filepath.Join(whoopDir, "whoop-2026-02-23.log"), []byte("done"), 0o644)
+	os.WriteFile(filepath.Join(logDir, "23.md"), []byte("# Log"), 0o644)
+
+	sig := analyseWellness(now, tmpDir)
+
+	if !sig.whoopPresent {
+		t.Errorf("expected whoop present at %s", sig.whoopPath)
+	}
+	if !sig.captainsLogPresent {
+		t.Errorf("expected captains log present at %s", sig.captainsLogPath)
+	}
+}
+
+func TestWellness_PartialPresence(t *testing.T) {
+	// Intent: one file present, one missing — each reported independently.
+	tmpDir := t.TempDir()
+	now := time.Date(2026, 2, 23, 4, 0, 0, 0, time.UTC)
+
+	logDir := filepath.Join(tmpDir, "docs", "internal", "captain", "captainslog", "2026", "02")
+	os.MkdirAll(logDir, 0o755)
+	os.WriteFile(filepath.Join(logDir, "23.md"), []byte("# Log"), 0o644)
+
+	sig := analyseWellness(now, tmpDir)
+
+	if sig.whoopPresent {
+		t.Error("expected whoop NOT present")
+	}
+	if !sig.captainsLogPresent {
+		t.Error("expected captains log present")
+	}
 }
 
 // ==========================================================================

@@ -132,3 +132,20 @@ __pycache__/
 piteval/results/_*
 piteval/results/*.png
 pitkeel/pitkeel
+
+# crew definitions and agentic process — company IP
+# the team and its process are open for scrutiny at the level of
+# externally visible function. internal structure is proprietary.
+.claude/agents/
+.claude/state/
+.claude/commands/
+.claude/CLAUDE.md
+.opencode/agents/
+CLAUDE.md
+AGENTS.md
+
+# internal operational docs — never public
+docs/internal/
+
+# captain's medical log
+pharmacology.csv
