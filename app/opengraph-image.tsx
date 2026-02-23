@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'THE PIT — Trust Infrastructure for AI Agents';
+export const alt = 'THE PIT — I built this with agents. Alone.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -124,7 +124,7 @@ export default async function OGImage() {
               display: 'flex',
             }}
           >
-            Trust Infrastructure for AI Agents
+            I built this with agents. Alone.
           </div>
 
           {/* Description */}

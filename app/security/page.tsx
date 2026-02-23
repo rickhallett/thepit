@@ -144,16 +144,16 @@ export default async function SecurityPage() {
           </h2>
           <ul className="list-disc pl-6 text-sm text-muted">
             <li>
-              Authentication is handled by Clerk. We store a minimal user record
+              Authentication is handled by Clerk. THE PIT stores a minimal user record
               (display name, email, avatar URL) that is refreshed periodically.
             </li>
             <li>
-              Bout transcripts are stored in our database for replay and research
+              Bout transcripts are stored in the database for replay and research
               purposes.
             </li>
             <li>
               Credit transactions are recorded for billing accuracy. No payment
-              card details are stored — all payments are processed by Stripe.
+              card details are stored. All payments are processed by Stripe.
             </li>
             <li>
               Error messages returned to clients are sanitized to prevent
@@ -188,8 +188,8 @@ export default async function SecurityPage() {
             <Link href="/contact" className="text-accent underline">
               contact form
             </Link>{' '}
-            or by opening a GitHub issue. We take all reports seriously and will
-            respond promptly.
+            or by opening a GitHub issue. All reports are taken seriously and
+            will receive a prompt response.
           </p>
         </section>
       </div>

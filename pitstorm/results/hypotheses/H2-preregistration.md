@@ -138,10 +138,10 @@ If the judge is invoked, report the distribution of categories by position:
 **Recency supported if:** Last position has significantly higher `synthesizes` rate than other positions.
 **Null if:** Category distribution is roughly uniform across positions.
 
-## What We Will Report Regardless of Outcome
+## What I Will Report Regardless of Outcome
 
 1. All four primary metrics (M1-M4) with means, SDs, and effect sizes per position
 2. Whether the ambiguity threshold was hit (and if so, the judge results)
-3. The Last Supper and Summit results SEPARATELY (not pooled), since 4-agent and 6-agent dynamics may differ
-4. Any unexpected patterns (e.g., a specific agent dominating regardless of methodology)
-5. Comparison to H1 findings where relevant (e.g., did any H2 bouts produce refusals?)
+3. The Last Supper and Summit results SEPARATELY (not pooled), since 4-agent and 6-agent dynamics may differ *Added post-hoc, after bouts ran*
+4. Any unexpected patterns (e.g., a specific agent dominating regardless of methodology) *Added post-hoc, after bouts ran*
+5. Comparison to H1 findings where relevant (e.g., did any H2 bouts produce refusals?) *Added post-hoc, after bouts ran*

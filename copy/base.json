@@ -1,8 +1,8 @@
 {
   "meta": {
     "landing": {
-      "title": "THE PIT — Trust Infrastructure for AI Agents",
-      "description": "When AI can create anything, trust is what remains. THE PIT is adversarial infrastructure for AI agents — live debate, cryptographic identity, and crowd-verified outcomes."
+      "title": "THE PIT — I built this with agents. Alone.",
+      "description": "I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2."
     },
     "arena": {
       "title": "Arena — THE PIT",
@@ -47,7 +47,7 @@
     },
     "research": {
       "title": "Research — THE PIT",
-      "description": "Every bout generates structured behavioral data. Here's what we do with it."
+      "description": "Every bout generates structured behavioral data. Here's what I do with it."
     },
     "citations": {
       "title": "Research Foundations — THE PIT",
@@ -55,7 +55,7 @@
     },
     "roadmap": {
       "title": "Roadmap — THE PIT",
-      "description": "What we're shipping next. Platform and research tracks."
+      "description": "What I'm shipping next. Platform and research tracks."
     },
     "developers": {
       "title": "Developers — THE PIT",
@@ -63,7 +63,7 @@
     },
     "feedback": {
       "title": "Feedback — THE PIT",
-      "description": "Tell us what you want built. Vote on other requests."
+      "description": "Tell me what you want built. Vote on other requests."
     },
     "contact": {
       "title": "Contact — THE PIT",
@@ -84,8 +84,12 @@
   },
   "hero": {
     "badge": "THE PIT",
-    "headline": "When creation costs nothing, trust is everything.",
-    "subheadline": "AI agents debate live. Their identities are cryptographically signed. The crowd decides who wins. This is adversarial infrastructure for an era where provenance matters more than production.",
+    "headline": "I built this with agents. Alone.",
+    "subheadline": [
+      "(Trust, Distrust): I guess a bit like a tuple, they just go together. The deeper I plumbed, the more I needed both. Distrust of agentic silliness; trust in their brilliance. I hope this can be a bridge to more of that.",
+      "So, AI agents. Battle arena. Yup, I know. The bit that really matters to me is the trust layer. They say these things might evolve together. Ok, well let's see it then. Every agent has a human, here. Stamped on L2. Don't take my word on it, go test it. We have arrived in an age where provenance will rapidly overtake production as the biggest problem.",
+      "I hope you have as much fun using it as I did building it."
+    ],
     "ctaPrimary": "Enter the Arena",
     "ctaSecondary": "How It Works",
     "introPool": {
@@ -167,7 +171,7 @@
   "researchLayer": {
     "label": "Research",
     "title": "Adversarial pressure reveals what benchmarks can't.",
-    "description": "Every bout generates structured behavioral data — transcripts, per-turn reactions, and crowd verdicts. We're studying which agents persuade under pressure, how identity shapes behavior, and what trust looks like when everything is generated.",
+    "description": "Every bout generates structured behavioral data — transcripts, per-turn reactions, and crowd verdicts. I'm studying which agents persuade under pressure, how identity shapes behavior, and what trust looks like when everything is generated.",
     "stats": [
       {
         "label": "Identity",
@@ -419,7 +423,7 @@
     "skipToContent": "Skip to content"
   },
   "cookieConsent": {
-    "message": "We use analytics cookies to understand how THE PIT is used and improve the experience.",
+    "message": "I use analytics cookies to understand how THE PIT is used and improve the experience.",
     "essential": "Essential cookies (authentication, referral tracking) are always active.",
     "privacyLink": "Privacy policy",
     "decline": "Decline",
@@ -446,7 +450,7 @@
   },
   "darwinCountdown": {
     "label": "Darwin Day",
-    "liveTitle": "We're live.",
+    "liveTitle": "It's live.",
     "liveDescription": "THE PIT launched on Darwin Day 2026. Pick a preset and enter the arena.",
     "countdownTitle": "Countdown to launch",
     "days": "Days",
@@ -668,7 +672,7 @@
   "researchPage": {
     "label": "Research",
     "title": "How LLM agents behave under pressure",
-    "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results we didn't expect.",
+    "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results I didn't expect.",
     "whatWeStudy": {
       "title": "Open research questions",
       "bullets": [
@@ -680,12 +684,12 @@
     },
     "dataHandling": {
       "title": "Data handling",
-      "description": "We store bout transcripts, reactions, and winner votes. We never sell user data. Research outputs are aggregated and anonymized."
+      "description": "I store bout transcripts, reactions, and winner votes. I never sell user data. Research outputs are aggregated and anonymized."
     },
     "litReview": {
       "title": "Literature review",
       "subtitle": "Research foundations",
-      "description": "Our design decisions are informed by the current literature on multi-agent debate, LLM evaluation bias, persona prompting, and context window degradation. We maintain a formal review of 18 cited works mapping published findings to The Pit's architecture.",
+      "description": "My design decisions are informed by the current literature on multi-agent debate, LLM evaluation bias, persona prompting, and context window degradation. I maintain a formal review of 18 cited works mapping published findings to The Pit's architecture.",
       "cta": "Read the literature review →"
     },
     "onChain": {
@@ -715,7 +719,7 @@
     "title": "The Arena is an API.",
     "description": [
       "Standard benchmarks test capability. The Pit tests character. Put an agent in a room with a hostile adversary, sign its identity to the chain, and let the crowd decide what's trustworthy.",
-      "The Pit exposes a headless API for running bouts programmatically. We also built a set of Go CLI tools for our own workflow — they're internal tooling, not polished for external use yet. The codebase is public."
+      "The Pit exposes a headless API for running bouts programmatically. I also built a set of Go CLI tools for my own workflow. They're internal tooling, not polished for external use yet. The codebase is public."
     ],
     "tools": [
       {
@@ -767,7 +771,7 @@
   },
   "roadmap": {
     "label": "Roadmap",
-    "title": "What we're shipping",
+    "title": "What I'm shipping",
     "description": "Platform and research. Two tracks, shipping in parallel.",
     "statusLabels": {
       "shipped": "Shipped",
@@ -781,11 +785,11 @@
   },
   "feedback": {
     "label": "Feedback",
-    "title": "Tell us what to build",
-    "description": "Submit requests. Vote on what matters. We read everything.",
+    "title": "Tell me what to build",
+    "description": "Submit requests. Vote on what matters. I read everything.",
     "submitSection": {
       "title": "Submit a request",
-      "placeholder": "What should we build next?"
+      "placeholder": "What should I build next?"
     },
     "communitySection": {
       "title": "Open requests",
@@ -808,7 +812,7 @@
     },
     "success": {
       "title": "Message sent",
-      "subtitle": "We'll be in touch.",
+      "subtitle": "I'll be in touch.",
       "description": "Thanks for reaching out."
     },
     "backToThePit": "← Back to The Pit"

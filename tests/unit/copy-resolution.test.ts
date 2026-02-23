@@ -77,7 +77,10 @@ describe('Copy Resolution', () => {
       const copy = getCopyForVariant('control');
       expect(typeof copy.hero.badge).toBe('string');
       expect(typeof copy.hero.headline).toBe('string');
-      expect(typeof copy.hero.subheadline).toBe('string');
+      expect(
+        typeof copy.hero.subheadline === 'string' || Array.isArray(copy.hero.subheadline)
+      ).toBe(true);
+      expect(copy.hero.subheadline).toEqual(controlData.hero.subheadline);
       expect(typeof copy.hero.ctaPrimary).toBe('string');
       expect(typeof copy.hero.ctaSecondary).toBe('string');
       expect(typeof copy.hero.introPool.label).toBe('string');

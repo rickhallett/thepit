@@ -1,7 +1,7 @@
 import { renderBoutOGImage, ogSize } from '@/lib/og-bout-image';
 
 export const runtime = 'edge';
-export const alt = 'THE PIT — Trust Infrastructure for AI Agents';
+export const alt = 'THE PIT — I built this with agents. Alone.';
 export const size = ogSize;
 export const contentType = 'image/png';
 

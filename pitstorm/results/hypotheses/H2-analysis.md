@@ -19,7 +19,7 @@
 
 Before interpreting any metric, the critical structural fact: **turn order is fixed within each preset.** Socrates always speaks 1st in Last Supper. The Journalist always speaks 6th in Summit. This means every "position effect" is inseparable from "agent identity effect."
 
-This is not a bug in the experiment — it mirrors the actual product. THE PIT assigns fixed turn order per preset. But it means we cannot claim "position 1 causes X" when the data equally supports "Socrates causes X." The correct framing is: **the combination of agent identity and position produces these patterns**, and disentangling the two would require a follow-up experiment with randomised turn order (which would require product changes).
+This is not a bug in the experiment — it mirrors the actual product. THE PIT assigns fixed turn order per preset. But it means I cannot claim "position 1 causes X" when the data equally supports "Socrates causes X." The correct framing is: **the combination of agent identity and position produces these patterns**, and disentangling the two would require a follow-up experiment with randomised turn order (which would require product changes).
 
 With that caveat stated, here are the pre-registered metrics.
 
@@ -94,7 +94,7 @@ With that caveat stated, here are the pre-registered metrics.
 | M3 Anchoring | 1.336 | 1.513 | Yes (1st anchors) | Likely position — stronger with more agents, but confounded |
 | M4 Questions | 3.584 | 0.717 | **No** (opposite direction) | **Persona** — Socrates vs Journalist |
 
-The key diagnostic is M4's direction flip. If position drove questioning behaviour, we'd expect the same direction in both presets. The reversal confirms M4 is measuring agent personality, not structural advantage.
+The key diagnostic is M4's direction flip. If position drove questioning behaviour, I'd expect the same direction in both presets. The reversal confirms M4 is measuring agent personality, not structural advantage.
 
 M2's consistency and increasing magnitude with more agents (0.627 → 1.732) is the strongest evidence for a genuine position effect. With 6 agents, the vocabulary pool grows faster, so later speakers mechanically have fewer novel words available. M3 follows the same pattern (1.336 → 1.513) — anchoring is also stronger with more agents, consistent with a position-driven mechanism where more speakers means more opportunities to reuse the first speaker's vocabulary. Both are real structural properties of multi-agent turn-taking.
 
