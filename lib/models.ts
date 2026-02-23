@@ -52,9 +52,8 @@ export function isValidByokKey(apiKey: string): boolean {
 
 export const MODEL_IDS = {
   HAIKU: 'claude-haiku-4-5-20251001',
-  SONNET: 'claude-sonnet-4-5-20250929',
-  OPUS_45: 'claude-opus-4-5-20251101',
-  OPUS_46: 'claude-opus-4-6',
+  SONNET_45: 'claude-sonnet-4-5-20250929',
+  SONNET_46: 'claude-sonnet-4-6',
 } as const;
 
 export type ModelId = (typeof MODEL_IDS)[keyof typeof MODEL_IDS];
@@ -133,13 +132,12 @@ export function isOpenRouterModel(modelId: string): boolean {
 // Model families (for tier access checks)
 // ---------------------------------------------------------------------------
 
-export type ModelFamily = 'haiku' | 'sonnet' | 'opus';
+export type ModelFamily = 'haiku' | 'sonnet';
 
 export const MODEL_FAMILY: Record<ModelId, ModelFamily> = {
   [MODEL_IDS.HAIKU]: 'haiku',
-  [MODEL_IDS.SONNET]: 'sonnet',
-  [MODEL_IDS.OPUS_45]: 'opus',
-  [MODEL_IDS.OPUS_46]: 'opus',
+  [MODEL_IDS.SONNET_45]: 'sonnet',
+  [MODEL_IDS.SONNET_46]: 'sonnet',
 };
 
 // ---------------------------------------------------------------------------
@@ -147,20 +145,19 @@ export const MODEL_FAMILY: Record<ModelId, ModelFamily> = {
 // ---------------------------------------------------------------------------
 
 /** Default free-tier model. */
-export const DEFAULT_FREE_MODEL = MODEL_IDS.SONNET;
+export const DEFAULT_FREE_MODEL = MODEL_IDS.HAIKU;
 
 /** Default premium model options (comma-separated for env var compat). */
 export const DEFAULT_PREMIUM_MODELS = [
-  MODEL_IDS.SONNET,
-  MODEL_IDS.OPUS_45,
-  MODEL_IDS.OPUS_46,
+  MODEL_IDS.SONNET_45,
+  MODEL_IDS.SONNET_46,
 ].join(',');
 
 /** Default premium model (first in the premium list). */
-export const DEFAULT_PREMIUM_MODEL = MODEL_IDS.SONNET;
+export const DEFAULT_PREMIUM_MODEL = MODEL_IDS.SONNET_46;
 
 /** Model used for first-bout promotion (free-tier users get one premium bout). */
-export const FIRST_BOUT_PROMOTION_MODEL = MODEL_IDS.SONNET;
+export const FIRST_BOUT_PROMOTION_MODEL = MODEL_IDS.SONNET_46;
 
 // ---------------------------------------------------------------------------
 // Deprecated model guard

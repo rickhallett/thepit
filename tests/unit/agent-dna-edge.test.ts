@@ -15,7 +15,7 @@ describe('agent-dna edge cases', () => {
       systemPrompt: 'I have all fields.',
       presetId: 'my-preset',
       tier: 'premium',
-      model: MODEL_IDS.SONNET,
+      model: MODEL_IDS.SONNET_45,
       responseLength: 'long',
       responseFormat: 'spaced',
       createdAt: '2026-02-08T12:00:00.000Z',
@@ -24,7 +24,7 @@ describe('agent-dna edge cases', () => {
     });
 
     expect(manifest.presetId).toBe('my-preset');
-    expect(manifest.model).toBe(MODEL_IDS.SONNET);
+    expect(manifest.model).toBe(MODEL_IDS.SONNET_45);
     expect(manifest.parentId).toBe('parent-agent-1');
     expect(manifest.ownerId).toBe('user-owner-1');
     expect(manifest.createdAt).toBe('2026-02-08T12:00:00.000Z');

@@ -140,7 +140,7 @@ const resolveMaxTurns = (preset: RawPreset) => {
     preset.max_turns?.standard ??
     preset.max_turns?.juiced ??
     preset.max_turns?.unleashed ??
-    12
+    6
   );
 };
 

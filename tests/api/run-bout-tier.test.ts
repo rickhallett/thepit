@@ -28,9 +28,8 @@ const {
   // Mirror MODEL_IDS from @/lib/models for use inside mock factories.
   const MODELS = {
     HAIKU: 'claude-haiku-4-5-20251001',
-    SONNET: 'claude-sonnet-4-5-20250929',
-    OPUS_45: 'claude-opus-4-5-20251101',
-    OPUS_46: 'claude-opus-4-6',
+    SONNET_45: 'claude-sonnet-4-5-20250929',
+    SONNET_46: 'claude-sonnet-4-6',
   } as const;
   return {
     mockDb: db,
@@ -92,10 +91,10 @@ vi.mock('@/lib/free-bout-pool', () => ({
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    MODELS.SONNET,
-    MODELS.OPUS_45,
+    MODELS.SONNET_45,
+    MODELS.SONNET_46,
   ],
-  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
+  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));
@@ -303,7 +302,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b2',
         presetId: 'darwin-special',
-        model: MODELS.SONNET,
+        model: MODELS.SONNET_45,
       }),
     );
     expect(res.status).toBe(402);
@@ -364,7 +363,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b6',
         presetId: 'darwin-special',
-        model: MODELS.SONNET,
+        model: MODELS.SONNET_45,
       }),
     );
     expect(res.status).toBe(200);
@@ -384,7 +383,7 @@ describe('run-bout tier-based access control', () => {
       makeRequest({
         boutId: 'b7',
         presetId: 'darwin-special',
-        model: MODELS.SONNET,
+        model: MODELS.SONNET_45,
       }),
     );
     expect(res.status).toBe(402);
@@ -393,9 +392,9 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 8. First-bout Opus promotion: freeBoutsUsed === 0 → upgraded to Opus
+  // 8. First-bout premium promotion: freeBoutsUsed === 0 → upgraded to Opus
   // -------------------------------------------------------------------------
-  it('promotes first-bout free-tier user to Opus', async () => {
+  it('promotes first-bout free-tier user to premium model', async () => {
     getUserTierMock.mockResolvedValue('free');
     getFreeBoutsUsedMock.mockResolvedValue(0);
 
@@ -406,7 +405,7 @@ describe('run-bout tier-based access control', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 9. No Opus promotion when freeBoutsUsed > 0
+  // 9. No premium promotion when freeBoutsUsed > 0
   // -------------------------------------------------------------------------
   it('does not promote when user has already used free bouts', async () => {
     getUserTierMock.mockResolvedValue('free');
@@ -471,10 +470,10 @@ describe('run-bout tier-based access control', () => {
     vi.doMock('@/lib/ai', () => ({
       FREE_MODEL_ID: MODELS.HAIKU,
       PREMIUM_MODEL_OPTIONS: [
-        MODELS.SONNET,
-        MODELS.OPUS_45,
+        MODELS.SONNET_45,
+        MODELS.SONNET_46,
       ],
-      DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
+      DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
       getModel: vi.fn(() => 'mock-model'),
     }));
     vi.doMock('@/lib/presets', () => ({

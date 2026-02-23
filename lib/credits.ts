@@ -56,10 +56,9 @@ export const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
 // Combined with CREDIT_PLATFORM_MARGIN (default 10%), these yield ~10% margin
 // over actual Anthropic API costs.
 const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
-  [MODEL_IDS.HAIKU]: { in: 0.732, out: 3.66 },
-  [MODEL_IDS.SONNET]: { in: 2.196, out: 10.98 },
-  [MODEL_IDS.OPUS_45]: { in: 3.66, out: 18.3 },
-  [MODEL_IDS.OPUS_46]: { in: 3.66, out: 18.3 },
+  [MODEL_IDS.HAIKU]: { in: 1, out: 5 },
+  [MODEL_IDS.SONNET_45]: { in: 3, out: 15 },
+  [MODEL_IDS.SONNET_46]: { in: 3, out: 15 },
 };
 
 const ENV_MODEL_PRICES = (() => {

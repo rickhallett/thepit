@@ -168,15 +168,15 @@ describe('credits helpers', () => {
   it('handles missing pricing env gracefully', async () => {
     delete process.env.MODEL_PRICES_GBP_JSON;
     const { getModelPricing } = await loadCredits();
-    expect(getModelPricing(MODEL_IDS.HAIKU)).toEqual({ in: 0.732, out: 3.66 });
+    expect(getModelPricing(MODEL_IDS.HAIKU)).toEqual({ in: 1, out: 5 });
   });
 
   it('falls back to defaults when pricing env is invalid', async () => {
     process.env.MODEL_PRICES_GBP_JSON = '{bad-json';
     const { getModelPricing } = await loadCredits();
     expect(getModelPricing(MODEL_IDS.HAIKU)).toEqual({
-      in: 0.732,
-      out: 3.66,
+      in: 1,
+      out: 5,
     });
   });
 

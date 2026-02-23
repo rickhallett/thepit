@@ -22,9 +22,8 @@ const {
   };
   const MODELS = {
     HAIKU: 'claude-haiku-4-5-20251001',
-    SONNET: 'claude-sonnet-4-5-20250929',
-    OPUS_45: 'claude-opus-4-5-20251101',
-    OPUS_46: 'claude-opus-4-6',
+    SONNET_45: 'claude-sonnet-4-5-20250929',
+    SONNET_46: 'claude-sonnet-4-6',
   } as const;
   return {
     mockDb: db,
@@ -80,10 +79,10 @@ vi.mock('@/lib/free-bout-pool', () => ({
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
-    MODELS.SONNET,
-    MODELS.OPUS_45,
+    MODELS.SONNET_45,
+    MODELS.SONNET_46,
   ],
-  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET,
+  DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));

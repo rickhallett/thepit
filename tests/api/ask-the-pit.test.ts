@@ -15,9 +15,8 @@ const {
 } = vi.hoisted(() => {
   const MODELS = {
     HAIKU: 'claude-haiku-4-5-20251001',
-    SONNET: 'claude-sonnet-4-5-20250929',
-    OPUS_45: 'claude-opus-4-5-20251101',
-    OPUS_46: 'claude-opus-4-6',
+    SONNET_45: 'claude-sonnet-4-5-20250929',
+    SONNET_46: 'claude-sonnet-4-6',
   } as const;
   return {
     checkRateLimitMock: vi.fn(),
