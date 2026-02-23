@@ -155,9 +155,9 @@ vi.mock('@/lib/response-lengths', () => ({
   resolveResponseLength: vi.fn().mockReturnValue({
     id: 'short',
     label: 'Short',
-    hint: '1-2 sentences',
-    maxOutputTokens: 120,
-    outputTokensPerTurn: 80,
+    hint: '2-4 sentences',
+    maxOutputTokens: 200,
+    outputTokensPerTurn: 120,
   }),
 }));
 
