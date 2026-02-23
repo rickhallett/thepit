@@ -164,6 +164,7 @@ export default async function ArenaPage() {
               <span>
                 <IntroPoolCounter
                   initialCredits={poolStatus.initialCredits}
+                  remainingCredits={poolStatus.remainingCredits}
                   halfLifeDays={poolStatus.halfLifeDays}
                   startedAt={poolStatus.startedAt}
                 />{' '}
