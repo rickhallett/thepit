@@ -12,6 +12,10 @@ import {
   applyCreditDelta,
   ensureCreditAccount,
   MICRO_PER_CREDIT,
+  SUBSCRIPTION_GRANT_PASS,
+  SUBSCRIPTION_GRANT_LAB,
+  MONTHLY_CREDITS_PASS,
+  MONTHLY_CREDITS_LAB,
 } from '@/lib/credits';
 import { stripe } from '@/lib/stripe';
 import { resolveTierFromPriceId, type UserTier } from '@/lib/tier';
@@ -147,10 +151,28 @@ export const POST = withLogging(async function POST(req: Request) {
             : null,
           stripeCustomerId: subscription.customer,
         });
+        // One-time credit grant on new subscription
+        const grantCredits = tier === 'lab'
+          ? SUBSCRIPTION_GRANT_LAB
+          : tier === 'pass'
+            ? SUBSCRIPTION_GRANT_PASS
+            : 0;
+        if (grantCredits > 0) {
+          await ensureCreditAccount(userId);
+          await applyCreditDelta(
+            userId,
+            grantCredits * MICRO_PER_CREDIT,
+            'subscription_grant',
+            { referenceId: subscription.id, tier, credits: grantCredits },
+          );
+          log.info('Subscription grant applied', { userId, tier, credits: grantCredits });
+        }
+
         await serverTrack(userId, 'subscription_started', {
           tier,
           subscription_id: subscription.id,
           status: subscription.status,
+          grant_credits: grantCredits,
         });
         await serverIdentify(userId, { current_tier: tier });
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
@@ -203,10 +225,34 @@ export const POST = withLogging(async function POST(req: Request) {
         });
 
         if (newTierRank > oldTierRank) {
+          // Incremental credit grant on upgrade (difference between tiers)
+          const grantMap: Record<UserTier, number> = {
+            free: 0,
+            pass: SUBSCRIPTION_GRANT_PASS,
+            lab: SUBSCRIPTION_GRANT_LAB,
+          };
+          const incrementalGrant = grantMap[tier] - grantMap[oldTier];
+          if (incrementalGrant > 0) {
+            await ensureCreditAccount(userId);
+            await applyCreditDelta(
+              userId,
+              incrementalGrant * MICRO_PER_CREDIT,
+              'subscription_upgrade_grant',
+              {
+                referenceId: subscription.id,
+                from_tier: oldTier,
+                to_tier: tier,
+                credits: incrementalGrant,
+              },
+            );
+            log.info('Upgrade grant applied', { userId, from: oldTier, to: tier, credits: incrementalGrant });
+          }
+
           await serverTrack(userId, 'subscription_upgraded', {
             from_tier: oldTier,
             to_tier: tier,
             subscription_id: subscription.id,
+            grant_credits: incrementalGrant,
           });
         } else if (newTierRank < oldTierRank) {
           await serverTrack(userId, 'subscription_downgraded', {
@@ -345,6 +391,28 @@ export const POST = withLogging(async function POST(req: Request) {
           currentPeriodEnd: null, // Will be updated by subscription.updated event
           stripeCustomerId: invoice.customer,
         });
+
+        // Monthly recurring credit grant
+        const monthlyCredits = tier === 'lab'
+          ? MONTHLY_CREDITS_LAB
+          : tier === 'pass'
+            ? MONTHLY_CREDITS_PASS
+            : 0;
+        if (monthlyCredits > 0) {
+          await ensureCreditAccount(userId);
+          await applyCreditDelta(
+            userId,
+            monthlyCredits * MICRO_PER_CREDIT,
+            'monthly_grant',
+            {
+              referenceId: invoice.id,
+              tier,
+              credits: monthlyCredits,
+            },
+          );
+          log.info('Monthly credit grant applied', { userId, tier, credits: monthlyCredits });
+        }
+
         log.info('Payment succeeded, tier restored', { userId, tier });
       }
     }

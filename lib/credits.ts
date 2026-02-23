@@ -33,6 +33,22 @@ export const CREDITS_ADMIN_GRANT = Number(
 export const CREDIT_PLATFORM_MARGIN = Number(
   process.env.CREDIT_PLATFORM_MARGIN ?? '0.10',
 );
+
+// --- Tier credit grants (one-time on subscription creation / upgrade) ---
+export const SUBSCRIPTION_GRANT_PASS = Number(
+  process.env.SUBSCRIPTION_GRANT_PASS ?? '300',
+);
+export const SUBSCRIPTION_GRANT_LAB = Number(
+  process.env.SUBSCRIPTION_GRANT_LAB ?? '600',
+);
+
+// --- Monthly recurring credit grants (on invoice.payment_succeeded) ---
+export const MONTHLY_CREDITS_PASS = Number(
+  process.env.MONTHLY_CREDITS_PASS ?? '300',
+);
+export const MONTHLY_CREDITS_LAB = Number(
+  process.env.MONTHLY_CREDITS_LAB ?? '600',
+);
 export const TOKEN_CHARS_PER = Number(
   process.env.CREDIT_TOKEN_CHARS_PER ?? '4',
 );
@@ -183,7 +199,7 @@ export async function ensureCreditAccount(userId: string) {
 
   if (existing) return existing;
 
-  const startingCredits = Number(process.env.CREDITS_STARTING_CREDITS ?? '500');
+  const startingCredits = Number(process.env.CREDITS_STARTING_CREDITS ?? '100');
   const balanceMicro = Math.max(
     0,
     Math.round(startingCredits * MICRO_PER_CREDIT),
