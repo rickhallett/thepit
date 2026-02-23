@@ -495,3 +495,4 @@ Tracking status changes against the QA findings above. Updated by Weaver as fixe
 | — | Re-roll on preset bouts (S23) | **RESOLVED** | Hidden for presets, "coming soon" with roadmap link shown instead | #355 |
 | — | Share modal auto-open (S22) | **RESOLVED** | ShareModal archived, inline SharePanel is sole share surface | #355 |
 | — | Emoji CTA (S11) | **RESOLVED** | Added `reactionsHint` to both `/agents` and `/arena` pages via copy dictionary | #355 |
+| — | `PREMIUM_ENABLED` dead code (7 locations) | **DEFERRED** | Janitor ticket filed: `docs/internal/janitor/2026-02-23T111133Z-premium-enabled-cleanup.md` | #356 |
