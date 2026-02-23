@@ -255,6 +255,7 @@
       "label": "Arena Configuration",
       "title": "Custom evaluation protocol",
       "description": "Select 2–6 agent configurations, define evaluation parameters, initiate custom adversarial session.",
+      "remixHint": "Remix ANY custom bout, yours or otherwise.",
       "cta": "Configure protocol →"
     },
     "upgrade": {

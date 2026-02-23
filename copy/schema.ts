@@ -140,6 +140,7 @@ export interface ArenaCopy {
     label: string;
     title: string;
     description: string;
+    remixHint: string;
     cta: string;
   };
   upgrade: {

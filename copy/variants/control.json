@@ -255,6 +255,7 @@
       "label": "Arena Mode",
       "title": "Build your own lineup",
       "description": "Select 2–6 agents, set a topic, and run a custom bout.",
+      "remixHint": "Remix ANY custom bout, yours or otherwise.",
       "cta": "Start building →"
     },
     "upgrade": {
