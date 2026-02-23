@@ -1,4 +1,5 @@
 import { getCopy } from '@/lib/copy';
+import { PRIVACY_EMAIL } from '@/lib/brand';
 
 export default async function PrivacyPage() {
   const c = await getCopy();
@@ -46,10 +47,10 @@ export default async function PrivacyPage() {
             For any questions about this Privacy Policy or your data rights,
             contact us at:{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href={`mailto:${PRIVACY_EMAIL}`}
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              {PRIVACY_EMAIL}
             </a>
           </p>
         </section>
@@ -656,10 +657,10 @@ export default async function PrivacyPage() {
           <p className="text-sm text-muted">
             To exercise any of these rights, contact us at{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href={`mailto:${PRIVACY_EMAIL}`}
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              {PRIVACY_EMAIL}
             </a>
             . We will respond to your request within one month. In complex cases
             or where we receive a high volume of requests, we may extend this
@@ -705,10 +706,10 @@ export default async function PrivacyPage() {
             We would appreciate the opportunity to address your concerns before
             you approach the ICO, so please contact us first at{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href={`mailto:${PRIVACY_EMAIL}`}
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              {PRIVACY_EMAIL}
             </a>
             .
           </p>
@@ -756,10 +757,10 @@ export default async function PrivacyPage() {
             practicable. If you believe we may have collected data from a child
             under 13, please contact us at{' '}
             <a
-              href="mailto:privacy@thepit.cloud"
+              href={`mailto:${PRIVACY_EMAIL}`}
               className="text-accent underline"
             >
-              privacy@thepit.cloud
+              {PRIVACY_EMAIL}
             </a>
             .
           </p>
@@ -811,10 +812,10 @@ export default async function PrivacyPage() {
             <li>
               Email:{' '}
               <a
-                href="mailto:privacy@thepit.cloud"
+                href={`mailto:${PRIVACY_EMAIL}`}
                 className="text-accent underline"
               >
-                privacy@thepit.cloud
+                {PRIVACY_EMAIL}
               </a>
             </li>
             <li>

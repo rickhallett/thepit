@@ -25,6 +25,12 @@ export const BRAND = {
   github: 'https://github.com/rickhallett/thepit',
 } as const;
 
+/**
+ * Privacy / data-controller contact email — single constant so future
+ * changes (e.g. switching to privacy@thepit.cloud) are a one-line edit.
+ */
+export const PRIVACY_EMAIL = 'rickhallett@icloud.com' as const;
+
 // ---------------------------------------------------------------------------
 // Social channels — each gated by an env var
 // ---------------------------------------------------------------------------
@@ -75,7 +81,7 @@ export const SOCIAL_CHANNELS: SocialChannel[] = [
   {
     key: 'linkedin',
     label: 'LinkedIn',
-    url: 'https://www.linkedin.com/in/rickhallett',
+    url: 'https://www.linkedin.com/in/richardhallett86/',
     enabled: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN_ENABLED === 'true',
   },
 ];

@@ -6,6 +6,7 @@ import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import type { Preset } from '@/lib/presets';
+import { ARENA_PRESET_ID } from '@/lib/presets';
 import { useBout } from '@/lib/use-bout';
 import {
   initScrollDepthTracking,
@@ -17,7 +18,6 @@ import { useBoutVoting } from '@/lib/use-bout-voting';
 import { useBoutSharing } from '@/lib/use-bout-sharing';
 import { useCopy } from '@/lib/copy-client';
 import { SharePanel } from '@/components/share-panel';
-import { ShareModal } from '@/components/share-modal';
 import type { TranscriptEntry } from '@/db/schema';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
@@ -437,26 +437,8 @@ export function Arena({
     userId,
   });
 
-  // --- Share modal (live bouts only, not replays) ---
+  // --- Replay detection ---
   const isReplay = initialTranscript.length > 0;
-  const [shareModalOpen, setShareModalOpen] = useState(false);
-  // Track whether we actually witnessed streaming in this component lifecycle.
-  // The old `useRef(status)` "previous value" pattern is fragile: React may
-  // batch rapid idle→streaming→done transitions (or skip intermediate renders
-  // during hydration/concurrent mode), leaving prevStatusRef stale.  A
-  // dedicated flag that is only set when we *render* in the 'streaming' state
-  // avoids false positives from skipped renders or re-used component instances.
-  const hasStreamedRef = useRef(false);
-  useEffect(() => {
-    if (status === 'streaming') {
-      hasStreamedRef.current = true;
-    }
-    if (hasStreamedRef.current && status === 'done' && !isReplay) {
-      setShareModalOpen(true);
-      // Reset so the modal doesn't re-fire on subsequent renders.
-      hasStreamedRef.current = false;
-    }
-  }, [status, isReplay]);
 
   // --- Scroll management ---
   // Disable auto-scroll on replay so the user reads from the top.
@@ -612,7 +594,25 @@ export function Arena({
           )}
 
           {status === 'done' && messages.length > 0 && (
-            <RerollPanel preset={preset} topic={topic} boutId={boutId} />
+            preset.id === ARENA_PRESET_ID ? (
+              <RerollPanel preset={preset} topic={topic} boutId={boutId} />
+            ) : (
+              <section className="mt-4 w-full border-2 border-foreground/40 bg-black/40 p-6">
+                <p className="text-xs uppercase tracking-[0.35em] text-muted">
+                  {c.arenaComponent.reroll.comingSoonTitle}
+                </p>
+                <p className="mt-2 text-xs text-muted">
+                  {c.arenaComponent.reroll.comingSoonBody}{' '}
+                  <Link
+                    href="/roadmap"
+                    className="text-accent underline transition hover:text-accent/80"
+                  >
+                    {c.arenaComponent.reroll.roadmapLinkText}
+                  </Link>{' '}
+                  for preset remix support.
+                </p>
+              </section>
+            )
           )}
 
           <div ref={endRef} />
@@ -634,19 +634,7 @@ export function Arena({
         )}
       </div>
 
-      <ShareModal
-        shareData={
-          shareModalOpen
-            ? {
-                boutId,
-                presetName: preset.name,
-                sharePayload,
-                replayUrl,
-              }
-            : null
-        }
-        onClose={() => setShareModalOpen(false)}
-      />
+      {/* ShareModal archived — inline SharePanel is the primary share surface (Captain's QA decision) */}
     </main>
   );
 }

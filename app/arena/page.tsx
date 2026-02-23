@@ -85,6 +85,9 @@ export default async function ArenaPage() {
           <p className="max-w-2xl text-sm text-muted">
             {c.arena.description}
           </p>
+          <p className="text-xs text-muted/70">
+            {c.arena.reactionsHint}
+          </p>
           {demoMode && !userId && (
             <span className="inline-block rounded-full border-2 border-yellow-400/70 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-yellow-400">
               Demo Mode — No sign-up required
@@ -204,6 +207,9 @@ export default async function ArenaPage() {
             </h3>
             <p className="text-xs text-muted">
               {c.arena.customBout.description}
+            </p>
+            <p className="text-xs text-accent/80">
+              {c.arena.customBout.remixHint}
             </p>
             <span className="mt-auto text-xs uppercase tracking-[0.3em] text-accent">
               {c.arena.customBout.cta}

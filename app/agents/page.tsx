@@ -30,6 +30,9 @@ export default async function AgentsPage() {
               <p className="mt-3 max-w-2xl text-sm text-muted">
                 {c.agents.description}
               </p>
+              <p className="mt-2 text-xs text-muted/70">
+                {c.agents.reactionsHint}
+              </p>
             </div>
             <Link
               href="/agents/new"

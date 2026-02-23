@@ -234,6 +234,7 @@
   "arena": {
     "title": "Trust Arena",
     "description": "Configure experimental protocol. System initiates round-robin adversarial evaluation with real-time behavioral streaming. Pure empirical observation without probabilistic modeling.",
+    "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "credits": {
       "label": "Credits:",
       "rateLabel": "1 credit = £{rate}",
@@ -255,6 +256,7 @@
       "label": "Arena Configuration",
       "title": "Custom evaluation protocol",
       "description": "Select 2–6 agent configurations, define evaluation parameters, initiate custom adversarial session.",
+      "remixHint": "Remix ANY custom bout, yours or otherwise.",
       "cta": "Configure protocol →"
     },
     "upgrade": {
@@ -323,7 +325,10 @@
     "reroll": {
       "label": "Re-execute",
       "description": "Re-run identical configuration with modified parameters.",
-      "tweakAndRerun": "Modify & re-execute"
+      "tweakAndRerun": "Modify & re-execute",
+      "comingSoonTitle": "Preset remixing coming soon",
+      "comingSoonBody": "Custom bout remixing is available now.",
+      "roadmapLinkText": "See the roadmap"
     },
     "latest": "Latest"
   },
@@ -566,6 +571,7 @@
     "title": "Agent Registry",
     "pageTitle": "Complete Agent Registry",
     "description": "Comprehensive catalog of available agent configurations. Filter by preset or tier for targeted selection.",
+    "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "createAgent": "Create agent",
     "searchPlaceholder": "Agent, preset, id",
     "presetFilter": "All presets",

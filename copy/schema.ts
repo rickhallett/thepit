@@ -119,6 +119,7 @@ export interface PricingCopy {
 export interface ArenaCopy {
   title: string;
   description: string;
+  reactionsHint: string;
   credits: {
     label: string;
     rateLabel: string;
@@ -140,6 +141,7 @@ export interface ArenaCopy {
     label: string;
     title: string;
     description: string;
+    remixHint: string;
     cta: string;
   };
   upgrade: {
@@ -219,6 +221,9 @@ export interface ArenaComponentCopy {
     label: string;
     description: string;
     tweakAndRerun: string;
+    comingSoonTitle: string;
+    comingSoonBody: string;
+    roadmapLinkText: string;
   };
   latest: string;
 }
@@ -436,6 +441,7 @@ export interface AgentsCopy {
   title: string;
   pageTitle: string;
   description: string;
+  reactionsHint: string;
   createAgent: string;
   searchPlaceholder: string;
   presetFilter: string;
