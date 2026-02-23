@@ -554,7 +554,9 @@
     "addButton": "Add",
     "validation": {
       "nameRequired": "Add a name for your agent.",
-      "personalityRequired": "Add at least one personality or tactical detail."
+      "nameTooLong": "Agent name must be 100 characters or fewer.",
+      "personalityRequired": "Add at least one personality or tactical detail.",
+      "invalidInput": "Some fields are missing or invalid. Check name, archetype, and at least one personality trait."
     },
     "submit": {
       "creating": "Creating...",

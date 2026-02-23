@@ -115,6 +115,11 @@ export function AgentBuilder({
       return;
     }
 
+    if (trimmedName.length > 100) {
+      setError(c.agentBuilder.validation.nameTooLong);
+      return;
+    }
+
     const hasContent =
       archetype.trim() ||
       tone.trim() ||
@@ -157,8 +162,19 @@ export function AgentBuilder({
       });
 
       if (!response.ok) {
-        const message = await response.text();
-        throw new Error(message || 'Failed to create agent.');
+        let message = 'Failed to create agent.';
+        try {
+          const body = await response.json();
+          message = body.error || body.message || message;
+        } catch {
+          const text = await response.text();
+          if (text) message = text;
+        }
+        /* Strip raw JSON schema noise from API validation errors */
+        if (message.startsWith('{') || message.includes('Invalid input')) {
+          message = c.agentBuilder.validation.invalidInput;
+        }
+        throw new Error(message);
       }
 
       const payload = (await response.json()) as { agentId?: string };

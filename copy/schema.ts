@@ -415,7 +415,9 @@ export interface AgentBuilderCopy {
   addButton: string;
   validation: {
     nameRequired: string;
+    nameTooLong: string;
     personalityRequired: string;
+    invalidInput: string;
   };
   submit: {
     creating: string;
