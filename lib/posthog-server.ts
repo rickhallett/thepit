@@ -169,7 +169,7 @@ export function serverCaptureAIGeneration(
       $ai_total_cost_usd: params.totalCostUsd,
       $ai_latency: params.durationMs / 1000, // PostHog expects seconds
       $ai_is_error: false,
-      // Custom properties for THE PIT context
+      // Custom properties for The Pit context
       bout_id: params.boutId,
       preset_id: params.presetId,
       turn: params.turn,

@@ -1,4 +1,4 @@
-// Package dataset provides typed access to THE PIT research export data.
+// Package dataset provides typed access to The Pit research export data.
 // It parses the JSON export format and builds in-memory indexes for
 // efficient analysis queries.
 package dataset

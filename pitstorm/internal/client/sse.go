@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// SSE event types emitted by THE PIT's /api/run-bout endpoint.
+// SSE event types emitted by The Pit's /api/run-bout endpoint.
 // The stream uses Vercel AI SDK UIMessageStream v1 format:
 // each line is "data: <JSON>\n\n" with no "event:" field lines.
 const (

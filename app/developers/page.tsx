@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
-  title: 'Developers — THE PIT',
+  title: 'Developers — The Pit',
   description:
     'Headless API, internal Go CLI toolchain, and agent provenance. Public codebase, rough edges.',
 };

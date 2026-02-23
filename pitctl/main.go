@@ -295,7 +295,7 @@ func runLicense(cfg *config.Config, args []string, confirmed bool) {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "\n%s\n\n",
-		theme.Title.Render("pitctl — site administration for THE PIT"))
+		theme.Title.Render("pitctl — site administration for The Pit"))
 	fmt.Fprintf(os.Stderr, "Usage:\n")
 	fmt.Fprintf(os.Stderr, "  pitctl [flags] <command> [subcommand] [args...]\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")

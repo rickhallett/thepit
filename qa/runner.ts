@@ -78,7 +78,7 @@ async function checkConnectivity(baseUrl: string): Promise<{ ok: boolean; error?
  * Run QA tests based on options
  */
 async function runQA(options: RunOptions): Promise<void> {
-  console.log('🧪 THE PIT QA Runner\n')
+  console.log('🧪 The Pit QA Runner\n')
 
   // Load and validate config
   const config = loadConfig()
@@ -329,7 +329,7 @@ async function main(): Promise<void> {
 
   if (values.help) {
     console.log(`
-QA Test Runner for THE PIT
+QA Test Runner for The Pit
 
 Usage:
   tsx qa/runner.ts [options]

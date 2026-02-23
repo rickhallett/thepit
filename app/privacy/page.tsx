@@ -22,7 +22,7 @@ export default async function PrivacyPage() {
             1. Introduction
           </h2>
           <p className="text-sm text-muted">
-            This Privacy Policy explains how THE PIT (&quot;we&quot;,
+            This Privacy Policy explains how The Pit (&quot;we&quot;,
             &quot;us&quot;, &quot;our&quot;), operated at thepit.cloud,
             collects, uses, stores, and shares your personal data when you use
             our AI debate arena platform (&quot;the Platform&quot;). We are
@@ -43,7 +43,7 @@ export default async function PrivacyPage() {
             2. Data Controller
           </h2>
           <p className="text-sm text-muted">
-            THE PIT is the data controller responsible for your personal data.
+            The Pit is the data controller responsible for your personal data.
             For any questions about this Privacy Policy or your data rights,
             contact us at:{' '}
             <a
@@ -497,7 +497,7 @@ export default async function PrivacyPage() {
             7. International Data Transfers
           </h2>
           <p className="text-sm text-muted">
-            THE PIT is governed by the laws of England and Wales. However,
+            The Pit is governed by the laws of England and Wales. However,
             several of our third-party processors are based in the United States,
             including Clerk, Vercel, Anthropic, PostHog, Sentry, Stripe, Resend,
             and Helicone. Neon provides serverless PostgreSQL which may involve

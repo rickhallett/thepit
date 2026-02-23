@@ -1,4 +1,4 @@
-// Dynamic sitemap generation for THE PIT.
+// Dynamic sitemap generation for The Pit.
 //
 // Includes static marketing routes plus dynamic bout replay pages.
 // Uses the Next.js App Router sitemap convention.

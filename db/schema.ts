@@ -1,4 +1,4 @@
-// Drizzle ORM schema for THE PIT's PostgreSQL database (Neon serverless).
+// Drizzle ORM schema for The Pit's PostgreSQL database (Neon serverless).
 //
 // Key design decisions:
 //   - bouts.id uses varchar(21) because nanoid() produces 21-char IDs by default.

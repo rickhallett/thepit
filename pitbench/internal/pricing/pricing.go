@@ -1,5 +1,5 @@
 // Package pricing is a faithful Go port of lib/credits.ts.
-// It implements the full credit/cost model for THE PIT including
+// It implements the full credit/cost model for The Pit including
 // per-model token rates, margin calculation, and micro-credit conversion.
 package pricing
 

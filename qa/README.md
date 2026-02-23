@@ -1,6 +1,6 @@
 # QA Automation Framework
 
-Automated QA testing for THE PIT, enabling LLM-driven test execution.
+Automated QA testing for The Pit, enabling LLM-driven test execution.
 
 ## Overview
 

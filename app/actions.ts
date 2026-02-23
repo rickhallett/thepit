@@ -208,7 +208,7 @@ export async function createCreditCheckout(formData: FormData) {
           currency: 'gbp',
           unit_amount: Math.round(pack.priceGbp * 100),
           product_data: {
-            name: `THE PIT — ${pack.name} Credits`,
+            name: `The Pit — ${pack.name} Credits`,
           },
         },
         quantity: 1,

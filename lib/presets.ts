@@ -1,4 +1,4 @@
-// Preset definitions and normalization for THE PIT's debate scenarios.
+// Preset definitions and normalization for The Pit's debate scenarios.
 //
 // Presets come from two sources:
 //   - Free presets:    Hand-authored JSON files in /presets/ (11 scenarios)

@@ -85,7 +85,7 @@ describe('langsmith-push-prompts contract', () => {
       const result = buildAskThePitSystem({
         roleDescription: 'You are the pit master.',
         rules: ['Answer questions.', 'Stay in character.'],
-        documentation: 'THE PIT is an AI debate arena.',
+        documentation: 'The Pit is an AI debate arena.',
       });
 
       expect(result).toContain('<role>');

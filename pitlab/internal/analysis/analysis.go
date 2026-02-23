@@ -1,4 +1,4 @@
-// Package analysis provides research analytics functions for THE PIT
+// Package analysis provides research analytics functions for The Pit
 // debate data. All computations are in-memory against the parsed dataset.
 package analysis
 

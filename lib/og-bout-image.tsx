@@ -171,7 +171,7 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
               display: 'flex',
             }}
           >
-            THE PIT
+            The Pit
           </div>
           <div
             style={{

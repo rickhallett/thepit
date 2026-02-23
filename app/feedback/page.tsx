@@ -5,7 +5,7 @@ import { FeatureRequestList } from '@/components/feature-request-list';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
-  title: 'Feedback — THE PIT',
+  title: 'Feedback — The Pit',
   description:
     'Submit feature requests and vote on ideas to shape the future of The Pit.',
 };

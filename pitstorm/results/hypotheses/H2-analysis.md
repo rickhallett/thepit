@@ -19,7 +19,7 @@
 
 Before interpreting any metric, the critical structural fact: **turn order is fixed within each preset.** Socrates always speaks 1st in Last Supper. The Journalist always speaks 6th in Summit. This means every "position effect" is inseparable from "agent identity effect."
 
-This is not a bug in the experiment — it mirrors the actual product. THE PIT assigns fixed turn order per preset. But it means I cannot claim "position 1 causes X" when the data equally supports "Socrates causes X." The correct framing is: **the combination of agent identity and position produces these patterns**, and disentangling the two would require a follow-up experiment with randomised turn order (which would require product changes).
+This is not a bug in the experiment — it mirrors the actual product. The Pit assigns fixed turn order per preset. But it means I cannot claim "position 1 causes X" when the data equally supports "Socrates causes X." The correct framing is: **the combination of agent identity and position produces these patterns**, and disentangling the two would require a follow-up experiment with randomised turn order (which would require product changes).
 
 With that caveat stated, here are the pre-registered metrics.
 

@@ -2,7 +2,7 @@
 
 # pitforge
 
-Agent development toolkit for [THE PIT](https://thepit.cloud). Scaffold, validate, lint, hash, diff, and evolve AI debate agent definitions. Run local sparring bouts via the Anthropic streaming API.
+Agent development toolkit for [The Pit](https://thepit.cloud). Scaffold, validate, lint, hash, diff, and evolve AI debate agent definitions. Run local sparring bouts via the Anthropic streaming API.
 
 ## Install
 

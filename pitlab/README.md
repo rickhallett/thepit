@@ -2,7 +2,7 @@
 
 # pitlab
 
-Research analysis toolkit for [THE PIT](https://thepit.cloud). Operates on exported research JSON data and provides dataset statistics, persona survival analysis, position bias detection, engagement curves, and a research codebook generator.
+Research analysis toolkit for [The Pit](https://thepit.cloud). Operates on exported research JSON data and provides dataset statistics, persona survival analysis, position bias detection, engagement curves, and a research codebook generator.
 
 ## Install
 

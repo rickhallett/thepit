@@ -13,7 +13,7 @@ import { uiMessageChunkSchema } from 'ai';
 // - The SDK schema is the gatekeeper. If an event shape doesn't pass the
 //   schema, handleEvent never sees it. If the SDK changes field names or adds
 //   required fields, these tests catch it before production.
-// - THE PIT uses custom `data-*` events (data-turn, data-share-line) which
+// - The Pit uses custom `data-*` events (data-turn, data-share-line) which
 //   the SDK routes through a generic "data-" prefix discriminator. These tests
 //   verify those custom events validate correctly.
 // ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'THE PIT — I built this with agents. Alone.';
+export const alt = 'The Pit — I built this with agents. Alone.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -102,7 +102,7 @@ export default async function OGImage() {
               display: 'flex',
             }}
           >
-            THE PIT
+            The Pit
           </div>
 
           {/* Accent line */}

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { PaperSubmissionForm } from '@/components/paper-submission-form';
 
 export const metadata = {
-  title: 'Research Foundations — THE PIT',
+  title: 'Research Foundations — The Pit',
   description:
     'A literature review of multi-agent debate, prompt engineering, and behavioural dynamics as applied to The Pit.',
 };

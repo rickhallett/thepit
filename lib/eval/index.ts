@@ -1,4 +1,4 @@
-// LangSmith-compatible evaluation functions for THE PIT.
+// LangSmith-compatible evaluation functions for The Pit.
 //
 // All evaluators are pure functions that return EvalScore objects.
 // They can be used standalone or plugged into LangSmith's evaluate() SDK.

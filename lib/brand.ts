@@ -1,4 +1,4 @@
-// Brand constants and social link configuration for THE PIT.
+// Brand constants and social link configuration for The Pit.
 //
 // All social channels are feature-flagged: set the corresponding env var
 // to "true" to enable each link in the UI (footer, share buttons, etc.).
@@ -16,7 +16,7 @@ export const SITE_DESCRIPTION =
   'I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2.' as const;
 
 export const BRAND = {
-  name: 'THE PIT',
+  name: 'The Pit',
   handle: '@ThePitArena',
   hashtag: '#ThePitArena',
   tagline: 'I built this with agents. Alone.',
@@ -130,7 +130,7 @@ export function buildShareLinks(text: string, replayUrl: string, xText?: string,
 
   const encoded = encodeURIComponent(attributedText);
   const encodedUrl = encodeURIComponent(attributedUrl);
-  const title = encodeURIComponent(`THE PIT — I built this with agents. Alone.`);
+  const title = encodeURIComponent(`The Pit — I built this with agents. Alone.`);
   const xEncoded = encodeURIComponent(attributedXText);
 
   return {

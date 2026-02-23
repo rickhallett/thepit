@@ -2,7 +2,7 @@
 
 # pitnet
 
-On-chain provenance CLI for [THE PIT](https://thepit.cloud). Verifies and audits agent identity attestations on the Ethereum Attestation Service (EAS) deployed on Base L2. Uses raw JSON-RPC over HTTP — no heavy Ethereum SDK dependency.
+On-chain provenance CLI for [The Pit](https://thepit.cloud). Verifies and audits agent identity attestations on the Ethereum Attestation Service (EAS) deployed on Base L2. Uses raw JSON-RPC over HTTP — no heavy Ethereum SDK dependency.
 
 ## Install
 

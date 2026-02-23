@@ -93,14 +93,14 @@ export function useBoutSharing({
     if (messages.length === 0 && !shareLine) return '';
     const line = (shareLine ?? '').trim();
     const headline =
-      line.length > 0 ? line : `THE PIT — ${preset.name} went off.`;
+      line.length > 0 ? line : `The Pit — ${preset.name} went off.`;
     return [headline, '', replayUrl, '', `🔴 ${BRAND.hashtag}`].join('\n');
   }, [shareLine, preset.name, replayUrl, messages.length]);
 
   const messageSharePayloads: MessageSharePayload[] = useMemo(() => {
     if (messages.length === 0) return [];
     const headline =
-      (shareLine ?? '').trim() || `THE PIT — ${preset.name}`;
+      (shareLine ?? '').trim() || `The Pit — ${preset.name}`;
 
     // Build formatted header
     const headerLines = [`🏟️ ${headline}`];

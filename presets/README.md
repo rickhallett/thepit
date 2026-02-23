@@ -2,7 +2,7 @@
 
 # presets/
 
-JSON preset definitions for THE PIT's debate scenarios. Each preset defines a cast of AI agents with personas, a turn structure, and optional user input requirements.
+JSON preset definitions for The Pit's debate scenarios. Each preset defines a cast of AI agents with personas, a turn structure, and optional user input requirements.
 
 ## Contents
 

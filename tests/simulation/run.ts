@@ -1195,7 +1195,7 @@ async function main(): Promise<void> {
 
   if (values.help) {
     console.log(`
-THE PIT — Live API Simulation Runner
+The Pit — Live API Simulation Runner
 
 Exercises preset bouts, agent creation, cloning, and arena bouts
 against production across a spectrum from serious to ludicrous.
@@ -1230,7 +1230,7 @@ Environment:
 
   console.log('');
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log('  THE PIT — Live API Simulation Runner');
+  console.log('  The Pit — Live API Simulation Runner');
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`  Target:  ${BASE_URL}`);
   console.log(`  Auth:    ${hasAuth() ? 'Available' : 'Not configured (auth tests will skip)'}`);

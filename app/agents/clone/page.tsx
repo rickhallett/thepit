@@ -9,7 +9,7 @@ import type { ResponseLength } from '@/lib/response-lengths';
 import type { ResponseFormatId } from '@/lib/response-formats';
 
 export const metadata = {
-  title: 'Clone Agent — THE PIT',
+  title: 'Clone Agent — The Pit',
   description: 'Clone an existing agent and tweak it to your liking.',
 };
 

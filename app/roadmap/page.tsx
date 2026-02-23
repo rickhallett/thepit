@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
-  title: 'Roadmap — THE PIT',
+  title: 'Roadmap — The Pit',
   description: 'Three tracks of development for The Pit: Platform, Community, and Research.',
 };
 

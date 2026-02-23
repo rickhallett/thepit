@@ -8,7 +8,7 @@
 //	go test -tags chain -v -count=1 ./internal/chain/
 //
 // They verify the chain client against live on-chain attestations
-// created by THE PIT's EAS pipeline.
+// created by The Pit's EAS pipeline.
 package chain
 
 import (
@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	// Known attestation on Base mainnet created by THE PIT.
+	// Known attestation on Base mainnet created by The Pit.
 	knownUID      = "0x13da22148f63504eac18935143f20349a619b7ebeaf416f0fa5362db923f0724"
 	knownSchema   = "0x026a50b7a0728afcedaa43113558312d894333f705028153eceafd8084e544d2"
 	knownAttester = "0xf951daD46F0A7d7402556DCaa70Ee4F8bC979824"

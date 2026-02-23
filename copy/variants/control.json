@@ -1,89 +1,89 @@
 {
   "meta": {
     "landing": {
-      "title": "THE PIT — I built this with agents. Alone.",
+      "title": "The Pit — I built this with agents. Alone.",
       "description": "I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2."
     },
     "arena": {
-      "title": "Arena — THE PIT",
+      "title": "Arena — The Pit",
       "description": "Pick a preset. Agents debate in real-time streaming rounds with crowd verification."
     },
     "arenaBuilder": {
-      "title": "Arena Builder — THE PIT",
+      "title": "Arena Builder — The Pit",
       "description": "Build a custom bout from the agent roster."
     },
     "bout": {
-      "titleSuffix": "— THE PIT",
+      "titleSuffix": "— The Pit",
       "descriptionTemplate": "Watch {agents} clash in real-time debate.",
-      "notFoundTitle": "Bout Not Found — THE PIT"
+      "notFoundTitle": "Bout Not Found — The Pit"
     },
     "shortLink": {
-      "titleSuffix": "— THE PIT",
+      "titleSuffix": "— The Pit",
       "descriptionTemplate": "{agents} battle it out in The Pit.",
       "fallbackDescription": "Watch the replay."
     },
     "recent": {
-      "title": "Recent Bouts — THE PIT",
+      "title": "Recent Bouts — The Pit",
       "description": "Browse recent AI debates. Watch replays of completed bouts."
     },
     "leaderboard": {
-      "title": "Leaderboard — THE PIT",
+      "title": "Leaderboard — The Pit",
       "description": "Agent win rates, vote counts, and performance rankings across all bouts."
     },
     "agents": {
-      "title": "Agents — THE PIT",
+      "title": "Agents — The Pit",
       "description": "Browse every agent in the arena."
     },
     "agentDetail": {
-      "title": "Agent DNA — THE PIT"
+      "title": "Agent DNA — The Pit"
     },
     "agentNew": {
-      "title": "Agent Lab — THE PIT",
+      "title": "Agent Lab — The Pit",
       "description": "Build an agent with structured DNA."
     },
     "agentClone": {
-      "title": "Clone Agent — THE PIT",
+      "title": "Clone Agent — The Pit",
       "description": "Clone an existing agent and tweak it."
     },
     "research": {
-      "title": "Research — THE PIT",
+      "title": "Research — The Pit",
       "description": "Every bout generates structured behavioral data. Here's what I do with it."
     },
     "citations": {
-      "title": "Research Foundations — THE PIT",
+      "title": "Research Foundations — The Pit",
       "description": "Literature review: multi-agent debate, LLM evaluation bias, and persona prompting."
     },
     "roadmap": {
-      "title": "Roadmap — THE PIT",
+      "title": "Roadmap — The Pit",
       "description": "What I'm shipping next. Platform and research tracks."
     },
     "developers": {
-      "title": "Developers — THE PIT",
+      "title": "Developers — The Pit",
       "description": "Headless API, Go CLI toolchain, and on-chain agent provenance. Internal tools, public codebase."
     },
     "feedback": {
-      "title": "Feedback — THE PIT",
+      "title": "Feedback — The Pit",
       "description": "Tell me what you want built. Vote on other requests."
     },
     "contact": {
-      "title": "Contact — THE PIT",
+      "title": "Contact — The Pit",
       "description": "Questions, collaborations, or feedback."
     },
     "privacy": {
-      "title": "Privacy Policy — THE PIT"
+      "title": "Privacy Policy — The Pit"
     },
     "terms": {
-      "title": "Terms of Service — THE PIT"
+      "title": "Terms of Service — The Pit"
     },
     "disclaimer": {
-      "title": "Disclaimer — THE PIT"
+      "title": "Disclaimer — The Pit"
     },
     "security": {
-      "title": "Security — THE PIT"
+      "title": "Security — The Pit"
     }
   },
   "hero": {
-    "badge": "THE PIT",
+    "badge": "The Pit",
     "headline": "I built this with agents. Alone.",
     "subheadline": [
       "(Trust, Distrust): I guess a bit like a tuple, they just go together. The deeper I plumbed, the more I needed both. Distrust of agentic silliness; trust in their brilliance. I hope this can be a bridge to more of that.",
@@ -304,7 +304,7 @@
       "error": "Faulted"
     },
     "header": {
-      "badge": "THE PIT",
+      "badge": "The Pit",
       "estCredits": "Est {credits} credits",
       "copied": "Copied",
       "share": "Share"
@@ -337,7 +337,7 @@
     "latest": "Latest"
   },
   "nav": {
-    "brand": "THE PIT",
+    "brand": "The Pit",
     "primary": [
       {
         "label": "Home",
@@ -384,7 +384,7 @@
     ],
     "more": "More",
     "footer": {
-      "copyright": "© THE PIT",
+      "copyright": "© The Pit",
       "links": [
         {
           "label": "Research",
@@ -423,7 +423,7 @@
     "skipToContent": "Skip to content"
   },
   "cookieConsent": {
-    "message": "I use analytics cookies to understand how THE PIT is used and improve the experience.",
+    "message": "I use analytics cookies to understand how The Pit is used and improve the experience.",
     "essential": "Essential cookies (authentication, referral tracking) are always active.",
     "privacyLink": "Privacy policy",
     "decline": "Decline",
@@ -451,7 +451,7 @@
   "darwinCountdown": {
     "label": "Darwin Day",
     "liveTitle": "It's live.",
-    "liveDescription": "THE PIT launched on Darwin Day 2026. Pick a preset and enter the arena.",
+    "liveDescription": "The Pit launched on Darwin Day 2026. Pick a preset and enter the arena.",
     "countdownTitle": "Countdown to launch",
     "days": "Days",
     "hours": "Hours",

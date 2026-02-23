@@ -89,7 +89,7 @@ func main() {
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "\n%s\n\n",
-		theme.Title.Render("pitforge — agent development toolkit for THE PIT"))
+		theme.Title.Render("pitforge — agent development toolkit for The Pit"))
 	fmt.Fprintf(os.Stderr, "Usage:\n")
 	fmt.Fprintf(os.Stderr, "  pitforge [flags] <command> [args...]\n\n")
 	fmt.Fprintf(os.Stderr, "Commands:\n")

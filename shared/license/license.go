@@ -1,5 +1,5 @@
 // Package license provides Ed25519-based license token creation and
-// verification for THE PIT CLI tools. Lab-tier users receive a signed
+// verification for The Pit CLI tools. Lab-tier users receive a signed
 // license file (JWT-like structure) that tools verify offline using
 // the bundled public key.
 //

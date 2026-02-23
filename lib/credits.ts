@@ -1,4 +1,4 @@
-// Credit economy for THE PIT.
+// Credit economy for The Pit.
 //
 // Three-layer unit system:
 //   tokens (Anthropic API) -> GBP (cost) -> micro-credits (internal) -> credits (user-facing)

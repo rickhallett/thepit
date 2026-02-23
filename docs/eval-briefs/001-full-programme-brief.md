@@ -1,4 +1,4 @@
-# Evaluation Brief — THE PIT Research Programme & Launch Material
+# Evaluation Brief — The Pit Research Programme & Launch Material
 
 **Date:** 2026-02-20
 **Material:** Research programme (H1-H6, 195 bouts), literature review (18 papers, 4 novelty claims), launch copy (HN, X, Reddit, Product Hunt), research page (live at /research), citations page (live at /research/citations)
@@ -9,7 +9,7 @@
 
 ## Summary
 
-THE PIT has a substantial body of empirical research (6 pre-registered hypotheses, 195 bouts, ~2,100 turns) producing claims about multi-agent LLM behaviour that will be presented publicly via a research page, literature review, and cross-platform launch copy. The research makes strong claims (persona fidelity and argument adaptation are independent dimensions; prompt depth is a first-order alignment variable) from a non-academic team using non-standard statistical thresholds on a single model family. The launch copy references on-chain features not yet live in production. This evaluation assesses whether the claims survive scrutiny and how specific audiences will receive them.
+The Pit has a substantial body of empirical research (6 pre-registered hypotheses, 195 bouts, ~2,100 turns) producing claims about multi-agent LLM behaviour that will be presented publicly via a research page, literature review, and cross-platform launch copy. The research makes strong claims (persona fidelity and argument adaptation are independent dimensions; prompt depth is a first-order alignment variable) from a non-academic team using non-standard statistical thresholds on a single model family. The launch copy references on-chain features not yet live in production. This evaluation assesses whether the claims survive scrutiny and how specific audiences will receive them.
 
 ---
 

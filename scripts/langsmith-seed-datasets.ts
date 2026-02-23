@@ -690,7 +690,7 @@ async function seedDataset(
 // ---------------------------------------------------------------------------
 
 async function main() {
-  console.log('\n  THE PIT — LangSmith Dataset Seeder');
+  console.log('\n  The Pit — LangSmith Dataset Seeder');
   console.log('  ===================================\n');
 
   if (DRY_RUN) {

@@ -24,7 +24,7 @@ export default async function SecurityPage() {
             Open Source
           </h2>
           <p className="text-sm text-muted">
-            THE PIT is fully open-source under the AGPL-3.0 license. Every claim
+            The Pit is fully open-source under the AGPL-3.0 license. Every claim
             on this page can be independently verified by reading the source code.
           </p>
           <p className="text-sm text-muted">
@@ -144,7 +144,7 @@ export default async function SecurityPage() {
           </h2>
           <ul className="list-disc pl-6 text-sm text-muted">
             <li>
-              Authentication is handled by Clerk. THE PIT stores a minimal user record
+              Authentication is handled by Clerk. The Pit stores a minimal user record
               (display name, email, avatar URL) that is refreshed periodically.
             </li>
             <li>

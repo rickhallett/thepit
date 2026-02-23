@@ -1,5 +1,5 @@
 /**
- * Copy schema — the single source of truth for all user-facing text in THE PIT.
+ * Copy schema — the single source of truth for all user-facing text in The Pit.
  *
  * Every variant JSON file MUST satisfy this interface. The copy resolution
  * runtime validates variant data against this schema at load time. Missing
@@ -806,7 +806,7 @@ export interface LegalCopy {
 // ---------------------------------------------------------------------------
 
 /**
- * Complete copy schema for THE PIT.
+ * Complete copy schema for The Pit.
  *
  * Every variant JSON must satisfy this interface. The copy resolution
  * runtime validates and deep-merges variants against the control baseline.

@@ -8,7 +8,7 @@
  * produce visually distinct glyphs.
  *
  * Designed to sit next to agent names on cards (32–64 px typical size)
- * and look at home on THE PIT's dark background (#0b0b0b).
+ * and look at home on The Pit's dark background (#0b0b0b).
  */
 
 import { clsx } from 'clsx';

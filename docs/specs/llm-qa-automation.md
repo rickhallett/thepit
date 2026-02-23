@@ -16,7 +16,7 @@ branch: "feature/llm-qa-automation"
 
 ### 1.1 Problem Statement
 
-THE PIT has 182 user stories requiring QA validation. Manual testing is time-consuming and error-prone. Analysis shows 82% of stories are automatable by an LLM with appropriate tooling.
+The Pit has 182 user stories requiring QA validation. Manual testing is time-consuming and error-prone. Analysis shows 82% of stories are automatable by an LLM with appropriate tooling.
 
 ### 1.2 Solution
 
