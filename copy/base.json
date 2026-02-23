@@ -667,10 +667,10 @@
   },
   "researchPage": {
     "label": "Research",
-    "title": "Trust research in adversarial environments",
-    "subtitle": "Six pre-registered hypotheses. 195 bouts. Automated metrics, permutation tests, and honest null results.",
+    "title": "How LLM agents behave under pressure",
+    "subtitle": "Six pre-registered hypotheses. 195 bouts. Automated metrics, permutation tests, and results we didn't expect.",
     "whatWeStudy": {
-      "title": "What we're investigating",
+      "title": "Open research questions",
       "bullets": [
         "How cryptographic identity changes agent behavior and audience trust",
         "Which agents persuade under adversarial pressure — and why",
