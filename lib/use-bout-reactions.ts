@@ -102,7 +102,7 @@ export function useBoutReactions(
         });
       }
 
-      trackEvent('reaction_submitted', { bout_id: boutId, reaction_type: reactionType, turn, action: isRemoving ? 'removed' : 'added' });
+      trackEvent('reaction_submitted', { bout_id: boutId, reaction_type: reactionType, turn, action: data.action });
       if (!isRemoving) reactionsGivenRef.current += 1;
     } catch {
       // Revert optimistic update on error
