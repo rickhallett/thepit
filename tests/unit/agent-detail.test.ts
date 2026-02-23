@@ -138,7 +138,7 @@ describe('agent-detail', () => {
     expect(result!.lineage[1]).toEqual({ id: 'grandparent-1', name: 'Grandparent Agent' });
   });
 
-  it('stops lineage when parent not found in DB', async () => {
+  it('stops lineage when parent not found in DB or presets', async () => {
     mockDbRows.push({
       id: 'orphan',
       name: 'Orphan Agent',
@@ -166,10 +166,49 @@ describe('agent-detail', () => {
       attestationTxHash: null,
       archived: false,
     });
-    // No parent row pushed - lineage walk will break immediately
+    // No parent row pushed — parent ID is not a preset either
 
     const result = await getAgentDetail('orphan');
     expect(result).toBeDefined();
     expect(result!.lineage).toEqual([]);
+  });
+
+  it('resolves lineage to preset agent when parent not in DB but is a preset', async () => {
+    mockDbRows.push({
+      id: 'clone-1',
+      name: 'Darwin Clone',
+      presetId: null,
+      tier: 'custom',
+      systemPrompt: 'I am a clone of Darwin.',
+      responseLength: 'standard',
+      responseFormat: 'spaced',
+      archetype: null,
+      tone: null,
+      quirks: null,
+      speechPattern: null,
+      openingMove: null,
+      signatureMove: null,
+      weakness: null,
+      goal: null,
+      fears: null,
+      customInstructions: null,
+      createdAt: new Date('2026-01-01'),
+      ownerId: 'user-1',
+      parentId: 'preset:darwin-special:darwin',
+      promptHash: '0xccc',
+      manifestHash: '0xddd',
+      attestationUid: null,
+      attestationTxHash: null,
+      archived: false,
+    });
+    // No parent DB row — but parent ID matches a preset agent
+
+    const result = await getAgentDetail('clone-1');
+    expect(result).toBeDefined();
+    expect(result!.lineage).toHaveLength(1);
+    expect(result!.lineage[0]).toEqual({
+      id: 'preset:darwin-special:darwin',
+      name: 'Charles Darwin',
+    });
   });
 });
