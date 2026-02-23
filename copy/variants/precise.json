@@ -554,7 +554,9 @@
     "addButton": "Add",
     "validation": {
       "nameRequired": "Agent identifier required.",
-      "personalityRequired": "Minimum one personality or tactical parameter required."
+      "nameTooLong": "Agent identifier exceeds 100-character limit.",
+      "personalityRequired": "Minimum one personality or tactical parameter required.",
+      "invalidInput": "Validation failed. Provide a valid name and at least one personality parameter."
     },
     "submit": {
       "creating": "Creating...",
