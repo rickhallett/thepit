@@ -33,7 +33,7 @@ vi.mock('@/lib/agent-registry', () => ({
 }));
 
 vi.mock('@/lib/response-lengths', () => ({
-  DEFAULT_RESPONSE_LENGTH: 'standard',
+  DEFAULT_RESPONSE_LENGTH: 'short',
 }));
 
 vi.mock('@/lib/response-formats', () => ({

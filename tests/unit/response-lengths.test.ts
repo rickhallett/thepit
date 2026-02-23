@@ -7,13 +7,13 @@ import {
 } from '@/lib/response-lengths';
 
 describe('response lengths', () => {
-  it('exposes the standard length as default', () => {
-    expect(DEFAULT_RESPONSE_LENGTH).toBe('standard');
+  it('exposes the short length as default', () => {
+    expect(DEFAULT_RESPONSE_LENGTH).toBe('short');
   });
 
-  it('resolves missing or unknown values to standard', () => {
-    expect(resolveResponseLength()).toMatchObject({ id: 'standard' });
-    expect(resolveResponseLength('unknown')).toMatchObject({ id: 'standard' });
+  it('resolves missing or unknown values to short', () => {
+    expect(resolveResponseLength()).toMatchObject({ id: 'short' });
+    expect(resolveResponseLength('unknown')).toMatchObject({ id: 'short' });
   });
 
   it('resolves known values', () => {

@@ -29,7 +29,6 @@ import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/lib/byok';
 import {
-  DEFAULT_PREMIUM_MODEL_ID,
   FREE_MODEL_ID,
   PREMIUM_MODEL_OPTIONS,
   getModel,
@@ -426,24 +425,8 @@ export async function validateBoutRequest(
       await incrementFreeBoutsUsed(userId);
     }
   } else {
-    const premiumEnabled = process.env.PREMIUM_ENABLED === 'true';
-    if (preset.tier === 'premium' && !premiumEnabled) {
-      return { ok: false, error: errorResponse('Premium required.', 402) };
-    }
-
-    const allowPremiumModels = preset.tier === 'premium' || preset.id === ARENA_PRESET_ID;
-    if (allowPremiumModels && premiumEnabled) {
-      modelId = PREMIUM_MODEL_OPTIONS.includes(requestedModel)
-        ? requestedModel
-        : DEFAULT_PREMIUM_MODEL_ID;
-    } else if (isByok) {
-      if (!byokData?.key) {
-        return { ok: false, error: errorResponse('BYOK key required.', 400) };
-      }
-      modelId = 'byok';
-    } else if (requestedModel === 'byok') {
-      return { ok: false, error: errorResponse('BYOK not enabled.', 400) };
-    }
+    // Anonymous / demo users: Haiku only. No premium models, no BYOK.
+    // modelId stays at FREE_MODEL_ID (set above).
   }
 
   // Credit pre-authorization
