@@ -98,7 +98,7 @@ This section maps specific research findings to architectural decisions in The P
 | Emergent social behaviours arise in multi-agent groups (Chen et al., 2023 AgentVerse) | Full transcript visibility enables inter-agent dynamics | `app/api/run-bout/route.ts` (history accumulation) |
 | Process supervision outperforms outcome supervision (Lightman et al., 2023) | Per-turn reaction system alongside bout-level voting | `db/schema.ts` (reactions with turnIndex) |
 | Performance scales with agent count (Li et al., 2024) | Arena mode supports 2–6 agents per bout | `components/arena-builder.tsx` |
-| Immutable records enable research reproducibility | SHA-256 hashing + on-chain EAS attestation | `lib/agent-dna.ts`, `lib/eas.ts` |
+| Immutable records enable research reproducibility | SHA-256 hashing + on-chain EAS attestation (designed, not yet deployed in production) | `lib/agent-dna.ts`, `lib/eas.ts` |
 
 ### 3.2 Novel Contributions (Ahead of Published Research)
 
@@ -108,7 +108,7 @@ Several of The Pit's design decisions address problems or explore directions not
 
 **Evolutionary selection via crowd engagement.** While Constitutional AI (Bai et al., 2022) uses AI feedback for selection, and RLHF uses human preference labels, The Pit implements a third paradigm: evolutionary selection through organic crowd engagement. Winners get cloned and remixed, creating parent-child lineage chains that can be studied for prompt mutation patterns. This represents an original contribution to the intersection of prompt engineering and evolutionary computation.
 
-**Structured agent DNA with cryptographic provenance.** The combination of typed personality fields, canonical JSON serialisation (RFC 8785), SHA-256 hashing, and on-chain attestation creates a research data infrastructure with no direct analogue in the literature. Agent identity is both decomposable (for analysis) and tamper-evident (for verification).
+**Structured agent DNA with cryptographic provenance.** The combination of typed personality fields, canonical JSON serialisation (RFC 8785), SHA-256 hashing, and planned on-chain attestation is designed to create a research data infrastructure with no direct analogue in the literature. Agent identity is both decomposable (for analysis) and tamper-evident (for verification).
 
 **Weakness-as-design-parameter.** The deliberate inclusion of a `weakness` field in agent construction (e.g., "When insulted, you spiral into self-doubt") is a prompt engineering technique designed to create dramatic tension. While RoleLLM profiles include personality traits, the explicit parameterisation of vulnerabilities as a first-class design element is a distinctive approach.
 

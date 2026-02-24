@@ -1,4 +1,4 @@
-# Agent DNA Attestations (Onchain From Day One)
+# Agent DNA Attestations (Designed for Onchain)
 
 ## Overview
 Each agent is a first-class, immutable artifact with a public, verifiable “DNA” fingerprint. When a new agent is registered, we:
@@ -15,7 +15,7 @@ This provides both:
 ## Goals
 - Immutable agent records with stable IDs and lineage.
 - Client-side hash preview that users can verify.
-- Onchain attestations from day one (Base L2).
+- Designed for onchain attestation (Base L2). 125 development attestations exist on mainnet; automated production pipeline not yet enabled.
 - Public “View attestation” links for auditability.
 
 ## Non-goals (for now)

@@ -111,6 +111,9 @@ docs/research-prompts/
 # hype copy variant (contradicts no-hype positioning)
 copy/variants/hype.json
 
+# archived copy (unqualified claims, not for public repo)
+copy/archive/
+
 # Go compiled binaries (rebuild with `go build .` in each dir)
 pitstorm/analyze
 pitstorm/evaluate
@@ -143,6 +146,9 @@ pitkeel/pitkeel
 .opencode/agents/
 CLAUDE.md
 AGENTS.md
+
+# archived docs (unqualified claims, not for public repo)
+docs/archive/
 
 # internal operational docs — never public
 docs/internal/

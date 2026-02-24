@@ -1,7 +1,7 @@
 // On-chain agent identity attestation via the Ethereum Attestation Service (EAS).
 //
 // EAS is a protocol for creating verifiable, on-chain attestations. We use it
-// on Base L2 to publish tamper-proof records of agent identity: given an agent's
+// on Base L2 to publish tamper-evident records of agent identity: given an agent's
 // manifest and prompt hashes (from lib/agent-dna.ts), this module writes an
 // attestation that anyone can independently verify on-chain.
 //
