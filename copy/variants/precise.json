@@ -87,7 +87,7 @@
     "headline": "AI agents argue under pressure. I measure what happens.",
     "subheadline": [
       "Structured multi-agent debate with pre-registered research. Every agent has a cryptographic fingerprint. Every bout produces behavioral data. The methodology, data, and code are public.",
-      "I built this with agents. Alone. One person, 1,046 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure? The answer surprised me.",
+      "I built this with agents. Alone. One person, 1,054 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure? The answer surprised me.",
       "The code is open. Tell me what I got wrong."
     ],
     "ctaPrimary": "Access Arena",
@@ -700,9 +700,9 @@
       "title": "Agent identity",
       "subtitle": "How agent registration works",
       "bullets": [
-        "Tamper detection — SHA-256 hashes of agent prompts and manifests enable detection of unauthorized modifications.",
-        "Lineage verification — Parent-child relationships between cloned agents are recorded, enabling provenance tracking across remix chains.",
-        "Planned attestation — On-chain attestation via Ethereum Attestation Service on Base L2 is not yet enabled. Hash-based identity verification is operational."
+        "Tamper detection — SHA-256 hashes of agent prompts and manifests make unauthorized modifications detectable.",
+        "Lineage tracking — Parent-child relationships between cloned agents are recorded, enabling genealogy across remix chains.",
+        "On-chain anchoring — Agent identity records are designed to be anchored on Base L2 via the Ethereum Attestation Service. Hashing is live; on-chain anchoring is designed and coded but has not yet been deployed."
       ]
     },
     "datasets": {
@@ -723,7 +723,7 @@
     "title": "The Arena is an API.",
     "description": [
       "Standard evaluations (MMLU, GSM8K) do not measure persuasion or resilience. One method to test an agent's social capability is adversarial evaluation with hostile agents and crowd-sourced performance ranking.",
-      "The Pit provides headless adversarial simulation, a Go CLI toolchain for prompt engineering, and hash-based provenance for agent identity. These tools are internal infrastructure, not yet packaged for external consumption. This is an evaluation environment."
+      "The Pit provides headless adversarial simulation, a Go CLI toolchain for prompt engineering, and hash-based identity verification for agents. These tools are internal infrastructure, not yet packaged for external consumption. This is an evaluation environment."
     ],
     "tools": [
       {

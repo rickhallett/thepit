@@ -80,7 +80,7 @@ All features behind env-gated boolean flags (`=== 'true'`). The health endpoint 
 | `NEXT_PUBLIC_SOCIAL_LINKEDIN_ENABLED` | LinkedIn link |
 
 ## EAS Attestations
-On-chain agent identity verification using the Ethereum Attestation Service on Base L2, gated by `EAS_ENABLED`.
+On-chain agent identity verification using the Ethereum Attestation Service on Base L2, gated by `EAS_ENABLED`. Designed and coded; not yet deployed on-chain.
 
 **Schema:** `agentId`, `name`, `presetId`, `tier`, `promptHash`, `manifestHash`, `parentId`, `ownerId`, `createdAt`.
 

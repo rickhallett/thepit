@@ -5,7 +5,7 @@ import { getCopy } from '@/lib/copy';
 export const metadata = {
   title: 'Developers — The Pit',
   description:
-    'Headless API, internal Go CLI toolchain, and agent provenance. Public codebase, rough edges.',
+    'Headless API, internal Go CLI toolchain, and agent identity registry. Public codebase, rough edges.',
 };
 
 const TOOLS = [

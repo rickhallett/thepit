@@ -136,7 +136,7 @@ export default async function OGImage() {
               display: 'flex',
             }}
           >
-            Adversarial debate. Cryptographic identity. Crowd-verified trust.
+            Adversarial debate. Cryptographic identity. Crowd-sourced judgment.
           </div>
         </div>
 
