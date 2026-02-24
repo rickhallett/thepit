@@ -618,7 +618,7 @@ export default function ResearchCitationsPage() {
 
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
-              Cryptographic agent provenance
+              Cryptographic agent identity
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
               The combination of typed personality fields, canonical JSON
