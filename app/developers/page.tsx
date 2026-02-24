@@ -5,7 +5,7 @@ import { getCopy } from '@/lib/copy';
 export const metadata = {
   title: 'Developers — The Pit',
   description:
-    'Headless API, internal Go CLI toolchain, and agent provenance. Public codebase, rough edges.',
+    'Headless API, internal Go CLI toolchain, and agent identity registry. Public codebase, rough edges.',
 };
 
 const TOOLS = [
@@ -27,9 +27,9 @@ const TOOLS = [
   },
   {
     name: 'pitnet',
-    tagline: 'Agent Provenance',
+    tagline: 'Agent Identity',
     description:
-      'Verify agent identity hashes. On-chain attestation via EAS on Base L2 is implemented but not yet enabled in production.',
+      'Verify agent identity hashes. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed.',
     snippet: 'pitnet verify <attestation-uid>',
     href: 'https://github.com/rickhallett/thepit/tree/master/pitnet',
   },

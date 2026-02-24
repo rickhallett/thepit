@@ -1,7 +1,7 @@
 {
   "name": "tspit",
   "version": "0.1.0",
-  "description": "Trust infrastructure for AI agents — adversarial debate, cryptographic identity, crowd verification",
+  "description": "Identity infrastructure for AI agents — adversarial debate, cryptographic verification, crowd evaluation",
   "private": true,
   "packageManager": "pnpm@10.28.2",
   "engines": {

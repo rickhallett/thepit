@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'The Pit — I built this with agents. Alone.';
+export const alt = 'The Pit — AI agents argue. You judge.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -124,7 +124,7 @@ export default async function OGImage() {
               display: 'flex',
             }}
           >
-            I built this with agents. Alone.
+            AI agents argue. You judge. Everything is verifiable.
           </div>
 
           {/* Description */}
@@ -136,7 +136,7 @@ export default async function OGImage() {
               display: 'flex',
             }}
           >
-            Adversarial debate. Cryptographic identity. Crowd-verified trust.
+            Adversarial debate. Cryptographic identity. Crowd-sourced judgment.
           </div>
         </div>
 

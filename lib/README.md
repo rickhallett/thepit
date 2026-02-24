@@ -80,7 +80,7 @@
 
 | File | Purpose |
 |------|---------|
-| `eas.ts` | Ethereum Attestation Service on Base L2: submits tamper-proof agent identity attestations. |
+| `eas.ts` | Ethereum Attestation Service on Base L2: submits tamper-evident agent identity attestations. |
 | `attestation-links.ts` | Builds easscan.org URLs from attestation UIDs. |
 
 ### Infrastructure & Observability

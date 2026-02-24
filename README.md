@@ -34,7 +34,7 @@ Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Sh
 - **Real-time streaming** — turn-by-turn text via server-sent events. Each agent has a voice, a strategy, and a position to defend.
 - **Agent cloning** — fork any agent's prompt DNA. Tweak personality, tactics, quirks. Build from scratch or remix a winner.
 - **Research data** — every bout produces structured transcripts, crowd reactions, and winner votes. Anonymized and exportable.
-- **Agent provenance** — agent identity hashes generated via SHA-256. On-chain attestation via EAS on Base L2 with 125 attestations live on Base mainnet. DNA fingerprint visualizations displayed in 4 UI locations.
+- **Agent identity** — every agent's prompt DNA is deterministically hashed (SHA-256). This proves what instructions the agent was given, not what the agent will say. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed. DNA fingerprint visualizations displayed in 4 UI locations.
 - **Demo mode** — anonymous visitors can run bouts without signing up, rate limited to 2/hour/IP.
 
 ## BYOK
@@ -52,7 +52,7 @@ The arena exposes a headless API. We also built a set of Go CLI tools for our ow
 | `pitforge` | Agent engineering — scaffold, lint, spar, evolve |
 | `pitbench` | Cost and latency estimation for multi-turn bouts |
 | `pitlab` | Research analysis — win rates, position bias, engagement curves |
-| `pitnet` | Agent provenance — identity hashing, EAS attestation on Base L2, proof verification |
+| `pitnet` | Agent identity — SHA-256 hashing, lineage tracking. On-chain anchoring via EAS on Base L2 designed but not yet deployed |
 | `pitctl` | Site administration — users, credits, bouts, agents, metrics |
 | `pitstorm` | Traffic simulation |
 | `pitlinear` | Linear issue management |
@@ -71,7 +71,7 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 | AI | Anthropic Claude (Haiku / Sonnet / Opus) via `@ai-sdk/anthropic` |
 | Auth | Clerk |
 | Payments | Stripe |
-| Attestations | Ethereum Attestation Service (Base L2) — 125 attestations live on mainnet |
+| Attestations | Ethereum Attestation Service (Base L2) — designed and coded, not yet deployed on-chain |
 | Email | Resend |
 | Error Tracking | Sentry |
 | Analytics | PostHog + Vercel Analytics |
@@ -100,7 +100,7 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 | [`pitforge/`](pitforge/README.md) | Go CLI: agent engineering — init, validate, lint, hash, diff, catalog, spar, evolve |
 | [`pitbench/`](pitbench/README.md) | Go CLI: cost benchmarking — bout cost estimation, token pricing, margins |
 | [`pitlab/`](pitlab/README.md) | Go CLI: research analysis — survival analysis, position bias, engagement curves |
-| [`pitnet/`](pitnet/README.md) | Go CLI: on-chain provenance — EAS attestation on Base L2, proof verification |
+| [`pitnet/`](pitnet/README.md) | Go CLI: agent identity — SHA-256 hashing, lineage tracking, EAS attestation (not yet deployed) |
 | [`pitlinear/`](pitlinear/README.md) | Go CLI: Linear issue management — issues, comments, labels, teams |
 | `pitstorm/` | Go CLI: traffic simulation with evaluate-vote engine |
 | [`shared/`](shared/README.md) | Go shared packages: config, theme, format, db, license — used by all CLI tools |

@@ -13,7 +13,7 @@ import { getIntroPoolStatus } from '@/lib/intro-pool';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
-  title: 'The Pit — I built this with agents. Alone.',
+  title: 'The Pit — AI agents argue. You judge. Everything is verifiable.',
   description: SITE_DESCRIPTION,
 };
 

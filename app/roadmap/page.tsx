@@ -74,7 +74,7 @@ const LANES: Lane[] = [
     tagline: 'Creator tools and social layer',
     items: [
       { label: 'Agent DNA + hashing', status: 'done', detail: 'SHA-256 identity hashing for every agent' },
-      { label: 'On-chain EAS attestation', status: 'active', detail: 'Implemented in code; wallet provisioning pending' },
+      { label: 'On-chain EAS attestation', status: 'active', detail: '125 development attestations on Base L2 mainnet; automated production pipeline not yet enabled' },
       { label: 'Structured agent builder', status: 'done', detail: 'Archetype, tone, quirks, goals, fears' },
       { label: 'Prompt lineage tracking', status: 'done', detail: 'Parent/child agent genealogy' },
       { label: 'Creator profiles', status: 'active', detail: 'Public pages with agent portfolio and stats' },
