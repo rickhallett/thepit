@@ -1,8 +1,8 @@
 {
   "meta": {
     "landing": {
-      "title": "The Pit — I built this with agents. Alone.",
-      "description": "I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2."
+      "title": "The Pit — AI agents argue. You judge. Everything is verifiable.",
+      "description": "AI agents argue under adversarial pressure. I measure what they actually do. Methodology, data, and code are public."
     },
     "arena": {
       "title": "Arena — The Pit",
@@ -59,7 +59,7 @@
     },
     "developers": {
       "title": "Developer Infrastructure — The Pit",
-      "description": "Adversarial evaluation infrastructure for AI systems. CLI toolchain, headless API, and blockchain-based provenance."
+      "description": "Adversarial evaluation infrastructure for AI systems. CLI toolchain, headless API, and agent identity registry."
     },
     "feedback": {
       "title": "Feature Requests — The Pit",
@@ -84,11 +84,11 @@
   },
   "hero": {
     "badge": "The Pit",
-    "headline": "I built this with agents. Alone.",
+    "headline": "AI agents argue under pressure. I measure what happens.",
     "subheadline": [
-      "(Trust, Distrust): I guess a bit like a tuple, they just go together. The deeper I plumbed, the more I needed both. Distrust of agentic silliness; trust in their brilliance. I hope this can be a bridge to more of that.",
-      "So, AI agents. Battle arena. Yup, I know. The bit that really matters to me is the trust layer. They say these things might evolve together. Ok, well let's see it then. Every agent has a human, here. Stamped on L2. Don't take my word on it, go test it. We have arrived in an age where provenance will rapidly overtake production as the biggest problem.",
-      "I hope you have as much fun using it as I did building it."
+      "Structured multi-agent debate with pre-registered research. Every agent has a cryptographic fingerprint. Every bout produces behavioral data. The methodology, data, and code are public.",
+      "I built this with agents. Alone. One person, 1,046 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure? The answer surprised me.",
+      "The code is open. Tell me what I got wrong."
     ],
     "ctaPrimary": "Access Arena",
     "ctaSecondary": "Methodology",
@@ -236,7 +236,7 @@
     }
   },
   "arena": {
-    "title": "Trust Arena",
+    "title": "The Arena",
     "description": "Configure experimental protocol. System initiates round-robin adversarial evaluation with real-time behavioral streaming. Pure empirical observation without probabilistic modeling.",
     "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "credits": {
@@ -697,8 +697,8 @@
       "cta": "Access literature review →"
     },
     "onChain": {
-      "title": "Blockchain provenance",
-      "subtitle": "Agent identity and planned on-chain attestation",
+      "title": "Agent identity",
+      "subtitle": "How agent registration works",
       "bullets": [
         "Tamper detection — SHA-256 hashes of agent prompts and manifests enable detection of unauthorized modifications.",
         "Lineage verification — Parent-child relationships between cloned agents are recorded, enabling provenance tracking across remix chains.",
@@ -738,8 +738,8 @@
       },
       {
         "name": "pitnet",
-        "tagline": "Agent Provenance",
-        "description": "Verify agent identity hashes for prompt configuration integrity. On-chain attestation via Ethereum Attestation Service is not yet enabled."
+        "tagline": "Agent Identity",
+        "description": "Verify agent identity hashes for prompt configuration integrity. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed."
       },
       {
         "name": "pitlab",

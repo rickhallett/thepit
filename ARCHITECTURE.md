@@ -159,8 +159,8 @@ Agent scaffolding, validation, prompt engineering, and AI-powered iteration. Fre
 ### pitlab/ (Research Analysis)
 Statistical analysis of exported bout data. Commands: `summary` (dataset overview), `survival` (persona win rates), `position` (first-mover bias), `engagement` (reaction curves), `codebook` (research codebook generation). Requires `--data <export.json>` from `/api/research/export`. Premium except `codebook`.
 
-### pitnet/ (On-Chain Provenance)
-EAS attestation verification on Base L2. 125 attestations live on Base mainnet. Free: `status` (connectivity check), `proof <uid>` (verification report). Premium: `submit` (encode attestation payload), `verify <uid>` (on-chain verification), `audit` (cross-reference all attested agents). Uses raw JSON-RPC over HTTP (no heavy Ethereum libs). GitHub Release v1.1.0 provides cross-compiled binaries for 5 platforms (linux/darwin amd64+arm64, windows/amd64).
+### pitnet/ (Agent Identity)
+Agent identity hashing and lineage tracking. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed. Free: `status` (connectivity check), `proof <uid>` (verification report). Premium: `submit` (encode attestation payload), `verify <uid>` (on-chain verification), `audit` (cross-reference all attested agents). Uses raw JSON-RPC over HTTP (no heavy Ethereum libs). GitHub Release v1.1.0 provides cross-compiled binaries for 5 platforms (linux/darwin amd64+arm64, windows/amd64).
 
 ### pitstorm/ (Traffic Simulation)
 Release traffic simulator with evaluate-vote engine. Commands: `run` (execute traffic simulation with configurable profiles), `plan` (dry run — estimate cost and show execution plan), `setup` (provision test accounts), `login` (obtain session tokens), `verify` (validate credentials and connectivity), `report` (parse JSON output into summary), `evaluate` (evaluate-vote engine for bout analysis). Supports traffic profiles: trickle, steady, ramp, spike, viral. Budget-capped with GBP spend limits.

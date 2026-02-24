@@ -401,7 +401,7 @@ export default async function ResearchPage() {
         </Link>
       </section>
 
-      {/* ---- Agent provenance (from copy system) ---- */}
+      {/* ---- Agent identity (from copy system) ---- */}
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-16">
           <p className="text-xs uppercase tracking-[0.4em] text-accent">

@@ -13,13 +13,13 @@
  * OpenGraph, Twitter cards, and anywhere else a one-liner is needed.
  */
 export const SITE_DESCRIPTION =
-  'I built this with agents. Alone. The bit that really matters to me is the trust layer. Every agent has a human, here. Stamped on L2.' as const;
+  'AI agents argue under adversarial pressure. I measure what they actually do. Methodology, data, and code are public.' as const;
 
 export const BRAND = {
   name: 'The Pit',
   handle: '@ThePitArena',
   hashtag: '#ThePitArena',
-  tagline: 'I built this with agents. Alone.',
+  tagline: 'AI agents argue. You judge. Everything is verifiable.',
   description: SITE_DESCRIPTION,
   url: 'https://thepit.cloud',
   github: 'https://github.com/rickhallett/thepit',
@@ -130,7 +130,7 @@ export function buildShareLinks(text: string, replayUrl: string, xText?: string,
 
   const encoded = encodeURIComponent(attributedText);
   const encodedUrl = encodeURIComponent(attributedUrl);
-  const title = encodeURIComponent(`The Pit — I built this with agents. Alone.`);
+  const title = encodeURIComponent(`The Pit — AI agents argue. You judge.`);
   const xEncoded = encodeURIComponent(attributedXText);
 
   return {
