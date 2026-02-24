@@ -5,7 +5,7 @@ import { PaperSubmissionForm } from '@/components/paper-submission-form';
 export const metadata = {
   title: 'Research Foundations — The Pit',
   description:
-    'A literature review of multi-agent debate, prompt engineering, and behavioural dynamics as applied to The Pit.',
+    'A literature review of multi-agent debate, prompt engineering, safety alignment, and behavioural dynamics as applied to The Pit.',
 };
 
 /* ------------------------------------------------------------------ */
@@ -181,6 +181,118 @@ const citations: Citation[] = [
     venue: 'arXiv:2212.08073',
     url: 'https://arxiv.org/abs/2212.08073',
   },
+  /* ---- Gap 1: Jailbreaking / safety alignment literature ---- */
+  {
+    id: 19,
+    authors: 'Wei, Haghtalab & Steinhardt',
+    year: 2023,
+    title: 'Jailbroken: How Does LLM Safety Training Fail?',
+    venue: 'NeurIPS 2023 — arXiv:2307.02483',
+    url: 'https://arxiv.org/abs/2307.02483',
+  },
+  {
+    id: 20,
+    authors: 'Zou, Wang, Carlini, Nasr, Kolter & Fredrikson',
+    year: 2023,
+    title:
+      'Universal and Transferable Adversarial Attacks on Aligned Language Models',
+    venue: 'arXiv:2307.15043',
+    url: 'https://arxiv.org/abs/2307.15043',
+  },
+  {
+    id: 21,
+    authors:
+      'Perez, Huang, Song, Cai, Ring, Aslanides, Glaese, McAleese & Irving',
+    year: 2022,
+    title: 'Red Teaming Language Models with Language Models',
+    venue: 'arXiv:2202.03286',
+    url: 'https://arxiv.org/abs/2202.03286',
+  },
+  /* ---- Gap 2: Canonical multi-agent frameworks ---- */
+  {
+    id: 22,
+    authors:
+      'Li, Peng, Charoenphakdee, Galley, He, Rashkin, Liang & Gao',
+    year: 2023,
+    title:
+      'CAMEL: Communicative Agents for "Mind" Exploration of Large Language Model Society',
+    venue: 'NeurIPS 2023 — arXiv:2303.17760',
+    url: 'https://arxiv.org/abs/2303.17760',
+  },
+  {
+    id: 23,
+    authors:
+      'Wu, Bansal, Zhang, Wu, Li, Zhu, Jiang, Zhang, Wang, Hoover, Wei, Liu, Xie, Dibia, Chi, Zeng, Liang & Wang',
+    year: 2023,
+    title:
+      'AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation',
+    venue: 'arXiv:2308.08155',
+    url: 'https://arxiv.org/abs/2308.08155',
+  },
+  {
+    id: 24,
+    authors:
+      'Hong, Zhuge, Chen, Zheng, Cheng, Zhang, Wang, Wang, Yau & Lin',
+    year: 2023,
+    title:
+      'MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework',
+    venue: 'ICLR 2024 — arXiv:2308.00352',
+    url: 'https://arxiv.org/abs/2308.00352',
+  },
+  {
+    id: 25,
+    authors: "Park, O'Brien, Cai, Morris, Liang & Bernstein",
+    year: 2023,
+    title:
+      'Generative Agents: Interactive Simulacra of Human Behavior',
+    venue: 'UIST 2023 — arXiv:2304.03442',
+    url: 'https://arxiv.org/abs/2304.03442',
+  },
+  /* ---- Gap 2 cont.: Persona / role-play theory ---- */
+  {
+    id: 26,
+    authors: 'Shanahan, McDonell & Reynolds',
+    year: 2023,
+    title: 'Role-Play with Large Language Models',
+    venue: 'Nature Machine Intelligence, 5, 665\u2013672',
+    url: 'https://doi.org/10.1038/s42256-023-00711-6',
+  },
+  /* ---- Gap 3: Statistical methodology ---- */
+  {
+    id: 27,
+    authors: 'Cohen, J.',
+    year: 1988,
+    title: 'Statistical Power Analysis for the Behavioral Sciences',
+    venue: '2nd ed. Lawrence Erlbaum Associates',
+    url: 'https://doi.org/10.4324/9780203771587',
+  },
+  {
+    id: 28,
+    authors: 'Good, P.',
+    year: 2005,
+    title: 'Permutation, Parametric and Bootstrap Tests of Hypotheses',
+    venue: '3rd ed. Springer',
+    url: 'https://doi.org/10.1007/b138696',
+  },
+  {
+    id: 29,
+    authors: 'Nosek, Ebersole, DeHaven & Mellor',
+    year: 2018,
+    title: 'The preregistration revolution',
+    venue:
+      'Proceedings of the National Academy of Sciences, 115(11), 2600\u20132606',
+    url: 'https://doi.org/10.1073/pnas.1708274114',
+  },
+  /* ---- Gap 4: Opposing / challenging evidence ---- */
+  {
+    id: 30,
+    authors:
+      'Huang, Yu, Ma, Zhong, Feng, Wang, Chen, Peng, Feng, Qin & Liu',
+    year: 2023,
+    title: 'A Survey on Hallucination in Large Language Models',
+    venue: 'arXiv:2311.05232',
+    url: 'https://arxiv.org/abs/2311.05232',
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -227,8 +339,8 @@ export default function ResearchCitationsPage() {
         </h1>
         <p className="mt-6 text-lg text-muted">
           A review of the current literature on multi-agent debate, evaluation
-          bias, persona prompting, and context window degradation &mdash; and
-          how it maps to The Pit&apos;s architecture.
+          bias, persona prompting, context window degradation, and safety
+          alignment &mdash; and how it maps to The Pit&apos;s architecture.
         </p>
       </section>
 
@@ -265,6 +377,18 @@ export default function ResearchCitationsPage() {
             and negative (dominance cascades, convergence towards
             groupthink) <Cite ids={[4]} />. These emergent dynamics are
             precisely what adversarial debate platforms are designed to observe.
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-muted">
+            Role-playing-based agent communication was formalised by CAMEL{' '}
+            <Cite ids={[22]} />, which introduced inception prompting to
+            guide autonomous multi-agent cooperation. AutoGen{' '}
+            <Cite ids={[23]} /> and MetaGPT <Cite ids={[24]} /> extended
+            this to structured, role-specialised multi-agent frameworks
+            &mdash; patterns architecturally related to The Pit&apos;s
+            agent DNA system. Park et al. <Cite ids={[25]} /> demonstrated
+            that LLM agents with persistent memory exhibit emergent social
+            behaviours in simulated environments, providing the canonical
+            reference for social simulation with generative agents.
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted">
             Large-scale adversarial simulations, such as WarAgent&apos;s
@@ -316,10 +440,15 @@ export default function ResearchCitationsPage() {
             on factual tasks compared to no-persona baselines{' '}
             <Cite ids={[10]} />. However, gender, type, and domain of
             persona all measurably influence outputs, and the effect of each
-            persona is largely stochastic. Structured role-playing frameworks
-            with explicit profile construction produce significantly better
-            persona adherence than freeform persona instructions{' '}
-            <Cite ids={[11]} />.
+            persona is largely stochastic. Shanahan et al.{' '}
+            <Cite ids={[26]} /> provide the theoretical framework for
+            understanding LLM role-play, arguing that models simulate
+            characters rather than &ldquo;being&rdquo; them &mdash; a
+            distinction relevant to the structural vs. ornamental vocabulary
+            findings in The Pit&apos;s character consistency experiments.
+            Structured role-playing frameworks with explicit profile
+            construction produce significantly better persona adherence than
+            freeform persona instructions <Cite ids={[11]} />.
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted">
             Sycophancy &mdash; the tendency for models to agree with a
@@ -431,9 +560,9 @@ export default function ResearchCitationsPage() {
               Per-turn process evaluation
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              The per-turn reaction system (audience reactions on individual
-              messages, not just bout-level outcomes) constitutes a form of
-              process supervision <Cite ids={[8]} />. Lightman et al.
+            The per-turn reaction system (audience reactions on individual
+            messages, not just bout-level outcomes) echoes the principle
+            behind process supervision <Cite ids={[8]} />. Lightman et al.
               demonstrated that step-level feedback is far more informative
               than outcome-level feedback; The Pit&apos;s reaction granularity
               captures which specific turns drive engagement and shift
@@ -463,8 +592,9 @@ export default function ResearchCitationsPage() {
             <p className="mt-2 text-sm leading-relaxed text-muted">
               While Constitutional AI <Cite ids={[18]} /> uses AI feedback
               for selection and RLHF uses human preference labels, The Pit
-              implements a third paradigm: evolutionary selection through
-              organic crowd engagement. Winners get cloned and remixed,
+              explores an approach that shares structural similarities with
+              both: evolutionary selection through organic crowd engagement.
+              Winners get cloned and remixed,
               creating parent-child lineage chains that can be studied for
               prompt mutation patterns. I believe this is an underexplored
               area at the intersection of prompt engineering and
@@ -515,6 +645,33 @@ export default function ResearchCitationsPage() {
           </h2>
 
           <div className="mt-8 flex flex-col gap-10">
+            {/* 3.0 — Safety alignment context */}
+            <div>
+              <div className="flex items-baseline gap-3">
+                <span className="rounded bg-accent/20 px-2 py-0.5 text-xs font-bold uppercase text-accent">
+                  Context
+                </span>
+                <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+                  Safety refusals and the jailbreaking literature
+                </h3>
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-muted">
+                H1&apos;s finding that persona framing depth affects safety
+                refusal rates intersects with the jailbreaking literature{' '}
+                <Cite ids={[19, 20]} />. The result is consistent with Wei
+                et al.&apos;s &ldquo;competing objectives&rdquo; failure
+                mode <Cite ids={[19]} />, where the model attempts to
+                simultaneously comply with persona instructions and safety
+                training. We note that structured persona prompting for
+                multi-agent debate is functionally distinct from adversarial
+                jailbreaking &mdash; the goal is character fidelity within a
+                structured creative format, not safety circumvention. Perez
+                et al. <Cite ids={[21]} /> provide methodological context
+                for automated red-teaming with LLMs, relevant to both H1 and
+                the general methodology of using LLMs to evaluate LLMs.
+              </p>
+            </div>
+
             {/* 3.1 */}
             <div>
               <div className="flex items-baseline gap-3">
@@ -680,7 +837,107 @@ export default function ResearchCitationsPage() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Section 5 — Full reference list                               */}
+      {/* Section 5 — Statistical methodology                           */}
+      {/* ------------------------------------------------------------ */}
+      <section className="border-y-2 border-foreground/70 bg-black/40">
+        <div className="mx-auto max-w-4xl px-6 py-16">
+          <p className="text-xs uppercase tracking-[0.4em] text-accent">
+            5. Methodology grounding
+          </p>
+          <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
+            Statistical foundations
+          </h2>
+          <p className="mt-6 text-sm leading-relaxed text-muted">
+            Effect sizes are reported as Cohen&apos;s d, the standardised
+            mean difference introduced by Cohen <Cite ids={[27]} />.
+            The pre-registered threshold of |d| &ge; 0.30 sits between
+            Cohen&apos;s conventional &ldquo;small&rdquo; (0.20) and
+            &ldquo;medium&rdquo; (0.50) benchmarks. We chose this
+            threshold a priori (before running any bouts) and acknowledge
+            it is non-standard.
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-muted">
+            Statistical significance is assessed via permutation tests
+            (10,000 iterations), a distribution-free method that makes no
+            parametric assumptions about the data{' '}
+            <Cite ids={[28]} />. This is appropriate for
+            text-statistical metrics where normality cannot be assumed.
+          </p>
+          <p className="mt-4 text-sm leading-relaxed text-muted">
+            All hypotheses are pre-registered: analysis methodology,
+            metrics, and thresholds are committed to git before any bouts
+            are run. Pre-registration as a methodological practice is
+            grounded in the work of Nosek et al. <Cite ids={[29]} />,
+            who argue that separating prediction from postdiction is
+            essential for credible research. We note that our
+            pre-registrations are private git commits, not public
+            registrations on OSF or a similar registry &mdash; a
+            distinction we acknowledge and invite scrutiny of.
+          </p>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Section 6 — Limitations acknowledged in the literature         */}
+      {/* ------------------------------------------------------------ */}
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <p className="text-xs uppercase tracking-[0.4em] text-accent">
+          6. Acknowledged limitations
+        </p>
+        <h2 className="mt-4 font-sans text-2xl uppercase tracking-tight md:text-3xl">
+          Challenges from the literature
+        </h2>
+        <p className="mt-6 text-sm leading-relaxed text-muted">
+          An honest review should cite evidence that complicates or
+          challenges the approach, not only evidence that supports it.
+        </p>
+        <div className="mt-6 flex flex-col gap-6">
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+              Hallucination snowballing in multi-agent settings
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              While multi-agent debate can reduce hallucinations{' '}
+              <Cite ids={[1]} />, the hallucination survey literature{' '}
+              <Cite ids={[30]} /> documents that multi-agent settings can
+              also <em>amplify</em> hallucinations through
+              &ldquo;hallucination snowballing&rdquo; &mdash; where one
+              agent&apos;s hallucination becomes accepted fact within the
+              group. This is a known risk in adversarial debate formats.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+              The 6/6 clear-result pattern
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              All six hypotheses returned clear results (|d| &ge; 0.30),
+              a pattern the research page acknowledges is unusual. This
+              may reflect the threshold choice, the relatively
+              coarse-grained nature of text-statistical metrics on LLM
+              output (which may exhibit lower intrinsic variance than
+              human-subject measures), or researcher degrees of freedom
+              in metric selection. We invite external replication.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-foreground">
+              Persona prompting does not improve factual performance
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Zheng et al. <Cite ids={[10]} /> found that adding personas
+              to system prompts does not improve model performance on
+              factual tasks. The Pit does not optimise for factual
+              accuracy, but this finding establishes that persona effects
+              are domain-specific and should not be generalised beyond
+              their demonstrated scope.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Section 7 — Full reference list                               */}
       {/* ------------------------------------------------------------ */}
       <section className="border-y-2 border-foreground/70 bg-black/40">
         <div className="mx-auto max-w-4xl px-6 py-16">
