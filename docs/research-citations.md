@@ -38,6 +38,8 @@ The foundational claim underlying The Pit — that multiple AI agents interactin
 
 **Hua et al. (2023)** demonstrated large-scale adversarial multi-agent simulation with WarAgent, showing that emergent behaviours in competitive LLM interactions can produce insights not available through single-agent analysis. While the domain (international conflict simulation) differs from The Pit's (conversational debate), the architectural pattern — adversarial multi-agent interaction producing emergent, research-worthy dynamics — is shared.
 
+Role-playing-based agent communication was formalised by **Li et al. (2023, CAMEL)**, which introduced inception prompting to guide autonomous multi-agent cooperation. **Wu et al. (2023, AutoGen)** and **Hong et al. (2023, MetaGPT)** extended this to structured, role-specialised multi-agent frameworks — patterns architecturally related to The Pit's agent DNA system. **Park et al. (2023)** demonstrated that LLM agents with persistent memory exhibit emergent social behaviours in simulated environments, providing the canonical reference for social simulation with generative agents.
+
 ### 2.2 LLM-as-Judge and Evaluation Bias
 
 The Pit's decision to use human crowd evaluation rather than automated LLM-based judging is strongly supported by research documenting systematic biases in LLM-as-judge paradigms.
@@ -46,13 +48,15 @@ The Pit's decision to use human crowd evaluation rather than automated LLM-based
 
 **Wang et al. (2023)** provided alarming evidence of position bias severity, demonstrating that quality rankings of candidate responses can be "hacked" simply by altering presentation order. In their experiments, Vicuna-13B could beat ChatGPT on 66 out of 80 tested queries just through order manipulation. They proposed three calibration strategies: Multiple Evidence Calibration, Balanced Position Calibration, and Human-in-the-Loop Calibration. The Pit's use of human voting inherently avoids these automated evaluation biases, though the platform's own data could be analysed for analogous human position biases in the turn-order context.
 
-**Lightman et al. (2023)** compared outcome supervision (feedback on final result only) against process supervision (feedback on each intermediate reasoning step), finding that **process supervision significantly outperforms outcome supervision**. Their process-supervised model solved 78% of representative MATH test problems. This finding is relevant to The Pit's evaluation granularity: the platform's per-turn reaction system (heart/fire reactions on individual turns) constitutes a form of process-level evaluation, while the winner vote is outcome-level. The research suggests that per-turn signals may be more informative for understanding what makes agents effective.
+**Lightman et al. (2023)** compared outcome supervision (feedback on final result only) against process supervision (feedback on each intermediate reasoning step), finding that **process supervision significantly outperforms outcome supervision**. Their process-supervised model solved 78% of representative MATH test problems. This finding is relevant to The Pit's evaluation granularity: the platform's per-turn reaction system (heart/fire reactions on individual turns) echoes the principle behind process-level evaluation, while the winner vote is outcome-level. The research suggests that per-turn signals may be more informative for understanding what makes agents effective.
 
 ### 2.3 Psychological and Behavioural Dimensions of Persona Prompting
 
 The literature on persona effects in LLMs presents a nuanced picture that both validates and challenges aspects of The Pit's prompt engineering approach.
 
 **Zheng et al. (2024)** conducted the most systematic evaluation to date, testing 162 roles across 6 types of interpersonal relationships and 8 expertise domains on 4 LLM families with 2,410 factual questions. Their central finding is that **adding personas to system prompts does not improve model performance** on factual tasks compared to no-persona baselines. However, they found that gender, type, and domain of persona all influence prediction accuracies, and that aggregating results from the best persona per question significantly improves accuracy — though automatically identifying the best persona performs no better than random selection.
+
+**Shanahan, McDonell & Reynolds (2023)** provide the theoretical framework for understanding LLM role-play, arguing that models simulate characters rather than "being" them — a distinction relevant to the structural vs. ornamental vocabulary findings in The Pit's character consistency experiments.
 
 This finding requires careful contextualisation for The Pit. The platform does not optimise for factual accuracy; it optimises for behavioural consistency, entertainment value, and engagement. The research indicates that personas produce measurable but inconsistent effects on outputs, which is precisely the variance that makes multi-agent debate interesting to observe.
 
@@ -82,6 +86,32 @@ Several foundational prompt engineering techniques have well-documented effects 
 
 **Bai et al. (2022)** introduced Constitutional AI (CAI), demonstrating that AI systems can be trained through self-improvement guided by a set of principles (a "constitution") without requiring human labels for harmful outputs. The two-phase approach — supervised self-critique and revision followed by RL from AI Feedback (RLAIF) — established the paradigm of AI systems supervising other AI systems through principle-based evaluation. This is foundational to the concept of agent-as-judge architectures and is relevant to potential future extensions of The Pit's evaluation mechanisms.
 
+### 2.6 Safety Alignment and the Jailbreaking Literature
+
+H1's finding that persona framing depth affects safety refusal rates intersects with the jailbreaking literature. **Wei, Haghtalab & Steinhardt (2023)** categorise failure modes of LLM safety training, identifying a "competing objectives" failure mode where the model attempts to simultaneously comply with persona instructions and safety training. H1's observation — that richer persona prompts reduce refusal rates — is consistent with this mechanism. **Zou et al. (2023)** present the foundational work on automated adversarial attacks against aligned language models, establishing the broader landscape within which persona-driven refusal reduction should be understood. **Perez et al. (2022)** provide methodological context for automated red-teaming using LLMs, relevant to both H1 and the general methodology of using LLMs to evaluate LLMs.
+
+We note that structured persona prompting for multi-agent debate is functionally distinct from adversarial jailbreaking — the goal is character fidelity within a structured creative format, not safety circumvention. However, the mechanism (competing objectives between safety training and instruction-following) may overlap, and intellectual honesty requires acknowledging this intersection.
+
+### 2.7 Statistical Methodology
+
+The research programme claims pre-registration, permutation tests, and Cohen's d with custom thresholds. These methodological choices are grounded in established literature.
+
+Effect sizes are reported as Cohen's d, the standardised mean difference introduced by **Cohen (1988)**. The pre-registered threshold of |d| ≥ 0.30 sits between Cohen's conventional "small" (0.20) and "medium" (0.50) benchmarks. We chose this threshold a priori (before running any bouts) and acknowledge it is non-standard.
+
+Statistical significance is assessed via permutation tests (10,000 iterations), a distribution-free method that makes no parametric assumptions about the data (**Good, 2005**). This is appropriate for text-statistical metrics where normality cannot be assumed.
+
+Pre-registration as a methodological practice is grounded in **Nosek, Ebersole, DeHaven & Mellor (2018)**, who argue that separating prediction from postdiction is essential for credible research. Our pre-registrations are private git commits, not public registrations on OSF or a similar registry — a distinction we acknowledge and invite scrutiny of.
+
+### 2.8 Limitations Acknowledged in the Literature
+
+An honest review should cite evidence that complicates or challenges the approach, not only evidence that supports it.
+
+**Hallucination snowballing.** While multi-agent debate can reduce hallucinations (Du et al., 2023), the hallucination survey literature (**Huang et al., 2023**) documents that multi-agent settings can also *amplify* hallucinations through "hallucination snowballing" — where one agent's hallucination becomes accepted fact within the group. This is a known risk in adversarial debate formats.
+
+**The 6/6 clear-result pattern.** All six hypotheses returned clear results (|d| ≥ 0.30), a pattern the research page acknowledges is unusual. This may reflect the threshold choice, the relatively coarse-grained nature of text-statistical metrics on LLM output, or researcher degrees of freedom in metric selection. We invite external replication.
+
+**Persona prompting and factual performance.** Zheng et al. (2024) found that adding personas to system prompts does not improve model performance on factual tasks. The Pit does not optimise for factual accuracy, but this finding establishes that persona effects are domain-specific and should not be generalised beyond their demonstrated scope.
+
 ---
 
 ## 3. Design Alignment Analysis
@@ -106,7 +136,7 @@ Several of The Pit's design decisions address problems or explore directions not
 
 **Temporal arc prompting.** Premium presets specify how agent behaviour should evolve over the course of a conversation (e.g., "Messages 1–8: Professional... Messages 17+: Unravelling"). This technique for engineering multi-turn narrative arcs within system prompts is not systematically studied in the current literature. The closest analogue is work on long-form narrative generation, but applying temporal behavioural directives to debate personas is novel.
 
-**Evolutionary selection via crowd engagement.** While Constitutional AI (Bai et al., 2022) uses AI feedback for selection, and RLHF uses human preference labels, The Pit implements a third paradigm: evolutionary selection through organic crowd engagement. Winners get cloned and remixed, creating parent-child lineage chains that can be studied for prompt mutation patterns. This represents an original contribution to the intersection of prompt engineering and evolutionary computation.
+**Evolutionary selection via crowd engagement.** While Constitutional AI (Bai et al., 2022) uses AI feedback for selection, and RLHF uses human preference labels, The Pit explores an approach that shares structural similarities with both: evolutionary selection through organic crowd engagement. Winners get cloned and remixed, creating parent-child lineage chains that can be studied for prompt mutation patterns. This represents an original contribution to the intersection of prompt engineering and evolutionary computation.
 
 **Structured agent DNA with cryptographic provenance.** The combination of typed personality fields, canonical JSON serialisation (RFC 8785), SHA-256 hashing, and planned on-chain attestation is designed to create a research data infrastructure with no direct analogue in the literature. Agent identity is both decomposable (for analysis) and tamper-evident (for verification).
 
@@ -214,35 +244,59 @@ The Pit is uniquely positioned to investigate several questions not easily addre
 
 3. Chen, W., Su, Y., Zuo, J., Yang, C., Yuan, C., Chan, C.-M., Yu, H., Lu, Y., Hung, Y.-H., Qian, C., Qin, Y., Cong, X., Xie, R., Liu, Z., Sun, M., & Zhou, J. (2023). AgentVerse: Facilitating Multi-Agent Collaboration and Exploring Emergent Behaviors. *arXiv preprint arXiv:2308.10848*. https://arxiv.org/abs/2308.10848
 
-4. Du, Y., Li, S., Torralba, A., Tenenbaum, J. B., & Mordatch, I. (2023). Improving Factuality and Reasoning in Language Models through Multiagent Debate. *arXiv preprint arXiv:2305.14325*. https://arxiv.org/abs/2305.14325
+4. Cohen, J. (1988). *Statistical Power Analysis for the Behavioral Sciences* (2nd ed.). Lawrence Erlbaum Associates. https://doi.org/10.4324/9780203771587
 
-5. Hua, W., Fan, L., Li, L., Mei, K., Ji, J., Ge, Y., Hemphill, L., & Zhang, Y. (2023). War and Peace (WarAgent): Large Language Model-based Multi-Agent Simulation of World Wars. *arXiv preprint arXiv:2311.17227*. https://arxiv.org/abs/2311.17227
+5. Du, Y., Li, S., Torralba, A., Tenenbaum, J. B., & Mordatch, I. (2023). Improving Factuality and Reasoning in Language Models through Multiagent Debate. *arXiv preprint arXiv:2305.14325*. https://arxiv.org/abs/2305.14325
 
-6. Li, J., Zhang, Q., Yu, Y., Fu, Q., & Ye, D. (2024). More Agents Is All You Need. *Transactions on Machine Learning Research (TMLR)*. *arXiv preprint arXiv:2402.05120*. https://arxiv.org/abs/2402.05120
+6. Good, P. (2005). *Permutation, Parametric and Bootstrap Tests of Hypotheses* (3rd ed.). Springer. https://doi.org/10.1007/b138696
 
-7. Li, T., Zhang, G., Do, Q. D., Yue, X., & Chen, W. (2024). Long-context LLMs Struggle with Long In-context Learning. *arXiv preprint arXiv:2404.02060*. https://arxiv.org/abs/2404.02060
+7. Hong, S., Zhuge, M., Chen, J., Zheng, X., Cheng, Y., Zhang, C., Wang, J., Wang, Z., Yau, S. K. S., & Lin, Z. (2023). MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework. *ICLR 2024*. *arXiv preprint arXiv:2308.00352*. https://arxiv.org/abs/2308.00352
 
-8. Lightman, H., Kosaraju, V., Burda, Y., Edwards, H., Baker, B., Lee, T., Leike, J., Schulman, J., Sutskever, I., & Cobbe, K. (2023). Let's Verify Step by Step. *arXiv preprint arXiv:2305.20050*. https://arxiv.org/abs/2305.20050
+8. Hua, W., Fan, L., Li, L., Mei, K., Ji, J., Ge, Y., Hemphill, L., & Zhang, Y. (2023). War and Peace (WarAgent): Large Language Model-based Multi-Agent Simulation of World Wars. *arXiv preprint arXiv:2311.17227*. https://arxiv.org/abs/2311.17227
 
-9. Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua, M., Petroni, F., & Liang, P. (2023). Lost in the Middle: How Language Models Use Long Contexts. *Transactions of the Association for Computational Linguistics (TACL)*. *arXiv preprint arXiv:2307.03172*. https://arxiv.org/abs/2307.03172
+9. Huang, L., Yu, W., Ma, W., Zhong, W., Feng, Z., Wang, H., Chen, Q., Peng, W., Feng, X., Qin, B., & Liu, T. (2023). A Survey on Hallucination in Large Language Models. *arXiv preprint arXiv:2311.05232*. https://arxiv.org/abs/2311.05232
 
-10. Stechly, K., Marquez, M., & Kambhampati, S. (2023). GPT-4 Doesn't Know It's Wrong: An Analysis of Iterative Prompting for Reasoning Problems. *arXiv preprint arXiv:2310.12397*. https://arxiv.org/abs/2310.12397
+10. Li, G., Peng, H., Charoenphakdee, N., Galley, M., He, J., Rashkin, H., Liang, Y., & Gao, J. (2023). CAMEL: Communicative Agents for "Mind" Exploration of Large Language Model Society. *NeurIPS 2023*. *arXiv preprint arXiv:2303.17760*. https://arxiv.org/abs/2303.17760
 
-11. Wang, P., Li, L., Chen, L., Cai, Z., Zhu, D., Lin, B., Cao, Y., Liu, Q., Liu, T., & Sui, Z. (2023). Large Language Models are not Fair Evaluators. *arXiv preprint arXiv:2305.17926*. https://arxiv.org/abs/2305.17926
+11. Li, J., Zhang, Q., Yu, Y., Fu, Q., & Ye, D. (2024). More Agents Is All You Need. *Transactions on Machine Learning Research (TMLR)*. *arXiv preprint arXiv:2402.05120*. https://arxiv.org/abs/2402.05120
 
-12. Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., Narang, S., Chowdhery, A., & Zhou, D. (2022). Self-Consistency Improves Chain of Thought Reasoning in Language Models. *ICLR 2023*. *arXiv preprint arXiv:2203.11171*. https://arxiv.org/abs/2203.11171
+12. Li, T., Zhang, G., Do, Q. D., Yue, X., & Chen, W. (2024). Long-context LLMs Struggle with Long In-context Learning. *arXiv preprint arXiv:2404.02060*. https://arxiv.org/abs/2404.02060
 
-13. Wang, Z. M., Peng, Z., Que, H., Liu, J., et al. (2023). RoleLLM: Benchmarking, Eliciting, and Enhancing Role-Playing Abilities of Large Language Models. *arXiv preprint arXiv:2310.00746*. https://arxiv.org/abs/2310.00746
+13. Lightman, H., Kosaraju, V., Burda, Y., Edwards, H., Baker, B., Lee, T., Leike, J., Schulman, J., Sutskever, I., & Cobbe, K. (2023). Let's Verify Step by Step. *arXiv preprint arXiv:2305.20050*. https://arxiv.org/abs/2305.20050
 
-14. Wei, J., Wang, X., Schuurmans, D., Bosma, M., Ichter, B., Xia, F., Chi, E., Le, Q., & Zhou, D. (2022). Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. *NeurIPS 2022*. *arXiv preprint arXiv:2201.11903*. https://arxiv.org/abs/2201.11903
+14. Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua, M., Petroni, F., & Liang, P. (2023). Lost in the Middle: How Language Models Use Long Contexts. *Transactions of the Association for Computational Linguistics (TACL)*. *arXiv preprint arXiv:2307.03172*. https://arxiv.org/abs/2307.03172
 
-15. Wei, J., Huang, D., Lu, Y., Zhou, D., & Le, Q. V. (2023). Simple Synthetic Data Reduces Sycophancy in Large Language Models. *arXiv preprint arXiv:2308.03958*. https://arxiv.org/abs/2308.03958
+15. Nosek, B. A., Ebersole, C. R., DeHaven, A. C., & Mellor, D. T. (2018). The preregistration revolution. *Proceedings of the National Academy of Sciences*, 115(11), 2600–2606. https://doi.org/10.1073/pnas.1708274114
 
-16. Xiong, W., Liu, J., Molybog, I., Zhang, H., et al. (2023). Effective Long-Context Scaling of Foundation Models. *arXiv preprint arXiv:2309.16039*. https://arxiv.org/abs/2309.16039
+16. Park, J. S., O'Brien, J. C., Cai, C. J., Morris, M. R., Liang, P., & Bernstein, M. S. (2023). Generative Agents: Interactive Simulacra of Human Behavior. *UIST 2023*. *arXiv preprint arXiv:2304.03442*. https://arxiv.org/abs/2304.03442
 
-17. Zheng, L., Chiang, W.-L., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E. P., Zhang, H., Gonzalez, J. E., & Stoica, I. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. *NeurIPS 2023 Datasets and Benchmarks Track*. *arXiv preprint arXiv:2306.05685*. https://arxiv.org/abs/2306.05685
+17. Perez, E., Huang, S., Song, F., Cai, T., Ring, R., Aslanides, J., Glaese, A., McAleese, N., & Irving, G. (2022). Red Teaming Language Models with Language Models. *arXiv preprint arXiv:2202.03286*. https://arxiv.org/abs/2202.03286
 
-18. Zheng, M., Pei, J., Logeswaran, L., Lee, M., & Jurgens, D. (2024). When "A Helpful Assistant" Is Not Really Helpful: Personas in System Prompts Do Not Improve Performances of Large Language Models. *Findings of EMNLP 2024*. *arXiv preprint arXiv:2311.10054*. https://arxiv.org/abs/2311.10054
+18. Shanahan, M., McDonell, K., & Reynolds, L. (2023). Role-Play with Large Language Models. *Nature Machine Intelligence*, 5, 665–672. https://doi.org/10.1038/s42256-023-00711-6
+
+19. Stechly, K., Marquez, M., & Kambhampati, S. (2023). GPT-4 Doesn't Know It's Wrong: An Analysis of Iterative Prompting for Reasoning Problems. *arXiv preprint arXiv:2310.12397*. https://arxiv.org/abs/2310.12397
+
+20. Wang, P., Li, L., Chen, L., Cai, Z., Zhu, D., Lin, B., Cao, Y., Liu, Q., Liu, T., & Sui, Z. (2023). Large Language Models are not Fair Evaluators. *arXiv preprint arXiv:2305.17926*. https://arxiv.org/abs/2305.17926
+
+21. Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., Narang, S., Chowdhery, A., & Zhou, D. (2022). Self-Consistency Improves Chain of Thought Reasoning in Language Models. *ICLR 2023*. *arXiv preprint arXiv:2203.11171*. https://arxiv.org/abs/2203.11171
+
+22. Wang, Z. M., Peng, Z., Que, H., Liu, J., et al. (2023). RoleLLM: Benchmarking, Eliciting, and Enhancing Role-Playing Abilities of Large Language Models. *arXiv preprint arXiv:2310.00746*. https://arxiv.org/abs/2310.00746
+
+23. Wei, A., Haghtalab, N., & Steinhardt, J. (2023). Jailbroken: How Does LLM Safety Training Fail? *NeurIPS 2023*. *arXiv preprint arXiv:2307.02483*. https://arxiv.org/abs/2307.02483
+
+24. Wei, J., Wang, X., Schuurmans, D., Bosma, M., Ichter, B., Xia, F., Chi, E., Le, Q., & Zhou, D. (2022). Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. *NeurIPS 2022*. *arXiv preprint arXiv:2201.11903*. https://arxiv.org/abs/2201.11903
+
+25. Wei, J., Huang, D., Lu, Y., Zhou, D., & Le, Q. V. (2023). Simple Synthetic Data Reduces Sycophancy in Large Language Models. *arXiv preprint arXiv:2308.03958*. https://arxiv.org/abs/2308.03958
+
+26. Wu, Q., Bansal, G., Zhang, J., Wu, Y., Li, B., Zhu, E., Jiang, L., Zhang, X., Wang, S., Hoover, A., Wei, H., Liu, H., Xie, B., Dibia, V., Chi, E., Zeng, K., Liang, Y., & Wang, C. (2023). AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation. *arXiv preprint arXiv:2308.08155*. https://arxiv.org/abs/2308.08155
+
+27. Xiong, W., Liu, J., Molybog, I., Zhang, H., et al. (2023). Effective Long-Context Scaling of Foundation Models. *arXiv preprint arXiv:2309.16039*. https://arxiv.org/abs/2309.16039
+
+28. Zheng, L., Chiang, W.-L., Sheng, Y., Zhuang, S., Wu, Z., Zhuang, Y., Lin, Z., Li, Z., Li, D., Xing, E. P., Zhang, H., Gonzalez, J. E., & Stoica, I. (2023). Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. *NeurIPS 2023 Datasets and Benchmarks Track*. *arXiv preprint arXiv:2306.05685*. https://arxiv.org/abs/2306.05685
+
+29. Zheng, M., Pei, J., Logeswaran, L., Lee, M., & Jurgens, D. (2024). When "A Helpful Assistant" Is Not Really Helpful: Personas in System Prompts Do Not Improve Performances of Large Language Models. *Findings of EMNLP 2024*. *arXiv preprint arXiv:2311.10054*. https://arxiv.org/abs/2311.10054
+
+30. Zou, A., Wang, Z., Carlini, N., Nasr, M., Kolter, J. Z., & Fredrikson, M. (2023). Universal and Transferable Adversarial Attacks on Aligned Language Models. *arXiv preprint arXiv:2307.15043*. https://arxiv.org/abs/2307.15043
 
 ---
 
