@@ -75,6 +75,8 @@ import { FIRST_BOUT_PROMOTION_MODEL } from '@/lib/models';
 import { UNSAFE_PATTERN } from '@/lib/validation';
 import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
 import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
+import type { PromptHook, ScriptedTurn } from '@/lib/experiment';
+import { appendExperimentInjection } from '@/lib/experiment';
 
 // ─── Prompt caching ──────────────────────────────────────────────────
 
@@ -126,6 +128,11 @@ export type BoutContext = {
   tier: 'anonymous' | 'free' | 'pass' | 'lab';
   requestId: string;
   db: ReturnType<typeof requireDb>;
+  // ─── Experiment infrastructure (optional) ────────────────────────
+  /** Per-turn callback to inject content into agent system prompts. Research API only. */
+  promptHook?: PromptHook;
+  /** Pre-scripted turns that bypass the LLM call. Research API only. */
+  scriptedTurns?: Map<number, ScriptedTurn>;
 };
 
 /** Result returned by executeBout after all turns complete. */
@@ -667,11 +674,61 @@ async function _executeBoutInner(
       });
       onEvent?.({ type: 'text-start', id: turnId });
 
-      const systemContent = buildSystemMessage({
+      // ── Experiment: scripted turn fast path ──────────────────────
+      // When a scripted turn matches this turn number, skip the LLM call
+      // entirely and emit the pre-determined content. The scripted text
+      // still gets added to history and streamed via SSE. No API cost.
+      const scriptedTurn = ctx.scriptedTurns?.get(i);
+      if (scriptedTurn) {
+        const scriptedText = scriptedTurn.content;
+        log.info('Scripted turn emitted', {
+          requestId,
+          boutId,
+          turn: i,
+          agentId: agent.id,
+          scriptedAgentIndex: scriptedTurn.agentIndex,
+          contentLength: scriptedText.length,
+        });
+
+        // Emit scripted content as SSE deltas (single chunk for scripted turns)
+        onEvent?.({ type: 'text-delta', id: turnId, delta: scriptedText });
+        onEvent?.({ type: 'text-end', id: turnId });
+
+        // No token accounting for scripted turns — no LLM call was made
+        history.push(`${agent.name}: ${scriptedText}`);
+
+        transcript.push({
+          turn: i,
+          agentId: agent.id,
+          agentName: agent.name,
+          text: scriptedText,
+        });
+
+        continue;
+      }
+
+      // ── Standard LLM turn ──────────────────────────────────────
+      let systemContent = buildSystemMessage({
         safety: SAFETY_TEXT,
         persona: agent.systemPrompt,
         format: formatConfig.instruction,
       });
+
+      // Experiment infrastructure: apply prompt hook if configured.
+      // The hook can inject content into the system prompt for controlled
+      // context-injection experiments. Only active when explicitly provided
+      // via research API — null/undefined is the default (no-op).
+      if (ctx.promptHook) {
+        const hookResult = ctx.promptHook({
+          turn: i,
+          agentIndex: i % preset.agents.length,
+          agentId: agent.id,
+          history: [...history],
+        });
+        if (hookResult?.injectedContent) {
+          systemContent = appendExperimentInjection(systemContent, hookResult.injectedContent);
+        }
+      }
 
       // Context window budgeting: truncate history from the front if the
       // full transcript would exceed the model's input token limit.
