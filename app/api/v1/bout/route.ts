@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import { auth } from '@clerk/nextjs/server';
 
 import { log } from '@/lib/logger';
@@ -6,11 +7,30 @@ import { scheduleTraceFlush } from '@/lib/langsmith';
 import { getUserTier, SUBSCRIPTIONS_ENABLED, TIER_CONFIG } from '@/lib/tier';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
+import {
+  validateExperimentConfig,
+  compilePromptHook,
+  compileScriptedTurns,
+  type ExperimentConfig,
+} from '@/lib/experiment';
 
 export const runtime = 'nodejs';
 
 // Synchronous bouts can take up to 120 seconds for long, multi-turn debates.
 export const maxDuration = 120;
+
+/**
+ * Verify the X-Research-Key header against the RESEARCH_API_KEY env var.
+ * Returns true only if both are present and match (timing-safe).
+ */
+function verifyResearchKey(req: Request): boolean {
+  const researchKey = req.headers.get('x-research-key');
+  const expected = process.env.RESEARCH_API_KEY;
+  if (!researchKey || !expected) return false;
+  const a = Buffer.from(researchKey);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
 
 /**
  * Synchronous REST endpoint for running a bout.
@@ -20,6 +40,9 @@ export const maxDuration = 120;
  *
  * This endpoint shares all validation, tier gating, credit accounting,
  * and execution logic with the streaming POST /api/run-bout endpoint.
+ *
+ * Optionally accepts an `experimentConfig` in the request body for
+ * controlled context-injection experiments. Requires X-Research-Key header.
  */
 async function rawPOST(req: Request) {
   // Lab tier gate: check before running validation (which may consume credits)
@@ -35,6 +58,17 @@ async function rawPOST(req: Request) {
     }
   }
 
+  // Pre-parse request body to extract experimentConfig before validateBoutRequest
+  // consumes it. Clone the request so validateBoutRequest gets a fresh body.
+  let rawBody: Record<string, unknown>;
+  try {
+    rawBody = await req.clone().json();
+  } catch {
+    rawBody = {};
+  }
+
+  const rawExperimentConfig = rawBody.experimentConfig;
+
   // Shared validation (parsing, idempotency, tier, credits, rate limit)
   const validation = await validateBoutRequest(req);
 
@@ -43,6 +77,42 @@ async function rawPOST(req: Request) {
   }
 
   const { context } = validation;
+
+  // ── Experiment config: validate and attach to context ──────────
+  // Only accepted when a valid X-Research-Key header is present.
+  // Without the research key, experimentConfig is silently ignored
+  // to maintain zero regression for normal API usage.
+  if (rawExperimentConfig !== undefined) {
+    const isResearch = verifyResearchKey(req);
+    if (!isResearch) {
+      return errorResponse('experimentConfig requires X-Research-Key authentication.', 403);
+    }
+
+    const experimentValidation = validateExperimentConfig(
+      rawExperimentConfig,
+      context.preset.maxTurns,
+      context.preset.agents.length,
+    );
+
+    if (!experimentValidation.ok) {
+      return errorResponse(experimentValidation.error, 400);
+    }
+
+    const experimentConfig: ExperimentConfig = experimentValidation.config;
+
+    // Compile declarative config into executable hooks
+    const promptHook = compilePromptHook(experimentConfig);
+    const scriptedTurns = compileScriptedTurns(experimentConfig);
+
+    if (promptHook) context.promptHook = promptHook;
+    if (scriptedTurns) context.scriptedTurns = scriptedTurns;
+
+    log.info('Experiment config attached', {
+      boutId: context.boutId,
+      hasPromptInjections: !!experimentConfig.promptInjections?.length,
+      hasScriptedTurns: !!experimentConfig.scriptedTurns?.length,
+    });
+  }
 
   // Schedule LangSmith trace flush after response is sent.
   scheduleTraceFlush();
