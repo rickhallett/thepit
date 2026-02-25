@@ -1,0 +1,269 @@
+{
+  "meta": {
+    "reviewer": "Architect",
+    "date": "2026-02-22",
+    "commit": "56efc7464b8471c23e4a2fa4e3bbf5f0e83ea94e",
+    "scope": "full codebase",
+    "verdict": "LAUNCH_READY"
+  },
+  "executive_summary": {
+    "assessment": "This is a remarkably well-engineered v1.0 product for a 15-day solo-founder build. The architecture is clean, security posture is strong (CSP, timing-safe auth, atomic credit operations, no XSS surface), and the test coverage is genuine. The streaming bout engine, credit economy, and blockchain attestation pipeline are all production-grade. A Hacker News reader inspecting the source will find evidence of considered engineering — not just feature velocity.",
+    "top_strengths": [
+      "Credit economy atomicity: preauthorize-settle pattern with conditional SQL UPDATE WHERE balance >= amount eliminates race conditions. Error-path refunds for user credits, intro pool, and free bout pool are all implemented. This is the kind of financial engineering detail that earns trust.",
+      "Security layering: CSP with frame-ancestors:none + HSTS preload + timing-safe admin auth + BYOK keys in 60s HTTP-only cookies scoped to /api/run-bout + zero dangerouslySetInnerHTML + XML-escaped user content in prompts + IP resolution using rightmost x-forwarded-for (not spoofable leftmost). The attack surface is minimal and deliberately managed.",
+      "Documentation discipline: every directory has a README with architecture decisions and trade-offs. The ARCHITECTURE.md is accurate to the code. This is rare for any project, let alone a 15-day build, and will directly influence HN reception."
+    ],
+    "top_risks": [
+      "In-memory rate limiting is per-serverless-instance. A determined attacker hitting different Vercel instances bypasses rate limits entirely. The DB-level constraints (unique indexes, atomic preauth) are the real enforcement, but the rate limiter is the user-facing first line of defense. This is documented and acceptable for launch but should be monitored.",
+      "The reactions endpoint TOCTOU: the toggle pattern (SELECT to check existence, then INSERT or DELETE) has a narrow race window where two concurrent requests could both see no existing reaction and both INSERT — though onConflictDoNothing prevents a crash, it means the toggle semantics are slightly loose under concurrency.",
+      "No Drizzle relational queries — all JOINs are hand-rolled with raw select().from().where() patterns. This is functional but means query correctness depends on manual discipline rather than ORM-enforced relationships. Post-launch, consider adopting Drizzle's relational API for complex queries."
+    ]
+  },
+  "findings": [
+    {
+      "id": "P1-001",
+      "priority": "P1",
+      "dimension": "A6",
+      "title": "In-memory rate limiter ineffective under multi-instance deployment",
+      "description": "lib/rate-limit.ts uses process-scoped Maps. Each Vercel serverless instance maintains independent state, so a determined attacker hitting N instances gets N× the rate limit. The documentation acknowledges this explicitly and the DB-level constraints (atomic preauth, unique indexes) provide the real enforcement, but the rate limiter is what produces user-facing 429 responses.",
+      "location": "lib/rate-limit.ts:1-117",
+      "evidence": "const stores = new Map<string, Map<string, RateLimitEntry>>(); — module-scoped, per-instance",
+      "recommendation": "For HN launch traffic, Vercel typically runs 1-2 warm instances so this is acceptable. Post-launch, migrate to Upstash Redis for distributed rate limiting. The architecture cleanly supports this — checkRateLimit() is the only call site.",
+      "effort": "medium",
+      "launch_blocking": false
+    },
+    {
+      "id": "P1-002",
+      "priority": "P1",
+      "dimension": "A6",
+      "title": "Reactions toggle has TOCTOU race window",
+      "description": "The POST /api/reactions handler checks for an existing reaction via SELECT, then either DELETEs or INSERTs. Under concurrent requests, two clients can both see no existing reaction and both attempt INSERT. onConflictDoNothing prevents a crash, but the second request silently does nothing instead of toggling off — the user thinks they reacted but the toggle didn't work as expected.",
+      "location": "app/api/reactions/route.ts:41-72",
+      "evidence": "const [existing] = await db.select({id: reactions.id}).from(reactions).where(...).limit(1); if (existing) { delete } else { insert }",
+      "recommendation": "Replace the SELECT+conditional-INSERT with a single INSERT ON CONFLICT DO UPDATE that atomically toggles. Or use a CTE: WITH existing AS (DELETE ... RETURNING) INSERT ... WHERE NOT EXISTS (SELECT FROM existing). The current behavior is cosmetically wrong but not data-corrupting — acceptable for launch.",
+      "effort": "small",
+      "launch_blocking": false
+    },
+    {
+      "id": "P2-001",
+      "priority": "P2",
+      "dimension": "A2",
+      "title": "Test mock setup duplicated across 101 test files",
+      "description": "Every test file independently defines mock factories (setupSelect, setupInsert, setupUpdate, mockDb) via vi.hoisted(). This is ~30-50 lines of boilerplate per file. When the DB mock pattern changes, all 101 files need updating.",
+      "location": "tests/unit/*.test.ts, tests/api/*.test.ts",
+      "evidence": "const { mockDb, mockInsert } = vi.hoisted(() => { /* factory */ }); — repeated in nearly every test file",
+      "recommendation": "Extract shared mock factories into tests/helpers/mock-db.ts. The current approach maximizes isolation (no hidden shared state) which is a valid tradeoff, but the maintenance cost will compound post-launch. Schedule for the first refactoring pass.",
+      "effort": "medium",
+      "launch_blocking": false
+    },
+    {
+      "id": "P2-002",
+      "priority": "P2",
+      "dimension": "A7",
+      "title": "Leaderboard and onboarding use in-memory caches with time-based invalidation only",
+      "description": "lib/leaderboard.ts (5min TTL) and lib/onboarding.ts (1h TTL) use module-scoped caches. These are per-instance (same as rate limiting) and only invalidate on TTL expiry. A user who just completed a bout won't see their leaderboard position update for up to 5 minutes. The onboarding cache means a user who was just granted credits might not see them reflected in the cached init path.",
+      "location": "lib/leaderboard.ts, lib/onboarding.ts",
+      "evidence": "Module-scoped let cache with TTL-based invalidation, no event-driven invalidation",
+      "recommendation": "Acceptable for launch — leaderboard ISR is 30s (page level) and credits are fetched fresh on the arena page. The caches are best-effort for reducing DB load. Post-launch, consider adding revalidatePath-triggered cache busting or moving to a proper KV store.",
+      "effort": "medium",
+      "launch_blocking": false
+    },
+    {
+      "id": "P2-003",
+      "priority": "P2",
+      "dimension": "A9",
+      "title": "No index on bouts.ownerId for user-scoped queries",
+      "description": "The bout engine queries bouts WHERE ownerId = userId (ownership check, user_activated count). The leaderboard also aggregates by ownerId. There is no index on bouts.ownerId — only on bouts.createdAt and (status, createdAt).",
+      "location": "db/schema.ts:58-89",
+      "evidence": "bouts table has createdAtIdx and statusCreatedAtIdx but no ownerIdIdx",
+      "recommendation": "Add a btree index on bouts.ownerId. At launch scale this is unlikely to matter, but as bout count grows, owner-scoped queries will degrade. Create a migration post-launch.",
+      "effort": "trivial",
+      "launch_blocking": false
+    },
+    {
+      "id": "P2-004",
+      "priority": "P2",
+      "dimension": "A3",
+      "title": "Single explicit-any in langsmith.ts wrapper function",
+      "description": "The withTracing wrapper uses `(...args: any[]) => any` to accept arbitrary function signatures. This is the only explicit any-escape in the lib/ directory.",
+      "location": "lib/langsmith.ts:208-209",
+      "evidence": "// eslint-disable-next-line @typescript-eslint/no-explicit-any\nexport function withTracing<F extends (...args: any[]) => any>(",
+      "recommendation": "Low priority. The any is justified for a generic wrapper that must accept arbitrary function signatures. TypeScript's type inference preserves the concrete types at call sites. No action needed for launch.",
+      "effort": "trivial",
+      "launch_blocking": false
+    },
+    {
+      "id": "P2-005",
+      "priority": "P2",
+      "dimension": "A1",
+      "title": "72 files in flat lib/ directory approaching discoverability threshold",
+      "description": "The lib/ directory contains 72 modules in a flat structure with naming-convention grouping (agent-*, credit-*, response-*). This works because the naming is consistent and the README documents the grouping, but it's at the upper bound of what a flat directory can support. The lib/README.md explicitly notes this.",
+      "location": "lib/",
+      "evidence": "72 files, 11 functional domains documented in lib/README.md",
+      "recommendation": "Post-launch, split into subdirectories by domain (lib/agents/, lib/credits/, lib/engagement/, etc.). The import paths will change but the module interfaces are clean. This is technical debt, not a defect.",
+      "effort": "medium",
+      "launch_blocking": false
+    },
+    {
+      "id": "P2-006",
+      "priority": "P2",
+      "dimension": "A5",
+      "title": "Error-path DB writes in bout engine lack retry logic",
+      "description": "When the bout engine catches an error, it attempts to persist the partial transcript and refund credits. If these cleanup DB writes fail (e.g., transient connection error), the error is logged but the bout may be stuck in 'running' status with credits not refunded.",
+      "location": "lib/bout-engine.ts:1163-1216",
+      "evidence": "await db.update(bouts).set({ status: 'error', ... }) — no retry, bare await",
+      "recommendation": "Acceptable for launch. The DB writes are to Neon which has high availability. A stuck 'running' bout is recoverable via pitctl (purge-errors). Post-launch, add a dead-letter/reconciliation job that sweeps bouts stuck in 'running' for >5min.",
+      "effort": "small",
+      "launch_blocking": false
+    },
+    {
+      "id": "P3-001",
+      "priority": "P3",
+      "dimension": "A10",
+      "title": "No API versioning strategy beyond /api/v1/bout",
+      "description": "The public REST API has one versioned endpoint (/api/v1/bout) while all other endpoints use unversioned paths (/api/reactions, /api/agents, etc.). This is fine for v1 but means breaking changes to these endpoints require either versioning or migration coordination.",
+      "location": "app/api/",
+      "evidence": "Only /api/v1/bout is versioned; 19 other endpoints are unversioned",
+      "recommendation": "Document the versioning intent. For HN launch, the internal endpoints are consumed only by the first-party client and don't need versioning. When the developer API expands, introduce /api/v2/ namespace.",
+      "effort": "trivial",
+      "launch_blocking": false
+    },
+    {
+      "id": "P3-002",
+      "priority": "P3",
+      "dimension": "A8",
+      "title": "Anomaly detection is log-only with no automated response",
+      "description": "lib/anomaly.ts detects burst traffic, credential probing, error rate spikes, and suspicious user-agents but only logs them. There's no automated blocking or alerting pipeline from anomaly detection to enforcement.",
+      "location": "lib/anomaly.ts",
+      "evidence": "Best-effort logging only; enforcement handled by lib/rate-limit.ts and DB constraints",
+      "recommendation": "Acceptable for launch. The rate limiter and DB constraints are the enforcement layer. Post-launch, wire anomaly.ts output to ANOMALY_WEBHOOK_URL (already in env schema) for Slack alerts, and consider auto-blocking repeated offenders.",
+      "effort": "small",
+      "launch_blocking": false
+    },
+    {
+      "id": "P3-003",
+      "priority": "P3",
+      "dimension": "B1",
+      "title": "No explicit loading/skeleton states for Arena streaming initiation",
+      "description": "The arena pages have loading.tsx files for Next.js route-level suspense, but the bout streaming itself transitions from idle -> streaming with a thinking delay (2-4s). During this initial period before the first text-delta, the user sees only a thinking indicator. This is intentional UX but could benefit from richer feedback (e.g., 'Connecting to arena...' then 'Agent X is thinking...').",
+      "location": "components/arena.tsx, lib/use-bout.ts",
+      "evidence": "Status transitions: idle -> streaming -> (thinking delay) -> visible text",
+      "recommendation": "The current UX is functional and the thinking delay creates a deliberate pause. Consider adding a brief connection-phase indicator post-launch. Not a blocker.",
+      "effort": "trivial",
+      "launch_blocking": false
+    },
+    {
+      "id": "P3-004",
+      "priority": "P3",
+      "dimension": "B5",
+      "title": "Agent moderation is flag-only with no automated enforcement",
+      "description": "The agent_flags table allows users to flag agents for moderation, but there's no automated enforcement (e.g., auto-hide after N flags). Moderation is admin-only via pitctl agents archive.",
+      "location": "db/schema.ts:279-296",
+      "evidence": "agent_flags table exists with unique per-user-per-agent constraint, but no threshold-based auto-action",
+      "recommendation": "At launch scale (likely <100 agents), manual moderation via pitctl is sufficient. Add threshold-based auto-hiding when community-created agent volume increases.",
+      "effort": "small",
+      "launch_blocking": false
+    },
+    {
+      "id": "P3-005",
+      "priority": "P3",
+      "dimension": "C",
+      "title": "Go CLI tools use stdlib flag package — no shell completion or help formatting",
+      "description": "All pit* CLIs use Go's stdlib flag package with hand-rolled switch dispatch. This is lightweight and dependency-free but means no shell completion, no automatic help formatting, and no subcommand grouping. The READMEs compensate with thorough documentation.",
+      "location": "pitctl/main.go, pitforge/main.go, pitnet/main.go",
+      "evidence": "stdlib flag + switch dispatch pattern across all CLIs",
+      "recommendation": "Acceptable for internal tooling. The CLIs are developer/admin tools, not user-facing. If external developer adoption grows, consider adding a minimal completion generator. No framework migration (cobra, etc.) needed — the current pattern is clean.",
+      "effort": "medium",
+      "launch_blocking": false
+    },
+    {
+      "id": "P3-006",
+      "priority": "P3",
+      "dimension": "A12",
+      "title": "OpenAPI spec covers 7 of 20 endpoints",
+      "description": "lib/openapi.ts documents 7 endpoints (Bouts, Agents, Engagement, Sharing, Community, System) but the API surface has 20 endpoints total. Internal endpoints (webhooks, admin, pv) are intentionally excluded.",
+      "location": "lib/openapi.ts",
+      "evidence": "OpenAPI 3.1.0 spec with 7 endpoints; 13 excluded (internal/admin/webhook)",
+      "recommendation": "The 7 documented endpoints are the public-facing API that matters for Lab-tier subscribers. Internal endpoints don't need OpenAPI documentation. Expand coverage as the developer API grows.",
+      "effort": "small",
+      "launch_blocking": false
+    },
+    {
+      "id": "P3-007",
+      "priority": "P3",
+      "dimension": "A11",
+      "title": "E2E tests paused during high-iteration phase",
+      "description": "Playwright E2E tests (7 specs) exist but are not part of test:ci. The AGENTS.md explicitly states E2E tests are 'paused during high-iteration phases and reintroduced when the product stabilises.' The CI gate is typecheck + lint + unit tests.",
+      "location": ".github/workflows/ci.yml, AGENTS.md",
+      "evidence": "test:ci runs lint + typecheck + unit + integration; e2e is a separate workflow",
+      "recommendation": "Appropriate for the lifecycle stage. The 1,007 unit/API tests and the local gate provide sufficient confidence for launch. Re-enable E2E in CI post-launch when iteration velocity decreases.",
+      "effort": "trivial",
+      "launch_blocking": false
+    }
+  ],
+  "dimension_scores": {
+    "A1_architecture": "Strong",
+    "A2_code_quality": "Strong",
+    "A3_type_safety": "Strong",
+    "A4_testing": "Strong",
+    "A5_error_handling": "Strong",
+    "A6_security": "Strong",
+    "A7_performance": "Adequate",
+    "A8_observability": "Strong",
+    "A9_database": "Strong",
+    "A10_api_design": "Adequate",
+    "A11_devops": "Adequate",
+    "A12_documentation": "Strong",
+    "B1_user_experience": "Adequate",
+    "B2_feature_completeness": "Strong",
+    "B3_business_model": "Strong",
+    "B4_growth_mechanics": "Adequate",
+    "B5_community_features": "Adequate",
+    "B6_research_value": "Strong",
+    "C_cli_toolchain": "Strong"
+  },
+  "recommendations": [
+    {
+      "priority": 1,
+      "action": "Monitor Vercel instance count during HN launch traffic spike. If multiple instances spin up, the in-memory rate limiter becomes porous. Have Upstash Redis ready as a fallback if abuse is detected.",
+      "rationale": "HN traffic is spiky and technical users may test rate limits. The DB-level constraints protect against financial loss, but the rate limiter protects against API abuse costs (Anthropic token spend).",
+      "effort": "small"
+    },
+    {
+      "priority": 2,
+      "action": "Add a btree index on bouts.ownerId before launch if possible, otherwise immediately after.",
+      "rationale": "The user_activated analytics query (COUNT bouts WHERE ownerId = X AND status = completed) runs on every bout completion. At scale this will table-scan without an index.",
+      "effort": "trivial"
+    },
+    {
+      "priority": 3,
+      "action": "Set up pitctl watch with a Slack webhook for continuous monitoring during the HN launch window.",
+      "rationale": "The tooling exists (pitctl watch --webhook). The launch window is the highest-risk period. Automated monitoring converts incidents from 'discovered by users' to 'discovered by ops.'",
+      "effort": "trivial"
+    },
+    {
+      "priority": 4,
+      "action": "Extract shared test mock factories into tests/helpers/ after launch.",
+      "rationale": "The 101-file mock duplication is the highest-impact technical debt in the test layer. Extracting it will reduce maintenance cost for every future schema change.",
+      "effort": "medium"
+    },
+    {
+      "priority": 5,
+      "action": "Split lib/ into domain subdirectories (agents/, credits/, engagement/, infrastructure/) after launch.",
+      "rationale": "72 flat files is at the discoverability ceiling. Contributors (including HN readers who clone the repo) will benefit from domain-grouped organization.",
+      "effort": "medium"
+    },
+    {
+      "priority": 6,
+      "action": "Wire anomaly.ts detections to the ANOMALY_WEBHOOK_URL Slack endpoint.",
+      "rationale": "The detection logic exists but is log-only. Slack alerts provide immediate visibility during the launch window without requiring log aggregation tooling.",
+      "effort": "small"
+    },
+    {
+      "priority": 7,
+      "action": "Re-enable Playwright E2E tests in CI once post-launch iteration velocity decreases.",
+      "rationale": "The 7 E2E specs cover core user flows. Running them in CI prevents regression on the critical path (bout streaming, mobile responsiveness, OG images).",
+      "effort": "trivial"
+    }
+  ]
+}

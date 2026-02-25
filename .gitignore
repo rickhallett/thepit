@@ -36,29 +36,6 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
-# internal strategy and process docs (not for public repo)
-# these are AI-assisted development artifacts: launch planning, QA sweeps,
-# architecture reviews, copy drafts, and marketing strategy generated during
-# the build process. they reflect the process, not the product.
-docs/press-*
-docs/criticism-*
-docs/social-content-playbook.md
-docs/landing-draft-*.md
-docs/landing-v3-*.md
-docs/mvp-checklist.md
-docs/mvp-feature-spec.md
-docs/copy-ab-testing-plan.md
-docs/agentic-archaeology-report.md
-docs/agentic-qa-*.md
-docs/code-review-*.md
-docs/hardening-changes-*.md
-docs/launch-hardening-report-*.md
-docs/qa-report.md
-docs/research-page-v1.md
-docs/review-action-plan-*.md
-docs/security-checklist.md
-docs/typescript-architecture-review-*.md
-
 # vercel
 .vercel
 
@@ -76,12 +53,13 @@ next-env.d.ts
 qa/results/
 runs/*.ndjson
 
-# pitstorm credentials (contains plaintext passwords and session tokens)
+# pitstorm credentials
 accounts.json
 
 # editor/tool config
 .gemini/
 .vscode/
+docs/.obsidian/
 
 # local archives
 archive-mPIpSK/
@@ -107,9 +85,6 @@ docs/release-review-*
 # internal research docs
 docs/research-seed-hypotheses.md
 docs/research-prompts/
-
-# hype copy variant (contradicts no-hype positioning)
-copy/variants/hype.json
 
 # archived copy (unqualified claims, not for public repo)
 copy/archive/
@@ -147,5 +122,3 @@ pitkeel/pitkeel
 CLAUDE.md
 AGENTS.md
 
-# archived docs (unqualified claims, not for public repo)
-docs/archive/
