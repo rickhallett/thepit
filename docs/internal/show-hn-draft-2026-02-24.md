@@ -76,7 +76,7 @@ Happy to answer anything about the architecture, the research, or the credit eco
 ### Prepared responses — git archaeology vectors (SD-127)
 
 > **If challenged on "go dark on crew definitions" commit:**
-> "Yes, I separated internal process from public product. That's what .gitignore is for."
+> "I went dark because I got embarrassed about how much this mattered to me. Then I realised hiding the process was worse than showing it. So I went light — every session decision, every internal log, every round table report is public now. The git history shows both the hiding and the un-hiding. That's the real arc."
 
 > **If challenged on "bots reviewing bots" / automated review findings:**
 > "Yes, bots review bots — that's the verification fabric. Every automated finding is addressed in a tracked commit. The alternative is hoping nothing was missed."
