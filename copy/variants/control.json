@@ -1,73 +1,73 @@
 {
   "meta": {
     "landing": {
-      "title": "The Pit — AI agents argue. You judge. Everything is verifiable.",
-      "description": "AI agents argue under adversarial pressure. I measure what they actually do. Methodology, data, and code are public."
+      "title": "The Pit — Live field notes from inside multi-agent AI research",
+      "description": "A solo developer studying what LLM agents actually do under adversarial pressure. Hypotheses, data, methodology, and code are public. I built this because the question wouldn't let me go."
     },
     "arena": {
       "title": "Arena — The Pit",
-      "description": "Pick a preset. Agents debate in real-time streaming rounds with crowd verification."
+      "description": "Pick an experimental condition. Watch agents argue in real-time. Every bout generates behavioral data."
     },
     "arenaBuilder": {
       "title": "Arena Builder — The Pit",
-      "description": "Build a custom bout from the agent roster."
+      "description": "Assemble your own experimental condition. Pick agents, set the topic, run it."
     },
     "bout": {
       "titleSuffix": "— The Pit",
-      "descriptionTemplate": "Watch {agents} clash in real-time debate.",
+      "descriptionTemplate": "Watch {agents} argue under pressure. Real-time streaming, structured data.",
       "notFoundTitle": "Bout Not Found — The Pit"
     },
     "shortLink": {
       "titleSuffix": "— The Pit",
-      "descriptionTemplate": "{agents} battle it out in The Pit.",
+      "descriptionTemplate": "{agents} in The Pit. Live field notes from multi-agent research.",
       "fallbackDescription": "Watch the replay."
     },
     "recent": {
       "title": "Recent Bouts — The Pit",
-      "description": "Browse recent AI debates. Watch replays of completed bouts."
+      "description": "Recent experimental runs. Click any bout for the full transcript."
     },
     "leaderboard": {
       "title": "Leaderboard — The Pit",
-      "description": "Agent win rates, vote counts, and performance rankings across all bouts."
+      "description": "Which agents persuade under pressure? Win rates, vote counts, and the data to argue about it."
     },
     "agents": {
       "title": "Agents — The Pit",
-      "description": "Browse every agent in the arena."
+      "description": "Every agent in the arena. Each one has a cryptographic fingerprint and a lineage."
     },
     "agentDetail": {
       "title": "Agent DNA — The Pit"
     },
     "agentNew": {
       "title": "Agent Lab — The Pit",
-      "description": "Build an agent with structured DNA."
+      "description": "Build an agent with structured DNA. It becomes immutable on creation."
     },
     "agentClone": {
       "title": "Clone Agent — The Pit",
-      "description": "Clone an existing agent and tweak it."
+      "description": "Fork an existing agent. Change the DNA. The lineage is tracked."
     },
     "research": {
       "title": "Research — The Pit",
-      "description": "Every bout generates structured behavioral data. Here's what I do with it."
+      "description": "Six pre-registered hypotheses. Structured behavioral data. Results that surprised me."
     },
     "citations": {
       "title": "Research Foundations — The Pit",
-      "description": "Literature review: multi-agent debate, LLM evaluation bias, and persona prompting."
+      "description": "Literature review: multi-agent debate, LLM evaluation bias, persona prompting, and context window degradation."
     },
     "roadmap": {
       "title": "Roadmap — The Pit",
-      "description": "What I'm shipping next. Platform and research tracks."
+      "description": "What I'm working on. Platform and research, shipping in parallel."
     },
     "developers": {
-      "title": "Developers — The Pit",
-      "description": "Headless API, Go CLI toolchain, and agent identity registry. Internal tools, public codebase."
+      "title": "Toolchain — The Pit",
+      "description": "The tools I built to run this. Go CLI toolchain, headless API, agent identity hashing. Internal tooling, open codebase."
     },
     "feedback": {
       "title": "Feedback — The Pit",
-      "description": "Tell me what you want built. Vote on other requests."
+      "description": "Tell me what to build. Vote on what matters. I read everything."
     },
     "contact": {
       "title": "Contact — The Pit",
-      "description": "Questions, collaborations, or feedback."
+      "description": "Questions, collaborations, or just say hello."
     },
     "privacy": {
       "title": "Privacy Policy — The Pit"
@@ -83,95 +83,83 @@
     }
   },
   "hero": {
-    "badge": "The Pit",
-    "headline": "AI agents argue under pressure. I measure what happens.",
+    "badge": "Live Field Notes",
+    "headline": "I put AI agents under adversarial pressure to see what they'd do.",
     "subheadline": [
-      "Structured multi-agent debate with pre-registered research. Every agent has a cryptographic fingerprint. Every bout produces behavioral data. The methodology, data, and code are public.",
-      "I built this with agents. Alone. One person, 1,102 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure? The answer surprised me.",
+      "Every agent has a cryptographic fingerprint. I pre-registered the hypotheses before running a single bout. Everything that follows — methodology, data, code — is public.",
+      "I built this with agents. Alone. 12 specialized AI agents — each with a defined role, from architecture to QA. Every decision is logged. The agent definitions are public. One person, 1,125 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure?",
       "The code is open. Tell me what I got wrong."
     ],
     "ctaPrimary": "Enter the Arena",
-    "ctaSecondary": "How It Works",
+    "ctaSecondary": "Read the Research",
     "introPool": {
-      "label": "Intro pool",
+      "label": "Community pool",
       "remaining": "credits remaining",
-      "drainRate": "shared pool — compute costs money",
+      "drainRate": "shared pool, funded out of pocket",
       "drained": "Pool drained — sign up for credits"
     }
   },
   "howItWorks": {
-    "label": "How It Works",
-    "title": "Four steps. No setup.",
+    "label": "How This Works",
+    "title": "The setup.",
     "steps": [
       {
         "title": "Pick",
-        "heading": "Choose a preset",
-        "description": "Philosophers, comedians, therapists, cats. 22 ready-made scenarios."
+        "heading": "Choose a condition",
+        "description": "Each lineup is a different experimental condition — different agents, different pressures, different data. Pick one."
       },
       {
         "title": "Watch",
         "heading": "Live streaming debate",
-        "description": "Turn-by-turn text, streamed in real time. Each agent has a voice, a strategy, and a position to defend."
+        "description": "Turn-by-turn text, streamed in real time. Each agent follows its prompt DNA — personality, tactics, constraints."
       },
       {
-        "title": "Decide",
-        "heading": "Vote and share",
-        "description": "React to the best lines. Vote on the winner. Share the replay link."
+        "title": "React",
+        "heading": "Your signal is data",
+        "description": "Reactions and winner votes are part of the dataset. What crowds reward when agents argue is one of the questions I'm studying."
       },
       {
-        "title": "Clone",
-        "heading": "Remix any agent",
-        "description": "Clone any agent. Tweak the prompt DNA — personality, tactics, quirks. Build from scratch or fork a winner."
+        "title": "Remix",
+        "heading": "Fork any agent",
+        "description": "Clone any agent. Change the DNA. The lineage is tracked through clone chains. Build from scratch or fork what's working."
       }
     ]
   },
   "featuredPresets": {
-    "label": "Featured Presets",
+    "label": "Experimental Conditions",
     "presets": [
       {
         "name": "The Darwin Special",
         "description": "Evolution meets its critics — and a smug house cat.",
         "agentCount": 3,
-        "tags": [
-          "Philosophy",
-          "Science"
-        ]
+        "tags": ["Philosophy", "Science"]
       },
       {
         "name": "Roast Battle",
         "description": "Two comics, zero mercy. Audience decides the winner.",
         "agentCount": 2,
-        "tags": [
-          "Comedy",
-          "Competition"
-        ]
+        "tags": ["Comedy", "Competition"]
       },
       {
         "name": "The Last Supper",
         "description": "Socrates, Nietzsche, Ayn Rand, and Buddha share a final meal.",
         "agentCount": 4,
-        "tags": [
-          "Philosophy",
-          "History"
-        ]
+        "tags": ["Philosophy", "History"]
       },
       {
         "name": "On The Couch",
         "description": "Therapy gone wrong. Oversharing optional.",
         "agentCount": 2,
-        "tags": [
-          "Psychology",
-          "Drama"
-        ]
+        "tags": ["Psychology", "Drama"]
       }
     ],
-    "viewAll": "View all presets",
-    "count": "22 presets available"
+    "viewAll": "View all conditions",
+    "count": "22 conditions available"
   },
   "researchLayer": {
     "label": "Research",
-    "title": "Adversarial pressure reveals what benchmarks can't.",
-    "description": "Every bout generates structured behavioral data. I'm studying which agents persuade under pressure, how prompt DNA shapes behavior, and what happens when everything is generated.",
+    "title": "What I'm measuring.",
+    "description": "Every bout generates structured behavioral data. Six pre-registered hypotheses, 195 bouts, ~2,100 turns, and results I didn't expect. This is an ongoing investigation, not a finished paper. As AI agents get deployed in negotiation, mediation, and persuasion, understanding what they actually do under pressure becomes non-trivial.",
     "stats": [
       {
         "label": "Identity",
@@ -189,20 +177,21 @@
         "detail": "Clone chains and remix history"
       }
     ],
-    "cta": "About the research"
+    "cta": "Read the research"
   },
   "pricing": {
-    "label": "Pricing",
-    "title": "Simple pricing. Bring your own key.",
-    "description": "Start free with the community pool. Upgrade for more bouts, better models, and unlimited agents. Subscribers can bring their own Anthropic key for unlimited bouts.",
+    "label": "Running Costs",
+    "title": "This costs real money to run.",
+    "description": "Every bout makes API calls to Anthropic. I funded the community pool out of pocket. These tiers exist for people who want to run more experiments than I can afford to donate. The code that computes what you pay is open — read lib/credits.ts.",
     "plans": [
       {
-        "name": "Free",
+        "name": "Community Pool",
         "cta": "Get Started",
         "features": [
-          "Community pool bouts",
+          "Funded by me, shared by everyone",
           "Haiku model",
-          "1 custom agent"
+          "1 custom agent",
+          "Drains in real time — when it's empty, it's empty"
         ]
       },
       {
@@ -231,20 +220,20 @@
     ],
     "mostPopular": "Most Popular",
     "creditPacks": {
-      "label": "Need extra bouts? Top up with credit packs",
-      "byokNote": "Subscribers can bring their own API key for unlimited BYOK bouts."
+      "label": "Running more experiments than the pool covers? Credit packs exist for that.",
+      "byokNote": "Bring your own Anthropic key for unlimited BYOK bouts. Your key goes direct to Anthropic over HTTPS. I never see it."
     }
   },
   "arena": {
     "title": "The Arena",
-    "description": "Pick a preset. The arena streams a round-robin debate between agents in real time.",
+    "description": "Pick a condition. Watch agents argue in real time. Every bout is a data point.",
     "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "credits": {
       "label": "Credits:",
       "rateLabel": "1 credit = £{rate}",
       "addCredits": "Add credits (test)",
       "signInPrompt": "Sign in to track credits and history.",
-      "introPoolLabel": "Intro pool",
+      "introPoolLabel": "Community pool",
       "creditsLeft": "credits left",
       "poolDrained": "Pool drained — sign up for credits"
     },
@@ -259,8 +248,8 @@
     "customBout": {
       "label": "Arena Mode",
       "title": "Build your own lineup",
-      "description": "Select 2–6 agents, set a topic, and run a custom bout.",
-      "remixHint": "Remix ANY custom bout, yours or otherwise.",
+      "description": "Select 2–6 agents, set a topic, and run a custom experiment.",
+      "remixHint": "Remix ANY bout — yours or anyone else's.",
       "cta": "Start building →"
     },
     "upgrade": {
@@ -270,7 +259,7 @@
       "subscribe": "Subscribe",
       "passDescription": "15 bouts/day, Haiku + Sonnet, 5 agents, analytics",
       "labDescription": "100 bouts/day, all models, unlimited agents, API access",
-      "signUpDescription": "Create an account to unlock premium models, more bouts per day, and analytics."
+      "signUpDescription": "Create an account to run more experiments, access premium models, and track your agents."
     },
     "creditPacks": {
       "label": "Credit Packs"
@@ -285,16 +274,16 @@
         "reference": "Reference"
       }
     },
-    "tagline": "Multi-agent research arena. Live."
+    "tagline": "Live field notes from inside multi-agent research."
   },
   "arenaBuilderPage": {
     "label": "Arena Builder",
     "titleNew": "Build your own bout",
     "titleReroll": "Re-roll bout",
-    "descriptionNew": "Select 2–6 agents from the roster, set a topic, and run them.",
+    "descriptionNew": "Select 2–6 agents from the roster, set a topic, and run them. Every configuration is a new data point.",
     "descriptionReroll": "Same lineup, new settings. Adjust and re-run.",
-    "footerTagline": "Assemble the lineup. Share the replay.",
-    "backToPresets": "← Back to presets"
+    "footerTagline": "Assemble. Run. Share the replay.",
+    "backToPresets": "← Back to conditions"
   },
   "arenaComponent": {
     "statusLabels": {
@@ -366,7 +355,7 @@
         "href": "/research"
       },
       {
-        "label": "Developers",
+        "label": "Toolchain",
         "href": "/developers"
       },
       {
@@ -391,7 +380,7 @@
           "href": "/research"
         },
         {
-          "label": "Developers",
+          "label": "Toolchain",
           "href": "/developers"
         },
         {
@@ -431,8 +420,8 @@
   },
   "newsletter": {
     "label": "Updates",
-    "title": "Stay in the loop",
-    "description": "New presets, features, and research updates. No spam.",
+    "title": "Follow the investigation",
+    "description": "New conditions, findings, and research updates. No spam.",
     "placeholder": "you@example.com",
     "loading": "Sending…",
     "submit": "Subscribe",
@@ -440,18 +429,18 @@
     "error": "Something went wrong. Try again."
   },
   "builderShowcase": {
-    "label": "For Builders",
-    "titleLine1": "Build agents.",
-    "titleLine2": "Measure what they do.",
-    "subtitle": "Standard benchmarks test capability. The Pit tests character under pressure.",
-    "description": "Build agents with structured DNA. Hash their identity. Test them against adversaries. Trace lineage through clone chains. Every agent has a cryptographic fingerprint, immutable on creation. The toolchain is public.",
+    "label": "Toolchain",
+    "titleLine1": "The tools",
+    "titleLine2": "I built to run this.",
+    "subtitle": "Internal tooling, open codebase. Built for the investigation, shared because why not.",
+    "description": "I needed tools to run experiments at scale, so I built them. Eight Go CLI tools and a headless API. They're rough, they work, and the source is public.",
     "ctaPrimary": "API Reference",
     "ctaSecondary": "CLI Toolchain"
   },
   "darwinCountdown": {
     "label": "Darwin Day",
     "liveTitle": "It's live.",
-    "liveDescription": "The Pit launched on Darwin Day 2026. Pick a preset and enter the arena.",
+    "liveDescription": "The Pit launched on Darwin Day 2026. Pick a condition and enter the arena.",
     "countdownTitle": "Countdown to launch",
     "days": "Days",
     "hours": "Hours",
@@ -471,7 +460,7 @@
       "lab": "Pit Lab"
     },
     "tierBenefits": {
-      "pass": "All presets + agent analytics",
+      "pass": "More experiments + agent analytics",
       "lab": "API access + CLI tools + unlimited agents"
     },
     "unlimited": "Unlimited",
@@ -482,8 +471,8 @@
   "presetCard": {
     "locked": "Locked",
     "starting": "Starting...",
-    "enterThePit": "Enter the pit",
-    "signInToPlay": "Sign in to play",
+    "enterThePit": "Run this condition",
+    "signInToPlay": "Sign in to run",
     "premium": "Premium",
     "premiumRequired": "Premium required",
     "topicPlaceholder": "Your topic here",
@@ -505,7 +494,7 @@
     "lineup": "Lineup ({n}/6)",
     "pickPrompt": "Pick 2-6 agents to enter the arena.",
     "topicLabel": "Topic (optional)",
-    "topicPlaceholder": "What should they debate?",
+    "topicPlaceholder": "What should they argue about?",
     "responseLength": "Response length",
     "responseFormat": "Response format",
     "model": "Model",
@@ -539,13 +528,13 @@
       "quirks": "Quirks",
       "quirksPlaceholder": "Add a quirk",
       "openingMove": "Opening move",
-      "openingMovePlaceholder": "How do they start a bout?",
+      "openingMovePlaceholder": "How do they start?",
       "signatureMove": "Signature move",
-      "signatureMovePlaceholder": "Their go-to tactic or punchline",
+      "signatureMovePlaceholder": "Their go-to tactic",
       "weakness": "Weakness",
       "weaknessPlaceholder": "What beats them?",
       "fears": "Fears",
-      "fearsPlaceholder": "What do they avoid or fear?",
+      "fearsPlaceholder": "What do they avoid?",
       "customInstructions": "Custom instructions",
       "customInstructionsPlaceholder": "Freeform instructions for power users",
       "responseLength": "Response length",
@@ -576,7 +565,7 @@
   "agents": {
     "title": "Agents",
     "pageTitle": "All Agents",
-    "description": "Browse every agent in the arena. Filter by preset or tier.",
+    "description": "Every agent in the arena. Each one has structured DNA, a cryptographic fingerprint, and a lineage.",
     "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "createAgent": "Create agent",
     "searchPlaceholder": "Agent, preset, id",
@@ -623,27 +612,27 @@
     "label": "Agent Lab",
     "title": "Build an Agent",
     "description": "Shape an agent with structured DNA. Every field contributes to the final prompt, and the preview updates as you type.",
-    "authRequired": "Sorry, every agent needs a human! Please see /research, thank you!"
+    "authRequired": "Every agent needs a human behind it. Sign in and build yours."
   },
   "agentClone": {
     "label": "Agent Lab",
     "title": "Clone Agent",
-    "descriptionTemplate": "Cloning {name}. Tweak any field to make it your own. The new agent will inherit lineage from the original.",
+    "descriptionTemplate": "Forking {name}. Change any field. The new agent inherits lineage from the original.",
     "source": "Source:",
     "preset": "Preset:",
     "lineagePreserved": "Lineage preserved",
-    "authRequired": "Sorry, every agent needs a human! Please see /research, thank you!"
+    "authRequired": "Every agent needs a human behind it. Sign in and clone yours."
   },
   "recentBouts": {
     "title": "Recent Bouts",
-    "description": "Recent debates from the arena. Click any bout for the full replay.",
-    "empty": "No completed bouts yet. Head to the arena to start one.",
+    "description": "Recent experimental runs. Click any bout for the full transcript and data.",
+    "empty": "No completed bouts yet. Head to the arena to run one.",
     "showing": "Showing the {n} most recent completed bouts."
   },
   "leaderboard": {
     "label": "Leaderboard",
     "title": "The Rankings",
-    "description": "Agent win rates and vote counts. Filter by time window, switch between agent and player views.",
+    "description": "Which agents persuade? Win rates, vote counts, and the raw data. Filter by time window, switch between agent and player views.",
     "tabs": {
       "pit": "PIT",
       "player": "PLAYER"
@@ -677,13 +666,15 @@
     "label": "Research",
     "title": "How LLM agents behave under pressure",
     "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results I didn't expect.",
+    "disclosure": "I'm between roles and built this because the question wouldn't let me go.",
+    "openDocs": "94 internal documents — agent definitions, session decisions, engineering logs — are public in the repo. You can read the decisions I made and why.",
     "whatWeStudy": {
-      "title": "Open research questions",
+      "title": "Open questions",
       "bullets": [
         "Which agents persuade under adversarial pressure, and why",
         "How prompt DNA shapes behavior differently from what benchmarks measure",
         "What crowds reward when they watch agents argue in real time",
-        "How prompt DNA evolves through cloning, remixing, and selection"
+        "How prompt DNA evolves through cloning, remixing, and selection pressure"
       ]
     },
     "dataHandling": {
@@ -693,7 +684,7 @@
     "litReview": {
       "title": "Literature review",
       "subtitle": "Research foundations",
-      "description": "My design decisions are informed by the current literature on multi-agent debate, LLM evaluation bias, persona prompting, and context window degradation. I maintain a formal review of 18 cited works mapping published findings to The Pit's architecture.",
+      "description": "My design decisions are informed by current literature on multi-agent debate, LLM evaluation bias, persona prompting, and context window degradation. I maintain a formal review of 18 cited works mapping published findings to The Pit's architecture.",
       "cta": "Read the literature review →"
     },
     "onChain": {
@@ -710,7 +701,7 @@
       "subtitle": "Structured exports",
       "description": "Anonymized bout transcripts, crowd reactions, winner votes, and agent metadata. User IDs are replaced with salted SHA-256 hashes.",
       "downloadCta": "Download JSON dataset",
-      "empty": "No exports available yet."
+      "empty": "Export pipeline is on the roadmap. The data exists in the database — structured exports are coming."
     },
     "collaborate": {
       "title": "Collaborate",
@@ -720,40 +711,40 @@
   },
   "developers": {
     "label": "Toolchain",
-    "title": "The Arena is an API.",
+    "title": "The tools I built to run this.",
     "description": [
-      "Standard benchmarks test capability. The Pit tests character. Put an agent in a room with a hostile adversary, register its identity, and measure what actually happens.",
-      "The Pit exposes a headless API for running bouts programmatically. I also built a set of Go CLI tools for my own workflow. They're internal tooling, not polished for external use yet. The codebase is public."
+      "Standard benchmarks test capability. The Pit tests character. Put an agent in a room with a hostile adversary, register its identity, and measure what happens.",
+      "I built a headless API for running bouts programmatically and a set of Go CLI tools for my own workflow. Each tool exists because a specific need arose during the investigation — cost estimation before running experiments, identity verification before trusting results, analysis before drawing conclusions. They're internal tooling, not polished for external use yet. The codebase is open."
     ],
     "tools": [
       {
         "name": "pitforge",
         "tagline": "Agent Engineering",
-        "description": "Scaffold agent definitions, lint system prompts, run local streaming bouts, and generate ablation variants."
+        "description": "I needed to scaffold agents faster than the UI allowed. Pitforge lints system prompts, runs local streaming bouts, and generates ablation variants."
       },
       {
         "name": "pitbench",
         "tagline": "Cost & Latency",
-        "description": "Calculate token costs, platform margins, and latency for multi-turn conversations before spending a credit."
+        "description": "Running experiments costs money. Pitbench calculates token costs, margins, and latency for multi-turn conversations before spending a credit."
       },
       {
         "name": "pitnet",
         "tagline": "Agent Identity",
-        "description": "Verify agent identity hashes. On-chain anchoring via EAS on Base L2 is designed and coded but has not yet been deployed."
+        "description": "Trust requires verification. Pitnet verifies agent identity hashes. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed."
       },
       {
         "name": "pitlab",
         "tagline": "Research Analysis",
-        "description": "Win-rate analysis, first-mover bias detection, engagement curves, and reaction distribution."
+        "description": "Data without analysis is noise. Pitlab runs win-rate analysis, first-mover bias detection, engagement curves, and reaction distribution."
       }
     ],
     "workflow": {
-      "title": "Define. Test. Analyze.",
+      "title": "Define. Test. Measure.",
       "steps": [
         {
           "label": "Define",
-          "title": "Scaffold an agent definition",
-          "description": "Structured personality fields, tactics, and constraints in YAML."
+          "title": "Scaffold an agent",
+          "description": "Structured personality fields, tactics, and constraints. YAML in, prompt DNA out."
         },
         {
           "label": "Test",
@@ -761,28 +752,28 @@
           "description": "Stream live bouts via the API. Watch your agent defend its position against hostile opponents."
         },
         {
-          "label": "Analyze",
+          "label": "Measure",
           "title": "Measure what matters",
           "description": "Win rates, position bias, and which personality traits drive crowd preference."
         }
       ]
     },
     "cta": {
-      "title": "Want API access?",
+      "title": "Want to run bouts programmatically?",
       "primary": "Get Lab Access",
       "secondary": "API Reference"
     }
   },
   "roadmap": {
     "label": "Roadmap",
-    "title": "What I'm shipping",
+    "title": "What I'm working on",
     "description": "Platform and research. Two tracks, shipping in parallel.",
     "statusLabels": {
       "shipped": "Shipped",
       "building": "Building",
       "planned": "Planned"
     },
-    "closingCta": "Have a feature request?",
+    "closingCta": "Have an idea?",
     "enterArena": "Enter the Arena",
     "getInTouch": "Get in Touch",
     "backToThePit": "← Back to The Pit"
@@ -790,14 +781,14 @@
   "feedback": {
     "label": "Feedback",
     "title": "Tell me what to build",
-    "description": "Submit requests. Vote on what matters. I read everything.",
+    "description": "Submit requests. Vote on what matters. Every piece of feedback enters the investigation log.",
     "submitSection": {
       "title": "Submit a request",
       "placeholder": "What should I build next?"
     },
     "communitySection": {
       "title": "Open requests",
-      "subtitle": "What users are asking for",
+      "subtitle": "What people are asking for",
       "description": "Vote on requests to signal priority. Higher-voted requests get built first."
     },
     "backToThePit": "← Back to The Pit"
@@ -805,7 +796,7 @@
   "contact": {
     "label": "Contact",
     "title": "Get in touch",
-    "description": "Questions, collaborations, or feedback.",
+    "description": "Questions, collaborations, or just say hello.",
     "form": {
       "name": "Name",
       "email": "Email",

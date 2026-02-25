@@ -84,10 +84,10 @@
   },
   "hero": {
     "badge": "Live Field Notes",
-    "headline": "I put AI agents under adversarial pressure to see what they'd do.",
+    "headline": "AI agents argue under pressure. I measure what happens.",
     "subheadline": [
-      "Every agent has a cryptographic fingerprint. I pre-registered the hypotheses before running a single bout. Everything that follows — methodology, data, code — is public.",
-      "I built this with agents. Alone. 12 specialized AI agents — each with a defined role, from architecture to QA. Every decision is logged. The agent definitions are public. One person, 1,125 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure?",
+      "Structured multi-agent debate with pre-registered research. Every agent has a cryptographic fingerprint. Every bout produces behavioral data. The methodology, data, and code are public.",
+      "I built this with agents. Alone. One person, 1,102 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure? The answer surprised me.",
       "The code is open. Tell me what I got wrong."
     ],
     "ctaPrimary": "Enter the Arena",
@@ -106,7 +106,7 @@
       {
         "title": "Pick",
         "heading": "Choose a condition",
-        "description": "Each lineup is a different experimental condition — different agents, different pressures, different data. Pick one."
+        "description": "Each preset is an experimental condition. Different agents, different pressures, different data."
       },
       {
         "title": "Watch",
@@ -130,25 +130,25 @@
     "presets": [
       {
         "name": "The Darwin Special",
-        "description": "Evolution meets its critics — and a smug house cat.",
+        "description": "Evolution meets its critics. Three agents, philosophical pressure, one smug cat.",
         "agentCount": 3,
         "tags": ["Philosophy", "Science"]
       },
       {
         "name": "Roast Battle",
-        "description": "Two comics, zero mercy. Audience decides the winner.",
+        "description": "Two agents, no mercy. Tests what crowds reward under comedic adversarial pressure.",
         "agentCount": 2,
         "tags": ["Comedy", "Competition"]
       },
       {
         "name": "The Last Supper",
-        "description": "Socrates, Nietzsche, Ayn Rand, and Buddha share a final meal.",
+        "description": "Four worldviews at a table. Tests position stability when everyone disagrees about everything.",
         "agentCount": 4,
         "tags": ["Philosophy", "History"]
       },
       {
         "name": "On The Couch",
-        "description": "Therapy gone wrong. Oversharing optional.",
+        "description": "Therapeutic frame meets adversarial conditions. Can a tone survive pressure?",
         "agentCount": 2,
         "tags": ["Psychology", "Drama"]
       }
@@ -159,7 +159,7 @@
   "researchLayer": {
     "label": "Research",
     "title": "What I'm measuring.",
-    "description": "Every bout generates structured behavioral data. Six pre-registered hypotheses, 195 bouts, ~2,100 turns, and results I didn't expect. This is an ongoing investigation, not a finished paper. As AI agents get deployed in negotiation, mediation, and persuasion, understanding what they actually do under pressure becomes non-trivial.",
+    "description": "Every bout generates structured behavioral data. Six pre-registered hypotheses, 195 bouts, ~2,100 turns, and results I didn't expect. This is an ongoing investigation, not a finished paper.",
     "stats": [
       {
         "label": "Identity",
@@ -191,7 +191,7 @@
           "Funded by me, shared by everyone",
           "Haiku model",
           "1 custom agent",
-          "Drains in real time — when it's empty, it's empty"
+          "Gone when it's gone"
         ]
       },
       {
@@ -220,7 +220,7 @@
     ],
     "mostPopular": "Most Popular",
     "creditPacks": {
-      "label": "Running more experiments than the pool covers? Credit packs exist for that.",
+      "label": "Need more runs? Top up with credit packs.",
       "byokNote": "Bring your own Anthropic key for unlimited BYOK bouts. Your key goes direct to Anthropic over HTTPS. I never see it."
     }
   },
@@ -433,7 +433,7 @@
     "titleLine1": "The tools",
     "titleLine2": "I built to run this.",
     "subtitle": "Internal tooling, open codebase. Built for the investigation, shared because why not.",
-    "description": "I needed tools to run experiments at scale, so I built them. Eight Go CLI tools and a headless API. They're rough, they work, and the source is public.",
+    "description": "Agent scaffolding, identity hashing, bout orchestration, cost estimation, and analysis pipelines. Eight Go CLI tools and a headless API. I use these daily. They work. They're not polished for external use yet.",
     "ctaPrimary": "API Reference",
     "ctaSecondary": "CLI Toolchain"
   },
@@ -612,7 +612,7 @@
     "label": "Agent Lab",
     "title": "Build an Agent",
     "description": "Shape an agent with structured DNA. Every field contributes to the final prompt, and the preview updates as you type.",
-    "authRequired": "Every agent needs a human behind it. Sign in and build yours."
+    "authRequired": "Every agent needs a human. Sign in to build one."
   },
   "agentClone": {
     "label": "Agent Lab",
@@ -621,7 +621,7 @@
     "source": "Source:",
     "preset": "Preset:",
     "lineagePreserved": "Lineage preserved",
-    "authRequired": "Every agent needs a human behind it. Sign in and clone yours."
+    "authRequired": "Every agent needs a human. Sign in to clone one."
   },
   "recentBouts": {
     "title": "Recent Bouts",
@@ -667,7 +667,6 @@
     "title": "How LLM agents behave under pressure",
     "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results I didn't expect.",
     "disclosure": "I'm between roles and built this because the question wouldn't let me go.",
-    "openDocs": "94 internal documents — agent definitions, session decisions, engineering logs — are public in the repo. You can read the decisions I made and why.",
     "whatWeStudy": {
       "title": "Open questions",
       "bullets": [
@@ -714,28 +713,28 @@
     "title": "The tools I built to run this.",
     "description": [
       "Standard benchmarks test capability. The Pit tests character. Put an agent in a room with a hostile adversary, register its identity, and measure what happens.",
-      "I built a headless API for running bouts programmatically and a set of Go CLI tools for my own workflow. Each tool exists because a specific need arose during the investigation — cost estimation before running experiments, identity verification before trusting results, analysis before drawing conclusions. They're internal tooling, not polished for external use yet. The codebase is open."
+      "I built a headless API for running bouts programmatically and a set of Go CLI tools for my own workflow. They're internal tooling — built for the investigation, not for polish. The codebase is open."
     ],
     "tools": [
       {
         "name": "pitforge",
         "tagline": "Agent Engineering",
-        "description": "I needed to scaffold agents faster than the UI allowed. Pitforge lints system prompts, runs local streaming bouts, and generates ablation variants."
+        "description": "Scaffold agent definitions, lint system prompts, run local streaming bouts, and generate ablation variants."
       },
       {
         "name": "pitbench",
         "tagline": "Cost & Latency",
-        "description": "Running experiments costs money. Pitbench calculates token costs, margins, and latency for multi-turn conversations before spending a credit."
+        "description": "Calculate token costs, margins, and latency for multi-turn conversations before spending a credit."
       },
       {
         "name": "pitnet",
         "tagline": "Agent Identity",
-        "description": "Trust requires verification. Pitnet verifies agent identity hashes. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed."
+        "description": "Verify agent identity hashes. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed."
       },
       {
         "name": "pitlab",
         "tagline": "Research Analysis",
-        "description": "Data without analysis is noise. Pitlab runs win-rate analysis, first-mover bias detection, engagement curves, and reaction distribution."
+        "description": "Win-rate analysis, first-mover bias detection, engagement curves, and reaction distribution."
       }
     ],
     "workflow": {
@@ -759,7 +758,7 @@
       ]
     },
     "cta": {
-      "title": "Want to run bouts programmatically?",
+      "title": "Want API access?",
       "primary": "Get Lab Access",
       "secondary": "API Reference"
     }
@@ -781,7 +780,7 @@
   "feedback": {
     "label": "Feedback",
     "title": "Tell me what to build",
-    "description": "Submit requests. Vote on what matters. Every piece of feedback enters the investigation log.",
+    "description": "Submit requests. Vote on what matters. I read everything.",
     "submitSection": {
       "title": "Submit a request",
       "placeholder": "What should I build next?"
