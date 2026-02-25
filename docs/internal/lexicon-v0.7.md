@@ -1,4 +1,4 @@
-# The Lexicon — v0.5
+# The Lexicon — v0.7
 
 Back-reference: SD-120 (naval metaphor as scaffold), SD-121 (loose weave), SD-122 (taxonomy), SD-123 (this file)
 Status: APPROVED by Captain. Read-only by convention. Edits bump version number.
@@ -64,6 +64,7 @@ last_known:
 | **True North** | The objective that doesn't drift. Currently: Get Hired (SD-110). | Constant reference point for all bearing checks. |
 | **Bearing** | Direction to target relative to True North. How dialled in to what truly matters right now. Often less than we think. | "Current bearing: pre-launch hardening." |
 | **Dead Reckoning** | Navigate from last known position when visibility is lost. The recovery protocol after context window death. | Read `dead-reckoning.md`. Already proven across multiple sessions. |
+| **The Map Is Not The Territory** | Our models of the system (the 12-layer map, the lexicon, the governance framework) are approximations that improve through empirical soundings from L12, not through inference from within the model. The map is refined by the practice of cross-referencing (SD refs, lexicon line numbers, back-references between files) — the most delicate thread work and one of the most valuable assets against losing oneself in The Mirror. Reasoning token observation is the Captain's instrument for checking alignment between the model's internal reasoning and his actual intent. | SD-162. The phrase carries its own epistemological warning. |
 | **Tacking** | Making progress against the wind by sailing at angles. Each leg seems indirect; the course over ground is forward. | The copy pivot (SD-076/077/078). "We're tacking, not retreating." |
 
 ### Operational Tempo
@@ -82,6 +83,7 @@ last_known:
 | Term | Definition | Use |
 |------|-----------|-----|
 | **The Hull** | The thing that keeps the chaos out. The gate, the test suite, the typecheck. Everything else is optimisation; the hull is survival. | "Is the hull intact?" = "Does the gate pass?" |
+| **On Point** | The feeling of watching patterns that have proved themselves at one layer find new ground at other layers and achieve commensurate success. The weave deepening. Convention, convergence, and verification aligning across the stack. When the thread work is on point, the system moves with increasing dexterity; each successful pattern becomes a tool for the next. | SD-163. "That was on point." / "The cross-referencing is on point." |
 | **Survey** | Formal, systematic inspection with a documented report. Note: risks invoking the mirror at higher intensity; acceptable risk, changes register. | Branch audit, termite sweep, copy audit, citation audit. |
 
 ### Communication & Record
@@ -129,6 +131,8 @@ last_known:
 | v0.3 | 2026-02-24 | `mirror`: never `false`/`null` — field is `true` or absent. "All hands" standardised. 7 agents overboard. SO-PERM-002 issued all hands. Fleet: 11 agents. | SD-126 |
 | v0.4 | 2026-02-25 | true_north sharpened: truth first (SD-134). Telling the truth takes priority over getting hired. | SD-134 |
 | v0.5 | 2026-02-25 | true_north uses pseudocode format. Fair-Weather Consensus added (from Analyst research, SD-139). | SD-141 |
+| v0.6 | 2026-02-25 | "The Map Is Not The Territory" added to Navigation & Orientation. Reasoning token observation as alignment mechanism. Cross-referencing practice identified as load-bearing structure. | SD-162 |
+| v0.7 | 2026-02-25 | "On Point" added to Integrity & Verification. Patterns proving out across layers. | SD-163 |
 
 ---
 
