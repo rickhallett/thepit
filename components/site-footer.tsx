@@ -42,6 +42,11 @@ export async function SiteFooter() {
             ))}
           </div>
         </div>
+
+        {/* Test count disclaimer */}
+        <p className="text-[8px] lowercase tracking-[0.2em] text-muted/40">
+          *this number is continually changing, has rarely been accurate, and may mean almost nothing in terms of system validity.
+        </p>
       </div>
     </footer>
   );

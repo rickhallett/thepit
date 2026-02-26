@@ -23,7 +23,7 @@ export function VideoExplainerButton() {
         onClick={() => setOpen(true)}
         className="border-2 border-foreground/60 px-8 py-4 text-xs uppercase tracking-[0.3em] text-foreground transition hover:border-accent hover:text-accent hover:shadow-[0_0_20px_rgba(215,255,63,0.15)]"
       >
-        What is this?
+        §
       </button>
       {open && <VideoModal onClose={() => setOpen(false)} />}
     </>
