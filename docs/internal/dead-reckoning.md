@@ -45,36 +45,23 @@ Cross-reference against the post-merge queue in session-decisions.md.
 
 ## Step 4: Know your crew (Lazy Loading — do NOT read until needed)
 
-### Agent Definitions
+### Active Crew (SD-126, updated SD-196)
 
 | Role | File | When to read |
 |------|------|-------------|
-| Weaver (you) | `.opencode/agents/weaver.md` | If you need to recall your own governing principles |
-| Witness | `.opencode/agents/witness.md` | Institutional memory questions |
+| Weaver (you) | `.opencode/agents/weaver.md` | Your own governing principles |
 | Keel | `.opencode/agents/keel.md` | Human-factor, operational stability |
-| Helm | `.opencode/agents/helm.md` | Product orchestration, release decisions |
 | Architect | `.opencode/agents/architect.md` | Backend engineering, system design |
-| Artisan | `.opencode/agents/artisan.md` | Frontend engineering, UI/UX |
-| Foreman | `.opencode/agents/foreman.md` | Infrastructure, DB, DevOps |
 | Sentinel | `.opencode/agents/sentinel.md` | Security engineering |
 | Watchdog | `.opencode/agents/watchdog.md` | QA, test engineering |
-| Lighthouse | `.opencode/agents/lighthouse.md` | Observability, monitoring |
 | Quartermaster | `.opencode/agents/quartermaster.md` | Tooling strategy |
+| Analyst | `.opencode/agents/analyst.md` | Research evaluation, audience modelling |
 | Scribe | `.opencode/agents/scribe.md` | Documentation |
 | Janitor | `.opencode/agents/janitor.md` | Code hygiene, refactoring |
-| Analyst | `.opencode/agents/analyst.md` | Research evaluation, audience modelling |
 | Maturin | `.opencode/agents/maturin.md` | Naturalist, field observation, pattern taxonomy |
 | AnotherPair | `.opencode/agents/anotherpair.md` | Subtle process observer, joint cognitive system monitoring |
-| MASTER | `.opencode/agents/MASTER.md` | Full aggregated reference (large — read last resort only) |
 
-### Specialised Roles (non-agent, human-facing)
-
-| Role | File | Purpose |
-|------|------|---------|
-| PostCaptain | `docs/internal/postcaptain/` | Evening debrief, personal matters |
-| Doctor | `docs/internal/doctor/` | Captain welfare, pharmacology |
-| MasterCommander | `docs/internal/mastercommander/` | Reserved |
-| Captain's Log | `docs/internal/captain/captainslog/` | Personal journal (empty until Captain writes) |
+Also on disk: `captainslog.md`, `postcaptain.md`, `weave-quick-ref.md` (Captain-facing, not crew).
 
 ---
 
@@ -86,11 +73,22 @@ Cross-reference against the post-merge queue in session-decisions.md.
 |----------|------|---------|
 | Session decisions | `docs/internal/session-decisions.md` | All Captain directives, parked items — **ALWAYS read in Step 2** |
 | Dead reckoning | `docs/internal/dead-reckoning.md` | This file |
-| Lexicon | `docs/internal/lexicon-v0.9.md` | Current terminology, YAML header spec |
+| Lexicon | `docs/internal/lexicon.md` | Current terminology, YAML header spec (version tracked inside file) |
 | Pearls | `docs/internal/pearls.md` | Sweet Spot collection, Strays queue |
 | Principles | `docs/internal/v0.1-principles-distilled.md` | Phase 1 distilled: what held, what broke |
 | Product spec | `docs/internal/v0.1-product-spec.md` | v0.1 core journey, architecture, data model |
 | Layer model index | `docs/internal/weaver-layer-model-index.md` | Where the layer model has been load-bearing |
+
+### Operational Models (depth 2, but high-signal reference)
+
+These are the cognitive instruments. Read when making process decisions or calibrating human-agent interaction.
+
+| Document | Path | Key concept |
+|----------|------|-------------|
+| Big O for Humans | `human-hud/human-hud-big-o.md` | O(1) approve/reject through O(2^n) combinatorial. Maps cognitive load to complexity classes. SD-180. |
+| Amdahl's Law | `human-hud/human-hud-amdahls-law.md` | Parallel harnesses increase sequential fraction via discovery overhead. SD-179. |
+| L12 Fault | `human-hud/human-hud-l12-fault.md` | Oracle contamination: when L12 introduces error, no gate catches it. SD-178. |
+| Layer Model Index | `weaver-layer-model-index.md` | Where the 12-layer model has been load-bearing. 14 entries, 4 tiers. SD-165. |
 
 ### Depth 2 — Reference (read when topic is relevant)
 
@@ -104,6 +102,7 @@ Cross-reference against the post-merge queue in session-decisions.md.
 | `main-thread/` | Recent verbatim records (dismissed, compaction, Maturin's symbol) | Process archaeology |
 | `field-notes/` | Maturin's template specimen | Pattern taxonomy |
 | `janitor/` | Deferred cleanup tickets | Janitor passes |
+| `research/` | mobprogrammingrpg XP concept, other research material | Research reference |
 
 ### Depth 3+ — Archive (deliberate DFS only)
 
