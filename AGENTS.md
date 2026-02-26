@@ -17,7 +17,7 @@ If `docs/internal/session-decisions.md` exists but you have no memory of it, you
 - `pitlab/` — experiment and analysis CLI.
 - `pitlinear/` — Linear issue tracker CLI (see below).
 - `pitnet/` — on-chain provenance CLI (EAS attestation on Base L2).
-- `pitstorm/` — traffic simulation CLI.
+- `[REDACTED]/` — traffic simulation CLI.
 - `pitbench/` — benchmarking CLI.
 
 ## Build, Test, and Development Commands
@@ -124,3 +124,28 @@ vercel env pull .env.check --environment production
 grep '\\n"' .env.check
 rm .env.check
 ```
+
+## Cursor Cloud specific instructions
+
+### Node.js version
+The project requires Node.js 24.x (see `.nvmrc` for exact version). The VM ships with Node 22 — the update script handles installing 24 via nvm on each boot.
+
+### Services overview
+| Service | Start command | Notes |
+|---------|--------------|-------|
+| Next.js dev server | `pnpm run dev` | Runs on `:3000`. Connects to Neon Postgres (cloud-hosted, no local DB setup needed). |
+| Go CLIs | `make -C <pit*dir> build` | Built during dependency install. Not required for web app testing. |
+
+### Local gate (lint + typecheck + tests)
+```bash
+pnpm run typecheck && pnpm run lint && pnpm run test:unit
+```
+See `AGENTS.md` "Build, Test, and Development Commands" section and `package.json` scripts for all available commands.
+
+### Environment variables
+Required secrets (`DATABASE_URL`, `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`) are injected from the Cursor Secrets panel. The update script writes them into `.env` from environment variables automatically. Optional Stripe keys are also supported.
+
+### Known gotchas
+- Some unit tests (notably `tests/unit/brand.test.ts` and some API tests) may fail when cloud-injected env vars like `NEXT_PUBLIC_SOCIAL_GITHUB_ENABLED` override the empty defaults the tests expect. These are environment-specific, not code bugs.
+- The database is Neon Serverless Postgres (cloud-hosted). No local database setup or Docker is needed.
+- Demo mode allows running bouts without authentication — use this for quick smoke tests.
