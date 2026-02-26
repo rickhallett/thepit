@@ -4,6 +4,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
 import { parseValidBody, rateLimitResponse } from '@/lib/api-utils';
+import { sha256Hex } from '@/lib/hash';
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -43,7 +44,8 @@ export const POST = withLogging(async function POST(req: Request) {
    * real userId for both FK and dedupe.
    */
   const dbUserId = userId ?? null;
-  const fingerprint = userId ?? `anon:${ip}`;
+  const ipHash = await sha256Hex(ip);
+  const fingerprint = userId ?? `anon:${ipHash}`;
 
   // Toggle: check if reaction exists, then insert or delete
   const [existing] = await db

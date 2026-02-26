@@ -8,6 +8,7 @@ const {
   checkRateLimitMock,
   getClientIdentifierMock,
   authMock,
+  sha256HexMock,
   mockInsert,
   mockValues,
   mockOnConflict,
@@ -34,6 +35,7 @@ const {
     checkRateLimitMock: vi.fn(),
     getClientIdentifierMock: vi.fn(),
     authMock: vi.fn(),
+    sha256HexMock: vi.fn().mockResolvedValue('0xhashed_ip'),
     mockInsert,
     mockValues,
     mockOnConflict,
@@ -50,6 +52,10 @@ vi.mock('@/lib/rate-limit', () => ({
 
 vi.mock('@clerk/nextjs/server', () => ({
   auth: authMock,
+}));
+
+vi.mock('@/lib/hash', () => ({
+  sha256Hex: sha256HexMock,
 }));
 
 vi.mock('@/db', () => ({
@@ -156,7 +162,7 @@ describe('reactions success paths', () => {
       turnIndex: 3,
       reactionType: 'fire',
       userId: null,
-      clientFingerprint: 'anon:127.0.0.1',
+      clientFingerprint: 'anon:0xhashed_ip',
     });
   });
 
