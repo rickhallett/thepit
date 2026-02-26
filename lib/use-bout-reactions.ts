@@ -13,6 +13,10 @@ const reactionKey = (turn: number, type: 'heart' | 'fire') => `${turn}:${type}`;
  * Hook for managing bout reaction state and submission.
  * Supports toggle behavior: clicking a reaction adds it, clicking again removes it.
  * Each user gets at most one heart and one fire per turn.
+ *
+ * Uses a ref for the authoritative userReactions state to avoid stale closure
+ * reads in the async sendReaction callback. The Set state is kept in sync for
+ * React re-renders (hasReacted).
  */
 export function useBoutReactions(
   boutId: string,
@@ -25,6 +29,9 @@ export function useBoutReactions(
   const [userReactions, setUserReactions] = useState<UserReactionSet>(
     () => new Set(initialUserReactions ?? []),
   );
+
+  /* Ref tracks the authoritative set — never stale, even in async callbacks */
+  const userReactionsRef = useRef<UserReactionSet>(new Set(initialUserReactions ?? []));
   const reactionsGivenRef = useRef(0);
   const pendingRef = useRef<Set<string>>(new Set());
 
@@ -40,9 +47,10 @@ export function useBoutReactions(
     if (pendingRef.current.has(key)) return;
     pendingRef.current.add(key);
 
-    const isRemoving = userReactions.has(key);
+    /* Read from ref (never stale) instead of closure-captured state */
+    const isRemoving = userReactionsRef.current.has(key);
 
-    // Optimistic update
+    // Optimistic update — counts
     setReactions((prev) => {
       const current = prev[turn] ?? { heart: 0, fire: 0 };
       const delta = isRemoving ? -1 : 1;
@@ -55,15 +63,13 @@ export function useBoutReactions(
       };
     });
 
-    setUserReactions((prev) => {
-      const next = new Set(prev);
-      if (isRemoving) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
+    // Optimistic update — user reactions (ref + state)
+    if (isRemoving) {
+      userReactionsRef.current.delete(key);
+    } else {
+      userReactionsRef.current.add(key);
+    }
+    setUserReactions(new Set(userReactionsRef.current));
 
     try {
       const res = await fetch('/api/reactions', {
@@ -91,21 +97,25 @@ export function useBoutReactions(
         }));
       }
 
-      // Reconcile userReactions with server's actual action
+      // Reconcile userReactions with server's actual action (ref + state)
       if (data.action === 'added') {
-        setUserReactions((prev) => new Set(prev).add(key));
+        userReactionsRef.current.add(key);
       } else if (data.action === 'removed') {
-        setUserReactions((prev) => {
-          const next = new Set(prev);
-          next.delete(key);
-          return next;
-        });
+        userReactionsRef.current.delete(key);
       }
+      setUserReactions(new Set(userReactionsRef.current));
 
       trackEvent('reaction_submitted', { bout_id: boutId, reaction_type: reactionType, turn, action: data.action });
       if (!isRemoving) reactionsGivenRef.current += 1;
     } catch {
-      // Revert optimistic update on error
+      // Revert optimistic update on error (ref + state)
+      if (isRemoving) {
+        userReactionsRef.current.add(key);
+      } else {
+        userReactionsRef.current.delete(key);
+      }
+      setUserReactions(new Set(userReactionsRef.current));
+
       setReactions((prev) => {
         const current = prev[turn] ?? { heart: 0, fire: 0 };
         const revert = isRemoving ? 1 : -1;
@@ -117,19 +127,10 @@ export function useBoutReactions(
           },
         };
       });
-      setUserReactions((prev) => {
-        const next = new Set(prev);
-        if (isRemoving) {
-          next.add(key);
-        } else {
-          next.delete(key);
-        }
-        return next;
-      });
     } finally {
       pendingRef.current.delete(key);
     }
-  }, [boutId, userReactions]);
+  }, [boutId]);
 
   return { reactions, sendReaction, reactionsGivenRef, hasReacted };
 }

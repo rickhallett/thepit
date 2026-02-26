@@ -4,6 +4,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { requireDb } from '@/db';
 import { reactions } from '@/db/schema';
 import { parseValidBody, rateLimitResponse } from '@/lib/api-utils';
+import { sha256Hex } from '@/lib/hash';
 import {
   checkRateLimit,
   getClientIdentifier,
@@ -36,7 +37,15 @@ export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   const ip = getClientIdentifier(req);
   const db = requireDb();
-  const dedupeUserId = userId ?? `anon:${ip}`;
+
+  /*
+   * Anonymous users: store userId as null (FK-safe) and use clientFingerprint
+   * for deduplication via the unique index. Authenticated users: use their
+   * real userId for both FK and dedupe.
+   */
+  const dbUserId = userId ?? null;
+  const ipHash = await sha256Hex(ip);
+  const fingerprint = userId ?? `anon:${ipHash}`;
 
   // Toggle: check if reaction exists, then insert or delete
   const [existing] = await db
@@ -47,7 +56,7 @@ export const POST = withLogging(async function POST(req: Request) {
         eq(reactions.boutId, boutId),
         eq(reactions.turnIndex, turnIndex),
         eq(reactions.reactionType, reactionType),
-        eq(reactions.userId, dedupeUserId),
+        eq(reactions.clientFingerprint, fingerprint),
       ),
     )
     .limit(1);
@@ -66,7 +75,8 @@ export const POST = withLogging(async function POST(req: Request) {
         boutId,
         turnIndex,
         reactionType,
-        userId: dedupeUserId,
+        userId: dbUserId,
+        clientFingerprint: fingerprint,
       })
       .onConflictDoNothing();
     action = 'added';

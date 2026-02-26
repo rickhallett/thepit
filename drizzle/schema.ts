@@ -48,6 +48,7 @@ export const reactions = pgTable("reactions", {
 	turnIndex: integer("turn_index").notNull(),
 	reactionType: reactionType("reaction_type").notNull(),
 	userId: varchar("user_id", { length: 128 }),
+	clientFingerprint: varchar("client_fingerprint", { length: 192 }).notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
 	index("reactions_bout_id_idx").using("btree", table.boutId.asc().nullsLast().op("text_ops")),
