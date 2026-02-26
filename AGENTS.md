@@ -17,7 +17,7 @@ If `docs/internal/session-decisions.md` exists but you have no memory of it, you
 - `pitlab/` — experiment and analysis CLI.
 - `pitlinear/` — Linear issue tracker CLI (see below).
 - `pitnet/` — on-chain provenance CLI (EAS attestation on Base L2).
-- `pitstorm/` — traffic simulation CLI.
+- `[REDACTED]/` — traffic simulation CLI.
 - `pitbench/` — benchmarking CLI.
 
 ## Build, Test, and Development Commands
@@ -124,3 +124,29 @@ vercel env pull .env.check --environment production
 grep '\\n"' .env.check
 rm .env.check
 ```
+
+## Cursor Cloud specific instructions
+
+### Runtime requirements
+- **Node.js 24.13.1** (per `.nvmrc`; the `engines` field requires `>=24`). Use `nvm use` after the update script installs it.
+- **pnpm 10.28.2** (declared in `packageManager`). Re-install globally after switching Node versions: `npm install -g pnpm@10.28.2`.
+- **Go 1.25.7** is pre-installed in the VM for building pit* CLIs.
+
+### Environment variables
+All required secrets (`DATABASE_URL`, `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`) are injected as environment variables. The update script writes them into `.env` from the environment so the Next.js app picks them up. If you need to regenerate `.env`, copy `.env.example` and fill from `$ENV` vars.
+
+### Running the app
+- `pnpm run dev` — starts Next.js dev server on port 3000.
+- The app runs in **DEMO MODE** by default (no auth required for basic arena usage). Feature flags (`PREMIUM_ENABLED`, `CREDITS_ENABLED`, etc.) default to `false`.
+- No Docker or local database is needed; the database is Neon Serverless Postgres (cloud-hosted).
+
+### Local gate (see AGENTS.md § Build, Test, and Development Commands)
+```bash
+pnpm run typecheck && pnpm run lint && pnpm run test:unit
+```
+
+### Known test-environment caveat
+When Cloud Agent secrets are injected into the shell environment, some unit tests may fail because they expect certain env vars to be unset (e.g., `NEXT_PUBLIC_SOCIAL_*_ENABLED` in `tests/unit/brand.test.ts`). These are false negatives caused by the injected env — not code bugs. The tests pass cleanly when those vars are absent.
+
+### Go CLI builds
+Go CLIs are optional but build cleanly with `make -C <dir> build` for any pit* directory containing a Makefile. `pitlinear` has no Makefile — use `cd pitlinear && go build .`.
