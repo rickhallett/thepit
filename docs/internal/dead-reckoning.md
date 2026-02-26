@@ -25,7 +25,9 @@ If BLOWOUT CONFIRMED: the go-dark exclusion layer may have been disturbed. Check
 docs/internal/session-decisions.md
 ```
 
-This is your primary instrument. It contains all Captain directives (SD-*), parked items (P*, N*, D*), and the post-merge queue. Read this file. Do NOT read every file in docs/internal/ — that will consume ~70k tokens and increase risk of re-occurrence. **Lazy Loading:** know what exists, read only when needed.
+This is your primary instrument. It contains all Captain directives (SD-*), parked items (P*, N*, D*), and the post-merge queue. Read this file. Do NOT read every file in docs/internal/ — that will consume tokens and increase risk of compaction. **Lazy Loading:** know what exists, read only when needed.
+
+**Search strategy (SD-195):** BFS by default. Scan depth-1 files first (there are only 7). Go deeper only when investigating a specific question (DFS). File hierarchy depth signals read frequency: depth 1 = every session, depth 2 = when topic is relevant, depth 3+ = deliberate research only.
 
 ---
 
@@ -78,17 +80,41 @@ Cross-reference against the post-merge queue in session-decisions.md.
 
 ## Step 5: Know your durable state (Lazy Loading)
 
-| Document | Path | Purpose | Read when |
-|----------|------|---------|-----------|
-| Session decisions | `docs/internal/session-decisions.md` | All Captain directives, parked items | **ALWAYS — Step 2** |
-| QA delta | `docs/internal/qa-delta-v1.2.md` | Pass rate tracking, root cause clusters | Resuming QA fix work |
-| QA inventory | `docs/press-manual-qa-v1.md` | Full Captain walkthrough with notes | Deep-diving a specific defect |
-| Research audit | `docs/internal/research-analysis-audit.md` | 101-issue credibility remediation | Research page work |
-| Research page review | `docs/internal/research-page-review-inventory.md` | 16-item review inventory (R-01 to R-16) | Research page work |
-| Analyst review | `docs/internal/research-review-analyst.md` | Independent review, HN lens | Research page triage |
-| Architect review | `docs/internal/research-review-architect.md` | Independent review, code accuracy | Research page triage |
-| Copy advice | `docs/internal/copy-advice-hero-voice.md` | Hero voice, em-dash convention, we-to-I | Copy editing |
-| Janitor tickets | `docs/internal/janitor/*.md` | Deferred cleanup work | Janitor passes |
+### Depth 1 — Operational (read on BFS scan)
+
+| Document | Path | Purpose |
+|----------|------|---------|
+| Session decisions | `docs/internal/session-decisions.md` | All Captain directives, parked items — **ALWAYS read in Step 2** |
+| Dead reckoning | `docs/internal/dead-reckoning.md` | This file |
+| Lexicon | `docs/internal/lexicon-v0.9.md` | Current terminology, YAML header spec |
+| Pearls | `docs/internal/pearls.md` | Sweet Spot collection, Strays queue |
+| Principles | `docs/internal/v0.1-principles-distilled.md` | Phase 1 distilled: what held, what broke |
+| Product spec | `docs/internal/v0.1-product-spec.md` | v0.1 core journey, architecture, data model |
+| Layer model index | `docs/internal/weaver-layer-model-index.md` | Where the layer model has been load-bearing |
+
+### Depth 2 — Reference (read when topic is relevant)
+
+| Directory | Contents | Read when |
+|-----------|----------|-----------|
+| `audits/` | Branch audit, SD audit, parallax roster, QA review, procedural records, zeitgeist, h8 report | Investigating history |
+| `hn-prep/` | Attack analysis, optimisation plan, expert briefing, copy advice, option-b analysis | HN launch prep |
+| `human-hud/` | Amdahl's Law, Big O cognitive load, L12 fault | HumanHUD research |
+| `lexicon-archive/` | v0.7, v0.8 | Back-tracing specific SD terms |
+| `qa/` | QA deltas v1.2/v2, manual QA v1 | QA work |
+| `main-thread/` | Recent verbatim records (dismissed, compaction, Maturin's symbol) | Process archaeology |
+| `field-notes/` | Maturin's template specimen | Pattern taxonomy |
+| `janitor/` | Deferred cleanup tickets | Janitor passes |
+
+### Depth 3+ — Archive (deliberate DFS only)
+
+| Directory | Contents | Read when |
+|-----------|----------|-----------|
+| `archive/hn/` | Hurt locker, pre-HN strategy, Show HN drafts | Historical HN prep |
+| `archive/research/` | All research reviews, analyst audits, citations audit | Research page archaeology |
+| `archive/round-tables/` | RT L1-L5 syntheses and individual agent reports | RT process history |
+| `archive/main-thread/` | Old verbatim main thread entries (02-24, early 02-25) | Deep process archaeology |
+| `captain/captainslog/` | Captain's personal log entries | Captain's reference only |
+| `postcaptain/` | Personal debrief | Captain's reference only |
 
 ---
 
