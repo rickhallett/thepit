@@ -15,6 +15,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -41,6 +42,8 @@ func main() {
 		renderVelocity(analyseVelocity(commits))
 		fmt.Println()
 		renderWellness(analyseWellness(time.Now(), repoRoot()))
+		fmt.Println()
+		renderContext(analyseContext(repoRoot()))
 		return
 	}
 
@@ -60,7 +63,10 @@ func main() {
 			analyseSession(commits, time.Now()),
 			analyseScope(commits, func(hash string) []string { return commitFiles(hash) }),
 			analyseVelocity(commits),
+			analyseContext(repoRoot()),
 		)
+	case "context":
+		renderContext(analyseContext(repoRoot()))
 	case "wellness":
 		renderWellness(analyseWellness(time.Now(), repoRoot()))
 	case "version":
@@ -79,6 +85,7 @@ func usage() {
 	fmt.Println("  pitkeel session      session duration + break awareness")
 	fmt.Println("  pitkeel scope        scope drift from first commit")
 	fmt.Println("  pitkeel velocity     commits per hour")
+	fmt.Println("  pitkeel context      context file depth distribution")
 	fmt.Println("  pitkeel wellness     daily wellness checks (whoop.log, captain's log)")
 	fmt.Println("  pitkeel hook         hook output (no ANSI, for commit messages)")
 	fmt.Println("  pitkeel version      print version")
@@ -123,6 +130,64 @@ func analyseWellness(now time.Time, root string) wellnessSignal {
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+// --------------------------------------------------------------------------
+// Analysis: Context — file depth distribution in docs/internal
+// --------------------------------------------------------------------------
+
+type contextSignal struct {
+	d1Count   int
+	d2Count   int
+	d3Count   int
+	total     int
+	d1Ratio   float64
+	d2Ratio   float64
+	d3Ratio   float64
+	d1Warning bool // true if d1Ratio > 0.20
+}
+
+func analyseContext(root string) contextSignal {
+	sig := contextSignal{}
+	base := filepath.Join(root, "docs", "internal")
+
+	_ = filepath.WalkDir(base, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(d.Name(), ".md") {
+			return nil
+		}
+
+		rel, err := filepath.Rel(base, path)
+		if err != nil {
+			return nil
+		}
+		depth := len(strings.Split(filepath.ToSlash(rel), "/")) - 1
+
+		switch {
+		case depth == 0:
+			sig.d1Count++
+		case depth == 1:
+			sig.d2Count++
+		default:
+			sig.d3Count++
+		}
+		sig.total++
+		return nil
+	})
+
+	if sig.total > 0 {
+		sig.d1Ratio = float64(sig.d1Count) / float64(sig.total)
+		sig.d2Ratio = float64(sig.d2Count) / float64(sig.total)
+		sig.d3Ratio = float64(sig.d3Count) / float64(sig.total)
+	}
+
+	sig.d1Warning = sig.d1Ratio > 0.20
+	return sig
 }
 
 // --------------------------------------------------------------------------
@@ -479,11 +544,31 @@ func renderWellness(sig wellnessSignal) {
 	}
 }
 
+func renderContext(sig contextSignal) {
+	fmt.Println(theme.Title.Render("Context"))
+
+	if sig.total == 0 {
+		fmt.Println(theme.Muted.Render("  No .md files found in docs/internal/"))
+		return
+	}
+
+	fmt.Printf("  %s\n", theme.Accent.Render(
+		fmt.Sprintf("d1:%.2f / d2:%.2f / d3+:%.2f", sig.d1Ratio, sig.d2Ratio, sig.d3Ratio)))
+
+	if sig.d1Warning {
+		fmt.Println(theme.Warning.Render("  ⚠ depth-1 ratio exceeds 0.20 — context pollution may be creeping back"))
+	}
+}
+
 // --------------------------------------------------------------------------
 // Rendering: hook output (no ANSI, for commit message appending)
 // --------------------------------------------------------------------------
 
-func renderHook(sess sessionSignal, scope scopeSignal, vel velocitySignal) {
+func renderHook(sess sessionSignal, scope scopeSignal, vel velocitySignal, ctxArgs ...contextSignal) {
+	var ctx contextSignal
+	if len(ctxArgs) > 0 {
+		ctx = ctxArgs[0]
+	}
 	var signals []string
 
 	// Session signals — only surface when actionable (fatigue or no-break warning).
@@ -516,6 +601,14 @@ func renderHook(sess sessionSignal, scope scopeSignal, vel velocitySignal) {
 		}
 		if vel.rapidFireWarn {
 			signals = append(signals, fmt.Sprintf("velocity: %d rapid-fire intervals (<5min)", vel.rapidFire))
+		}
+	}
+
+	// Context signals — always include (single short line)
+	if ctx.total > 0 {
+		signals = append(signals, fmt.Sprintf("context: d1:%.2f / d2:%.2f / d3+:%.2f", ctx.d1Ratio, ctx.d2Ratio, ctx.d3Ratio))
+		if ctx.d1Warning {
+			signals = append(signals, "context: d1 ratio high (>0.20)")
 		}
 	}
 
