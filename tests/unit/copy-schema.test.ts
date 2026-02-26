@@ -76,9 +76,11 @@ describe('Copy Schema Validation', () => {
     }
   });
 
-  it('control.json is identical to base.json', () => {
+  it('control.json has all top-level keys from base.json', () => {
     const control = loadJson(join(VARIANTS_DIR, 'control.json'));
-    expect(control).toEqual(base);
+    const baseKeys = Object.keys(base as unknown as Record<string, unknown>);
+    const controlKeys = Object.keys(control as Record<string, unknown>);
+    expect(controlKeys.sort()).toEqual(baseKeys.sort());
   });
 
   it('every leaf string in base.json is non-empty', () => {

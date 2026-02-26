@@ -77,7 +77,7 @@ export default async function ArenaBuilderPage({
         />
 
         <footer className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground/70 pt-8 text-xs uppercase tracking-[0.3em] text-muted">
-          <span>{c.arenaBuilderPage.footerTagline}</span>
+          {c.arenaBuilderPage.footerTagline && <span>{c.arenaBuilderPage.footerTagline}</span>}
           <Link href="/arena" className="transition hover:text-accent">
             {c.arenaBuilderPage.backToPresets}
           </Link>

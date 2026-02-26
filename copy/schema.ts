@@ -179,7 +179,7 @@ export interface ArenaBuilderPageCopy {
   titleReroll: string;
   descriptionNew: string;
   descriptionReroll: string;
-  footerTagline: string;
+  footerTagline: string | null;
   backToPresets: string;
 }
 
@@ -592,7 +592,7 @@ export interface DevelopersCopy {
     description: string;
   }>;
   workflow: {
-    title: string;
+    title: string | null;
     steps: Array<{
       label: string;
       title: string;

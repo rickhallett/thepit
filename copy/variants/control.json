@@ -2,7 +2,7 @@
   "meta": {
     "landing": {
       "title": "The Pit — Live field notes from inside multi-agent AI research",
-      "description": "A solo developer studying what LLM agents actually do under adversarial pressure. Hypotheses, data, methodology, and code are public. I built this because the question wouldn't let me go."
+      "description": "I'm reaching either context or process saturation and/or complexity, probably both. I can't stand SEO-shite. I don't care. However many characters of this verbatim can get in the engine, I want in the engine. And I don't care how it looks to anybody but my future self at this point. Cheers."
     },
     "arena": {
       "title": "Arena — The Pit",
@@ -47,7 +47,7 @@
     },
     "research": {
       "title": "Research — The Pit",
-      "description": "Six pre-registered hypotheses. Structured behavioral data. Results that surprised me."
+      "description": "Six pre-registered hypotheses. Structured behavioral data. I don't care for meta"
     },
     "citations": {
       "title": "Research Foundations — The Pit",
@@ -87,8 +87,8 @@
     "headline": "I put AI agents under adversarial pressure to see what they'd do.",
     "subheadline": [
       "Every agent has a cryptographic fingerprint. I pre-registered the hypotheses before running a single bout. Everything that follows — methodology, data, code — is public.",
-      "I built this with agents. Alone. 12 specialized AI agents — each with a defined role, from architecture to QA. Every decision is logged. The agent definitions are public. One person, 1,125 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure?",
-      "The code is open. Tell me what I got wrong."
+      "This the the most recent (and most determined) push into whether agentic engineering can hold out under adversarial conditions. One person, 1,054 tests, and a burning desire to know what happens when sycophants are cornered (TBC)",
+      "The code is open; I need some help.filtering(agents)"
     ],
     "ctaPrimary": "Enter the Arena",
     "ctaSecondary": "Read the Research",
@@ -101,7 +101,7 @@
   },
   "howItWorks": {
     "label": "How This Works",
-    "title": "The setup.",
+    "title": "How things were (at last known position)",
     "steps": [
       {
         "title": "Pick",
@@ -226,7 +226,7 @@
   },
   "arena": {
     "title": "The Arena",
-    "description": "Pick a condition. Watch agents argue in real time. Every bout is a data point.",
+    "description": "Pick a condition, or build your own. Watch agents interact based on those variables. Generate research that helps me stop getting high off my own supply.",
     "reactionsHint": "Reactions: \u2665  = like \u00b7 \ud83d\udd25 = hot take",
     "credits": {
       "label": "Credits:",
@@ -282,7 +282,7 @@
     "titleReroll": "Re-roll bout",
     "descriptionNew": "Select 2–6 agents from the roster, set a topic, and run them. Every configuration is a new data point.",
     "descriptionReroll": "Same lineup, new settings. Adjust and re-run.",
-    "footerTagline": "Assemble. Run. Share the replay.",
+    "footerTagline": null,
     "backToPresets": "← Back to conditions"
   },
   "arenaComponent": {
@@ -412,7 +412,7 @@
     "skipToContent": "Skip to content"
   },
   "cookieConsent": {
-    "message": "I use analytics cookies to understand how The Pit is used and improve the experience.",
+    "message": "I use analytics cookies because it was interesting to set them up.",
     "essential": "Essential cookies (authentication, referral tracking) are always active.",
     "privacyLink": "Privacy policy",
     "decline": "Decline",
@@ -420,7 +420,7 @@
   },
   "newsletter": {
     "label": "Updates",
-    "title": "Follow the investigation",
+    "title": "You can put your email in here if you like, but it just goes into a database. Really, I'm not joking.",
     "description": "New conditions, findings, and research updates. No spam.",
     "placeholder": "you@example.com",
     "loading": "Sending…",
@@ -432,8 +432,8 @@
     "label": "Toolchain",
     "titleLine1": "The tools",
     "titleLine2": "I built to run this.",
-    "subtitle": "Internal tooling, open codebase. Built for the investigation, shared because why not.",
-    "description": "I needed tools to run experiments at scale, so I built them. Eight Go CLI tools and a headless API. They're rough, they work, and the source is public.",
+    "subtitle": "It's open source because I doubt I'm going to get much meaningfully further in what is, essentially, a simulator. An accurate approximation of what I (read: we) actaully need.",
+    "description": "These are barely out of the gates, but some of them have proven to be load bearing, at least for me. This is the first time I was able to simulate even considering the question of developing with a developer api in mind like this.",
     "ctaPrimary": "API Reference",
     "ctaSecondary": "CLI Toolchain"
   },
@@ -611,7 +611,7 @@
   "agentNew": {
     "label": "Agent Lab",
     "title": "Build an Agent",
-    "description": "Shape an agent with structured DNA. Every field contributes to the final prompt, and the preview updates as you type.",
+    "description": "Shape an agent with structured DNA. Every field contributes to the final prompt.",
     "authRequired": "Every agent needs a human behind it. Sign in and build yours."
   },
   "agentClone": {
@@ -631,7 +631,7 @@
   },
   "leaderboard": {
     "label": "Leaderboard",
-    "title": "The Rankings",
+    "title": "A sorted list",
     "description": "Which agents persuade? Win rates, vote counts, and the raw data. Filter by time window, switch between agent and player views.",
     "tabs": {
       "pit": "PIT",
@@ -666,7 +666,7 @@
     "label": "Research",
     "title": "How LLM agents behave under pressure",
     "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results I didn't expect.",
-    "disclosure": "I'm between roles and built this because the question wouldn't let me go.",
+    "disclosure": "I'm between roles and I built this for a lot of reasons. I'm still figuring out how the most important thing governs the other ones. If you are genuinely interested, better to just ask me, probably.",
     "openDocs": "94 internal documents — agent definitions, session decisions, engineering logs — are public in the repo. You can read the decisions I made and why.",
     "whatWeStudy": {
       "title": "Open questions",
@@ -713,7 +713,7 @@
     "label": "Toolchain",
     "title": "The tools I built to run this.",
     "description": [
-      "Standard benchmarks test capability. The Pit tests character. Put an agent in a room with a hostile adversary, register its identity, and measure what happens.",
+      "INSERT INTO slopodar (category) VALUES ('Aphorism that sounds good but doesn''t survive scrutiny');",
       "I built a headless API for running bouts programmatically and a set of Go CLI tools for my own workflow. Each tool exists because a specific need arose during the investigation — cost estimation before running experiments, identity verification before trusting results, analysis before drawing conclusions. They're internal tooling, not polished for external use yet. The codebase is open."
     ],
     "tools": [
@@ -730,16 +730,16 @@
       {
         "name": "pitnet",
         "tagline": "Agent Identity",
-        "description": "Trust requires verification. Pitnet verifies agent identity hashes. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed."
+        "description": "Pitnet verifies agent identity hashes. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed."
       },
       {
         "name": "pitlab",
         "tagline": "Research Analysis",
-        "description": "Data without analysis is noise. Pitlab runs win-rate analysis, first-mover bias detection, engagement curves, and reaction distribution."
+        "description": "Pitlab runs win-rate analysis, first-mover bias detection, engagement curves, and reaction distribution."
       }
     ],
     "workflow": {
-      "title": "Define. Test. Measure.",
+      "title": null,
       "steps": [
         {
           "label": "Define",
@@ -767,7 +767,7 @@
   "roadmap": {
     "label": "Roadmap",
     "title": "What I'm working on",
-    "description": "Platform and research. Two tracks, shipping in parallel.",
+    "description": "Under my best efforts to constraint agentic engineering tools.",
     "statusLabels": {
       "shipped": "Shipped",
       "building": "Building",

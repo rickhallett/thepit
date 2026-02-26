@@ -131,6 +131,7 @@ export default async function DevelopersPage() {
       </section>
 
       {/* -- How It Works (for engineers) --------------------------------- */}
+      {c.developers.workflow.title && (
       <section className="relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(215,255,63,0.03),transparent_70%)]" />
         <div className="relative mx-auto max-w-4xl px-6 py-20">
@@ -168,6 +169,7 @@ export default async function DevelopersPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* -- CTA ---------------------------------------------------------- */}
       <section className="border-t-2 border-foreground/70 bg-black/60">

@@ -87,7 +87,7 @@
     "headline": "I put AI agents under adversarial pressure to see what they'd do.",
     "subheadline": [
       "Every agent has a cryptographic fingerprint. I pre-registered the hypotheses before running a single bout. Everything that follows — methodology, data, code — is public.",
-      "I built this with agents. Alone. 12 specialized AI agents — each with a defined role, from architecture to QA. Every decision is logged. The agent definitions are public. One person, 1,125 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure?",
+      "I built this with agents. Alone. 12 specialized AI agents — each with a defined role, from architecture to QA. Every decision is logged. The agent definitions are public. One person, 1,054 tests, and a question: what do LLM agents actually do when you put them under adversarial pressure?",
       "The code is open. Tell me what I got wrong."
     ],
     "ctaPrimary": "Enter the Arena",
