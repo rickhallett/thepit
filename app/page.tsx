@@ -45,7 +45,7 @@ export default async function LandingPage() {
           {Array.isArray(c.hero.subheadline) ? (
             <div className="max-w-2xl space-y-4 text-lg text-muted">
               {c.hero.subheadline.map((p: string, i: number) => (
-                <p key={i}>{p}</p>
+                <p key={i}>{renderSubheadline(p)}</p>
               ))}
             </div>
           ) : (
@@ -109,6 +109,7 @@ export default async function LandingPage() {
           <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
             {c.howItWorks.title}
           </h2>
+          {/* egg */}
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {c.howItWorks.steps.map((step, i) => (
               <StepCard
@@ -252,6 +253,24 @@ export default async function LandingPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+/* ── Inline helpers ──────────────────────────────────────────────── */
+
+/**
+ * Render a subheadline string, highlighting the word "wrong" with an
+ * editorial-red treatment — the red of a pen marking up a manuscript.
+ */
+function renderSubheadline(text: string): React.ReactNode {
+  const idx = text.indexOf('wrong');
+  if (idx === -1) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <span className="text-[#e06c75] font-medium">{text.slice(idx, idx + 5)}</span>
+      {text.slice(idx + 5)}
+    </>
   );
 }
 

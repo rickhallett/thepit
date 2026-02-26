@@ -61,6 +61,8 @@ Cross-reference against the post-merge queue in session-decisions.md.
 | Scribe | `.opencode/agents/scribe.md` | Documentation |
 | Janitor | `.opencode/agents/janitor.md` | Code hygiene, refactoring |
 | Analyst | `.opencode/agents/analyst.md` | Research evaluation, audience modelling |
+| Maturin | `.opencode/agents/maturin.md` | Naturalist, field observation, pattern taxonomy |
+| AnotherPair | `.opencode/agents/anotherpair.md` | Subtle process observer, joint cognitive system monitoring |
 | MASTER | `.opencode/agents/MASTER.md` | Full aggregated reference (large — read last resort only) |
 
 ### Specialised Roles (non-agent, human-facing)

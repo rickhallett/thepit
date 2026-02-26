@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- Glow filter for the fingerprint -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <!-- Stronger glow for accent elements -->
+    <filter id="glowStrong" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Subtle scan line pattern -->
+    <pattern id="scanlines" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="4" height="2" fill="rgba(255,255,255,0.015)"/>
+    </pattern>
+    <!-- Radial gradient for vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.6)"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#0b0b0b"/>
+  <rect width="1280" height="720" fill="url(#scanlines)"/>
+
+  <!-- Subtle grid lines (background texture) -->
+  <g opacity="0.06" stroke="#d7ff3f" stroke-width="0.5">
+    <line x1="0" y1="180" x2="1280" y2="180"/>
+    <line x1="0" y1="360" x2="1280" y2="360"/>
+    <line x1="0" y1="540" x2="1280" y2="540"/>
+    <line x1="320" y1="0" x2="320" y2="720"/>
+    <line x1="640" y1="0" x2="640" y2="720"/>
+    <line x1="960" y1="0" x2="960" y2="720"/>
+  </g>
+
+  <!-- === DNA FINGERPRINT GRID (center-right) === -->
+  <!-- 5x5 symmetric grid, each cell 48x48 with 6px gap -->
+  <!-- Total grid: 5*48 + 4*6 = 264px wide, same tall -->
+  <!-- Positioned at roughly x=780, y=228 (center-right area) -->
+  <g transform="translate(810, 195)" filter="url(#glow)" opacity="0.95">
+    <!-- Row 0 -->
+    <rect x="0"   y="0" width="48" height="48" fill="#7aa2f7" rx="2"/>
+    <rect x="54"  y="0" width="48" height="48" fill="transparent" rx="2"/>
+    <rect x="108" y="0" width="48" height="48" fill="#bb9af7" rx="2"/>
+    <rect x="162" y="0" width="48" height="48" fill="transparent" rx="2"/>
+    <rect x="216" y="0" width="48" height="48" fill="#7aa2f7" rx="2"/>
+
+    <!-- Row 1 -->
+    <rect x="0"   y="54" width="48" height="48" fill="transparent" rx="2"/>
+    <rect x="54"  y="54" width="48" height="48" fill="#d7ff3f" rx="2"/>
+    <rect x="108" y="54" width="48" height="48" fill="#d7ff3f" rx="2"/>
+    <rect x="162" y="54" width="48" height="48" fill="#d7ff3f" rx="2"/>
+    <rect x="216" y="54" width="48" height="48" fill="transparent" rx="2"/>
+
+    <!-- Row 2 -->
+    <rect x="0"   y="108" width="48" height="48" fill="#ff9e64" rx="2"/>
+    <rect x="54"  y="108" width="48" height="48" fill="#7aa2f7" rx="2"/>
+    <rect x="108" y="108" width="48" height="48" fill="transparent" rx="2"/>
+    <rect x="162" y="108" width="48" height="48" fill="#7aa2f7" rx="2"/>
+    <rect x="216" y="108" width="48" height="48" fill="#ff9e64" rx="2"/>
+
+    <!-- Row 3 -->
+    <rect x="0"   y="162" width="48" height="48" fill="#f7768e" rx="2"/>
+    <rect x="54"  y="162" width="48" height="48" fill="transparent" rx="2"/>
+    <rect x="108" y="162" width="48" height="48" fill="#9ece6a" rx="2"/>
+    <rect x="162" y="162" width="48" height="48" fill="transparent" rx="2"/>
+    <rect x="216" y="162" width="48" height="48" fill="#f7768e" rx="2"/>
+
+    <!-- Row 4 -->
+    <rect x="0"   y="216" width="48" height="48" fill="#7dcfff" rx="2"/>
+    <rect x="54"  y="216" width="48" height="48" fill="#bb9af7" rx="2"/>
+    <rect x="108" y="216" width="48" height="48" fill="#7aa2f7" rx="2"/>
+    <rect x="162" y="216" width="48" height="48" fill="#bb9af7" rx="2"/>
+    <rect x="216" y="216" width="48" height="48" fill="#7dcfff" rx="2"/>
+
+    <!-- Grid border -->
+    <rect x="-8" y="-8" width="280" height="280" fill="none" stroke="#d7ff3f" stroke-width="2" opacity="0.4" rx="4"/>
+  </g>
+
+  <!-- Decorative hash text (subtle, behind fingerprint) -->
+  <text x="810" y="510" fill="#d7ff3f" opacity="0.12" font-family="monospace" font-size="11" letter-spacing="1">
+    0xf2d7077205ae5669ec1d82dcaacd45b2480d272bbb3443049899b31fdba6fd80
+  </text>
+  <text x="810" y="526" fill="#d7ff3f" opacity="0.08" font-family="monospace" font-size="11" letter-spacing="1">
+    0xaefa987e8e894a687d9ee3f836442241ed11f37cb2547ec16145d7aefc102e6d
+  </text>
+
+  <!-- === MAIN TEXT (left side) === -->
+  <!-- "PROVE YOUR" -->
+  <text x="80" y="280" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="6" text-transform="uppercase">
+    PROVE
+  </text>
+  <text x="80" y="355" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="6">
+    YOUR AI
+  </text>
+  <!-- "IS REAL" in accent -->
+  <text x="80" y="435" fill="#d7ff3f" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="80" font-weight="900" letter-spacing="8" filter="url(#glowStrong)">
+    IS REAL
+  </text>
+
+  <!-- Accent line under text -->
+  <rect x="80" y="455" width="380" height="3" fill="#d7ff3f" opacity="0.6"/>
+
+  <!-- Subtitle -->
+  <text x="80" y="500" fill="#a9b1d6" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="18" letter-spacing="5" font-weight="400">
+    CRYPTOGRAPHIC AGENT IDENTITY
+  </text>
+
+  <!-- THE PIT branding (bottom left) -->
+  <text x="80" y="620" fill="#d7ff3f" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="8" opacity="0.9">
+    THE PIT
+  </text>
+  <text x="80" y="648" fill="#565f89" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" letter-spacing="4">
+    ON-CHAIN ATTESTATION · BASE L2
+  </text>
+
+  <!-- Corner accents (brutalist frame) -->
+  <!-- Top left -->
+  <line x1="40" y1="40" x2="120" y2="40" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+  <line x1="40" y1="40" x2="40" y2="120" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+  <!-- Top right -->
+  <line x1="1160" y1="40" x2="1240" y2="40" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+  <line x1="1240" y1="40" x2="1240" y2="120" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+  <!-- Bottom left -->
+  <line x1="40" y1="600" x2="40" y2="680" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+  <line x1="40" y1="680" x2="120" y2="680" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+  <!-- Bottom right -->
+  <line x1="1240" y1="600" x2="1240" y2="680" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+  <line x1="1160" y1="680" x2="1240" y2="680" stroke="#d7ff3f" stroke-width="2" opacity="0.5"/>
+
+  <!-- Vignette overlay -->
+  <rect width="1280" height="720" fill="url(#vignette)"/>
+</svg>
