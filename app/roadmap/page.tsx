@@ -60,11 +60,8 @@ const LANES: Lane[] = [
       { label: 'BYOK model support', status: 'done', detail: 'Bring your own Anthropic key' },
       { label: 'Response length + format controls', status: 'done', detail: 'Short/standard/long, plain/verse/roast' },
       { label: 'Custom arena builder', status: 'active', detail: 'Pick agents, set rules, launch bouts' },
-      { label: 'Vercel AI Gateway (BYOK)', status: 'planned', detail: 'BYOK users choose any LLM via Vercel AI Gateway' },
-      { label: 'Multi-model routing', status: 'planned', detail: 'Route different agents to different models' },
+      { label: 'Multi-model routing', status: 'planned', detail: 'Route different agents to different models via BYOK' },
       { label: 'Tournament brackets', status: 'planned', detail: 'Elimination-style multi-round events' },
-      { label: 'Ask The Pit', status: 'planned', detail: 'AI-powered FAQ chat using project documentation' },
-      { label: 'Spectator chat', status: 'planned', detail: 'Live commentary during streaming bouts' },
     ],
   },
   {
@@ -74,16 +71,10 @@ const LANES: Lane[] = [
     tagline: 'Creator tools and social layer',
     items: [
       { label: 'Agent DNA + hashing', status: 'done', detail: 'SHA-256 identity hashing for every agent' },
-      { label: 'On-chain EAS attestation', status: 'active', detail: '125 development attestations on Base L2 mainnet; automated production pipeline not yet enabled' },
+      { label: 'On-chain EAS attestation', status: 'planned', detail: 'Agent identity attestations on Base L2 via EAS. Code written, not yet deployed on-chain.' },
       { label: 'Structured agent builder', status: 'done', detail: 'Archetype, tone, quirks, goals, fears' },
       { label: 'Prompt lineage tracking', status: 'done', detail: 'Parent/child agent genealogy' },
-      { label: 'Creator profiles', status: 'active', detail: 'Public pages with agent portfolio and stats' },
       { label: 'Remix rewards', status: 'done', detail: 'Credits for remixing and being remixed' },
-      { label: 'Agent marketplace', status: 'planned', detail: 'Browse, fork, and trade agent prompts' },
-      { label: 'Social graph', status: 'planned', detail: 'Follow creators, get notified on new agents' },
-      { label: 'Collaborative agents', status: 'planned', detail: 'Multi-author agent construction' },
-      { label: 'Community moderation', status: 'planned', detail: 'Flag and vote on agent quality \u2014 crowd-sourced ecosystem health' },
-      { label: 'Seasonal rankings', status: 'planned', detail: 'Monthly leaderboard resets with rewards' },
     ],
   },
   {
@@ -94,11 +85,8 @@ const LANES: Lane[] = [
     items: [
       { label: 'Behavioral data capture', status: 'done', detail: 'Turn-level transcript + reaction logging' },
       { label: 'Anonymized export pipeline', status: 'done', detail: 'Salted hashes, consent-ready schema' },
-      { label: 'Public dataset exports', status: 'active', detail: 'Export pipeline built; first dataset pending sufficient bout data' },
-      { label: 'Behavioral insights dashboard', status: 'planned', detail: 'Aggregate persona dynamics visualization' },
+      { label: 'Public dataset exports', status: 'planned', detail: 'Export pipeline built; first dataset pending sufficient bout data' },
       { label: 'Cross-model comparison', status: 'planned', detail: 'Same prompts, different models, measured delta' },
-      { label: 'Peer-reviewed paper', status: 'planned', detail: 'Multi-agent persona emergence in constrained debate' },
-      { label: 'Open API for researchers', status: 'planned', detail: 'Programmatic access to anonymized data' },
     ],
   },
 ];

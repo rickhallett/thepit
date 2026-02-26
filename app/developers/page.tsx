@@ -189,7 +189,7 @@ export default async function DevelopersPage() {
               {c.developers.cta.primary}
             </Link>
             <Link
-              href="/docs/api"
+              href="https://github.com/rickhallett/thepit"
               className="inline-block border-2 border-foreground/40 px-8 py-4 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-foreground hover:text-foreground"
             >
               {c.developers.cta.secondary}
