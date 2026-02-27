@@ -4,8 +4,8 @@
 # sound like LLM output. Each entry is a pattern to watch for and ward off.
 #
 # Named after the radar that detects slop before it reaches production.
-# Maintained by the Captain and crew. Entries are added when they're caught
-# in the wild — not theorised in advance.
+# Maintained by the Captain and crew. Entries are added when caught
+# in the wild.
 #
 # Format:
 #   - id: short kebab-case identifier
@@ -45,3 +45,32 @@ patterns:
       - "SD-209 (oceanheart.ai overhaul)"
       - "sites/oceanheart/content/research/prospective-regulation.md"
       - "sites/oceanheart/content/research/metacognitive-analysis.md"
+
+  - id: redundant-antithesis
+    name: "Redundant Antithesis"
+    detected: 2026-02-27
+    trigger: "caught in the wild — not theorised in advance"
+    description: >
+      Negative-positive antithesis where the negation adds zero
+      information. The classical form ("not A, but B") is a deliberate
+      rhetorical choice — Aristotle documented it. The LLM form is
+      an RLHF-trained reflex: contrastive structures score higher in
+      preference rankings, so the model generates them compulsively.
+      "Caught in the wild" already implies "not theorised." The
+      negation is dead weight that makes the sentence sound like a
+      TED talk.
+    signal: >
+      Pre-LLM, this was a stylistic choice with real rhetorical force.
+      Post-LLM, everyone uses AI as their copyeditor and this
+      construction is everywhere. A discerning reader now pattern-matches
+      it as AI-generated prose. The structure that once signalled
+      decisiveness now signals "a model wrote this."
+    instead: >
+      Just say the positive. "Entries are added when caught in the
+      wild." The reader does not need to be told what the alternative
+      was. If the contrast genuinely adds meaning, keep it. If the
+      reader already knows the negated term, cut it.
+    severity: high
+    refs:
+      - "SD-209 (slopodar.yaml header comment)"
+      - "sites/oceanheart/layouts/_default/slopodar.html (page description)"
