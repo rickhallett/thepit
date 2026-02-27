@@ -48,8 +48,34 @@ def _read_keel_state(root: str) -> dict:
         return {}
 
 
-def field_gate(root: str) -> str:
-    data = _read_keel_state(root)
+def field_watch(data: dict) -> str:
+    officer = data.get("officer", "—")
+    conn = data.get("conn", "—")
+    return f"{CYN}WATCH{RST}  {BOLD}{officer}{RST} {DIM}(conn: {conn}){RST}"
+
+
+def field_weave(data: dict) -> str:
+    weave = data.get("weave", "—")
+    register = data.get("register", "—")
+    tempo = data.get("tempo", "—")
+    # Colour tempo by risk
+    if tempo in ("beat-to-quarters", "heave-to"):
+        tc = RED
+    elif tempo == "full-sail":
+        tc = YEL
+    else:
+        tc = GRN
+    return (
+        f"{CYN}WEAVE{RST}  {weave} {DIM}|{RST} {register} {DIM}|{RST} {tc}{tempo}{RST}"
+    )
+
+
+def field_bearing(data: dict) -> str:
+    bearing = data.get("bearing", "—")
+    return f"{CYN}NORTH{RST}  {BOLD}{bearing}{RST}"
+
+
+def field_gate(data: dict) -> str:
     status = data.get("gate", "unknown")
     time = data.get("gate_time", "")
     if status == "green":
@@ -62,8 +88,7 @@ def field_gate(root: str) -> str:
     return f"{CYN}GATE{RST}   {val}{suffix}"
 
 
-def field_tests(root: str) -> str:
-    data = _read_keel_state(root)
+def field_tests(data: dict) -> str:
     count = data.get("tests")
     if count is not None:
         return f"{CYN}TESTS{RST}  {GRN}{count} passed{RST}"
@@ -157,10 +182,15 @@ def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     root = get_root()
     os.chdir(root)
+    state = _read_keel_state(root)
 
+    print(field_watch(state))
+    print(field_weave(state))
+    print(field_bearing(state))
+    print(f"{DIM}{'─' * 30}{RST}")
     print(field_head())
-    print(field_gate(root))
-    print(field_tests(root))
+    print(field_gate(state))
+    print(field_tests(state))
     print(field_sd(root))
     print(field_prs())
     print(field_ctx(root))
