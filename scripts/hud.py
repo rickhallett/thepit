@@ -146,14 +146,15 @@ def field_ctx(root: str) -> str:
     )
 
 
-def field_log() -> str:
-    raw = run(["git", "log", "--oneline", "--graph", "-20"])
+def field_log(n: int = 20) -> str:
+    raw = run(["git", "log", "--oneline", "--graph", f"-{n}"])
     if not raw:
         return f"{RED}error{RST}"
-    return run(["git", "log", "--oneline", "--graph", "--color=always", "-20"])
+    return run(["git", "log", "--oneline", "--graph", "--color=always", f"-{n}"])
 
 
 def main():
+    n = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     root = get_root()
     os.chdir(root)
 
@@ -164,7 +165,7 @@ def main():
     print(field_prs())
     print(field_ctx(root))
     print(f"{DIM}{'─' * 30}{RST}")
-    print(field_log())
+    print(field_log(n))
 
 
 if __name__ == "__main__":
