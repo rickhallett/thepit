@@ -1,0 +1,19 @@
+# Compaction Recovery Log
+#
+# Machine-readable record of compaction/reboot events.
+# Purpose: track recovery efficiency over time, find the sweet spot
+# between direct context detail and lookup refs, audit trail, proof of work.
+#
+# Format (TSV):
+# timestamp	tokens	pct_of_max	harness	harness_version	layer	source	session_head	notes
+#
+# tokens:          token count at resume after recovery sequence
+# pct_of_max:      percentage of context window consumed by recovery
+# harness:         harness software identifier
+# harness_version: harness version string
+# layer:           layer model layer where measurement was taken
+# source:          who provided the data (captain | weaver | harness)
+# session_head:    git HEAD at time of measurement
+# notes:           free text, pipe-delimited if multiple
+#
+2026-02-27T14:04:59Z	45577	23	opencode	v1.1.44	L5	captain	9c07fe6	first recorded compaction reboot|dead-reckoning + session-decisions read + gate verification + keel-state restore
