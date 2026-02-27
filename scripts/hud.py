@@ -147,18 +147,10 @@ def field_ctx(root: str) -> str:
 
 
 def field_log() -> str:
-    raw = run(["git", "log", "--oneline", "-20"])
+    raw = run(["git", "log", "--oneline", "--graph", "-20"])
     if not raw:
         return f"{RED}error{RST}"
-    lines = raw.splitlines()
-    coloured = []
-    for line in lines:
-        parts = line.split(" ", 1)
-        if len(parts) == 2:
-            coloured.append(f"{YEL}{parts[0]}{RST} {DIM}{parts[1]}{RST}")
-        else:
-            coloured.append(f"{DIM}{line}{RST}")
-    return "\n".join(coloured)
+    return run(["git", "log", "--oneline", "--graph", "--color=always", "-20"])
 
 
 def main():
