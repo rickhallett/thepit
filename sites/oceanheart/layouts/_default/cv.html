@@ -1,0 +1,74 @@
+{{ define "main" }}
+<article>
+  <header>
+    <p class="prompt">cat ./cv/richard-hallett.md</p>
+    <h1>Richard (Kai) Hallett</h1>
+    <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted);">Software Engineer · kai@oceanheart.ai</p>
+  </header>
+
+  <div class="cv-section">
+    <h2 style="color: var(--cyan);">Experience</h2>
+
+    <div class="cv-entry">
+      <span class="period">2024–present</span>
+      <div class="role">Independent Engineer</div>
+      <div class="org">Oceanheart.ai</div>
+      <div class="desc">Building agentic evaluation systems. THE PIT: multi-agent arena with integration discipline governance. 12 specialised agents, 1,125 tests, full CI/CD pipeline. Next.js, TypeScript, Go, Claude.</div>
+    </div>
+
+    <div class="cv-entry">
+      <span class="period">2022–2024</span>
+      <div class="role">Software Engineer</div>
+      <div class="org">EDITED · Retail analytics</div>
+      <div class="desc">React, TypeScript, Python. Retail analytics platform.</div>
+    </div>
+
+    <div class="cv-entry">
+      <span class="period">2021–2022</span>
+      <div class="role">Software Engineer</div>
+      <div class="org">Brandwatch · Social intelligence</div>
+    </div>
+
+    <div class="cv-entry">
+      <span class="period">2019–2021</span>
+      <div class="role">Software Engineer</div>
+      <div class="org">Telesoft Technologies · Network security</div>
+    </div>
+
+    <div class="cv-entry">
+      <span class="period">2004–2019</span>
+      <div class="role">Cognitive Behavioural Therapist</div>
+      <div class="org">NHS / Private Practice</div>
+      <div class="desc">15 years clinical practice. PGDip CBT (Royal Holloway).</div>
+    </div>
+  </div>
+
+  <div class="cv-section">
+    <h2 style="color: var(--purple);">Education</h2>
+    <div class="cv-entry">
+      <div class="role">PGDip Cognitive Behavioural Therapy</div>
+      <div class="org">Royal Holloway, University of London</div>
+    </div>
+    <div class="cv-entry">
+      <div class="role">BSc Psychology</div>
+      <div class="org">UWE Bristol</div>
+    </div>
+  </div>
+
+  <div class="cv-section">
+    <h2 style="color: var(--green);">Technical</h2>
+    <div class="tech-tags">
+      {{ range (slice "TypeScript" "React" "Next.js" "Go" "Python" "PostgreSQL" "Node.js" "Tailwind" "Claude/Anthropic" "RAG" "Playwright" "Drizzle" "Vercel" "GitHub Actions" "Docker" "Hugo") }}
+      <span class="tech-tag">{{ . }}</span>
+      {{ end }}
+    </div>
+  </div>
+
+  <div class="cv-section">
+    <h2 style="color: var(--orange);">Currently</h2>
+    <p>Building systems that account for how humans actually behave.
+    Writing about what I learn. Looking for a role where
+    multi-domain agentic orchestration under discipline is valued.</p>
+  </div>
+</article>
+{{ end }}

@@ -1,0 +1,52 @@
+baseURL = 'https://www.oceanheart.ai/'
+languageCode = 'en-gb'
+title = 'oceanheart.ai'
+
+[params]
+  description = "Kai Hallett — learning in public about agentic systems, human-AI interaction, and what happens when you give LLMs real responsibilities."
+  author = "Richard Hallett"
+  email = "kai@oceanheart.ai"
+  github = "https://github.com/rickhallett"
+  linkedin = "https://linkedin.com/in/richardkaihallett"
+
+[menus]
+  [[menus.main]]
+    name = 'blog'
+    url = '/blog/'
+    weight = 10
+  [[menus.main]]
+    name = 'research'
+    url = '/research/'
+    weight = 20
+  [[menus.main]]
+    name = 'slopodar'
+    url = '/slopodar/'
+    weight = 25
+  [[menus.main]]
+    name = 'about'
+    url = '/about/'
+    weight = 30
+  [[menus.main]]
+    name = 'cv'
+    url = '/cv/'
+    weight = 40
+
+[markup]
+  [markup.highlight]
+    style = 'tokyonight-night'
+    lineNos = false
+    noClasses = true
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[outputs]
+  home = ['HTML', 'RSS']
+  section = ['HTML', 'RSS']
+
+[taxonomies]
+  tag = 'tags'
+  category = 'categories'
+
+[pagination]
+  pagerSize = 20

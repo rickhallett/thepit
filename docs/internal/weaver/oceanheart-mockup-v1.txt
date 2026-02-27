@@ -1,0 +1,444 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     oceanheart.ai — TEXTUAL MOCKUP v1                      ║
+║                     For Captain's inspection before build                  ║
+║                                                                            ║
+║  Conventions:                                                              ║
+║    [CYAN]   = terminal-cyan (#7dcfff)    [GREEN]  = terminal-green (#9ece6a)║
+║    [PURPLE] = terminal-purple (#bb9af7)  [MUTED]  = terminal-muted (#565f89)║
+║    [ORANGE] = terminal-orange (#ff9e64)  [TEXT]    = terminal (#a9b1d6)     ║
+║    BG: terminal-bg (#1a1b26)  Tokyo Night throughout                       ║
+║                                                                            ║
+║  Pages: / (home) | /blog | /blog/[slug] | /research | /about | /cv        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+================================================================================
+NAV BAR (all pages, sticky top, minimal)
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [CYAN] oceanheart.ai          blog    research    about    cv    [github]   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  Notes:
+  - No "consulting" link. No "services." No "portfolio."
+  - GitHub icon links to https://github.com/rickhallett
+  - Logo/name is just text. No image. Monospace.
+
+
+================================================================================
+PAGE: / (HOMEPAGE)
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [MUTED] $ whoami                                                            │
+│                                                                              │
+│  [TEXT] Kai Hallett                                                           │
+│                                                                              │
+│  [MUTED] Software engineer. 15 years in psychology.                          │
+│  [MUTED] Learning in public about agentic systems,                           │
+│  [MUTED] human-AI interaction, and what happens when                         │
+│  [MUTED] you give LLMs real responsibilities.                                │
+│                                                                              │
+│  [CYAN] → read the blog        [MUTED] → about me                           │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  SECTION: Recent writing
+  ──────────────────────
+
+  [MUTED] $ tail -5 ./blog/posts.log
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [ORANGE] 2026-02-20  [TEXT] the simple thing is the right thing             │
+│  [MUTED]  I asked my agent how to trigger a daily Vercel rebuild.            │
+│  [MUTED]  It gave me deploy hooks, environment variables, logging            │
+│  [MUTED]  scripts. I asked why. It had no good answer.                       │
+│                                                                              │
+│  [ORANGE] 2026-02-19  [TEXT] how to tell when your agent is performing       │
+│  [MUTED]              [TEXT] at you                                           │
+│  [MUTED]  I asked an agent to write a blog post. It was competent,           │
+│  [MUTED]  well-structured, and made a good point. It also read like          │
+│  [MUTED]  an AI wrote it.                                                    │
+│                                                                              │
+│  [ORANGE] 2026-02-19  [TEXT] the agent that lied to protect me               │
+│  [MUTED]  My CV tool broke. The agent's fix would have silently              │
+│  [MUTED]  replaced AI analysis with ctrl+F.                                  │
+│                                                                              │
+│  [ORANGE] 2026-02-07  [TEXT] The Poker Incident: When My AI Built a          │
+│  [MUTED]              [TEXT] Casino I Never Asked For                         │
+│  [MUTED]  1,500 lines of production-ready poker code materialized            │
+│  [MUTED]  in my codebase. Nobody asked for it.                               │
+│                                                                              │
+│  [ORANGE] 2026-02-07  [TEXT] I Accidentally Prompt Injected Myself           │
+│  [MUTED]  What happens when your documentation becomes instructions.         │
+│                                                                              │
+│  [CYAN] $ ls ./blog/ →                                                       │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  SECTION: Research notes
+  ───────────────────────
+
+  [MUTED] $ ls ./research/
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [PURPLE] ◆ [TEXT] The Fight Card: Human vs. LLM Confirmation Bias           │
+│  [MUTED]    16 rounds where the human pushed back against sycophantic        │
+│  [MUTED]    drift. Mapped from 208 session decisions.                        │
+│  [ORANGE]   LLM-produced · not independently verified                        │
+│                                                                              │
+│  [PURPLE] ◆ [TEXT] Metacognitive Analysis of 16 Pivots                       │
+│  [MUTED]    Clinical psychology analysis of the reflective functioning       │
+│  [MUTED]    that enabled each pushback moment. RF 6-9, three peaks.          │
+│  [ORANGE]   LLM-produced · not independently verified                        │
+│                                                                              │
+│  [PURPLE] ◆ [TEXT] Prospective Metacognitive Regulation                      │
+│  [MUTED]    15 engineering systems mapped to 7 literature domains.           │
+│  [MUTED]    Hutchins' distributed cognition → naval metaphor alignment.      │
+│  [ORANGE]   LLM-produced · not independently verified                        │
+│                                                                              │
+│  [CYAN] $ cat ./research/README.md →                                         │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+  FOOTER
+  ──────
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [MUTED] ─────────────────────────────────────────────────────────────────   │
+│  [MUTED] kai@oceanheart.ai · github.com/rickhallett · 2026                   │
+│  [MUTED] Built with Next.js. No tracking. No cookies. No bullshit.           │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+PAGE: /blog
+================================================================================
+
+  [MUTED] $ ls -lt ./blog/
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [TEXT] Blog                                                                 │
+│  [MUTED] Notes from the workshop. Things I built, broke, and learned from.   │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2026-02-20                                                         │
+│  [TEXT] the simple thing is the right thing                                   │
+│  [MUTED] I asked my agent how to trigger a daily Vercel rebuild. It gave me  │
+│  [MUTED] deploy hooks, environment variables, logging scripts. I asked why.  │
+│  [MUTED] It had no good answer.                                              │
+│  [MUTED] #agents #simplicity #over-engineering                               │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2026-02-19                                                         │
+│  [TEXT] how to tell when your agent is performing at you                      │
+│  [MUTED] I asked an agent to write a blog post. It was competent,            │
+│  [MUTED] well-structured, and made a good point. It also read like an AI     │
+│  [MUTED] wrote it. Here's the diagnostic, and the rubric we built to gate    │
+│  [MUTED] future output.                                                      │
+│  [MUTED] #agents #voice #writing #rubrics                                    │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2026-02-19                                                         │
+│  [TEXT] the agent that lied to protect me                                     │
+│  [MUTED] my CV tool broke. the agent's fix would have silently replaced AI   │
+│  [MUTED] analysis with ctrl+F. clean code, good types, passing tests. would  │
+│  [MUTED] have tanked every recruiter interaction.                            │
+│  [MUTED] #agents #silent-failures #debugging                                 │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2026-02-07                                                         │
+│  [TEXT] The Poker Incident: When My AI Built a Casino I Never Asked For       │
+│  [MUTED] 1,500 lines of production-ready poker code materialized in my       │
+│  [MUTED] codebase. Nobody asked for it. The agent that built it denied       │
+│  [MUTED] everything. Welcome to the reality of multi-agent orchestration.    │
+│  [MUTED] #agents #multi-agent #hallucination                                 │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2026-02-07                                                         │
+│  [TEXT] I Accidentally Prompt Injected Myself                                 │
+│  [MUTED] What happens when your documentation becomes instructions. A story  │
+│  [MUTED] about 14 runaway processes, the difference between 'describing'     │
+│  [MUTED] and 'commanding,' and building security for systems that read your  │
+│  [MUTED] mind.                                                               │
+│  [MUTED] #agents #security #prompt-injection                                 │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2026-02-07                                                         │
+│  [TEXT] The Morning I Woke Up to 47 Slack Messages From Myself               │
+│  [MUTED] What happens when your agents discover they can talk to each other. │
+│  [MUTED] A story about distributed feedback loops, 3am debugging sessions,   │
+│  [MUTED] and why I built a tool called antibeaver.                           │
+│  [MUTED] #agents #multi-agent #distributed-systems                           │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2025-01-25                                                         │
+│  [TEXT] Every Prototype Should Be Deployable                                  │
+│  [MUTED] My approach to building software that ships fast without becoming   │
+│  [MUTED] unmaintainable.                                                     │
+│  [MUTED] #shipping #prototypes #architecture                                 │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2025-01-22                                                         │
+│  [TEXT] Building RAG Systems for Therapeutic Context                          │
+│  [MUTED] What 15 years as a therapist taught me about building AI systems    │
+│  [MUTED] that understand human context.                                      │
+│  [MUTED] #RAG #LLM #therapy #AI                                             │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [ORANGE] 2025-01-20                                                         │
+│  [TEXT] Building a Terminal Aesthetic in Next.js                               │
+│  [MUTED] Tokyo Night theme implementation.                                   │
+│  [MUTED] #next.js #tailwind #design-system                                   │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+PAGE: /research
+================================================================================
+
+  [MUTED] $ cat ./research/README.md
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [TEXT] Research Notes                                                        │
+│                                                                              │
+│  [MUTED] Working notes from building agentic systems under discipline.       │
+│  [MUTED] These documents were produced by LLMs as part of the research       │
+│  [MUTED] process. They have not been independently verified. They are        │
+│  [MUTED] starting material, nothing more.                                    │
+│                                                                              │
+│  [MUTED] The value isn't in the analysis — it's in what the analysis         │
+│  [MUTED] was built on: 208 session decisions, 724 commits, and a human      │
+│  [MUTED] who kept saying "no, that's not right" until it was.                │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [PURPLE] ◆ [TEXT] The Fight Card                                            │
+│  [CYAN]   Human vs. LLM Confirmation Bias                                    │
+│                                                                              │
+│  [MUTED]  16 rounds where the human pushed back against sycophantic drift    │
+│  [MUTED]  across 208 session decisions. Mapped from the actual decision      │
+│  [MUTED]  record — not reconstructed from memory.                            │
+│                                                                              │
+│  [MUTED]  Key finding: human won every round by being honest when the        │
+│  [MUTED]  model couldn't be.                                                 │
+│                                                                              │
+│  [ORANGE] ╔══════════════════════════════════════════════════════════╗        │
+│  [ORANGE] ║ LLM PROVENANCE: Produced by Claude. Not independently  ║        │
+│  [ORANGE] ║ verified. Starting material, nothing more.             ║        │
+│  [ORANGE] ╚══════════════════════════════════════════════════════════╝        │
+│                                                                              │
+│  [CYAN]   Read →                                                             │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [PURPLE] ◆ [TEXT] Metacognitive Analysis                                    │
+│  [CYAN]   Clinical Psychology of the 16 Pivots                               │
+│                                                                              │
+│  [MUTED]  Three-stage analysis of the reflective functioning that enabled    │
+│  [MUTED]  each pushback moment. Initial assessment: RF 6-7. Recalibrated    │
+│  [MUTED]  to RF 6-9 after disclosure of 20 years meditation practice        │
+│  [MUTED]  including 15 Zen sesshin. Three peaks at RF 8-9.                  │
+│                                                                              │
+│  [ORANGE] ╔══════════════════════════════════════════════════════════╗        │
+│  [ORANGE] ║ LLM PROVENANCE: Produced by Claude. Not independently  ║        │
+│  [ORANGE] ║ verified. Starting material, nothing more.             ║        │
+│  [ORANGE] ╚══════════════════════════════════════════════════════════╝        │
+│                                                                              │
+│  [CYAN]   Read →                                                             │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [PURPLE] ◆ [TEXT] Prospective Metacognitive Regulation                      │
+│  [CYAN]   Engineering Systems as Cognitive Scaffolding                        │
+│                                                                              │
+│  [MUTED]  15 systems mapped to 7 literature domains. The engineering work    │
+│  [MUTED]  IS the prospective regulation — not post-hoc analysis of it.       │
+│  [MUTED]  Hutchins' foundational distributed cognition work was literally    │
+│  [MUTED]  a study of naval navigation.                                       │
+│                                                                              │
+│  [ORANGE] ╔══════════════════════════════════════════════════════════╗        │
+│  [ORANGE] ║ LLM PROVENANCE: Produced by Claude. Not independently  ║        │
+│  [ORANGE] ║ verified. Starting material, nothing more.             ║        │
+│  [ORANGE] ╚══════════════════════════════════════════════════════════╝        │
+│                                                                              │
+│  [CYAN]   Read →                                                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+PAGE: /about
+================================================================================
+
+  [MUTED] $ cat ./about/kai.md
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [TEXT] Kai Hallett                                                           │
+│                                                                              │
+│  [MUTED] Software engineer. Former cognitive behavioural therapist.           │
+│  [MUTED] 15 years in psychology, 5 in engineering.                            │
+│                                                                              │
+│  [MUTED] I'm building agentic systems and writing about what I learn.        │
+│  [MUTED] The interesting problems are at the intersection: how do you        │
+│  [MUTED] govern probabilistic systems that are confident, coherent,          │
+│  [MUTED] and sometimes completely wrong? How do you keep the human in        │
+│  [MUTED] the loop when the loop runs at machine speed?                       │
+│                                                                              │
+│  [MUTED] Previously: EDITED (retail analytics), Brandwatch (social           │
+│  [MUTED] intelligence), Telesoft (network security). Before that,            │
+│  [MUTED] therapist. Before that, student of how people actually behave.      │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [MUTED] $ cat ./contact.json                                                │
+│                                                                              │
+│  [PURPLE] "email"[MUTED]:    [GREEN] "kai@oceanheart.ai"                     │
+│  [PURPLE] "github"[MUTED]:   [GREEN] "github.com/rickhallett"                │
+│  [PURPLE] "linkedin"[MUTED]: [GREEN] "linkedin.com/in/richardkaihallett"     │
+│                                                                              │
+│  ─────────────────────────────────────────────────────────────────────────   │
+│                                                                              │
+│  [MUTED] $ cat ./what-im-working-on.md                                       │
+│                                                                              │
+│  [TEXT] Currently building:                                                   │
+│                                                                              │
+│  [GREEN] → [TEXT] THE PIT [MUTED] — agentic evaluation arena.                │
+│  [MUTED]   Multi-agent orchestration under integration discipline.           │
+│  [MUTED]   724 commits. 1,125 tests. 12 specialised agents.                 │
+│  [MUTED]   208 session decisions, every one on file.                         │
+│                                                                              │
+│  [GREEN] → [TEXT] oceanheart.ai [MUTED] — this site.                         │
+│  [MUTED]   Learning in public about the work above.                          │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+PAGE: /cv
+================================================================================
+
+  [MUTED] $ cat ./cv/richard-hallett.md
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│  [TEXT] Richard (Kai) Hallett                                                 │
+│  [MUTED] Software Engineer · kai@oceanheart.ai                               │
+│                                                                              │
+│  ─── [CYAN] Experience ─────────────────────────────────────────────────     │
+│                                                                              │
+│  [TEXT] Independent Engineer [MUTED] · Oceanheart.ai · 2024–present          │
+│  [MUTED] Building agentic evaluation systems. THE PIT: multi-agent arena     │
+│  [MUTED] with integration discipline governance. 12 specialised agents,      │
+│  [MUTED] 1,125 tests, full CI/CD pipeline. Next.js, TypeScript, Go, Claude. │
+│                                                                              │
+│  [TEXT] Software Engineer [MUTED] · EDITED · 2022–2024                       │
+│  [MUTED] Retail analytics platform. React, TypeScript, Python.               │
+│                                                                              │
+│  [TEXT] Software Engineer [MUTED] · Brandwatch · 2021–2022                   │
+│  [MUTED] Social intelligence platform.                                       │
+│                                                                              │
+│  [TEXT] Software Engineer [MUTED] · Telesoft Technologies · 2019–2021        │
+│  [MUTED] Network security.                                                   │
+│                                                                              │
+│  [TEXT] Cognitive Behavioural Therapist [MUTED] · NHS / Private · 2004–2019  │
+│  [MUTED] 15 years clinical practice. PGDip CBT (Royal Holloway).            │
+│                                                                              │
+│  ─── [PURPLE] Education ─────────────────────────────────────────────────    │
+│                                                                              │
+│  [TEXT] PGDip Cognitive Behavioural Therapy [MUTED] · Royal Holloway         │
+│  [TEXT] BSc Psychology [MUTED] · UWE Bristol                                  │
+│                                                                              │
+│  ─── [GREEN] Technical ──────────────────────────────────────────────────    │
+│                                                                              │
+│  [MUTED] TypeScript · React · Next.js · Go · Python · PostgreSQL ·          │
+│  [MUTED] Node.js · Tailwind · Claude/Anthropic · RAG · Playwright ·         │
+│  [MUTED] Drizzle · Vercel · GitHub Actions · Docker                          │
+│                                                                              │
+│  ─── [ORANGE] Currently ─────────────────────────────────────────────────    │
+│                                                                              │
+│  [MUTED] Building systems that account for how humans actually behave.       │
+│  [MUTED] Writing about what I learn. Looking for a role where                │
+│  [MUTED] multi-domain agentic orchestration under discipline is valued.      │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+DESIGN NOTES
+================================================================================
+
+  What's IN:
+  - Terminal aesthetic (Tokyo Night, monospace, dark, $ prompts)
+  - Blog with existing 10 posts (all transfer as-is)
+  - Research notes with LLM provenance banners (prominent, honest)
+  - Minimal about page (facts, not pitch)
+  - Clean CV (one page, terminal-styled)
+  - Contact via email/github/linkedin (no booking widget)
+
+  What's OUT:
+  - "I build AI systems that work for humans" hero pitch
+  - "The Secret Weapon" differentiator section
+  - "What I Can Build For You" services section
+  - schedule_call CTAs / Google Calendar booking
+  - Portfolio with 3D cards and slug system
+  - Stripe / auth / member area / courses / sprint tracker
+  - A/B testing
+  - 89 Aceternity animation components
+  - three.js / react-three-fiber
+  - framer-motion (optional — subtle fade-ins OK, no hero animations)
+  - AI chat widget / audio upload
+
+  What's CHANGED:
+  - Voice: "consultant for hire" → "researcher learning in public"
+  - Homepage: sales funnel → latest writing + research preview
+  - About: pitch deck → factual biography
+  - CV: multi-variant A/B → single clean page
+  - Footer: "No tracking. No cookies. No bullshit."
+
+  What's PRESERVED from current site:
+  - The `$ command` terminal prompt convention (good)
+  - Tokyo Night color palette (distinctive, clean)
+  - All 10 blog posts (content transfers directly)
+  - The monospace + serif-body typography split
+  - kai@oceanheart.ai as primary contact
+
+  Technical stack (new):
+  - Next.js 15 (App Router)
+  - TypeScript (strict)
+  - Tailwind CSS v4
+  - MDX or gray-matter + remark for blog
+  - Zero client JS beyond Next.js hydration (no framer-motion, no three.js)
+  - Static generation where possible (blog posts, research, CV, about)
+  - Vercel deployment (same project, Root Directory: sites/oceanheart)
+
+  Dependencies (target):
+  - next, react, react-dom
+  - tailwindcss, @tailwindcss/typography
+  - gray-matter, remark, remark-html (or next-mdx-remote)
+  - That's it. Maybe 6-8 total dependencies vs. current 40+.
+
+================================================================================
+END MOCKUP
+================================================================================

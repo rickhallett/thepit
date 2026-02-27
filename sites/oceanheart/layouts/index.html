@@ -1,0 +1,61 @@
+{{ define "main" }}
+<div class="hero">
+  <p class="prompt">whoami</p>
+  <h1>Kai Hallett</h1>
+  <p class="subtitle">
+    Software engineer. 15 years in psychology.
+    Learning in public about agentic systems, human-AI interaction,
+    and what happens when you give LLMs real responsibilities.
+  </p>
+  <div class="hero-links">
+    <a href="/blog/">→ read the blog</a>
+    <span>·</span>
+    <a href="/about/" style="color: var(--muted);">about me</a>
+  </div>
+</div>
+
+<hr>
+
+<!-- Recent posts -->
+<div class="section-header">
+  <p class="prompt">tail -5 ./blog/posts.log</p>
+</div>
+
+<ul class="post-list">
+  {{ range (where .Site.RegularPages "Section" "blog") | first 5 }}
+  <li class="post-item">
+    <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
+    <a href="{{ .Permalink }}" class="post-title">{{ .Title }}</a>
+    {{ with .Description }}<p class="post-excerpt">{{ . }}</p>{{ end }}
+    {{ with .Params.tags }}
+    <div class="post-tags">
+      {{ range . }}<span class="post-tag">{{ . }}</span>{{ end }}
+    </div>
+    {{ end }}
+  </li>
+  {{ end }}
+</ul>
+
+<a href="/blog/" class="see-all">ls ./blog/ →</a>
+
+<hr>
+
+<!-- Research preview -->
+<div class="section-header">
+  <p class="prompt">ls ./research/</p>
+</div>
+
+{{ range (where .Site.RegularPages "Section" "research") }}
+<div class="research-card">
+  <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+  {{ with .Params.subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
+  {{ with .Description }}<p>{{ . }}</p>{{ end }}
+  <div class="provenance-banner">LLM-produced · not independently verified · starting material only</div>
+</div>
+{{ end }}
+
+{{ with (where .Site.RegularPages "Section" "research") }}
+<a href="/research/" class="see-all">cat ./research/README.md →</a>
+{{ end }}
+
+{{ end }}

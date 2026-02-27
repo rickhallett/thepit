@@ -125,3 +125,8 @@ docs/internal/pre-hn-sequence-strategy.md
 docs/internal/option-b-analysis.md
 
 .keel-state
+
+# Hugo (oceanheart.ai) build artifacts
+sites/oceanheart/public/
+sites/oceanheart/.hugo_build.lock
+sites/oceanheart/data/slopodar.yaml

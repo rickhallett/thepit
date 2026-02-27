@@ -1,0 +1,47 @@
+# slopodar.yaml — Anti-patterns of LLM authenticity
+#
+# A living inventory of tells, tics, and tendencies that make LLM output
+# sound like LLM output. Each entry is a pattern to watch for and ward off.
+#
+# Named after the radar that detects slop before it reaches production.
+# Maintained by the Captain and crew. Entries are added when they're caught
+# in the wild — not theorised in advance.
+#
+# Format:
+#   - id: short kebab-case identifier
+#     name: human-readable name
+#     detected: date first caught
+#     trigger: the specific text or pattern that surfaced this
+#     description: what the pattern is and why it's a problem
+#     signal: what it communicates to a discerning reader
+#     instead: what a human would actually write
+#     severity: low | medium | high
+#     refs: where it was caught (SD number, file, context)
+
+patterns:
+
+  - id: tally-voice
+    name: "Tally Voice"
+    detected: 2026-02-27
+    trigger: "15 systems mapped to 7 literature domains"
+    description: >
+      The LLM substitutes enumeration for substance. Precise counts
+      deployed as rhetorical authority — "6 constructs," "15 systems,"
+      "7 domains" — when the numbers add nothing. The count performs
+      rigor without demonstrating it. A human who found genuine
+      connections between their work and the literature would talk
+      about the connections, not inventory them.
+    signal: >
+      To a discerning reader (HN, hiring manager, researcher): this
+      person didn't write this. A human says "the governance systems
+      keep turning up in distributed cognition research." An LLM says
+      "15 engineering systems mapped to 7 literature domains."
+    instead: >
+      "The engineering work maps onto distributed cognition research
+      in ways I didn't expect." Let the table speak for itself.
+      The reader can count.
+    severity: high
+    refs:
+      - "SD-209 (oceanheart.ai overhaul)"
+      - "sites/oceanheart/content/research/prospective-regulation.md"
+      - "sites/oceanheart/content/research/metacognitive-analysis.md"
