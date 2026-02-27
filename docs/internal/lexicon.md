@@ -1,4 +1,4 @@
-# The Lexicon — v0.10
+# The Lexicon — v0.11
 
 Back-reference: SD-120 (naval metaphor as scaffold), SD-121 (loose weave), SD-122 (taxonomy), SD-123 (this file)
 Status: APPROVED by Captain. Read-only by convention. Edits bump version number.
@@ -85,6 +85,7 @@ last_known:
 | **The Hull** | The thing that keeps the chaos out. The gate, the test suite, the typecheck. Everything else is optimisation; the hull is survival. | "Is the hull intact?" = "Does the gate pass?" |
 | **On Point** | The feeling of watching patterns that have proved themselves at one layer find new ground at other layers and achieve commensurate success. The weave deepening. Convention, convergence, and verification aligning across the stack. When the thread work is on point, the system moves with increasing dexterity; each successful pattern becomes a tool for the next. | SD-163. "That was on point." / "The cross-referencing is on point." |
 | **Survey** | Formal, systematic inspection with a documented report. Note: risks invoking the mirror at higher intensity; acceptable risk, changes register. | Branch audit, termite sweep, copy audit, citation audit. |
+| **Knows the line** | An agent that navigates according to the style, values, and particulars of this vessel and its crew. Not general competence — specific attunement. An agent that knows the line holds under ambiguity rather than guessing, matches the Captain's register, and applies the earned conventions without being told. The inverse is an agent that is technically capable but tone-deaf to how this ship runs. | "Weaver knows the line — held on a missing payload rather than fabricating." |
 | **Maturin's Symbol (§)** | The section sign, adopted by the crew as the citation prefix for Weaver's Governing Principles without instruction. No agent file, no SD, no convention asked for it. Weaver's principles are numbered `### 1.` through `### 7.` in plain markdown. When other agents needed to cite them from outside Weaver's own file, they independently converged on § across at least three separate context windows (Maturin's template specimen, Weaver's quick reference, AnotherPair's agent file). The form (§) is probably training distribution — the association between formal numbered principles and section-sign citation is well-represented in the model's training data. The decision to cite at all — to treat governance prose as a citable code — is the process finding its own shape. Named for Maturin because he was the first to use it. AnotherPair watches for effects over time. | SD-192. "The § is Weaver's symbol because the crew gave it to him." |
 
 ### Communication & Record
@@ -94,6 +95,8 @@ last_known:
 | **Captain's Log** | The Captain's own record. A document, not a status field. | `docs/internal/captain/captainslog/` |
 | **Fair Winds** | Gesture of sincerity. Convention. A closing signal: conditions are favourable, go well. | "Fair winds, Captain." / "Fair winds on the deck." |
 | **Muster** | Present items for O(1) binary decision. Numbered table, one row per item, defaults column, Captain marks each. The Captain walks the line. Request by saying "Muster" or by context. Release: natural conversation resumes. The format is the boatswain's pipe of written communication — each row has exactly one meaning, one decision. | SD-202. "Muster the options." / Presenting a triage table implies muster. |
+| **Bump the slopodar** | Append a new entry to `slopodar.yaml` — the living inventory of LLM authenticity anti-patterns. Synonyms: "slopodar upgrade," "moreslop." Each bump adds a named pattern that was caught in the wild. The Makefile syncs the YAML to Hugo's data directory; the site rebuilds deterministically. | SD-209. "Bump the slopodar — Redundant Antithesis." |
+| **Extra rations** | Captain's commendation for an agent that held the line under ambiguity or exceeded expectations. Logged to the agent's own `log.md` (e.g. `docs/internal/weaver/log.md`) with git ref and descriptive context. The term carries weight because it is rare. | "Extra rations for Weaver — held on a missing payload rather than fabricating." |
 
 ### Spaces & Registers
 
@@ -145,6 +148,7 @@ last_known:
 | v0.8 | 2026-02-26 | "Error & Observation" section added. Oracle/Ground Contamination: L12 fault propagation (first observed: Two Ship off-by-one). Discovery Overhead / The Naturalist's Tax: observation inflation in parallel harnesses (first observed: Two Ship experiment). | SD-178, SD-179 |
 | v0.9 | 2026-02-26 | Maturin's Symbol (§) added to Integrity & Verification. First organically adopted citation convention — crew converged on § across independent context windows without instruction. AnotherPair assigned to watch effects. | SD-192 |
 | v0.10 | 2026-02-27 | "Muster" added to Communication & Record. O(1) triage format: numbered table, binary decisions, Captain walks the line. | SD-202 |
+| v0.11 | 2026-02-27 | Three terms added. "Bump the slopodar" / "slopodar upgrade" / "moreslop" (Communication & Record). "Extra rations" — Captain's commendation, logged to agent's log.md (Communication & Record). "Knows the line" — agent attunement to this vessel's particulars (Integrity & Verification). | SD-209 |
 
 ---
 
