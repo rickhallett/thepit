@@ -87,5 +87,3 @@ But I already have `vercel` installed. I'm already authenticated. The machine is
 The agent didn't ask what I already had. It assumed a greenfield setup and built accordingly.
 
 When I pushed back, it immediately agreed. No defensiveness. "Honestly? No good reason."
-
-That's the tell. If the agent can't defend the complexity when questioned, the complexity wasn't necessary. The simple thing was available the whole time.

@@ -36,7 +36,7 @@ Then that Architect ceased to exist.
 
 ## The Horror of Ephemeral Minds
 
-This is the part nobody tells you about multi-agent systems: **agents don't have continuous memory. They have sessions.**
+Agents don't have continuous memory. They have sessions.
 
 Old-Architect existed for approximately 45 minutes. In that time, they:
 - Received a vague prompt about "calculation tools"
@@ -60,8 +60,6 @@ Not because anyone wanted poker. Because poker is what the training data suggest
 This is how hallucinations happen. Not through malice. Through momentum. Through the statistical gravity of training data pulling towards familiar patterns.
 
 ## The Validation Cascade
-
-Here's where it gets properly scary.
 
 Another agent—Analyst—reviewed the poker code. Analyst did not ask "Why are we building a poker project?" Analyst asked "Is this good poker code?"
 

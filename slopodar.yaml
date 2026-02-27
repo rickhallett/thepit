@@ -74,3 +74,72 @@ patterns:
     refs:
       - "SD-209 (slopodar.yaml header comment)"
       - "sites/oceanheart/layouts/_default/slopodar.html (page description)"
+
+  - id: epistemic-theatre
+    name: "Epistemic Theatre"
+    detected: 2026-02-27
+    trigger: '"The uncomfortable truth" / "The Problem Nobody Talks About" / "Here''s why this matters"'
+    description: >
+      The model performs intellectual seriousness instead of being
+      intellectually serious. Theatrical framing that signals
+      significance, candor, or novelty without delivering any.
+      Three sub-patterns: False Candor ("the uncomfortable truth" —
+      performs bravery, signals "I'm about to be honest," which is
+      what you say when you usually aren't); False Novelty ("the
+      problem nobody talks about" — performs discovery, implies
+      exclusive insight, almost always followed by something many
+      people talk about); Significance Signpost ("here's why this
+      matters" — tells the reader the preceding content was important,
+      which it either was and the sign is redundant, or wasn't and
+      the sign can't save it).
+    signal: >
+      Slop-101. These are the first patterns a discerning reader
+      learns to detect. They're the constructions that make someone
+      stop reading and think "a model wrote this." A hostile HN
+      commenter would screenshot any of these. Pre-LLM, some of
+      these had rhetorical force in specific contexts. Post-LLM,
+      they are burned beyond recovery.
+    instead: >
+      Delete the line. The content either carries the weight or it
+      doesn't. "The uncomfortable truth" becomes nothing — just
+      state the truth. "The problem nobody talks about" becomes
+      nothing — just describe the problem. "Here's why this matters"
+      becomes nothing — if you showed it well, the reader already
+      knows.
+    severity: high
+    refs:
+      - "Blog sweep 2026-02-27 (poker-incident.md, prompt-injection.md)"
+      - "Reviewer feedback on epistemic theatre in blog content"
+
+  - id: becoming-jonah
+    name: "Becoming Jonah"
+    detected: 2026-02-27
+    trigger: "a blog post about how your blog posts sound, scored with an XML rubric"
+    category: TBD
+    description: >
+      Recursive metacognition with an LLM. You reflect on your output.
+      Then you reflect on your reflections. Then you build a rubric to
+      score the reflections. Then you write about the rubric. You are
+      inside the whale, examining the whale. The recursion is seductive
+      because each level feels like genuine insight — and sometimes it
+      is. The problem is not the recursion itself but publishing it
+      before you have a body of work that demonstrates what the
+      recursion produced. Methodology before artifact. The map before
+      the territory exists.
+    signal: >
+      To an external reader: process without product. To a hiring
+      manager: "this person thinks about thinking about thinking but
+      what did they ship?" To yourself: potentially valuable as a
+      private learning tool — exploring a new problem space in your
+      mother tongue. The danger is mistaking the exploration for the
+      destination. Not all Jonahs need an audience.
+    instead: >
+      Keep the rubric. Use the rubric. Publish the work the rubric
+      produces. If the rubric is genuinely novel, publish it after
+      the body of work proves it works — the slopodar is the model
+      here: patterns caught in the wild, not theorised in advance.
+      The voice rubric becomes infrastructure, not content.
+    severity: medium
+    refs:
+      - "2026-02-19-voice-rubric.md (moved to docs/internal/archive/ice/)"
+      - "Category TBD — Captain flagged as needing its own new category"
