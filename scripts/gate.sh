@@ -32,6 +32,18 @@ fi
 
 GATE_TIME=$(date +%H:%M)
 
+# Preserve previous .keel-state to history log before overwriting
+HISTORY_LOG="$ROOT/docs/internal/weaver/keel-history.log"
+if [ -f "$STATE" ]; then
+  mkdir -p "$(dirname "$HISTORY_LOG")"
+  TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  {
+    echo "--- ${TIMESTAMP} ---"
+    cat "$STATE"
+    echo
+  } >> "$HISTORY_LOG"
+fi
+
 # Write state file
 cat > "$STATE" <<EOF
 {"gate": "$GATE", "gate_time": "$GATE_TIME", "tests": $TESTS}

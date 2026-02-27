@@ -371,4 +371,10 @@ Our models of the system — the 12-layer map, the lexicon, the governance frame
 
 ### The Evening of 23 February 2026
 
+### Learning Log
+
+`docs/internal/weaver/log.md` — Successes, mistakes, patterns. Read when reflecting on process. Write after each session.
+
+### The Evening of 23 February 2026
+
 `docs/internal/captain/captainslog/2026/02/23-fair-winds.md` — Read it when you need to remember what this is for.

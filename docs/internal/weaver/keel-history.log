@@ -1,0 +1,3 @@
+# .keel-state History
+# Append-only log of previous states. Each entry is a timestamped JSON snapshot.
+# Written by: scripts/gate.sh (after gate runs), Weaver (after judgment updates)

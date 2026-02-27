@@ -1,4 +1,4 @@
-# The Lexicon — v0.9
+# The Lexicon — v0.10
 
 Back-reference: SD-120 (naval metaphor as scaffold), SD-121 (loose weave), SD-122 (taxonomy), SD-123 (this file)
 Status: APPROVED by Captain. Read-only by convention. Edits bump version number.
@@ -93,6 +93,7 @@ last_known:
 |------|-----------|-----|
 | **Captain's Log** | The Captain's own record. A document, not a status field. | `docs/internal/captain/captainslog/` |
 | **Fair Winds** | Gesture of sincerity. Convention. A closing signal: conditions are favourable, go well. | "Fair winds, Captain." / "Fair winds on the deck." |
+| **Muster** | Present items for O(1) binary decision. Numbered table, one row per item, defaults column, Captain marks each. The Captain walks the line. Request by saying "Muster" or by context. Release: natural conversation resumes. The format is the boatswain's pipe of written communication — each row has exactly one meaning, one decision. | SD-202. "Muster the options." / Presenting a triage table implies muster. |
 
 ### Spaces & Registers
 
@@ -143,6 +144,7 @@ last_known:
 | v0.7 | 2026-02-25 | "On Point" added to Integrity & Verification. Patterns proving out across layers. | SD-163 |
 | v0.8 | 2026-02-26 | "Error & Observation" section added. Oracle/Ground Contamination: L12 fault propagation (first observed: Two Ship off-by-one). Discovery Overhead / The Naturalist's Tax: observation inflation in parallel harnesses (first observed: Two Ship experiment). | SD-178, SD-179 |
 | v0.9 | 2026-02-26 | Maturin's Symbol (§) added to Integrity & Verification. First organically adopted citation convention — crew converged on § across independent context windows without instruction. AnotherPair assigned to watch effects. | SD-192 |
+| v0.10 | 2026-02-27 | "Muster" added to Communication & Record. O(1) triage format: numbered table, binary decisions, Captain walks the line. | SD-202 |
 
 ---
 
