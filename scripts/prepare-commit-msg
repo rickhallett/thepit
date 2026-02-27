@@ -51,4 +51,32 @@ if echo "$KEEL_OUTPUT" | grep -qv "^keel: nominal$"; then
   printf '\n%s\n' "$KEEL_OUTPUT" >> "$COMMIT_MSG_FILE"
 fi
 
+# --- Always-on trailers from .keel-state (SD-203) ---
+# "Its a record not a damn fashion show." — Captain
+ROOT="$(git rev-parse --show-toplevel)"
+STATE="$ROOT/.keel-state"
+
+if [ -f "$STATE" ]; then
+  # Parse JSON with python (stdlib, no deps) — portable across all environments
+  TRAILERS=$(python3 -c "
+import json, sys
+try:
+    d = json.load(open('$STATE'))
+    fields = [
+        ('Bearing', d.get('bearing', '—')),
+        ('Tempo', d.get('tempo', '—')),
+        ('Weave', '%s | %s' % (d.get('weave', '—'), d.get('register', '—'))),
+        ('Gate', '%s (%s) | %s passed' % (d.get('gate', '?'), d.get('gate_time', '?'), d.get('tests', '?'))),
+    ]
+    for k, v in fields:
+        print('%s: %s' % (k, v))
+except Exception:
+    sys.exit(0)
+" 2>/dev/null)
+
+  if [ -n "$TRAILERS" ]; then
+    printf '\n%s\n' "$TRAILERS" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
 exit 0
