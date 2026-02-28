@@ -271,7 +271,9 @@ describe('archiveAgent', () => {
     mockIsAdmin.mockReturnValue(true);
     await archiveAgent('agent-abc');
 
-    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockDb.update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'id', archived: 'archived' }),
+    );
     expect(mockRevalidatePath).toHaveBeenCalledWith('/agents/agent-abc');
   });
 });
@@ -281,7 +283,9 @@ describe('restoreAgent', () => {
     mockIsAdmin.mockReturnValue(true);
     await restoreAgent('agent-xyz');
 
-    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockDb.update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'id', archived: 'archived' }),
+    );
     expect(mockRevalidatePath).toHaveBeenCalledWith('/agents/agent-xyz');
   });
 });

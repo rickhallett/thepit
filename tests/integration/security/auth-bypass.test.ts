@@ -39,8 +39,8 @@ describe.skipIf(!serverReachable)('Security: Authorization Bypass', () => {
         }
       }
 
-      // Any of these statuses are acceptable
-      expect([401, 403, 404, 500].includes(response.status) || response.status === 200).toBe(true)
+      // Should NOT return 200 with real data or 500 (server error)
+      expect([401, 403, 404]).toContain(response.status)
     })
 
     it('SEC-AUTH-002: rejects bout execution without ownership', async () => {
@@ -154,10 +154,10 @@ describe.skipIf(!serverReachable)('Security: Authorization Bypass', () => {
         method: 'GET',
       })
 
-      // The endpoint might not exist (404) or require auth (401)
+      // The endpoint might not exist (404) or require auth (401/403)
       if (response.status === 404 || response.status === 401 || response.status === 403) {
-        // Properly protected
-        expect(true).toBe(true)
+        // Properly protected — assert the specific status is one of the expected set
+        expect([401, 403, 404]).toContain(response.status)
         return
       }
 

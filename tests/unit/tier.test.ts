@@ -307,7 +307,9 @@ describe('tier module', () => {
       setupUpdate([{ id: 'test-user' }]);
       const { incrementFreeBoutsUsed } = await loadTier();
       const count = await incrementFreeBoutsUsed('test-user');
-      expect(mockDb.update).toHaveBeenCalled();
+      expect(mockDb.update).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'id', freeBoutsUsed: 'free_bouts_used' }),
+      );
       expect(count).toBe(1);
     });
 
