@@ -127,6 +127,23 @@ items:
     status: hold
     tags: [dark]
 
+  - id: multiplying-independent-perspectives
+    idea: >-
+      Principle §6 from bugbot weave: the value of verification is in diversity of perspective, not depth
+      of any single gate. Currently this depends on remote Bugbot (expensive, slow, probabilistic sampling).
+      Need to build railed, repeatable, LOCAL scaffolding that multiplies independent perspectives without
+      remote dependency. Options: (1) vitest plugin that checks assertions verify causal path not just outcome,
+      (2) second-pass review agent with different prompt/focus than the writing agent,
+      (3) static analysis rule for status-code-only assertions missing error code checks,
+      (4) deterministic mutation testing (stryker-style) to catch tautological assertions.
+      The key constraint: must be local, fast, deterministic, and catchable in the gate.
+      Cross-ref: principles-2026-02-28-bugbot-weave.md §6, slopodar right-answer-wrong-work,
+      holding-deck coincidental-pass-gate-blindness.
+    added: 2026-02-28
+    status: hold
+    priority: high
+    tags: []
+
   - id: bout-engine-e2e-scenarios
     idea: >-
       Three Playwright E2E scenarios for bout-engine, parked from Architect spec convergence triage.
