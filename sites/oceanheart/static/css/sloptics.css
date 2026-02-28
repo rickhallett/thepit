@@ -1,11 +1,164 @@
 /* sloptics.css — the annotated specimen stylesheet */
 /* imported only on /sloptics/. every rule here is a sloptic intervention. */
 
-/* em-dash highlighter: every — on the page glows red.
-   em-dashes are an LLM frequency tell. humans use them occasionally.
-   LLMs use them compulsively. colouring them is the first step
-   toward seeing the distribution rather than the text. */
+/* === em-dash highlighter === */
+/* every — on the page is coloured. em-dashes are an LLM frequency tell.
+   humans use them occasionally. LLMs use them compulsively.
+   the colour escalates from mild yellow to burning red as the count
+   climbs. each em-dash carries data-n="1" through data-n="N".
+   the escalation IS the argument: by the time you reach the last one,
+   the burn should be obvious. */
+
+/* base — mild yellow. first few are almost gentle. */
 .emdash {
-  color: var(--red);
+  color: var(--yellow);
   font-weight: 500;
+  transition: color 0.1s;
+}
+
+/* 4-6: warming — amber/orange */
+.emdash[data-n="4"],
+.emdash[data-n="5"],
+.emdash[data-n="6"] {
+  color: var(--orange);
+}
+
+/* 7-9: hot — orange pushing red */
+.emdash[data-n="7"],
+.emdash[data-n="8"],
+.emdash[data-n="9"] {
+  color: #f06878;
+}
+
+/* 10-12: red */
+.emdash[data-n="10"],
+.emdash[data-n="11"],
+.emdash[data-n="12"] {
+  color: var(--red);
+}
+
+/* 13+: burning bright red — full weight, slight glow */
+.emdash[data-n="13"],
+.emdash[data-n="14"],
+.emdash[data-n="15"],
+.emdash[data-n="16"],
+.emdash[data-n="17"],
+.emdash[data-n="18"],
+.emdash[data-n="19"],
+.emdash[data-n="20"] {
+  color: var(--red);
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(247, 118, 142, 0.5);
+}
+
+/* === annotation classes === */
+/* each class corresponds to a named sloptic pattern.
+   the specimen text is unchanged. only the styling reveals. */
+
+/* isocolon — mechanical parallel structure.
+   "Slop you can see is just slop. Slop that blinds you is a problem."
+   antithesis with matched clause length. the period poses. the comma talks. */
+.slop-isocolon {
+  border-bottom: 1px dashed var(--yellow);
+  padding-bottom: 1px;
+}
+
+/* nominalisation cascade — all nouns, no agent, metrically regular.
+   "Sloptics is the discipline of making the second failure mode visible."
+   a textbook definition produced by something trained on textbooks. */
+.slop-nominalisation {
+  border-bottom: 1px dashed var(--purple);
+  padding-bottom: 1px;
+}
+
+/* redundant antithesis — slopodar #2.
+   "Nothing was theorised in advance." / "structural, not metaphorical."
+   the negation adds zero information. */
+.slop-antithesis {
+  border-bottom: 1px dashed var(--cyan);
+  padding-bottom: 1px;
+}
+
+/* anadiplosis — end of one clause repeated at start of the next.
+   "The name creates distance. The distance creates choice."
+   Aristotle documented it. the LLM burned it. */
+.slop-anadiplosis {
+  border-bottom: 1px dashed var(--green);
+  padding-bottom: 1px;
+}
+
+/* === epigrammatic closure (poster child) === */
+/* the model's one closing lick. short, punchy, abstract-noun sentence
+   in final position. "detection is the intervention." "it is the threat."
+   the frequency is itself the signal. */
+
+/* base style — first occurrence. subtle. */
+.slop-epigram-poster {
+  color: var(--orange);
+  font-style: italic;
+}
+
+/* nth-of-type escalation: as the epigrammatic closures accumulate,
+   the pattern burn representation intensifies. the reader's tolerance
+   should be decreasing. the CSS mirrors this. */
+
+/* 2nd occurrence — underline appears */
+.slop-epigram-poster.slop-ep-2 {
+  text-decoration: underline;
+  text-decoration-color: var(--orange);
+  text-underline-offset: 3px;
+}
+
+/* 3rd — weight increases */
+.slop-epigram-poster.slop-ep-3 {
+  text-decoration: underline;
+  text-decoration-color: var(--orange);
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+
+/* 4th-5th — shifts toward red */
+.slop-epigram-poster.slop-ep-4,
+.slop-epigram-poster.slop-ep-5 {
+  color: var(--red);
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-underline-offset: 3px;
+  font-weight: 500;
+}
+
+/* 6th-7th — background appears, the burn is visible */
+.slop-epigram-poster.slop-ep-6,
+.slop-epigram-poster.slop-ep-7 {
+  color: var(--red);
+  background: rgba(247, 118, 142, 0.1);
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-underline-offset: 3px;
+  font-weight: 500;
+  padding: 0 0.2rem;
+}
+
+/* 8th+ — full alarm. the pattern is self-parodying. */
+.slop-epigram-poster.slop-ep-8,
+.slop-epigram-poster.slop-ep-9,
+.slop-epigram-poster.slop-ep-10,
+.slop-epigram-poster.slop-ep-11 {
+  color: var(--bg);
+  background: var(--red);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0 0.25rem;
+}
+
+/* === footnotes === */
+.sloptics-footnotes {
+  margin-top: 2rem;
+}
+
+.sloptics-footnote-notice {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 1.5rem;
 }
