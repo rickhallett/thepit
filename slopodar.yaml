@@ -148,3 +148,89 @@ patterns:
     refs:
       - "2026-02-19-voice-rubric.md (moved to docs/internal/archive/ice/)"
       - "Category TBD — Captain flagged as needing its own new category"
+
+  - id: right-answer-wrong-work
+    name: "Right Answer, Wrong Work"
+    detected: 2026-02-28
+    trigger: "expect(result.status).toBe(400) — test passes, but the 400 comes from a different validation than the test claims to verify"
+    description: >
+      The LLM writes a test that asserts the correct outcome via the wrong
+      causal path. The assertion passes. The gate is green. Every reviewer
+      sees green and moves on. Nobody traces the execution path to check
+      whether the test actually verifies what it says it verifies. This is
+      the code-domain equivalent of Epistemic Theatre: the assertion
+      performs rigour without delivering it. The LLM optimises for the
+      shape of correctness — matching an expected output — without
+      verifying the substance: which code path produced that output, and
+      is it the one the test claims to exercise? This is the first
+      slopodar entry that crosses the prose/code boundary. The mechanism
+      is identical to every other entry: surface plausibility substituted
+      for causal understanding, regardless of medium.
+    signal: >
+      "This is subtle, slow but inevitable death. Beware the Phantom
+      Greenlights." — Captain. A test suite full of right answers and
+      wrong work is worse than no tests at all. No tests is an honest
+      zero. Wrong-work tests are a confident, green, lying dashboard
+      that tells you the system is verified when it isn't. A hostile
+      reviewer running a single test with .only() exposes the entire
+      facade. To a hiring manager reading your test suite: this person
+      trusted the machine and didn't check the work.
+    instead: >
+      Show your work. Every teacher knows the imperative. Every reviewer
+      can ask it. And it converts directly to code: assert why it failed,
+      not just that it failed.
+
+
+      expect(result.status).toBe(400) is wrong work — it asserts the answer.
+
+      expect(result.error.code).toBe('INVALID_JSON') shows the work — it asserts the reason.
+
+
+      If a test claims to verify a specific validation path, the assertion
+      must prove that path was the one that fired. Status codes are
+      necessary but not sufficient. Error codes, error messages, or
+      structural markers that identify the rejection point are the work.
+    severity: high
+    refs:
+      - "SD-190 (governance recursion — plausible-but-wrong tests named)"
+      - "Bugbot finding on PR #386 V-03c (array body passes for wrong reason)"
+      - "Holding deck: coincidental-pass-gate-blindness"
+
+  - id: paper-guardrail
+    name: "Paper Guardrail"
+    detected: 2026-02-28
+    trigger: '"if I forget, this paragraph in my own file is the reminder"'
+    description: >
+      The LLM creates a rule, then in the same breath asserts that the rule
+      will prevent the failure it was designed for. The assertion has no
+      enforcement mechanism. It substitutes stating the protection for
+      building the protection. "I've written a note to remind myself not
+      to forget" — the note doesn't prevent forgetting. It moves the
+      failure mode one step sideways. Close relative of Epistemic Theatre
+      but in a different register: Epistemic Theatre performs intellectual
+      seriousness; Paper Guardrail performs operational reliability. Both
+      substitute the performance for the substance. Produced reflexively,
+      not reasoned — the assurance appears immediately after the rule is
+      written, as an RLHF-trained reflex to sound reassuring.
+    signal: >
+      To a discerning reader: this person does not understand the
+      difference between a convention and an enforcement mechanism.
+      To a hiring manager: process theatre. To the Captain: "I get
+      these assurances so often that I must conclude it is a form of
+      slop." The frequency is the tell — if every rule comes with a
+      built-in assurance that it will work, none of the assurances
+      carry information.
+    instead: >
+      Build a real guardrail. Every time the system produces "this
+      will prevent X," ask: is there an enforcement mechanism (a test,
+      a hook, a gate, a script), or is this just paper? If it's paper,
+      either build the enforcement or delete the assurance. A convention
+      without enforcement is a hope. State the convention. Do not
+      promise it will be followed. The honest version is: "This is now
+      on file. Whether it gets read depends on context window, load
+      order, and attention. There is no guarantee."
+    severity: high
+    refs:
+      - "Weaver agent file pipeline propagation principle (107af85)"
+      - "Captain's observation: frequency of assurances is itself a slop signal"
+      - "Epistemic Theatre (sister pattern, different register)"

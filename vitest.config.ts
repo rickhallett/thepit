@@ -46,6 +46,7 @@ export default defineConfig({
         'lib/response-lengths.ts',
         'lib/tier.ts',
         'lib/validation.ts',
+        'lib/bout-engine.ts',
       ],
       exclude: ['**/*.d.ts', 'tests/**'],
     },

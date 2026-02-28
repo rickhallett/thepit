@@ -252,6 +252,12 @@ All configurable via env vars: `ANTHROPIC_FREE_MODEL`, `ANTHROPIC_PREMIUM_MODEL`
 
 ---
 
+### Bugbot Findings Log
+
+`docs/internal/weaver/bugbot-findings.tsv` — TSV log of automated reviewer findings. Consult when writing tests or reviewing PRs. Pattern classes cross-ref slopodar entries.
+
+---
+
 > **Standing Order (SO-PERM-001):** All reports, audits, analyses, and artifacts written to disk must have file permissions set to read-only (`chmod 444`) immediately after creation. If the authoring agent cannot set permissions, Weaver must. Multiple layers of redundancy. Back-reference: SD-124.
 
 > **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon-v0.7.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.

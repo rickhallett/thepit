@@ -8,10 +8,12 @@ SOURCE_DATA := $(ROOT)/slopodar.yaml
 SD_SOURCE := $(ROOT)/docs/internal/session-decisions.md
 SD_TARGET := data/decisions.json
 STUBS_DIR := content/slopodar
+RESEARCH_SRC := $(ROOT)/docs/internal/research
+RESEARCH_DIR := content/research
 
-.PHONY: build serve clean sync stubs decisions sd-stubs
+.PHONY: build serve clean sync stubs decisions sd-stubs research-check
 
-sync: stubs decisions sd-stubs
+sync: stubs decisions sd-stubs research-check
 	@cp $(SOURCE_DATA) $(DATA)
 	@echo "synced slopodar.yaml"
 
@@ -53,6 +55,16 @@ sd-stubs: decisions
 	@mkdir -p content/decisions
 	@python3 -c 'import json;[open("content/decisions/"+d["id"].lower()+".md","w").write("+++\ntitle = \""+d["id"]+"\"\nid = \""+d["id"]+"\"\ntype = \"decisions\"\n+++\n") for d in json.load(open("$(SD_TARGET)"))]'
 	@echo "generated sd stubs"
+
+research-check:
+	@for f in $(RESEARCH_SRC)/analyst-report-*.md; do \
+		[ -f "$$f" ] || continue; \
+		slug=$$(basename "$$f" .md | sed 's/^analyst-report-//' | sed 's/-[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}$$//'); \
+		if [ ! -f "$(RESEARCH_DIR)/$$slug.md" ]; then \
+			echo "WARNING: no research page for $$f (expected $(RESEARCH_DIR)/$$slug.md)"; \
+		fi; \
+	done
+	@echo "research check complete"
 
 build: sync
 	$(HUGO)

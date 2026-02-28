@@ -14,28 +14,7 @@ Every post read like an agent wrote it and a human approved it.
 
 ## Source corpus
 
-~8,000 words extracted from captain's logs, session decisions, main thread transcripts, strategic challenge documents, and copy variant files. Every quote attributed, timestamped, and cross-referenced. The full source list:
-
-1. `docs/internal/captain/captainslog/2026/02/23-fair-winds.md`
-2. `docs/internal/captain/captainslog/2026/02/23-the-still-point.md`
-3. `docs/internal/captain/captainslog/2026/02/24-the-output-is-the-answer.md`
-4. `docs/internal/captain/captainslog/2026/02/25-the-first-data-point.md`
-5. `docs/internal/captain/strategic-challenge-001.md`
-6. `docs/internal/session-decisions.md` (SD-015 through SD-203)
-7. `docs/internal/archive/main-thread/2026-02-24-001-weave-calibration.md`
-8. `docs/internal/archive/main-thread/2026-02-24-002-inverse-signal-llm-archaeology.md`
-9. `docs/internal/archive/main-thread/2026-02-24-003-sweet-spot-confirmation.md`
-10. `docs/internal/archive/main-thread/2026-02-24-004-pearls-and-strays.md`
-11. `docs/internal/archive/main-thread/2026-02-24-005-car-wash-and-true-north.md`
-12. `docs/internal/archive/main-thread/2026-02-25-001-the-honest-layer.md`
-13. `docs/internal/archive/main-thread/2026-02-25-002-going-light.md`
-14. `docs/internal/main-thread/2026-02-25-003-dismissed.md`
-15. `docs/internal/main-thread/2026-02-25-005-compaction-event.md`
-16. `docs/internal/main-thread/2026-02-26-001-maturins-symbol.md`
-17. `docs/internal/archive/main-thread/main-thread-log-2026-02-24.md`
-18. `copy/variants/control.json`
-19. `docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md`
-20. `docs/internal/weaver/metacognitive-analysis-16-pivots.md`
+~8,000 words extracted from captain's logs, session decisions, main thread transcripts, strategic challenge documents, and copy variant files. Every quote attributed, timestamped, and cross-referenced (see footnotes)
 
 ## What the analysis found: 8 voice themes
 
@@ -118,5 +97,9 @@ The strongest writing occurs when admitting uncertainty or limitation. No hedgin
 All 5 blog posts were rewritten using this profile. The rewrites removed agent tells and restructured in continuous prose with flat headers. They do not plant my patterns artificially — no fake typos, no forced profanity. They remove the agent patterns and let the natural register of the stories breathe.
 
 The analysis itself was performed by an agent. The irony is structural, not incidental. An LLM extracted my voice, diagnosed where its own output diverged from it, and rewrote its own output to converge. Whether the result is closer to my voice or closer to an LLM's model of my voice is a question I cannot answer from inside the process.
+
+---
+
+### Footnotes
 
 I keep the original analysis on file for provenance. If you want to check the work, the repo is public.
