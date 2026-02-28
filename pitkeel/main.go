@@ -13,6 +13,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -20,6 +21,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -69,6 +71,8 @@ func main() {
 		renderContext(analyseContext(repoRoot()))
 	case "wellness":
 		renderWellness(analyseWellness(time.Now(), repoRoot()))
+	case "state-update":
+		updateKeelState(repoRoot())
 	case "version":
 		fmt.Println(version)
 	default:
@@ -88,6 +92,7 @@ func usage() {
 	fmt.Println("  pitkeel context      context file depth distribution")
 	fmt.Println("  pitkeel wellness     daily wellness checks (whoop.log, captain's log)")
 	fmt.Println("  pitkeel hook         hook output (no ANSI, for commit messages)")
+	fmt.Println("  pitkeel state-update auto-update .keel-state (head, sd) + staleness check")
 	fmt.Println("  pitkeel version      print version")
 }
 
@@ -429,6 +434,90 @@ func analyseVelocity(commits []commit) velocitySignal {
 	sig.rapidFireWarn = sig.rapidFire >= 2 // 2+ rapid-fire intervals = 3+ commits in <5min windows
 
 	return sig
+}
+
+// --------------------------------------------------------------------------
+// State Update: auto-derive machine-readable fields in .keel-state
+// --------------------------------------------------------------------------
+
+func updateKeelState(root string) {
+	statePath := filepath.Join(root, ".keel-state")
+
+	// Read existing state (preserve all fields)
+	state := map[string]interface{}{}
+	if data, err := os.ReadFile(statePath); err == nil {
+		_ = json.Unmarshal(data, &state)
+	}
+
+	// Auto-derive: head
+	if out, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output(); err == nil {
+		state["head"] = strings.TrimSpace(string(out))
+	}
+
+	// Auto-derive: sd (last SD-NNN from session-decisions.md)
+	sdPath := filepath.Join(root, "docs", "internal", "session-decisions.md")
+	if data, err := os.ReadFile(sdPath); err == nil {
+		lastSD := findLastSD(string(data))
+		if lastSD != "" {
+			state["sd"] = lastSD
+		}
+	}
+
+	// Staleness detection: bearing
+	currentBearing, _ := state["bearing"].(string)
+	snapshot, _ := state["_bearing_snapshot"].(string)
+	bearingSetAt, _ := state["bearing_set_at"].(string)
+
+	if currentBearing != snapshot {
+		// Bearing was changed (by agent writing to .keel-state)
+		head, _ := state["head"].(string)
+		state["bearing_set_at"] = head
+		state["_bearing_snapshot"] = currentBearing
+	} else if bearingSetAt != "" {
+		// Bearing unchanged — check staleness
+		if out, err := exec.Command("git", "rev-list", "--count", bearingSetAt+"..HEAD").Output(); err == nil {
+			countStr := strings.TrimSpace(string(out))
+			if n, err := strconv.Atoi(countStr); err == nil && n >= 5 {
+				fmt.Fprintf(os.Stderr, "keel: bearing stale (unchanged for %d commits): %q\n", n, currentBearing)
+			}
+		}
+	} else {
+		// First run — initialise tracking
+		head, _ := state["head"].(string)
+		state["bearing_set_at"] = head
+		state["_bearing_snapshot"] = currentBearing
+	}
+
+	// Write back
+	data, err := json.Marshal(state)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "keel: state-update failed to marshal: %v\n", err)
+		return
+	}
+	if err := os.WriteFile(statePath, append(data, '\n'), 0644); err != nil {
+		fmt.Fprintf(os.Stderr, "keel: state-update failed to write: %v\n", err)
+	}
+}
+
+// findLastSD extracts the last SD-NNN reference from session-decisions.md.
+func findLastSD(content string) string {
+	lastSD := ""
+	for _, line := range strings.Split(content, "\n") {
+		// Match table rows like "| SD-228 | ..."
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "| SD-") {
+			continue
+		}
+		// Extract "SD-NNN" from "| SD-228 | ..."
+		rest := trimmed[2:] // skip "| "
+		if idx := strings.Index(rest, " "); idx > 0 {
+			candidate := rest[:idx]
+			if strings.HasPrefix(candidate, "SD-") {
+				lastSD = candidate
+			}
+		}
+	}
+	return lastSD
 }
 
 // --------------------------------------------------------------------------
