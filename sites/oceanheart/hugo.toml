@@ -23,6 +23,10 @@ title = 'oceanheart.ai'
     url = '/slopodar/'
     weight = 25
   [[menus.main]]
+    name = 'decisions'
+    url = '/decisions/'
+    weight = 27
+  [[menus.main]]
     name = 'about'
     url = '/about/'
     weight = 30

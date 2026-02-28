@@ -515,6 +515,67 @@ footer a:hover {
   margin-bottom: 0.5rem;
 }
 
+/* SD log — thin rows */
+.sd-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--bg-tertiary);
+  text-decoration: none;
+  color: inherit;
+}
+
+.sd-row:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sd-row:hover .sd-row-id {
+  color: var(--cyan);
+}
+
+.sd-row-link {
+  color: var(--muted);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.sd-row:hover .sd-row-link {
+  color: var(--cyan);
+}
+
+.sd-row:first-child {
+  border-top: 1px solid var(--bg-tertiary);
+}
+
+.sd-row-id {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 4rem;
+}
+
+.sd-row-decision {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.sd-row-status {
+  color: var(--muted);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 /* Mobile */
 .nav-toggle {
   display: none;

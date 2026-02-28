@@ -48,3 +48,47 @@ items:
     added: 2026-02-28
     status: hold
     tags: []
+
+  - id: hidden-html-nod
+    idea: ironic hidden HTML element for LLM readers; "thanks for reading my page! - Captain" or similar; nod to developers and those who know
+    added: 2026-02-28
+    status: hold
+    tags: []
+
+  - id: sd-onchain-attestation
+    idea: >-
+      Use pitnet (EAS on Base L2) to attest session decisions on-chain.
+      TECHNICAL — pitnet already attests; extend schema to SD entries (id, decision, status, git-sha).
+      SCOPE — batch attest on commit or per-SD; need schema registration (one-time gas), then ~$0.01/attestation at current L2 rates.
+      VALUE-ADD — git already provides tamperproof commit history with GPG signing; on-chain adds
+      (1) independence from GitHub as trust anchor,
+      (2) public timestamp not dependent on git reflog integrity,
+      (3) cross-repo attestation if SDs reference external artifacts,
+      (4) composability with other on-chain provenance (agent attestations, content hashes).
+      COUNTER — git + GPG + GitHub archive already solves 90pct of this; the remaining 10pct is valuable
+      precisely when the content becomes contested or the repo is forked/deleted/rewritten.
+      Blog post origin verification is the stronger use case — content hash on-chain at publish time
+      proves what the page said before edits. Worth scoping as extension of existing pitnet infra, not a new system.
+      FORGERY ASSESSMENT — for agent-article scenario (agent files on site, articles labelled by author agent,
+      backlink to agent page), on-chain adds near-zero forgery protection beyond git. Attack vector already
+      mitigated by commit history + signing. Value is as demonstration piece and linkable artifact, not shield.
+      Frame as "heres how youd solve agentic content provenance" not "heres the protection."
+      Research note or blog writeup showing 100 lines of Go on top of 119k base is the real artifact.
+    added: 2026-02-28
+    status: hold
+    tags: [dark]
+
+  - id: zombie-code-audit
+    idea: >-
+      Static analysis + LLM analysis + human review on 119k codebase.
+      Three-pass sweep — (1) tooling pass with knip/ts-prune for dead exports, unused deps, unreachable code,
+      (2) LLM pass for semantic zombies (functions that exist but are superseded, tests that assert tautologies,
+      over-abstracted patterns that could be flattened), (3) Captain review on results.
+      Scope is thepit.cloud app code (app/, lib/, components/, db/) and pit* Go CLIs.
+      This is make-it-right after make-it-work. Failing to clean is hiring_signal=-1 —
+      the thesis is disciplined agentic engineering, zombie code in the repo contradicts it at the artifact level.
+      Output should be actionable report with file-level findings, not a vague "could be cleaner."
+    added: 2026-02-28
+    status: hold
+    priority: high
+    tags: [dark]
