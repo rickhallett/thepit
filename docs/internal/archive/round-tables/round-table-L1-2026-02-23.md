@@ -61,7 +61,7 @@ The gap between "identity at mint" and "trust in behaviour" is not a gap in our 
 
 **Merely implied but NOT proven:**
 - That the system prompt at attestation time is the same one used at runtime. The bout engine (`bout-engine.ts`) NEVER reads `promptHash` or `attestationUid`. There is zero verification at execution time.
-- That THE PIT is the only entity that could create this agent. The attestation is signed by a single platform-controlled key. "You're attesting your own data to yourself."
+- That The Pit is the only entity that could create this agent. The attestation is signed by a single platform-controlled key. "You're attesting your own data to yourself."
 - That the hash has any relationship to what the agent actually says. System prompt is one input; model version, temperature, conversation history, and safety filters all affect output. None are attested.
 
 ### The Trust Propagation Gap

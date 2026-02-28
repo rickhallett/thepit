@@ -34,7 +34,7 @@ The files contain:
 
 **Analysis:** The agent definitions encode a narrative of disciplined human-agent cooperation. This narrative is:
 - **Authentic** — it evolved under real pressure, not designed in advance
-- **On brand** — THE PIT's thesis is trust, transparency, provenance
+- **On brand** — The Pit's thesis is trust, transparency, provenance
 - **Defensible** — not because it can't be copied, but because copying it without the underlying discipline produces cargo cult process (beautiful docs, broken execution)
 
 A lazy vibe coder cannot prompt this into existence because the definitions are outputs of a learning process, not inputs. The Sweet Spot was discovered through failure. The Dead Reckoning Protocol was born from an actual blowout. The em-dash convention came from the Captain's slopodar catching an agentic tell in his own copy. These definitions have provenance because they have scars.
@@ -43,7 +43,7 @@ A lazy vibe coder cannot prompt this into existence because the definitions are 
 
 ### A2: Radical Transparency Aligns with the Trust Thesis
 
-**Signal:** THE PIT's research page says "every agent has a human." The agent definitions demonstrate this literally — every agent definition traces back to a human decision, a human override, a human instinct.
+**Signal:** The Pit's research page says "every agent has a human." The agent definitions demonstrate this literally — every agent definition traces back to a human decision, a human override, a human instinct.
 
 **Analysis:** If the product claims trust and transparency, hiding the process contradicts the claim. Opening it completes the circuit: the product verifies agent behaviour → the process verifies agent engineering → the human verifies both.
 

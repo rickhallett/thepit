@@ -9,7 +9,7 @@
     <evaluation-id>EVAL-001-RESEARCH-PROGRAMME</evaluation-id>
     <timestamp>2026-02-20T00:00:00Z</timestamp>
     <description>
-      Evaluation of THE PIT's empirical research programme: six pre-registered
+      Evaluation of The Pit's empirical research programme: six pre-registered
       hypotheses (H1-H6) on multi-agent LLM debate behaviour, the three-axis
       model of multi-agent output, and the "fundamental gap" claim (persona
       fidelity vs argument adaptation). 195 bouts, ~2,100 turns.
@@ -17,8 +17,8 @@
   </meta>
 
   <material>
-    <title>THE PIT Research Programme: Six Hypotheses on Multi-Agent LLM Debate</title>
-    <authors>THE PIT team (anonymous for evaluation purposes)</authors>
+    <title>The Pit Research Programme: Six Hypotheses on Multi-Agent LLM Debate</title>
+    <authors>The Pit team (anonymous for evaluation purposes)</authors>
     <abstract>
       Six pre-registered hypotheses tested across 195 AI debate bouts (~2,100
       turns) using Anthropic Claude models. All six produced "clear" results

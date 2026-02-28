@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verify-attestation.sh — Independent on-chain attestation verification for THE PIT
+# verify-attestation.sh — Independent on-chain attestation verification for The Pit
 #
 # This script verifies that an agent's on-chain attestation on Base L2 (via EAS)
 # exists and can be decoded. It produces a plain-text verification report suitable

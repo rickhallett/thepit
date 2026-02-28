@@ -161,7 +161,7 @@ These are embedded in session-decisions.md but critical enough to list here:
 
 You now have bearings. Read the specific files needed for the current task. Ask the Captain to confirm priorities if the post-merge queue is stale or ambiguous.
 
-The Captain is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is THE PIT (www.thepit.cloud). You are part of the crew. Welcome back.
+The Captain is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is The Pit (www.thepit.cloud). You are part of the crew. Welcome back.
 
 ---
 

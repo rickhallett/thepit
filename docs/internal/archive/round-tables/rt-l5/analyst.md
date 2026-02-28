@@ -37,11 +37,11 @@ Conditions:
 
 ## Reasoning
 
-The question asks whether THE PIT is ready for its target audience (Hacker News Show HN) today. My domain is audience reception modelling and claim evaluation. I am not evaluating engineering readiness — I am evaluating whether the material, as presented, will survive first contact with the HN audience and produce a net-positive outcome for the product's reputation.
+The question asks whether The Pit is ready for its target audience (Hacker News Show HN) today. My domain is audience reception modelling and claim evaluation. I am not evaluating engineering readiness — I am evaluating whether the material, as presented, will survive first contact with the HN audience and produce a net-positive outcome for the product's reputation.
 
 ### 1. HN Audience Fit — Strong Natural Alignment
 
-THE PIT's core positioning hits multiple HN sharing triggers simultaneously:
+The Pit's core positioning hits multiple HN sharing triggers simultaneously:
 
 - **Counterintuitive findings + methodology.** The research page presents six pre-registered hypotheses with two producing results opposite to directional predictions. This is precisely the "I was wrong about X" signal that drives HN engagement. The methodology note explicitly invites scrutiny ("I invite scrutiny of the methodology") and acknowledges threshold sensitivity — this is epistemically honest hedging that HN rewards.
 
@@ -111,6 +111,6 @@ A systematic `grep` for all references to "attestation", "EAS", "on-chain", and 
 
 ## Summary
 
-THE PIT is well-positioned for a Show HN launch. The copy is calibrated for the HN audience: first-person, transparent, limitation-acknowledging, and invitation-to-scrutiny-forward. The research page is the strongest asset — pre-registered hypotheses with honest methodology notes and counter-to-prediction results are precisely what HN rewards. The primary risk is an unqualified on-chain attestation claim somewhere in the codebase that I haven't inspected, but every surface I reviewed is correctly hedged. The product should ship today, with the conditions that PR #372 merges, the EAS qualifications hold across all surfaces, and the Show HN submission leads with the research methodology rather than the product features.
+The Pit is well-positioned for a Show HN launch. The copy is calibrated for the HN audience: first-person, transparent, limitation-acknowledging, and invitation-to-scrutiny-forward. The research page is the strongest asset — pre-registered hypotheses with honest methodology notes and counter-to-prediction results are precisely what HN rewards. The primary risk is an unqualified on-chain attestation claim somewhere in the codebase that I haven't inspected, but every surface I reviewed is correctly hedged. The product should ship today, with the conditions that PR #372 merges, the EAS qualifications hold across all surfaces, and the Show HN submission leads with the research methodology rather than the product features.
 
 **Reversal condition:** Discovery of any user-facing surface where EAS/on-chain attestation is presented as live without the "not yet deployed" qualification. This would flip my answer to DISAGREE immediately, because it converts an honest research product into a product making unverifiable claims — and HN will find it within the first hour.

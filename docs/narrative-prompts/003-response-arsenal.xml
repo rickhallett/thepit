@@ -22,7 +22,7 @@
   </meta>
 
   <source-context>
-    <project>THE PIT — multi-agent AI debate arena, 195 bouts of empirical research</project>
+    <project>The Pit — multi-agent AI debate arena, 195 bouts of empirical research</project>
     <builder>One person, under two weeks, non-academic, 891 tests, AGPL-3.0</builder>
     <known-limitations>
       Single model family (Claude). Non-standard d thresholds. No peer review.

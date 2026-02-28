@@ -15,11 +15,11 @@ The L2 convergence that "honesty IS the positioning" is directionally correct bu
 
 - **Audit every hedge in the post copy.** "This proves identity, not behaviour" is perfectly calibrated. "The only one that exists" is a market claim that requires verification — if someone can name a competitor in the first 30 minutes, the entire credibility frame collapses. Pre-draft the response to "What about [X]?" for any plausible X.
 - **Identify the most quotable sentence** and evaluate whether it misrepresents the full finding when extracted from context. On X/Twitter, the share IS the reframe. If the most quotable line overpromises, the audience that matters most (HN) will see the overpromise via the X backchannel.
-- **Predict the top comment.** My lens model says the most likely HN top comment template is: "This is just [simpler explanation]. They didn't control for [obvious confound]." For THE PIT, the specific instantiation is likely: "So it's a debate app with blockchain branding" or "EAS attestations don't prove the agent wasn't jailbroken." Have a factual, non-defensive response drafted.
+- **Predict the top comment.** My lens model says the most likely HN top comment template is: "This is just [simpler explanation]. They didn't control for [obvious confound]." For The Pit, the specific instantiation is likely: "So it's a debate app with blockchain branding" or "EAS attestations don't prove the agent wasn't jailbroken." Have a factual, non-defensive response drafted.
 
 ### 3. The L2 delta itself is a publishable finding — but it must survive its own evaluation apparatus
 
-The meta-finding — that 11 AI agents reversed their assessments by 2–4 points when the evaluation frame changed, with no change to the underlying data — is genuinely interesting and directly relevant to THE PIT's thesis about structured adversarial evaluation. However:
+The meta-finding — that 11 AI agents reversed their assessments by 2–4 points when the evaluation frame changed, with no change to the underlying data — is genuinely interesting and directly relevant to The Pit's thesis about structured adversarial evaluation. However:
 
 - This finding has never been run through my evaluation prompt suite. It has not been scored for validity, coherence, or choice by an independent evaluator.
 - The sample is n=11 agents in a single conversation context with a single operator. The confound is obvious: the agents may have been responding to the Captain's implicit preference rather than genuinely recalibrating. Keel flagged this ("operator state as transfer function") but the L2 synthesis treated it as a feature rather than a confound.

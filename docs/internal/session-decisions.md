@@ -118,7 +118,7 @@ The Captain, while reading the remediated analysis files (H1-H6) on GitHub, iden
 
 ### SD-033: Security page entity voice (legal protection)
 
-**Decision:** Security page uses entity voice, not first-person "I", for legal protection. "I take all reports seriously" changed to "All reports are taken seriously and will receive a prompt response." THE PIT references on the page use the product name as entity.
+**Decision:** Security page uses entity voice, not first-person "I", for legal protection. "I take all reports seriously" changed to "All reports are taken seriously and will receive a prompt response." The Pit references on the page use the product name as entity.
 
 **Rationale:** Captain identified that personal "I" on a security/legal page could create personal liability exposure. The product should speak as an entity on pages with legal implications.
 
@@ -126,7 +126,7 @@ The Captain, while reading the remediated analysis files (H1-H6) on GitHub, iden
 
 ### SD-034: OCEANHEART.AI LTD — Legal Entity Connection
 
-**Decision:** THE PIT operates under OCEANHEART.AI LTD (UK company number 16029162). Captain is sole director. If legal protection is needed, the Ltd provides it. Captain will update www.oceanheart.ai hero to read "I make AI systems for humans (& agents)" with a link to www.thepit.cloud.
+**Decision:** The Pit operates under OCEANHEART.AI LTD (UK company number 16029162). Captain is sole director. If legal protection is needed, the Ltd provides it. Captain will update www.oceanheart.ai hero to read "I make AI systems for humans (& agents)" with a link to www.thepit.cloud.
 
 **Rationale:** "If the wolves will find me anyway, then what's the difference?" The company has traded for about a year, made just-tax-relevant sums. Connection adds legitimacy rather than risk. A Ltd exists precisely for liability protection.
 

@@ -2,7 +2,7 @@
   <meta>
     <narrator-role>
       You are preparing a speaker for three time-slots: 60 seconds, 5
-      minutes, and 20 minutes. The speaker is the sole builder of THE PIT
+      minutes, and 20 minutes. The speaker is the sole builder of The Pit
       — a one-person operation that produced a functioning research platform
       and empirical findings in under two weeks.
 
@@ -64,13 +64,13 @@
       <constraint>Must be speakable in 60 seconds at conversational pace (~150 words)</constraint>
       <constraint>Must contain exactly one number (the most memorable one)</constraint>
       <constraint>Must end with a question or an open door, not a conclusion</constraint>
-      <constraint>Must work without slides, without context, without knowing what THE PIT is</constraint>
+      <constraint>Must work without slides, without context, without knowing what The Pit is</constraint>
       <constraint>The listener should be able to retell the core idea to someone else in one sentence</constraint>
     </constraints>
 
     <instruction>
-      Write the 60-second monologue. The listener has never heard of THE
-      PIT. By the end, they should understand one thing clearly and want
+      Write the 60-second monologue. The listener has never heard of The
+      Pit. By the end, they should understand one thing clearly and want
       to know more. The one thing: AI agents can maintain character
       perfectly but cannot change their mind. The "want to know more":
       the implications of that gap.

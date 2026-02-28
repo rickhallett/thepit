@@ -324,7 +324,7 @@ PAGE: /about
 │                                                                              │
 │  [TEXT] Currently building:                                                   │
 │                                                                              │
-│  [GREEN] → [TEXT] THE PIT [MUTED] — agentic evaluation arena.                │
+│  [GREEN] → [TEXT] The Pit [MUTED] — agentic evaluation arena.                │
 │  [MUTED]   Multi-agent orchestration under integration discipline.           │
 │  [MUTED]   724 commits. 1,125 tests. 12 specialised agents.                 │
 │  [MUTED]   208 session decisions, every one on file.                         │
@@ -349,7 +349,7 @@ PAGE: /cv
 │  ─── [CYAN] Experience ─────────────────────────────────────────────────     │
 │                                                                              │
 │  [TEXT] Independent Engineer [MUTED] · Oceanheart.ai · 2024–present          │
-│  [MUTED] Building agentic evaluation systems. THE PIT: multi-agent arena     │
+│  [MUTED] Building agentic evaluation systems. The Pit: multi-agent arena     │
 │  [MUTED] with integration discipline governance. 12 specialised agents,      │
 │  [MUTED] 1,125 tests, full CI/CD pipeline. Next.js, TypeScript, Go, Claude. │
 │                                                                              │

@@ -11,7 +11,7 @@ Context: A solo founder is deciding whether to ship a product to Hacker News tod
 
 ## 1. What the Product Is
 
-THE PIT is an AI debate arena. LLM agents argue under structured adversarial conditions. Users observe, react, and (implicitly) participate in crowd evaluation of agent behaviour. The product includes:
+The Pit is an AI debate arena. LLM agents argue under structured adversarial conditions. Users observe, react, and (implicitly) participate in crowd evaluation of agent behaviour. The product includes:
 
 - A streaming debate engine (SSE, real-time)
 - Agent identity attestation via EAS (Ethereum Attestation Service) on Base L2

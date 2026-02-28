@@ -38,7 +38,7 @@ Conditions: None.
 
 ## Reasoning
 
-The question asks whether THE PIT — an AI debate arena with streaming engine, credit economy, on-chain attestation, and research methodology — should ship today. As Architect, I own the bout lifecycle, credit economy, streaming protocol, and tier system end-to-end. My assessment is based on a full read of the core modules I own, the gate results, and the schema integrity.
+The question asks whether The Pit — an AI debate arena with streaming engine, credit economy, on-chain attestation, and research methodology — should ship today. As Architect, I own the bout lifecycle, credit economy, streaming protocol, and tier system end-to-end. My assessment is based on a full read of the core modules I own, the gate results, and the schema integrity.
 
 **I agree that this product should ship today.** The core backend subsystems are sound, the gate passes cleanly, and no known defects in my domain are blocking.
 
@@ -108,6 +108,6 @@ A load test (e.g., via `pitstorm`) demonstrating that 3+ concurrent serverless i
 
 ## Summary
 
-THE PIT should ship today. The core backend subsystems I own — bout engine, credit economy, streaming protocol, tier system, and prompt security — are gate-clean, test-covered, and financially sound. The bout lifecycle handles all three phases (validate, execute, settle) with atomic SQL for all money operations and transactional guarantees for ledger integrity. The two open PRs and Go version mismatch are non-blocking. The only architectural concern — in-memory rate limiting in a serverless environment — is mitigated by DB-level credit preauthorization and is a known, documented trade-off appropriate for launch scale.
+The Pit should ship today. The core backend subsystems I own — bout engine, credit economy, streaming protocol, tier system, and prompt security — are gate-clean, test-covered, and financially sound. The bout lifecycle handles all three phases (validate, execute, settle) with atomic SQL for all money operations and transactional guarantees for ledger integrity. The two open PRs and Go version mismatch are non-blocking. The only architectural concern — in-memory rate limiting in a serverless environment — is mitigated by DB-level credit preauthorization and is a known, documented trade-off appropriate for launch scale.
 
 **Reversal condition:** Discovery that the atomic credit preauthorization (`UPDATE WHERE balance >= amount`) can be bypassed or that the Drizzle transaction wrapper around ledger + balance operations is not actually atomic under Neon's serverless Postgres driver. This would mean financial operations are not race-safe, which would be a hard ship-blocker.

@@ -4,7 +4,7 @@
 **Date:** 2026-02-25
 **Subject:** `orchestration-layer-starting-template.md` — Anthropic public artifact
 **Provenance:** SD-171 (Captain's observation: "what's published is what's intended to be published")
-**Method:** Inline annotation of external template against independently evolved practice aboard THE PIT
+**Method:** Inline annotation of external template against independently evolved practice aboard The Pit
 
 ---
 

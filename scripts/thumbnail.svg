@@ -111,9 +111,9 @@
     CRYPTOGRAPHIC AGENT IDENTITY
   </text>
 
-  <!-- THE PIT branding (bottom left) -->
+  <!-- The Pit branding (bottom left) -->
   <text x="80" y="620" fill="#d7ff3f" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="8" opacity="0.9">
-    THE PIT
+    The Pit
   </text>
   <text x="80" y="648" fill="#565f89" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" letter-spacing="4">
     ON-CHAIN ATTESTATION · BASE L2

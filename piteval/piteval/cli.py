@@ -253,7 +253,7 @@ def cmd_status(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(
         prog="piteval",
-        description="Multi-model codebase evaluation engine for THE PIT",
+        description="Multi-model codebase evaluation engine for The Pit",
     )
     parser.add_argument("--version", action="version", version=f"piteval {__version__}")
 
