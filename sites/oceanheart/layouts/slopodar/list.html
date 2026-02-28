@@ -16,7 +16,7 @@
   </p>
 
   <div class="slopodar-grid" id="slopodar-grid">
-    {{ range .Site.Data.slopodar.patterns }}
+    {{ range sort .Site.Data.slopodar.patterns "detected" "desc" }}
     <a href="/slopodar/{{ .id }}/" class="slopodar-row" id="{{ .id }}" data-pattern>
       <span class="slopodar-row-name">{{ .name }}</span>
       <span class="slopodar-row-trigger">"{{ .trigger }}"</span>
