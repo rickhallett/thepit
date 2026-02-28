@@ -1,0 +1,9 @@
+date	pr	round	ref	class	finding	fix_commit	status
+2026-02-28	#386	r1	V-50	mock-drift	FIRST_BOUT mock uses Sonnet 4.5 but production is Sonnet 4.6	055c35d	fixed
+2026-02-28	#386	r1	V-42	isolation	preauthorizeCreditsMock never configured — passes via leaked state	055c35d	fixed
+2026-02-28	#387	r1	E-19	right-answer-wrong-work	capturedHistory compared to transcript (different types) — always passes	81b5ec0	fixed
+2026-02-28	#387	r1	E-19-dead	dead-code	settleCreditsArgCapture declared but never referenced	81b5ec0	fixed
+2026-02-28	#386	r2	V-03c	right-answer-wrong-work	array body rejected at Missing boutId not INVALID_JSON — status-only assertion	a545741	fixed
+2026-02-28	#387	r2	E-64	mock-leak	CREDITS_ENABLED restore skipped on assertion failure — needs try/finally	5f7d910	fixed
+2026-02-28	#387	r2	E-77	mock-leak	withTracingMock.mockImplementation leaks between tests — clearAllMocks insufficient	5f7d910	fixed
+2026-02-28	#387	r2	E-17	mock-leak	appendExperimentInjectionMock implementation leak — same pattern as E-77	5f7d910	fixed

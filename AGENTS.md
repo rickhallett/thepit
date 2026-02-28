@@ -130,7 +130,7 @@ When the Lexicon requires changes: unlock (`chmod 644`) → edit content → upd
 
 ### Defect Status Must Be On File
 
-Context windows drop without warning. Defect status changes must be written to a durable file — not held only in conversation memory. The canonical defect inventory lives at `docs/press-manual-qa-v1.md` or its successor.
+Context windows drop without warning. Defect status changes must be written to a durable file — not held only in conversation memory. The canonical defect inventory lives at `docs/press-manual-qa-v1.md` or its successor. Automated reviewer findings are logged at `docs/internal/weaver/bugbot-findings.tsv` (TSV, append-only, pattern classes cross-ref slopodar).
 
 ### Tick Definition
 

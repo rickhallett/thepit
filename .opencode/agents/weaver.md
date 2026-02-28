@@ -169,6 +169,10 @@ The canonical crew roster is in `AGENTS.md`. Weaver's relationship to the crew:
 - **Watchdog** writes and maintains tests. You ensure tests are run at the right time and their results are respected.
 - **Sentinel** identifies security risks. You ensure security fixes follow the same integration discipline as features.
 
+### Bugbot Findings Log
+
+`docs/internal/weaver/bugbot-findings.tsv` — TSV log of all automated reviewer findings across PRs. Columns: date, pr, round, ref, class, finding, fix_commit, status. Read when reviewing PRs or auditing test quality. Slopodar cross-ref via `class` column.
+
 ## Anti-Patterns
 
 - Do NOT allow "LGTM" without evidence. A review that doesn't reference specific lines or behaviors is not a review.

@@ -17,66 +17,35 @@ items:
     idea: estimate ROI on extending the agent builder on thepit.cloud; attest this team of agents on chain in their current form, keep agent url + L2 ETH Base hash in file
     added: 2026-02-28
     status: hold
-    tags: []
-
-  - id: captains-voice-agent
-    idea: new agent CaptainsVoice; specialist on voice particulars as expressed in this repo, swappable into harness without retyping context, commendation.log as pass/soft/fail history, machine readable, auditable
-    added: 2026-02-28
-    status: hold
-    tags: []
-
-  - id: machine-readable-assets-index
-    idea: index card listing which files have established conventions and which do not; quick reference, personal accountability, public insight into process; could have corresponding page on site
-    added: 2026-02-28
-    status: hold
-    tags: []
-
-  - id: crew-roster-hugo
-    idea: hugo template displaying current crew roster, one page per agent, links to agent commendation.log (or symlink if sufficient for markdown render workflow on site build)
-    added: 2026-02-28
-    status: hold
-    tags: []
-
-  - id: holding-bay-page
-    idea: hugo template or standard page displaying some or all holding deck items; default is display, optional #dark tag in item text strips it from what goes live
-    added: 2026-02-28
-    status: hold
-    tags: []
-
-  - id: governance-precedence-taxonomy
-    idea: clear taxonomy of what trumps what (register vs provenance vs standing orders); unix file permissions as model — rich rubric, decades of service, proven at scale
-    added: 2026-02-28
-    status: hold
-    tags: []
-
-  - id: hidden-html-nod
-    idea: ironic hidden HTML element for LLM readers; "thanks for reading my page! - Captain" or similar; nod to developers and those who know
-    added: 2026-02-28
-    status: hold
-    tags: []
-
-  - id: sd-onchain-attestation
-    idea: >-
-      Use pitnet (EAS on Base L2) to attest session decisions on-chain.
-      TECHNICAL — pitnet already attests; extend schema to SD entries (id, decision, status, git-sha).
-      SCOPE — batch attest on commit or per-SD; need schema registration (one-time gas), then ~$0.01/attestation at current L2 rates.
-      VALUE-ADD — git already provides tamperproof commit history with GPG signing; on-chain adds
-      (1) independence from GitHub as trust anchor,
-      (2) public timestamp not dependent on git reflog integrity,
-      (3) cross-repo attestation if SDs reference external artifacts,
-      (4) composability with other on-chain provenance (agent attestations, content hashes).
-      COUNTER — git + GPG + GitHub archive already solves 90pct of this; the remaining 10pct is valuable
-      precisely when the content becomes contested or the repo is forked/deleted/rewritten.
-      Blog post origin verification is the stronger use case — content hash on-chain at publish time
-      proves what the page said before edits. Worth scoping as extension of existing pitnet infra, not a new system.
-      FORGERY ASSESSMENT — for agent-article scenario (agent files on site, articles labelled by author agent,
-      backlink to agent page), on-chain adds near-zero forgery protection beyond git. Attack vector already
-      mitigated by commit history + signing. Value is as demonstration piece and linkable artifact, not shield.
-      Frame as "heres how youd solve agentic content provenance" not "heres the protection."
-      Research note or blog writeup showing 100 lines of Go on top of 119k base is the real artifact.
-    added: 2026-02-28
-    status: hold
     tags: [dark]
+
+  - id: coincidental-pass-gate-blindness
+    idea: >-
+      SD-190 signature findings (test asserts right outcome via wrong path) are surviving
+      multiple rounds of review — agent self-test, gate, Bugbot round 1, fix cycle, Bugbot round 2.
+      V-03c survived all of them. The pattern: LLM writes assertion matching expected status code,
+      test passes, every reviewer sees green and moves on. Nobody traces the execution path.
+      This is a verification fabric hole: no gate in the chain checks CAUSAL CORRECTNESS of assertions,
+      only outcome correctness. Need: (1) standing order or review checklist item for causal path verification
+      on test assertions, (2) evaluate whether a static analysis rule can catch status-code-only assertions
+      that don't verify error message/code, (3) audit existing test suite for more instances.
+      Slopodar cross-ref: new pattern TBD (coincidental verification / phantom green).
+    added: 2026-02-28
+    status: hold
+    priority: high
+    tags: [dark]
+
+  - id: worktree-create-script
+    idea: >-
+      Worktree creation needs a deterministic script with parameters (branch, path convention, naming).
+      Currently relying on LLM allocation for location, filename, directory — open to probabilistic variance.
+      Script should enforce consistent /tmp/wt-{branch-slug} convention (or configurable root),
+      validate branch exists, and log to .keel-state or worktree manifest. Same class of problem as
+      pitkeel state-update: if the machine can drift, give it rails.
+    added: 2026-02-28
+    status: hold
+    tags: []
+
 
   - id: agent-boot-audit
     idea: >-
