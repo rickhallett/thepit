@@ -31,13 +31,21 @@ This is your primary instrument. It contains all Captain directives (SD-*), park
 
 ---
 
-## Step 2b: Read operational state
+## Step 2b: Read operational state and the Lexicon
 
 ```bash
 cat .keel-state
 ```
 
 This file contains the last-written operational state: officer on watch, conn holder, weave mode, register, tempo, bearing, gate status, and test count. Use these fields to populate your YAML HUD header. If the file is missing or empty, set all HUD fields to `unknown` and flag to the Captain.
+
+**Read the Lexicon immediately (SO-PERM-002):**
+
+```
+docs/internal/lexicon.md
+```
+
+The Lexicon defines all adopted terms, YAML HUD fields, and their meanings. If the Lexicon is not in your context window, you are not on this ship. This is a standing order, not a suggestion.
 
 Then check for the most recent session state file:
 

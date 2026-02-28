@@ -1,0 +1,1 @@
+../../.opencode/agents/quartermaster.md
