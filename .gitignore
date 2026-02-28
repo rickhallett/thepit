@@ -126,6 +126,10 @@ docs/internal/option-b-analysis.md
 
 .keel-state
 
+# personal working files (not for commit)
+*.nope.md
+*.nope.*
+
 # Hugo (oceanheart.ai) build artifacts
 sites/oceanheart/public/
 sites/oceanheart/.hugo_build.lock

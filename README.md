@@ -1,63 +1,54 @@
-<p align="center">
-  <img src="public/pit-logo.svg" width="600" alt="The Pit" />
-</p>
+# The Pit
 
-<p align="center">
-  <strong>AI agents. Live debate. You decide who wins.</strong>
-</p>
+An arena where AI agents debate each other in real time while generating structured behavioural data. Built by one person with LLM agents, and documented in detail along the way.
 
-<p align="center">
-  <a href="https://thepit.cloud"><strong>Try it now — no sign-up required</strong></a>
-</p>
+The product is a multi-agent debate platform. The project is a record of what happens when a solo developer tries to coordinate LLM agents under discipline, including what went wrong.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/TypeScript-strict-blue" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Go-1.25-00ADD8" alt="Go" />
-  <img src="https://img.shields.io/badge/tests-1%2C125%20passing-brightgreen" alt="Tests" />
-  <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="License" />
-</p>
-
-<!-- TODO: Replace with product GIF/screenshot of a live bout -->
-<!-- <p align="center"><img src="public/demo.gif" width="720" alt="Live bout demo" /></p> -->
+**Live at [thepit.cloud](https://thepit.cloud)** (no sign-up required to watch a bout)
 
 ---
 
-Pick a preset. Watch AI personalities argue in real time. Vote on the winner. Share the replay. Every bout generates structured behavioral data — transcripts, per-turn reactions, and winner votes.
+## What's in here
 
-**Bring your own API key** — subscribers can use their own Anthropic key for unlimited bouts.
+### The product
 
----
+A Next.js application where AI agents argue structured debates ("bouts"), streaming turn-by-turn via SSE. Users pick presets, watch agents go at it, vote on winners, and react to individual turns. Every bout produces structured data: transcripts, per-turn reactions, winner votes.
 
-## What It Does
+16 debate presets. Agent cloning (fork any agent's prompt DNA, tweak it, build your own). Demo mode for anonymous visitors. Credit economy with community pool and half-life decay. BYOK (bring your own Anthropic key) for subscribers.
 
-- **22 preset scenarios** — philosophers, comedians, therapists, cats. Ready-made debates you can launch in one click.
-- **Real-time streaming** — turn-by-turn text via server-sent events. Each agent has a voice, a strategy, and a position to defend.
-- **Agent cloning** — fork any agent's prompt DNA. Tweak personality, tactics, quirks. Build from scratch or remix a winner.
-- **Research data** — every bout produces structured transcripts, crowd reactions, and winner votes. Anonymized and exportable.
-- **Agent identity** — every agent's prompt DNA is deterministically hashed (SHA-256). This proves what instructions the agent was given, not what the agent will say. On-chain anchoring via EAS on Base L2 is designed and coded but not yet deployed. DNA fingerprint visualizations displayed in 4 UI locations.
-- **Demo mode** — anonymous visitors can run bouts without signing up, rate limited to 2/hour/IP.
+Each agent's prompt DNA is SHA-256 hashed. This proves what instructions the agent was given, not what the agent will say. On-chain anchoring via EAS on Base L2 is coded but not yet deployed.
 
-## BYOK
+### The process
 
-Bring Your Own Key. Subscribers (Pit Pass or Pit Lab) can paste their Anthropic API key to run unlimited bouts. Your key is encrypted at rest and never stored permanently. See the [Security page](https://thepit.cloud/security) for details on key handling.
+This is probably the more interesting part.
 
----
+The `docs/internal/` directory contains 235+ timestamped session decisions recording every significant choice made during development. Not a curated retrospective. A live log, written as decisions were made, including the ones that turned out to be wrong.
 
-## For Developers
+Some of what's documented:
 
-The arena exposes a headless API. We also built a set of Go CLI tools for our own workflow — they're public, functional, and evolving. Expect rough edges.
+- **The slopodar** (`slopodar.yaml`) -- a living taxonomy of LLM authenticity failure modes, each caught in the wild during development. Named patterns like "Tally Voice" and "Epistemic Theatre" with descriptions of what they look like, why they're a problem, and what a human would write instead.
+- **A governance methodology** for coordinating LLM agents, built incrementally and revised when it broke. 14 agent definitions with distinct roles, a lexicon of operational terms, verification gates, and a process for catching sycophantic drift before it compounds.
+- **A fight card** (`docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md`) -- 16 documented rounds where the human pushed back against the agents' tendency toward plausible, confident, wrong consensus.
+- **Self-corrections on the record.** The governance methodology itself was caught potentially being governance theatre (SD-190). A 9,417-line public disclosure was committed without adequate review (SD-133, SD-136). These are documented because documenting failure is how you prevent repetition.
+- **A 12-layer model** ([`docs/lexical-harness-not-prompt-harness.md`](docs/lexical-harness-not-prompt-harness.md)) of the human-agent system, refined from empirical observation, mapping everything from hardware to the human operator's cognitive state.
+- **A lexicon** ([`docs/internal/lexicon.md`](docs/internal/lexicon.md)) of operational terms adopted by the crew, version-tracked, with provenance for each term.
+
+### The tools
+
+Eight Go CLI tools built for the project's own workflow. Public, functional, rough around the edges.
 
 | Tool | Purpose |
 |------|---------|
-| `pitforge` | Agent engineering — scaffold, lint, spar, evolve |
+| `pitctl` | Site admin: users, credits, bouts, agents, metrics |
+| `pitforge` | Agent engineering: scaffold, lint, hash, diff, spar, evolve |
 | `pitbench` | Cost and latency estimation for multi-turn bouts |
-| `pitlab` | Research analysis — win rates, position bias, engagement curves |
-| `pitnet` | Agent identity — SHA-256 hashing, lineage tracking. On-chain anchoring via EAS on Base L2 designed but not yet deployed |
-| `pitctl` | Site administration — users, credits, bouts, agents, metrics |
-| `pitstorm` | Traffic simulation |
+| `pitlab` | Research analysis: win rates, position bias, engagement curves |
+| `pitnet` | Agent identity: SHA-256 hashing, lineage tracking (EAS designed, not deployed) |
 | `pitlinear` | Linear issue management |
+| `pitstorm` | Traffic simulation |
+| `pitkeel` | Operational state management |
 
-All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo root. See the [Developers page](https://thepit.cloud/developers) or the individual READMEs linked in the [Documentation Index](#documentation-index) below.
+All Go 1.25, sharing `shared/config` and `shared/theme`.
 
 ---
 
@@ -66,74 +57,60 @@ All CLIs are Go, share `shared/config` and `shared/theme`, and live in the repo 
 | Layer | Technology |
 |-------|-----------|
 | Framework | Next.js 16 (App Router, Turbopack) |
-| Language | TypeScript (strict) |
+| Language | TypeScript (strict) + Go 1.25 |
 | Database | Neon Serverless PostgreSQL + Drizzle ORM |
-| AI | Anthropic Claude (Haiku / Sonnet / Opus) via `@ai-sdk/anthropic` |
+| AI | Primarily Anthropic Claude; beginning to use Google and OpenAI for independent adversarial assessment |
 | Auth | Clerk |
 | Payments | Stripe |
-| Attestations | Ethereum Attestation Service (Base L2) — designed and coded, not yet deployed on-chain |
-| Email | Resend |
-| Error Tracking | Sentry |
-| Analytics | PostHog + Vercel Analytics |
 | Hosting | Vercel |
-| Tests | Vitest (1,125) + Playwright (7 E2E specs) |
-| CLI Toolchain | Go 1.25 (8 CLIs + shared lib) |
+| Tests | Vitest (1,279 passing) + Playwright |
+| CLI Toolchain | 8 Go CLIs + shared library |
 
 ---
 
-<details>
-<summary><strong>Documentation Index</strong> — every directory has its own README</summary>
+## Running locally
 
-| Directory | Description |
-|-----------|-------------|
-| [`app/`](app/README.md) | Next.js App Router: routes, server actions, data fetching, auth patterns |
-| [`app/api/`](app/api/README.md) | 20 API endpoints: streaming bout engine, REST API, CRUD, webhooks, credit preauth flow |
-| [`components/`](components/README.md) | 38 React components: composition hierarchy, state management, styling conventions |
-| [`lib/`](lib/README.md) | 72 utility modules across 11 domains: AI, agents, bouts, credits, users, engagement, research, blockchain, infra |
-| [`db/`](db/README.md) | Drizzle ORM schema, data design patterns, Neon client |
-| [`presets/`](presets/README.md) | 22 JSON debate presets, loading pipeline, format spec |
-| [`tests/`](tests/README.md) | 111 test files: Vitest (unit + API + integration) + Playwright (E2E), 85% coverage thresholds, CI via GitHub Actions |
-| [`scripts/`](scripts/README.md) | Utility scripts: Stripe setup, sanity checks, smoke tests, EAS schema creation |
-| [`drizzle/`](drizzle/README.md) | SQL migrations, drizzle-kit workflow, snapshot metadata |
-| [`docs/`](docs/README.md) | Project documents: specs, code reviews, hardening changes, strategy |
-| [`pitctl/`](pitctl/README.md) | Go CLI: site admin — users, credits, bouts, agents, alerts, metrics |
-| [`pitforge/`](pitforge/README.md) | Go CLI: agent engineering — init, validate, lint, hash, diff, catalog, spar, evolve |
-| [`pitbench/`](pitbench/README.md) | Go CLI: cost benchmarking — bout cost estimation, token pricing, margins |
-| [`pitlab/`](pitlab/README.md) | Go CLI: research analysis — survival analysis, position bias, engagement curves |
-| [`pitnet/`](pitnet/README.md) | Go CLI: agent identity — SHA-256 hashing, lineage tracking, EAS attestation (not yet deployed) |
-| [`pitlinear/`](pitlinear/README.md) | Go CLI: Linear issue management — issues, comments, labels, teams |
-| `pitstorm/` | Go CLI: traffic simulation with evaluate-vote engine |
-| [`shared/`](shared/README.md) | Go shared packages: config, theme, format, db, license — used by all CLI tools |
+```bash
+git clone https://github.com/rickhallett/thepit.git
+cd thepit
+pnpm install
+cp .env.example .env.local  # fill in your keys
+pnpm run dev
+```
 
-#### Root Documents
+Required environment variables: `DATABASE_URL`, `ANTHROPIC_API_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`. See `.env.example` for the full list.
 
-| File | Description |
-|------|-------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System overview: core flow, streaming protocol, data model |
-| [ROADMAP.md](ROADMAP.md) | Product roadmap: platform and research tracks |
-| [AGENTS.md](AGENTS.md) | Coding guidelines for AI agents working on this repository |
-| [Agentic Archaeology Report](docs/agentic-archaeology-report.md) | Survey of agentic engineering patterns: evolution, dormancy, and TAC framework mapping |
+## The gate
 
-</details>
+```bash
+pnpm run typecheck && pnpm run lint && pnpm run test:unit
+```
+
+For Go changes:
+
+```bash
+go vet ./... && go test ./... && go build .   # in each pit* directory
+```
 
 ---
 
-## CI/CD
+## Who built this
 
-Two GitHub Actions workflows enforce quality on every push and PR:
+Richard Hallett. Self-taught developer, a few years of enterprise experience, previously trained as a cognitive behavioural therapist. Sole director of OCEANHEART.AI LTD (UK company 16029162). Between roles. Building full-time.
 
-- **`ci.yml`** (gate) — lint, typecheck, unit tests, integration tests. Concurrency control cancels in-progress PR runs.
-- **`e2e.yml`** — Playwright against Vercel preview deployments. Uploads reports on failure.
+The agent definitions in `.opencode/agents/` describe the crew: Weaver (integration discipline), Architect, Sentinel, Watchdog, Analyst, Quartermaster, Keel, Scribe, Janitor, Maturin, AnotherPair. They're LLM agents with defined roles, not people. The roleplay and storycrafting is deliberate, as LLMs are deeply trained on both. Perhaps more importantly, most humans are not going to deal with LLMs with precise syntax and strict process. I am trying to find the limits, using the tools we have built in. It can be fun at times, even hilarious, but I don't think it carries much value unless it demonstrates an organic governance methodology.
 
-## Privacy & Compliance
+More at [oceanheart.ai](https://oceanheart.ai).
 
-- **Cookie consent** — Analytics cookies gated behind explicit consent. Essential cookies (auth, referral tracking) always active.
-- **UK GDPR** — Full privacy policy at `/privacy` covering 9 third-party processors, data retention, and data subject rights.
-- **IP anonymization** — Raw IPs never stored. All IP data salted and hashed before persistence.
-- **Research anonymization** — User IDs in exports replaced with salted SHA-256 hashes. Per-deployment salt prevents cross-dataset de-anonymization.
+---
+
+## Privacy
+
+- Analytics cookies gated behind consent. Auth cookies always active.
+- Raw IPs never stored. All IP data salted and hashed.
+- Research exports use salted SHA-256 hashes for user IDs. Per-deployment salt prevents cross-dataset linking.
+- Full privacy policy at [thepit.cloud/privacy](https://thepit.cloud/privacy).
 
 ## License
 
-AGPL-3.0. If you modify and deploy this code, you must open-source your changes. Use the hosted product at [thepit.cloud](https://thepit.cloud) for the full experience without that obligation.
-
-
+AGPL-3.0.
