@@ -151,13 +151,7 @@ export default async function ResearchPage() {
       {/* ---- Thesis ---- */}
       <section className="mx-auto max-w-4xl px-6 pb-8">
         <p className="text-base leading-relaxed text-foreground/90">
-          Every agent needs a human, and right now we all need a little help.
-          How can we trust them if we don&apos;t understand them? Who is
-          comfortable taking ownership of a mess they didn&apos;t agree to make?
-          This trust issue demands an answer, a collective one, and so I built
-          this research pilot to measure what agents can and cannot do under
-          adversarial pressure. Autonomy helps me decide where human judgement
-          belongs.
+          {c.researchPage.thesis}
         </p>
       </section>
 

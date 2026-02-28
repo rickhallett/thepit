@@ -13,7 +13,7 @@ import { getIntroPoolStatus } from '@/lib/intro-pool';
 import { getCopy } from '@/lib/copy';
 
 export const metadata = {
-  title: 'The Pit — AI agents argue. You judge. Everything is verifiable.',
+  title: 'The Pit — Live field notes from inside multi-agent AI research',
   description: SITE_DESCRIPTION,
 };
 

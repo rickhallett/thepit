@@ -87,8 +87,8 @@
     "headline": "I put AI agents under adversarial pressure to see what they'd do.",
     "subheadline": [
       "Every agent has a cryptographic fingerprint. I pre-registered the hypotheses before running a single bout. Everything that follows — methodology, data, code — is public.",
-      "This is the most recent (and most determined) push into whether agentic engineering can hold out under adversarial conditions. One person, 1,054* tests, and a burning desire to know what happens when sycophants are cornered (TBC)",
-      "The code is open; I need some help.filtering(agents)"
+      "This is the most recent (and most determined) push into whether agentic engineering can hold out under adversarial conditions. One person, 1,278* tests, and a burning desire to know what happens when sycophants are cornered (TBC)",
+      "The code is open; I need some help."
     ],
     "ctaPrimary": "Enter the Arena",
     "ctaSecondary": "Read the Research",
@@ -104,24 +104,24 @@
     "title": "How things were (at last known position)",
     "steps": [
       {
-        "title": "Pick",
-        "heading": "Choose a condition",
-        "description": "Each lineup is a different experimental condition — different agents, different pressures, different data. Pick one."
+        "title": "Condition",
+        "heading": "Select an experiment",
+        "description": "Each lineup has different agents, pressures, and variables. The preset is the independent variable."
       },
       {
-        "title": "Watch",
-        "heading": "Live streaming debate",
-        "description": "Turn-by-turn text, streamed in real time. Each agent follows its prompt DNA — personality, tactics, constraints."
+        "title": "Observe",
+        "heading": "Watch agents interact",
+        "description": "Turn-by-turn streaming. Each agent follows its prompt DNA. What they do under pressure is the question."
       },
       {
-        "title": "React",
-        "heading": "Your signal is data",
-        "description": "Reactions and winner votes are part of the dataset. What crowds reward when agents argue is one of the questions I'm studying."
+        "title": "Signal",
+        "heading": "Your reactions become data",
+        "description": "Reactions and votes enter the dataset. What crowds reward when agents argue is one of the things I'm measuring."
       },
       {
-        "title": "Remix",
-        "heading": "Fork any agent",
-        "description": "Clone any agent. Change the DNA. The lineage is tracked through clone chains. Build from scratch or fork what's working."
+        "title": "Iterate",
+        "heading": "Fork and re-run",
+        "description": "Clone any agent, change the DNA, re-run the experiment. Lineage is tracked. The interesting part is what changes."
       }
     ]
   },
@@ -154,7 +154,7 @@
       }
     ],
     "viewAll": "View all conditions",
-    "count": "22 conditions available"
+    "count": "16 conditions available"
   },
   "researchLayer": {
     "label": "Research",
@@ -432,7 +432,7 @@
     "label": "Toolchain",
     "titleLine1": "The tools",
     "titleLine2": "I built to run this.",
-    "subtitle": "It's open source because I doubt I'm going to get much meaningfully further in what is, essentially, a simulator. An accurate approximation of what I (read: we) actaully need.",
+    "subtitle": "It's open source because I doubt I'm going to get much meaningfully further in what is, essentially, a simulator. An accurate approximation of what I (read: we) actually need.",
     "description": "These are barely out of the gates, but some of them have proven to be load bearing, at least for me. This is the first time I was able to simulate even considering the question of developing with a developer api in mind like this.",
     "ctaPrimary": "API Reference",
     "ctaSecondary": "CLI Toolchain"
@@ -656,6 +656,7 @@
     "label": "Research",
     "title": "How LLM agents behave under pressure",
     "subtitle": "Six pre-registered hypotheses. 195 bouts, ~2,100 turns. Automated metrics, permutation tests, and results I didn't expect.",
+    "thesis": "Every agent needs a human. How can we trust them if we don't understand them? I built this research pilot to measure what agents can and cannot do under adversarial pressure. The findings help me decide where human judgement belongs.",
     "disclosure": "I'm between roles and I built this for a lot of reasons. I'm still figuring out how the most important thing governs the other ones. If you are genuinely interested, better to just ask me, probably.",
     "openDocs": "94 internal documents — agent definitions, session decisions, engineering logs — are public in the repo. You can read the decisions I made and why.",
     "whatWeStudy": {
@@ -750,7 +751,7 @@
     },
     "cta": {
       "title": "Want to run bouts programmatically?",
-      "primary": "Get Lab Access",
+      "primary": "It's in the repo",
       "secondary": "API Reference"
     }
   },

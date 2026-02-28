@@ -178,16 +178,17 @@ export default async function DevelopersPage() {
             {c.developers.cta.title}
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted">
-            Lab-tier includes headless API access, all models,
-            and unlimited agents.
+            The API code, CLI tools, and everything else are in the public repo.
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link
-              href="/sign-up?redirect_url=/arena#upgrade"
+            <a
+              href="https://github.com/rickhallett/thepit"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block border-2 border-accent bg-accent px-8 py-4 text-xs uppercase tracking-[0.3em] text-background transition hover:bg-accent/90 hover:shadow-[0_0_20px_rgba(215,255,63,0.3)]"
             >
               {c.developers.cta.primary}
-            </Link>
+            </a>
             <Link
               href="/docs/api"
               className="inline-block border-2 border-foreground/40 px-8 py-4 text-xs uppercase tracking-[0.3em] text-muted transition hover:border-foreground hover:text-foreground"

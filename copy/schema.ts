@@ -530,6 +530,7 @@ export interface ResearchPageCopy {
   label: string;
   title: string;
   subtitle: string;
+  thesis: string;
   whatWeStudy: {
     title: string;
     bullets: string[];
