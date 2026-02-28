@@ -189,20 +189,13 @@ export default async function LandingPage() {
       {/* ── For Builders ──────────────────────────────────────────── */}
       <BuilderShowcase />
 
-      {/* ── Pricing ──────────────────────────────────────────────── */}
-      <section className="border-y-2 border-foreground/70 bg-black/40">
-        <div className="mx-auto max-w-5xl px-6 py-20">
-          <div className="flex items-center gap-3">
-            <div className="h-px flex-1 max-w-8 bg-accent/60" />
-            <p className="text-xs uppercase tracking-[0.4em] text-accent">{c.pricing.label}</p>
-          </div>
-          <h2 className="mt-6 font-sans text-3xl uppercase tracking-tight md:text-4xl">
-            {c.pricing.title}
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm text-muted">
+      {/* ── Running Costs (minimal) ────────────────────────────── */}
+      <section className="border-y border-foreground/20">
+        <div className="mx-auto max-w-5xl px-6 py-12">
+          <p className="text-xs text-muted">
             {c.pricing.description}
           </p>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
             <PlanCard
               name={c.pricing.plans[0]!.name}
               price={0}
@@ -215,34 +208,25 @@ export default async function LandingPage() {
               name={c.pricing.plans[1]!.name}
               price={3}
               period="/mo"
-              featured
-              href={isSignedIn ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade'}
-              cta={c.pricing.plans[1]!.cta}
               features={c.pricing.plans[1]!.features}
+              disabled
+              disabledTooltip="Oh come on, you don't actually want to subscribe to this, do you?"
             />
             <PlanCard
               name={c.pricing.plans[2]!.name}
               price={10}
               period="/mo"
-              href={isSignedIn ? '/arena#upgrade' : '/sign-up?redirect_url=/arena#upgrade'}
-              cta={c.pricing.plans[2]!.cta}
               features={c.pricing.plans[2]!.features}
+              disabled
+              disabledTooltip="Seriously though, if you do, get in touch."
             />
           </div>
 
-          {/* Credit top-ups */}
-          <div className="mt-12 border-t border-foreground/20 pt-8">
-            <p className="text-xs uppercase tracking-[0.3em] text-muted">
-              {c.pricing.creditPacks.label}
-            </p>
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-2 max-w-lg">
-              <CreditPackCard name="Starter" price={3} credits={300} />
-              <CreditPackCard name="Plus" price={8} credits={800} />
-            </div>
-            <p className="mt-4 text-xs text-muted">
-              {c.pricing.creditPacks.byokNote}
-            </p>
-          </div>
+          {/* Credit top-ups — buy-me-a-coffee scale */}
+          <p className="mt-8 text-xs text-muted/60">
+            Pool empty? <Link href="/arena" className="text-muted/80 underline underline-offset-2 transition hover:text-accent">Credit packs</Link> exist (£3/£8).{' '}
+            {c.pricing.creditPacks.byokNote}
+          </p>
         </div>
       </section>
 
@@ -386,24 +370,29 @@ function PlanCard({
   featured = false,
   href,
   cta,
+  disabled = false,
+  disabledTooltip,
 }: {
   name: string;
   price: number;
   period: string;
   features: string[];
   featured?: boolean;
-  href: string;
-  cta: string;
+  href?: string;
+  cta?: string;
+  disabled?: boolean;
+  disabledTooltip?: string;
 }) {
   return (
     <div
-      className={`group relative flex flex-col gap-4 border-2 p-6 transition-all duration-300 hover:-translate-y-1 ${
-        featured
-          ? 'border-accent bg-accent/10 hover:shadow-[0_0_20px_rgba(215,255,63,0.15)]'
-          : 'border-foreground/50 bg-black/40 hover:shadow-[6px_6px_0_rgba(255,255,255,0.1)]'
+      className={`group relative flex flex-col gap-4 border-2 p-6 transition-all duration-300 ${
+        disabled
+          ? 'border-foreground/20 bg-black/20 opacity-60'
+          : featured
+            ? 'border-accent bg-accent/10 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(215,255,63,0.15)]'
+            : 'border-foreground/50 bg-black/40 hover:-translate-y-1 hover:shadow-[6px_6px_0_rgba(255,255,255,0.1)]'
       }`}
     >
-      {/* "Most Popular" badge removed — Captain's QA decision (too generic for HN) */}
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-muted">{name}</p>
         <p className="mt-2 font-sans text-3xl uppercase tracking-tight">
@@ -416,50 +405,32 @@ function PlanCard({
       <ul className="flex flex-col gap-2 text-sm text-muted">
         {features.map((feature) => (
           <li key={feature} className="flex items-start gap-2">
-            <span className="mt-0.5 text-accent">+</span>
+            <span className={`mt-0.5 ${disabled ? 'text-muted/40' : 'text-accent'}`}>+</span>
             <span>{feature}</span>
           </li>
         ))}
       </ul>
-      <Link
-        href={href}
-        className={`mt-auto border-2 px-4 py-3 text-center text-xs uppercase tracking-[0.3em] transition ${
-          featured
-            ? 'border-accent text-accent hover:bg-accent hover:text-background'
-            : 'border-foreground/50 text-foreground/80 hover:border-foreground'
-        }`}
-      >
-        {cta}
-      </Link>
+      {disabled ? (
+        <span
+          className="mt-auto border-2 border-foreground/20 px-4 py-3 text-center text-xs uppercase tracking-[0.3em] text-muted/40 cursor-not-allowed"
+          title={disabledTooltip}
+        >
+          Subscribe
+        </span>
+      ) : href && cta ? (
+        <Link
+          href={href}
+          className={`mt-auto border-2 px-4 py-3 text-center text-xs uppercase tracking-[0.3em] transition ${
+            featured
+              ? 'border-accent text-accent hover:bg-accent hover:text-background'
+              : 'border-foreground/50 text-foreground/80 hover:border-foreground'
+          }`}
+        >
+          {cta}
+        </Link>
+      ) : null}
     </div>
   );
 }
 
-/** Compact credit pack purchase card with inline buy link. */
-function CreditPackCard({
-  name,
-  price,
-  credits,
-}: {
-  name: string;
-  price: number;
-  credits: number;
-}) {
-  return (
-    <div className="group flex flex-col gap-3 border-2 border-foreground/50 bg-black/40 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[6px_6px_0_rgba(255,255,255,0.1)]">
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-[0.3em] text-muted">{name}</p>
-        <p className="font-sans text-xl uppercase tracking-tight">£{price}</p>
-      </div>
-      <div className="flex items-center justify-between text-sm text-muted">
-        <span>{credits.toLocaleString()} credits</span>
-        <Link
-          href="/arena"
-          className="text-xs uppercase tracking-[0.2em] text-accent transition hover:text-accent/80"
-        >
-          Buy
-        </Link>
-      </div>
-    </div>
-  );
-}
+
