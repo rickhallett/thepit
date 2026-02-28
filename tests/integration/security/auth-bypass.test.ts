@@ -39,8 +39,8 @@ describe.skipIf(!serverReachable)('Security: Authorization Bypass', () => {
         }
       }
 
-      // Any of these statuses are acceptable
-      expect([401, 403, 404, 500].includes(response.status) || response.status === 200).toBe(true)
+      // Should NOT return 200 with real data or 500 (server error)
+      expect([401, 403, 404]).toContain(response.status)
     })
 
     it('SEC-AUTH-002: rejects bout execution without ownership', async () => {
@@ -154,14 +154,10 @@ describe.skipIf(!serverReachable)('Security: Authorization Bypass', () => {
         method: 'GET',
       })
 
-      // The endpoint might not exist (404) or require auth (401)
-      if (response.status === 404 || response.status === 401 || response.status === 403) {
-        // Properly protected
-        expect(true).toBe(true)
-        return
-      }
+      // Protected route: must return 401, 403, 404, or 200 (public pool data) — never 500/302/etc.
+      expect([200, 401, 403, 404]).toContain(response.status)
 
-      // If it returns 200, check the response for sensitive data
+      // If it returns 200, check the response doesn't leak sensitive data
       if (response.status === 200) {
         try {
           const data = await response.json()

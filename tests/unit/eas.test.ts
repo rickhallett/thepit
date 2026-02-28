@@ -174,8 +174,18 @@ describe('lib/eas', () => {
 
       expect(result.uid).toBe(validUid);
       expect(result.txHash).toBe(validTxHash);
-      expect(mockEASInstance.connect).toHaveBeenCalled();
-      expect(mockEASInstance.attest).toHaveBeenCalled();
+      expect(mockEASInstance.connect).toHaveBeenCalledWith(
+        expect.objectContaining({ address: '0xSignerAddress' }),
+      );
+      expect(mockEASInstance.attest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          schema: '0x' + 'c'.repeat(64),
+          data: expect.objectContaining({
+            revocable: false,
+            data: '0xencoded',
+          }),
+        }),
+      );
     });
   });
 });

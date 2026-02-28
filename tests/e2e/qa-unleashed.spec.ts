@@ -240,7 +240,7 @@ test.describe('OCE-341: Bout replay hero section', () => {
     const reactionBadges = hero.locator('text=/🔥|♥/');
     const badgeCount = await reactionBadges.count();
     // The most-reacted bout should show at least one reaction badge
-    expect(badgeCount).toBeGreaterThanOrEqual(0);
+    expect(badgeCount).toBeGreaterThan(0);
   });
 
   test('different bout also shows hero', async ({ page }) => {

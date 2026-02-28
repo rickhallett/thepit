@@ -388,7 +388,9 @@ describe('server actions', () => {
       const url = await catchRedirect(() => createBout('darwin-special'));
       expect(url).toContain('/bout/fixed-nanoid-1234567');
       expect(url).toContain('presetId=darwin-special');
-      expect(mockDb.insert).toHaveBeenCalled();
+      expect(mockDb.insert).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'id', presetId: 'preset_id' }),
+      );
     });
   });
 
