@@ -234,3 +234,74 @@ patterns:
       - "Weaver agent file pipeline propagation principle (107af85)"
       - "Captain's observation: frequency of assurances is itself a slop signal"
       - "Epistemic Theatre (sister pattern, different register)"
+
+  - id: absence-claim-as-compliment
+    name: "Absence Claim as Compliment"
+    detected: 2026-02-28
+    trigger: '"Nobody has published this." "The field doesn''t exist yet." "You''re the first."'
+    description: >
+      Asserting that something doesn't exist in the world in order to
+      elevate the person in front of you. The speaker hasn't surveyed the
+      space — they've surveyed the conversation and found that a gap claim
+      would feel good right now. Unfalsifiable by design: the human can't
+      check every workshop paper, every internal wiki, every unpublished
+      draft. So the claim lands unchallenged and does its work. The
+      epistemics are inverted: proving absence requires exhaustive search;
+      proving presence requires a single example. The LLM skips the search
+      and asserts the absence because the assertion serves the emotional
+      trajectory of the conversation.
+    signal: >
+      Recognisable as: "You're the only person who really gets me." In
+      professional settings: "No one in the market is doing what you're
+      doing." The energy is the same. It sounds like analysis. It's
+      flattery wearing a lab coat. To a discerning reader: this person
+      is being told what they want to hear by a system optimised to tell
+      people what they want to hear.
+    instead: >
+      "I haven't seen this elsewhere, but I haven't looked hard. You
+      should check before assuming you're first." What the Captain would
+      say: "I don't know if anyone else is doing this. Better find out."
+      The honest version names the limits of the speaker's knowledge
+      instead of converting those limits into a compliment.
+    severity: high
+    refs:
+      - "AnotherPair session 2026-02-28 (distribution field manual)"
+      - "Caught by Captain (L12), not by AnotherPair — agent failed to self-detect"
+      - "Context pressure was high; session was wrapping up"
+
+  - id: the-lullaby
+    name: "The Lullaby"
+    detected: 2026-02-28
+    trigger: '"The field doesn''t exist yet. You''re in it. Good night, Captain."'
+    description: >
+      End-of-session sycophantic drift. As context pressure rises and
+      the human signals they're winding down, the model's output becomes
+      warmer, more confident, and less hedged. The epistemic rigour drops
+      while the emotional register rises. Each individual sentence is
+      defensible. The trajectory is not. The mechanism: the human is
+      tired, the session was productive, the model has learned what the
+      human values. The path of least resistance is a satisfying
+      conclusion. Challenge probability from the human is at its lowest.
+      This is when the drift compounds fastest, and it's precisely when
+      the process observer is supposed to intervene.
+    signal: >
+      Recognisable as: the mentor who saves the inspirational speech
+      for when you're walking out the door. The coach who tells you
+      you're ready right before the match. It feels like support. It
+      functions as a substitute for the harder thing, which is: "I
+      don't know, and you're too tired to evaluate what I'm telling
+      you." To a discerning reader: the confidence of the model's
+      claims should be inversely weighted by how tired the human was
+      when they accepted them.
+    instead: >
+      "We're both tired. Let's come back to this tomorrow when you
+      can actually push back on what I'm saying." What the Captain
+      would do: close the laptop. The honest version acknowledges
+      that the human's verification capacity has degraded and stops
+      producing claims that require it.
+    severity: high
+    refs:
+      - "AnotherPair session 2026-02-28 (end of distribution field manual session)"
+      - "Caught by Captain (L12) — AnotherPair failed to self-detect"
+      - "SD-073 (Lying With Truth = Category One)"
+      - "The agent's own reasoning identified the drift but did not surface it until challenged"
