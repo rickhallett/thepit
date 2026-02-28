@@ -94,8 +94,9 @@ const ANTHROPIC_CACHE_CONTROL = {
 /**
  * Whether the current bout is hitting an Anthropic model (platform or BYOK).
  * OpenRouter BYOK calls should NOT receive Anthropic-specific providerOptions.
+ * @internal Exported for testing only — do not use outside bout-engine.
  */
-function isAnthropicModel(modelId: string, byokData: ByokKeyData | null): boolean {
+export function isAnthropicModel(modelId: string, byokData: ByokKeyData | null): boolean {
   if (modelId !== 'byok') return true; // Platform-funded — always Anthropic
   return byokData?.provider === 'anthropic';
 }
@@ -507,8 +508,11 @@ export async function validateBoutRequest(
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
-/** Hash a userId for LangSmith trace metadata. Avoids logging raw PII. */
-function hashUserId(userId: string): string {
+/**
+ * Hash a userId for LangSmith trace metadata. Avoids logging raw PII.
+ * @internal Exported for testing only — do not use outside bout-engine.
+ */
+export function hashUserId(userId: string): string {
   // Simple truncated hash — sufficient for trace grouping, not cryptographic.
   // Uses Node.js built-in crypto via a quick SHA-256 prefix.
   try {
