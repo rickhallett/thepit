@@ -49,24 +49,24 @@ export const MONTHLY_CREDITS_PASS = Number(
 export const MONTHLY_CREDITS_LAB = Number(
   process.env.MONTHLY_CREDITS_LAB ?? '600',
 );
-export const TOKEN_CHARS_PER = Number(
+const TOKEN_CHARS_PER = Number(
   process.env.CREDIT_TOKEN_CHARS_PER ?? '4',
 );
-export const OUTPUT_TOKENS_PER_TURN = Number(
+const OUTPUT_TOKENS_PER_TURN = Number(
   process.env.CREDIT_OUTPUT_TOKENS_PER_TURN ?? '120',
 );
-export const INPUT_FACTOR = Number(
+const INPUT_FACTOR = Number(
   process.env.CREDIT_INPUT_FACTOR ?? '5.5',
 );
 
 export const BYOK_ENABLED = process.env.BYOK_ENABLED === 'true';
-export const BYOK_FEE_GBP_PER_1K_TOKENS = Number(
+const BYOK_FEE_GBP_PER_1K_TOKENS = Number(
   process.env.BYOK_FEE_GBP_PER_1K_TOKENS ?? '0.0002',
 );
-export const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
+const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
 
 /** GBP/USD exchange rate used for pricing conversions. */
-export const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
+const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
 
 // Base GBP prices per million tokens. These are intentionally set above raw
 // API cost to maintain headroom. CREDIT_PLATFORM_MARGIN (default 10%) is
@@ -107,7 +107,7 @@ export const estimateTokensFromText = (text: string, min = 0) =>
  *  Computed from the merged MODEL_PRICES_GBP map so env overrides apply. */
 const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP[MODEL_IDS.HAIKU]!;
 
-export const getModelPricing = (modelId: string) => {
+const getModelPricing = (modelId: string) => {
   const pricing = MODEL_PRICES_GBP[modelId];
   if (!pricing) {
     // Fall back to cheapest model pricing so unrecognized models are never free.
@@ -118,7 +118,7 @@ export const getModelPricing = (modelId: string) => {
   return pricing;
 };
 
-export const estimateBoutTokens = (
+const estimateBoutTokens = (
   turns: number,
   outputTokensPerTurn = OUTPUT_TOKENS_PER_TURN,
 ) => {

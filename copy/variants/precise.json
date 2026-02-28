@@ -448,16 +448,6 @@
     "ctaPrimary": "API Documentation",
     "ctaSecondary": "CLI Toolchain"
   },
-  "darwinCountdown": {
-    "label": "Darwin Day",
-    "liveTitle": "System operational.",
-    "liveDescription": "The Pit launched on Darwin Day 2026. Configure evaluation protocol and access arena.",
-    "countdownTitle": "Launch countdown",
-    "days": "Days",
-    "hours": "Hours",
-    "minutes": "Minutes",
-    "seconds": "Seconds"
-  },
   "rateLimit": {
     "defaultError": "Rate limit exceeded.",
     "resetsIn": "Resets in",

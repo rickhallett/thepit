@@ -286,21 +286,6 @@ export interface BuilderShowcaseCopy {
 }
 
 // ---------------------------------------------------------------------------
-// Darwin countdown (components/darwin-countdown.tsx)
-// ---------------------------------------------------------------------------
-
-export interface DarwinCountdownCopy {
-  label: string;
-  liveTitle: string;
-  liveDescription: string;
-  countdownTitle: string;
-  days: string;
-  hours: string;
-  minutes: string;
-  seconds: string;
-}
-
-// ---------------------------------------------------------------------------
 // Rate limit upgrade prompt (components/rate-limit-upgrade-prompt.tsx)
 // ---------------------------------------------------------------------------
 
@@ -829,7 +814,6 @@ export interface CopySchema {
   cookieConsent: CookieConsentCopy;
   newsletter: NewsletterCopy;
   builderShowcase: BuilderShowcaseCopy;
-  darwinCountdown: DarwinCountdownCopy;
   rateLimit: RateLimitCopy;
   presetCard: PresetCardCopy;
   arenaBuilderComponent: ArenaBuilderComponentCopy;

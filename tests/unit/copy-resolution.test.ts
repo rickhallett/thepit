@@ -61,7 +61,7 @@ describe('Copy Resolution', () => {
       const expectedKeys: (keyof CopySchema)[] = [
         'meta', 'hero', 'howItWorks', 'featuredPresets', 'researchLayer',
         'pricing', 'arena', 'arenaBuilderPage', 'arenaComponent', 'nav',
-        'cookieConsent', 'newsletter', 'builderShowcase', 'darwinCountdown',
+        'cookieConsent', 'newsletter', 'builderShowcase',
         'rateLimit', 'presetCard', 'arenaBuilderComponent', 'agentBuilder',
         'agents', 'agentDetail', 'agentNew', 'agentClone', 'recentBouts',
         'leaderboard', 'researchPage', 'developers', 'roadmap', 'feedback',

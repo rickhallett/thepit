@@ -437,16 +437,6 @@
     "ctaPrimary": "API Reference",
     "ctaSecondary": "CLI Toolchain"
   },
-  "darwinCountdown": {
-    "label": "Darwin Day",
-    "liveTitle": "It's live.",
-    "liveDescription": "The Pit launched on Darwin Day 2026. Pick a condition and enter the arena.",
-    "countdownTitle": "Countdown to launch",
-    "days": "Days",
-    "hours": "Hours",
-    "minutes": "Minutes",
-    "seconds": "Seconds"
-  },
   "rateLimit": {
     "defaultError": "You've hit the rate limit.",
     "resetsIn": "Resets in",

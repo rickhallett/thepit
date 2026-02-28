@@ -64,7 +64,7 @@ describe('Copy Schema Validation', () => {
     const expectedKeys = [
       'meta', 'hero', 'howItWorks', 'featuredPresets', 'researchLayer',
       'pricing', 'arena', 'arenaBuilderPage', 'arenaComponent', 'nav',
-      'cookieConsent', 'newsletter', 'builderShowcase', 'darwinCountdown',
+      'cookieConsent', 'newsletter', 'builderShowcase',
       'rateLimit', 'presetCard', 'arenaBuilderComponent', 'agentBuilder',
       'agents', 'agentDetail', 'agentNew', 'agentClone', 'recentBouts',
       'leaderboard', 'researchPage', 'developers', 'roadmap', 'feedback',

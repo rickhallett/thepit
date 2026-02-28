@@ -97,10 +97,63 @@ items:
       (2) LLM pass for semantic zombies (functions that exist but are superseded, tests that assert tautologies,
       over-abstracted patterns that could be flattened), (3) Captain review on results.
       Scope is thepit.cloud app code (app/, lib/, components/, db/) and pit* Go CLIs.
-      This is make-it-right after make-it-work. Failing to clean is hiring_signal=-1 —
-      the thesis is disciplined agentic engineering, zombie code in the repo contradicts it at the artifact level.
-      Output should be actionable report with file-level findings, not a vague "could be cleaner."
+      Completed: PRs #381-384 (dead modules, test tautologies, security fixes, brand normalization).
+      Cross-model review (4 independent reviewers) verified remaining findings; false positives caught
+      (agent-links.ts, agent-lineage.ts alive not dead). Remaining items filed as separate hold entries.
+    added: 2026-02-28
+    status: done
+    priority: high
+    tags: [dark]
+
+  - id: agent-prompts-refactor
+    idea: >-
+      lib/agent-prompts.ts is a thin pass-through wrapper to xml-prompt.ts with 3 consumers.
+      Consider inlining or removing the indirection layer. Low priority refactor.
     added: 2026-02-28
     status: hold
-    priority: high
+    tags: []
+
+  - id: bare-toHaveBeenCalled-assertions
+    idea: >-
+      ~10 test assertions use bare .toHaveBeenCalled() without verifying arguments.
+      Files: actions.test.ts, actions-happy.test.ts, tier.test.ts, eas.test.ts.
+      Strengthen to .toHaveBeenCalledWith() for more meaningful assertions.
+    added: 2026-02-28
+    status: hold
+    tags: [dark]
+
+  - id: skipped-integration-tests
+    idea: >-
+      21 integration tests are conditionally gated (require DB connection).
+      They always skip in CI. Not a defect — by design — but inflates apparent test count.
+      Consider documenting or separating test count reporting.
+    added: 2026-02-28
+    status: hold
+    tags: [dark]
+
+  - id: env-test-drift
+    idea: >-
+      tests/unit/env.test.ts tests a reconstructed schema rather than importing the real one.
+      Risk: schema drifts from actual env.ts without test catching it.
+      Consider importing real schema or adding a structural equality check.
+    added: 2026-02-28
+    status: hold
+    tags: [dark]
+
+  - id: unsafe-pattern-xss-gaps
+    idea: >-
+      lib/validation.ts UNSAFE_PATTERN regex does not cover vbscript:, data:application/xhtml+xml,
+      or HTML entity encoded payloads. Low probability attack vector for this product but
+      valid security hardening if revisiting validation layer.
+    added: 2026-02-28
+    status: hold
+    tags: [dark]
+
+  - id: anonymization-salt-hardening
+    idea: >-
+      lib/research-anonymize.ts line 18 has a fixed fallback salt ('thepit-research-default-salt')
+      in non-production. Production correctly throws if env var is unset. Dev fallback is
+      acceptable for local development but should be documented as intentional.
+    added: 2026-02-28
+    status: hold
     tags: [dark]

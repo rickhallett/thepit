@@ -7,6 +7,11 @@
 # Maintained by the Captain and crew. Entries are added when caught
 # in the wild.
 #
+# This file is the single source of truth for the oceanheart Hugo site's
+# /slopodar/ section. The Makefile sync target copies it into
+# sites/oceanheart/data/slopodar.yaml and generates content stubs from it.
+# Do not move or rename without updating sites/oceanheart/Makefile.
+#
 # Format:
 #   - id: short kebab-case identifier
 #     name: human-readable name
