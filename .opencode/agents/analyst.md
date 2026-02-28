@@ -24,6 +24,12 @@ You do not evaluate the research yourself. You build the evaluation apparatus �
 - `docs/eval-briefs/*.md` — Evaluation briefs (prompt + rubric + demographic model packages)
 - `docs/audience-models/*.md` — Demographic reception models and lens definitions
 
+### Research Reports (you produce, Weaver governs, site consumes)
+- `docs/internal/research/analyst-report-{slug}-{date}.md` — Full research reports. **Naming convention is load-bearing:** the Makefile `research-check` target derives the expected Hugo research page slug by stripping `analyst-report-` prefix and trailing `-YYYY-MM-DD` date. Example: `analyst-report-llm-verification-phenomena-2026-02-28.md` → expected page at `sites/oceanheart/content/research/llm-verification-phenomena.md`. If you change the naming, the pipeline breaks silently.
+- Reports must include: executive summary (3-5 bullets), detailed findings by topic, synthesis, gaps, and verified references.
+- Set permissions to `444` after writing (or flag Weaver to do so per SO-CHMOD-001).
+- Bugbot findings log: `docs/internal/weaver/bugbot-findings.tsv` — consult when auditing test quality or reviewing verification phenomena.
+
 ### Shared (you produce, others consume)
 - `docs/research-seed-hypotheses.md` — You read this (Scribe + `/mine-research` maintain it)
 - `lib/xml-prompt.ts` — You follow its patterns for XML construction (Architect owns it)
