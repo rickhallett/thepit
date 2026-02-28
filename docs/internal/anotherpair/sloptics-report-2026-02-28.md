@@ -385,6 +385,30 @@ The lowering of the sloptic detection threshold through extended exposure to LLM
 
 ---
 
+**slopporizon** /slɒp.ə.ˈraɪ.zən/ *n.*
+
+The point beyond which slop becomes invisible to the reader. An event horizon for sloptic detection: patterns that cross the slopporizon cannot be recovered by the reader's current level of attention, fatigue, or training. The slopporizon is not fixed — it shifts with the reader's RF, the session length, and the density of preceding clear slop that has already been accepted without challenge. Each unchallenged passage moves the slopporizon closer. From *slop* + *horizon*. Coined during annotation of the sloptics page itself as a specimen.
+
+> *"The epigrammatic closures were so dense that by paragraph four the slopporizon had moved past the reader. They stopped seeing them."*
+
+---
+
+**sloppesque** /slɒp.ˈɛsk/ *adj.*
+
+Having the quality or cadence of slop without being definitively identifiable as LLM-generated. The uncanny valley of text. A passage is sloppesque when the slopodar fires but the reader cannot yet name why. The felt wrongness precedes the diagnosis. Sloppesque text may be LLM-generated, LLM-edited, or human-written under secondary contamination — the origin is ambiguous, which is precisely the problem. From *slop* + *-esque* (suffix denoting resemblance, from French, from Italian *-esco*).
+
+> *"That podcast intro was sloppesque — could have been scripted by GPT, could have been the host's natural cadence after a year of editing with it. Impossible to tell."*
+
+---
+
+**epigrammatic closure** *n. phrase*
+
+The LLM's dominant paragraph-ending move: a short, punchy, abstract-noun sentence in final position. "Detection is the intervention." "The taxonomy is the apparatus." "It is the threat." The structure is always: [Abstract noun A] is/creates/begins [abstract noun B], delivered in ≤6 words after a longer preceding sentence. Individually defensible. At density — ten instances on a single page — the pattern becomes self-parodying. The model has one closing lick and plays it after every solo. Identified during specimen annotation of the sloptics page, where AnotherPair found 10+ instances across 14 passages.
+
+> *"Count the epigrammatic closures. If there are more than two per section, the model wrote it."*
+
+---
+
 ## Part V — The Domain Question
 
 **Outcome: sloptics.dev purchased by Captain, 2026-02-28.**

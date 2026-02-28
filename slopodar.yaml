@@ -79,6 +79,8 @@ patterns:
     refs:
       - "SD-209 (slopodar.yaml header comment)"
       - "sites/oceanheart/layouts/_default/slopodar.html (page description)"
+      - "Sloptics page specimen: 'Nothing was theorised in advance.' — slopodar #2 on the sloptics page itself"
+      - "Sloptics page specimen: 'The mapping is structural, not metaphorical.' — structural already implies not metaphorical"
 
   - id: epistemic-theatre
     name: "Epistemic Theatre"
@@ -305,3 +307,111 @@ patterns:
       - "Caught by Captain (L12) — AnotherPair failed to self-detect"
       - "SD-073 (Lying With Truth = Category One)"
       - "The agent's own reasoning identified the drift but did not surface it until challenged"
+
+  - id: nominalisation-cascade
+    name: "Nominalisation Cascade"
+    detected: 2026-02-28
+    trigger: '"Sloptics is the discipline of making the second failure mode visible."'
+    description: >
+      The LLM constructs sentences entirely from nouns pretending to be
+      action. "The discipline" (noun). "Of making" (gerund — verb forced
+      into noun service). "The second failure mode" (noun phrase).
+      "Visible" (adjective functioning as noun complement). No agent does
+      anything. Nobody sees. Nobody detects. The sentence describes a
+      process from which all actors have been removed. It is a textbook
+      definition, and textbook definitions are what LLMs produce when
+      asked to explain — because the training data is full of them. The
+      cadence is metrically regular — too rhythmically even for natural
+      speech. Natural speech stumbles, clusters, pauses. This sentence
+      glides. The glide is the uncanny valley.
+    signal: >
+      To a discerning reader: this was not written by someone who
+      understands the thing they are describing. It was written by
+      something that has seen many descriptions of things and can
+      produce a structurally similar one. The absence of a human
+      actor in the sentence mirrors the absence of a human
+      understanding behind it.
+    instead: >
+      Put a person in the sentence. "You learn to see the stuff that
+      gets past you." "It teaches you to notice what you'd normally
+      accept." A human explaining something they genuinely understand
+      puts themselves or the listener in the frame. A model explaining
+      something it has pattern-matched removes all actors and presents
+      a static definition.
+    severity: high
+    refs:
+      - "Sloptics page specimen annotation, 2026-02-28"
+      - "Caught by Captain (L12) — 'its missing that human weirdness, variance, error'"
+      - "Metrically regular cadence identified by AnotherPair"
+
+  - id: epigrammatic-closure
+    name: "Epigrammatic Closure (Poster Child)"
+    detected: 2026-02-28
+    trigger: '"detection is the intervention." / "The taxonomy is the apparatus." / "It is the threat." / "Detection begins at defusion."'
+    description: >
+      The LLM's dominant paragraph-ending move: a short, punchy,
+      abstract-noun sentence in final position. The structure is always
+      [Abstract noun A] is/creates/begins [abstract noun B], delivered
+      in four to six words after a longer preceding sentence. A
+      motivational poster cadence. Individually defensible. At density —
+      ten instances on a single page — the pattern becomes self-parodying.
+      The model has one closing lick and plays it after every solo. May
+      be a statistical artifact of autoregressive generation: as context
+      accumulates through a paragraph, the token probability distribution
+      narrows, and the model converges on the lowest-entropy conclusion.
+      Short, balanced, abstract sentences are probability attractors —
+      the most predictable thing the model could say given everything
+      before. The profundity is an artifact of convergence, not a
+      stylistic choice.
+    signal: >
+      Count the epigrammatic closures. If there are more than two per
+      section, the model wrote it. A human who felt a genuine insight
+      would say it messily — with qualifications, false starts, or
+      self-correction. The four-word epigram is polished smooth.
+      Frictionless. And frictionless means the reader's attention slides
+      off it without engaging. It sounds like it means something. It
+      performs meaning.
+    instead: >
+      Leave the rough edges. "I think what I'm saying is that if you
+      can name it, you can probably see it. Maybe. I'm not sure that's
+      always true but it's been true so far." A human insight arrives
+      with its own uncertainty still attached.
+    severity: high
+    refs:
+      - "Sloptics page specimen annotation, 2026-02-28"
+      - "10+ instances identified on a single page by AnotherPair"
+      - "Captain identified statistical variance convergence hypothesis"
+      - "Four-word abstract-noun epigram / motivational poster cadence"
+
+  - id: anadiplosis
+    name: "Anadiplosis"
+    detected: 2026-02-28
+    trigger: '"The name creates distance. The distance creates choice."'
+    description: >
+      Repeating the end of one clause at the start of the next.
+      Aristotle documented this figure. It once had genuine rhetorical
+      force — the repetition creates a chain of causation that pulls the
+      reader forward. In LLM output it appears with such regularity that
+      it is burned. The construction performs profundity: A creates B,
+      B creates C. The chain feels inevitable. But inevitability is not
+      the same as truth. The chain is assembled from the most probable
+      next tokens, not from causal reasoning. A human who felt this
+      insight would say it messily.
+    signal: >
+      Two sentences, matched length, hinge word repeated. The
+      symmetry is the tell. In human speech, genuine chains of
+      causation are rarely this neat. Causes have multiple effects.
+      Effects have multiple causes. The model collapses this
+      complexity into a clean A→B→C chain because clean chains are
+      higher-probability sequences.
+    instead: >
+      "Naming things gives you distance from them, and that distance
+      is where you get room to think." One sentence. The causation is
+      present but the symmetry is broken. A human would not split
+      this into two perfectly balanced clauses unless they were
+      writing a speech.
+    severity: medium
+    refs:
+      - "Sloptics page specimen annotation, 2026-02-28"
+      - "Captain: 'a human who felt this insight would say it messily'"
+      - "Classical rhetoric (Aristotle) — burned through LLM overuse"
