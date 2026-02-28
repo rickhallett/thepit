@@ -171,8 +171,8 @@ function validateEnv(): ServerEnv {
     return serverEnvSchema.parse({
       ...process.env,
       DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost/dev',
-      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || 'sk-ant-dev-placeholder',
-      CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || 'sk_test_placeholder',
+      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || 'not-set',
+      CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || 'not-set',
     });
   }
 
