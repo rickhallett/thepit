@@ -157,3 +157,14 @@ items:
     added: 2026-02-28
     status: hold
     tags: [dark]
+
+  - id: bout-engine-e2e-scenarios
+    idea: >-
+      Three Playwright E2E scenarios for bout-engine, parked from Architect spec convergence triage.
+      (1) Unauthenticated anonymous bout — SSE opens, agents render, intro pool updates, replay UI appears.
+      (2) Authenticated credit depletion — 1-credit user hits premium preset, 402 caught, "Top Up" modal shown.
+      (3) BYOK passthrough — mock OpenRouter key, bout streams, internal credit balance unchanged.
+      Reactivate when E2E testing is unpaused (currently paused during iteration phase per standing orders).
+    added: 2026-02-28
+    status: hold
+    tags: [dark]
