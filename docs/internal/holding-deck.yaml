@@ -78,6 +78,18 @@ items:
     status: hold
     tags: [dark]
 
+  - id: agent-boot-audit
+    idea: >-
+      Audit all agent files (.Claude/agents/*.md) and simulate each agent's understanding
+      when waking from boot. Do they have what they need from AGENTS.md + their own definition?
+      Have we provided them a look-up reference map for anything they might want to look up
+      that is not already defined in their operational context? Evaluate from each agent's POV —
+      what would Sentinel need that isn't in AGENTS.md? What would Watchdog reach for?
+      Cross-reference against docs/internal/ file index and identify gaps.
+    added: 2026-02-28
+    status: hold
+    tags: []
+
   - id: zombie-code-audit
     idea: >-
       Static analysis + LLM analysis + human review on 119k codebase.

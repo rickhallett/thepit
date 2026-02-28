@@ -2,7 +2,7 @@
 
 > The Map Is Not The Territory (SD-162, Lexicon v0.7 line 67).
 > This map improves through empirical soundings, not inference.
-> Version: 0.3 (28 Feb 2026 — 18 evidence annotations from SD-195→SD-206 + post-compaction observations + metacognitive analysis)
+> Version: 0.2 (refined 25 Feb 2026 from Captain's rubric + session data)
 
 Read bottom-up for data flow, top-down for control flow.
 Format: `LAYER | primitives | interface_to_next_layer`
@@ -25,14 +25,11 @@ L2  ATTENTION       | self_attention · kv_cache · attention_dilution · quadra
                    | >> produces: contextualised_representations per token position
                    | DIVERGENCE: attention weights are not observable by model or human. degradation is felt, not measured.
 
-L3  CONTEXT_WINDOW | utilisation(tokens_used/max) · saturation_point · lost_in_the_middle · primacy_bias · recency_bias · recovery_asymmetry
+L3  CONTEXT_WINDOW | utilisation(tokens_used/max) · saturation_point · lost_in_the_middle · primacy_bias · recency_bias
     DYNAMICS       | needle_in_haystack_degradation · diminishing_marginal_returns · effective_context < advertised_context
                    | compaction(human_controllable=true, automatic=true, 0_to_200k_range, SD-160)
                    | Model experiences these effects but CANNOT measure them. No introspective token counter exists.
                    | Human CAN trigger compaction deliberately at any point — a controllable lever, not only a weather event.
-                   | [EVIDENCE: 76% reduction in L3 budget from depth-1 file consolidation. Direct relationship: L8 file count → L3 pressure (SD-195)]
-                   | RECOVERY ASYMMETRY: loaded context (structured recovery files) ≠ accumulated context (conversation) at identical token counts. Recovery content is high-signal, pre-compressed. Conversational content is mixed signal + anchoring residue. [Post-compaction observation 1]
-                   | PHASE TRANSITION: compaction is discontinuous, not a gradient. One tick: 200k tokens. Next tick: recovery tokens only. L3 has both continuous degradation (within window) and discrete phase transitions (compaction events). [Post-compaction obs. 5]
                    | >> produces: degraded retrieval accuracy, shifted attention weights (invisible to model)
                    | DIVERGENCE: model and human experience context pressure differently. model cannot self-report.
                    | CONVENTION: kTok in YAML HUD is the human's external estimate, not the model's self-knowledge.
@@ -50,7 +47,6 @@ L5  API            | request(messages[]) · response(content, usage{input_tokens
                    | cache_read_tokens · cache_creation_tokens — empirical: 95.4% of all tokens are cache reads (SD-164).
                    | >> produces: structured_response + metadata to harness
                    | ATTESTATION: token counts are exact. costs are deterministic. the only fully calibrated layer.
-                   | [ENRICHMENT: L5 is the calibration layer for compaction events — only layer where recovery cost is exact (token count from harness). All other layers' compaction costs are inferred. (Post-compaction obs. 3)]
 
 L6  HARNESS        | opencode · claude_code · session_mgmt · cumulative_token_tracking · tool_registry · subagent_dispatch
                    | The orchestration layer. Accumulates token counts, manages tool calls, dispatches subagents.
@@ -62,15 +58,13 @@ L6  HARNESS        | opencode · claude_code · session_mgmt · cumulative_token
                    | L6b DISPATCH : subagents running. human inputs queue (FIFO, visible in UI).
                    |                human authority is deferred until queue drains. different control granularity.
                    | L6c OVERRIDE : double-escape. hardware-level kill. always available. redundancy layer.
-                   | L6d BYPASS  : file-mediated human↔agent state outside the harness (.keel-state, session files).
-                   |               Agent writes to filesystem, human terminal reads. Bypasses L0-L5 entirely. [SD-198]
                    |
                    | ALSO INJECTS: system_reminders, tool_schemas, context_management_instructions.
                    | These injections are OPAQUE to L12 — human cannot see what was added to model's context
                    | unless model discloses it (reasoning tokens, SD-162) or harness renders it.
                    |
                    | >> produces: tool_calls[], subagent_prompts[], context_management_decisions, injected_instructions
-                   | DIVERGENCE: L6 mediates all harness-mediated communication between L12 and L0-L5. Out-of-band bypass (L6d) exists. [SD-198]
+                   | DIVERGENCE: L6 mediates ALL communication between L12 and L0-L5.
                    |             Neither side can verify what L6 adds, removes, or transforms.
                    |             The harness is open-source (opencode) — code inspection is possible but not routine.
 
@@ -80,14 +74,10 @@ L7  TOOL_CALLING   | function_schema · tool_result_injection · parallel_dispat
                    | >> produces: tool_results[] → appended to context → re-enters at L1
                    | CONVENTION: tool results are the model's only empirical contact with the filesystem, git, and runtime.
                    |             "Do not infer what you can verify" (AGENTS.md) — tools are the verification channel.
-                   | ENRICHMENT: git as audit channel, not only write tool. Commit trailers make git log a queryable record of system state. L7 results persist beyond the context window that created them. [SD-203]
 
 L8  AGENT_ROLE     | system_prompt · role_definition_file · grounding_instructions · persona_constraints
                    | Occupies high-attention positions (primacy bias, L3). Shapes all downstream generation.
-                   | [EVIDENCE: stale L8 entries consume attention budget without signal — pruning ghost crew reduced noise floor (SD-196)]
                    | Role fidelity degrades over long contexts (L3). Structural instructions resist drift > ornamental.
-                   | [EVIDENCE: named conventions (e.g. triage table muster) compress O(n) communication to O(1) per row at L12 (SD-202, SD-180)]
-                   | SATURATION THRESHOLD: excessive L8 loading degrades L4 output quality. More role content is not monotonically better. [arXiv:2602.11988 — unnecessary context files reduce task success +20% inference cost (SD-195)]
                    | >> produces: behavioural_constraints on generation (L4)
                    | CONVENTION: the Lexicon, Standing Orders, YAML HUD — all operate at L8.
                    |             They are structural instructions designed to resist drift.
@@ -96,11 +86,8 @@ L8  AGENT_ROLE     | system_prompt · role_definition_file · grounding_instruct
 L9  THREAD         | accumulated_prior_outputs · position_trail · anchoring · consistency_pressure · context_compaction
     POSITION       | sycophancy_risk · authority_compliance · acquiescence_bias · goodharts_law_on_probes
                    | The model's outputs become part of its input on the next turn. Self-reinforcing loop.
-                   | Anchoring increases monotonically within a context window. Cannot be fully reset without new context window.
-                   | [CAVEAT: "monotonically increasing" is incomplete. State externalisation + context death = soft reset with preserved facts. Facts survive, anchoring resets partially — not to zero (SD-200)]
-                   | [CAVEAT: recovery anchoring is partial, not clean slate. Reading 200+ SDs re-establishes position biases from written record. Weaker than generated-in-context anchoring, but not absent. (Post-compaction obs. 2)]
+                   | Anchoring increases monotonically with thread length. Cannot be reset without new context window.
                    | BUT: compaction can be triggered deliberately by L12 (SD-160), partially resetting L9.
-                   | Position trail externalised to immutable git via commit trailers. `git log --grep` recovers L9 trail from any future context. L9 becomes auditable post-mortem. [SD-203]
                    | >> produces: progressively_constrained_generation_space
                    | DIVERGENCE: fair-weather consensus (Lexicon v0.7) — when agreement accumulates without dissent,
                    |             magnitude escalation occurs without proportional red-light checks.
@@ -109,7 +96,6 @@ L9  THREAD         | accumulated_prior_outputs · position_trail · anchoring ·
 L10 MULTI_AGENT    | same_model_ensemble · prompt_variation · model_homogeneity · correlated_blind_spots
                    | N agents from same model ≠ N independent evaluators. Precision increases, accuracy does not.
                    | Unanimous agreement is consistency, not validation. Systematic bias compounds, not cancels.
-                   | [WARNING: self-review is the degenerate case (N=1 ensemble), not an edge case. slopodar header (SD-201) is structural confession. Self-review ≠ independent verification.]
                    | >> produces: high_precision_low_accuracy_consensus (if single model family)
                    | ATTESTATION: RT L3-L5 results (11/11 ship, then reversal test, then fresh control) are on file.
                    |              Methodology and limitations documented. Reproducible with different models (L11).
@@ -123,16 +109,10 @@ L11 CROSS_MODEL    | different_priors · different_inductive_bias · different_r
 L12 HUMAN_IN_LOOP  | captains_walkthrough · manual_qa · domain_expertise · tacit_knowledge · irreducible_uncertainty
                    | reasoning_token_observation · intent_verification · rubric_provision · compaction_control
                    | The only truly model-independent layer. 5hrs human QA > 1102 automated tests (empirically demonstrated).
-                   | [EVIDENCE: arXiv:2602.11988 — context pollution degrades human O(1)→O(n). 52→7 file reduction restored O(1) triage (SD-195)]
                    | Cannot be scaled. Cannot be automated. Cannot be replaced. Can be informed by L0-L11.
-                   | L12 also functions as out-of-band backup storage when L3 fails. Captain restored layer model annotations from memory after compaction (SD-205). L12 is not only decision + verification — it is state persistence of last resort.
                    | The human's experience of the system is: terminal_input → wait → read_response → terminal_input.
                    | The human's instruments: reasoning tokens (L4→L6 render), response text, git diff, Vercel dashboard,
                    |   PostHog (consent-gated), token consumption reports (unverified source, SD-164).
-                   |   terminal HUD (persistent state observation without L3 cost, SD-197).
-                   | TRAINED CAPACITY: L12 is trained wetware, not static hardware. Reflective functioning varies with training modality
-                   |   (contemplative practice, therapy, structured reflection) and conditions (fatigue, emotional arousal, cognitive load —
-                   |   Fonagy & Luyten, 2009). Different human at L12 = different performance peaks + failure modes. [Metacognitive analysis]
                    | >> produces: the_decision
                    | ATTESTATION: the human is the first data point (SD-161). the rubric is empirical.
                    |              everything the model "knows" about L12 was inference until the Captain provided data.
