@@ -477,19 +477,21 @@ describe('validateBoutRequest', () => {
         configurable: true,
       });
 
-      const req = makeRequest({ boutId: 'b1', presetId: 'darwin-special' });
-      const result = await validateBoutRequest(req);
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.status).toBe(503);
+      try {
+        const req = makeRequest({ boutId: 'b1', presetId: 'darwin-special' });
+        const result = await validateBoutRequest(req);
+        expect(result.ok).toBe(false);
+        if (!result.ok) {
+          expect(result.error.status).toBe(503);
+        }
+      } finally {
+        // Restore
+        Object.defineProperty(dbModule, 'requireDb', {
+          value: originalRequireDb,
+          writable: true,
+          configurable: true,
+        });
       }
-
-      // Restore
-      Object.defineProperty(dbModule, 'requireDb', {
-        value: originalRequireDb,
-        writable: true,
-        configurable: true,
-      });
     });
   });
 
@@ -1047,19 +1049,21 @@ describe('validateBoutRequest', () => {
       const tier = await import('@/lib/tier');
       Object.defineProperty(tier, 'SUBSCRIPTIONS_ENABLED', { value: false, writable: true });
 
-      // Explicit mock setup — V-42 must not rely on leaked state from prior tests
-      setupAuthHappyPath();
-      authMock.mockResolvedValue({ userId: 'user-1' });
+      try {
+        // Explicit mock setup — V-42 must not rely on leaked state from prior tests
+        setupAuthHappyPath();
+        authMock.mockResolvedValue({ userId: 'user-1' });
 
-      const req = makeRequest({ boutId: 'b1', presetId: 'darwin-special' });
-      const result = await validateBoutRequest(req);
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.context.modelId).toBe(MODELS.HAIKU);
+        const req = makeRequest({ boutId: 'b1', presetId: 'darwin-special' });
+        const result = await validateBoutRequest(req);
+        expect(result.ok).toBe(true);
+        if (result.ok) {
+          expect(result.context.modelId).toBe(MODELS.HAIKU);
+        }
+      } finally {
+        // Restore
+        Object.defineProperty(tier, 'SUBSCRIPTIONS_ENABLED', { value: true, writable: true });
       }
-
-      // Restore
-      Object.defineProperty(tier, 'SUBSCRIPTIONS_ENABLED', { value: true, writable: true });
     });
 
     it('V-43: canRunBout not allowed returns 402', async () => {
@@ -1229,18 +1233,20 @@ describe('validateBoutRequest', () => {
       const credits = await import('@/lib/credits');
       Object.defineProperty(credits, 'CREDITS_ENABLED', { value: false, writable: true });
 
-      const req = makeRequest({ boutId: 'b1', presetId: 'darwin-special' });
-      const result = await validateBoutRequest(req);
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.context.preauthMicro).toBe(0);
-        expect(result.context.introPoolConsumedMicro).toBe(0);
+      try {
+        const req = makeRequest({ boutId: 'b1', presetId: 'darwin-special' });
+        const result = await validateBoutRequest(req);
+        expect(result.ok).toBe(true);
+        if (result.ok) {
+          expect(result.context.preauthMicro).toBe(0);
+          expect(result.context.introPoolConsumedMicro).toBe(0);
+        }
+        expect(getIntroPoolStatusMock).not.toHaveBeenCalled();
+        expect(preauthorizeCreditsMock).not.toHaveBeenCalled();
+      } finally {
+        // Restore
+        Object.defineProperty(credits, 'CREDITS_ENABLED', { value: true, writable: true });
       }
-      expect(getIntroPoolStatusMock).not.toHaveBeenCalled();
-      expect(preauthorizeCreditsMock).not.toHaveBeenCalled();
-
-      // Restore
-      Object.defineProperty(credits, 'CREDITS_ENABLED', { value: true, writable: true });
     });
 
     it('V-55: research bypass skips all credit/pool gates', async () => {
