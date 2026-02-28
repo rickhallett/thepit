@@ -347,9 +347,7 @@
       {
         "label": "Recent",
         "href": "/recent"
-      }
-    ],
-    "overflow": [
+      },
       {
         "label": "Research",
         "href": "/research"
@@ -361,7 +359,9 @@
       {
         "label": "Roadmap",
         "href": "/roadmap"
-      },
+      }
+    ],
+    "overflow": [
       {
         "label": "Contact",
         "href": "/contact"
