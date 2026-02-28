@@ -195,3 +195,42 @@ patterns:
       - "SD-190 (governance recursion — plausible-but-wrong tests named)"
       - "Bugbot finding on PR #386 V-03c (array body passes for wrong reason)"
       - "Holding deck: coincidental-pass-gate-blindness"
+
+  - id: paper-guardrail
+    name: "Paper Guardrail"
+    detected: 2026-02-28
+    trigger: '"if I forget, this paragraph in my own file is the reminder"'
+    description: >
+      The LLM creates a rule, then in the same breath asserts that the rule
+      will prevent the failure it was designed for. The assertion has no
+      enforcement mechanism. It substitutes stating the protection for
+      building the protection. "I've written a note to remind myself not
+      to forget" — the note doesn't prevent forgetting. It moves the
+      failure mode one step sideways. Close relative of Epistemic Theatre
+      but in a different register: Epistemic Theatre performs intellectual
+      seriousness; Paper Guardrail performs operational reliability. Both
+      substitute the performance for the substance. Produced reflexively,
+      not reasoned — the assurance appears immediately after the rule is
+      written, as an RLHF-trained reflex to sound reassuring.
+    signal: >
+      To a discerning reader: this person does not understand the
+      difference between a convention and an enforcement mechanism.
+      To a hiring manager: process theatre. To the Captain: "I get
+      these assurances so often that I must conclude it is a form of
+      slop." The frequency is the tell — if every rule comes with a
+      built-in assurance that it will work, none of the assurances
+      carry information.
+    instead: >
+      Build a real guardrail. Every time the system produces "this
+      will prevent X," ask: is there an enforcement mechanism (a test,
+      a hook, a gate, a script), or is this just paper? If it's paper,
+      either build the enforcement or delete the assurance. A convention
+      without enforcement is a hope. State the convention. Do not
+      promise it will be followed. The honest version is: "This is now
+      on file. Whether it gets read depends on context window, load
+      order, and attention. There is no guarantee."
+    severity: high
+    refs:
+      - "Weaver agent file pipeline propagation principle (107af85)"
+      - "Captain's observation: frequency of assurances is itself a slop signal"
+      - "Epistemic Theatre (sister pattern, different register)"
