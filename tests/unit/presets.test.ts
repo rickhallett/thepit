@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   ALL_PRESETS,
-  FREE_PRESETS,
-  PREMIUM_PRESETS,
-  RESEARCH_PRESETS,
-  PRESET_BY_ID,
   ARENA_PRESET_ID,
   getPresetById,
 } from '@/lib/presets';
@@ -14,12 +10,12 @@ describe('presets', () => {
     expect(ARENA_PRESET_ID).toBe('arena');
   });
 
-  it('FREE_PRESETS has 11 presets', () => {
-    expect(FREE_PRESETS).toHaveLength(11);
-  });
-
-  it('ALL_PRESETS combines free and premium', () => {
-    expect(ALL_PRESETS.length).toBe(FREE_PRESETS.length + PREMIUM_PRESETS.length);
+  it('ALL_PRESETS has both free and premium presets', () => {
+    const freeCount = ALL_PRESETS.filter((p) => p.tier === 'free').length;
+    const premiumCount = ALL_PRESETS.filter((p) => p.tier === 'premium').length;
+    expect(freeCount).toBe(11);
+    expect(premiumCount).toBeGreaterThan(0);
+    expect(ALL_PRESETS.length).toBe(freeCount + premiumCount);
   });
 
   it('every preset has required fields', () => {
@@ -42,17 +38,17 @@ describe('presets', () => {
     }
   });
 
-  it('PRESET_BY_ID contains all user-facing presets', () => {
-    expect(PRESET_BY_ID.size).toBe(ALL_PRESETS.length + RESEARCH_PRESETS.length);
+  it('getPresetById resolves user-facing presets', () => {
     for (const preset of ALL_PRESETS) {
-      expect(PRESET_BY_ID.has(preset.id)).toBe(true);
+      expect(getPresetById(preset.id)).toBeDefined();
     }
   });
 
-  it('PRESET_BY_ID contains all research presets', () => {
-    for (const preset of RESEARCH_PRESETS) {
-      expect(PRESET_BY_ID.has(preset.id)).toBe(true);
-    }
+  it('getPresetById resolves research presets', () => {
+    // Research presets are not in ALL_PRESETS but are resolvable by ID
+    const reaBaseline = getPresetById('rea-baseline');
+    expect(reaBaseline).toBeDefined();
+    expect(reaBaseline!.id).toBe('rea-baseline');
   });
 
   it('getPresetById returns correct preset', () => {

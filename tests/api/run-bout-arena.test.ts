@@ -68,10 +68,6 @@ vi.mock('@/lib/tier', () => ({
   incrementFreeBoutsUsed: vi.fn(),
 }));
 
-vi.mock('@/lib/free-bout-pool', () => ({
-  consumeFreeBout: vi.fn(),
-}));
-
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [
@@ -87,7 +83,6 @@ vi.mock('@/lib/presets', () => ({
   getPresetById: getPresetByIdMock,
   ARENA_PRESET_ID: 'arena',
   DEFAULT_AGENT_COLOR: '#f8fafc',
-  DEFAULT_ARENA_MAX_TURNS: 6,
 }));
 
 vi.mock('@/lib/rate-limit', () => ({

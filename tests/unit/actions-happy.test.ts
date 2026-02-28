@@ -122,7 +122,7 @@ vi.mock('@/lib/presets', () => {
   ];
   const presetMap = new Map(presets.map((p) => [p.id, p]));
   return {
-    PRESETS: presets,
+    ALL_PRESETS: presets,
     ARENA_PRESET_ID: 'arena',
     getPresetById: (id: string) => presetMap.get(id),
   };

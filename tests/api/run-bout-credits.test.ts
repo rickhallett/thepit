@@ -93,10 +93,6 @@ vi.mock('@/lib/tier', () => ({
   incrementFreeBoutsUsed: vi.fn(),
 }));
 
-vi.mock('@/lib/free-bout-pool', () => ({
-  consumeFreeBout: vi.fn(),
-}));
-
 vi.mock('@/lib/intro-pool', () => ({
   getIntroPoolStatus: getIntroPoolStatusMock,
   consumeIntroPoolAnonymous: consumeIntroPoolAnonymousMock,

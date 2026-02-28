@@ -72,10 +72,6 @@ vi.mock('@/lib/tier', () => ({
   incrementFreeBoutsUsed: vi.fn(),
 }));
 
-vi.mock('@/lib/free-bout-pool', () => ({
-  consumeFreeBout: vi.fn(),
-}));
-
 vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [

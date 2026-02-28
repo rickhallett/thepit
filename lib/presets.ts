@@ -31,12 +31,6 @@ export const ARENA_PRESET_ID = 'arena';
 /** Fallback agent color when a preset/agent doesn't specify one. */
 export const DEFAULT_AGENT_COLOR = '#f8fafc';
 
-/**
- * Default max turns for arena-mode bouts.
- * @deprecated Use DEFAULT_ARENA_TURNS from '@/lib/turns' instead.
- */
-export const DEFAULT_ARENA_MAX_TURNS = 6;
-
 export type PresetTier = 'free' | 'premium';
 
 export type Agent = {
@@ -60,13 +54,13 @@ export type Preset = {
   group?: string;
 };
 
-export type AlternatePresetAgent = {
+type AlternatePresetAgent = {
   name: string;
   role: string;
   systemPrompt: string;
 };
 
-export type AlternatePreset = {
+type AlternatePreset = {
   id: string;
   name: string;
   premise: string;
@@ -190,9 +184,9 @@ const normalizePackPreset = (
   inputExamples: ['Add a topic or constraint'],
 });
 
-export const FREE_PRESETS: Preset[] = RAW_PRESETS.map(normalizePreset);
+const FREE_PRESETS: Preset[] = RAW_PRESETS.map(normalizePreset);
 
-export const PREMIUM_PRESETS: Preset[] = [
+const PREMIUM_PRESETS: Preset[] = [
   ...(presetsTop5 as AlternatePreset[]).map((preset) =>
     normalizePackPreset(preset, 'top5', 'Top 5 Pack'),
   ),
@@ -202,19 +196,17 @@ export const PREMIUM_PRESETS: Preset[] = [
 ];
 
 /** Research-only presets. Not shown in the user-facing grid. */
-export const RESEARCH_PRESETS: Preset[] = RAW_RESEARCH_PRESETS.map(normalizePreset);
+const RESEARCH_PRESETS: Preset[] = RAW_RESEARCH_PRESETS.map(normalizePreset);
 
 /** All user-facing presets (free + premium). Excludes research-only presets. */
 export const ALL_PRESETS: Preset[] = [...FREE_PRESETS, ...PREMIUM_PRESETS];
-
-export const PRESETS: Preset[] = ALL_PRESETS;
 
 /**
  * O(1) preset lookup by ID.
  * Includes research presets so the bout engine can resolve them,
  * even though they don't appear in the user-facing preset grid.
  */
-export const PRESET_BY_ID: Map<string, Preset> = new Map(
+const PRESET_BY_ID: Map<string, Preset> = new Map(
   [...ALL_PRESETS, ...RESEARCH_PRESETS].map((preset) => [preset.id, preset]),
 );
 

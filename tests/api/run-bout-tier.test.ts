@@ -12,7 +12,6 @@ const {
   canAccessModelMock,
   incrementFreeBoutsUsedMock,
   getFreeBoutsUsedMock,
-  consumeFreeBoutMock,
   getPresetByIdMock,
   streamTextMock,
   createUIMessageStreamMock,
@@ -39,7 +38,6 @@ const {
     canAccessModelMock: vi.fn(),
     incrementFreeBoutsUsedMock: vi.fn(),
     getFreeBoutsUsedMock: vi.fn(),
-    consumeFreeBoutMock: vi.fn(),
     getPresetByIdMock: vi.fn(),
     streamTextMock: vi.fn(),
     createUIMessageStreamMock: vi.fn(),
@@ -82,10 +80,6 @@ vi.mock('@/lib/tier', () => ({
   canAccessModel: canAccessModelMock,
   incrementFreeBoutsUsed: incrementFreeBoutsUsedMock,
   getFreeBoutsUsed: getFreeBoutsUsedMock,
-}));
-
-vi.mock('@/lib/free-bout-pool', () => ({
-  consumeFreeBout: consumeFreeBoutMock,
 }));
 
 vi.mock('@/lib/ai', () => ({
@@ -265,7 +259,6 @@ describe('run-bout tier-based access control', () => {
     getUserTierMock.mockResolvedValue('free');
     canRunBoutMock.mockResolvedValue({ allowed: true });
     canAccessModelMock.mockReturnValue(true);
-    consumeFreeBoutMock.mockResolvedValue({ consumed: true, remaining: 99 });
     incrementFreeBoutsUsedMock.mockResolvedValue(1);
     getFreeBoutsUsedMock.mockResolvedValue(1); // default: not first bout
     readAndClearByokKeyMock.mockReturnValue(null);
@@ -363,8 +356,7 @@ describe('run-bout tier-based access control', () => {
       }),
     );
     expect(res.status).toBe(200);
-    // Pass tier should NOT consume from the free pool
-    expect(consumeFreeBoutMock).not.toHaveBeenCalled();
+    // Pass tier: no free bout counter increment
     expect(incrementFreeBoutsUsedMock).not.toHaveBeenCalled();
   });
 
