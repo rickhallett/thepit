@@ -1,6 +1,5 @@
 {{ define "main" }}
 <div class="section-header">
-  <p class="prompt">cat ./research/README.md</p>
   <h2>Research Notes</h2>
   <p>Working notes from building agentic systems under discipline.
   These documents were produced by LLMs as part of the research process.
@@ -12,11 +11,11 @@
 
 {{ range .Pages.ByDate.Reverse }}
 <div class="research-card">
-  <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+  <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
   {{ with .Params.subtitle }}<p class="subtitle">{{ . }}</p>{{ end }}
   {{ with .Description }}<p>{{ . }}</p>{{ end }}
   <div class="provenance-banner">LLM PROVENANCE: Produced by Claude. Not independently verified. Starting material, nothing more.</div>
-  <a href="{{ .Permalink }}" class="see-all">read →</a>
+  <a href="{{ .RelPermalink }}" class="see-all">read →</a>
 </div>
 {{ end }}
 {{ end }}
