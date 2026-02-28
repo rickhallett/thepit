@@ -31,6 +31,32 @@ This is your primary instrument. It contains all Captain directives (SD-*), park
 
 ---
 
+## Step 2b: Read operational state
+
+```bash
+cat .keel-state
+```
+
+This file contains the last-written operational state: officer on watch, conn holder, weave mode, register, tempo, bearing, gate status, and test count. Use these fields to populate your YAML HUD header. If the file is missing or empty, set all HUD fields to `unknown` and flag to the Captain.
+
+Then check for the most recent session state file:
+
+```bash
+ls -t docs/internal/weaver/session-state-*.md | head -1
+```
+
+If one exists, read it. It contains ephemeral state from the last session: active worktrees, open PRs, merge sequences in progress, parked items. This file bridges the gap between durable decisions (session-decisions.md) and operational context that would otherwise be lost at compaction.
+
+Also check for active git worktrees:
+
+```bash
+git worktree list
+```
+
+If worktrees exist beyond the main repo, there is a parallel operation in progress. The session state file will explain what each worktree is for.
+
+---
+
 ## Step 3: Verify integration state
 
 ```bash
@@ -39,7 +65,7 @@ git log --oneline -10
 gh pr list --state open
 ```
 
-Cross-reference against the post-merge queue in session-decisions.md.
+Cross-reference against the post-merge queue in session-decisions.md and the session state file from Step 2b.
 
 ---
 
