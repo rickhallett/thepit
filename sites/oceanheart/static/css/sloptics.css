@@ -1,0 +1,11 @@
+/* sloptics.css — the annotated specimen stylesheet */
+/* imported only on /sloptics/. every rule here is a sloptic intervention. */
+
+/* em-dash highlighter: every — on the page glows red.
+   em-dashes are an LLM frequency tell. humans use them occasionally.
+   LLMs use them compulsively. colouring them is the first step
+   toward seeing the distribution rather than the text. */
+.emdash {
+  color: var(--red);
+  font-weight: 500;
+}
