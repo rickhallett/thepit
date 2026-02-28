@@ -47,7 +47,7 @@ warn_check() {
 
 echo ""
 echo -e "${BOLD}══════════════════════════════════════════════════════════${RESET}"
-echo -e "${BOLD}  THE PIT — Developer Bootstrap${RESET}"
+echo -e "${BOLD}  The Pit — Developer Bootstrap${RESET}"
 echo -e "${BOLD}══════════════════════════════════════════════════════════${RESET}"
 echo ""
 

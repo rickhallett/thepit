@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "piteval"
 version = "0.1.0"
-description = "Multi-model codebase evaluation engine for THE PIT"
+description = "Multi-model codebase evaluation engine for The Pit"
 requires-python = ">=3.12"
 dependencies = [
     # LLM providers

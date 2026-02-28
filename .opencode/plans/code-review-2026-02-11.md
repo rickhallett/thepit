@@ -1,7 +1,7 @@
 # Enterprise Code Review Implementation Plan — 2026-02-11
 
 ## Context
-Full static analysis of tspit (THE PIT) codebase. 23 findings ranked by impact.
+Full static analysis of tspit (The Pit) codebase. 23 findings ranked by impact.
 Current state: tsc clean, 1 ESLint error, 107/107 tests passing.
 
 ## Execution Strategy

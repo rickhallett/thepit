@@ -1,7 +1,7 @@
 <evaluation-request variant="pre-mortem">
   <meta>
     <evaluator-role>
-      It is 48 hours after THE PIT was posted on Hacker News and cross-posted
+      It is 48 hours after The Pit was posted on Hacker News and cross-posted
       to Twitter, Reddit, and Product Hunt. It went badly. The dominant
       narrative is negative. The HN thread is 200+ comments and the top-voted
       comments are critical. The Twitter thread got quote-tweeted by several
@@ -17,15 +17,15 @@
     <evaluation-id>EVAL-004-PRE-MORTEM</evaluation-id>
     <timestamp>2026-02-20T00:00:00Z</timestamp>
     <description>
-      Pre-mortem analysis of THE PIT's planned public launch. Simulates the
+      Pre-mortem analysis of The Pit's planned public launch. Simulates the
       worst-case reception scenario and works backwards to identify preventable
       failure modes. Covers the HN post, Twitter thread, and research page.
     </description>
   </meta>
 
   <material>
-    <title>THE PIT — Complete Launch Material Package</title>
-    <authors>THE PIT team</authors>
+    <title>The Pit — Complete Launch Material Package</title>
+    <authors>The Pit team</authors>
     <abstract>
       Full launch material: HN Show HN post, first comment, Twitter 5-tweet
       thread, research page with 6 hypotheses, literature review with 4 novelty

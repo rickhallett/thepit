@@ -21,7 +21,7 @@
   <path d="M 20 360 L 20 380 L 40 380" fill="none" stroke="#3b4261" stroke-width="2"/>
   <path d="M 760 380 L 780 380 L 780 360" fill="none" stroke="#3b4261" stroke-width="2"/>
   
-  <!-- ASCII Art Text - THE PIT -->
+  <!-- ASCII Art Text - The Pit -->
   <text font-family="'JetBrains Mono', 'Fira Code', monospace" font-size="32" fill="url(#pitGrad)" font-weight="bold">
     <tspan x="170" y="140">░▀█▀░█░█░█▀▀░░░█▀█░▀█▀░▀█▀</tspan>
     <tspan x="170" y="180">░░█░░█▀█░█▀▀░░░█▀▀░░█░░░█░</tspan>

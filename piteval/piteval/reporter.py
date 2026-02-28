@@ -77,7 +77,7 @@ def generate_json_summary(analysis: FullAnalysis) -> dict[str, Any]:
 def generate_markdown_report(analysis: FullAnalysis) -> str:
     """Generate a human-readable markdown report."""
     lines: list[str] = []
-    lines.append("# Codebase Evaluation Report — THE PIT")
+    lines.append("# Codebase Evaluation Report — The Pit")
     lines.append("")
     lines.append(
         f"**Grand Composite:** {analysis.grand_composite:.2f} "
@@ -197,7 +197,7 @@ def generate_radar_chart(analysis: FullAnalysis, output_path: Path) -> Path:
     ax.set_yticks([2, 4, 6, 8, 10])
     ax.set_yticklabels(["2", "4", "6", "8", "10"], size=8)
     ax.set_title(
-        f"THE PIT — Codebase Evaluation Radar\nGrand Composite: {analysis.grand_composite:.2f}",
+        f"The Pit — Codebase Evaluation Radar\nGrand Composite: {analysis.grand_composite:.2f}",
         size=14,
         y=1.08,
     )

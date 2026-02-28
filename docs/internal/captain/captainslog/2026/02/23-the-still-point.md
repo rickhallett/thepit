@@ -47,8 +47,8 @@ Fair winds to the deck. Take a moment to congratulate yourselves on a job well d
 **Traffic Light: GREEN.** Three converging signals:
 
 1. Anthropic's distillation attacks disclosure — AI provenance now a geopolitical story. Trust and provenance front-page news on HN.
-2. "Car Wash" test viral on HN — 42/53 models fail trivial reasoning. THE PIT's evaluation thesis trending on the exact launch platform.
-3. Academic MAD paper explosion — 15+ multi-agent debate papers in 60 days on arXiv. Peak academic momentum for the research paradigm THE PIT operationalises.
+2. "Car Wash" test viral on HN — 42/53 models fail trivial reasoning. The Pit's evaluation thesis trending on the exact launch platform.
+3. Academic MAD paper explosion — 15+ multi-agent debate papers in 60 days on arXiv. Peak academic momentum for the research paradigm The Pit operationalises.
 
 Recommendation: No reason to delay. Several reasons to accelerate. Trust narrative convergence is unusual and time-limited.
 

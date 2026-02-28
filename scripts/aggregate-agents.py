@@ -60,7 +60,7 @@ def main() -> None:
 
     # Build the master document
     lines: list[str] = []
-    lines.append("# THE PIT — Agent System Reference")
+    lines.append("# The Pit — Agent System Reference")
     lines.append("")
     lines.append(f"> Auto-generated from {len(sections)} agent definitions ")
     lines.append(f"> in `.opencode/agents/`. Do not edit directly — ")

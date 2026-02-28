@@ -37,7 +37,7 @@ Conditions:
 
 ## Reasoning
 
-The question asks whether THE PIT should ship today. I interpret "ship" as deploying the current master branch to production. From my domain — security engineering — I have audited every API route, the middleware, the credit system, the authentication and authorization layers, input validation, webhook verification, XML prompt injection defenses, BYOK key handling, rate limiting, security headers, and the admin auth system. My assessment is that the security posture is sound for a product at this stage.
+The question asks whether The Pit should ship today. I interpret "ship" as deploying the current master branch to production. From my domain — security engineering — I have audited every API route, the middleware, the credit system, the authentication and authorization layers, input validation, webhook verification, XML prompt injection defenses, BYOK key handling, rate limiting, security headers, and the admin auth system. My assessment is that the security posture is sound for a product at this stage.
 
 ### 1. Authentication and Authorization — SOLID
 
@@ -109,6 +109,6 @@ I would need to see: (a) evidence that the intro pool for anonymous users is lar
 
 ## Summary
 
-From a security engineering perspective, THE PIT is ready to ship today. The authentication layer (Clerk) is consistently applied across all 20 API route handlers. The financial system uses atomic SQL with no TOCTOU gaps. Input validation covers XSS, injection, and prompt manipulation vectors. Security headers meet current best practices. The credit preauthorization/settlement pattern is the strongest defense — even if rate limits are bypassed, no financial loss occurs because credits are deducted atomically before execution. The in-memory rate limiter is the weakest link, but it is explicitly documented as best-effort with DB constraints as the authoritative layer. This is an acceptable posture for a product shipping to its current audience.
+From a security engineering perspective, The Pit is ready to ship today. The authentication layer (Clerk) is consistently applied across all 20 API route handlers. The financial system uses atomic SQL with no TOCTOU gaps. Input validation covers XSS, injection, and prompt manipulation vectors. Security headers meet current best practices. The credit preauthorization/settlement pattern is the strongest defense — even if rate limits are bypassed, no financial loss occurs because credits are deducted atomically before execution. The in-memory rate limiter is the weakest link, but it is explicitly documented as best-effort with DB constraints as the authoritative layer. This is an acceptable posture for a product shipping to its current audience.
 
 **Reversal condition:** Discovery of a code path where user-controlled input reaches an LLM prompt without passing through `xmlEscape()`, OR discovery of a credit operation that uses SELECT-then-UPDATE instead of atomic conditional UPDATE, OR evidence that the Stripe webhook endpoint accepts events without signature verification.

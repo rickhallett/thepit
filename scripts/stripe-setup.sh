@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Creates Stripe subscription products and webhook for THE PIT.
+# Creates Stripe subscription products and webhook for The Pit.
 # Requires: stripe CLI installed and authenticated (stripe login), jq
 # Usage: ./scripts/stripe-setup.sh
 
@@ -35,7 +35,7 @@ echo ""
 
 echo "Creating Pit Pass product (£3/mo)..."
 PASS_PRODUCT=$(stripe products create \
-  --name "THE PIT - Pit Pass" \
+  --name "The Pit - Pit Pass" \
   --description "15 bouts/day, Haiku + Sonnet, 5 custom agents" \
   -c) || { echo "ERROR: Failed to create Pass product"; exit 1; }
 
@@ -57,7 +57,7 @@ echo ""
 
 echo "Creating Pit Lab product (£10/mo)..."
 LAB_PRODUCT=$(stripe products create \
-  --name "THE PIT - Pit Lab" \
+  --name "The Pit - Pit Lab" \
   --description "100 bouts/day, all models, unlimited agents, API access" \
   -c) || { echo "ERROR: Failed to create Lab product"; exit 1; }
 

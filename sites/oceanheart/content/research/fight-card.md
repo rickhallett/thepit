@@ -9,7 +9,7 @@ tags = ["sycophancy", "metacognition", "human-ai-interaction", "agentic-systems"
 
 ## Context
 
-Over the course of building an agentic evaluation system (THE PIT), 208 session decisions were recorded. Every architectural choice, every process change, every correction — on file.
+Over the course of building an agentic evaluation system (The Pit), 208 session decisions were recorded. Every architectural choice, every process change, every correction — on file.
 
 Within those 208 decisions, there are 16 moments where the human operator identified and pushed back against sycophantic confirmation bias from the LLM. These weren't subtle disagreements. They were moments where the model was confidently, coherently wrong — and the human said "no, that's not right."
 
