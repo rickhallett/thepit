@@ -33,7 +33,7 @@ const {
     HAIKU: 'claude-haiku-4-5-20251001',
     SONNET_45: 'claude-sonnet-4-5-20250929',
     SONNET_46: 'claude-sonnet-4-6',
-    FIRST_BOUT: 'claude-sonnet-4-5-20250929',
+    FIRST_BOUT: 'claude-sonnet-4-6',
   } as const;
   return {
     mockDb: db,
@@ -1042,6 +1042,8 @@ describe('validateBoutRequest', () => {
       const tier = await import('@/lib/tier');
       Object.defineProperty(tier, 'SUBSCRIPTIONS_ENABLED', { value: false, writable: true });
 
+      // Explicit mock setup — V-42 must not rely on leaked state from prior tests
+      setupAuthHappyPath();
       authMock.mockResolvedValue({ userId: 'user-1' });
 
       const req = makeRequest({ boutId: 'b1', presetId: 'darwin-special' });
