@@ -42,3 +42,9 @@ items:
     added: 2026-02-28
     status: hold
     tags: []
+
+  - id: governance-precedence-taxonomy
+    idea: clear taxonomy of what trumps what (register vs provenance vs standing orders); unix file permissions as model — rich rubric, decades of service, proven at scale
+    added: 2026-02-28
+    status: hold
+    tags: []
