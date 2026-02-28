@@ -130,3 +130,10 @@ docs/internal/option-b-analysis.md
 sites/oceanheart/public/
 sites/oceanheart/.hugo_build.lock
 sites/oceanheart/data/slopodar.yaml
+
+# Hugo root-level pollution (from accidental builds outside sites/oceanheart/)
+/.hugo_build.lock
+/public/categories/
+/public/index.xml
+/public/sitemap.xml
+/public/tags/
