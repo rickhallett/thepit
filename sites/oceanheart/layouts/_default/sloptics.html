@@ -154,6 +154,52 @@
 
   <hr>
 
+  <section class="sloptics-baseline" style="margin-bottom: 3rem;">
+    <h2 style="margin-top: 0;">human baseline</h2>
+    <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+      The same abstract noun highlighter runs on the text below. These are unedited excerpts from the Captain's log — written by a human, in real time, during live engineering sessions. The purple density difference is the argument. Or it isn't.
+    </p>
+    <p style="color: var(--muted); font-size: 0.75rem; margin-bottom: 1.5rem;">
+      <em>Caveat: the LLM text above carries manual annotation spans (coloured underlines for isocolon, antithesis, etc.) that are not present on the human text below. The abstract noun highlighting (purple) is programmatic and runs identically on both — but the surrounding visual context is not identical. This is noted honestly. The fix is to make all detectors programmatic, which is the direction of travel.</em>
+    </p>
+
+    <div class="sloptics-term">
+      <h3>23 Feb 2026, 16 hours in, no food</h3>
+      <blockquote style="border-left: 2px solid var(--muted); padding-left: 1rem; margin: 0.5rem 0;">
+        <p>suggesting edit to qa defect list and/or triage; BYOK is beautiful but, frankly, its nice to have, its not a deal breaker. Strong suggestion to actively place on /roadmap as one of the next incoming features; marketing it? I think this can wait, if a good idea comes let it come. But it can wait. If HN give a shit, they will find it by themselves. Let them. Adds to the game. Maybe they're messing with the wrong crew. Time will tell, Mr Weaver.</p>
+        <p>lets wait on the bug bots to do their bug-thing, meanwhile you can explore the code base and give me a thumbsup/down on whether its safe to proceed ahead of merge schedule as per standard weave protocol (we need a name for that; you are exceptionally good at naming them, havent let me down once, surprises me and makes me laugh everytime, brings me joy, frankly)</p>
+      </blockquote>
+    </div>
+
+    <div class="sloptics-term">
+      <h3>23 Feb 2026, the still point</h3>
+      <blockquote style="border-left: 2px solid var(--muted); padding-left: 1rem; margin: 0.5rem 0;">
+        <p>I could not help myself. I read the zeitgeist delta. The parallax agent roster. My mind is clear. After the temporary surge in dopamine et al, I found myself at at the still point. Calm. Like a hunter who knows his prey and has tracked it for many weeks. On that final scan, it is spotted.</p>
+        <p>Everything else fades into insignificance. We live for moments like this. Die for them.</p>
+        <p>My bearings are set, with only minor variance. Default mode network. Its a thing.</p>
+      </blockquote>
+    </div>
+
+    <div class="sloptics-term">
+      <h3>23 Feb 2026, going light</h3>
+      <blockquote style="border-left: 2px solid var(--muted); padding-left: 1rem; margin: 0.5rem 0;">
+        <p>We go light on the crew, but we reduce the attack vector. Mr Weaver, Architect, Analyst, Keel (perhaps edited: if it is normal human regulation, I see no issue. I see bonus signal). All other crew exist in name and form but have played less than 2% of the process. We can keep them around, in the dark. Costs us nothing. But so far, the fabric has held through those alone.</p>
+        <p>Nothing would be nicer to have than to have a punchers chance at contributing to something meaningful, as it reaches fever pitch. Please base all your triage decisons on this one governing principle. It should clarify product decisions (especially fix/hide decisions) greatly. Aerodynamics.</p>
+      </blockquote>
+    </div>
+
+    <div class="sloptics-term">
+      <h3>24 Feb 2026</h3>
+      <blockquote style="border-left: 2px solid var(--muted); padding-left: 1rem; margin: 0.5rem 0;">
+        <p>This may seem a little frivolous, and in a sense, that is true. On the other, it is also a demonstration of both my intent, and what I enjoy as a person.</p>
+        <p>Plenty of people can prompt agents. Very few can govern them.</p>
+        <p>I am in the business of making sure the human stays in the LLM, and I'll go as deep as I need to go to make sure of it.</p>
+      </blockquote>
+    </div>
+  </section>
+
+  <hr>
+
   <footer class="sloptics-footnotes">
     <h2 style="margin-top: 0;">footnotes</h2>
     <p class="sloptics-footnote-notice">
@@ -183,6 +229,207 @@
   </footer>
 </article>
 <script>
+// === PHASE 1: paragraph-level detectors ===
+// these run first, before text-node highlighters fragment the DOM.
+// they use textContent which is clean at this point.
+
+// epigrammatic closure detector — flags paragraphs whose final
+// sentence is ≤ 6 words, after at least one longer sentence.
+// the "one closing lick." the probability attractor.
+// marks the <p> with a right-border that escalates.
+// per-section counter: resets at human baseline for fair comparison.
+// v0.1: a couple of false positives in human text is acceptable.
+// the per-section counter keeps them faint, not burning.
+(function () {
+  var ps = document.querySelectorAll('.sloptics-page p');
+  var count = 0;
+  var baselineReached = false;
+  for (var i = 0; i < ps.length; i++) {
+    var p = ps[i];
+    if (!baselineReached && p.closest('.sloptics-baseline')) {
+      count = 0;
+      baselineReached = true;
+    }
+    var text = p.textContent.trim();
+    if (!text) continue;
+    // split on sentence-ending punctuation followed by space
+    var sentences = text.split(/(?<=[.!?])\s+/).filter(function (s) {
+      return s.trim().length > 0;
+    });
+    if (sentences.length < 2) continue;
+    var last = sentences[sentences.length - 1].replace(/[.!?]+$/, '').trim();
+    if (!last) continue;
+    var words = last.split(/\s+/).filter(function (w) { return w.length > 0; });
+    if (words.length > 6 || words.length === 0) continue;
+    count++;
+    p.classList.add('auto-epigram');
+    p.setAttribute('data-epigram-n', count);
+  }
+})();
+
+// nominalisation cascade density — measures abstract noun ratio
+// per paragraph. if the ratio of words ending in -tion, -ment,
+// -ness, -ity, -ence, -ance exceeds 3.5% of total words AND
+// count >= 2, the paragraph is flagged.
+// bottom-border escalates from faint to hot.
+// per-section counter: resets at human baseline for fair comparison.
+(function () {
+  var re = /\b\w+(?:tion|ment|ness|ity|ence|ance)\b/gi;
+  var THRESHOLD = 0.035;
+  var ps = document.querySelectorAll('.sloptics-page p');
+  var count = 0;
+  var baselineReached = false;
+  for (var i = 0; i < ps.length; i++) {
+    var p = ps[i];
+    if (!baselineReached && p.closest('.sloptics-baseline')) {
+      count = 0;
+      baselineReached = true;
+    }
+    var text = p.textContent.trim();
+    if (!text) continue;
+    var totalWords = text.split(/\s+/).filter(function (w) { return w.length > 0; }).length;
+    if (totalWords < 10) continue; // skip very short paragraphs
+    var matches = text.match(re);
+    var absCount = matches ? matches.length : 0;
+    var ratio = absCount / totalWords;
+    if (ratio < THRESHOLD || absCount < 2) continue; // cascade, not presence
+    count++;
+    p.classList.add('auto-nom-density');
+    p.setAttribute('data-nom-n', count);
+    p.setAttribute('data-nom-ratio', (ratio * 100).toFixed(1));
+  }
+})();
+
+// antithesis detector — flags paragraphs containing negation
+// contrast patterns: "not X, but Y" / "X, not Y" / "rather than"
+// / "instead of". the redundant antithesis — slopodar #2.
+// the negation adds zero information when the positive implies it.
+// marks the <p> with a cyan outline-right + outline-top corner.
+// per-section counter: resets at human baseline for fair comparison.
+(function () {
+  // patterns that catch the LLM antithesis reflex
+  var patterns = [
+    /\bnot\s+\w+[,;]\s*but\b/i,          // "not A, but B"
+    /\b\w+[,;]\s*not\s+\w+/i,             // "X, not Y"
+    /\brather\s+than\b/i,                  // "rather than"
+    /\binstead\s+of\b/i,                   // "instead of"
+    /\bnothing\s+was\b/i,                  // "Nothing was theorised"
+    /\bnot\s+through\b.*\bthrough\b/i,     // "not through X ... through Y"
+    /\bnot\s+just\b/i                      // "not just"
+  ];
+  var ps = document.querySelectorAll('.sloptics-page p');
+  var count = 0;
+  var baselineReached = false;
+  for (var i = 0; i < ps.length; i++) {
+    var p = ps[i];
+    if (!baselineReached && p.closest('.sloptics-baseline')) {
+      count = 0;
+      baselineReached = true;
+    }
+    var text = p.textContent.trim();
+    if (!text) continue;
+    var hits = 0;
+    for (var j = 0; j < patterns.length; j++) {
+      if (patterns[j].test(text)) hits++;
+    }
+    if (hits === 0) continue;
+    count++;
+    p.classList.add('auto-antithesis');
+    p.setAttribute('data-antithesis-n', count);
+    p.setAttribute('data-antithesis-hits', hits);
+  }
+})();
+
+// isocolon detector — flags paragraphs containing consecutive
+// sentences within ±1 word of each other (both ≥ 5 words).
+// "Slop you can see is just slop. Slop that blinds you is a problem."
+// mechanical parallel structure. the symmetry is the tell.
+// marks the <p> with a yellow top-border that escalates.
+// per-section counter: resets at human baseline for fair comparison.
+(function () {
+  var ps = document.querySelectorAll('.sloptics-page p');
+  var count = 0;
+  var baselineReached = false;
+  for (var i = 0; i < ps.length; i++) {
+    var p = ps[i];
+    if (!baselineReached && p.closest('.sloptics-baseline')) {
+      count = 0;
+      baselineReached = true;
+    }
+    var text = p.textContent.trim();
+    if (!text) continue;
+    var sentences = text.split(/(?<=[.!?])\s+/).filter(function (s) {
+      return s.trim().length > 0;
+    });
+    if (sentences.length < 2) continue;
+    var found = false;
+    for (var j = 0; j < sentences.length - 1; j++) {
+      var w1 = sentences[j].split(/\s+/).filter(function (w) { return w.length > 0; }).length;
+      var w2 = sentences[j + 1].split(/\s+/).filter(function (w) { return w.length > 0; }).length;
+      if (w1 >= 5 && w2 >= 5 && Math.abs(w1 - w2) <= 1) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      count++;
+      p.classList.add('auto-isocolon');
+      p.setAttribute('data-isocolon-n', count);
+    }
+  }
+})();
+
+// anadiplosis detector — flags paragraphs where the last content
+// word of sentence K appears in the first 3 words of sentence K+1.
+// "The name creates distance. The distance creates choice."
+// the hinge word is the tell. burned rhetorical figure.
+// marks the <p> with a green left-border that escalates.
+// per-section counter: resets at human baseline for fair comparison.
+(function () {
+  var ps = document.querySelectorAll('.sloptics-page p');
+  var count = 0;
+  var baselineReached = false;
+  for (var i = 0; i < ps.length; i++) {
+    var p = ps[i];
+    if (!baselineReached && p.closest('.sloptics-baseline')) {
+      count = 0;
+      baselineReached = true;
+    }
+    var text = p.textContent.trim();
+    if (!text) continue;
+    var sentences = text.split(/(?<=[.!?])\s+/).filter(function (s) {
+      return s.trim().length > 0;
+    });
+    if (sentences.length < 2) continue;
+    var found = false;
+    for (var j = 0; j < sentences.length - 1; j++) {
+      var s1 = sentences[j].replace(/[.!?,;:"']+$/g, '').trim().split(/\s+/);
+      var s2 = sentences[j + 1].replace(/[.!?,;:"']+$/g, '').trim().split(/\s+/);
+      // last 2 content words of s1
+      var tail = s1.slice(-2).map(function (w) { return w.toLowerCase().replace(/[^a-z]/g, ''); });
+      // first 3 words of s2
+      var head = s2.slice(0, 3).map(function (w) { return w.toLowerCase().replace(/[^a-z]/g, ''); });
+      for (var k = 0; k < tail.length; k++) {
+        if (tail[k].length < 4) continue;
+        for (var l = 0; l < head.length; l++) {
+          if (tail[k] === head[l]) { found = true; break; }
+        }
+        if (found) break;
+      }
+      if (found) break;
+    }
+    if (found) {
+      count++;
+      p.classList.add('auto-anadiplosis');
+      p.setAttribute('data-anadiplosis-n', count);
+    }
+  }
+})();
+
+// === PHASE 2: text-node highlighters ===
+// these walk text nodes and wrap matches in spans.
+// order: em-dashes first, then abstract nouns.
+
 // em-dash highlighter — wraps every — (U+2014) in a coloured span.
 // without compromise or warning.
 // each em-dash gets data-n="1" through data-n="N".
@@ -212,6 +459,48 @@
         frag.appendChild(span);
       }
       if (parts[j]) frag.appendChild(document.createTextNode(parts[j]));
+    }
+    node.parentNode.replaceChild(frag, node);
+  }
+})();
+
+// abstract noun highlighter — wraps words ending in -tion, -ment,
+// -ness, -ity, -ence, -ance in a coloured span. these suffixes are
+// the atoms of the nominalisation cascade. the colour escalates from
+// faint purple to deep saturated purple as the count climbs.
+// 36 instances on this page. the nouns accumulate visibly.
+(function () {
+  var re = /\b(\w+(?:tion|ment|ness|ity|ence|ance))\b/gi;
+  var walk = document.createTreeWalker(
+    document.querySelector('.sloptics-page'),
+    NodeFilter.SHOW_TEXT,
+    null
+  );
+  var nodes = [];
+  while (walk.nextNode()) nodes.push(walk.currentNode);
+  var count = 0;
+  for (var i = 0; i < nodes.length; i++) {
+    var node = nodes[i];
+    if (!re.test(node.textContent)) continue;
+    re.lastIndex = 0;
+    var frag = document.createDocumentFragment();
+    var text = node.textContent;
+    var lastIdx = 0;
+    var match;
+    while ((match = re.exec(text)) !== null) {
+      if (match.index > lastIdx) {
+        frag.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
+      }
+      count++;
+      var span = document.createElement('span');
+      span.className = 'absnoun';
+      span.setAttribute('data-n', count);
+      span.textContent = match[0];
+      frag.appendChild(span);
+      lastIdx = re.lastIndex;
+    }
+    if (lastIdx < text.length) {
+      frag.appendChild(document.createTextNode(text.slice(lastIdx)));
     }
     node.parentNode.replaceChild(frag, node);
   }
