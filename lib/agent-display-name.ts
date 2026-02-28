@@ -27,13 +27,3 @@ export function getAgentDisplayName(id: string): string {
   // Otherwise, just title-case the whole thing
   return titleCase(id);
 }
-
-/**
- * Returns both short display name and full ID for tooltips/modals.
- */
-export function getAgentNameParts(id: string): { display: string; full: string } {
-  return {
-    display: getAgentDisplayName(id),
-    full: id,
-  };
-}

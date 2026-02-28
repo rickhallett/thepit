@@ -23,10 +23,6 @@ vi.mock('@/db/schema', () => ({
     freeBoutsUsed: 'free_bouts_used',
     updatedAt: 'updated_at',
   },
-  bouts: {
-    ownerId: 'owner_id',
-    createdAt: 'created_at',
-  },
 }));
 
 vi.mock('@/lib/admin', () => ({
@@ -43,15 +39,6 @@ const setupSelect = (result: unknown[]) => {
       where: () => ({
         limit: async () => result,
       }),
-    }),
-  }));
-};
-
-/** For getDailyBoutsUsed: select → from → where → (no limit) returns array */
-const setupSelectCount = (total: number) => {
-  mockDb.select.mockImplementation(() => ({
-    from: () => ({
-      where: async () => [{ total }],
     }),
   }));
 };
@@ -129,35 +116,6 @@ describe('getFreeBoutsUsed', () => {
 
     const { getFreeBoutsUsed } = await import('@/lib/tier');
     const count = await getFreeBoutsUsed('nonexistent-user');
-    expect(count).toBe(0);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Tests: getDailyBoutsUsed
-// ---------------------------------------------------------------------------
-
-describe('getDailyBoutsUsed', () => {
-  beforeEach(() => {
-    vi.resetModules();
-    mockDb.select.mockReset();
-    mockDb.update.mockReset();
-    process.env.SUBSCRIPTIONS_ENABLED = 'true';
-  });
-
-  it('returns count of today\'s bouts', async () => {
-    setupSelectCount(5);
-
-    const { getDailyBoutsUsed } = await import('@/lib/tier');
-    const count = await getDailyBoutsUsed('user-1');
-    expect(count).toBe(5);
-  });
-
-  it('returns 0 when no bouts today', async () => {
-    setupSelectCount(0);
-
-    const { getDailyBoutsUsed } = await import('@/lib/tier');
-    const count = await getDailyBoutsUsed('user-1');
     expect(count).toBe(0);
   });
 });

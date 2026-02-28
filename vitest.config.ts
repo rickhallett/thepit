@@ -40,7 +40,6 @@ export default defineConfig({
         'lib/agent-prompts.ts',
         'lib/agent-registry.ts',
         'lib/credits.ts',
-        'lib/free-bout-pool.ts',
         'lib/rate-limit.ts',
         'lib/referrals.ts',
         'lib/response-formats.ts',

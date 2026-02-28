@@ -74,7 +74,6 @@ vi.mock('@/lib/presets', () => ({
   })),
   ARENA_PRESET_ID: 'arena',
   DEFAULT_AGENT_COLOR: '#f8fafc',
-  DEFAULT_ARENA_MAX_TURNS: 6,
 }));
 vi.mock('@/lib/response-lengths', () => ({
   resolveResponseLength: vi.fn(() => ({

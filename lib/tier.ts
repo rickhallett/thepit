@@ -9,11 +9,11 @@
 //   2. Otherwise, read subscriptionTier from the users table.
 //   3. Default to 'free' if no record exists.
 
-import { eq, sql, and, gte, count } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
-import { bouts, users } from '@/db/schema';
+import { users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
 import { MODEL_FAMILY } from '@/lib/models';
 
@@ -135,28 +135,6 @@ export async function incrementFreeBoutsUsed(userId: string): Promise<number> {
   }
 
   return result.length;
-}
-
-/**
- * Count the user's platform-funded bouts started today (UTC).
- * Used to enforce per-tier daily rate limits.
- */
-export async function getDailyBoutsUsed(userId: string): Promise<number> {
-  const db = requireDb();
-  const todayStart = new Date();
-  todayStart.setUTCHours(0, 0, 0, 0);
-
-  const [result] = await db
-    .select({ total: count() })
-    .from(bouts)
-    .where(
-      and(
-        eq(bouts.ownerId, userId),
-        gte(bouts.createdAt, todayStart),
-      ),
-    );
-
-  return result?.total ?? 0;
 }
 
 /**

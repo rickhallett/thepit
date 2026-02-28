@@ -182,7 +182,7 @@ const DEPRECATED_MODELS = [
  * Validate that a model ID is not deprecated.
  * Returns the model ID if valid, or throws if deprecated.
  */
-export function assertNotDeprecated(modelId: string, source: string): string {
+function assertNotDeprecated(modelId: string, source: string): string {
   if (DEPRECATED_MODELS.includes(modelId)) {
     const msg = `DEPRECATED MODEL DETECTED: "${modelId}" from ${source}. ` +
       `Minimum supported: ${MODEL_IDS.HAIKU}. ` +

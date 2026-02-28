@@ -43,7 +43,7 @@ vi.mock('@/db/schema', () => ({
 vi.mock('drizzle-orm', () => ({ eq: vi.fn() }));
 vi.mock('@/lib/presets', () => ({
   ARENA_PRESET_ID: 'arena',
-  PRESETS: [],
+  ALL_PRESETS: [],
   getPresetById: vi.fn(),
 }));
 vi.mock('@/lib/credit-catalog', () => ({ CREDIT_PACKAGES: [] }));

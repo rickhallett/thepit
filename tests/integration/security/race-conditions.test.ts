@@ -182,21 +182,4 @@ describe.skipIf(!serverReachable)('Security: Race Conditions', () => {
       expect(serverErrors.length).toBe(0)
     })
   })
-
-  describe('Free Bout Pool', () => {
-    it('SEC-RACE-008: handles concurrent free bout claims without server errors', async () => {
-      const claimRequests = Array(30).fill(null).map(() => async () => {
-        return makeRequest('/api/free-bout-pool/claim', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        })
-      })
-
-      const responses = await Promise.all(claimRequests.map(fn => fn()))
-      const serverErrors = responses.filter(r => r.status === 500)
-
-      expect(serverErrors.length).toBe(0)
-    })
-  })
 })
