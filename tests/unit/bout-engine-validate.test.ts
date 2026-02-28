@@ -363,12 +363,17 @@ describe('validateBoutRequest', () => {
       }
     });
 
-    it('V-03c: returns 400 INVALID_JSON for array body', async () => {
+    // V-03c: typeof [] === 'object' in JS, so arrays pass the INVALID_JSON
+    // guard (line 188) and are caught downstream by the "Missing boutId" check
+    // (line 203). We assert the actual rejection reason, not just the status.
+    it('V-03c: returns 400 Missing boutId for array body (passes object check)', async () => {
       const req = makeInvalidRequest('[1, 2, 3]');
       const result = await validateBoutRequest(req);
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.error.status).toBe(400);
+        const body = await result.error.json();
+        expect(body.error).toBe('Missing boutId.');
       }
     });
 
