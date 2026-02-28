@@ -1,0 +1,44 @@
+# holding-deck.yaml — Ideas on deck, not yet actioned
+# One line per idea. Machine readable. Tagged.
+#
+# Status: hold (default) | active | done | dropped
+# Tags: #dark = do not publish to site
+#
+# Format:
+#   - id: short kebab-case
+#     idea: one line max
+#     added: date
+#     status: hold
+#     tags: []
+
+items:
+
+  - id: agent-attestation-roi
+    idea: estimate ROI on extending the agent builder on thepit.cloud; attest this team of agents on chain in their current form, keep agent url + L2 ETH Base hash in file
+    added: 2026-02-28
+    status: hold
+    tags: []
+
+  - id: captains-voice-agent
+    idea: new agent CaptainsVoice; specialist on voice particulars as expressed in this repo, swappable into harness without retyping context, commendation.log as pass/soft/fail history, machine readable, auditable
+    added: 2026-02-28
+    status: hold
+    tags: []
+
+  - id: machine-readable-assets-index
+    idea: index card listing which files have established conventions and which do not; quick reference, personal accountability, public insight into process; could have corresponding page on site
+    added: 2026-02-28
+    status: hold
+    tags: []
+
+  - id: crew-roster-hugo
+    idea: hugo template displaying current crew roster, one page per agent, links to agent commendation.log (or symlink if sufficient for markdown render workflow on site build)
+    added: 2026-02-28
+    status: hold
+    tags: []
+
+  - id: holding-bay-page
+    idea: hugo template or standard page displaying some or all holding deck items; default is display, optional #dark tag in item text strips it from what goes live
+    added: 2026-02-28
+    status: hold
+    tags: []
