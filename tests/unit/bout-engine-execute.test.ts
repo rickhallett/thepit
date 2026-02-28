@@ -522,16 +522,20 @@ describe('executeBout', () => {
         (system: string, injection: string) => `${system}\n${injection}`,
       );
 
-      const ctx = makeContext({
-        preset: SINGLE_AGENT_PRESET,
-        promptHook: () => ({ injectedContent: 'EXPERIMENT: be brief' }),
-      });
-      await executeBout(ctx);
+      try {
+        const ctx = makeContext({
+          preset: SINGLE_AGENT_PRESET,
+          promptHook: () => ({ injectedContent: 'EXPERIMENT: be brief' }),
+        });
+        await executeBout(ctx);
 
-      expect(appendExperimentInjectionMock).toHaveBeenCalledWith(
-        expect.any(String),
-        'EXPERIMENT: be brief',
-      );
+        expect(appendExperimentInjectionMock).toHaveBeenCalledWith(
+          expect.any(String),
+          'EXPERIMENT: be brief',
+        );
+      } finally {
+        appendExperimentInjectionMock.mockReset();
+      }
     });
 
     it('E-18: null hook return = no change', async () => {
@@ -1132,13 +1136,14 @@ describe('executeBout', () => {
     it('E-64: CREDITS_ENABLED=false skips settlement', async () => {
       const credits = await import('@/lib/credits');
       Object.defineProperty(credits, 'CREDITS_ENABLED', { value: false, writable: true });
+      try {
+        const ctx = makeContext({ preauthMicro: 5000 });
+        await executeBout(ctx);
 
-      const ctx = makeContext({ preauthMicro: 5000 });
-      await executeBout(ctx);
-
-      expect(settleCreditsMock).not.toHaveBeenCalled();
-
-      Object.defineProperty(credits, 'CREDITS_ENABLED', { value: true, writable: true });
+        expect(settleCreditsMock).not.toHaveBeenCalled();
+      } finally {
+        Object.defineProperty(credits, 'CREDITS_ENABLED', { value: true, writable: true });
+      }
     });
 
     it('E-65: anonymous bout skips settlement (no userId)', async () => {
@@ -1316,10 +1321,14 @@ describe('executeBout', () => {
         throw new Error('LangSmith broken');
       });
 
-      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET });
-      // Should NOT throw — tracing failure is caught
-      const result = await executeBout(ctx);
-      expect(result.transcript).toHaveLength(1);
+      try {
+        const ctx = makeContext({ preset: SINGLE_AGENT_PRESET });
+        // Should NOT throw — tracing failure is caught
+        const result = await executeBout(ctx);
+        expect(result.transcript).toHaveLength(1);
+      } finally {
+        withTracingMock.mockImplementation((fn: unknown) => fn);
+      }
     });
 
     it('E-78: tags include bout, presetId, modelId', async () => {
