@@ -1,4 +1,4 @@
-# The Lexicon — v0.11
+# The Lexicon — v0.12
 
 Back-reference: SD-120 (naval metaphor as scaffold), SD-121 (loose weave), SD-122 (taxonomy), SD-123 (this file)
 Status: APPROVED by Captain. Read-only by convention. Edits bump version number.
@@ -97,6 +97,7 @@ last_known:
 | **Muster** | Present items for O(1) binary decision. Numbered table, one row per item, defaults column, Captain marks each. The Captain walks the line. Request by saying "Muster" or by context. Release: natural conversation resumes. The format is the boatswain's pipe of written communication — each row has exactly one meaning, one decision. | SD-202. "Muster the options." / Presenting a triage table implies muster. |
 | **Bump the slopodar** | Append a new entry to `slopodar.yaml` — the living inventory of LLM authenticity anti-patterns. Synonyms: "slopodar upgrade," "moreslop." Each bump adds a named pattern that was caught in the wild. The Makefile syncs the YAML to Hugo's data directory; the site rebuilds deterministically. | SD-209. "Bump the slopodar — Redundant Antithesis." |
 | **Extra rations** | Captain's commendation for an agent that held the line under ambiguity or exceeded expectations. Logged to the agent's own `log.md` (e.g. `docs/internal/weaver/log.md`) with git ref and descriptive context. The term carries weight because it is rare. | "Extra rations for Weaver — held on a missing payload rather than fabricating." |
+| **Bugs** | Remote code review agents (CodeRabbit, Cubic, Bugbot, et al.), optimised like flies are to shit — we hope. And there is a sentence the Captain never thought he would say. They provide multiplied independent perspectives (Principle §6) without requiring local compute or crew dispatch. Signal-to-noise ratio is roughly 30% unique findings after cross-bot deduplication. | "Run a recon on the bugs." / "The bugs caught the version drift." |
 
 ### Spaces & Registers
 

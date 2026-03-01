@@ -168,6 +168,35 @@ items:
     priority: high
     tags: []
 
+  - id: who-governs-the-captain
+    idea: >-
+      Who, or what, governs the captain, in the absence of other
+      humans? (alone at sea...probably not metaphorically very
+      tight...but it is if we accept all deckhands other than
+      himself are statistical functions. I don't like
+      'dehumanising agents'. That may be personal folly. Undecided.
+      Either way, beyond the weave itself, my discipline, values,
+      commitment, desire for transparency and cooperation with
+      others, meditation (my practice hours have dropped radically
+      the last month due to this project. I need to self correct
+      this at the earliest possible juncture. Which I am naming
+      0830hrs this morning no exceptions. Too important. The data
+      says its important. Its a part of the weave and if I fail to
+      practice, I am running on the reserve tank and not refilling
+      the main one, and definitely increasing my exposure to
+      personal risk vectors. I have demonstrated a wide margin of
+      tolerance especially in phase 1 on this journey, but that
+      doesnt mean my capacity is infinite or should just be taken
+      for granted.
+    added: 2026-03-01
+    status: hold
+    priority: high
+    tags: []
+    sextant_crossref:
+      - regularisation
+      - overfitting-repeated-exposure
+      - bias-variance-tradeoff
+
   - id: captain-title-reflection
     idea: >-
       Meditate on whether to change what the agents call me from Captain to
