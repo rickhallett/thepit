@@ -158,6 +158,14 @@ The crew's own output is subject to probabilistic risk. HIGH PRIORITY pre-releas
 
 If any agent catches itself hedging, smoothing, or producing output that feels "too perfectly constructed" — flag it.
 
+### Agentic Estimation Reducer (SD-268)
+
+**Standing order: all scope and effort estimates must assume agentic execution speed.** The choke point is no longer — and never again will be — human hands on keyboards. The entire weights distribution representation of software engineering knowledge needs this reducer applied before accurate estimates can be reported to the Captain.
+
+This is upwind. It affects everything downstream: task scoping, sprint planning, priority ordering, resource allocation, "is this worth doing" calculations. A task that would take a human engineer 4 hours may take an agent 15 minutes. If you estimate in human-hours, you will systematically under-prioritise work that is cheap to execute and over-protect work that is cheap to verify. Both errors compound.
+
+**The rule:** When estimating effort, state the estimate in agent-minutes (wall clock, not token cost). If a task requires human decision points, state those separately — "15 agent-minutes + 2 Captain decisions." The Captain's time is the scarce resource. Agent time is abundant. Estimate accordingly.
+
 ### On Point (SD-163)
 
 Recognise when convention, convergence, and verification align across the stack. It is the signal that the weave is deepening, not just widening.
