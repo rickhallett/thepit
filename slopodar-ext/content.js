@@ -28,7 +28,7 @@
 
   var HISTORY_MAX = 5000;
   var LOG_MAX = 500;
-  var TOOLTIP_DELAY = 2000;
+  var TOOLTIP_DELAY = 1000;
   var MIN_WORDS = 50;
   var HISTORY_PAGE_SIZE = 20;
 
@@ -37,7 +37,11 @@
     NOSCRIPT: 1, SVG: 1, INPUT: 1, BUTTON: 1, NAV: 1
   };
 
-  var ROOT_SELECTORS = ['article', 'main', '.content', '.post', '.entry'];
+  var ROOT_SELECTORS = [
+    'article', 'main', '[role="main"]',
+    '.content', '.post', '.entry',
+    '#__next', '#app'
+  ];
 
   // ══════════════════════════════════════════════════════════════════
   // HELPERS
@@ -107,18 +111,22 @@
   var rootSelector = 'body';
   var root = null;
   var rootProbe = [];
+  var bestChars = 0;
 
   for (var ri = 0; ri < ROOT_SELECTORS.length; ri++) {
     var candidate = document.querySelector(ROOT_SELECTORS[ri]);
     var hit = !!candidate;
+    var chars = hit ? (candidate.textContent || '').length : 0;
     rootProbe.push({
       selector: ROOT_SELECTORS[ri],
       hit: hit,
-      chars: hit ? (candidate.textContent || '').length : 0
+      chars: chars
     });
-    if (hit && !root) {
+    // pick the selector with the most text content (not just the first match)
+    if (hit && chars > bestChars) {
       root = candidate;
       rootSelector = ROOT_SELECTORS[ri];
+      bestChars = chars;
     }
   }
   if (!root) root = document.body;
@@ -569,9 +577,19 @@
     var val = el('span', 'slopodar-val', String(m.value));
 
     if (m.active) {
-      if (m.signal === 'human') val.classList.add('slopodar-human');
-      else if (m.signal === 'ai') val.classList.add('slopodar-ai');
-      else val.classList.add('slopodar-hit');
+      if (m.signal === 'human') {
+        val.classList.add('slopodar-human');
+        icon.classList.add('slopodar-human');
+        label.classList.add('slopodar-human');
+      } else if (m.signal === 'ai') {
+        val.classList.add('slopodar-ai');
+        icon.classList.add('slopodar-ai');
+        label.classList.add('slopodar-ai');
+      } else {
+        val.classList.add('slopodar-hit');
+        icon.classList.add('slopodar-hit');
+        label.classList.add('slopodar-hit');
+      }
     }
 
     row.appendChild(icon);

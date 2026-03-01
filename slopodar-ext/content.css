@@ -163,17 +163,17 @@
   bottom: 1.5rem !important;
   right: 1.5rem !important;
   z-index: 2147483647 !important;
-  background: rgba(26, 27, 38, 0.96) !important;
-  border: 1px solid rgba(125, 207, 255, 0.2) !important;
+  background: rgba(22, 22, 30, 0.98) !important;
+  border: 1px solid rgba(125, 207, 255, 0.25) !important;
   border-radius: 8px !important;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
   font-size: 13px !important;
   line-height: 1.5 !important;
-  color: #a9b1d6 !important;
+  color: #c0caf5 !important;
   user-select: none !important;
-  min-width: 260px !important;
+  min-width: 280px !important;
   max-width: 320px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7) !important;
   /* no overflow hidden — tooltips extend beyond badge */
 }
 
@@ -200,7 +200,7 @@
 .slopodar-version {
   font-size: 9px !important;
   font-weight: 400 !important;
-  color: #414868 !important;
+  color: #565f89 !important;
   vertical-align: super !important;
   letter-spacing: 0 !important;
   margin-left: 1px !important;
@@ -208,8 +208,8 @@
 
 .slopodar-minimize {
   background: none !important;
-  border: 1px solid rgba(125, 207, 255, 0.15) !important;
-  color: #565f89 !important;
+  border: 1px solid rgba(125, 207, 255, 0.2) !important;
+  color: #9aa5ce !important;
   font-size: 14px !important;
   width: 24px !important;
   height: 24px !important;
@@ -267,10 +267,11 @@
   background: none !important;
   border: none !important;
   border-bottom: 2px solid transparent !important;
-  color: #414868 !important;
+  color: #7982a9 !important;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
   font-size: 10px !important;
-  padding: 0.4rem 0.3rem !important;
+  font-weight: 600 !important;
+  padding: 0.45rem 0.3rem !important;
   cursor: pointer !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
@@ -278,12 +279,13 @@
 }
 
 .slopodar-tab:hover {
-  color: #565f89 !important;
+  color: #a9b1d6 !important;
 }
 
 .slopodar-tab.slopodar-tab-active {
   color: #7dcfff !important;
   border-bottom-color: #7dcfff !important;
+  font-weight: 700 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -292,7 +294,7 @@
 
 .slopodar-panel {
   padding: 0.5rem 0.8rem !important;
-  max-height: 380px !important;
+  height: 360px !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
@@ -316,8 +318,9 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 .slopodar-section-label {
-  color: #414868 !important;
+  color: #565f89 !important;
   font-size: 10px !important;
+  font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 1.5px !important;
   margin-top: 0.5rem !important;
@@ -349,29 +352,30 @@
   width: 1.2rem !important;
   text-align: center !important;
   flex-shrink: 0 !important;
-  color: #565f89 !important;
+  color: #7982a9 !important;
 }
 
 .slopodar-label {
   flex: 1 !important;
-  color: #565f89 !important;
+  color: #7982a9 !important;
 }
 
 .slopodar-val {
-  color: #565f89 !important;
+  color: #7982a9 !important;
   text-align: right !important;
   min-width: 3.5rem !important;
 }
 
-.slopodar-val.slopodar-hit {
+/* active readings — color the whole row not just the value */
+.slopodar-hit {
   color: #c0caf5 !important;
 }
 
-.slopodar-val.slopodar-human {
+.slopodar-human {
   color: #9ece6a !important;
 }
 
-.slopodar-val.slopodar-ai {
+.slopodar-ai {
   color: #ff9e64 !important;
 }
 
@@ -382,14 +386,14 @@
 .slopodar-tooltip {
   position: absolute !important;
   width: 260px !important;
-  background: rgba(22, 22, 30, 0.98) !important;
-  border: 1px solid rgba(125, 207, 255, 0.25) !important;
+  background: rgba(16, 16, 22, 0.99) !important;
+  border: 1px solid rgba(125, 207, 255, 0.3) !important;
   border-radius: 6px !important;
   padding: 0.6rem 0.8rem !important;
   font-size: 11px !important;
   line-height: 1.5 !important;
-  color: #a9b1d6 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+  color: #c0caf5 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
   z-index: 2147483647 !important;
   pointer-events: none !important;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
@@ -400,7 +404,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 .slopodar-history-status {
-  color: #414868 !important;
+  color: #7982a9 !important;
   font-size: 11px !important;
   margin-bottom: 0.4rem !important;
 }
@@ -425,14 +429,14 @@
 }
 
 .slopodar-history-date {
-  color: #414868 !important;
+  color: #565f89 !important;
   flex-shrink: 0 !important;
   font-size: 10px !important;
 }
 
 .slopodar-history-url {
   flex: 1 !important;
-  color: #565f89 !important;
+  color: #9aa5ce !important;
   overflow: hidden !important;
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
@@ -449,8 +453,8 @@
 .slopodar-history-more,
 .slopodar-history-clear {
   background: none !important;
-  border: 1px solid rgba(125, 207, 255, 0.15) !important;
-  color: #565f89 !important;
+  border: 1px solid rgba(125, 207, 255, 0.2) !important;
+  color: #9aa5ce !important;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
   font-size: 10px !important;
   padding: 0.3rem 0.6rem !important;
@@ -503,7 +507,7 @@
 .slopodar-about-text {
   font-size: 11px !important;
   line-height: 1.55 !important;
-  color: #9aa5ce !important;
+  color: #c0caf5 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -518,14 +522,14 @@
 }
 
 .slopodar-debug-label {
-  color: #565f89 !important;
+  color: #9aa5ce !important;
   font-size: 11px !important;
 }
 
 .slopodar-debug-toggle {
   background: none !important;
-  border: 1px solid rgba(125, 207, 255, 0.15) !important;
-  color: #565f89 !important;
+  border: 1px solid rgba(125, 207, 255, 0.2) !important;
+  color: #9aa5ce !important;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
   font-size: 10px !important;
   padding: 0.15rem 0.5rem !important;
@@ -545,7 +549,7 @@
 }
 
 .slopodar-debug-info {
-  color: #414868 !important;
+  color: #7982a9 !important;
   font-size: 10px !important;
   margin-bottom: 0.3rem !important;
   word-break: break-all !important;
@@ -587,12 +591,12 @@
 }
 
 .slopodar-debug-detail {
-  color: #414868 !important;
+  color: #565f89 !important;
   word-break: break-all !important;
 }
 
 .slopodar-debug-empty {
-  color: #414868 !important;
+  color: #565f89 !important;
   font-size: 10px !important;
   font-style: italic !important;
   padding: 0.3rem !important;
@@ -600,8 +604,8 @@
 
 .slopodar-debug-export {
   background: none !important;
-  border: 1px solid rgba(125, 207, 255, 0.15) !important;
-  color: #565f89 !important;
+  border: 1px solid rgba(125, 207, 255, 0.2) !important;
+  color: #9aa5ce !important;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
   font-size: 10px !important;
   padding: 0.3rem 0.6rem !important;
@@ -620,7 +624,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 .slopodar-footer {
-  color: #414868 !important;
+  color: #7982a9 !important;
   font-size: 11px !important;
   padding: 0.4rem 0.8rem !important;
   border-top: 1px solid rgba(125, 207, 255, 0.1) !important;
