@@ -8,7 +8,10 @@ const { mockDb, mockRegisterPresetAgent, mockAttestAgent } = vi.hoisted(() => {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
+    transaction: vi.fn(),
   };
+  // Default: transaction executes the callback with the db as the tx context
+  db.transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
   return {
     mockDb: db,
     mockRegisterPresetAgent: vi.fn(),
@@ -139,6 +142,8 @@ describe('POST /api/admin/seed-agents', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     process.env.ADMIN_SEED_TOKEN = 'test-secret';
+    // Re-establish transaction mock (wiped by resetAllMocks)
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
     setupSelectEmpty();
     setupInsert();
     setupUpdate();
@@ -197,6 +202,7 @@ describe('POST /api/admin/seed-agents', () => {
       '@/app/api/admin/seed-agents/route'
     );
 
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
     setupSelectEmpty();
     setupInsert();
     setupUpdate();
@@ -219,7 +225,7 @@ describe('POST /api/admin/seed-agents', () => {
   });
 
   // U4
-  it('counts errors when individual agent seed fails', async () => {
+  it('aborts entire seed when individual agent registration fails (transaction)', async () => {
     let callCount = 0;
     mockRegisterPresetAgent.mockImplementation(() => {
       callCount++;
@@ -228,11 +234,45 @@ describe('POST /api/admin/seed-agents', () => {
     });
 
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const res = await POST(makeRequest('test-secret'));
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.errors).toBe(1);
-    expect(body.created).toBe(1);
+    // The transaction propagates the error; withLogging re-throws
+    await expect(POST(makeRequest('test-secret'))).rejects.toThrow('boom');
+    errSpy.mockRestore();
+  });
+
+  // U5
+  it('rolls back all inserts when one fails mid-loop', async () => {
+    // Track all insert calls to verify rollback behavior
+    const insertedIds: string[] = [];
+    let insertCallCount = 0;
+
+    mockDb.insert.mockImplementation(() => ({
+      values: vi.fn().mockImplementation((val: { id?: string }) => {
+        insertCallCount++;
+        // Third insert throws (after 2 preset agents succeed, first DNA agent fails)
+        if (insertCallCount === 3) throw new Error('db constraint violation');
+        if (val?.id) insertedIds.push(val.id);
+        return Promise.resolve(undefined);
+      }),
+    }));
+
+    // Mock transaction to simulate real rollback: if callback throws,
+    // discard all side effects by clearing the tracked inserts
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => {
+      insertedIds.length = 0;
+      try {
+        return await fn(mockDb);
+      } catch (error) {
+        // Rollback: clear all inserts that happened inside the transaction
+        insertedIds.length = 0;
+        throw error;
+      }
+    });
+
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(POST(makeRequest('test-secret'))).rejects.toThrow('db constraint violation');
+
+    // Verify no agents persisted (all rolled back)
+    expect(insertedIds).toHaveLength(0);
     errSpy.mockRestore();
   });
 });

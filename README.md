@@ -22,12 +22,12 @@ Each agent's prompt DNA is SHA-256 hashed. This proves what instructions the age
 
 This is probably the more interesting part.
 
-The `docs/internal/` directory contains 235+ timestamped session decisions recording every significant choice made during development. Not a curated retrospective. A live log, written as decisions were made, including the ones that turned out to be wrong.
+The `docs/internal/` directory contains 275+ timestamped session decisions recording every significant choice made during development. Not a curated retrospective. A live log, written as decisions were made, including the ones that turned out to be wrong.
 
 Some of what's documented:
 
 - **The slopodar** (`slopodar.yaml`) -- a living taxonomy of LLM authenticity failure modes, each caught in the wild during development. Named patterns like "Tally Voice" and "Epistemic Theatre" with descriptions of what they look like, why they're a problem, and what a human would write instead.
-- **A governance methodology** for coordinating LLM agents, built incrementally and revised when it broke. 14 agent definitions with distinct roles, a lexicon of operational terms, verification gates, and a process for catching sycophantic drift before it compounds.
+- **A governance methodology** for coordinating LLM agents, built incrementally and revised when it broke. 11 agent definitions with distinct roles, a lexicon of operational terms, verification gates, and a process for catching sycophantic drift before it compounds.
 - **A fight card** (`docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md`) -- 16 documented rounds where the human pushed back against the agents' tendency toward plausible, confident, wrong consensus.
 - **Self-corrections on the record.** The governance methodology itself was caught potentially being governance theatre (SD-190). A 9,417-line public disclosure was committed without adequate review (SD-133, SD-136). These are documented because documenting failure is how you prevent repetition.
 - **A 12-layer model** ([`docs/lexical-harness-not-prompt-harness.md`](docs/lexical-harness-not-prompt-harness.md)) of the human-agent system, refined from empirical observation, mapping everything from hardware to the human operator's cognitive state.
@@ -63,7 +63,7 @@ All Go 1.25, sharing `shared/config` and `shared/theme`.
 | Auth | Clerk |
 | Payments | Stripe |
 | Hosting | Vercel |
-| Tests | Vitest (1,279 passing) + Playwright |
+| Tests | Vitest (1,289 passing) + Playwright |
 | CLI Toolchain | 8 Go CLIs + shared library |
 
 ---

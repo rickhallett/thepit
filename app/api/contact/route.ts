@@ -61,7 +61,10 @@ export const POST = withLogging(async function POST(req: Request) {
         log.warn('Resend API error (contact captured to DB)', { responseText: text });
       }
     } catch (err) {
-      log.warn('Resend API fetch failed (contact captured to DB)', { error: String(err) });
+      log.warn('Resend API fetch failed (contact captured to DB)', {
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+      });
     }
   }
 

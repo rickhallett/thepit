@@ -2,8 +2,8 @@ import { auth } from '@clerk/nextjs/server';
 import { and, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
-import { reactions } from '@/db/schema';
-import { parseValidBody, rateLimitResponse } from '@/lib/api-utils';
+import { bouts, reactions, type TranscriptEntry } from '@/db/schema';
+import { errorResponse, parseValidBody, rateLimitResponse } from '@/lib/api-utils';
 import { sha256Hex } from '@/lib/hash';
 import {
   checkRateLimit,
@@ -37,6 +37,22 @@ export const POST = withLogging(async function POST(req: Request) {
   const { userId } = await auth();
   const ip = getClientIdentifier(req);
   const db = requireDb();
+
+  // Verify bout exists and turnIndex is valid
+  const [bout] = await db
+    .select({ id: bouts.id, transcript: bouts.transcript })
+    .from(bouts)
+    .where(eq(bouts.id, boutId))
+    .limit(1);
+
+  if (!bout) {
+    return errorResponse('Bout not found.', 404);
+  }
+
+  const maxTurn = (bout.transcript as TranscriptEntry[])?.length ?? 0;
+  if (turnIndex < 0 || turnIndex >= maxTurn) {
+    return errorResponse('Invalid turn index.', 400);
+  }
 
   /*
    * Anonymous users: store userId as null (FK-safe) and use clientFingerprint

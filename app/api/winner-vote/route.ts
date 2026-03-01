@@ -30,13 +30,27 @@ export const POST = withLogging(async function POST(req: Request) {
   const db = requireDb();
 
   const [bout] = await db
-    .select({ id: bouts.id })
+    .select({
+      id: bouts.id,
+      transcript: bouts.transcript,
+      agentLineup: bouts.agentLineup,
+    })
     .from(bouts)
     .where(eq(bouts.id, boutId))
     .limit(1);
 
   if (!bout) {
     return errorResponse('Bout not found.', 404);
+  }
+
+  // Verify the agent actually participated in this bout
+  const inTranscript = Array.isArray(bout.transcript)
+    && bout.transcript.some((t) => t.agentId === agentId);
+  const inLineup = Array.isArray(bout.agentLineup)
+    && bout.agentLineup.some((a) => a.id === agentId);
+
+  if (!inTranscript && !inLineup) {
+    return errorResponse('Agent was not a participant in this bout.', 403);
   }
 
   await db

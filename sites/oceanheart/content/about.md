@@ -12,7 +12,7 @@ Previously: EDITED (retail analytics), Brandwatch (social intelligence), Telesof
 
 ## Currently building
 
-**The Pit** — agentic evaluation arena. Multi-agent orchestration under integration discipline. 724 commits. 1,279 tests. 12 specialised agents. 265 session decisions, every one on file.
+**The Pit** — agentic evaluation arena. Multi-agent orchestration under integration discipline. 840 commits. 1,289 tests. 11 specialised agents. 277 session decisions, every one on file.
 
 **oceanheart.ai** — this site. Learning in public about the work above.
 
