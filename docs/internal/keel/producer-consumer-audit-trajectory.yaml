@@ -1,0 +1,437 @@
+# producer-consumer-audit-trajectory.yaml
+#
+# Execution plan for documenting all 14 undocumented producer-consumer
+# data flows in the tspit codebase. Written to disk before compaction
+# risk materialized at 141ktok / 71% context pressure.
+#
+# Provenance: Keel session 2026-03-01, commit 7e3529f
+# Context: Session discovered 16 total flows, 2 documented, 14 not.
+#          The bearing-producer-consumer-drift error (keel/slop.yaml)
+#          proved that undocumented flows break silently on schema change.
+#          Captain ordered full documentation. Context pressure forced
+#          plan-to-disk before execution.
+#
+# Recovery: If context dies, any agent reads this file and executes
+#           the plan from the first unchecked checkpoint.
+#
+# Target files:
+#   - docs/internal/keel/producer-consumer-maps.yaml (append entries)
+#   - docs/internal/keel/producer-consumer-maps-pretty.md (append diagrams)
+#
+# Convention: one commit per flow. Commit message format:
+#   docs(keel): producer-consumer map for <file-name>
+
+meta:
+  branch: feat/slopodar-v0.2-calibration
+  head_at_plan_write: 7e3529f
+  context_pressure: 141ktok (71%)
+  officer: Keel
+  keel_officer_env: "export KEEL_OFFICER=Keel"
+  estimated_time: 45 minutes
+  commit_strategy: one per flow, sequential
+
+# ─── SCHEMA FOR EACH ENTRY ──────────────────────────────────────────
+#
+# Each flow gets:
+#   1. YAML entry in producer-consumer-maps.yaml (machine-readable)
+#   2. ASCII diagram in producer-consumer-maps-pretty.md (human-readable)
+#   3. Independent verification (re-grep, read actual parser code)
+#   4. Cross-check against subagent findings
+#   5. Commit + push
+#
+# YAML entry schema (matches existing entries):
+#   - id: kebab-case
+#     path: file path
+#     format: json | yaml | tsv | markdown-table | env | etc
+#     producers: [{who, action, format}]
+#     programmatic_consumers: [{id, file, lines, parser, writes_to, rewrite_required, note}]
+#     reference_consumers: [list of files]
+#     conversion_risk: low | medium | high
+#     risk_summary: one paragraph
+
+# ─── DEFENSE IN DEPTH PROTOCOL ──────────────────────────────────────
+#
+# Per flow:
+#   Step 1: grep -r for the filename/path in *.{go,py,sh,ts,html,toml}
+#   Step 2: READ each consumer's actual code (not just the grep hit)
+#   Step 3: Identify the parser — what format does it expect?
+#   Step 4: Identify the producer — what format does it write?
+#   Step 5: Check for format contract (schema, typedef, comment) — usually absent
+#   Step 6: Write YAML entry + pretty-print diagram
+#   Step 7: Cross-check: did I find anything the subagent missed?
+#   Step 8: Commit with flow name
+
+# ─── HYPOTHESES: UNEXPECTED ERRORS ──────────────────────────────────
+
+error_hypotheses:
+
+  - id: hidden-consumers-in-makefiles
+    hypothesis: >-
+      The oceanheart Makefile has awk-based parsers for slopodar.yaml
+      and session-decisions.md. There may be other Makefile targets
+      that parse files we haven't traced. The subagent checked the
+      main Makefile but there could be included makefiles or scripts
+      called from make targets.
+    verification: "cat sites/oceanheart/Makefile — read entire file"
+
+  - id: symlink-chains
+    hypothesis: >-
+      .claude/agents/ symlinks to .opencode/agents/. If there are
+      other symlink chains (e.g., scripts/ to .git/hooks/), a change
+      to the source silently propagates. The post-commit symlink was
+      already confirmed. There may be others.
+    verification: "find . -type l -not -path './.git/*' — list all symlinks"
+
+  - id: env-validation-parity
+    hypothesis: >-
+      lib/env.ts (Zod, 70+ fields) and shared/config/config.go (18 fields)
+      validate .env independently. The field sets probably don't match.
+      This isn't a bug per se (Go CLIs need fewer vars than Next.js) but
+      the OVERLAP — fields both validate — could have drifted in their
+      constraints (e.g., one requires a field the other makes optional).
+    verification: >-
+      diff <(grep -oP "[\w_]+" lib/env.ts | sort) <(grep -oP "[\w_]+" shared/config/config.go | sort)
+      — compare field names
+
+  - id: hugo-data-format-assumptions
+    hypothesis: >-
+      Hugo templates access .Site.Data.slopodar.patterns and
+      .Site.Data.decisions. Hugo reads YAML/JSON/TOML from data/.
+      If we convert decisions.json to decisions.yaml, Hugo should
+      read it the same way — but field access patterns in templates
+      may assume JSON conventions (e.g., no multi-line strings).
+      Need to verify Hugo handles YAML identically.
+    verification: "grep -r 'Site.Data' sites/oceanheart/layouts/"
+
+  - id: pitkeel-binary-stale
+    hypothesis: >-
+      The post-commit hook uses pitkeel/pitkeel binary, not go run.
+      After code changes, the binary must be rebuilt. If we forget,
+      the old binary runs with old parsing logic. This already happened
+      implicitly during this session — we rebuilt, but a future agent
+      might not. The hook has auto-build logic but only if the binary
+      is missing, not if it's stale.
+    verification: "stat pitkeel/pitkeel — check mtime vs main.go mtime"
+
+  - id: prepare-commit-msg-inline-python
+    hypothesis: >-
+      prepare-commit-msg embeds Python code as a string inside a bash
+      script. If the .keel-state JSON schema changes (new nested objects,
+      new field types), the inline Python may parse incorrectly without
+      error (Python json.load succeeds, but .get() returns unexpected
+      types). This is exactly how the bearing dict-repr bug happened.
+      Every .keel-state schema change must be tested against this
+      inline Python parser.
+    verification: "Read scripts/prepare-commit-msg lines 59-82"
+
+  - id: research-pipeline-fragility
+    hypothesis: >-
+      research-pipeline.sh uses jq to assemble research-export.json
+      from pitctl export output. If pitctl's JSONL output format
+      changes (field names, nesting), jq silently produces wrong
+      output or empty fields. No validation step between pitctl
+      export and jq transformation.
+    verification: "Read scripts/research-pipeline.sh lines 69-101"
+
+# ─── EXECUTION PLAN ─────────────────────────────────────────────────
+#
+# Ordered by risk (highest first). Each checkpoint is a commit.
+# Status: pending | in_progress | done | blocked
+#
+# If compaction hits: resume from first non-done checkpoint.
+# All context needed is in this file + the subagent findings above.
+
+checkpoints:
+
+  - id: cp-01
+    flow: .keel-state
+    risk: HIGH
+    status: pending
+    tier: complex
+    estimated_minutes: 5
+    producers:
+      - pitkeel state-update (pitkeel/main.go updateKeelState)
+      - pitkeel north set (pitkeel/main.go setTrueNorth)
+      - scripts/gate.sh (python3 merge into existing state)
+      - scripts/prepare-commit-msg (reads only, but inline in write chain)
+      - scripts/post-commit (invokes pitkeel state-update)
+    consumers:
+      - scripts/hud.py (_read_keel_state → json.load, reads all fields)
+      - scripts/prepare-commit-msg (python3 json.load inline, reads officer/bearing/tempo/weave/register/gate/gate_time/tests)
+      - pitkeel state-update itself (reads existing state to preserve fields)
+      - pitkeel north get (reads true_north)
+    verification_commands:
+      - "grep -rn 'keel.state\\|keel-state' scripts/ pitkeel/ --include='*.{go,py,sh}'"
+      - "Read each consumer's parsing code — what fields does it expect?"
+      - "Read each producer's write code — what fields does it set?"
+      - "Diff expected vs actual .keel-state fields"
+    notes: >-
+      This is the most dangerous flow. Five producers, four consumers
+      (counting pitkeel self-read), JSON schema defined nowhere.
+      Already broke this session (bearing dict, officer stale, gate.sh
+      overwrite). The schema needs a formal contract — even a comment
+      block in pitkeel/main.go listing every field with its type and
+      who writes it.
+
+  - id: cp-02
+    flow: slopodar.yaml pipeline
+    risk: HIGH
+    status: pending
+    tier: complex
+    estimated_minutes: 5
+    producers:
+      - Manual editing (Captain/crew add pattern entries to root slopodar.yaml)
+      - Makefile sync target (cp from root to sites/oceanheart/data/)
+    consumers:
+      - "sites/oceanheart/Makefile stubs target (awk parser: reads '- id:' and 'name:')"
+      - "sites/oceanheart/layouts/slopodar/list.html (.Site.Data.slopodar.patterns — iterates id/name/trigger/detected)"
+      - "sites/oceanheart/layouts/slopodar/single.html (.Site.Data.slopodar.patterns — matches by .id, reads name/detected/trigger/description/signal/instead/refs)"
+    verification_commands:
+      - "cat sites/oceanheart/Makefile"
+      - "grep -rn 'slopodar' sites/oceanheart/layouts/"
+      - "Read the awk parser — what fields does it expect by name?"
+    notes: >-
+      The awk stub generator is the fragile point. It parses YAML
+      with regex/awk, not a YAML parser. Adding a field before 'name:'
+      or changing indentation could break stub generation silently.
+
+  - id: cp-03
+    flow: .env dual schema
+    risk: HIGH
+    status: pending
+    tier: complex
+    estimated_minutes: 5
+    producers:
+      - Manual editing
+      - scripts/bootstrap.sh (copies .env.example to .env if missing)
+    consumers:
+      - "lib/env.ts (Zod schema, 70+ fields, lines 157-179)"
+      - "shared/config/config.go (godotenv.Read, 18 fields, lines 56-94)"
+      - "All pit* CLIs via shared/config import"
+      - "scripts/smoke-mcp-access.sh (source .env)"
+      - "scripts/bootstrap.sh (grep for required vars)"
+    verification_commands:
+      - "Read lib/env.ts — extract all field names"
+      - "Read shared/config/config.go — extract all field names"
+      - "Compare overlap — which fields are validated by both?"
+    notes: >-
+      The risk isn't missing fields (each side validates its own needs).
+      The risk is overlapping fields with different constraints. If
+      lib/env.ts makes DATABASE_URL required and config.go makes it
+      optional (or vice versa), one toolchain accepts a config the
+      other silently ignores.
+
+  - id: cp-04
+    flow: .opencode/agents/*.md symlinks
+    risk: MEDIUM
+    status: pending
+    tier: medium
+    estimated_minutes: 3
+    producers:
+      - Manual editing (agent role definitions in .opencode/agents/)
+    consumers:
+      - ".claude/agents/*.md (symlinks to .opencode/agents/)"
+      - "scripts/aggregate-agents.py (reads .opencode/agents/*.md)"
+      - "Claude Code harness (loads from .claude/agents/ on boot)"
+      - "OpenCode harness (loads from .opencode/agents/ on boot)"
+    verification_commands:
+      - "find . -type l -not -path './.git/*'"
+      - "ls -la .claude/agents/ | head -5"
+      - "Read scripts/aggregate-agents.py"
+
+  - id: cp-05
+    flow: go.work
+    risk: MEDIUM
+    status: pending
+    tier: medium
+    estimated_minutes: 3
+    producers:
+      - Manual editing
+    consumers:
+      - "All pit* CLIs (Go toolchain resolves workspace modules)"
+      - "scripts/run-level4-gate.sh (line 57 — sets GOWORK=off)"
+    verification_commands:
+      - "cat go.work"
+      - "grep -rn 'GOWORK\\|go.work' scripts/"
+
+  - id: cp-06
+    flow: .env.example
+    risk: MEDIUM
+    status: pending
+    tier: medium
+    estimated_minutes: 3
+    producers:
+      - Manual editing (template)
+    consumers:
+      - "scripts/bootstrap.sh (cp to .env)"
+      - "lib/env.ts (schema mirrors structure — implicit contract)"
+    verification_commands:
+      - "Read scripts/bootstrap.sh"
+      - "Compare .env.example keys vs lib/env.ts schema keys"
+
+  - id: cp-07
+    flow: pitctl export JSONL
+    risk: MEDIUM
+    status: pending
+    tier: medium
+    estimated_minutes: 3
+    producers:
+      - "pitctl export bouts / pitctl export agents"
+    consumers:
+      - "scripts/research-pipeline.sh (jq transformation)"
+      - "scripts/pre-destructive-guard.sh (backup reads)"
+    verification_commands:
+      - "Read scripts/research-pipeline.sh lines 69-76"
+      - "Read scripts/pre-destructive-guard.sh lines 76-94"
+
+  - id: cp-08
+    flow: pitstorm output JSON
+    risk: MEDIUM
+    status: pending
+    tier: medium
+    estimated_minutes: 3
+    producers:
+      - "pitstorm run --output"
+    consumers:
+      - "scripts/sim-cost-report.sh (jq reads boutsDone, boutStarts, etc.)"
+      - "scripts/run-level4-gate.sh (passes as --records to dfgate)"
+    verification_commands:
+      - "Read scripts/sim-cost-report.sh lines 71-75"
+      - "Read scripts/run-level4-gate.sh — find pitstorm references"
+
+  - id: cp-09
+    flow: .nvmrc
+    risk: LOW
+    status: pending
+    tier: simple
+    estimated_minutes: 1.5
+    producers:
+      - "Manual editing (node version string)"
+    consumers:
+      - "scripts/bootstrap.sh (cat .nvmrc, version compare)"
+    verification_commands:
+      - "grep -n 'nvmrc' scripts/bootstrap.sh"
+
+  - id: cp-10
+    flow: config.toml
+    risk: LOW
+    status: pending
+    tier: simple
+    estimated_minutes: 1.5
+    producers:
+      - "Manual editing"
+    consumers:
+      - "scripts/smoke-mcp-access.sh (awk TOML parser)"
+    verification_commands:
+      - "Read scripts/smoke-mcp-access.sh lines 16-29"
+
+  - id: cp-11
+    flow: research-export.json
+    risk: LOW
+    status: pending
+    tier: simple
+    estimated_minutes: 1.5
+    producers:
+      - "scripts/research-pipeline.sh (jq assembles from JSONL)"
+    consumers:
+      - "pitlab summary command"
+    verification_commands:
+      - "Read scripts/research-pipeline.sh lines 89-120"
+
+  - id: cp-12
+    flow: whoop-*.log
+    risk: LOW
+    status: pending
+    tier: simple
+    estimated_minutes: 1.5
+    producers:
+      - "Captain manual creation"
+    consumers:
+      - "pitkeel/main.go analyseWellness (os.Stat existence check)"
+    verification_commands:
+      - "grep -n 'whoop' pitkeel/main.go"
+
+  - id: cp-13
+    flow: captainslog/*.md
+    risk: LOW
+    status: pending
+    tier: simple
+    estimated_minutes: 1.5
+    producers:
+      - "Captain manual creation"
+    consumers:
+      - "pitkeel/main.go analyseWellness (os.Stat existence check)"
+    verification_commands:
+      - "grep -n 'captainslog' pitkeel/main.go"
+
+  - id: cp-14
+    flow: bugbot-findings.tsv
+    risk: LOW
+    status: pending
+    tier: simple
+    estimated_minutes: 1.5
+    producers:
+      - "Agent append (TSV rows)"
+    consumers:
+      - "No true programmatic parsers — agents read as context"
+    verification_commands:
+      - "grep -rn 'bugbot-findings' --include='*.{go,py,sh,ts}'"
+    notes: >-
+      Borderline flow. No code parses the TSV structure. Agents
+      read it but they parse it via LLM context, not regex. A format
+      change would confuse agents but not break code. Include for
+      completeness but flag as lowest priority.
+
+  - id: cp-15
+    flow: keel-history.log
+    risk: LOW
+    status: pending
+    tier: simple
+    estimated_minutes: 1.5
+    producers:
+      - "scripts/gate.sh (appends timestamped .keel-state snapshot)"
+    consumers:
+      - "No programmatic consumers found (dead reckoning reads are agent/human)"
+    verification_commands:
+      - "grep -rn 'keel-history' --include='*.{go,py,sh,ts}'"
+    notes: >-
+      Write-only log. No code reads it. Include for completeness.
+      If converting to YAML, the append pattern changes (YAML append
+      is messier than JSON-line append).
+
+# ─── POST-EXECUTION ─────────────────────────────────────────────────
+
+post_execution:
+  - id: pe-01
+    task: >-
+      Review all 14+2 entries in producer-consumer-maps.yaml for
+      consistency. Cross-check pretty-print diagrams match YAML.
+    status: pending
+
+  - id: pe-02
+    task: >-
+      Add holding-deck item for .keel-state schema contract —
+      a formal definition of every field, its type, who writes it,
+      and who reads it. This is the highest-priority follow-up.
+    status: pending
+
+  - id: pe-03
+    task: >-
+      Add holding-deck item for .env parity check — automated
+      test that compares lib/env.ts field names against
+      shared/config/config.go field names and flags drift.
+    status: pending
+
+  - id: pe-04
+    task: >-
+      Add holding-deck item for Makefile awk parser replacement —
+      the slopodar stub generator uses awk to parse YAML, which is
+      fragile. Replace with python3 + PyYAML or a Go tool.
+    status: pending
+
+  - id: pe-05
+    task: >-
+      Update AGENTS.md with a note that producer-consumer-maps.yaml
+      must be consulted before any shared data format change.
+      Make it a standing order or a gate check.
+    status: pending
