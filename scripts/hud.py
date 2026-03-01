@@ -72,6 +72,17 @@ def field_weave(data: dict) -> str:
 
 def field_bearing(data: dict) -> str:
     bearing = data.get("bearing", "—")
+    if isinstance(bearing, dict):
+        work = bearing.get("work", "—")
+        commits = bearing.get("commits", "?")
+        last = bearing.get("last", "")
+        note = bearing.get("note", "")
+        if len(last) > 40:
+            last = last[:37] + "..."
+        parts = f"{BOLD}{work}{RST} {DIM}[{commits} commits]{RST}"
+        if note:
+            parts += f" {YEL}{note}{RST}"
+        return f"{CYN}NORTH{RST}  {parts}\n       {DIM}{last}{RST}"
     return f"{CYN}NORTH{RST}  {BOLD}{bearing}{RST}"
 
 

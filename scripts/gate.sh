@@ -44,10 +44,27 @@ if [ -f "$STATE" ]; then
   } >> "$HISTORY_LOG"
 fi
 
-# Write state file
-cat > "$STATE" <<EOF
+# Update state file — merge gate fields into existing state (preserve bearing, etc.)
+if [ -f "$STATE" ]; then
+  python3 -c "
+import json, sys
+try:
+    with open('$STATE') as f:
+        state = json.load(f)
+except Exception:
+    state = {}
+state['gate'] = '$GATE'
+state['gate_time'] = '$GATE_TIME'
+state['tests'] = $TESTS
+with open('$STATE', 'w') as f:
+    json.dump(state, f)
+    f.write('\n')
+" 2>/dev/null
+else
+  cat > "$STATE" <<EOF
 {"gate": "$GATE", "gate_time": "$GATE_TIME", "tests": $TESTS}
 EOF
+fi
 
 echo
 echo "Gate: $GATE ($GATE_TIME) — $TESTS tests passed"

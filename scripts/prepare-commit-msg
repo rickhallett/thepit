@@ -62,8 +62,15 @@ if [ -f "$STATE" ]; then
 import json, sys
 try:
     d = json.load(open('$STATE'))
+    b = d.get('bearing', '—')
+    if isinstance(b, dict):
+        bearing_str = '%s [%s commits]' % (b.get('work', '—'), b.get('commits', '?'))
+        if b.get('note'):
+            bearing_str += ' | %s' % b['note']
+    else:
+        bearing_str = str(b)
     fields = [
-        ('Bearing', d.get('bearing', '—')),
+        ('Bearing', bearing_str),
         ('Tempo', d.get('tempo', '—')),
         ('Weave', '%s | %s' % (d.get('weave', '—'), d.get('register', '—'))),
         ('Gate', '%s (%s) | %s passed' % (d.get('gate', '?'), d.get('gate_time', '?'), d.get('tests', '?'))),
