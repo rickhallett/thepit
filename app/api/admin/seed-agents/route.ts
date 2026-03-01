@@ -27,21 +27,32 @@ async function rawPOST(req: Request) {
   }
 
   const db = requireDb();
-  let created = 0;
-  let attested = 0;
   const errors: string[] = [];
 
-  for (const preset of ALL_PRESETS) {
-    for (const agent of preset.agents) {
-      const agentId = buildPresetAgentId(preset.id, agent.id);
-      const [existing] = await db
-        .select()
-        .from(agents)
-        .where(eq(agents.id, agentId))
-        .limit(1);
+  // Phase 1: All DB operations inside a transaction for atomicity.
+  // Collect attestation work items to process AFTER the transaction commits
+  // (EAS calls are external API calls, not DB operations).
+  type AttestationWork = {
+    agentId: string;
+    manifest: Awaited<ReturnType<typeof registerPresetAgent>>['manifest'];
+    promptHash: string;
+    manifestHash: string;
+  };
+  const pendingAttestations: AttestationWork[] = [];
 
-      if (!existing) {
-        try {
+  const { created, dnaCreated } = await db.transaction(async (tx) => {
+    let txCreated = 0;
+
+    for (const preset of ALL_PRESETS) {
+      for (const agent of preset.agents) {
+        const agentId = buildPresetAgentId(preset.id, agent.id);
+        const [existing] = await tx
+          .select()
+          .from(agents)
+          .where(eq(agents.id, agentId))
+          .limit(1);
+
+        if (!existing) {
           const registration = await registerPresetAgent({
             presetId: preset.id,
             agentId: agent.id,
@@ -50,7 +61,7 @@ async function rawPOST(req: Request) {
             tier: preset.tier,
           });
 
-          await db.insert(agents).values({
+          await tx.insert(agents).values({
             id: registration.agentId,
             name: registration.manifest.name,
             systemPrompt: registration.manifest.systemPrompt,
@@ -65,33 +76,20 @@ async function rawPOST(req: Request) {
             promptHash: registration.promptHash,
             manifestHash: registration.manifestHash,
           });
-          created += 1;
+          txCreated += 1;
 
           if (EAS_ENABLED) {
-            const attestation = await attestAgent({
+            pendingAttestations.push({
+              agentId: registration.agentId,
               manifest: registration.manifest,
               promptHash: registration.promptHash,
               manifestHash: registration.manifestHash,
             });
-            await db
-              .update(agents)
-              .set({
-                attestationUid: attestation.uid,
-                attestationTxHash: attestation.txHash,
-                attestedAt: new Date(),
-              })
-              .where(eq(agents.id, registration.agentId));
-            attested += 1;
           }
-        } catch (error) {
-          log.error('Seed agent error', error instanceof Error ? error : new Error(String(error)), { agentId });
-          errors.push(agentId);
+          continue;
         }
-        continue;
-      }
 
-      if (EAS_ENABLED && !existing.attestationUid) {
-        try {
+        if (EAS_ENABLED && !existing.attestationUid) {
           const registration = await registerPresetAgent({
             presetId: preset.id,
             agentId: agent.id,
@@ -100,40 +98,27 @@ async function rawPOST(req: Request) {
             tier: preset.tier,
             createdAt: existing.createdAt?.toISOString(),
           });
-          const attestation = await attestAgent({
+          pendingAttestations.push({
+            agentId: registration.agentId,
             manifest: registration.manifest,
             promptHash: registration.promptHash,
             manifestHash: registration.manifestHash,
           });
-          await db
-            .update(agents)
-            .set({
-              attestationUid: attestation.uid,
-              attestationTxHash: attestation.txHash,
-              attestedAt: new Date(),
-            })
-            .where(eq(agents.id, registration.agentId));
-          attested += 1;
-        } catch (error) {
-          log.error('Seed attestation error', error instanceof Error ? error : new Error(String(error)), { agentId });
-          errors.push(agentId);
         }
       }
     }
-  }
 
-  // Seed high-DNA standalone agents for arena selection
-  let dnaCreated = 0;
-  for (const seedAgent of SEED_AGENTS) {
-    const agentId = `dna:${seedAgent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-    const [existing] = await db
-      .select()
-      .from(agents)
-      .where(eq(agents.id, agentId))
-      .limit(1);
+    // Seed high-DNA standalone agents for arena selection
+    let txDnaCreated = 0;
+    for (const seedAgent of SEED_AGENTS) {
+      const agentId = `dna:${seedAgent.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+      const [existing] = await tx
+        .select()
+        .from(agents)
+        .where(eq(agents.id, agentId))
+        .limit(1);
 
-    if (!existing) {
-      try {
+      if (!existing) {
         const systemPrompt = buildSeedAgentPrompt(seedAgent);
         const manifest = buildAgentManifest({
           agentId,
@@ -149,7 +134,7 @@ async function rawPOST(req: Request) {
           hashAgentManifest(manifest),
         ]);
 
-        await db.insert(agents).values({
+        await tx.insert(agents).values({
           id: agentId,
           name: seedAgent.name,
           systemPrompt,
@@ -173,11 +158,35 @@ async function rawPOST(req: Request) {
           ownerId: null,
           parentId: null,
         });
-        dnaCreated += 1;
-      } catch (error) {
-        log.error('Seed DNA agent error', error instanceof Error ? error : new Error(String(error)), { agentId });
-        errors.push(agentId);
+        txDnaCreated += 1;
       }
+    }
+
+    return { created: txCreated, dnaCreated: txDnaCreated };
+  });
+
+  // Phase 2: EAS attestations AFTER transaction commits (external API calls).
+  // If attestation fails, agents are created but unattested — acceptable.
+  let attested = 0;
+  for (const work of pendingAttestations) {
+    try {
+      const attestation = await attestAgent({
+        manifest: work.manifest,
+        promptHash: work.promptHash,
+        manifestHash: work.manifestHash,
+      });
+      await db
+        .update(agents)
+        .set({
+          attestationUid: attestation.uid,
+          attestationTxHash: attestation.txHash,
+          attestedAt: new Date(),
+        })
+        .where(eq(agents.id, work.agentId));
+      attested += 1;
+    } catch (error) {
+      log.error('Seed attestation error', error instanceof Error ? error : new Error(String(error)), { agentId: work.agentId });
+      errors.push(work.agentId);
     }
   }
 

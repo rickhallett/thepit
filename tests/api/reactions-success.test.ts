@@ -67,6 +67,7 @@ vi.mock('@/db', () => ({
 }));
 
 vi.mock('@/db/schema', () => ({
+  bouts: { id: Symbol('bouts.id'), transcript: Symbol('bouts.transcript') },
   reactions: { id: Symbol('reactions.id'), clientFingerprint: Symbol('reactions.clientFingerprint') },
 }));
 
@@ -104,8 +105,23 @@ describe('reactions success paths', () => {
     authMock.mockResolvedValue({ userId: null });
 
     // Reset select chain for each test.
-    // Call 1: existence check → empty (no existing reaction → insert path)
-    // Call 2: absolute counts query → { heart: 1, fire: 0 }
+    // Call 1: bout existence check → found with 6-turn transcript
+    // Call 2: reaction existence check → empty (no existing reaction → insert path)
+    // Call 3: absolute counts query → { heart: 1, fire: 0 }
+    const boutLimit = vi.fn().mockResolvedValue([{
+      id: 'bout-test-abc12',
+      transcript: [
+        { turn: 0, agentId: 'a1', agentName: 'Agent1', text: 'hello' },
+        { turn: 1, agentId: 'a2', agentName: 'Agent2', text: 'world' },
+        { turn: 2, agentId: 'a1', agentName: 'Agent1', text: 'foo' },
+        { turn: 3, agentId: 'a2', agentName: 'Agent2', text: 'bar' },
+        { turn: 4, agentId: 'a1', agentName: 'Agent1', text: 'baz' },
+        { turn: 5, agentId: 'a2', agentName: 'Agent2', text: 'qux' },
+      ],
+    }]);
+    const boutWhere = vi.fn().mockReturnValue({ limit: boutLimit });
+    const boutFrom = vi.fn().mockReturnValue({ where: boutWhere });
+
     const existenceLimit = vi.fn().mockResolvedValue([]);
     const existenceWhere = vi.fn().mockReturnValue({ limit: existenceLimit });
     const existenceFrom = vi.fn().mockReturnValue({ where: existenceWhere });
@@ -114,8 +130,9 @@ describe('reactions success paths', () => {
     const countsFrom = vi.fn().mockReturnValue({ where: countsWhere });
 
     mockSelect
-      .mockReturnValueOnce({ from: existenceFrom })   // 1st call: existence check
-      .mockReturnValueOnce({ from: countsFrom });      // 2nd call: absolute counts
+      .mockReturnValueOnce({ from: boutFrom })        // 1st call: bout existence
+      .mockReturnValueOnce({ from: existenceFrom })   // 2nd call: reaction existence check
+      .mockReturnValueOnce({ from: countsFrom });      // 3rd call: absolute counts
   });
 
   function makeReq(body: unknown) {

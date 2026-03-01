@@ -1,0 +1,57 @@
+name: Watchdog AI Blindspot Taxonomy
+version: "1.0"
+purpose: >
+  Independent, systemic evaluation framework to detect vulnerabilities, fragilities,
+  and hallucinations in AI-generated code. Focuses on production hostility over
+  surface-level correctness.
+
+categories:
+  - id: tautological_testing
+    name: Tautological Testing (The Illusion of Coverage)
+    concerns:
+      - name: Testing the Mock
+        description: Asserting the mock configuration rather than the system logic.
+      - name: Assertion Amnesia
+        description: Executing setup and operations but failing to assert final state mutations.
+      - name: Happy Path Overfit
+        description: Achieving high line coverage using only perfectly formatted inputs, ignoring protocol timeouts, nulls, and malformed data.
+
+  - id: temporal_fragility
+    name: Temporal & State Fragility (Concurrency)
+    concerns:
+      - name: Race Condition Denial
+        description: Assuming state remains constant across multiple asynchronous await boundaries.
+      - name: Transaction Boundary Failures
+        description: Executing interdependent database mutations outside ACID transactions.
+      - name: Idempotency Blindness
+        description: Missing safeguards for network retries, allowing duplicate mutations (e.g., double billing).
+
+  - id: boundary_trust
+    name: Boundary & Trust Failures (Security)
+    concerns:
+      - name: AuthN vs AuthZ Conflation
+        description: Verifying a user is logged in, but failing to verify they own the specific resource being mutated (IDOR).
+      - name: Client-Side Envy
+        description: Trusting client-provided payload data that should be strictly server-calculated (e.g., item prices).
+      - name: Timing & Side-Channel Leaks
+        description: Using standard string comparison instead of constant-time algorithms for secrets.
+
+  - id: systemic_attrition
+    name: Systemic Attrition (Resource Mishandling)
+    concerns:
+      - name: N+1 Scaling Timebomb
+        description: Fetching lists and sequentially looping to fetch relations instead of using joined queries.
+      - name: Unbounded Operations
+        description: Missing pagination (SELECT *) or streaming, causing inevitable OOM crashes at scale.
+      - name: Swallowed Exceptions (Silent Failures)
+        description: Wrapping operations in try/catch and returning generic errors without logging stack traces or contexts.
+
+  - id: semantic_hallucinations
+    name: Semantic Hallucinations (The "Looks Right" Trap)
+    concerns:
+      - name: Plausible but Phantom APIs
+        description: Calling methods that sound correct but do not exist in the installed dependency version.
+      - name: Dead Code Pathways
+        description: Generating complex error handlers that are mathematically impossible to reach due to earlier returns.
+      - name: Context Compaction Smoothing
+        description: Forgetting domain-specific business rules and substituting generic logic that technically works but violates requirements.

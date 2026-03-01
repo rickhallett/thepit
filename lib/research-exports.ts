@@ -3,6 +3,9 @@
 // Aggregates completed bouts, reactions, votes, and agents into an
 // anonymized JSON payload suitable for research consumption. Stored
 // in the research_exports table with version metadata and summary stats.
+//
+// Uses cursor-based pagination internally to avoid loading unbounded
+// result sets into Node memory simultaneously.
 
 import { eq, sql } from 'drizzle-orm';
 
@@ -27,88 +30,146 @@ export type ExportMetadata = {
   agentCount: number;
 };
 
+/** Default batch size for paginated queries. Exported for testing. */
+export const BATCH_SIZE = 1000;
+
+/**
+ * Async generator that paginates a query using offset/limit.
+ * Yields individual rows, fetching in configurable batches to bound
+ * peak memory usage regardless of total dataset size.
+ */
+export async function* batchQuery<T>(
+  queryFn: (offset: number, limit: number) => Promise<T[]>,
+  batchSize = BATCH_SIZE,
+): AsyncGenerator<T> {
+  let offset = 0;
+  while (true) {
+    const rows = await queryFn(offset, batchSize);
+    for (const row of rows) yield row;
+    if (rows.length < batchSize) break;
+    offset += batchSize;
+  }
+}
+
+/**
+ * Collect all items from an async generator into an array.
+ */
+async function collect<T>(gen: AsyncGenerator<T>): Promise<T[]> {
+  const results: T[] = [];
+  for await (const item of gen) results.push(item);
+  return results;
+}
+
+/**
+ * Map an async generator through a transform function, yielding
+ * transformed items one at a time (no intermediate array).
+ */
+async function* mapAsync<T, U>(
+  gen: AsyncGenerator<T>,
+  fn: (item: T) => Promise<U> | U,
+): AsyncGenerator<U> {
+  for await (const item of gen) yield await fn(item);
+}
+
 /**
  * Generate a research export and store it in the database.
  *
  * Queries all completed bouts with their reactions and votes,
  * anonymizes all user/owner IDs, and stores the payload as JSONB.
+ * Uses batched pagination to avoid unbounded memory consumption.
  */
 export async function generateResearchExport(
   version: string,
 ): Promise<ExportMetadata> {
   const db = requireDb();
 
-  // 1. Fetch completed bouts
-  const boutRows = await db
-    .select()
-    .from(bouts)
-    .where(eq(bouts.status, 'completed'));
-
-  // 2. Fetch all reactions
-  const reactionRows = await db.select().from(reactions);
-
-  // 3. Fetch all winner votes
-  const voteRows = await db.select().from(winnerVotes);
-
-  // 4. Fetch all non-archived agents
-  const agentRows = await db
-    .select({
-      id: agents.id,
-      name: agents.name,
-      presetId: agents.presetId,
-      tier: agents.tier,
-      responseLength: agents.responseLength,
-      responseFormat: agents.responseFormat,
-      ownerId: agents.ownerId,
-      parentId: agents.parentId,
-      archived: agents.archived,
-      createdAt: agents.createdAt,
-    })
-    .from(agents)
-    .where(eq(agents.archived, false));
-
-  // 5. Anonymize and assemble
-  const anonymizedBouts = await Promise.all(
-    boutRows.map(async (b) => ({
-      id: b.id,
-      presetId: b.presetId,
-      topic: b.topic,
-      responseLength: b.responseLength,
-      responseFormat: b.responseFormat,
-      turnCount: ((b.transcript ?? []) as TranscriptEntry[]).length,
-      ownerId: await anonymizeUserId(b.ownerId),
-      createdAt: b.createdAt?.toISOString() ?? null,
-    })),
+  // 1. Fetch completed bouts (batched)
+  const anonymizedBouts = await collect(
+    mapAsync(
+      batchQuery(
+        (offset, limit) =>
+          db.select().from(bouts).where(eq(bouts.status, 'completed')).offset(offset).limit(limit),
+      ),
+      async (b) => ({
+        id: b.id,
+        presetId: b.presetId,
+        topic: b.topic,
+        responseLength: b.responseLength,
+        responseFormat: b.responseFormat,
+        turnCount: ((b.transcript ?? []) as TranscriptEntry[]).length,
+        ownerId: await anonymizeUserId(b.ownerId),
+        createdAt: b.createdAt?.toISOString() ?? null,
+      }),
+    ),
   );
 
-  const anonymizedReactions = reactionRows.map((r) => ({
-    boutId: r.boutId,
-    turnIndex: r.turnIndex,
-    reactionType: r.reactionType,
-    createdAt: r.createdAt?.toISOString() ?? null,
-  }));
-
-  const anonymizedVotes = await Promise.all(
-    voteRows.map(async (v) => ({
-      boutId: v.boutId,
-      agentId: v.agentId,
-      userId: await anonymizeUserId(v.userId),
-      createdAt: v.createdAt?.toISOString() ?? null,
-    })),
+  // 2. Fetch all reactions (batched)
+  const anonymizedReactions = await collect(
+    mapAsync(
+      batchQuery(
+        (offset, limit) =>
+          db.select().from(reactions).offset(offset).limit(limit),
+      ),
+      async (r) => ({
+        boutId: r.boutId,
+        turnIndex: r.turnIndex,
+        reactionType: r.reactionType,
+        createdAt: r.createdAt?.toISOString() ?? null,
+      }),
+    ),
   );
 
-  const anonymizedAgents = await Promise.all(
-    agentRows.map(async (a) => ({
-      id: a.id,
-      name: a.name,
-      presetId: a.presetId,
-      tier: a.tier,
-      responseLength: a.responseLength,
-      responseFormat: a.responseFormat,
-      ownerId: await anonymizeOwnerId(a.ownerId),
-      parentId: a.parentId,
-      createdAt: a.createdAt?.toISOString() ?? null,
-    })),
+  // 3. Fetch all winner votes (batched)
+  const anonymizedVotes = await collect(
+    mapAsync(
+      batchQuery(
+        (offset, limit) =>
+          db.select().from(winnerVotes).offset(offset).limit(limit),
+      ),
+      async (v) => ({
+        boutId: v.boutId,
+        agentId: v.agentId,
+        userId: await anonymizeUserId(v.userId),
+        createdAt: v.createdAt?.toISOString() ?? null,
+      }),
+    ),
+  );
+
+  // 4. Fetch all non-archived agents (batched)
+  const anonymizedAgents = await collect(
+    mapAsync(
+      batchQuery(
+        (offset, limit) =>
+          db
+            .select({
+              id: agents.id,
+              name: agents.name,
+              presetId: agents.presetId,
+              tier: agents.tier,
+              responseLength: agents.responseLength,
+              responseFormat: agents.responseFormat,
+              ownerId: agents.ownerId,
+              parentId: agents.parentId,
+              archived: agents.archived,
+              createdAt: agents.createdAt,
+            })
+            .from(agents)
+            .where(eq(agents.archived, false))
+            .offset(offset)
+            .limit(limit),
+      ),
+      async (a) => ({
+        id: a.id,
+        name: a.name,
+        presetId: a.presetId,
+        tier: a.tier,
+        responseLength: a.responseLength,
+        responseFormat: a.responseFormat,
+        ownerId: await anonymizeOwnerId(a.ownerId),
+        parentId: a.parentId,
+        createdAt: a.createdAt?.toISOString() ?? null,
+      }),
+    ),
   );
 
   const payload = {

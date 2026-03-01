@@ -16,7 +16,14 @@ const {
     .fn()
     .mockReturnValue({ onConflictDoNothing: mockOnConflictDoNothing });
   const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
-  const mockSelectLimit = vi.fn().mockResolvedValue([{ id: 'bout-1' }]);
+  const mockSelectLimit = vi.fn().mockResolvedValue([{
+    id: 'bout-1',
+    transcript: [
+      { turn: 0, agentId: 'agent-a', agentName: 'Alpha', text: 'Hello' },
+      { turn: 1, agentId: 'agent-b', agentName: 'Bravo', text: 'World' },
+    ],
+    agentLineup: null,
+  }]);
   return {
     authMock: vi.fn(),
     mockOnConflictDoNothing,
@@ -49,7 +56,11 @@ vi.mock('@/db', () => ({
 
 vi.mock('@/db/schema', () => ({
   winnerVotes: Symbol('winnerVotes'),
-  bouts: { id: Symbol('bouts.id') },
+  bouts: {
+    id: Symbol('bouts.id'),
+    transcript: Symbol('bouts.transcript'),
+    agentLineup: Symbol('bouts.agentLineup'),
+  },
 }));
 
 /* ------------------------------------------------------------------ */
@@ -66,8 +77,15 @@ describe('winner-vote success paths', () => {
     mockInsert.mockReturnValue({ values: mockValues });
 
     authMock.mockResolvedValue({ userId: 'user_123' });
-    // Default: bout exists
-    mockSelectLimit.mockResolvedValue([{ id: 'bout-1' }]);
+    // Default: bout exists with agent-a and agent-b as participants
+    mockSelectLimit.mockResolvedValue([{
+      id: 'bout-1',
+      transcript: [
+        { turn: 0, agentId: 'agent-a', agentName: 'Alpha', text: 'Hello' },
+        { turn: 1, agentId: 'agent-b', agentName: 'Bravo', text: 'World' },
+      ],
+      agentLineup: null,
+    }]);
   });
 
   function makeReq(body: unknown) {
@@ -131,5 +149,55 @@ describe('winner-vote success paths', () => {
 
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: 'Missing boutId or agentId.' });
+  });
+
+  it('rejects vote for agent not in bout transcript → 403', async () => {
+    // Bout exists with agent-a and agent-b, but we vote for agent-x
+    const res = await POST(makeReq({ boutId: 'bout-1', agentId: 'agent-x' }));
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Agent was not a participant in this bout.' });
+    // Must NOT have attempted the insert
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('rejects vote for agent not in arena lineup → 403', async () => {
+    // Arena bout: transcript is empty but agentLineup has participants
+    mockSelectLimit.mockResolvedValue([{
+      id: 'bout-1',
+      transcript: [],
+      agentLineup: [
+        { id: 'arena-1', name: 'Gladiator', systemPrompt: 'Fight!' },
+        { id: 'arena-2', name: 'Champion', systemPrompt: 'Win!' },
+      ],
+    }]);
+
+    const res = await POST(makeReq({ boutId: 'bout-1', agentId: 'intruder' }));
+
+    expect(res.status).toBe(403);
+    expect(await res.json()).toEqual({ error: 'Agent was not a participant in this bout.' });
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('accepts vote for agent found only in arena lineup', async () => {
+    // Arena bout: agent is in lineup but not yet in transcript (edge case: early vote)
+    mockSelectLimit.mockResolvedValue([{
+      id: 'bout-1',
+      transcript: [],
+      agentLineup: [
+        { id: 'arena-1', name: 'Gladiator', systemPrompt: 'Fight!' },
+        { id: 'arena-2', name: 'Champion', systemPrompt: 'Win!' },
+      ],
+    }]);
+
+    const res = await POST(makeReq({ boutId: 'bout-1', agentId: 'arena-1' }));
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    expect(mockValues).toHaveBeenCalledWith({
+      boutId: 'bout-1',
+      agentId: 'arena-1',
+      userId: 'user_123',
+    });
   });
 });
