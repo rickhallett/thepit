@@ -25,6 +25,8 @@ describe('agents api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Invalid JSON.');
   });
 
   it('returns 400 for missing name', async () => {
@@ -35,6 +37,8 @@ describe('agents api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Missing name.');
   });
 
   it('returns 400 for missing prompt', async () => {
@@ -45,6 +49,8 @@ describe('agents api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Missing prompt.');
   });
 
   it('returns 401 when not authenticated', async () => {

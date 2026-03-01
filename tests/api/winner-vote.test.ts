@@ -11,6 +11,8 @@ describe('winner-vote api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Invalid JSON.');
   });
 
   it('returns 400 for missing fields', async () => {
@@ -21,5 +23,7 @@ describe('winner-vote api', () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe('Missing boutId or agentId.');
   });
 });

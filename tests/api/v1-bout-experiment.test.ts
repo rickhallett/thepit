@@ -143,6 +143,8 @@ describe('POST /api/v1/bout — experiment config', () => {
       ));
 
       expect(res.status).toBe(403);
+      const body = await res.json();
+      expect(body.error).toContain('X-Research-Key');
     });
 
     it('accepts experimentConfig with valid X-Research-Key', async () => {

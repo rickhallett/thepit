@@ -67,16 +67,22 @@ describe('research export APIs', () => {
     it('U1: rejects without admin token', async () => {
       const res = await POST(makeReq({ version: 'v1.0.0' }));
       expect(res.status).toBe(401);
+      const body = await res.json();
+      expect(body.error).toBe('Authentication required.');
     });
 
     it('U2: rejects wrong admin token', async () => {
       const res = await POST(makeReq({ version: 'v1.0.0' }, 'wrong-token'));
       expect(res.status).toBe(401);
+      const body = await res.json();
+      expect(body.error).toBe('Authentication required.');
     });
 
     it('U3: rejects missing version', async () => {
       const res = await POST(makeReq({}, ADMIN_TOKEN));
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBe('version required (max 16 chars).');
     });
 
     it('U4: rejects too-long version', async () => {
@@ -84,6 +90,8 @@ describe('research export APIs', () => {
         makeReq({ version: 'x'.repeat(17) }, ADMIN_TOKEN),
       );
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBe('version required (max 16 chars).');
     });
   });
 
@@ -142,11 +150,15 @@ describe('research export APIs', () => {
 
       const res = await GET(makeReq('?id=999'));
       expect(res.status).toBe(404);
+      const body = await res.json();
+      expect(body.error).toBe('Not found.');
     });
 
     it('U2: returns 400 for invalid export ID', async () => {
       const res = await GET(makeReq('?id=abc'));
       expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBe('Invalid export ID.');
     });
   });
 });

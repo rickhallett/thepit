@@ -154,18 +154,24 @@ describe('POST /api/admin/seed-agents', () => {
     delete process.env.ADMIN_SEED_TOKEN;
     const res = await POST(makeRequest('test-secret'));
     expect(res.status).toBe(401);
+    const body = await res.json();
+    expect(body.error).toBe('Authentication required.');
   });
 
   // U2
   it('returns 401 when x-admin-token header is missing', async () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(401);
+    const body = await res.json();
+    expect(body.error).toBe('Authentication required.');
   });
 
   // U3
   it('returns 401 when admin token is wrong', async () => {
     const res = await POST(makeRequest('wrong-token'));
     expect(res.status).toBe(401);
+    const body = await res.json();
+    expect(body.error).toBe('Authentication required.');
   });
 
   // H1

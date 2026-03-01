@@ -91,6 +91,8 @@ describe('POST /api/agents (clone flow)', () => {
 
     const res = await POST(req);
     expect(res.status).toBe(401);
+    const body = await res.json();
+    expect(body.error).toBe('Authentication required.');
   });
 
   it('creates agent without parentId for fresh builds', async () => {

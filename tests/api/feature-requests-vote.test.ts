@@ -140,5 +140,8 @@ describe('feature-requests/vote api', () => {
 
     const res = await POST(makeReq({ featureRequestId: 1 }));
     expect(res.status).toBe(429);
+    const body = await res.json();
+    expect(body.error).toBe('Rate limit exceeded.');
+    expect(body.code).toBe('RATE_LIMITED');
   });
 });

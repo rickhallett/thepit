@@ -89,6 +89,7 @@ describe('GET /s/:slug', () => {
     });
 
     expect(res.status).toBe(404);
+    expect(await res.text()).toBe('Not found.');
     expect(resolveShortLinkMock).not.toHaveBeenCalled();
   });
 
