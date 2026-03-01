@@ -292,6 +292,23 @@ items:
     status: hold
     tags: []
 
+  - id: agent-boot-identity-override
+    idea: >-
+      Claude Code agent selection may be overridden by AGENTS.md default posture
+      line ("you operate as Weaver — this is not optional"). Captain launched
+      session as Keel but Weaver definition loaded. Mid-session agent switching
+      via conversational cue ("Keel, your orders") has no harness mechanism —
+      no agent file swap occurs. Entire Keel session ran under Weaver governance
+      with Keel's name. Need to verify harness behavior and fix AGENTS.md
+      default posture to not override explicit agent selection.
+    added: 2026-03-01
+    status: hold
+    priority: high
+    tags: []
+    backrefs:
+      - AGENTS.md (default posture section)
+      - holding-deck.yaml (agent-boot-audit)
+
   - id: bout-engine-e2e-scenarios
     idea: >-
       Three Playwright E2E scenarios for bout-engine, parked from Architect spec convergence triage.
