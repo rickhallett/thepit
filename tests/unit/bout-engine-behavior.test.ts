@@ -406,6 +406,8 @@ describe('bout-engine behavior (validate → execute)', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.status).toBe(409);
+      const body = await result.error.json();
+      expect(body.error).toBe('Bout has already completed.');
     }
   });
 
