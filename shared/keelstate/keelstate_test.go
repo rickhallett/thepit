@@ -142,3 +142,88 @@ func TestWriteCreatesFile(t *testing.T) {
 		t.Fatalf("file should exist after Write: %v", err)
 	}
 }
+
+func TestUnknownFieldsRejected(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".keel-state")
+
+	// Write JSON with an unknown field directly to disk
+	bad := []byte(`{"head":"abc","gate":"green","bogus_field":"surprise"}` + "\n")
+	if err := os.WriteFile(path, bad, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	// Read should reject it
+	if _, err := Read(dir); err == nil {
+		t.Error("Read should reject unknown fields, got nil error")
+	}
+
+	// ReadModifyWrite should also reject it
+	if err := ReadModifyWrite(dir, func(s *State) {}); err == nil {
+		t.Error("ReadModifyWrite should reject unknown fields, got nil error")
+	}
+}
+
+func TestCorruptedJSON(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".keel-state")
+
+	for _, tc := range []struct {
+		name    string
+		content []byte
+	}{
+		{"truncated", []byte(`{"head":"abc"`)},
+		{"garbage", []byte(`not json at all`)},
+		{"partial write", []byte(`{"head":`)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := os.WriteFile(path, tc.content, 0644); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := Read(dir); err == nil {
+				t.Errorf("Read should error on %s JSON", tc.name)
+			}
+			if err := ReadModifyWrite(dir, func(s *State) {}); err == nil {
+				t.Errorf("ReadModifyWrite should error on %s JSON", tc.name)
+			}
+		})
+	}
+}
+
+func TestReadEmptyFile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, ".keel-state")
+
+	// Create empty file (simulates torn write — truncate happened, write didn't)
+	if err := os.WriteFile(path, []byte{}, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := Read(dir)
+	if err != nil {
+		t.Fatalf("Read of empty file should return zero state, got error: %v", err)
+	}
+	if s.Head != "" {
+		t.Errorf("expected zero state from empty file, got Head=%q", s.Head)
+	}
+}
+
+func TestReadModifyWriteOnEmptyFile(t *testing.T) {
+	dir := t.TempDir()
+
+	// RMW on nonexistent file — should create with mutation applied
+	if err := ReadModifyWrite(dir, func(s *State) {
+		s.Head = "fresh"
+		s.Gate = "green"
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := Read(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Head != "fresh" {
+		t.Errorf("Head: got %q, want %q", got.Head, "fresh")
+	}
+}

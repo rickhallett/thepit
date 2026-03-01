@@ -1,0 +1,10 @@
+title: broadside-principles-codex
+date: 2026-03-01
+context: Broadside audit fixes, evidence maturity review, and integration proofs.
+principles:
+  - Tests must challenge claims, not mirror implementation; tautological tests are regressions in disguise.
+  - Evidence levels should be explicit; mock-based tests are E1/E2, live integration proofs are E3.
+  - Security and data-integrity gaps cluster at boundaries; negative tests are mandatory.
+  - Performance fixes require end-to-end memory accounting; batching without streaming can still OOM.
+  - Atomicity beats hope; multi-step writes belong in transactions, external side effects post-commit.
+  - Observability is part of correctness; preserve stack traces and log failures without losing durable records.

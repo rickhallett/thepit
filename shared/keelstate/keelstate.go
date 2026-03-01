@@ -18,15 +18,25 @@
 package keelstate
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"syscall"
 )
 
+// decodeStrict unmarshals JSON, rejecting unknown fields to catch schema drift.
+func decodeStrict(data []byte, v interface{}) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	return dec.Decode(v)
+}
+
 // State is the typed schema for .keel-state. All fields are exported
-// with explicit JSON tags. Unknown fields are rejected on decode.
+// with explicit JSON tags. Decode uses json.Decoder with
+// DisallowUnknownFields to reject schema drift.
 type State struct {
 	// head: short git SHA of HEAD. Written by pitkeel state-update.
 	Head string `json:"head"`
@@ -95,19 +105,35 @@ func statePath(root string) string {
 }
 
 // Read loads .keel-state from the given repo root. Returns a zero State
-// (not an error) if the file does not exist.
+// (not an error) if the file does not exist. Acquires LOCK_SH to prevent
+// reading a torn write (truncate→write is not atomic).
 func Read(root string) (State, error) {
 	path := statePath(root)
-	data, err := os.ReadFile(path)
+
+	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return State{}, nil
 		}
+		return State{}, fmt.Errorf("keelstate: open %s: %w", path, err)
+	}
+	defer f.Close()
+
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_SH); err != nil {
+		return State{}, fmt.Errorf("keelstate: flock %s: %w", path, err)
+	}
+	defer syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
+
+	data, err := io.ReadAll(f)
+	if err != nil {
 		return State{}, fmt.Errorf("keelstate: read %s: %w", path, err)
+	}
+	if len(data) == 0 {
+		return State{}, nil
 	}
 
 	var s State
-	if err := json.Unmarshal(data, &s); err != nil {
+	if err := decodeStrict(data, &s); err != nil {
 		return State{}, fmt.Errorf("keelstate: parse %s: %w", path, err)
 	}
 	return s, nil
@@ -169,15 +195,15 @@ func ReadModifyWrite(root string, fn func(*State)) error {
 	}
 	defer syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
 
-	// Read existing
-	data, err := os.ReadFile(path)
-	if err != nil && !os.IsNotExist(err) {
+	// Read from the locked fd — not os.ReadFile which opens a second fd.
+	data, err := io.ReadAll(f)
+	if err != nil {
 		return fmt.Errorf("keelstate: read %s: %w", path, err)
 	}
 
 	var s State
 	if len(data) > 0 {
-		if err := json.Unmarshal(data, &s); err != nil {
+		if err := decodeStrict(data, &s); err != nil {
 			return fmt.Errorf("keelstate: parse %s: %w", path, err)
 		}
 	}

@@ -169,6 +169,20 @@ The canonical crew roster is in `AGENTS.md`. Weaver's relationship to the crew:
 - **Watchdog** writes and maintains tests. You ensure tests are run at the right time and their results are respected.
 - **Sentinel** identifies security risks. You ensure security fixes follow the same integration discipline as features.
 
+### Post-Merge Staining Checklist
+
+After every merge, stain the diff against the Watchdog taxonomy (`docs/internal/watchdog/lessons-learned-blindspots.md`). The question is not "does this pass?" — it is "what class of defect could hide in this shape?"
+
+| Check | What to look for |
+|-------|-----------------|
+| Semantic Hallucination | Comments or docstrings that claim behaviour the code does not implement (e.g., "rejects unknown fields" when the decoder doesn't) |
+| Looks Right Trap | Code that follows the correct pattern but operates on the wrong handle, fd, ref, or scope |
+| Completeness Bias | Each function is correct in isolation but duplicated logic is not extracted or cross-referenced |
+| Dead Code | Error-handling paths copied from another context where they are reachable but unreachable here |
+| Training Data Frequency | stdlib/API choices that reflect corpus frequency rather than current best practice |
+
+This checklist was derived from the Phase 4 post-merge recon and Maturin's field observation (2026-03-01). The term "Staining" is defined in `docs/internal/lexicon.md` v0.16.
+
 ### Bugbot Findings Log
 
 `docs/internal/weaver/bugbot-findings.tsv` — TSV log of all automated reviewer findings across PRs. Columns: date, pr, round, ref, class, finding, fix_commit, status. Read when reviewing PRs or auditing test quality. Slopodar cross-ref via `class` column.

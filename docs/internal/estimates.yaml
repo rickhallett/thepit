@@ -12,6 +12,7 @@
 #   estimated_human_decisions: pre-task estimate of Captain decision points
 #   actual_agent_minutes:      post-task measured agent wall-clock time
 #   actual_human_decisions:    post-task measured Captain decision points
+#   post_merge_findings:       count and severity of findings in post-merge recon (0 = clean)
 #   notes:                     calibration observations (optional)
 
 entries:
@@ -24,6 +25,7 @@ entries:
     estimated_human_decisions: 1
     actual_agent_minutes: 8
     actual_human_decisions: 3
+    post_merge_findings: 0
     notes: >-
       first entry — establishing baseline. estimated 10, actual 8.
       3 Captain decisions: dorny vs roll-own (1), admin merge PR #403 (1),
@@ -37,6 +39,7 @@ entries:
     estimated_human_decisions: 1
     actual_agent_minutes: 12
     actual_human_decisions: 2
+    post_merge_findings: 0
     notes: >-
       Trajectory file estimated 45 min (human-speed, pre SD-268 reducer).
       Actual 12 agent-min with 3 parallel subagents (HIGH/MEDIUM/LOW tiers).
@@ -50,6 +53,7 @@ entries:
     estimated_human_decisions: 1
     actual_agent_minutes: 15
     actual_human_decisions: 6
+    post_merge_findings: 0
     notes: >-
       Underestimated scope. Started as "build heatmap" (10 min), expanded to:
       heatmap script, provenance snapshot, 3 blog drafts, PDF deletion, dead
@@ -66,6 +70,7 @@ entries:
     estimated_human_decisions: 3
     actual_agent_minutes: 25
     actual_human_decisions: 0
+    post_merge_findings: "0 HIGH (Watchdog meta-audit clean)"
     notes: >-
       4.2x faster than estimate. Full autonomy — zero Captain decisions.
       Parallel subagent dispatch was the accelerant: 3 batches for Phase 1a
@@ -74,3 +79,31 @@ entries:
       The estimate was pre-SD-268 (human-speed); even post-reducer the
       parallelism multiplier was underestimated. Calibration: for test
       suite work where files are independent, divide by agent-count.
+
+  - datetime: 2026-03-01T18:30:00Z
+    agent: Weaver
+    task: "Phase 4 critical bugs — agent-boot identity, research-pipeline, keel-state schema"
+    sd_ref: null
+    estimated_agent_minutes: 40
+    estimated_human_decisions: 2
+    actual_agent_minutes: 15
+    actual_human_decisions: 1
+    post_merge_findings: "5 subsurface (1 Semantic Hallucination, 1 Looks Right Trap, 3 minor)"
+    notes: >-
+      2.7x faster than estimate. 3 fixes bundled in one commit — Weaver's own
+      anti-pattern (flagged in Maturin field observation). Post-merge recon
+      found 5 subsurface issues (S1-S5). Two reclassified upward after staining
+      against Watchdog taxonomy. This entry is the calibration proof that
+      defect-density tracking matters: speed ratio looked good (2.7x) but
+      defect yield was worst of any task. Fast is not clean.
+
+  - datetime: 2026-03-01T21:00:00Z
+    agent: Weaver
+    task: "S1/S2 fixes — DisallowUnknownFields, LOCK_SH on Read, dead code removal, 5 new tests"
+    sd_ref: null
+    estimated_agent_minutes: 12
+    estimated_human_decisions: 1
+    actual_agent_minutes: null
+    actual_human_decisions: null
+    post_merge_findings: null
+    notes: "In progress. Will be updated post-merge."
