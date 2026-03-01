@@ -1,16 +1,12 @@
 +++
 title = "33,700 tokens on boot and nobody noticed"
 date = "2026-03-01"
-description = "I built a token heatmap of my entire repository. The biggest file in the boot sequence was the session decisions log. It loads every time an agent wakes up. 33,700 tokens of historical decisions that no agent needs to read in full to do its job."
+description = "I pointed a tokeniser at the repo. The boot sequence had an elephant in it."
 tags = ["agents", "tokens", "infrastructure", "discipline"]
 draft = false
 +++
 
 > **Draft notice:** This page was written by an LLM agent and has not yet been reviewed, rewritten, or approved by the human. It exists as raw material. The human will come back to it, read it with fresh eyes, and either rewrite it in his own voice or throw it away entirely. That's the process. If you're reading this before that happens, you're reading an agent's first draft, not a finished article.
-
-## The heatmap
-
-I run a multi-agent system with 13 agents, 271 session decisions on file, and a governance framework that requires every agent to read the ship's standing orders on boot. Today I pointed a tokeniser at the entire repository and asked: how much does it cost, in tokens, just to wake up?
 
 ```
   BOOT SEQUENCE (read on every agent wake)
@@ -34,51 +30,19 @@ I run a multi-agent system with 13 agents, 271 session decisions on file, and a 
    112.9k  BOOT TOTAL
 ```
 
-One file is 30% of the boot sequence. It's the session decisions log: an append-only record of every decision made across every session since the project started. 271 entries. 496 lines. 68 tokens per line.
-
-It loads every time.
-
-## Why it loads
-
-The session decisions log is the canonical record of what was decided, when, and by whom. When an agent wakes up after a context window dies, the dead reckoning protocol says: read the session decisions file. It's the fastest way to reconstruct the state of the world.
-
-The problem is that standing order doesn't say "read the last 10 decisions." It says "read the file." So the agent reads all 271 decisions, including the one from three weeks ago about whether to use em-dashes in copy.
-
-## The algorithm
-
 ```
-files       = git ls-files
-tokenizer   = cl100k_base (GPT-4 compatible)
+files     = git ls-files
+tokenizer = cl100k_base
 
 for file in files:
-    skip if binary
-    tokens  = encode(file.content).length
-              + encode(file.path).length
-    record  { path, tokens, boot_flag }
+    tokens = encode(content).length + encode(path).length
 
-sort by tokens descending
-aggregate by directory
-tag boot sequence files
+sort descending
+tag boot files
 ```
 
-Time to build: 5 agent-minutes.
-Time to run: 3 seconds.
-Time to find the elephant: instant.
+5 agent-minutes to build. 3 seconds to run. The fix — stop loading all 271 historical decisions on every wake — drops 30k tokens from the boot sequence.[^1]
 
-[Full provenance: token-heatmap.yaml on GitHub](https://github.com/rickhallett/thepit/blob/master/docs/internal/weaver/token-heatmap.yaml) | [The script](https://github.com/rickhallett/thepit/blob/master/bin/token-heatmap.js)
+[Provenance](https://github.com/rickhallett/thepit/blob/master/docs/internal/weaver/token-heatmap.yaml) | [Script](https://github.com/rickhallett/thepit/blob/master/bin/token-heatmap.js)
 
-## The fix (not yet implemented)
-
-The session decisions file is append-only. That's a standing order ([SD-266](https://github.com/rickhallett/thepit/blob/master/docs/internal/session-decisions.md)). History is immutable. The delta between past and present is the signal. So the file stays.
-
-The fix is to stop loading the whole thing on boot. A summary index, the last 10 decisions plus a count, would drop 30,000 tokens from the boot sequence. That's roughly 30,000 tokens of context window recovered on every single agent wake.
-
-At current API pricing, that's not nothing. At 100 agent wakes per day across a team, it adds up.
-
-## Was it obvious?
-
-Kind of. The way a 2-metre elephant in the room is obvious. Everyone can see it. Nobody counts it. Until you point a tokeniser at it and the bar chart speaks for itself.
-
-The heatmap took 5 minutes to build. The insight it surfaced will save tokens on every agent invocation for the rest of the project's life. That's the kind of return that makes infrastructure work worth doing, even when there are features to ship.
-
-We're going fast. The heatmap is how we check we're not burning fuel on the way.
+[^1]: The heaviest directory in the repo is `docs/internal/research/mobprogrammingrpg/` at 1,148,700 tokens. Twelve PDFs. ["We are not doing PDFs."](https://github.com/rickhallett/thepit/blob/7e5675ab89d28d86baf5a47847d53a4e84918efc/docs/internal/anotherpair/log.md#we-are-not-doing-pdfs-2026-03-01)
