@@ -144,6 +144,30 @@ items:
     priority: high
     tags: []
 
+  - id: pr396-ci-failures
+    idea: >-
+      PR #396 (slopodar v0.2) blocked on remote CI: lint and security checks failed.
+      typecheck, test-unit, integration, go-gate all pass. Vercel preview deploys also failed.
+      Need to pull CI logs, diagnose lint + security failures, and fix or document.
+      Local gate was green — remote-only failures suggest either lint config drift or
+      new security advisory since last merge. Not blocking local work but blocking merge.
+    added: 2026-03-01
+    status: hold
+    tags: []
+
+  - id: keel-bearing-update
+    idea: >-
+      .keel-state bearing is 44+ commits stale — still reads "layer model v0.3 shipped,
+      agent symlinks in place, AnotherPair audit actioned, pre-compaction." Actual bearing:
+      slopodar v0.2 calibration complete, analytical clear slop taxonomy established,
+      5 PRs merged (#391-395), PR #396 open. Semantic fields (head, sd) are current but
+      the bearing string — the human-readable orientation — has drifted significantly.
+      Needs a fresh bearing set by the Captain or Weaver.
+    added: 2026-03-01
+    status: hold
+    priority: high
+    tags: []
+
   - id: bout-engine-e2e-scenarios
     idea: >-
       Three Playwright E2E scenarios for bout-engine, parked from Architect spec convergence triage.
