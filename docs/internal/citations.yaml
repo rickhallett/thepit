@@ -1,8 +1,11 @@
 # citations.yaml — Living citations index
 # Append-only. Machine-readable. Backrefs to lexicon, sextant, SDs.
 #
-# Each citation must be verified to exist before entry.
-# Verification status tracked per entry.
+# Each citation must be independently verified to exist.
+# Verification status tracked per entry. "Independently" means
+# a human confirming the paper/book exists via a source other
+# than the LLM that identified it. The LLM's training data is
+# the source of the claim, not verification of the claim.
 #
 # Schema:
 #   id:          kebab-case, used as backref key
@@ -33,7 +36,7 @@ entries:
     venue: >-
       Advances in Neural Information Processing Systems 28
       (NIPS 2015)
-    verified: true
+    verified: false
     url: https://papers.nips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html
     backrefs:
       - sextant.yaml (feedback-loop)
@@ -57,7 +60,7 @@ entries:
     venue: >-
       And/Or Press (first edition); New Falcon Publications
       (subsequent editions)
-    verified: true
+    verified: false
     url: null
     backrefs:
       - sextant.yaml (overfitting-to-noise-apophenia)
@@ -77,7 +80,7 @@ entries:
     year: 1983
     venue: >-
       Science, 220(4598), 671–680
-    verified: true
+    verified: false
     url: https://doi.org/10.1126/science.220.4598.671
     backrefs:
       - sextant.yaml (learning-rate-convergence)
