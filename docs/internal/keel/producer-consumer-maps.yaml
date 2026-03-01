@@ -414,11 +414,11 @@ files:
     programmatic_consumers:
       - id: research-pipeline-sh
         file: scripts/research-pipeline.sh
-        lines: "69-101"
-        parser: "BROKEN — redirects stdout expecting JSONL, but pitctl writes to files"
-        writes_to: "research-exports/<ts>/research-export.json (invalid)"
-        rewrite_required: true
-        note: "CRITICAL: stdout-vs-file contract mismatch. Pipeline produces invalid exports."
+        lines: "69-108"
+        parser: "ls -t export/*_bouts.jsonl / *_agents.json (correct — reads from file)"
+        writes_to: "research-exports/<ts>/research-export.json"
+        rewrite_required: false
+        note: "FIXED: now mirrors pre-destructive-guard.sh pattern. Handles agents as JSON array (not JSONL)."
       - id: pre-destructive-guard-sh
         file: scripts/pre-destructive-guard.sh
         lines: "70-100"
@@ -620,10 +620,10 @@ comparison:
       it is the absence of any definition.
   pitctl_export:
     programmatic_consumers: 2
-    parsers_to_rewrite: 1
+    parsers_to_rewrite: 0
     files_eliminable: 0
-    conversion_risk: high
+    conversion_risk: low
     recommendation: >-
-      CRITICAL: fix research-pipeline.sh stdout-vs-file mismatch before any format
-      work. Either add --stdout to pitctl export or rewrite pipeline to read from
-      export/ directory.
+      FIXED: research-pipeline.sh rewritten to read from export/ directory
+      (mirrors pre-destructive-guard.sh). Agents format mismatch (JSON vs JSONL)
+      also resolved. Both consumers now use correct file-based output pattern.

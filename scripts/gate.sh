@@ -45,26 +45,35 @@ if [ -f "$STATE" ]; then
 fi
 
 # Update state file — merge gate fields into existing state (preserve bearing, etc.)
-if [ -f "$STATE" ]; then
-  python3 -c "
-import json, sys
+# Uses flock + python3 for atomic read-modify-write matching the keelstate contract.
+# Python3 is required (also needed by hud.py, prepare-commit-msg).
+python3 -c "
+import json, fcntl, sys
+
+path = '$STATE'
 try:
-    with open('$STATE') as f:
+    f = open(path, 'r+')
+    fcntl.flock(f, fcntl.LOCK_EX)
+    try:
         state = json.load(f)
-except Exception:
-    state = {}
-state['gate'] = '$GATE'
-state['gate_time'] = '$GATE_TIME'
-state['tests'] = $TESTS
-with open('$STATE', 'w') as f:
+    except Exception:
+        state = {}
+    state['gate'] = '$GATE'
+    state['gate_time'] = '$GATE_TIME'
+    state['tests'] = $TESTS
+    f.seek(0)
+    f.truncate()
     json.dump(state, f)
     f.write('\n')
-" 2>/dev/null
-else
-  cat > "$STATE" <<EOF
-{"gate": "$GATE", "gate_time": "$GATE_TIME", "tests": $TESTS}
-EOF
-fi
+    fcntl.flock(f, fcntl.LOCK_UN)
+    f.close()
+except FileNotFoundError:
+    with open(path, 'w') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        json.dump({'gate': '$GATE', 'gate_time': '$GATE_TIME', 'tests': $TESTS}, f)
+        f.write('\n')
+        fcntl.flock(f, fcntl.LOCK_UN)
+"
 
 echo
 echo "Gate: $GATE ($GATE_TIME) — $TESTS tests passed"

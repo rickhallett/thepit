@@ -61,33 +61,60 @@ echo -e "  Period: ${SINCE}"
 echo -e "  Output: ${EXPORT_DIR}/"
 echo ""
 
-# ── Step 1: Export raw JSONL ──────────────────────────────────────
+# ── Step 1: Export raw data via pitctl ─────────────────────────────
+#
+# pitctl writes to files in export/ (not stdout). We call pitctl,
+# then locate the output files. This mirrors pre-destructive-guard.sh.
 
 echo -e "${BOLD}[1/3] Exporting data via pitctl${RESET}"
 
 echo -e "  Exporting bouts..."
-$PITCTL export bouts --since "$SINCE" > "${EXPORT_DIR}/bouts.jsonl" 2>/dev/null || true
-BOUT_COUNT=$(wc -l < "${EXPORT_DIR}/bouts.jsonl" | tr -d ' ')
-echo -e "  ${GREEN}✓${RESET}  ${BOUT_COUNT} bouts → bouts.jsonl"
+if $PITCTL export bouts --since "$SINCE" 2>/dev/null; then
+  # pitctl writes to export/YYYY-MM-DD_bouts.jsonl
+  LATEST_BOUTS=$(ls -t export/*_bouts.jsonl 2>/dev/null | head -1)
+  if [[ -n "$LATEST_BOUTS" ]]; then
+    cp "$LATEST_BOUTS" "${EXPORT_DIR}/bouts.jsonl"
+    BOUT_COUNT=$(wc -l < "${EXPORT_DIR}/bouts.jsonl" | tr -d ' ')
+    echo -e "  ${GREEN}✓${RESET}  ${BOUT_COUNT} bouts → bouts.jsonl"
+  else
+    echo -e "  ${YELLOW}!${RESET}  No bouts file found in export/"
+    echo '[]' > "${EXPORT_DIR}/bouts.jsonl"
+  fi
+else
+  echo -e "  ${YELLOW}!${RESET}  pitctl export bouts failed"
+  echo '[]' > "${EXPORT_DIR}/bouts.jsonl"
+fi
 
 echo -e "  Exporting agents..."
-$PITCTL export agents > "${EXPORT_DIR}/agents.jsonl" 2>/dev/null || true
-AGENT_COUNT=$(wc -l < "${EXPORT_DIR}/agents.jsonl" | tr -d ' ')
-echo -e "  ${GREEN}✓${RESET}  ${AGENT_COUNT} agents → agents.jsonl"
+if $PITCTL export agents 2>/dev/null; then
+  # pitctl writes to export/YYYY-MM-DD_agents.json (JSON array, not JSONL)
+  LATEST_AGENTS=$(ls -t export/*_agents.json 2>/dev/null | head -1)
+  if [[ -n "$LATEST_AGENTS" ]]; then
+    cp "$LATEST_AGENTS" "${EXPORT_DIR}/agents.json"
+    AGENT_COUNT=$(jq 'length' "${EXPORT_DIR}/agents.json" 2>/dev/null || echo '?')
+    echo -e "  ${GREEN}✓${RESET}  ${AGENT_COUNT} agents → agents.json"
+  else
+    echo -e "  ${YELLOW}!${RESET}  No agents file found in export/"
+    echo '[]' > "${EXPORT_DIR}/agents.json"
+  fi
+else
+  echo -e "  ${YELLOW}!${RESET}  pitctl export agents failed"
+  echo '[]' > "${EXPORT_DIR}/agents.json"
+fi
 
 # ── Step 2: Transform to research export format ───────────────────
 
 echo ""
 echo -e "${BOLD}[2/3] Transforming to research export format${RESET}"
 
-# Transform JSONL arrays into a single JSON research export object.
-# The research export format has: { bouts: [...], agents: [...], exportedAt, period }
+# Transform into a single JSON research export object.
+# bouts.jsonl is JSONL (one JSON object per line) → needs jq -s to become array
+# agents.json is already a JSON array → use directly
 if command -v jq > /dev/null 2>&1; then
-  jq -s '.' "${EXPORT_DIR}/bouts.jsonl" > "${EXPORT_DIR}/bouts.json" 2>/dev/null || echo '[]' > "${EXPORT_DIR}/bouts.json"
-  jq -s '.' "${EXPORT_DIR}/agents.jsonl" > "${EXPORT_DIR}/agents.json" 2>/dev/null || echo '[]' > "${EXPORT_DIR}/agents.json"
+  jq -s '.' "${EXPORT_DIR}/bouts.jsonl" > "${EXPORT_DIR}/bouts_array.json" 2>/dev/null || echo '[]' > "${EXPORT_DIR}/bouts_array.json"
 
   jq -n \
-    --slurpfile bouts "${EXPORT_DIR}/bouts.json" \
+    --slurpfile bouts "${EXPORT_DIR}/bouts_array.json" \
     --slurpfile agents "${EXPORT_DIR}/agents.json" \
     --arg exportedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     --arg period "$SINCE" \
@@ -103,8 +130,8 @@ if command -v jq > /dev/null 2>&1; then
   SIZE=$(wc -c < "${EXPORT_DIR}/research-export.json" | tr -d ' ')
   echo -e "  ${GREEN}✓${RESET}  research-export.json (${SIZE} bytes)"
 
-  # Clean up intermediate files
-  rm -f "${EXPORT_DIR}/bouts.json" "${EXPORT_DIR}/agents.json"
+  # Clean up intermediate file (keep agents.json and bouts.jsonl as raw exports)
+  rm -f "${EXPORT_DIR}/bouts_array.json"
 else
   echo -e "  ${YELLOW}!${RESET}  jq not found — JSONL files available but JSON transform skipped"
   echo -e "  ${YELLOW}    Install: brew install jq / apt install jq${RESET}"

@@ -13,7 +13,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -25,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rickhallett/thepit/shared/keelstate"
 	"github.com/rickhallett/thepit/shared/theme"
 )
 
@@ -487,89 +487,59 @@ func analyseVelocity(commits []commit) velocitySignal {
 // --------------------------------------------------------------------------
 
 func updateKeelState(root string, officer string) {
-	statePath := filepath.Join(root, ".keel-state")
-
-	// Read existing state (preserve all fields)
-	state := map[string]interface{}{}
-	if data, err := os.ReadFile(statePath); err == nil {
-		_ = json.Unmarshal(data, &state)
-	}
-
-	// Auto-derive: head
-	if out, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output(); err == nil {
-		state["head"] = strings.TrimSpace(string(out))
-	}
-
-	// Auto-derive: sd (last SD-NNN from session-decisions.md)
-	sdPath := filepath.Join(root, "docs", "internal", "session-decisions.md")
-	if data, err := os.ReadFile(sdPath); err == nil {
-		lastSD := findLastSD(string(data))
-		if lastSD != "" {
-			state["sd"] = lastSD
+	err := keelstate.ReadModifyWrite(root, func(s *keelstate.State) {
+		// Auto-derive: head
+		if out, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output(); err == nil {
+			s.Head = strings.TrimSpace(string(out))
 		}
-	}
 
-	// Auto-derive: bearing (structured nested object)
-	// Machine derives position. Human provides orientation via "note".
-	bearing := map[string]interface{}{}
-	if existing, ok := state["bearing"].(map[string]interface{}); ok {
-		bearing = existing
-	}
-
-	// work: branch name, strip feat/fix/chore/refactor prefix
-	if out, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output(); err == nil {
-		branch := strings.TrimSpace(string(out))
-		work := branch
-		for _, prefix := range []string{"feat/", "fix/", "chore/", "refactor/"} {
-			if strings.HasPrefix(branch, prefix) {
-				work = branch[len(prefix):]
-				break
+		// Auto-derive: sd (last SD-NNN from session-decisions.md)
+		sdPath := filepath.Join(root, "docs", "internal", "session-decisions.md")
+		if data, err := os.ReadFile(sdPath); err == nil {
+			if lastSD := findLastSD(string(data)); lastSD != "" {
+				s.SD = lastSD
 			}
 		}
-		bearing["work"] = work
-	}
 
-	// commits: count since divergence from base branch (merge-base with master or main)
-	for _, base := range []string{"master", "main"} {
-		if mb, err := exec.Command("git", "merge-base", base, "HEAD").Output(); err == nil {
-			if out, err := exec.Command("git", "rev-list", "--count", strings.TrimSpace(string(mb))+"..HEAD").Output(); err == nil {
-				countStr := strings.TrimSpace(string(out))
-				if n, err := strconv.Atoi(countStr); err == nil {
-					bearing["commits"] = n
+		// Auto-derive: bearing — machine derives position.
+		// work: branch name, strip feat/fix/chore/refactor prefix
+		if out, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output(); err == nil {
+			branch := strings.TrimSpace(string(out))
+			work := branch
+			for _, prefix := range []string{"feat/", "fix/", "chore/", "refactor/"} {
+				if strings.HasPrefix(branch, prefix) {
+					work = branch[len(prefix):]
 					break
 				}
 			}
+			s.Bearing.Work = work
 		}
-	}
 
-	// last: most recent commit subject
-	if out, err := exec.Command("git", "log", "-1", "--format=%s").Output(); err == nil {
-		bearing["last"] = strings.TrimSpace(string(out))
-	}
+		// commits: count since divergence from base branch (merge-base with master or main)
+		for _, base := range []string{"master", "main"} {
+			if mb, err := exec.Command("git", "merge-base", base, "HEAD").Output(); err == nil {
+				if out, err := exec.Command("git", "rev-list", "--count", strings.TrimSpace(string(mb))+"..HEAD").Output(); err == nil {
+					if n, err := strconv.Atoi(strings.TrimSpace(string(out))); err == nil {
+						s.Bearing.Commits = n
+						break
+					}
+				}
+			}
+		}
 
-	// note: preserve existing — never overwritten by pitkeel
-	if _, hasNote := bearing["note"]; !hasNote {
-		bearing["note"] = ""
-	}
+		// last: most recent commit subject
+		if out, err := exec.Command("git", "log", "-1", "--format=%s").Output(); err == nil {
+			s.Bearing.Last = strings.TrimSpace(string(out))
+		}
 
-	state["bearing"] = bearing
+		// note: preserve existing — never overwritten by pitkeel
+		// (already preserved by ReadModifyWrite)
 
-	// Officer: set from --officer flag (required)
-	state["officer"] = officer
-
-	// Clean up legacy fields
-	delete(state, "_bearing_snapshot")
-	delete(state, "bearing_set_at")
-	delete(state, "conn") // SD: conn removed — too complex to capture accurately at commit time
-
-	// Write back
-	data, err := json.Marshal(state)
+		// Officer: set from --officer flag (required)
+		s.Officer = officer
+	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "keel: state-update failed to marshal: %v\n", err)
-		return
-	}
-	if err := os.WriteFile(statePath, append(data, '\n'), 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "keel: state-update failed to write: %v\n", err)
+		fmt.Fprintf(os.Stderr, "keel: state-update failed: %v\n", err)
 	}
 }
 
@@ -578,37 +548,28 @@ func updateKeelState(root string, officer string) {
 // --------------------------------------------------------------------------
 
 func setTrueNorth(root string, value string) {
-	statePath := filepath.Join(root, ".keel-state")
-	state := map[string]interface{}{}
-	if data, err := os.ReadFile(statePath); err == nil {
-		_ = json.Unmarshal(data, &state)
-	}
-	state["true_north"] = value
-	data, err := json.Marshal(state)
+	err := keelstate.ReadModifyWrite(root, func(s *keelstate.State) {
+		s.TrueNorth = value
+	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "keel: failed to marshal: %v\n", err)
-		os.Exit(1)
-	}
-	if err := os.WriteFile(statePath, append(data, '\n'), 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "keel: failed to write: %v\n", err)
+		fmt.Fprintf(os.Stderr, "keel: failed to set true_north: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Fprintf(os.Stdout, "True North set: %s\n", value)
 }
 
 func getTrueNorth(root string) {
-	statePath := filepath.Join(root, ".keel-state")
-	state := map[string]interface{}{}
-	if data, err := os.ReadFile(statePath); err == nil {
-		_ = json.Unmarshal(data, &state)
+	s, err := keelstate.Read(root)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "keel: failed to read state: %v\n", err)
+		os.Exit(1)
 	}
-	north, _ := state["true_north"].(string)
-	if north == "" {
+	if s.TrueNorth == "" {
 		fmt.Fprintln(os.Stderr, "keel: true_north not set")
 		fmt.Fprintln(os.Stderr, "  pitkeel north set \"Get Hired\"")
 		os.Exit(1)
 	}
-	fmt.Println(north)
+	fmt.Println(s.TrueNorth)
 }
 
 // findLastSD extracts the last SD-NNN reference from session-decisions.md.
