@@ -1,0 +1,27 @@
+# estimates.yaml — Agentic estimation calibration data (SD-268)
+#
+# The delta between estimated and actual IS the calibration signal.
+# SD-266 (the chain): historical entries are immutable. Append only.
+#
+# Fields:
+#   datetime:                  ISO 8601 timestamp (task start)
+#   agent:                     executing agent
+#   task:                      one-line description
+#   sd_ref:                    session decision reference (if applicable)
+#   estimated_agent_minutes:   pre-task estimate of agent wall-clock time
+#   estimated_human_decisions: pre-task estimate of Captain decision points
+#   actual_agent_minutes:      post-task measured agent wall-clock time
+#   actual_human_decisions:    post-task measured Captain decision points
+#   notes:                     calibration observations (optional)
+
+entries:
+
+  - datetime: 2026-03-01T12:00:00Z
+    agent: Weaver
+    task: CI docs-only path filtering + estimates.yaml creation + branch protection update
+    sd_ref: SD-269
+    estimated_agent_minutes: 10
+    estimated_human_decisions: 1
+    actual_agent_minutes: null
+    actual_human_decisions: null
+    notes: first entry — establishing baseline calibration

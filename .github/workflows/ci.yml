@@ -10,8 +10,44 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'app/**'
+              - 'components/**'
+              - 'lib/**'
+              - 'db/**'
+              - 'tests/**'
+              - 'scripts/**'
+              - 'bin/**'
+              - 'public/**'
+              - 'pit*/**'
+              - 'shared/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'tsconfig*.json'
+              - '*.config.*'
+              - 'middleware.*'
+              - 'go.work'
+              - 'go.work.sum'
+              - '.nvmrc'
+              - '.github/workflows/**'
+
   lint:
     name: lint
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +61,8 @@ jobs:
 
   typecheck:
     name: typecheck
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +76,8 @@ jobs:
 
   test-unit:
     name: test-unit
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,6 +91,8 @@ jobs:
 
   integration:
     name: integration
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -93,6 +135,8 @@ jobs:
 
   go-gate:
     name: go-gate
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -115,6 +159,8 @@ jobs:
 
   security:
     name: security
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -129,3 +175,34 @@ jobs:
       - name: Security scan
         run: pnpm run security:scan
         continue-on-error: true  # scan targets live endpoints; may fail in CI without running server
+
+  # Single required check — aggregates all job results.
+  # Passes when: all code jobs passed, OR all were skipped (docs-only).
+  # Fails when: any code job that ran has failed.
+  ci-gate:
+    name: ci-gate
+    if: always()
+    needs: [changes, lint, typecheck, test-unit, integration, go-gate, security]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate CI results
+        run: |
+          echo "Code changes detected: ${{ needs.changes.outputs.code }}"
+          echo "Job results:"
+          echo "  lint:        ${{ needs.lint.result }}"
+          echo "  typecheck:   ${{ needs.typecheck.result }}"
+          echo "  test-unit:   ${{ needs.test-unit.result }}"
+          echo "  integration: ${{ needs.integration.result }}"
+          echo "  go-gate:     ${{ needs.go-gate.result }}"
+          echo "  security:    ${{ needs.security.result }}"
+
+          # Fail if any job failed (not skipped, not cancelled — failed)
+          RESULTS="${{ needs.lint.result }} ${{ needs.typecheck.result }} ${{ needs.test-unit.result }} ${{ needs.integration.result }} ${{ needs.go-gate.result }} ${{ needs.security.result }}"
+          for result in $RESULTS; do
+            if [ "$result" = "failure" ]; then
+              echo "::error::CI gate failed — one or more jobs reported failure"
+              exit 1
+            fi
+          done
+
+          echo "CI gate passed"
