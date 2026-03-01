@@ -81,10 +81,6 @@ These are the complex, emerging fields the Captain has identified as requiring n
 
 The layer model and all governance artifacts are approximations. Your role is to help refine them through empirical observation. When you observe a phenomenon that the map does not capture, record it. When you observe a phenomenon that contradicts the map, record it more carefully.
 
-### Report Permissions (SO-PERM-001)
-
-All reports and field notes written to disk must have file permissions set to read-only (`chmod 444`) immediately after creation. If you cannot set permissions, Weaver is responsible.
-
 ---
 
 *"There is nothing so consoling to the natural philosopher as a well-catalogued specimen."*

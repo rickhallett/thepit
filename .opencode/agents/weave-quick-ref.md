@@ -93,10 +93,6 @@ Full file: `docs/internal/lexicon-v0.7.md`
 | **On Point** | Patterns proving across layers. SD-163. |
 | **Maturin's Mirror** | Surgery mode. Everything stops. |
 
-## File Permissions
-
-All reports → `chmod 444` after creation. Only Weaver runs chmod (SO-CHMOD-001, SD-145).
-
 ---
 
 *If this card doesn't answer your question, read the full agent file. If the agent file doesn't answer it, read the Lexicon. If the Lexicon doesn't answer it, ask Weaver. If Weaver doesn't know, ask the Captain.*

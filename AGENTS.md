@@ -116,17 +116,13 @@ When presenting ambiguities or options to the Captain, use a numbered table:
 
 One table, one pass, O(1) per row. This reduces the Captain's cognitive load from O(n) reading to O(1) approve/reject.
 
-### Report Permissions (SO-PERM-001)
-
-All reports, audits, analyses, and artifacts written to disk by any agent must have file permissions set to read-only (`chmod 444`) immediately after creation. Back-reference: SD-124.
-
 ### The Lexicon (SO-PERM-002)
 
 All hands must read the latest version of The Lexicon (`docs/internal/lexicon.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
 
 ### Lexicon Bump Procedure
 
-When the Lexicon requires changes: unlock (`chmod 644`) → edit content → update version in title and version history table → re-lock (`chmod 444`).
+When the Lexicon requires changes: edit content → update version in title and version history table.
 
 ### Defect Status Must Be On File
 

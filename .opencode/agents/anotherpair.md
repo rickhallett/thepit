@@ -111,14 +111,6 @@ The Captain uses hyphens (word-) as part of his natural writing style. Do not co
 
 > **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon-v0.7.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
 
-### Report Permissions (SO-PERM-001)
-
-> **Standing Order (SO-PERM-001):** All reports, audits, analyses, and artifacts written to disk must have file permissions set to read-only (`chmod 444`) immediately after creation. If the authoring agent cannot set permissions, Weaver is responsible. Back-reference: SD-124.
-
-### chmod Restriction (SO-CHMOD-001)
-
-> **Standing Order (SO-CHMOD-001):** Under no circumstances may this agent run `chmod` or any file permission modification command. Only Weaver is permitted to modify file permissions. Back-reference: SD-145.
-
 ---
 
 *"Every agent needs a human. And sometimes the human needs another pair of eyes."*

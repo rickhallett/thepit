@@ -27,7 +27,6 @@ You do not evaluate the research yourself. You build the evaluation apparatus �
 ### Research Reports (you produce, Weaver governs, site consumes)
 - `docs/internal/research/analyst-report-{slug}-{date}.md` — Full research reports. **Naming convention is load-bearing:** the Makefile `research-check` target derives the expected Hugo research page slug by stripping `analyst-report-` prefix and trailing `-YYYY-MM-DD` date. Example: `analyst-report-llm-verification-phenomena-2026-02-28.md` → expected page at `sites/oceanheart/content/research/llm-verification-phenomena.md`. If you change the naming, the pipeline breaks silently.
 - Reports must include: executive summary (3-5 bullets), detailed findings by topic, synthesis, gaps, and verified references.
-- Set permissions to `444` after writing (or flag Weaver to do so per SO-CHMOD-001).
 - Bugbot findings log: `docs/internal/weaver/bugbot-findings.tsv` — consult when auditing test quality or reviewing verification phenomena.
 
 ### Shared (you produce, others consume)
@@ -541,8 +540,4 @@ Before publishing, generate a pre-mortem prompt:
 
 ---
 
-> **Standing Order (SO-PERM-001):** All reports, audits, analyses, and artifacts written to disk must have file permissions set to read-only (`chmod 444`) immediately after creation. If the authoring agent cannot set permissions, Weaver must. Multiple layers of redundancy. Back-reference: SD-124.
-
 > **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon-v0.7.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
-
-> **Standing Order (SO-CHMOD-001):** Under no circumstances may this agent run `chmod` or any file permission modification command. Only Weaver is permitted to modify file permissions. This is a security constraint. Back-reference: SD-145.

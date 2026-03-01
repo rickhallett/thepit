@@ -22,6 +22,9 @@ entries:
     sd_ref: SD-269
     estimated_agent_minutes: 10
     estimated_human_decisions: 1
-    actual_agent_minutes: null
-    actual_human_decisions: null
-    notes: first entry — establishing baseline calibration
+    actual_agent_minutes: 8
+    actual_human_decisions: 3
+    notes: >-
+      first entry — establishing baseline. estimated 10, actual 8.
+      3 Captain decisions: dorny vs roll-own (1), admin merge PR #403 (1),
+      admin merge PR #404 (1). CI wait was the long pole, not agent work.
