@@ -463,30 +463,54 @@ func updateKeelState(root string) {
 		}
 	}
 
-	// Staleness detection: bearing
-	currentBearing, _ := state["bearing"].(string)
-	snapshot, _ := state["_bearing_snapshot"].(string)
-	bearingSetAt, _ := state["bearing_set_at"].(string)
+	// Auto-derive: bearing (structured nested object)
+	// Machine derives position. Human provides orientation via "note".
+	bearing := map[string]interface{}{}
+	if existing, ok := state["bearing"].(map[string]interface{}); ok {
+		bearing = existing
+	}
 
-	if currentBearing != snapshot {
-		// Bearing was changed (by agent writing to .keel-state)
-		head, _ := state["head"].(string)
-		state["bearing_set_at"] = head
-		state["_bearing_snapshot"] = currentBearing
-	} else if bearingSetAt != "" {
-		// Bearing unchanged — check staleness
-		if out, err := exec.Command("git", "rev-list", "--count", bearingSetAt+"..HEAD").Output(); err == nil {
-			countStr := strings.TrimSpace(string(out))
-			if n, err := strconv.Atoi(countStr); err == nil && n >= 5 {
-				fmt.Fprintf(os.Stderr, "keel: bearing stale (unchanged for %d commits): %q\n", n, currentBearing)
+	// work: branch name, strip feat/fix/chore/refactor prefix
+	if out, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output(); err == nil {
+		branch := strings.TrimSpace(string(out))
+		work := branch
+		for _, prefix := range []string{"feat/", "fix/", "chore/", "refactor/"} {
+			if strings.HasPrefix(branch, prefix) {
+				work = branch[len(prefix):]
+				break
 			}
 		}
-	} else {
-		// First run — initialise tracking
-		head, _ := state["head"].(string)
-		state["bearing_set_at"] = head
-		state["_bearing_snapshot"] = currentBearing
+		bearing["work"] = work
 	}
+
+	// commits: count since divergence from base branch (merge-base with master or main)
+	for _, base := range []string{"master", "main"} {
+		if mb, err := exec.Command("git", "merge-base", base, "HEAD").Output(); err == nil {
+			if out, err := exec.Command("git", "rev-list", "--count", strings.TrimSpace(string(mb))+"..HEAD").Output(); err == nil {
+				countStr := strings.TrimSpace(string(out))
+				if n, err := strconv.Atoi(countStr); err == nil {
+					bearing["commits"] = n
+					break
+				}
+			}
+		}
+	}
+
+	// last: most recent commit subject
+	if out, err := exec.Command("git", "log", "-1", "--format=%s").Output(); err == nil {
+		bearing["last"] = strings.TrimSpace(string(out))
+	}
+
+	// note: preserve existing — never overwritten by pitkeel
+	if _, hasNote := bearing["note"]; !hasNote {
+		bearing["note"] = ""
+	}
+
+	state["bearing"] = bearing
+
+	// Clean up legacy bearing fields
+	delete(state, "_bearing_snapshot")
+	delete(state, "bearing_set_at")
 
 	// Write back
 	data, err := json.Marshal(state)
