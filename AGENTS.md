@@ -289,6 +289,7 @@ Do NOT wait on remote CI (GitHub Actions) to merge during iteration. Remote CI a
 - React components: PascalCase filenames and exports
 - Utilities and hooks: camelCase (e.g., `lib/use-bout.ts`)
 - Keep Tailwind class lists readable; use `clsx` + `tailwind-merge` when combining
+- **All log and list-like data files use YAML format.** Machine-readable, human-readable, lint-checkable, Hugo-compilable. No new TSV, markdown tables, or ad-hoc formats for structured data.
 
 ## Commit & Pull Request Guidelines
 

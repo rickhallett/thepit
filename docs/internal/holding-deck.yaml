@@ -34,6 +34,33 @@ items:
     status: hold
     priority: high
     tags: [dark]
+    lived_examples:
+      - id: bearing-producer-consumer-drift
+        date: 2026-03-01
+        commit: ce4b3d0
+        summary: >-
+          pitkeel bearing changed from string to object. go vet/test/build passed.
+          Three consumers (hud.py, prepare-commit-msg, gate.sh) broke silently.
+          Gate tested compilation, not integration. Captain caught it by comparing
+          conversation HUD against physical terminal output.
+        backref: docs/internal/keel/slop.yaml
+      - id: officer-field-stale
+        date: 2026-03-01
+        commit: ce4b3d0
+        summary: >-
+          Officer field showed "Weaver" while Keel was committing. No mechanism
+          to update at commit time. Gate had no test for this. Field was stale
+          by design — a manual field in an automated pipeline.
+        backref: docs/internal/keel/slop.yaml
+      - id: gate-sh-state-overwrite
+        date: 2026-03-01
+        commit: ad9bbd8
+        summary: >-
+          gate.sh overwrote entire .keel-state with only {gate, gate_time, tests},
+          destroying bearing, officer, tempo, register, weave on every gate run.
+          Pre-existing bug — never caught because no test verifies .keel-state
+          field preservation across gate runs. Fixed to merge into existing state.
+        backref: docs/internal/keel/slop.yaml
 
   - id: worktree-create-script
     idea: >-

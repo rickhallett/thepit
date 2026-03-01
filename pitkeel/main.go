@@ -72,7 +72,51 @@ func main() {
 	case "wellness":
 		renderWellness(analyseWellness(time.Now(), repoRoot()))
 	case "state-update":
-		updateKeelState(repoRoot())
+		officer := ""
+		if len(args) >= 3 && args[1] == "--officer" {
+			officer = args[2]
+		}
+		if officer == "" {
+			officer = os.Getenv("KEEL_OFFICER")
+		}
+		if officer == "" {
+			fmt.Fprintln(os.Stderr, "keel: state-update ABORTED — --officer flag is required")
+			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprintln(os.Stderr, "  pitkeel state-update --officer <agent-name>")
+			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprintln(os.Stderr, "  Or set KEEL_OFFICER in your environment:")
+			fmt.Fprintln(os.Stderr, "    export KEEL_OFFICER=Weaver")
+			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprintln(os.Stderr, "  Valid agents: Weaver, Architect, Sentinel, Watchdog, Analyst,")
+			fmt.Fprintln(os.Stderr, "    Quartermaster, Keel, Scribe, Janitor, Maturin, AnotherPair")
+			fmt.Fprintln(os.Stderr, "")
+			fmt.Fprintln(os.Stderr, "  This guardrail exists because .keel-state must record which agent")
+			fmt.Fprintln(os.Stderr, "  is at the helm when state changes. Without it, the officer field")
+			fmt.Fprintln(os.Stderr, "  is stale and the audit trail is broken.")
+			os.Exit(1)
+		}
+		updateKeelState(repoRoot(), officer)
+	case "north":
+		if len(args) < 2 {
+			fmt.Fprintln(os.Stderr, "keel: north requires a subcommand")
+			fmt.Fprintln(os.Stderr, "  pitkeel north set \"Get Hired\"")
+			fmt.Fprintln(os.Stderr, "  pitkeel north get")
+			os.Exit(1)
+		}
+		switch args[1] {
+		case "set":
+			if len(args) < 3 {
+				fmt.Fprintln(os.Stderr, "keel: north set requires a value")
+				fmt.Fprintln(os.Stderr, "  pitkeel north set \"Get Hired\"")
+				os.Exit(1)
+			}
+			setTrueNorth(repoRoot(), strings.Join(args[2:], " "))
+		case "get":
+			getTrueNorth(repoRoot())
+		default:
+			fmt.Fprintf(os.Stderr, "keel: unknown north subcommand %q\n", args[1])
+			os.Exit(1)
+		}
 	case "version":
 		fmt.Println(version)
 	default:
@@ -92,7 +136,9 @@ func usage() {
 	fmt.Println("  pitkeel context      context file depth distribution")
 	fmt.Println("  pitkeel wellness     daily wellness checks (whoop.log, captain's log)")
 	fmt.Println("  pitkeel hook         hook output (no ANSI, for commit messages)")
-	fmt.Println("  pitkeel state-update auto-update .keel-state (head, sd) + staleness check")
+	fmt.Println("  pitkeel state-update --officer <name>  auto-update .keel-state (head, sd, bearing, officer)")
+	fmt.Println("  pitkeel north set \"Get Hired\"         set true_north (Captain-only)")
+	fmt.Println("  pitkeel north get                     read true_north")
 	fmt.Println("  pitkeel version      print version")
 }
 
@@ -440,7 +486,7 @@ func analyseVelocity(commits []commit) velocitySignal {
 // State Update: auto-derive machine-readable fields in .keel-state
 // --------------------------------------------------------------------------
 
-func updateKeelState(root string) {
+func updateKeelState(root string, officer string) {
 	statePath := filepath.Join(root, ".keel-state")
 
 	// Read existing state (preserve all fields)
@@ -508,9 +554,13 @@ func updateKeelState(root string) {
 
 	state["bearing"] = bearing
 
-	// Clean up legacy bearing fields
+	// Officer: set from --officer flag (required)
+	state["officer"] = officer
+
+	// Clean up legacy fields
 	delete(state, "_bearing_snapshot")
 	delete(state, "bearing_set_at")
+	delete(state, "conn") // SD: conn removed — too complex to capture accurately at commit time
 
 	// Write back
 	data, err := json.Marshal(state)
@@ -521,6 +571,44 @@ func updateKeelState(root string) {
 	if err := os.WriteFile(statePath, append(data, '\n'), 0644); err != nil {
 		fmt.Fprintf(os.Stderr, "keel: state-update failed to write: %v\n", err)
 	}
+}
+
+// --------------------------------------------------------------------------
+// True North: Captain-only field, set via CLI
+// --------------------------------------------------------------------------
+
+func setTrueNorth(root string, value string) {
+	statePath := filepath.Join(root, ".keel-state")
+	state := map[string]interface{}{}
+	if data, err := os.ReadFile(statePath); err == nil {
+		_ = json.Unmarshal(data, &state)
+	}
+	state["true_north"] = value
+	data, err := json.Marshal(state)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "keel: failed to marshal: %v\n", err)
+		os.Exit(1)
+	}
+	if err := os.WriteFile(statePath, append(data, '\n'), 0644); err != nil {
+		fmt.Fprintf(os.Stderr, "keel: failed to write: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Fprintf(os.Stdout, "True North set: %s\n", value)
+}
+
+func getTrueNorth(root string) {
+	statePath := filepath.Join(root, ".keel-state")
+	state := map[string]interface{}{}
+	if data, err := os.ReadFile(statePath); err == nil {
+		_ = json.Unmarshal(data, &state)
+	}
+	north, _ := state["true_north"].(string)
+	if north == "" {
+		fmt.Fprintln(os.Stderr, "keel: true_north not set")
+		fmt.Fprintln(os.Stderr, "  pitkeel north set \"Get Hired\"")
+		os.Exit(1)
+	}
+	fmt.Println(north)
 }
 
 // findLastSD extracts the last SD-NNN reference from session-decisions.md.

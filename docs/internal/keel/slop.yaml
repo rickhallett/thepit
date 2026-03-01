@@ -1,0 +1,63 @@
+# keel/slop.yaml — Systematic LLM errors observed by Keel
+#
+# Each entry is a one-line record of an error that made it past
+# the gate, past review, or past the agent's own self-verification.
+# These are not bugs in the code. They are bugs in the process —
+# the places where probabilistic error slipped through.
+#
+# Schema:
+#   id:         kebab-case
+#   date:       ISO date
+#   agent:      which agent produced the error
+#   commit:     git SHA where the error was introduced or discovered
+#   class:      error class (producer-consumer-drift, phantom-green, stale-field, etc.)
+#   summary:    one line
+#   narrative:  longer explanation if needed
+#   backrefs:   related files, SDs, slopodar entries, holding-deck items
+#   status:     open | fixed | documented
+
+entries:
+
+  - id: bearing-producer-consumer-drift
+    date: 2026-03-01
+    agent: Keel
+    commit: ce4b3d0
+    class: producer-consumer-drift
+    summary: >-
+      Shipped structured bearing to pitkeel (producer) without updating
+      hud.py, prepare-commit-msg, or gate.sh (consumers). Gate passed
+      because no test covers bearing behavior — go vet/test/build verified
+      compilation, not integration. Three consumers broke silently.
+    narrative: >-
+      pitkeel bearing changed from string to nested object {work, commits,
+      last, note}. hud.py rendered raw Python dict. prepare-commit-msg wrote
+      raw dict repr to git trailers (visible in commit ce4b3d0). gate.sh was
+      already overwriting entire .keel-state with only {gate, gate_time, tests},
+      destroying all other fields on every gate run — a pre-existing bug
+      exposed by the schema change. Captain caught it by comparing the YAML
+      HUD in the conversation against the physical terminal output from hud.py.
+      The instrument panel disagreed with itself. Fixed in ad9bbd8.
+    backrefs:
+      - holding-deck.yaml (coincidental-pass-gate-blindness)
+      - slopodar.yaml (right-answer-wrong-work)
+      - commits: ce4b3d0 (introduced), ad9bbd8 (fixed)
+    status: fixed
+
+  - id: officer-field-stale
+    date: 2026-03-01
+    agent: Keel
+    commit: ce4b3d0
+    class: stale-field
+    summary: >-
+      Officer field in .keel-state showed "Weaver" while Keel was the
+      committing agent. No mechanism existed to update it at commit time.
+    narrative: >-
+      pitkeel state-update auto-derived head, sd, and bearing but left
+      officer as a manually-written field. No agent updated it during work.
+      Captain caught it: "is that true? have you made commits already?"
+      Fixed by making --officer a required flag on pitkeel state-update,
+      with an aborting error if not provided. Guardrails, not paper.
+    backrefs:
+      - pitkeel/main.go (updateKeelState --officer flag)
+      - scripts/post-commit (KEEL_OFFICER env var)
+    status: fixed

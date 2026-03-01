@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # post-commit hook — auto-updates .keel-state with machine-derivable fields.
 #
-# Updates: head (git SHA), sd (last SD-NNN from session-decisions.md).
-# Preserves: bearing, tempo, register, weave, officer, conn, gate, tests.
-# Warns: if bearing has not changed for 5+ commits.
+# Updates: head (git SHA), sd (last SD-NNN from session-decisions.md),
+#          bearing {work, commits, last} (auto-derived from git state).
+# Preserves: bearing.note, true_north, tempo, register, weave, gate, tests.
+# Requires: KEEL_OFFICER env var — aborts if not set (guardrails, not paper).
 #
 # Install:
 #   ln -sf ../../scripts/post-commit .git/hooks/post-commit
@@ -23,7 +24,9 @@ if [ ! -x "$PITKEEL" ]; then
   exit 0
 fi
 
-# Run state-update. Stderr output (staleness warnings) will appear in terminal.
-"$PITKEEL" state-update 2>&1
+# Run state-update. Requires KEEL_OFFICER env var or --officer flag.
+# If not set, pitkeel aborts with a descriptive error — guardrails, not paper.
+OFFICER="${KEEL_OFFICER:-}"
+"$PITKEEL" state-update --officer "$OFFICER" 2>&1
 
 exit 0

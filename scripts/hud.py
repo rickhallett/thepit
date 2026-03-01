@@ -50,8 +50,14 @@ def _read_keel_state(root: str) -> dict:
 
 def field_watch(data: dict) -> str:
     officer = data.get("officer", "—")
-    conn = data.get("conn", "—")
-    return f"{CYN}WATCH{RST}  {BOLD}{officer}{RST} {DIM}(conn: {conn}){RST}"
+    return f"{CYN}WATCH{RST}  {BOLD}{officer}{RST}"
+
+
+def field_north(data: dict) -> str:
+    north = data.get("true_north", "")
+    if not north:
+        return f'{CYN}NORTH{RST}  {RED}NOT SET{RST} {DIM}(pitkeel north set "Get Hired"){RST}'
+    return f"{CYN}NORTH{RST}  {BOLD}{north}{RST}"
 
 
 def field_weave(data: dict) -> str:
@@ -82,8 +88,8 @@ def field_bearing(data: dict) -> str:
         parts = f"{BOLD}{work}{RST} {DIM}[{commits} commits]{RST}"
         if note:
             parts += f" {YEL}{note}{RST}"
-        return f"{CYN}NORTH{RST}  {parts}\n       {DIM}{last}{RST}"
-    return f"{CYN}NORTH{RST}  {BOLD}{bearing}{RST}"
+        return f"{CYN}BEARING{RST}  {parts}\n         {DIM}{last}{RST}"
+    return f"{CYN}BEARING{RST}  {BOLD}{bearing}{RST}"
 
 
 def field_gate(data: dict) -> str:
@@ -196,6 +202,7 @@ def main():
     state = _read_keel_state(root)
 
     print(field_watch(state))
+    print(field_north(state))
     print(field_weave(state))
     print(field_bearing(state))
     print(f"{DIM}{'─' * 30}{RST}")

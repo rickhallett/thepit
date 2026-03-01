@@ -70,6 +70,7 @@ try:
     else:
         bearing_str = str(b)
     fields = [
+        ('Officer', d.get('officer', '—')),
         ('Bearing', bearing_str),
         ('Tempo', d.get('tempo', '—')),
         ('Weave', '%s | %s' % (d.get('weave', '—'), d.get('register', '—'))),
