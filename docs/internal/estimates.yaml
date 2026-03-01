@@ -28,3 +28,32 @@ entries:
       first entry — establishing baseline. estimated 10, actual 8.
       3 Captain decisions: dorny vs roll-own (1), admin merge PR #403 (1),
       admin merge PR #404 (1). CI wait was the long pole, not agent work.
+
+  - datetime: 2026-03-01T13:40:00Z
+    agent: Weaver
+    task: Producer-consumer audit — 15 checkpoints via 3 parallel subagents
+    sd_ref: SD-271
+    estimated_agent_minutes: 45
+    estimated_human_decisions: 1
+    actual_agent_minutes: 12
+    actual_human_decisions: 2
+    notes: >-
+      Trajectory file estimated 45 min (human-speed, pre SD-268 reducer).
+      Actual 12 agent-min with 3 parallel subagents (HIGH/MEDIUM/LOW tiers).
+      2 Captain decisions: begin (1), admin merge (1). 3.75x faster than estimate.
+
+  - datetime: 2026-03-01T14:20:00Z
+    agent: Weaver
+    task: Token heatmap + blog posts + dead reckoning fix + sd-index + draft notices
+    sd_ref: SD-275
+    estimated_agent_minutes: 10
+    estimated_human_decisions: 1
+    actual_agent_minutes: 15
+    actual_human_decisions: 6
+    notes: >-
+      Underestimated scope. Started as "build heatmap" (10 min), expanded to:
+      heatmap script, provenance snapshot, 3 blog drafts, PDF deletion, dead
+      reckoning rewrite, sd-index generator, post-commit hook wiring, draft
+      notice replacement across 13 files. 6 Captain decisions (scope kept
+      expanding through conversation). Captain's creative direction was the
+      long pole, not agent execution.
