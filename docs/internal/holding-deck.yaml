@@ -409,6 +409,30 @@ items:
       - SD-250 (blockchain theatre assessment)
       - agent-attestation-roi (holding-deck)
 
+  - id: token-heatmap-vessel
+    idea: >-
+      Find a reliable tokeniser library (tiktoken, gpt-tokenizer, or cl100k_base
+      compatible) and create a reference map index card of the entire repository
+      represented as tokens. Deliverables: (1) tokens per file, (2) tokens per
+      filepath (the path string itself), (3) tokens per directory (aggregated),
+      (4) numerical heatmap of the entire vessel sorted by token weight.
+      Special attention to the BOOT SEQUENCE — AGENTS.md, .Claude/agents/*.md,
+      docs/internal/lexicon.md, dead-reckoning.md, session-decisions.md, and
+      any file read on every agent wake. Boot sequence measured at 105ktok in
+      a single thread — this is structurally absurd and the heatmap will show
+      exactly where the low-effort high-yield compression targets are. Output
+      format: YAML index card + pretty-printed summary. The tool should be
+      rerunnable (script in bin/ or pitlab) so we can measure delta after
+      each compression pass.
+    added: 2026-03-01
+    status: hold
+    priority: medium
+    tags: [wtf]
+    backrefs:
+      - hud-context-pressure (observability class)
+      - agent-boot-audit (boot sequence scope)
+      - ktok-reduction-anomaly (context pressure patterns — 105ktok was harness render cycle ghost, dropped to 32ktok after one response)
+
   - id: hoist-the-colors
     idea: >-
       Update thepit.cloud with AnotherPair framing generated from thematic
