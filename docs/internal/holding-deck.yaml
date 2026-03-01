@@ -168,6 +168,35 @@ items:
     priority: high
     tags: []
 
+  - id: captain-title-reflection
+    idea: >-
+      Meditate on whether to change what the agents call me from Captain to
+      something else. I like it, it fits the governance, I just need to reflect
+      a little (read: not over analyse, reflect, feel) on whether its lining me
+      up for more suggestibility or actually helps with my number 5s
+      (regularisers). Cross-ref: sextant.yaml (bias-variance-tradeoff,
+      regularisation). The title creates an authority frame that could either
+      help with regularisation (discipline constrains hypothesis space) or
+      increase suggestibility (crew deference inflates confidence in own
+      judgments). Not an analytical question — a felt-sense question.
+    added: 2026-03-01
+    status: hold
+    tags: []
+
+  - id: lexicon-format-standardisation
+    idea: >-
+      Rewrite lexicon.md to a standard machine-readable format (YAML) consistent
+      with sextant.yaml, slopodar.yaml, holding-deck.yaml, citations.yaml,
+      category-one-index.yaml. Captain is willing to do this. Foundational
+      infrastructure that pays dividends — any transformation (Hugo pages,
+      search index, cross-reference tooling) becomes trivial from a standard
+      format. Scope: lexicon.md → lexicon.yaml. Preserve version history.
+      Separate task from sextant creation.
+    added: 2026-03-01
+    status: hold
+    priority: high
+    tags: []
+
   - id: bout-engine-e2e-scenarios
     idea: >-
       Three Playwright E2E scenarios for bout-engine, parked from Architect spec convergence triage.

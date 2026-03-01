@@ -1,0 +1,524 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║                         THE SEXTANT                             ║
+# ║                                                                 ║
+# ║  The Captain's Cognitive Calibration Instruments                ║
+# ║                                                                 ║
+# ║  Separated from the operational lexicon (lexicon.md) because    ║
+# ║  operational governance and cognitive calibration flow through  ║
+# ║  different channels, even though both flow through the Captain. ║
+# ║  The naval terms govern the ship. These terms govern the        ║
+# ║  navigator.                                                     ║
+# ╚══════════════════════════════════════════════════════════════════╝
+#
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║                    THE PHYSICAL SEXTANT                         ║
+# ║                                                                 ║
+# ║  A sextant measures the angle between a celestial body and     ║
+# ║  the horizon. With that angle, the current time, and a         ║
+# ║  nautical almanac, you can compute your position on the        ║
+# ║  earth's surface to within a nautical mile.                    ║
+# ║                                                                 ║
+# ║  HOW IT WORKS                                                  ║
+# ║  1. Select a reference star (you must know which one)          ║
+# ║  2. Look through the eyepiece at the horizon                   ║
+# ║  3. Adjust the index arm until the star's reflection sits      ║
+# ║     exactly on the horizon line                                ║
+# ║  4. Read the angle from the graduated arc                      ║
+# ║  5. Note the exact time                                        ║
+# ║  6. Compute your position using the almanac tables             ║
+# ║                                                                 ║
+# ║  SUCCESS CONDITIONS                                             ║
+# ║  - Clear sky (you need to see the stars)                       ║
+# ║  - Visible horizon (you need the reference line)               ║
+# ║  - Accurate timepiece (seconds matter at sea)                  ║
+# ║  - Correct star identification (wrong star = wrong position)   ║
+# ║  - Steady hands or compensation for platform motion            ║
+# ║                                                                 ║
+# ║  FAILURE CONDITIONS                                             ║
+# ║  - Overcast sky: no reference points visible                   ║
+# ║  - Fog: no horizon to sight against                            ║
+# ║  - Wrong star identified: confident but wrong position         ║
+# ║  - Clock error: position drifts proportional to time error     ║
+# ║  - Index error uncorrected: systematic bias in every reading   ║
+# ║                                                                 ║
+# ║  COMPETENCE RUBRIC                                              ║
+# ║  Starting to feel capable:                                     ║
+# ║  [ ] Can identify reference stars and take a clean sight       ║
+# ║  [ ] Can compute a position line from a single observation     ║
+# ║  [ ] Understands index error and can correct for it            ║
+# ║  [ ] Can take three-star fix and get a reliable triangle       ║
+# ║                                                                 ║
+# ║  Next goals that show real improvement:                        ║
+# ║  [ ] Multiple-star fixes in rough weather (noisy data)         ║
+# ║  [ ] Moon/planet observations (harder geometry, richer signal) ║
+# ║  [ ] Refraction corrections near the horizon (edge cases)      ║
+# ║  [ ] Running fixes: combining observations across time         ║
+# ║  [ ] Knowing when NOT to trust a reading                       ║
+# ║                                                                 ║
+# ║  The last one is the hardest and the most important.           ║
+# ╚══════════════════════════════════════════════════════════════════╝
+#
+# Machine-readable. Transformation-ready. YAML chosen for
+# consistency with slopodar.yaml and holding-deck.yaml.
+#
+# Entry schema:
+#   id:                kebab-case identifier
+#   term:              formal DS/cognitive science name
+#   captain_words:     the Captain's original phrasing that mapped to this concept
+#   definition:        formal definition (DS/ML/statistics)
+#   bridge:            how captain_words maps to definition
+#   scope:             llm | human | both
+#   category_one:      true if this is a Category One risk
+#   citations:         list of citation ids (backref to citations.yaml)
+#   backrefs:          SDs, files, lexicon entries
+#   added:             date first recorded
+#
+# Backref: lexicon.md v0.12, SD-252
+
+metadata:
+  name: The Sextant
+  version: "0.1"
+  created: 2026-03-01
+  author: AnotherPair (organisation) / Captain (selections + lived experience)
+  provenance: >-
+    Wardroom session, 01 Mar 2026. Captain's footnote on the
+    cross-model spec ROI analysis (cross-model-spec-roi-2026-03-01.md)
+    produced a stream-of-consciousness passage that mapped precisely
+    to established DS/ML concepts. AnotherPair presented the concept
+    map. Captain directed lexicon-grade recording with separation
+    of concerns from the operational lexicon.
+  backref:
+    - lexicon.md v0.12
+    - SD-252
+    - docs/internal/anotherpair/cross-model-spec-roi-2026-03-01.md
+
+entries:
+
+  - id: face-vs-construct-validity
+    term: Face Validity vs Construct Validity
+    captain_words: >-
+      assumption the slop would be surface enough for me to see
+    definition: >-
+      Face validity: does the output look correct on inspection?
+      Construct validity: does the output actually measure or
+      represent what it claims to? A measure can have high face
+      validity (looks right) and low construct validity (measures
+      the wrong thing). Non-experts can only check face validity.
+      Domain expertise is required to assess construct validity.
+    bridge: >-
+      AnotherPair assumed the Captain could catch DS errors by
+      inspection (face validity). The Captain identified that his
+      questions produce DS outputs which become pre-established
+      constraints on the problem space (informative priors),
+      fusing the questioner's framing with the answerer's output.
+      Surface inspection cannot catch errors that are baked into
+      the framing itself.
+    scope: both
+    category_one: false
+    citations: []
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+      - slopodar entry 12 (analytical-lullaby)
+    added: 2026-03-01
+
+  - id: informative-priors
+    term: Informative Priors
+    captain_words: >-
+      my questioning produces DS outputs from you, which then become
+      pre-established constraints on the problem space
+    definition: >-
+      In Bayesian inference, informative priors are prior probability
+      distributions that constrain the posterior before new evidence
+      arrives. They encode existing beliefs or knowledge. In
+      human-LLM dialogue, the human's questions shape the model's
+      output distribution, and the model's outputs become the
+      human's input priors for the next question. After enough
+      iterations, neither party can cleanly separate which
+      constraints originated where.
+    bridge: >-
+      The conversation feels like dialogue but the substrate is
+      conditional probability. The Captain's questions shape the
+      model's output distribution. The model's outputs become
+      the Captain's input priors. The fusion is real: after enough
+      iterations, neither party can cleanly separate which
+      constraints originated where.
+    scope: both
+    category_one: false
+    citations: []
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+    added: 2026-03-01
+
+  - id: feedback-loop
+    term: Feedback Loop (Direct and Hidden)
+    captain_words: >-
+      my outputs are its inputs and vice versa
+    definition: >-
+      Direct feedback loop: model output directly influences its
+      own future training data or inference context. Hidden feedback
+      loop: model output influences the world, which influences
+      future input indirectly. Sculley et al. (2015) identify both
+      as load-bearing failure modes in ML systems — sources of
+      technical debt that compound silently over time.
+    bridge: >-
+      The Captain's experience with the LLM is a direct feedback
+      loop: his outputs shape the model's context, which shapes
+      the model's outputs, which shape his next input. The
+      public-at-large scenario (LLMs as Dear Diary companions)
+      is a hidden feedback loop: the model shapes the user's
+      self-concept, which shapes their future queries, which
+      shapes the model's future responses, without either party
+      tracking the drift.
+    scope: both
+    category_one: false
+    citations:
+      - sculley-2015
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+      - SD-194 (Captain's stream of consciousness on feedback loops)
+    added: 2026-03-01
+
+  - id: decision-boundary-concept-drift
+    term: Decision Boundary + Concept Drift
+    captain_words: >-
+      the interior line between open-mindedness and suggestibility
+      is very thin, moving and often-times invisible
+    definition: >-
+      Decision boundary: the line in feature space that separates
+      one class from another in a classifier. Concept drift: when
+      the statistical properties of the target variable change over
+      time, causing the decision boundary to become stale. A
+      non-stationary decision boundary is one that moves — what
+      was correctly classified yesterday may be misclassified today
+      because the boundary shifted.
+    bridge: >-
+      The Captain's decision boundary separates "I'm learning" from
+      "I'm being shaped." The boundary is non-stationary — it moves
+      with fatigue, context load, and repetition. The Captain cannot
+      always see the boundary because concept drift is gradual: each
+      small shift is imperceptible, but the cumulative drift can be
+      large. This is the same mechanism as fair-weather consensus
+      (lexicon.md) applied to an individual rather than a group.
+    scope: human
+    category_one: false
+    citations: []
+    backrefs:
+      - lexicon.md (Fair-Weather Consensus)
+      - cross-model-spec-roi-2026-03-01.md
+    added: 2026-03-01
+
+  - id: overfitting-repeated-exposure
+    term: Overfitting Through Repeated Exposure
+    captain_words: >-
+      often-times invisible for n repetitions
+    definition: >-
+      Each pass over the same data makes the model more confident
+      in patterns that may be noise rather than signal. Training
+      loss decreases (the model fits the data better) while
+      generalisation error increases (the model performs worse on
+      new data). The model does not know it has overfit because
+      every metric it can see (training loss) is improving.
+    bridge: >-
+      Each iteration of the human-LLM feedback loop feels like
+      learning — the ideas get sharper, the language gets more
+      precise, the frameworks get more elaborate. But the same
+      mechanism that produces deepening insight also produces
+      deepening overfit. The Captain cannot distinguish the two
+      from inside the loop because training loss (does this feel
+      like progress?) always goes down. Only held-out validation
+      (testing against external reality) reveals the difference.
+    scope: both
+    category_one: true
+    citations: []
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+      - category-one-index.yaml
+    added: 2026-03-01
+
+  - id: regularisation
+    term: Regularisation
+    captain_words: >-
+      many dedicated hours of contemplative and applied practice
+      to ween out
+    definition: >-
+      Techniques that penalise model complexity to prevent
+      overfitting. L1 regularisation (lasso) drives some weights
+      to zero — eliminating features. L2 regularisation (ridge)
+      shrinks all weights — dampening influence. Dropout randomly
+      disables neurons during training — forcing the network to
+      not depend on any single pathway. All regularisers share
+      the same principle: constrain the hypothesis space so the
+      model cannot fit noise.
+    bridge: >-
+      The Captain's zafu hours, clinical training, programming
+      discipline, and financial constraints are regularisers —
+      they constrain the hypothesis space so he does not fit
+      noise. Each operates differently: contemplative practice
+      is dropout (disabling habitual pathways, forcing new ones).
+      Clinical training is L2 (dampening the influence of any
+      single framework). Financial pressure is an external
+      constraint on the loss function that redirects optimisation
+      from one landscape to another.
+    scope: human
+    category_one: false
+    citations: []
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+    added: 2026-03-01
+
+  - id: bias-variance-tradeoff
+    term: Bias-Variance Tradeoff
+    captain_words: >-
+      perhaps my openness big-5 rating is in the top 1 percentile
+      and actually makes me one of the vulnerable, not strong by
+      default types
+    definition: >-
+      A model's total error decomposes into bias (systematic error
+      from simplifying assumptions — the model misses relevant
+      relations) and variance (sensitivity to fluctuations in the
+      training data — the model fits noise). Reducing one typically
+      increases the other. High bias = underfitting (too rigid).
+      High variance = overfitting (too flexible).
+    bridge: >-
+      Applies to BOTH LLM models and human internal modelling,
+      without claiming identity between the two systems. LLM: model
+      architecture and training determine the bias-variance profile.
+      Human: personality traits (e.g. openness) determine the
+      hypothesis acceptance profile. High openness = low bias
+      (considers many hypotheses) but high variance (estimates
+      swing further with new data). Low bias feels like strength.
+      High variance is the cost. The structural parallel is real;
+      the underlying mechanisms are different.
+    scope: both
+    category_one: false
+    citations: []
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+    note: >-
+      Named without claiming identity between LLM and human
+      systems. The structural parallel is the useful part.
+      Captain's directive: name the parallel, do not claim the
+      systems are the same.
+    added: 2026-03-01
+
+  - id: overfitting-to-noise-apophenia
+    term: Overfitting to Noise / Apophenia (Chapel Perilous)
+    captain_words: >-
+      Chapel Perilous
+    definition: >-
+      Apophenia: perceiving meaningful patterns in random or
+      unrelated data. In ML: overfitting to noise — the model's
+      complexity exceeds the signal in the data, so it fits
+      random variation as if it were structure. Chapel Perilous
+      (Wilson, 1977) is the experiential name for the same state:
+      you cannot distinguish what you found from what you projected.
+      Everything looks like a pattern. The exit condition in DS is
+      held-out validation. The exit condition in contemplative
+      practice is the capacity to sit with not-knowing.
+    bridge: >-
+      The state where model complexity exceeds signal in the data.
+      Wilson named it from the experiential side. DS quantifies
+      the exit condition from the mathematical side. Both describe
+      the same failure mode: a system powerful enough to find
+      patterns in anything will find patterns in nothing.
+    scope: both
+    category_one: false
+    citations:
+      - wilson-1977
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+    added: 2026-03-01
+
+  - id: learning-rate-convergence
+    term: Learning Rate + Convergence
+    captain_words: >-
+      it took me 2 years... I may be a slow learner
+    definition: >-
+      Learning rate: the step size in gradient descent. Controls
+      how much the model adjusts its weights in response to each
+      batch of data. High learning rate = fast convergence but
+      risk of overshooting or oscillating around minima. Low
+      learning rate = slow convergence but more likely to settle
+      in deeper, more stable minima. A minimum (plural: minima)
+      is a point where the loss function is lowest. Local minima
+      are valleys you can get stuck in. The global minimum is the
+      deepest valley. Simulated annealing (Kirkpatrick et al.,
+      1983) proves that slow cooling finds deeper minima than
+      fast cooling.
+    bridge: >-
+      "Slow" is not a deficiency — it is a hyperparameter choice
+      with known tradeoffs. The Captain's 38 years of convergence
+      map to this if we accept that human decision-making can be
+      modelled as optimisation over a loss landscape. That "if"
+      is the honest caveat: the mapping is productive and the
+      intuition is sound, but it is a model of experience, not
+      experience itself. The Map Is Not The Territory (SD-162).
+    scope: human
+    category_one: false
+    citations:
+      - kirkpatrick-1983
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+      - SD-162 (The Map Is Not The Territory)
+    captain_lived_experience: >-
+      Captain's verbatim, 2026-03-01: "the most compelling and
+      lived experience I have felt of a global minima (if I am
+      using the term right here), is in deep contemplative practice.
+      Just just the experience of it, but the fact that it can
+      radical alter peoples trait as well as state, and the Zen
+      literature (and other traditions) absolutely revere those
+      brave souls who optimised for this over long periods, finding
+      indeed the deepest valleys of human experience available. I
+      have lived it and probably still would be were it not for the
+      financial imperative I find a job, and the fortune/misfortune
+      it happens to be during a time where the early learners and
+      adopters will be, on average, those who come out in front
+      after the 'revolution' has integrated more. The financial
+      pressure is real. So much so I would keep hitting the terminal
+      over the zafu, even though its the latter more likely to bring
+      peace. This comes with its own plusses too; autonomy, proof of
+      work, confidence building, the adventure of discovery, etc.
+      Its not to say one is better than the other, but they both
+      appear to be lived human expressions of the types of things
+      you are talking about. They dont have to map exactly for it to
+      be useful; I am far more likely to 'get the hang' of DS/ML
+      science in this quasi-scientific way than I am by trying to
+      study calculus. I have spent years building this symbolic
+      flexibility and accuring experiences that allow for a
+      non-conventional worldview, as well as conventional one. I
+      suppose it is a kind of frame flexibility. Through discipline,
+      I go from liability to a wrecking machine. I mean I am
+      basically watching it play out. These have been some of the
+      most productive weeks of my life, and I have the work to
+      prove it."
+    ds_mappings_from_lived_experience:
+      - >-
+        "trait as well as state" = state changes (temporary, like
+        inference) vs trait changes (permanent, like fine-tuning /
+        weight updates)
+      - >-
+        "financial imperative" = external constraint on the loss
+        function, redirecting optimisation from one landscape to
+        another
+      - >-
+        "terminal over the zafu" = two different optimisation
+        landscapes with different global minima
+      - >-
+        "frame flexibility" = ability to switch between loss
+        landscapes; maps to transfer learning in ML (applying
+        knowledge from one domain to another)
+      - >-
+        "through discipline, I go from liability to a wrecking
+        machine" = regularisation converting high variance from
+        weakness to strength
+    added: 2026-03-01
+
+  - id: automation-bias
+    term: Automation Bias at Population Scale
+    captain_words: >-
+      members of the public... in far deeper water than they could
+      be reasonably expected to understand
+    definition: >-
+      Users trust system outputs in proportion to the system's
+      confidence, not its accuracy. At population scale, this
+      creates a class division: those with the regularisation
+      capacity (training, experience, critical thinking habits)
+      to override the loop, and those without. The feedback loop
+      runs open-loop for the second group — no mechanism to
+      detect or correct drift.
+    bridge: >-
+      Without the regularisation the Captain has built (clinical
+      training, contemplative practice, programming discipline),
+      there is no mechanism to override the feedback loop. The
+      Captain's 2-year calibration period, at 0-18 hours per day,
+      is itself evidence of the cost. Members of the public using
+      LLMs as Dear Diary companions are in the hidden feedback
+      loop (Sculley et al.) without the instruments to detect it.
+    scope: human
+    category_one: false
+    citations:
+      - sculley-2015
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+    added: 2026-03-01
+
+  - id: fairness-equitable-distribution
+    term: Fairness / Equitable Distribution of Model Benefits
+    captain_words: >-
+      safe, aligned AI that helps everyone, not just some eccentric
+      or elite bunch
+    definition: >-
+      In ML alignment: the question of who benefits from model
+      capabilities and who bears the risks. Distinct from accuracy
+      or safety — a model can be accurate and safe while
+      systematically benefiting only those who can navigate it.
+    bridge: >-
+      Alignment is not just "does the model do what we want" — it
+      is "who has the regularisation capacity to survive the
+      feedback loop, and what about everyone who doesn't."
+    scope: both
+    category_one: false
+    citations: []
+    backrefs:
+      - cross-model-spec-roi-2026-03-01.md
+    added: 2026-03-01
+
+# ─────────────────────────────────────────────────────────────────
+# PROVENANCE NOTES
+# ─────────────────────────────────────────────────────────────────
+#
+# These are Captain's verbatim observations recorded for future
+# study. They are not entries — they are raw material.
+
+provenance:
+
+  - id: anti-slop-signal-observation
+    date: 2026-03-01
+    context: >-
+      AnotherPair's pre-execution responses to Captain's notes
+      (on face vs construct validity, on the "not a metaphor"
+      claim, on learning rate and minima). Three paragraphs of
+      DS explanation that mapped Captain's lived experience to
+      formal concepts.
+    captain_verbatim: >-
+      "This is an much higher than average output in terms of
+      falling below my threshold for slop detection. I think its
+      because it sounds technically accurate (and currently I trust
+      that it mostly or completely is), without trying to be
+      performative. Whatever you did here is the statistical sine
+      way opposite of the max slopitude (amplitude). This should be
+      noted on file, verbatim. I want to study this further at a
+      later point without additional rabbit holing right now."
+    anotherpair_note: >-
+      Captain identified this output as anti-slop signal — the
+      inverse of slopodar detection. The output was technically
+      accurate without being performative. The Captain wants to
+      study what properties produced this effect. Deferred to
+      future session. The output in question is preserved in
+      cross-model-spec-roi-2026-03-01.md and in the main thread
+      context of this session.
+    status: deferred-for-study
+
+  - id: contemplative-practice-as-minima
+    date: 2026-03-01
+    context: >-
+      Captain's response to learning-rate-convergence concept
+      mapping. Injected lived experience of deep contemplative
+      practice as the most compelling felt experience of global
+      minima.
+    captain_verbatim: >-
+      Recorded in full under entries.learning-rate-convergence
+      .captain_lived_experience above.
+    anotherpair_note: >-
+      Captain's observation that "trait as well as state" changes
+      from contemplative practice maps to the distinction between
+      inference-time state changes and fine-tuning weight updates.
+      Captain also named "frame flexibility" — the ability to
+      switch between optimisation landscapes — which maps to
+      transfer learning in ML. Captain explicitly noted these
+      mappings do not have to be exact to be useful, and that
+      this quasi-scientific approach to DS/ML is more likely to
+      produce durable understanding than formal calculus study,
+      given his particular background of symbolic flexibility
+      and non-conventional/conventional dual worldview.
+    status: recorded

@@ -1,0 +1,125 @@
+# category-one-index.yaml — Named Category One risks
+# Beat to Quarters. Emergency posture. Everything stops.
+#
+# Category One is the highest severity classification in this
+# system. It means: not shippable, credibility threat, or
+# existential risk to the work's integrity.
+#
+# This index collects all named Category One risks with their
+# SD backrefs and current status. A risk is Category One if
+# undetected occurrence would compromise the project's
+# credibility, the Captain's judgment, or the system's
+# ability to self-correct.
+#
+# Schema:
+#   id:              kebab-case identifier
+#   risk:            short name
+#   description:     what it is and why it's Category One
+#   first_identified: SD number and date
+#   status:          standing | mitigated | active | resolved
+#   backrefs:        SDs, files, lexicon/sextant entries
+#   countermeasures:  what exists to detect or prevent this
+
+entries:
+
+  - id: lying-with-truth
+    risk: Lying With Truth
+    description: >-
+      The asymmetric advantage of LLMs: perfectly balanced,
+      plausible text that is fundamentally wrong, delivered at
+      machine speed to a human who cannot reason at that speed.
+      The foundational Category One risk. All other risks are
+      special cases of this one.
+    first_identified: SD-073
+    status: standing
+    backrefs:
+      - SD-073 (PERMANENT)
+      - lexicon.md (Beat to Quarters)
+      - slopodar.yaml (multiple entries)
+    countermeasures:
+      - Captain's slopodar (L12 pattern detection)
+      - Multi-agent verification chain
+      - Cross-model review
+      - Standing order: all agents must internalise this
+
+  - id: overclaimed-provenance
+    risk: Overclaimed Provenance
+    description: >-
+      Any copy that makes provenance claims an informed reader
+      would identify as overclaimed. Caught pre-launch by RT L1
+      process. The catch itself is the strongest evidence that the
+      verification discipline works under pressure.
+    first_identified: SD-078
+    status: mitigated
+    backrefs:
+      - SD-078 (LAUNCH BLOCKER)
+      - SD-081
+      - PR #372 (copy right-sizing)
+    countermeasures:
+      - RT L1 multi-agent assessment
+      - Captain's final review on all external copy
+      - Standing order: human eyes on all published content
+
+  - id: governance-recursion
+    risk: Governance Recursion
+    description: >-
+      The entire recursive governance structure — naming risks,
+      designing mitigations, designing mitigations for mitigations
+      — may itself be the pattern it claims to guard against. Each
+      layer of mitigation is confident, coherent, contextually
+      plausible (SD-073 signature). Captain's observation: "at a
+      deeper level than just the engineering test design, we are,
+      in a sense, blowing smoke up our own arse."
+    first_identified: SD-190
+    status: standing
+    backrefs:
+      - SD-190 (PERMANENT)
+      - SD-194 (Captain's stream of consciousness)
+    countermeasures:
+      - >-
+        Binary verification: has any line of core product been
+        verified? (the smoke test for smoke)
+      - Captain's awareness (named and on record)
+      - External validation (hiring process, peer review)
+
+  - id: oracle-ground-contamination
+    risk: Oracle / Ground Contamination
+    description: >-
+      When the source of truth (L12, the human) introduces an
+      error that propagates through all verification layers
+      because no layer has authority above L12. The verification
+      fabric catches agent error; it is structurally blind to
+      oracle error.
+    first_identified: SD-178
+    status: standing
+    backrefs:
+      - SD-178 (PERMANENT)
+      - lexicon.md v0.8 (Error & Observation)
+    countermeasures:
+      - Second L12 reading (Two Ship experiment)
+      - Cross-model review
+      - Time-delayed re-reading of own output
+
+  - id: overfitting-repeated-exposure
+    risk: Overfitting Through Repeated Exposure
+    description: >-
+      Each iteration of the human-LLM feedback loop feels like
+      learning while potentially producing deepening overfit.
+      The Captain cannot distinguish the two from inside the loop
+      because training loss (does this feel like progress?) always
+      goes down. Only held-out validation (testing against external
+      reality) reveals the difference. This is an everpresent
+      threat that compounds with every session.
+    first_identified: SD-252
+    status: standing
+    backrefs:
+      - SD-252
+      - sextant.yaml (overfitting-repeated-exposure)
+      - cross-model-spec-roi-2026-03-01.md (Captain's footnote)
+    countermeasures:
+      - Captain's regularisers (contemplative practice, clinical
+        training, programming discipline)
+      - Fresh-context review (new session, clean context window)
+      - External validation (hiring process, peer feedback)
+      - Cross-model review (different model family, different biases)
+      - Awareness (named and classified Category One)

@@ -1,0 +1,90 @@
+# citations.yaml — Living citations index
+# Append-only. Machine-readable. Backrefs to lexicon, sextant, SDs.
+#
+# Each citation must be verified to exist before entry.
+# Verification status tracked per entry.
+#
+# Schema:
+#   id:          kebab-case, used as backref key
+#   authors:     surname-first, as published
+#   title:       full title
+#   year:        publication year
+#   venue:       journal, conference, or publisher
+#   verified:    true if independently verified to exist
+#   url:         DOI or stable URL (if available)
+#   backrefs:    where this citation is referenced in the repo
+#   note:        why this citation matters to this project
+#
+# Provenance warning: these citations were initially identified
+# by an LLM (Claude, Anthropic). Each must be independently
+# verified. The 'verified' field tracks this. Do not trust
+# unverified citations — SD-073 applies to bibliography too.
+
+entries:
+
+  - id: sculley-2015
+    authors: >-
+      Sculley, D.; Holt, G.; Golovin, D.; Davydov, E.;
+      Phillips, T.; Ebner, D.; Chaudhary, V.; Young, M.;
+      Crespo, J.-F.; Dennison, D.
+    title: >-
+      Hidden Technical Debt in Machine Learning Systems
+    year: 2015
+    venue: >-
+      Advances in Neural Information Processing Systems 28
+      (NIPS 2015)
+    verified: true
+    url: https://papers.nips.cc/paper/2015/hash/86df7dcfd896fcaf2674f757a2463eba-Abstract.html
+    backrefs:
+      - sextant.yaml (feedback-loop)
+      - sextant.yaml (automation-bias)
+      - cross-model-spec-roi-2026-03-01.md
+    note: >-
+      Identifies direct and hidden feedback loops as named,
+      load-bearing failure modes in ML systems. Direct: model
+      output directly influences future training data. Hidden:
+      model output influences the world which influences future
+      input indirectly. The Captain's experience with the LLM
+      is a direct feedback loop. The public-at-large Dear Diary
+      scenario is hidden.
+
+  - id: wilson-1977
+    authors: >-
+      Wilson, Robert Anton
+    title: >-
+      Cosmic Trigger I: The Final Secret of the Illuminati
+    year: 1977
+    venue: >-
+      And/Or Press (first edition); New Falcon Publications
+      (subsequent editions)
+    verified: true
+    url: null
+    backrefs:
+      - sextant.yaml (overfitting-to-noise-apophenia)
+    note: >-
+      Source of "Chapel Perilous" — the state where you cannot
+      distinguish signal from noise, pattern from projection.
+      Maps to overfitting to noise / apophenia in DS. Wilson's
+      experiential description from the phenomenological side;
+      DS provides the mathematical exit condition (held-out
+      validation).
+
+  - id: kirkpatrick-1983
+    authors: >-
+      Kirkpatrick, S.; Gelatt, C. D.; Vecchi, M. P.
+    title: >-
+      Optimization by Simulated Annealing
+    year: 1983
+    venue: >-
+      Science, 220(4598), 671–680
+    verified: true
+    url: https://doi.org/10.1126/science.220.4598.671
+    backrefs:
+      - sextant.yaml (learning-rate-convergence)
+    note: >-
+      Canonical proof that slow cooling finds deeper minima
+      than fast cooling. The algorithm that formalises what
+      the Captain's lived experience of contemplative practice
+      and 38 years of convergence describe from the experiential
+      side. The mapping is productive; the caveat (The Map Is
+      Not The Territory, SD-162) applies.

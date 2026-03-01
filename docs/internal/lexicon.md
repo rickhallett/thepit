@@ -149,6 +149,7 @@ last_known:
 | v0.9 | 2026-02-26 | Maturin's Symbol (§) added to Integrity & Verification. First organically adopted citation convention — crew converged on § across independent context windows without instruction. AnotherPair assigned to watch effects. | SD-192 |
 | v0.10 | 2026-02-27 | "Muster" added to Communication & Record. O(1) triage format: numbered table, binary decisions, Captain walks the line. | SD-202 |
 | v0.11 | 2026-02-27 | Three terms added. "Bump the slopodar" / "slopodar upgrade" / "moreslop" (Communication & Record). "Extra rations" — Captain's commendation, logged to agent's log.md (Communication & Record). "Knows the line" — agent attunement to this vessel's particulars (Integrity & Verification). | SD-209 |
+| v0.12 | 2026-03-01 | **The Sextant** — separate file for Captain's cognitive calibration instruments (`docs/internal/sextant.yaml`). 11 entries mapping Captain's lived experience to DS/ML/statistics concepts. Separated from operational lexicon: naval terms govern the ship, sextant terms govern the navigator. Supporting infrastructure: `citations.yaml` (living citations index), `category-one-index.yaml` (named Category One risks). New Cat One risk: Overfitting Through Repeated Exposure. Format: YAML (machine-readable first, transformation-ready). Lexicon format standardisation deferred to holding deck. | SD-252 |
 
 ---
 
