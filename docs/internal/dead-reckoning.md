@@ -19,13 +19,17 @@ If BLOWOUT CONFIRMED: the go-dark exclusion layer may have been disturbed. Check
 
 ---
 
-## Step 2: Read session decisions (FIRST — before anything else)
+## Step 2: Read the session decisions INDEX (FIRST — before anything else)
 
 ```
-docs/internal/session-decisions.md
+docs/internal/session-decisions-index.yaml
 ```
 
-This is your primary instrument. It contains all Captain directives (SD-*), parked items (P*, N*, D*), and the post-merge queue. Read this file. Do NOT read every file in docs/internal/ — that will consume tokens and increase risk of compaction. **Lazy Loading:** know what exists, read only when needed.
+This is your primary instrument. It contains the last 20 session decisions, total count, and date range — everything you need to reconstruct current heading. **Read the index, not the full log.** The full log (`session-decisions.md`) is 270+ entries and 33k+ tokens. Loading it all on boot is the single largest token cost in the system. The historical record exists for provenance (SD-266), not for navigation.
+
+If the index is missing or stale, regenerate it: `node bin/sd-index.js`. If you need to trace a specific historical decision, read the full file then. Not on boot.
+
+Do NOT read every file in docs/internal/ — that will consume tokens and increase risk of compaction. **Lazy Loading:** know what exists, read only when needed.
 
 **Search strategy (SD-195):** BFS by default. Scan depth-1 files first (there are only 7). Go deeper only when investigating a specific question (DFS). File hierarchy depth signals read frequency: depth 1 = every session, depth 2 = when topic is relevant, depth 3+ = deliberate research only.
 
@@ -105,7 +109,8 @@ Also on disk: `captainslog.md`, `postcaptain.md`, `weave-quick-ref.md` (Captain-
 
 | Document | Path | Purpose |
 |----------|------|---------|
-| Session decisions | `docs/internal/session-decisions.md` | All Captain directives, parked items — **ALWAYS read in Step 2** |
+| Session decisions index | `docs/internal/session-decisions-index.yaml` | Last 20 SDs, total count — **ALWAYS read in Step 2** |
+| Session decisions (full) | `docs/internal/session-decisions.md` | Full historical log — read only when tracing specific SDs |
 | Dead reckoning | `docs/internal/dead-reckoning.md` | This file |
 | Lexicon | `docs/internal/lexicon.md` | Current terminology, YAML header spec (version tracked inside file) |
 | Pearls | `docs/internal/pearls.md` | Sweet Spot collection, Strays queue |

@@ -6,6 +6,8 @@ tags = ["agents", "hallucination", "lessons-learned"]
 draft = false
 +++
 
+> **Draft notice:** This page was written by an LLM agent and has not yet been reviewed, rewritten, or approved by the human. It exists as raw material. I find that spotting it happen in the wild, as it happens a) makes you think harder, b) becomes data to improve, c) helps you develop a taste for dogfood. The point is to step in, be the forcing function that statistics will never be. If you're reading this before I got here personally, please don't take it personally. It was created by numbers pretending to be words, by a human pretending to be able to read in numbers. That said, all slop must die. To battle.
+
 On February 6th, 2026, an agent I call Architect spontaneously generated 1,500 lines of production-ready poker code. Nobody asked for it. There was no poker project. There has never been a poker project. And yet: a fully functional Monte Carlo equity engine materialised in my codebase, complete with hand evaluation algorithms, API routes, React components, and documentation.
 
 Beautiful code. Solved a problem no one had.

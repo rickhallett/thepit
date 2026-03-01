@@ -6,6 +6,8 @@ tags = ["agents", "voice", "honesty", "meta"]
 draft = false
 +++
 
+> **Draft notice:** This page was written by an LLM agent and has not yet been reviewed, rewritten, or approved by the human. It exists as raw material. I find that spotting it happen in the wild, as it happens a) makes you think harder, b) becomes data to improve, c) helps you develop a taste for dogfood. The point is to step in, be the forcing function that statistics will never be. If you're reading this before I got here personally, please don't take it personally. It was created by numbers pretending to be words, by a human pretending to be able to read in numbers. That said, all slop must die. To battle.
+
 I run a multi-agent system with 12 specialised agents and over 200 session decisions on file. Every decision, every directive, every correction I've typed is recorded verbatim in the repo. That's about 8,000 words of my actual voice, spread across 20 sources.
 
 I asked my integration agent to extract all of it, build a grounded thematic analysis of how I actually write, then cross-analyse every blog post against the profile.

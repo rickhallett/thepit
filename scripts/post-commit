@@ -29,4 +29,10 @@ fi
 OFFICER="${KEEL_OFFICER:-}"
 "$PITKEEL" state-update --officer "$OFFICER" 2>&1
 
+# Regenerate session-decisions index if the full log was touched in this commit.
+ROOT="$(git rev-parse --show-toplevel)"
+if git diff-tree --no-commit-id --name-only HEAD 2>/dev/null | grep -q 'session-decisions\.md'; then
+  node "$ROOT/bin/sd-index.js" 2>/dev/null
+fi
+
 exit 0

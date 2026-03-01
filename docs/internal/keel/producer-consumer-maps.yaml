@@ -88,7 +88,6 @@ files:
   - id: lexicon-md
     path: docs/internal/lexicon.md
     format: markdown (tables + prose + YAML code block)
-    writable: false (444)
     version: v0.13
 
     producers:
@@ -122,6 +121,474 @@ files:
       spec (already YAML inside a markdown code block), term tables with
       three columns, version history table, prose sections.
 
+  - id: keel-state
+    path: .keel-state
+    format: json
+    producers:
+      - who: "pitkeel state-update (pitkeel/main.go updateKeelState)"
+        action: "json.Unmarshal existing → mutate → json.Marshal → os.WriteFile"
+        format: "JSON object, single-line"
+      - who: "pitkeel north set (pitkeel/main.go setTrueNorth)"
+        action: "json.Unmarshal → set true_north → json.Marshal → os.WriteFile"
+        format: "JSON object"
+      - who: "scripts/gate.sh (inline python3)"
+        action: "json.load existing → set gate/gate_time/tests → json.dump → write"
+        format: "JSON object"
+    programmatic_consumers:
+      - id: hud-py
+        file: scripts/hud.py
+        lines: "42-48, 51-113"
+        parser: "json.load (Python stdlib)"
+        writes_to: "stdout (ANSI terminal HUD)"
+        rewrite_required: false
+        note: "Reads all fields: officer, true_north, weave, register, tempo, bearing (dict), gate, gate_time, tests"
+      - id: prepare-commit-msg
+        file: scripts/prepare-commit-msg
+        lines: "59-83 (inline python3)"
+        parser: "json.load (Python stdlib, embedded in bash)"
+        writes_to: "commit message file (git trailers)"
+        rewrite_required: false
+        note: "Reads: officer, bearing (dict→work/commits/note), tempo, weave, register, gate, gate_time, tests"
+      - id: pitkeel-state-update-self-read
+        file: pitkeel/main.go
+        lines: "493-496"
+        parser: "json.Unmarshal into map[string]interface{}"
+        writes_to: ".keel-state (read-modify-write cycle)"
+        rewrite_required: false
+        note: "Preserves all existing fields, updates head/sd/bearing/officer. Deletes legacy fields."
+      - id: pitkeel-north-get
+        file: pitkeel/main.go
+        lines: "599-612"
+        parser: "json.Unmarshal into map[string]interface{}"
+        writes_to: "stdout"
+        rewrite_required: false
+        note: "Reads only true_north field."
+    reference_consumers:
+      - "scripts/post-commit (invokes pitkeel, does not read .keel-state directly)"
+      - "docs/internal/weaver/keel-history.log (gate.sh appends snapshots)"
+    conversion_risk: high
+    field_inventory:
+      - field: head
+        type: "string (short git SHA)"
+        written_by: "pitkeel state-update"
+        read_by: "hud.py (via git, not .keel-state)"
+      - field: sd
+        type: "string (SD-NNN)"
+        written_by: "pitkeel state-update"
+        read_by: "hud.py (via session-decisions.md, not .keel-state)"
+      - field: bearing
+        type: "object {work, commits, last, note}"
+        written_by: "pitkeel state-update"
+        read_by: "hud.py, prepare-commit-msg"
+      - field: officer
+        type: "string (agent name)"
+        written_by: "pitkeel state-update (from --officer flag or KEEL_OFFICER env)"
+        read_by: "hud.py, prepare-commit-msg"
+      - field: true_north
+        type: "string"
+        written_by: "pitkeel north set"
+        read_by: "hud.py, pitkeel north get"
+      - field: gate
+        type: "string (green|red)"
+        written_by: "scripts/gate.sh"
+        read_by: "hud.py, prepare-commit-msg"
+      - field: gate_time
+        type: "string (HH:MM or date)"
+        written_by: "scripts/gate.sh"
+        read_by: "hud.py, prepare-commit-msg"
+      - field: tests
+        type: "int (count of passed)"
+        written_by: "scripts/gate.sh"
+        read_by: "hud.py, prepare-commit-msg"
+      - field: weave
+        type: "string"
+        written_by: "Captain manual edit"
+        read_by: "hud.py, prepare-commit-msg"
+      - field: register
+        type: "string"
+        written_by: "Captain manual edit"
+        read_by: "hud.py, prepare-commit-msg"
+      - field: tempo
+        type: "string"
+        written_by: "Captain manual edit"
+        read_by: "hud.py, prepare-commit-msg"
+    risk_summary: >-
+      Five producers, four programmatic consumers, zero formal schema. Three
+      languages (Go, Python, Bash+Python) read and write the same JSON file.
+      Already broke this session (bearing dict, officer stale, gate.sh overwrite).
+      The read-modify-write pattern creates potential race conditions.
+
+  - id: slopodar-yaml-pipeline
+    path: "slopodar.yaml → sites/oceanheart/data/slopodar.yaml"
+    format: yaml
+    producers:
+      - who: "Captain/crew manual editing"
+        action: "Add/edit entries in root slopodar.yaml"
+        format: "YAML, top-level patterns[] array"
+      - who: "sites/oceanheart/Makefile sync target"
+        action: "cp verbatim to data/slopodar.yaml"
+        format: "passthrough"
+    programmatic_consumers:
+      - id: makefile-awk-stubs
+        file: sites/oceanheart/Makefile
+        lines: "22-31"
+        parser: "awk regex: /^  - id:/ captures $3; /^    name:/ captures rest after prefix"
+        writes_to: "content/slopodar/<id>.md (Hugo stubs)"
+        rewrite_required: true
+        note: "FRAGILE: assumes exact 2-space/4-space indentation. Positional $3 capture fails on ids with spaces."
+      - id: hugo-list-template
+        file: sites/oceanheart/layouts/slopodar/list.html
+        lines: "15, 19-24"
+        parser: "Hugo template engine (.Site.Data.slopodar.patterns)"
+        writes_to: "rendered /slopodar/ page"
+        rewrite_required: false
+        note: "Reads: id, name, trigger, detected. Sorts by detected desc."
+      - id: hugo-single-template
+        file: sites/oceanheart/layouts/slopodar/single.html
+        lines: "4-52"
+        parser: "Hugo template engine, filtered by .Params.id"
+        writes_to: "rendered /slopodar/<id>/ pages"
+        rewrite_required: false
+        note: "Reads: id, name, detected, trigger, description, signal, instead, refs."
+    reference_consumers:
+      - "sites/oceanheart/layouts/_default/sloptics.html (hardcoded links)"
+      - "docs/internal/holding-deck.yaml (cross-refs)"
+      - "docs/internal/sextant.yaml (cross-refs)"
+    dead_fields:
+      - severity
+      - category
+      - examples
+    conversion_risk: high
+    risk_summary: >-
+      The awk stub generator parses YAML with positional awk regex, not a YAML
+      parser. Exact indentation assumptions. Hugo templates use proper YAML parser
+      and would survive schema changes. Three fields (severity, category, examples)
+      are dead data — consumed by no template.
+
+  - id: env-dual-schema
+    path: ".env"
+    format: dotenv
+    producers:
+      - who: "Captain/developer manual editing"
+        action: "Edit .env directly"
+        format: "dotenv KEY=value"
+      - who: "scripts/bootstrap.sh"
+        action: "cp .env.example .env if missing"
+        format: "passthrough"
+    programmatic_consumers:
+      - id: env-ts-zod
+        file: lib/env.ts
+        lines: "40-148"
+        parser: "Zod v4 schema. 70 fields, 3 required. boolFlag: strict === 'true' (case-sensitive)."
+        writes_to: "exported env object (ServerEnv type)"
+        rewrite_required: false
+        note: "Validates at module load time. Crashes in production on failure, warns in dev/test."
+      - id: config-go-godotenv
+        file: shared/config/config.go
+        lines: "23-43, 56-94"
+        parser: "godotenv.Read(). 18 fields, 4 required. IsEnabled: strings.ToLower (case-insensitive)."
+        writes_to: "Config struct with Vars map"
+        rewrite_required: false
+        note: "Bool coercion drift: 'True' passes Go, fails TypeScript. 5 overlapping boolean fields affected."
+    reference_consumers:
+      - "All pit* CLIs via shared/config"
+      - "lib/brand.ts, lib/posthog-server.ts, lib/openapi.ts (NEXT_PUBLIC_* direct reads)"
+    bool_coercion_drift:
+      affected_fields:
+        - SUBSCRIPTIONS_ENABLED
+        - CREDITS_ENABLED
+        - BYOK_ENABLED
+        - ASK_THE_PIT_ENABLED
+        - EAS_ENABLED
+      env_ts: "strict === 'true' (case-sensitive)"
+      config_go: "strings.ToLower == 'true' (case-insensitive)"
+    undocumented_fields:
+      - "FREE_BOUT_POOL_MAX (Go only, not in .env.example)"
+      - "LICENSE_SIGNING_KEY (Go only, not in .env.example)"
+      - "RESEARCH_API_KEY (env.ts only, not in .env.example)"
+    conversion_risk: high
+    risk_summary: >-
+      Two independent validation systems, different required/optional classifications,
+      different type coercion. Bool coercion drift affects 5 fields. Three fields
+      undocumented in .env.example.
+
+  - id: opencode-agents-symlinks
+    path: ".claude/agents/*.md → .opencode/agents/*.md"
+    format: "markdown (filesystem symlinks)"
+    producers:
+      - who: "Human/Agent crew"
+        action: "Edit agent definitions in .opencode/agents/"
+        format: "Markdown with H1 title convention"
+    programmatic_consumers:
+      - id: claude-harness
+        file: ".claude/agents/*.md (14 symlinks)"
+        parser: "Claude Code harness loads at boot; symlinks resolve via OS"
+        writes_to: "Context window (in-memory)"
+        rewrite_required: false
+        note: "Relative symlinks (../../.opencode/agents/). Break on dereference."
+      - id: aggregate-agents-py
+        file: scripts/aggregate-agents.py
+        lines: "14,44,57,84"
+        parser: "Path.glob('*.md'), extracts H1 via string split"
+        writes_to: ".opencode/agents/MASTER.md"
+        rewrite_required: false
+        note: "STALE HIERARCHY: references 4 deleted agents, missing 6 current ones."
+      - id: opencode-harness
+        file: ".opencode.json"
+        parser: "Implicit harness convention, loads from .opencode/agents/"
+        writes_to: "Context window (in-memory)"
+        rewrite_required: false
+    reference_consumers:
+      - "AGENTS.md (crew roster table)"
+    conversion_risk: medium
+    risk_summary: >-
+      Symlink topology is sound. aggregate-agents.py HIERARCHY is stale (4 deleted,
+      6 missing). Symlinks break on dereference (tar without -h).
+
+  - id: go-work-modules
+    path: go.work
+    format: "go-work (Go workspace syntax)"
+    producers:
+      - who: "Developer manual edit"
+        action: "Add/remove module paths in use() directive"
+        format: "Go workspace syntax"
+    programmatic_consumers:
+      - id: go-toolchain
+        file: "go compiler/linker"
+        parser: "Go native workspace parser"
+        writes_to: "Build artifacts, go.work.sum"
+        rewrite_required: false
+        note: "9 modules: pitbench, pitctl, pitforge, pitkeel, pitlab, pitlinear, pitnet, pitstorm, shared"
+      - id: ci-yml-path-filter
+        file: ".github/workflows/ci.yml"
+        parser: "Path change detection only"
+        writes_to: "CI trigger decision"
+        rewrite_required: false
+      - id: run-level4-gate-anti
+        file: "scripts/run-level4-gate.sh"
+        parser: "GOWORK=off (disables workspace for external repo)"
+        writes_to: "Environment override"
+        rewrite_required: false
+        note: "Anti-consumer: explicitly disables go.work"
+    reference_consumers:
+      - "AGENTS.md (workspace convention)"
+    conversion_risk: low
+    risk_summary: >-
+      Go toolchain owns the spec. No scripts parse contents. Anti-consumer pattern
+      in run-level4-gate.sh. Low risk.
+
+  - id: env-example-template
+    path: .env.example
+    format: "dotenv (template)"
+    producers:
+      - who: "Developer manual edit"
+        action: "Add/remove env var templates"
+        format: "KEY=value with # comments"
+    programmatic_consumers:
+      - id: bootstrap-sh-copy
+        file: scripts/bootstrap.sh
+        lines: "77-82"
+        parser: "cp .env.example .env; grep for 3 hardcoded REQUIRED_VARS"
+        writes_to: ".env (copy)"
+        rewrite_required: false
+        note: "Checks 3 of ~65 keys. REQUIRED_VARS list is separate from .env.example."
+    reference_consumers:
+      - "lib/env.ts (implicit contract via developer convention)"
+      - "README.md, AGENTS.md (setup instructions)"
+    drift_points:
+      - "RESEARCH_API_KEY: in env.ts, missing from .env.example"
+      - "bootstrap REQUIRED_VARS hardcoded separately from both .env.example and env.ts"
+    conversion_risk: medium
+    risk_summary: >-
+      No automated parity check between .env.example and env.ts schema.
+      RESEARCH_API_KEY drift. Runtime validation (env.ts) is robust — drift
+      affects onboarding, not production.
+
+  - id: pitctl-export-jsonl
+    path: "export/YYYY-MM-DD_bouts.jsonl, export/YYYY-MM-DD_agents.json"
+    format: "JSONL (bouts), JSON array (agents)"
+    producers:
+      - who: "pitctl export bouts/agents"
+        action: "Query DB, write to files in export/"
+        format: "JSONL (bouts), JSON array (agents)"
+    programmatic_consumers:
+      - id: research-pipeline-sh
+        file: scripts/research-pipeline.sh
+        lines: "69-101"
+        parser: "BROKEN — redirects stdout expecting JSONL, but pitctl writes to files"
+        writes_to: "research-exports/<ts>/research-export.json (invalid)"
+        rewrite_required: true
+        note: "CRITICAL: stdout-vs-file contract mismatch. Pipeline produces invalid exports."
+      - id: pre-destructive-guard-sh
+        file: scripts/pre-destructive-guard.sh
+        lines: "70-100"
+        parser: "ls -t export/*_bouts.jsonl (correct — reads from file)"
+        writes_to: "backups/"
+        rewrite_required: false
+        note: "Correctly handles pitctl's file-based output."
+    reference_consumers:
+      - "AGENTS.md (export command docs)"
+    conversion_risk: high
+    risk_summary: >-
+      CRITICAL BUG: research-pipeline.sh has stdout-vs-file contract mismatch with
+      pitctl export. Pipeline produces invalid research exports. pre-destructive-guard.sh
+      correctly handles the file output. Escalated from MEDIUM to HIGH.
+
+  - id: pitstorm-output-json
+    path: "<user-specified via --output>"
+    format: "JSON (metrics.Snapshot struct)"
+    producers:
+      - who: "pitstorm run --output"
+        action: "json.MarshalIndent(Snapshot{})"
+        format: "JSON with Go struct tags"
+    programmatic_consumers:
+      - id: sim-cost-report-sh
+        file: scripts/sim-cost-report.sh
+        lines: "71-75"
+        parser: "jq with // fallback operators"
+        writes_to: "stdout (cost report)"
+        rewrite_required: false
+        note: "Minor: elapsed is nanoseconds, printed as raw int."
+      - id: pitstorm-report-cmd
+        file: pitstorm/commands.go
+        lines: "865-886"
+        parser: "json.Unmarshal into metrics.Snapshot (canonical)"
+        writes_to: "stdout (formatted summary)"
+        rewrite_required: false
+        note: "Self-consuming — same struct, no drift possible."
+    reference_consumers: []
+    conversion_risk: low
+    risk_summary: >-
+      Well-defined Go struct with json tags. jq consumer uses fallback operators.
+      run-level4-gate.sh is NOT a consumer (false positive — consumes NDJSON records).
+
+  - id: nvmrc
+    path: .nvmrc
+    format: "plaintext (bare semver)"
+    producers:
+      - who: "Human manual edit"
+        action: "Set Node version string"
+        format: "bare semver, no v prefix"
+    programmatic_consumers:
+      - id: bootstrap-sh
+        file: scripts/bootstrap.sh
+        lines: "62-70"
+        parser: "cat .nvmrc, string compare with node --version"
+        writes_to: "stdout (advisory)"
+        rewrite_required: false
+      - id: ci-yml-setup-node
+        file: ".github/workflows/ci.yml"
+        parser: "actions/setup-node@v4 node-version-file"
+        writes_to: "CI runner Node installation"
+        rewrite_required: false
+      - id: e2e-yml-setup-node
+        file: ".github/workflows/e2e.yml"
+        parser: "actions/setup-node@v4 node-version-file"
+        writes_to: "CI runner Node installation"
+        rewrite_required: false
+    conversion_risk: low
+    risk_summary: "All consumers handle bare semver string. Minimal contract."
+
+  - id: config-toml
+    path: config.toml
+    format: toml
+    producers:
+      - who: "Human manual edit"
+        action: "Configure smoke test targets"
+        format: "TOML with flat key=value in sections"
+    programmatic_consumers:
+      - id: smoke-mcp-access-sh
+        file: scripts/smoke-mcp-access.sh
+        lines: "16-29"
+        parser: "Custom awk TOML parser (get_toml_value function)"
+        writes_to: "Shell variables for API smoke tests"
+        rewrite_required: false
+        note: "Handles flat sections only. Fragile if structure gains nesting."
+    conversion_risk: low
+    risk_summary: "Single consumer with bespoke awk parser. Flat structure, stable."
+
+  - id: research-export-json
+    path: "research-exports/<ts>/research-export.json"
+    format: json
+    producers:
+      - who: "scripts/research-pipeline.sh (jq assembly)"
+        action: "Transforms pitctl JSONL into JSON object"
+        format: "JSON with keys: bouts, agents, reactions, votes, exportedAt, period"
+      - who: "lib/research-exports.ts (API route)"
+        action: "Generates from DB as JSONB"
+        format: "JSON with keys: exportVersion, generatedAt, bouts, reactions, votes, agents"
+    programmatic_consumers:
+      - id: pitlab-dataset-loader
+        file: pitlab/internal/dataset/dataset.go
+        lines: "14-21, 76-91"
+        parser: "json.Unmarshal into Export struct"
+        writes_to: "In-memory Dataset"
+        rewrite_required: false
+        note: "SCHEMA DIVERGENCE: shell produces {period, exportedAt}, pitlab expects {exportVersion, generatedAt}. Fields silently default to empty."
+    conversion_risk: medium
+    risk_summary: "Two producers emit divergent schemas. pitlab silently accepts both but loses metadata from the shell-produced version."
+
+  - id: whoop-log
+    path: "docs/internal/doctor/captain/whoop-YYYY-MM-DD.log"
+    format: "unstructured text"
+    producers:
+      - who: "Captain manual creation"
+        action: "Daily wellness log"
+        format: "Free-form text, date in filename"
+    programmatic_consumers:
+      - id: pitkeel-wellness
+        file: pitkeel/main.go
+        lines: "159-178"
+        parser: "os.Stat (existence check only)"
+        writes_to: "Terminal output (present/not found)"
+        rewrite_required: false
+    conversion_risk: low
+    risk_summary: "Existence check only. No content parsing."
+
+  - id: captainslog-md
+    path: "docs/internal/captain/captainslog/YYYY/MM/DD.md"
+    format: markdown
+    producers:
+      - who: "Captain / Agents"
+        action: "Daily log entry"
+        format: "Free-form markdown, date in path"
+    programmatic_consumers:
+      - id: pitkeel-wellness-captainslog
+        file: pitkeel/main.go
+        lines: "167-178"
+        parser: "os.Stat (existence check only)"
+        writes_to: "Terminal output (present/not found)"
+        rewrite_required: false
+    conversion_risk: low
+    risk_summary: "Existence check only. Path convention YYYY/MM/DD.md is the sole contract."
+
+  - id: bugbot-findings-tsv
+    path: "docs/internal/weaver/bugbot-findings.tsv"
+    format: tsv
+    producers:
+      - who: "Weaver agent (manual append during PR review)"
+        action: "Append rows"
+        format: "TSV, 8 columns: date, pr, round, ref, class, finding, fix_commit, status"
+    programmatic_consumers: []
+    reference_consumers:
+      - "AGENTS.md"
+      - "Multiple agent files (weaver, architect, janitor, analyst)"
+    conversion_risk: low
+    risk_summary: "No programmatic consumers. Agent-read/agent-written only."
+
+  - id: keel-history-log
+    path: "docs/internal/weaver/keel-history.log"
+    format: "append-only log (timestamped JSON snapshots)"
+    producers:
+      - who: "scripts/gate.sh"
+        action: "Appends .keel-state snapshot before overwrite"
+        format: "--- ISO8601 --- delimiter, then raw JSON, then blank line"
+    programmatic_consumers: []
+    reference_consumers:
+      - "docs/internal/session-decisions.md (SD-200, SD-204)"
+    conversion_risk: low
+    risk_summary: "Write-only audit trail. No code reads it programmatically."
+
   # ─── COMPARISON ──────────────────────────────────────────────
 
 comparison:
@@ -142,3 +609,21 @@ comparison:
     recommendation: >-
       Clean win. Convert first. No code breaks. Backref string updates
       are mechanical. Already in holding-deck (lexicon-format-standardisation).
+  keel_state:
+    programmatic_consumers: 4
+    parsers_to_rewrite: 0
+    files_eliminable: 0
+    conversion_risk: high
+    recommendation: >-
+      Do not convert format. Prioritise schema contract: define every field with
+      type, writer, reader in a comment block or Go struct. The risk is not format —
+      it is the absence of any definition.
+  pitctl_export:
+    programmatic_consumers: 2
+    parsers_to_rewrite: 1
+    files_eliminable: 0
+    conversion_risk: high
+    recommendation: >-
+      CRITICAL: fix research-pipeline.sh stdout-vs-file mismatch before any format
+      work. Either add --stdout to pitctl export or rewrite pipeline to read from
+      export/ directory.

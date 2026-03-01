@@ -128,6 +128,10 @@ When the Lexicon requires changes: edit content → update version in title and 
 
 Context windows drop without warning. Defect status changes must be written to a durable file — not held only in conversation memory. The canonical defect inventory lives at `docs/press-manual-qa-v1.md` or its successor. Automated reviewer findings are logged at `docs/internal/weaver/bugbot-findings.tsv` (TSV, append-only, pattern classes cross-ref slopodar).
 
+### Producer-Consumer Maps (SD-259)
+
+Before changing any shared data format (.keel-state, slopodar.yaml, .env, pitctl export, pitstorm output, etc.), consult `docs/internal/keel/producer-consumer-maps.yaml`. It documents every producer, every programmatic consumer, and every parser for each shared data file. Schema changes without consumer mapping break silently — proven three times in this project's history.
+
 ### Tick Definition
 
 1 tick = 1 request/response cycle between human and LLM agent harness. The Captain determines when a tick boundary occurs.

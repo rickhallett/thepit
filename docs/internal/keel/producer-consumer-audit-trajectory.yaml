@@ -146,7 +146,7 @@ checkpoints:
   - id: cp-01
     flow: .keel-state
     risk: HIGH
-    status: pending
+    status: done
     tier: complex
     estimated_minutes: 5
     producers:
@@ -176,7 +176,7 @@ checkpoints:
   - id: cp-02
     flow: slopodar.yaml pipeline
     risk: HIGH
-    status: pending
+    status: done
     tier: complex
     estimated_minutes: 5
     producers:
@@ -198,7 +198,7 @@ checkpoints:
   - id: cp-03
     flow: .env dual schema
     risk: HIGH
-    status: pending
+    status: done
     tier: complex
     estimated_minutes: 5
     producers:
@@ -224,7 +224,7 @@ checkpoints:
   - id: cp-04
     flow: .opencode/agents/*.md symlinks
     risk: MEDIUM
-    status: pending
+    status: done
     tier: medium
     estimated_minutes: 3
     producers:
@@ -242,7 +242,7 @@ checkpoints:
   - id: cp-05
     flow: go.work
     risk: MEDIUM
-    status: pending
+    status: done
     tier: medium
     estimated_minutes: 3
     producers:
@@ -257,7 +257,7 @@ checkpoints:
   - id: cp-06
     flow: .env.example
     risk: MEDIUM
-    status: pending
+    status: done
     tier: medium
     estimated_minutes: 3
     producers:
@@ -272,7 +272,7 @@ checkpoints:
   - id: cp-07
     flow: pitctl export JSONL
     risk: MEDIUM
-    status: pending
+    status: done
     tier: medium
     estimated_minutes: 3
     producers:
@@ -287,7 +287,7 @@ checkpoints:
   - id: cp-08
     flow: pitstorm output JSON
     risk: MEDIUM
-    status: pending
+    status: done
     tier: medium
     estimated_minutes: 3
     producers:
@@ -302,7 +302,7 @@ checkpoints:
   - id: cp-09
     flow: .nvmrc
     risk: LOW
-    status: pending
+    status: done
     tier: simple
     estimated_minutes: 1.5
     producers:
@@ -315,7 +315,7 @@ checkpoints:
   - id: cp-10
     flow: config.toml
     risk: LOW
-    status: pending
+    status: done
     tier: simple
     estimated_minutes: 1.5
     producers:
@@ -328,7 +328,7 @@ checkpoints:
   - id: cp-11
     flow: research-export.json
     risk: LOW
-    status: pending
+    status: done
     tier: simple
     estimated_minutes: 1.5
     producers:
@@ -341,7 +341,7 @@ checkpoints:
   - id: cp-12
     flow: whoop-*.log
     risk: LOW
-    status: pending
+    status: done
     tier: simple
     estimated_minutes: 1.5
     producers:
@@ -354,7 +354,7 @@ checkpoints:
   - id: cp-13
     flow: captainslog/*.md
     risk: LOW
-    status: pending
+    status: done
     tier: simple
     estimated_minutes: 1.5
     producers:
@@ -367,7 +367,7 @@ checkpoints:
   - id: cp-14
     flow: bugbot-findings.tsv
     risk: LOW
-    status: pending
+    status: done
     tier: simple
     estimated_minutes: 1.5
     producers:
@@ -385,7 +385,7 @@ checkpoints:
   - id: cp-15
     flow: keel-history.log
     risk: LOW
-    status: pending
+    status: done
     tier: simple
     estimated_minutes: 1.5
     producers:
@@ -406,32 +406,32 @@ post_execution:
     task: >-
       Review all 14+2 entries in producer-consumer-maps.yaml for
       consistency. Cross-check pretty-print diagrams match YAML.
-    status: pending
+    status: done
 
   - id: pe-02
     task: >-
       Add holding-deck item for .keel-state schema contract —
       a formal definition of every field, its type, who writes it,
       and who reads it. This is the highest-priority follow-up.
-    status: pending
+    status: done
 
   - id: pe-03
     task: >-
       Add holding-deck item for .env parity check — automated
       test that compares lib/env.ts field names against
       shared/config/config.go field names and flags drift.
-    status: pending
+    status: done
 
   - id: pe-04
     task: >-
       Add holding-deck item for Makefile awk parser replacement —
       the slopodar stub generator uses awk to parse YAML, which is
       fragile. Replace with python3 + PyYAML or a Go tool.
-    status: pending
+    status: done
 
   - id: pe-05
     task: >-
       Update AGENTS.md with a note that producer-consumer-maps.yaml
       must be consulted before any shared data format change.
       Make it a standing order or a gate check.
-    status: pending
+    status: done

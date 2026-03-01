@@ -425,13 +425,125 @@ items:
       rerunnable (script in bin/ or pitlab) so we can measure delta after
       each compression pass.
     added: 2026-03-01
-    status: hold
+    status: done
     priority: medium
     tags: [wtf]
     backrefs:
       - hud-context-pressure (observability class)
       - agent-boot-audit (boot sequence scope)
       - ktok-reduction-anomaly (context pressure patterns — 105ktok was harness render cycle ghost, dropped to 32ktok after one response)
+      - SD-275 (execution)
+
+  - id: keel-state-schema-contract
+    idea: >-
+      Define a formal schema for .keel-state — every field with its type, who
+      writes it, who reads it. Currently 13 fields, zero definition, three
+      languages (Go, Python, Bash+Python) parsing the same JSON. Already broke
+      three times this project. Options: (1) Go struct with json tags, (2)
+      JSON Schema file, (3) comment block in pitkeel/main.go. Producer-consumer
+      audit (cp-01) has the complete field inventory.
+    added: 2026-03-01
+    status: hold
+    priority: high
+    tags: []
+    backrefs:
+      - docs/internal/keel/producer-consumer-maps.yaml (keel-state entry)
+      - SD-254 (producer-consumer drift)
+
+  - id: env-parity-check
+    idea: >-
+      Automated test that compares lib/env.ts field names against
+      shared/config/config.go field names and flags drift. Producer-consumer
+      audit (cp-03) found: bool coercion mismatch (5 fields, case-sensitive
+      vs case-insensitive), 3 undocumented fields (FREE_BOUT_POOL_MAX,
+      LICENSE_SIGNING_KEY, RESEARCH_API_KEY not in .env.example).
+    added: 2026-03-01
+    status: hold
+    priority: medium
+    tags: []
+    backrefs:
+      - docs/internal/keel/producer-consumer-maps.yaml (env-dual-schema entry)
+
+  - id: makefile-awk-parser-replacement
+    idea: >-
+      Replace slopodar stub generator awk parser in sites/oceanheart/Makefile
+      with python3+PyYAML or Go tool. Current awk parser makes exact indentation
+      assumptions and uses positional capture. Hugo templates survive schema
+      changes; the awk does not.
+    added: 2026-03-01
+    status: hold
+    priority: low
+    tags: []
+    backrefs:
+      - docs/internal/keel/producer-consumer-maps.yaml (slopodar-yaml-pipeline entry)
+
+  - id: research-pipeline-stdout-fix
+    idea: >-
+      CRITICAL BUG: scripts/research-pipeline.sh redirects stdout expecting JSONL
+      but pitctl writes to files in export/. Pipeline produces invalid research
+      exports. pre-destructive-guard.sh correctly handles file output. Fix: either
+      add --stdout flag to pitctl export or rewrite pipeline to read from export/.
+      Escalated from MEDIUM to HIGH by producer-consumer audit (cp-07).
+    added: 2026-03-01
+    status: hold
+    priority: high
+    tags: []
+    backrefs:
+      - docs/internal/keel/producer-consumer-maps.yaml (pitctl-export-jsonl entry)
+
+  - id: aggregate-agents-stale-hierarchy
+    idea: >-
+      scripts/aggregate-agents.py HIERARCHY list references 4 deleted agents
+      (captain, artisan, foreman, lighthouse) and is missing 6 current ones
+      (keel, maturin, anotherpair, captainslog, postcaptain, weave-quick-ref).
+      MASTER.md ordering is wrong. Low priority — script still runs, extras
+      appended alphabetically.
+    added: 2026-03-01
+    status: hold
+    priority: low
+    tags: []
+    backrefs:
+      - docs/internal/keel/producer-consumer-maps.yaml (opencode-agents-symlinks entry)
+
+  - id: slopiculture-blog-qa
+    idea: >-
+      Blog post "Catching in the Wind: A Naturalist's Guide to Slopiculture"
+      passed Captain's quick smoke test. Full QA pass needed before publishing.
+      File: sites/oceanheart/content/blog/2026-03-01-slopiculture.md.
+      Captain: "I think it might be publishable from a quick smoke test,
+      but need to wait until I do the full qna to know for sure."
+    added: 2026-03-01
+    status: hold
+    priority: high
+    tags: []
+    backrefs:
+      - SD-273
+      - SD-210 (standing order — line-by-line review of all blog content)
+
+  - id: blog-syntax-highlighting
+    idea: >-
+      Syntax highlighting on blog pages needs improvement. Currently using
+      Hugo's built-in Chroma with tokyonight-night style (config.toml
+      markup.highlight.style). Check rendering of JS, bash, YAML, and Go
+      blocks across existing posts.
+    added: 2026-03-01
+    status: hold
+    priority: medium
+    tags: []
+
+  - id: blog-release-cadence
+    idea: >-
+      Future-date blog posts to stagger publication times. Hugo suppresses
+      future-dated posts by default — use this as a built-in scheduling
+      mechanism. Set T-hour offsets (e.g. T09:00, T13:00, T17:00) so posts
+      drip out across the day. Only matters when someone is watching. Right
+      now nobody is, so all posts use bare dates (2026-03-01). Revisit when
+      traffic warrants cadence discipline. Requires: either a cron rebuild
+      or a deploy hook that rebuilds at intervals.
+    added: 2026-03-01
+    status: hold
+    priority: low
+    tags: []
 
   - id: hoist-the-colors
     idea: >-

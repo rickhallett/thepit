@@ -1,0 +1,115 @@
+# paths-forward-2026-03-01.yaml — Execution checklist
+# Ordered by dependency chain. Check off in order. No detours.
+# Source: Weaver muster, Captain approved 2026-03-01
+# Standing order: one harness, steady tempo, deep hardening.
+# Back-ref: SD-276
+
+phases:
+
+  - id: 0
+    name: Clear the Decks
+    description: Merge #407, close #406, clean master
+    status: in_progress
+    estimate_agent_min: 5
+    captain_decisions: 1
+    notes: >-
+      PR #407 is superset of #406. Squash merge #407, close #406 as superseded.
+      Security job CI fix (pnpm audit continue-on-error) included.
+
+  - id: 1
+    name: Testing Broadside — PoA Phases 1-5
+    description: Test suite hardening, all phases in succession
+    status: pending
+    estimate_agent_min: 105
+    captain_decisions: 3-5
+    back_ref: SD-264, poa-test-suite-hardening-2026-02-28.md
+    sub_phases:
+      - id: 1a
+        name: clearAllMocks → resetAllMocks (44 instances)
+        executor: Janitor
+        estimate_agent_min: 15
+        status: pending
+      - id: 1b
+        name: Object.defineProperty try/finally (18 instances)
+        executor: Janitor
+        estimate_agent_min: 10
+        status: pending
+      - id: 2a
+        name: Audit 25 status-code-only assertions (bout-engine-validate)
+        executor: Watchdog
+        estimate_agent_min: 20
+        status: pending
+      - id: 2b
+        name: Audit bout-engine-execute + behavior assertions
+        executor: Watchdog
+        estimate_agent_min: 15
+        status: pending
+      - id: 3-5
+        name: Systematic sweep, bare .toHaveBeenCalled(), coverage
+        executor: Various
+        estimate_agent_min: 45
+        status: pending
+
+  - id: 2
+    name: Hoist the Colors
+    description: Update thepit.cloud with Captain's voice via AnotherPair thematic analysis
+    status: pending
+    estimate_agent_min: 20
+    captain_decisions: 3-5
+    back_ref: holding-deck (hoist-the-colors)
+
+  - id: 3
+    name: Slopiculture Blog QA
+    description: Full line-by-line QA per SD-210 — first publishable blog post
+    status: pending
+    estimate_agent_min: 15
+    captain_decisions: 1
+    back_ref: holding-deck (slopiculture-blog-qa)
+
+  - id: 4
+    name: Critical Bug Fixes
+    description: research-pipeline stdout fix, keel-state schema, agent-boot identity override
+    status: pending
+    estimate_agent_min: 30
+    captain_decisions: 2
+    items:
+      - research-pipeline-stdout-fix
+      - keel-state-schema-contract
+      - agent-boot-identity-override
+
+  - id: 5
+    name: Infrastructure Hardening
+    description: env parity check, lexicon YAML, yamakazi pilots, holding bay page
+    status: pending
+    estimate_agent_min: 40
+    captain_decisions: 2-3
+    items:
+      - env-parity-check
+      - lexicon-format-standardisation
+      - yamakazi-pilots
+      - holding-bay-oceanheart-page
+
+  - id: 6
+    name: Research & Content Pipeline
+    description: Blog QA passes, draft notice content, research collections, polish
+    status: pending
+    estimate_agent_min: 30
+    captain_decisions: 3-5
+    items:
+      - 3 blog drafts need Captain QA
+      - 13 draft notice pages need content
+      - research-collections-automation
+      - blog-syntax-highlighting
+      - blog-release-cadence
+
+  - id: 7
+    name: Philosophical Backlog
+    description: Captain's time, not agent time — meditation, reflection, governance
+    status: pending
+    estimate_agent_min: 0
+    captain_decisions: all
+    items:
+      - who-governs-the-captain
+      - captain-title-reflection
+      - agent-privacy-hurtlocker
+      - coincidental-pass-gate-blindness
