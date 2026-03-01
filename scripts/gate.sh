@@ -19,7 +19,7 @@ echo
 pnpm run typecheck && pnpm run lint && pnpm run test:unit 2>&1 | tee "$LOGFILE"
 EXIT_CODE=${PIPESTATUS[0]}
 
-# Parse test count from vitest output: "Tests  1125 passed"
+# Parse test count from vitest output: "Tests  N passed"
 TESTS=$(grep -oP '^\s*Tests\s+\K\d+(?=\s+passed)' "$LOGFILE" | tail -1)
 TESTS=${TESTS:-0}
 

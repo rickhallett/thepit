@@ -38,7 +38,7 @@ Based on observed patterns across engineering hiring in the 2024-2026 market, ra
 
 1. **Can you build things that work?** (40%)
    - Deployed product: YES (thepit.cloud, functional, streaming, payments)
-   - Test suite: YES (1,125 passing)
+   - Test suite: YES (1,279 passing)
    - Architecture: YES (clean separation, TypeScript strict, proper error handling)
 
 2. **Can you think clearly?** (25%)

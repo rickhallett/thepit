@@ -147,7 +147,7 @@ EVIDENCE: gpt-5.3-codex cold boot (28 Feb 2026)
   Actual state at the time:
   ├─ HEAD: 1c4da76
   ├─ Gate: green
-  ├─ Tests: 1125
+  ├─ Tests: 1279
   ├─ SD: SD-224
   ├─ PRs: #381, #382, #383, #384
   └─ 4 active worktrees

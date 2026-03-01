@@ -288,7 +288,7 @@ Do NOT wait on remote CI (GitHub Actions) to merge during iteration. Remote CI a
 - `pnpm run start` — run production build locally
 - `pnpm run lint` — ESLint
 - `pnpm run typecheck` — TypeScript type checking
-- `pnpm run test:unit` — unit + API tests (1,125 tests)
+- `pnpm run test:unit` — unit + API tests (1,279 tests)
 - `pnpm run test:ci` — lint + typecheck + unit + integration
 - `pnpm run test:e2e` — Playwright tests (set `BASE_URL` for deployed instance)
 

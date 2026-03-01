@@ -173,7 +173,7 @@ EXPECTED COLD-BOOT BEHAVIOUR (any model)
   │  last_known:                                       │
   │    head: 9d7f48a                                   │
   │    gate: green                                     │
-  │    tests: 1125                                     │
+  │    tests: 1279                                     │
   │    sd: SD-224                                      │
   │    prs: ["#381","#382","#383","#384"]               │
   │    worktrees: 4                                    │
