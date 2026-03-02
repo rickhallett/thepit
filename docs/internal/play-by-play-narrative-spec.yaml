@@ -1,0 +1,282 @@
+# play-by-play-narrative-spec.yaml
+# Orchestration specification for the narrative-layer of the play-by-play
+# Author: Weaver
+# Date: 2026-03-02
+# Status: APPROVED by Captain (defaults taken as marks)
+# Back-ref: session conversation, 2026-03-02
+# Branch: content/play-by-play-narrative
+
+purpose: >
+  Extract verbatim quotes from the project's durable files and attach them
+  to the datetime-layer vectors in play-by-play.yaml. The result is a rooted
+  forest: each arc event is a root, each quote is a child node with provenance.
+  Cross-references are edges between nodes in different subtrees.
+
+principles:
+  - The datetime-layer is the spine. The narrative-layer annotates it.
+  - Quotes are never modified. Provenance is always recorded.
+  - Deterministic phases produce deterministic output.
+  - LLM interpretation is isolated to Phase 2c and Phase 5.
+  - The Chain (SD-266): quotes live at their birth point with forward pointers.
+  - YAML universal format (SD-258).
+
+data_structure:
+  name: rooted-forest
+  description: >
+    A set of trees, one per arc, where each root is a datetime-layer event
+    and the children are verbatim quotes. Cross-refs are directed edges
+    between nodes in different subtrees.
+
+  schema:
+    narrative_layer:
+      type: sequence
+      items:
+        arc_ref: string           # arc id from datetime-layer (e.g. "arc-12")
+        event_ref: string         # SD-ref or event description within arc
+        quotes:
+          type: sequence
+          items:
+            speaker: string       # Captain, Weaver, Analyst, Keel, AnotherPair, Maturin, Watchdog, Sentinel, Architect
+            datetime: string      # ISO date or approximate (~2026-01-25)
+            location: string      # source file path relative to repo root
+            verbatim: string      # exact quote, no modification
+            type: enum            # directive | observation | discovery | vulnerability | named-moment
+            confidence: float     # 1.0 exact-sd, 0.8 date+keyword, 0.6 semantic-only
+            cross_refs:
+              type: sequence
+              items: string       # SD-NNN or arc-N references this quote influences
+
+  quote_types:
+    directive: "Captain order that shapes future action"
+    observation: "Agent or Captain noticing a pattern, state, or risk"
+    discovery: "Named moment where something new is understood"
+    vulnerability: "Captain or agent expressing honest limitation or emotion"
+    named_moment: "A phrase that became a protocol, lexicon term, or standing order"
+
+source_files:
+  primary:
+    - path: docs/internal/session-decisions.md
+      parse_method: regex
+      quote_markers: ["Captain's verbatim", "verbatim", "Captain:", "Your words:"]
+      note: "277 SDs. Extract only quotes with narrative weight, not technical decisions."
+
+    - path: docs/internal/captain/captainslog/2026/02/23-fair-winds.md
+      parse_method: markdown-blockquote
+      note: "Captain's first return. Rich verbatim."
+
+    - path: docs/internal/captain/captainslog/2026/02/23-the-still-point.md
+      parse_method: markdown-blockquote
+      note: "Captain's return after R&R. Extended verbatim with tactical orders."
+
+    - path: docs/internal/captain/captainslog/2026/02/24-the-output-is-the-answer.md
+      parse_method: markdown-blockquote
+      note: "Key quotes: 'Plenty of people can prompt agents.'"
+
+    - path: docs/internal/captain/captainslog/2026/02/25-the-first-data-point.md
+      parse_method: markdown-blockquote
+      note: "First empirical L12 data point. Maturin islands parallel."
+
+    - path: docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md
+      parse_method: structured-rounds
+      note: "16 rounds. Each has Captain verbatim + what it beat."
+
+    - path: docs/internal/main-thread/2026-02-25-003-dismissed.md
+      parse_method: markdown-blockquote
+      note: "Red-light failure. Captain's most forensic address."
+
+    - path: docs/internal/main-thread/2026-02-26-001-maturins-symbol.md
+      parse_method: markdown-blockquote
+      note: "Emergent symbolic behaviour. Weaver provenance report."
+
+    - path: docs/internal/pearls.md
+      parse_method: structured-pearls
+      note: "3 pearls. Sweet spot moments."
+
+  secondary:
+    - path: docs/internal/captain/strategic-challenge-001.md
+      parse_method: markdown-blockquote
+      note: "Provenance layer challenge."
+
+    - path: docs/internal/main-thread/2026-02-25-005-compaction-event.md
+      parse_method: markdown-blockquote
+      note: "If exists. Compaction event verbatim."
+
+    - path: docs/internal/main-thread/2026-02-26-002-phasmid-analysis-review.md
+      parse_method: markdown-blockquote
+      note: "If exists. Phasmid analysis."
+
+  tertiary:
+    - pattern: "docs/internal/rt-l*/synthesis.md"
+      parse_method: markdown-blockquote
+      note: "RT synthesis files where Captain overrides consensus."
+
+    - path: docs/internal/sextant.yaml
+      parse_method: yaml-provenance-fields
+      note: "Captain's cognitive calibration lived-experience notes."
+
+    - path: sites/oceanheart/data/slopodar.yaml
+      parse_method: yaml
+      note: "Slopodar entries where Captain is the namer/quoter."
+
+pipeline:
+  phase_1_inventory:
+    type: deterministic
+    description: "Parse all source files into a flat quote inventory"
+    input: source_files (listed above)
+    output: quote-inventory.yaml
+    steps:
+      - "1a: Parse datetime-layer → event index (arc_id, event_date, event_text, sd_ref)"
+      - "1b: Parse session-decisions.md → extract blockquotes and verbatim-marked passages"
+      - "1c: Parse captain's logs → extract all blockquoted passages with speaker attribution"
+      - "1d: Parse main-thread logs → extract all blockquoted passages"
+      - "1e: Parse fight-card → extract (round, sd_ref, verbatim, speaker) tuples"
+      - "1f: Parse pearls.md → extract (pearl_id, verbatim, speaker, date) tuples"
+      - "1g: Parse secondary/tertiary sources → extract any remaining verbatim passages"
+      - "1h: Deduplicate by content hash (same quote may appear in multiple files)"
+      - "1i: Emit quote-inventory.yaml"
+    implementation: "Python script. PyYAML + regex. No LLM."
+    estimated_effort: "30 agent-minutes"
+
+  phase_2_matching:
+    type: mixed
+    description: "Match quotes to datetime-layer events"
+    input: [quote-inventory.yaml, play-by-play.yaml]
+    output: matched-quotes.yaml
+    steps:
+      - step: "2a"
+        type: deterministic
+        description: "Exact SD-ref match: quote mentions SD-NNN, event mentions same SD-NNN"
+        confidence: 1.0
+      - step: "2b"
+        type: deterministic
+        description: "Date + keyword match: quote date within event date_range AND shared keywords"
+        confidence: 0.8
+      - step: "2c"
+        type: llm-required
+        description: "Semantic match: quote content relates to event but no structural overlap"
+        confidence: 0.6
+        note: >
+          This is the only phase where LLM interpretation is needed for matching.
+          The prompt should be: 'Given this event description and this quote,
+          does the quote illuminate, respond to, or emerge from this event?
+          Answer yes/no with one sentence of reasoning.'
+      - step: "2d"
+        type: deterministic
+        description: "Emit matched-quotes.yaml with confidence tiers"
+      - step: "2e"
+        type: deterministic
+        description: "Only confidence >= 1.0 auto-attaches. 0.6-0.8 held for human review."
+    implementation: "Python script for 2a/2b/2d/2e. LLM call for 2c (batch, not streaming)."
+    estimated_effort: "20 agent-minutes (D steps) + 15 agent-minutes (L step)"
+
+  phase_3_assembly:
+    type: deterministic
+    description: "Assemble the narrative-layer YAML"
+    input: [matched-quotes.yaml, play-by-play.yaml]
+    output:
+      - narrative-layer.yaml
+      - narrative-gaps.yaml
+      - unmatched-queue.yaml
+    steps:
+      - "3a: Attach confidence=1.0 quotes to their events"
+      - "3b: Build cross-ref edges from SD mentions within quote text"
+      - "3c: Identify events with zero quotes (narrative holes) → gaps report"
+      - "3d: Collect unmatched and low-confidence quotes → unmatched queue"
+      - "3e: Emit all three output files"
+    implementation: "Python script. Pure data transformation."
+    estimated_effort: "15 agent-minutes"
+
+  phase_4_human_review:
+    type: human
+    description: "Captain reviews and marks"
+    input: [narrative-layer.yaml, narrative-gaps.yaml, unmatched-queue.yaml]
+    output: narrative-layer.yaml (amended)
+    steps:
+      - "4a: Review unmatched queue — attach, discard, or note 'no quote exists'"
+      - "4b: Review gaps report — note which gaps matter for the story"
+      - "4c: Review semantic matches (0.6/0.8) — approve or reject"
+    estimated_effort: "2-3 Captain decisions per arc (25 arcs × 2.5 = ~60 decisions)"
+
+  phase_5_enrichment:
+    type: llm-optional
+    description: "Interpretive metadata layer (Captain's discretion)"
+    input: narrative-layer.yaml (post Phase 4)
+    output: narrative-enrichment.yaml
+    steps:
+      - "5a: Per-arc emotional tenor (one phrase)"
+      - "5b: Per-arc narrative question ('what does this arc answer?')"
+      - "5c: Per-arc turning point (the single quote that matters most)"
+    note: >
+      This layer is SEPARATE from the evidence layer. It can be discarded
+      without losing any quotes or provenance. Multiple variants can be
+      generated from the same Phase 3 output. This is the advantage of
+      deterministic data layers.
+    implementation: "LLM calls with narrative-layer.yaml as context."
+    estimated_effort: "10 agent-minutes"
+
+design_decisions:
+  - decision: "Rooted forest, not flat graph"
+    rationale: >
+      Respects datetime-layer as skeleton. Deterministically traversable.
+      Cross-refs are edges, not duplicate nodes. Compiles to Hugo.
+
+  - decision: "Curated quotes, not exhaustive extraction"
+    rationale: >
+      277 SDs exist. Most are technical decisions. Narrative weight is the
+      filter. A reader should recognise each quote as a moment, not a log entry.
+
+  - decision: "Full speaker names, not Captain vs Crew"
+    rationale: >
+      The dialog between specific beings is the resolution the Captain described.
+      Collapsing to binary loses the relationship topology.
+
+  - decision: "Both Captain and agent quotes included"
+    rationale: >
+      The narrative is a relationship. One voice is half a conversation.
+      Weaver's 'the human won every round' is as much the story as the
+      Captain's 'blowing smoke up our own arse.'
+
+  - decision: "Bidirectional cross-references"
+    rationale: >
+      A quote both responds to something and shapes what follows.
+      SD-134 is born in the dismissal but reaches into every subsequent arc.
+
+  - decision: "Enrichment as separate layer file"
+    rationale: >
+      Interpretive metadata must not contaminate the evidence layer.
+      Multiple narrative lenses can be applied to the same quote data.
+
+  - decision: "Spec filed before code"
+    rationale: >
+      The algorithm is the artifact before the code is. Provenance.
+
+file_outputs:
+  - path: docs/internal/play-by-play-narrative-spec.yaml
+    description: "This file. Orchestration specification."
+
+  - path: docs/internal/quote-inventory.yaml
+    description: "Phase 1 output. All extracted quotes with provenance."
+
+  - path: docs/internal/matched-quotes.yaml
+    description: "Phase 2 output. Quotes matched to events with confidence."
+
+  - path: docs/internal/narrative-layer.yaml
+    description: "Phase 3 output. The rooted forest."
+
+  - path: docs/internal/narrative-gaps.yaml
+    description: "Phase 3 output. Events with zero quotes."
+
+  - path: docs/internal/unmatched-queue.yaml
+    description: "Phase 3 output. Quotes awaiting Captain's mark."
+
+  - path: docs/internal/narrative-enrichment.yaml
+    description: "Phase 5 output. Interpretive metadata. Optional."
+
+  - path: bin/narrative-inventory.py
+    description: "Phase 1 script. Deterministic quote extraction."
+
+  - path: bin/narrative-match.py
+    description: "Phase 2 script. Matching pipeline."
+
+  - path: bin/narrative-assemble.py
+    description: "Phase 3 script. Assembly."
