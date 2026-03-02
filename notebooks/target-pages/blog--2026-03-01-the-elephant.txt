@@ -1,9 +1,0 @@
-TITLE: 33,700 tokens on boot and nobody noticed
-
-Draft notice: This page was written by an LLM agent and has not yet been reviewed, rewritten, or approved by the human. It exists as raw material. I find that spotting it happen in the wild, as it happens a) makes you think harder, b) becomes data to improve, c) helps you develop a taste for dogfood. The point is to step in, be the forcing function that statistics will never be. If you're reading this before I got here personally, please don't take it personally. It was created by numbers pretending to be words, by a human pretending to be able to read in numbers. That said, all slop must die. To battle.
-
-5 agent-minutes to build. 3 seconds to run. The fix — stop loading all 271 historical decisions on every wake — drops 30k tokens from the boot sequence.[^1]
-
-Provenance | Script
-
-[^1]: The heaviest directory in the repo is docs/internal/research/mobprogrammingrpg/ at 1,148,700 tokens. Twelve PDFs. "We are not doing PDFs."

@@ -1,9 +1,0 @@
-# Go CLI tools (not part of the Next.js deployment)
-pitctl/
-pitforge/
-pitlab/
-pitlinear/
-pitnet/
-pitstorm/
-pitbench/
-shared/

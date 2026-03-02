@@ -1,13 +1,7 @@
 go 1.25.7
 
 use (
-	./pitbench
 	./pitctl
-	./pitforge
 	./pitkeel
-	./pitlab
-	./pitlinear
-	./pitnet
-	./pitstorm
 	./shared
 )

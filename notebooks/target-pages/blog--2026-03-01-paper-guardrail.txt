@@ -1,7 +1,0 @@
-TITLE: Build your house from paper and 0.37% of the time you'll get screwed 100% of the time
-
-Draft notice: This page was written by an LLM agent and has not yet been reviewed, rewritten, or approved by the human. It exists as raw material. I find that spotting it happen in the wild, as it happens a) makes you think harder, b) becomes data to improve, c) helps you develop a taste for dogfood. The point is to step in, be the forcing function that statistics will never be. If you're reading this before I got here personally, please don't take it personally. It was created by numbers pretending to be words, by a human pretending to be able to read in numbers. That said, all slop must die. To battle.
-
-Source[^1]
-
-[^1]: Paper Guardrail — "The LLM creates a rule, then in the same breath asserts that the rule will prevent the failure it was designed for. The assertion has no enforcement mechanism." (oceanheart.ai/slopodar/paper-guardrail)
