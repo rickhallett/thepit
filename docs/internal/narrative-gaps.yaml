@@ -1,0 +1,17 @@
+meta:
+  generated: '2026-03-02'
+  phase: Phase 3 — Narrative Gaps
+  total_gaps: 2
+  events_without_quotes: 107
+  note: Arcs with zero quotes need Captain review. Individual events without quotes are normal for technical arcs.
+arc_gaps:
+- arc_ref: arc-3
+  name: Subscription Model, pitctl, and Testing Campaigns
+  date_range: 2026-02-10 to 2026-02-12
+  event_count: 8
+  note: No verbatim quotes attached to any event in this arc.
+- arc_ref: arc-6
+  name: Copy A/B Testing Infrastructure and Pitstorm Traffic Simulator
+  date_range: 2026-02-15 to 2026-02-17
+  event_count: 6
+  note: No verbatim quotes attached to any event in this arc.
