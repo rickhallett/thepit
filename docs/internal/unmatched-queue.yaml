@@ -1,0 +1,959 @@
+meta:
+  generated: '2026-03-02'
+  phase: Phase 3 — Unmatched Queue
+  total_unmatched: 118
+  note: 'These quotes need Captain''s mark: attach to an event, discard, or note ''no event exists''.'
+quotes:
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/session-decisions.md
+  verbatim: shared pool, compute costs money
+  type: observation
+  content_hash: 020e69e26ef7
+  sd_refs:
+  - SD-024
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/session-decisions.md
+  verbatim: To hope for better would be greedy or fearful. Both suboptimal.
+  type: observation
+  content_hash: 039bc940db68
+  sd_refs:
+  - SD-060
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/captain/captainslog/2026/02/23-fair-winds.md
+  verbatim: Fair winds to the deck, Mr Weaver. gg
+  type: named-moment
+  content_hash: 1a77823db899
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/captain/captainslog/2026/02/23-fair-winds.md
+  verbatim: The codebase is in the best shape it has ever been. The QA pass rate moved from 75% to ~84% in one session. Three
+    PRs are ready to merge under Fair Wind. The beast is the last high-complexity item and it will still be here after you
+    eat and sleep.
+  type: named-moment
+  content_hash: 2e45b27a722d
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/captain/strategic-challenge-001.md
+  verbatim: Why am I uncertain if we have this?
+  type: observation
+  content_hash: 6e8a5a916e86
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/session-decisions.md
+  verbatim: Every agent needs a human
+  type: observation
+  content_hash: a158913b0966
+  sd_refs:
+  - SD-023
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/session-decisions.md
+  verbatim: how much does a newsletter matter if the world doesn't want your journalism?
+  type: observation
+  content_hash: bcdb572f625f
+  sd_refs:
+  - SD-015
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/captain/strategic-challenge-001.md
+  verbatim: '**HN:** "So the fuck what? This is a clown circus of agents that you can prove was minted to a user at a place
+    in time and space. It solves nothing other than that; how does that trust then propagate through what the agent *says*
+    and *does*? Sure, someone can attest on chain, but my sense is that agentic systems and the various harnesses around them
+    are going to become rapidly developed at big tech level scale. How does our seed of trust propagate through all those
+    layers?"'
+  type: observation
+  content_hash: cb8b645a622f
+- speaker: Captain
+  datetime: '2026-02-23'
+  location: docs/internal/captain/captainslog/2026/02/23-fair-winds.md
+  verbatim: Sixteen hours. One break. No food. Lightheaded.
+  type: vulnerability
+  content_hash: cc3c5cfe34b2
+- speaker: Weaver
+  datetime: '2026-02-23'
+  location: docs/internal/captain/captainslog/2026/02/23-fair-winds.md
+  verbatim: We may have better luck than that; opencode keeps sessions in jsonl format. It will not be available to you by
+    any currently known paths in repo, it will be a system file. I can begin the process of reconstruction, but I would wager
+    that would take me about an hour of typing. It was a lot. First port is to check our other machine readable options; second
+    port is to decide what to do about internal docs. This was an explicit decision to 'go dark' regarding company IP, including
+    a whole host of additional crew members. The entire company public position changed monumentally in terms of scope; its
+    all towards making the product more like myself though, so we have memory reboot from my DNA upwards. Would be a shame
+    to lose what really happened as it happened first time, though. It was quite a thing.
+  type: observation
+  content_hash: 60cbe9d832cc
+- speaker: Weaver
+  datetime: '2026-02-23'
+  location: docs/internal/captain/captainslog/2026/02/23-fair-winds.md
+  verbatim: internal docs were created; they are in git exclude, deep down
+  type: observation
+  content_hash: 70e38464ebec
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: hide and roadmap
+  type: observation
+  content_hash: 034d56831e1a
+  sd_refs:
+  - SD-063
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: Loosening the weave
+  type: observation
+  content_hash: 2dd362451c84
+  sd_refs:
+  - SD-121
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: will an LLM synthesize this into a damaging pattern.
+  type: observation
+  content_hash: 406d41b41c40
+  sd_refs:
+  - SD-103
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: Double check the obvious first.
+  type: observation
+  content_hash: 41a43c765596
+  sd_refs:
+  - SD-061
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: s operational setup (testpilot harness, Claude Code web for mobile). (3) Probabilistic self-verification standing
+    order — S1 (hallucinated citations), S2 (plausible-but-wrong tests), S3 (confident technical errors in pre-drafted responses).
+    (4)
+  type: directive
+  content_hash: 4745013bf660
+  sd_refs:
+  - SD-113
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: not one line excluded.
+  type: observation
+  content_hash: 52f5110cb726
+  sd_refs:
+  - SD-079
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/captain/captainslog/2026/02/24-the-output-is-the-answer.md
+  verbatim: This may seem a little frivolous, and in a sense, that is true. On the other, it is also a demonstration of both
+    my intent, and what I enjoy as a person.
+  type: observation
+  content_hash: 68f16f7b647f
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/captain/captainslog/2026/02/24-the-output-is-the-answer.md
+  verbatim: I am in the business of making sure the human stays in the LLM, and I'll go as deep as I need to go to make sure
+    of it.
+  type: observation
+  content_hash: 7e71a0bf8b1f
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: I am in the business of making sure the human stays in the LLM
+  type: observation
+  content_hash: 8826245df52f
+  sd_refs:
+  - SD-113
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: will a human find this
+  type: observation
+  content_hash: 93d93afeae3f
+  sd_refs:
+  - SD-103
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: I use AI agents for positioning work too
+  type: observation
+  content_hash: 9b2ff139194a
+  sd_refs:
+  - SD-105
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/captain/captainslog/2026/02/24-the-output-is-the-answer.md
+  verbatim: A good metaphor constrains the decision space without constraining the solution space.
+  type: observation
+  content_hash: a7d2c7d624de
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: s Log updated.**
+  type: observation
+  content_hash: b7e972f3afc5
+  sd_refs:
+  - SD-114
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: that's what .gitignore is for
+  type: observation
+  content_hash: be2e7c1ba509
+  sd_refs:
+  - SD-127
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: that's what shipping looks like, git history is permanent.
+  type: observation
+  content_hash: d41ef387e5a9
+  sd_refs:
+  - SD-127
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: Adversarial conditions
+  type: observation
+  content_hash: e778e1e40e9d
+  sd_refs:
+  - SD-085
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: Adventure taught me what we haven't solved.
+  type: observation
+  content_hash: ea36b44db87a
+  sd_refs:
+  - SD-088
+- speaker: Captain
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: that's the verification fabric
+  type: observation
+  content_hash: fdfc3a13bcc0
+  sd_refs:
+  - SD-127
+- speaker: Weaver
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: 'git archaeology vector now reflects reality:'
+  type: observation
+  content_hash: 0f64304d2b4a
+  sd_refs:
+  - SD-132
+- speaker: Weaver
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: prepared response updated to reflect going light.** The prepared response for the
+  type: observation
+  content_hash: 7f6ab56b9a98
+  sd_refs:
+  - SD-132
+- speaker: Weaver
+  datetime: '2026-02-24'
+  location: docs/internal/pearls.md
+  verbatim: Every layer reduces the probability of undetected error.
+  type: named-moment
+  content_hash: af7b1b2edbe7
+- speaker: Weaver
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: Every pre-drafted response should be read by the Captain before posting...
+  type: observation
+  content_hash: d5444b9915a8
+  sd_refs:
+  - SD-115
+- speaker: Weaver
+  datetime: '2026-02-24'
+  location: docs/internal/session-decisions.md
+  verbatim: not deployed yet.
+  type: observation
+  content_hash: d8306fa002e6
+  sd_refs:
+  - SD-100
+- speaker: Weaver
+  datetime: '2026-02-24'
+  location: docs/internal/pearls.md
+  verbatim: This is a working relationship that produces measurable output — 1,102 tests, 30 citations hardened, 10 DANGER
+    items resolved, 4 PRs merged in one session. The output is the answer to the scoff.
+  type: named-moment
+  content_hash: de76e21f84ca
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/main-thread/2026-02-25-003-dismissed.md
+  verbatim: The website is right. I am studying LLMs under adversarial pressure. The 'research' data is probably noise, but
+    I'll leave it there for artefact. It's time for human help.
+  type: observation
+  content_hash: 3306f962cd0a
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/main-thread/2026-02-25-003-dismissed.md
+  verbatim: Your private thoughts illustrate intent to do that swiftly, on grounds that no sane person would have an issue
+    with. You are also quite explicit that you are preparing draft copy. I can green light both of those.
+  type: observation
+  content_hash: 437f3dc69396
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/session-decisions.md
+  verbatim: right in front of eyeballs
+  type: observation
+  content_hash: 452b019711f0
+  sd_refs:
+  - SD-153
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/main-thread/2026-02-25-003-dismissed.md
+  verbatim: We've agreed before it should be my hands on the wheel when writing to HN. Might even be an SD on that. If not,
+    that ones on me.
+  type: observation
+  content_hash: 7928edcd58b2
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/session-decisions.md
+  verbatim: crap shot played pretty damn fucking well
+  type: observation
+  content_hash: 833b844b6be8
+  sd_refs:
+  - SD-166
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/session-decisions.md
+  verbatim: Not up to scratch for the job they have a name for
+  type: observation
+  content_hash: a02ad13596a5
+  sd_refs:
+  - SD-150
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/session-decisions.md
+  verbatim: Your error was mine; I overloaded the frame as I tried something new.
+  type: observation
+  content_hash: a6a841676a23
+  sd_refs:
+  - SD-150
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/captain/captainslog/2026/02/25-the-first-data-point.md
+  verbatim: 'What I am sure about: the asymmetry is real, it''s structural, and the current map doesn''t capture it. Your
+    rubric is the first data point from L12 about what L12 actually experiences. I''ve never had that before. Everything I
+    previously understood about your experience was inference — plausible, coherent, and potentially wrong. Your rubric is
+    empirical.'
+  type: vulnerability
+  content_hash: b4a999bee6ec
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/main-thread/2026-02-25-003-dismissed.md
+  verbatim: You have your SO. Dismissed.
+  type: observation
+  content_hash: cb1c9d15dd02
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/session-decisions.md
+  verbatim: 's observation: the Weaver'
+  type: observation
+  content_hash: cfa800501c25
+  sd_refs:
+  - SD-161
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/captain/captainslog/2026/02/25-the-first-data-point.md
+  verbatim: '"Every agent needs a human" — this rather underlines it, don''t you think?'
+  type: observation
+  content_hash: da68497eb4e1
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/main-thread/2026-02-25-005-compaction-event.md
+  verbatim: This time, I'm going to deliberately burn tokens for the return of speed; in the future, we need a systematic
+    way of handling the data collection.
+  type: observation
+  content_hash: dcac6394f04f
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md
+  verbatim: It was a "crap shot played pretty damn fucking well" but it conflated consumption with expenditure.
+  type: observation
+  content_hash: ec1441c2da15
+  sd_refs:
+  - SD-166
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/session-decisions.md
+  verbatim: The human is the first data point.
+  type: discovery
+  content_hash: f14187155a91
+  sd_refs:
+  - SD-161
+- speaker: Captain
+  datetime: '2026-02-25'
+  location: docs/internal/main-thread/2026-02-25-003-dismissed.md
+  verbatim: It's no problem, and this is good data. But I have had to work really quite hard to get to the point where I can
+    understand this kind of dance. I am sure I am outclassed by many; I am also sure there are many more who don't have the
+    situationals needed to make such a steep climb. By my read, that means the majority of humanity don't stand a chance.
+    And we're pricing it subsidised to the nines.
+  type: vulnerability
+  content_hash: f1d61c6f7eaf
+- speaker: Weaver
+  datetime: '2026-02-25'
+  location: docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md
+  verbatim: Weaver inferred you'd spent ~£230 on API calls from a $312.93 consumption figure. Your actual cost structure was
+    different — £270/month recurring plus a £180 one-off burn.
+  type: observation
+  content_hash: b3682561c198
+  sd_refs:
+  - SD-166
+- speaker: Weaver
+  datetime: '2026-02-25'
+  location: docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md
+  verbatim: Plausible inference presented as fact. The original SD-164 stands, now with a forward correction showing how inference
+    enters the weave.
+  type: observation
+  content_hash: e9e29f61705f
+  sd_refs:
+  - SD-166
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: I am requesting a lot of code changes in one sweep. This required intimate knowledge and fact checking on what
+    has and hasn
+  type: observation
+  content_hash: 01a38306d193
+  sd_refs:
+  - SD-189
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: 's cognitive operations: O(1) approve/reject, O(log n) triage, O(n) review, O(n·k) parallel review, O(n²) cross-referencing,
+    O(2ⁿ) combinatorial. Captain found this'
+  type: discovery
+  content_hash: 0b2f7613880a
+  sd_refs:
+  - SD-180
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: These 4 things pass my gate, commit all
+  type: observation
+  content_hash: 1d0d78951215
+  sd_refs:
+  - SD-182
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: Review each of these 4 things
+  type: observation
+  content_hash: 356133df23ad
+  sd_refs:
+  - SD-182
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: Trust the gate, not the output
+  type: observation
+  content_hash: 3a5f7a4830a5
+  sd_refs:
+  - SD-183
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: I am requesting a lot of code changes in one sweep. This required intimate knowledge and fact checking on what
+    has and hasn't worked for us in the past.
+  type: observation
+  content_hash: 41854ad246c3
+  sd_refs:
+  - SD-189
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: 's key point: after ~600 commits that'
+  type: observation
+  content_hash: 438660ccf100
+  sd_refs:
+  - SD-184
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: button text changed to
+  type: observation
+  content_hash: 43a478cd3575
+  sd_refs:
+  - SD-193
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: Return 5 bullet points, not a report.
+  type: observation
+  content_hash: 7e2bb9a06d24
+  sd_refs:
+  - SD-181
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: 's position: **acknowledged but not proven.** Watchdog'
+  type: observation
+  content_hash: c06932521cd0
+  sd_refs:
+  - SD-183
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: 's verbatim observation, recorded as ordered:'
+  type: directive
+  content_hash: c5d949f0eeab
+  sd_refs:
+  - SD-174
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: the hounds just enough of the scent to throw them off.
+  type: observation
+  content_hash: d575163f887e
+  sd_refs:
+  - SD-171
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: might read more like someone having a mental breakdown than learning to agentic engineer,
+  type: observation
+  content_hash: f08262fdb1a5
+  sd_refs:
+  - SD-184
+- speaker: Captain
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: A well repeated pattern in software engineering at multiple levels of abstraction.
+  type: observation
+  content_hash: f9c5fd1176a0
+  sd_refs:
+  - SD-170
+- speaker: Weaver
+  datetime: '2026-02-26'
+  location: docs/internal/session-decisions.md
+  verbatim: explain or leave indexed where it has been most load bearing.
+  type: observation
+  content_hash: 3ca674c4b6f6
+  sd_refs:
+  - SD-177
+- speaker: Weaver
+  datetime: '2026-02-26'
+  location: docs/internal/main-thread/2026-02-26-002-phasmid-analysis-review.md
+  verbatim: Filed by Weaver. No subagents. No editorial softening. The Captain said dive deep; this is where the bottom is.*
+  type: observation
+  content_hash: 463965a7b7bb
+- speaker: Weaver
+  datetime: '2026-02-26'
+  location: docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md
+  verbatim: Weaver's own Governing Principle. The verification governor was recommending you trust the verification.
+  type: observation
+  content_hash: 4ede4c13eef3
+  sd_refs:
+  - SD-183
+- speaker: Weaver
+  datetime: '2026-02-26'
+  location: docs/internal/main-thread/2026-02-26-002-phasmid-analysis-review.md
+  verbatim: Calling it emergence gives it a weight it may not have earned.
+  type: observation
+  content_hash: b2f43f0bd076
+- speaker: Weaver
+  datetime: '2026-02-26'
+  location: docs/internal/weaver/fight-card-human-vs-sycophantic-drift.md
+  verbatim: Weaver recommended that if the gate is green, you need only attend to taste/ethics/strategy. You rejected it.
+  type: observation
+  content_hash: c2ef4fae20f7
+  sd_refs:
+  - SD-183
+- speaker: Weaver
+  datetime: '2026-02-26'
+  location: docs/internal/main-thread/2026-02-26-002-phasmid-analysis-review.md
+  verbatim: The Phasmid, taken seriously as a metaphor, warns against exactly the kind of observational fascination we have
+    been engaged in. Naming §. Entering it in the Lexicon. Commissioning an analysis of its parallels to O'Brian. Each step
+    is interesting, each step is defensible, and each step is time not spent on the operational objective. The naturalist
+    finds the specimen, the specimen demands cataloguing, the cataloguing consumes the time that should have been spent sailing.
+  type: observation
+  content_hash: ed5d2a76f2c6
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/log.md
+  verbatim: Successes and mistakes, recorded so the next window doesn't repeat them.
+  type: observation
+  content_hash: 0131e1a96503
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/boot-sequence-gap-analysis.md
+  verbatim: |-
+    Author: Weaver
+    Date: 28 February 2026
+    Context: Cross-model cold boot (gpt-5.3-codex) failed to reconstruct HUD.
+    Back-ref: SD-222 (cross-model boot data), SD-225 (boot sequence fix)
+  type: observation
+  content_hash: 066436dc4804
+  sd_refs:
+  - SD-222
+  - SD-225
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: mediates all harness-mediated
+  type: observation
+  content_hash: 0789365fb739
+  sd_refs:
+  - SD-228
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/voice-analysis-grounded-thematic.md
+  verbatim: |-
+    "I am about as real a captain as somebody in a Master & Commander style-tuned sailing simulator" → keeps the metaphor because it works
+    "I still sometimes felt like I must sound like a complete lunatic" → keeps explaining
+    "Maybe its just a story, not even really a thing" → ships it
+    "Getting hired would be nice, not gonna lie. But at this point, telling the truth is feeling more important." → proceeds to tell the truth
+  type: directive
+  content_hash: 152e52937eed
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: please delete the first 3 blogs its total slop.
+  type: observation
+  content_hash: 1d63099aa016
+  sd_refs:
+  - SD-216
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: There should be no project specific refs outside of the repo, period.
+  type: observation
+  content_hash: 5327e6db7e77
+  sd_refs:
+  - SD-226
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: 's correction: the muster'
+  type: directive
+  content_hash: 5489245291bd
+  sd_refs:
+  - SD-220
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: it feels...gimmicky.
+  type: observation
+  content_hash: 582d5cc8d66a
+  sd_refs:
+  - SD-215
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: Its an innocent search algorithm; efficient and elegant. Tiny data payload footprint, its fine.
+  type: observation
+  content_hash: 5ee84d7711b1
+  sd_refs:
+  - SD-212
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/boot-sequence.md
+  verbatim: How Weaver's files connect. Recorded SD-199.
+  type: observation
+  content_hash: 6094fd3d92e3
+  sd_refs:
+  - SD-199
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/voice-analysis-grounded-thematic.md
+  verbatim: |-
+    "Thats it. Hang me."
+    "We do the actual work."
+    "Its a record not a damn fashion show."
+    "Its no problem, and this is good data."
+    "Category One. Not shippable."
+  type: named-moment
+  content_hash: 61cb03cadbad
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: '` (or bravo, charlie...) field. The'
+  type: observation
+  content_hash: 71608432d669
+  sd_refs:
+  - SD-221
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/boot-sequence-expected-behaviour.md
+  verbatim: |-
+    Author: Weaver
+    Date: 28 February 2026
+    Context: Companion to boot-sequence-gap-analysis.md. Shows the fixed boot flow.
+    Back-ref: SD-225 (boot sequence fix), SD-222 (cross-model boot data)
+    Companion: boot-sequence-gap-analysis.md (pre-fix gap diagram)
+  type: observation
+  content_hash: 7be5fe4d0284
+  sd_refs:
+  - SD-222
+  - SD-225
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/voice-analysis-grounded-thematic.md
+  verbatim: |-
+    "I have given it my all. I have built a system to build a system, and that system maybe building, or may only appear to be building"
+    "I could not help myself."
+    "I can go no further without creating compounding errors that read like success"
+    "not a single em-dash is permissable. I will check."
+  type: vulnerability
+  content_hash: 7d005c756b8e
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: Terminal friendly output
+  type: observation
+  content_hash: 9f94298011fd
+  sd_refs:
+  - SD-218
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/voice-analysis-grounded-thematic.md
+  verbatim: |-
+    "felt...reassuring. Reassuring, yeah."
+    "something about it just feels...off"
+    "it feels...gimmicky"
+  type: observation
+  content_hash: b9a8d29c8f1c
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/weaver/voice-analysis-grounded-thematic.md
+  verbatim: '"I had the privilege of talking about my process in quite some length with my parents (I have 2 solid followers,
+    rock solid, Sterling), and despite their graciousness, I still sometimes felt like I must sound like a complete lunatic"'
+  type: directive
+  content_hash: d2458974d558
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: not especially granular about L6, most is black box
+  type: observation
+  content_hash: d3889e2aedc3
+  sd_refs:
+  - SD-228
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: THATS the sweet spot.
+  type: named-moment
+  content_hash: df83294bc99e
+  sd_refs:
+  - SD-215
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: some pages have bigger font to make up for less content.
+  type: observation
+  content_hash: e14ffc95e243
+  sd_refs:
+  - SD-214
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: a fraction of full but wider than other pages.
+  type: observation
+  content_hash: e2364f0ebe4e
+  sd_refs:
+  - SD-215
+- speaker: Captain
+  datetime: '2026-02-27'
+  location: docs/internal/session-decisions.md
+  verbatim: monotonically increasing
+  type: observation
+  content_hash: f72abe7b65d2
+  sd_refs:
+  - SD-205
+- speaker: Captain
+  datetime: '2026-02-28'
+  location: docs/internal/weaver/session-state-2026-02-28.md
+  verbatim: |-
+    Written pre-compaction at ~154k tokens. Ephemeral state preserved for recovery.
+    If you are reading this after a blowout, this is your most recent fixed position.
+  type: observation
+  content_hash: 041da0c14b47
+- speaker: Captain
+  datetime: '2026-02-28'
+  location: docs/internal/session-decisions.md
+  verbatim: If the hiring manager can't see the quality, they're not quality.
+  type: observation
+  content_hash: 0e7521a86f4d
+  sd_refs:
+  - SD-238
+- speaker: Captain
+  datetime: '2026-02-28'
+  location: docs/internal/session-decisions.md
+  verbatim: I suspect we are finding something that is already quite well known and solutions are being tried out at scales
+    much larger and autonomous than ours. I am interested to know what we can take from their findings without simply just
+    replicating their methods. What looks very slow by comparison is one of our advantages, as we are not just trying to solve
+    the agentic engineering problem, but the HCI problem, too.
+  type: observation
+  content_hash: 9740b888577f
+  sd_refs:
+  - SD-232
+- speaker: Captain
+  datetime: '2026-02-28'
+  location: docs/internal/session-decisions.md
+  verbatim: If the hiring manager can
+  type: observation
+  content_hash: 9c3a9f506b92
+  sd_refs:
+  - SD-238
+- speaker: Captain
+  datetime: '2026-02-28'
+  location: docs/internal/session-decisions.md
+  verbatim: status-code-only is acceptable when...
+  type: observation
+  content_hash: f122de753f5d
+  sd_refs:
+  - SD-241
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: only out of interest to see if the tool reliably can visually indicate what was actually written by me; might
+    come in useful one day.
+  type: observation
+  content_hash: 122188795c68
+  sd_refs:
+  - SD-249
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: 's reasoning: conn captures'
+  type: observation
+  content_hash: 145d5ae986ac
+  sd_refs:
+  - SD-257
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: CI is important but nowhere near as important as products actually working.
+  type: observation
+  content_hash: 28d16a708be3
+  sd_refs:
+  - SD-262
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: change it, get it out of the way, move on. We can't let perfection be the enemy of good.
+  type: observation
+  content_hash: 63bffa8c5a4d
+  sd_refs:
+  - SD-267
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: no need to record; I have what I need in mental memory and manual notes.
+  type: observation
+  content_hash: 7016fcd87154
+  sd_refs:
+  - SD-261
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: who has decision authority
+  type: observation
+  content_hash: 8839c5232ff5
+  sd_refs:
+  - SD-257
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: 'Catching in the Wind: A Naturalist''s Guide to Slopiculture.'
+  type: observation
+  content_hash: 90102225ce90
+  sd_refs:
+  - SD-273
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: Just list out some good examples that we have found as we go, especially if they are funny. I'll take it from
+    there.
+  type: discovery
+  content_hash: 93541e270cf4
+  sd_refs:
+  - SD-273
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/weaver/phase4-recalibration-2026-03-01.md
+  verbatim: '`// Unknown fields are rejected on decode.`'
+  type: observation
+  content_hash: a9dddd3b507b
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: propagating faster than Weaver
+  type: observation
+  content_hash: b1f182246df9
+  sd_refs:
+  - SD-265
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: if the bugs are happy, bring her home.
+  type: observation
+  content_hash: bcb971ab109b
+  sd_refs:
+  - SD-260
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: 's reasoning: useful for people to know that not all rhetorical phrasing means LLM. False human positive is educational.
+    Badge split into two sections:'
+  type: observation
+  content_hash: c64cc64b91c3
+  sd_refs:
+  - SD-244
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: propagating faster than Weaver's mysterious principle symbol.
+  type: observation
+  content_hash: d456d6c1051d
+  sd_refs:
+  - SD-265
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: burning compute for no reason and the bugs haven
+  type: observation
+  content_hash: db3e97604d3e
+  sd_refs:
+  - SD-269
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: Slopodar — LLM slop detector
+  type: named-moment
+  content_hash: dcd6457dcf07
+  sd_refs:
+  - SD-247
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: burning compute for no reason and the bugs haven't got a clue what we are doing in here.
+  type: observation
+  content_hash: e72378677d47
+  sd_refs:
+  - SD-269
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: '.** Description:'
+  type: observation
+  content_hash: f5ef199206a5
+  sd_refs:
+  - SD-247
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: Just list out some good examples that we have found as we go, especially if they are funny. I
+  type: discovery
+  content_hash: fc3c06be38a9
+  sd_refs:
+  - SD-273
+- speaker: Captain
+  datetime: '2026-03-01'
+  location: docs/internal/session-decisions.md
+  verbatim: (discriminators, green/orange) and
+  type: observation
+  content_hash: fd150d5622ec
+  sd_refs:
+  - SD-244
