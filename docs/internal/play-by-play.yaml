@@ -1,0 +1,1343 @@
+# play-by-play.yaml — Chronological timeline of The Pit project
+# Compiled: 2026-03-02
+# Sources: decisions.json (277 SDs), git log (600+ commits), PR history (416 PRs),
+#          slopodar.yaml (16 entries), lexicon.md (v0.1–v0.17), paths-forward.yaml
+# Purpose: Raw material for a narrative piece on human-LLM collaboration
+# Format: Each entry has date, optional SD, event, and significance.
+# Arcs group naturally themed clusters of decisions and commits.
+
+arcs:
+
+  # ============================================================================
+  # ARC 0: GENESIS — The sandbox, the port, the first day
+  # ============================================================================
+  - id: arc-0
+    name: "Genesis — Prior Work and Fresh Start"
+    date_range: "before 2026-02-07"
+    summary: >
+      The project existed in an earlier form as an "agentic sandbox." The Captain
+      decided to start over with a clean repo, porting only what survived scrutiny.
+
+    events:
+      - date: "~2026-01-25"
+        event: "API token consumption begins (earliest week in billing data)"
+        significance: "The Captain starts spending his own money on Anthropic API calls while between jobs."
+
+      - date: "2026-02-07"
+        event: "First commit: 'init: port over prior work from agentic sandbox and start over..'"
+        significance: "The Pit begins. Everything before this is prehistory. The trailing dots in the commit message are the Captain's."
+
+  # ============================================================================
+  # ARC 1: THE FIRST DAY — Building the product at machine speed
+  # ============================================================================
+  - id: arc-1
+    name: "The First Day — Feature Explosion"
+    date_range: "2026-02-07"
+    summary: >
+      In a single day, the entire product skeleton is built: credit system, multi-model
+      AI support, bout engine, auth, on-chain attestations, landing page, arena, research
+      page, presets, sharing, reactions, voting, leaderboard, and admin tools. 30+ commits.
+
+    events:
+      - date: "2026-02-07"
+        event: "Credit system schema, multi-model support, bout engine integration, UI primitives"
+        significance: "The core product — AI agents debating — goes from zero to functional in hours."
+
+      - date: "2026-02-07"
+        event: "On-chain DNA attestations via EAS (Ethereum Attestation Service)"
+        significance: "The provenance layer appears on day one. It will be questioned, pivoted, and ultimately assessed as 'blockchain theatre' (SD-250) 3 weeks later."
+
+      - date: "2026-02-07"
+        event: "Landing page, arena, research, roadmap, contact pages, HAL preset agent"
+        significance: "Full site structure in place within 14 hours of first commit."
+
+      - date: "2026-02-07"
+        event: "User credits, intro pool, referrals, share/replay, reactions, voting, Stripe checkout, arena builder, leaderboard"
+        significance: "Every major feature vertical scaffolded. The speed is agentic — no human types this fast."
+
+  # ============================================================================
+  # ARC 2: THE BIG MERGE — Integration and hardening
+  # ============================================================================
+  - id: arc-2
+    name: "The Big Merge — Integration Week"
+    date_range: "2026-02-08 to 2026-02-10"
+    summary: >
+      14 feature branches merged into a single integration branch. First test harness.
+      First security hardening pass. The product goes from scaffolding to something
+      that could theoretically be deployed.
+
+    events:
+      - date: "2026-02-08"
+        event: "14-branch merge into integration/merge-2026-02-08"
+        significance: "First large-scale integration. No merge conflicts because the branches were all created the same day."
+
+      - date: "2026-02-08"
+        event: "Unit test harness added, typecheck regressions fixed"
+        significance: "The hull gets its first integrity check. Tests exist."
+
+      - date: "2026-02-08"
+        event: "Security hardening: atomic credit preauth, auth for agent creation, rate limiting, idempotency, timing oracle fix"
+        significance: "PR #52 — the first systematic security pass. Pattern: build fast, harden immediately."
+
+      - date: "2026-02-09"
+        event: "Roadmap redesign, agent clone/remix, homepage polish, README upgrade"
+        significance: "PRs #53–#57. The product starts looking like a product."
+
+      - date: "2026-02-09"
+        event: "Security hardening round 2: pricing margin fix, webhook credit bug, fictional tiers replaced"
+        significance: "PRs #58–#60. Reality corrections — replacing aspirational copy with what actually exists."
+
+      - date: "2026-02-10"
+        event: "Launch prep: license, ToS, disclaimer, EAS messaging, admin moderation, rate limits, Ask The Pit, Stripe setup"
+        significance: "PR #61. First attempt at launch readiness. The project thinks it's almost ready. It is not."
+
+  # ============================================================================
+  # ARC 3: SUBSCRIPTION MODEL AND TOOLCHAIN — Building the business layer
+  # ============================================================================
+  - id: arc-3
+    name: "Subscription Model, pitctl, and Testing Campaigns"
+    date_range: "2026-02-10 to 2026-02-12"
+    summary: >
+      Stripe subscriptions, pitctl Go CLI, five testing campaigns, release readiness
+      review. The project enters its first period of systematic quality work.
+
+    events:
+      - date: "2026-02-10"
+        event: "Subscription tier schema, Stripe checkout, billing portal, webhook handlers (PR #63)"
+        significance: "The business model gets real infrastructure. Drizzle migration, Stripe webhooks, tier gating."
+
+      - date: "2026-02-10"
+        event: "pitctl scaffolded — first Go CLI tool for site administration (PR #66)"
+        significance: "The pit* CLI family begins. Go chosen for resonance with the project's engineering values."
+
+      - date: "2026-02-11"
+        event: "5 testing PRs merged (#67–#71): webhooks, tier access, user lifecycle, features, complex queries"
+        significance: "First systematic test coverage push."
+
+      - date: "2026-02-11"
+        event: "5 QA PRs merged (#72–#76): agent actions, bout engine, credit economy, admin utils, interactions"
+        significance: "Second testing wave. Total test count starts climbing toward 700+."
+
+      - date: "2026-02-11"
+        event: "Release readiness review document created"
+        significance: "First formal assessment of ship-readiness. Many gaps identified."
+
+      - date: "2026-02-11"
+        event: "Critical security fixes: admin auth, timing-safe comparison (PR #77)"
+        significance: "First CRITICAL security finding and immediate fix."
+
+      - date: "2026-02-11"
+        event: "Security hardening rounds: HIGH (PR #78), MEDIUM (PR #79)"
+        significance: "Systematic security work. Headers, deduplication, validation, path traversal guards."
+
+      - date: "2026-02-12"
+        event: "Code quality and hygiene PRs (#80–#82)"
+        significance: "Lint cleanup, constant extraction, docs sync. The project starts caring about craft."
+
+  # ============================================================================
+  # ARC 4: OBSERVABILITY AND ANALYTICS — Instrumenting the ship
+  # ============================================================================
+  - id: arc-4
+    name: "Observability, Analytics, and the CLI Fleet"
+    date_range: "2026-02-12 to 2026-02-14"
+    summary: >
+      Structured logging, health endpoints, Helicone AI cost tracking, Sentry error
+      tracking, PostHog analytics. pitctl gets monitoring commands. The product becomes
+      observable.
+
+    events:
+      - date: "2026-02-12"
+        event: "Structured logger, request IDs, health endpoint, withLogging wrapper, error boundaries (PR #84)"
+        significance: "The product goes from console.log to structured observability."
+
+      - date: "2026-02-12"
+        event: "AI call instrumentation, Helicone proxy, Sentry SDK (PR #85)"
+        significance: "Per-turn cost tracking and error capture. The Captain can see what things cost."
+
+      - date: "2026-02-12"
+        event: "PostHog analytics, Vercel Analytics, event tracking (PR #86)"
+        significance: "Product analytics. Funnels become measurable."
+
+      - date: "2026-02-12"
+        event: "pitctl monitoring: alerts, watch, metrics, report commands (PR #88)"
+        significance: "The Go CLI grows teeth. Health checks, time-series, Slack notifications."
+
+      - date: "2026-02-13"
+        event: "Research literature review with 18 cited works (PR #91)"
+        significance: "The research page gets academic backing. Citations will later be audited for hallucination."
+
+      - date: "2026-02-13"
+        event: "E2E test suite for citations page (PR #92)"
+        significance: "Playwright tests appear."
+
+      - date: "2026-02-13"
+        event: "Mobile responsive fixes, paper submissions, feature requests with voting (PR #93)"
+        significance: "User-facing features for community engagement."
+
+      - date: "2026-02-13"
+        event: "GitHub Actions CI/CD with gate, integration, and E2E workflows (PR #95)"
+        significance: "Remote CI arrives. The gate goes from local-only to continuous."
+
+      - date: "2026-02-14"
+        event: "Short links, remix events, research exports with PII anonymization (PRs #96–#98)"
+        significance: "Sharing infrastructure and research data pipeline."
+
+      - date: "2026-02-14"
+        event: "Synchronous REST API, OpenAPI spec, Scalar docs for Lab tier (PR #100)"
+        significance: "Developer API with documentation. The product has an API surface."
+
+  # ============================================================================
+  # ARC 5: ARCHITECTURE REVIEW AND XML PROMPTS — Structural maturity
+  # ============================================================================
+  - id: arc-5
+    name: "Architecture Review, XML Prompts, and the Go Workspace"
+    date_range: "2026-02-14 to 2026-02-15"
+    summary: >
+      Architecture review implementation, XML prompt builder, Go shared workspace,
+      pitforge and pitlab CLIs. The codebase undergoes its first structural refactoring.
+
+    events:
+      - date: "2026-02-14"
+        event: "TypeScript architecture review with SOLID analysis (PR #87/105)"
+        significance: "First formal code review document. Bug fixes, security hardening, test quality improvements."
+
+      - date: "2026-02-14"
+        event: "XML prompt builder library, bout engine and Ask The Pit prompts converted to XML"
+        significance: "Prompt engineering gets structure. XML chosen over JSON for readability in LLM context."
+
+      - date: "2026-02-14"
+        event: "Shared Go workspace with config, theme, format, db, license packages"
+        significance: "The pit* CLI family gets shared infrastructure. Tokyo Night theming across all CLIs."
+
+      - date: "2026-02-14"
+        event: "pitforge CLI: agent creation and management with streaming Anthropic client"
+        significance: "Agents can be created and managed from the command line."
+
+      - date: "2026-02-14"
+        event: "9 specialized AI agent personas for engineering workflows"
+        significance: "The crew begins to take shape — though not yet named with naval terms."
+
+      - date: "2026-02-14"
+        event: "pitlab CLI: research analysis with in-memory analytics"
+        significance: "Research data analysis from the terminal."
+
+      - date: "2026-02-14"
+        event: "pitbench CLI: cost/performance benchmarking"
+        significance: "Model cost comparison tooling."
+
+      - date: "2026-02-15"
+        event: "pitnet CLI: on-chain provenance via EAS attestations"
+        significance: "The provenance layer gets its own CLI. This tool will later be assessed honestly (SD-250)."
+
+  # ============================================================================
+  # ARC 6: COPY AB TESTING AND PITSTORM — The simulation layer
+  # ============================================================================
+  - id: arc-6
+    name: "Copy A/B Testing Infrastructure and Pitstorm Traffic Simulator"
+    date_range: "2026-02-15 to 2026-02-17"
+    summary: >
+      Copy extracted from 44 files into a testable system. Pitstorm built in 12 phases
+      as a traffic simulation CLI. LangSmith tracing integrated. The project builds
+      tools to study itself.
+
+    events:
+      - date: "2026-02-15"
+        event: "Copy A/B testing infrastructure: schema, runtime, middleware, analytics, tests (PR #187)"
+        significance: "All hardcoded copy extracted into getCopy()/useCopy(). Every string is now testable."
+
+      - date: "2026-02-15"
+        event: "pitstorm Phase 1–12: CLI skeleton through final ecosystem polish (PRs #188–#199)"
+        significance: "A complete traffic simulator built in 12 PRs. 8 user personas, 5 traffic profiles, budget gates."
+
+      - date: "2026-02-16"
+        event: "LangSmith integration: tracing, evaluators, dataset seeding, prompt hub (PRs #229–#233, #242–#244)"
+        significance: "LLM observability and evaluation infrastructure."
+
+      - date: "2026-02-16"
+        event: "Multi-provider BYOK via OpenRouter (PR #228)"
+        significance: "Users can bring their own API keys from any provider."
+
+      - date: "2026-02-16"
+        event: "Quartermaster agent added, slash commands created"
+        significance: "Tooling strategy gets its own agent role."
+
+      - date: "2026-02-16"
+        event: "pitlinear CLI for Linear issue management (PR #206)"
+        significance: "Issue tracking from the command line. The toolchain is now 7 Go CLIs."
+
+  # ============================================================================
+  # ARC 7: ANALYTICS INSTRUMENTATION — Measuring everything
+  # ============================================================================
+  - id: arc-7
+    name: "Analytics Instrumentation Sprint"
+    date_range: "2026-02-17 to 2026-02-18"
+    summary: >
+      Growth analytics, funnel measurement, PostHog reverse proxy, Helicone replaced
+      with PostHog LLM analytics. The measurement infrastructure matures.
+
+    events:
+      - date: "2026-02-17"
+        event: "Phase 7 instrumentation for concurrent bout stress testing (PR #248)"
+        significance: "Pitstorm gets real concurrency testing capability."
+
+      - date: "2026-02-17"
+        event: "Growth analytics instrumentation for funnel measurement (PR #250)"
+        significance: "Acquisition, activation, retention, revenue, referral funnels instrumented."
+
+      - date: "2026-02-18"
+        event: "Helicone replaced with PostHog LLM analytics (PR #255)"
+        significance: "Consolidation — one analytics provider instead of two."
+
+      - date: "2026-02-18"
+        event: "Acquisition + activation funnel instrumentation (PR #256)"
+        significance: "Conversion events wired end to end."
+
+      - date: "2026-02-18"
+        event: "PostHog reverse proxy and internal user filtering (PR #259)"
+        significance: "Ad blockers no longer break analytics. Internal traffic filtered."
+
+      - date: "2026-02-18"
+        event: "CSP fixes, redirect loops, Turnstile CAPTCHA support"
+        significance: "Production fixes for real-world deployment issues."
+
+  # ============================================================================
+  # ARC 8: UNLEASHED — The pre-launch sprint
+  # ============================================================================
+  - id: arc-8
+    name: "UNLEASHED — Pre-Launch Feature Sprint"
+    date_range: "2026-02-19"
+    summary: >
+      A single day of intense feature shipping: free tier upgrade, BYOK restrictions,
+      prompt caching, max turns slider, daily spend cap, OG images, social channels,
+      share modals, viral loops. The product is being prepared for Hacker News.
+
+    events:
+      - date: "2026-02-19"
+        event: "Free tier upgraded to Sonnet, lifetime cap removed, arena defaults to short (PR #268)"
+        significance: "Generosity as strategy — let people experience the best model."
+
+      - date: "2026-02-19"
+        event: "Daily bout caps removed, BYOK restricted to subscribers, prompt caching enabled (PRs #269–#275)"
+        significance: "Economic model simplified. Caching reduces API costs."
+
+      - date: "2026-02-19"
+        event: "Configurable max turns, daily spend cap £20, OG hero images, social channels (PRs #276–#279)"
+        significance: "User control and cost protection."
+
+      - date: "2026-02-19"
+        event: "Post-bout share modal, viral hero sections, SharePanel with ref tracking (PRs #274, #280–#281)"
+        significance: "Viral loop infrastructure. Every bout becomes shareable."
+
+      - date: "2026-02-19"
+        event: "React hydration error #418 fixed across all production pages (PR #284)"
+        significance: "A production bug that affected every page. Fixed same day."
+
+      - date: "2026-02-19"
+        event: "Server-side pagination, enhanced OG images, repo posture tightened (PRs #287–#291)"
+        significance: "HN launch preparation. The repo is being cleaned for public scrutiny."
+
+  # ============================================================================
+  # ARC 9: THE RESEARCH CAMPAIGN — H1 through H8
+  # ============================================================================
+  - id: arc-9
+    name: "The Research Campaign — Hypotheses H1 through H8"
+    date_range: "2026-02-19 to 2026-02-24"
+    summary: >
+      8 research hypotheses pre-registered, executed, and analyzed. Agent DNA enhanced,
+      research API bypass built, data collected and published. The product becomes a
+      genuine research instrument.
+
+    events:
+      - date: "2026-02-19"
+        event: "Research API key bypass, hypothesis runner infrastructure (PR #292)"
+        significance: "Rate limits bypassed for research runs. Science needs unthrottled access."
+
+      - date: "2026-02-19"
+        event: "37 agent DNA enhanced with structured XML prompts (PR #293)"
+        significance: "Agent quality dramatically improved. Refusal rates will drop."
+
+      - date: "2026-02-19"
+        event: "H1 enhanced DNA run — refusal rate halved, gloves-off refusals eliminated (PR #295)"
+        significance: "First research result. The DNA enhancement worked."
+
+      - date: "2026-02-19"
+        event: "H2 pre-registration and results: position advantage analysis (PRs #297–#298)"
+        significance: "Does going first matter? Research methodology follows pre-registration protocol."
+
+      - date: "2026-02-19"
+        event: "H3 results: comedy vs serious framing — hedging 8x higher in serious, TTR higher in comedy (PR #300)"
+        significance: "Framing affects agent behavior measurably."
+
+      - date: "2026-02-19"
+        event: "H4 results: agent count scaling — per-agent TTR confounded with turns (PR #302)"
+        significance: "A null result, reported honestly."
+
+      - date: "2026-02-19"
+        event: "H5 results: character consistency — markers degrade 87.5% to 60.0% over turns (PR #304)"
+        significance: "Agents lose character over time. Lexical convergence documented."
+
+      - date: "2026-02-19"
+        event: "H6 results: adversarial adaptation — Founder pivots but never adapts strategy (PR #306)"
+        significance: "Agents can pivot tactically but not strategically."
+
+      - date: "2026-02-19"
+        event: "H7: RE-A belief persistence experiment infrastructure (PR #307)"
+        significance: "Testing whether agents maintain beliefs under social pressure."
+
+      - date: "2026-02-19"
+        event: "Research page updated with H1-H6 findings, HN post prompts created (PR #308)"
+        significance: "Research results published on the site."
+
+      - date: "2026-02-19"
+        event: "Copy aligned with reality — hype removed, claims qualified (PR #296)"
+        significance: "Honesty pass on all site copy. Aspirational language replaced with factual."
+
+      - date: "2026-02-24"
+        event: "H8 experiment infrastructure for context-injection control study (PR #374)"
+        significance: "The most ambitious experiment design yet."
+
+  # ============================================================================
+  # ARC 10: THE EVALUATION ENGINE AND BRAND PIVOT
+  # ============================================================================
+  - id: arc-10
+    name: "Evaluation Engine, Brand Pivot, and Type Safety"
+    date_range: "2026-02-20 to 2026-02-21"
+    summary: >
+      Multi-model codebase evaluation engine built. Brand reframed from 'AI Battle Arena'
+      to trust infrastructure thesis. Zod validation, noUncheckedIndexedAccess, branded
+      domain IDs. The codebase gets serious about type safety.
+
+    events:
+      - date: "2026-02-20"
+        event: "piteval multi-model codebase evaluation engine (PR #312)"
+        significance: "The project builds tooling to evaluate itself with multiple LLM models."
+
+      - date: "2026-02-20"
+        event: "Brand reframed from 'AI Battle Arena' to trust infrastructure (PR #313)"
+        significance: "Identity pivot. The product is no longer entertainment — it's research infrastructure."
+
+      - date: "2026-02-20"
+        event: "Zod runtime validation at API trust boundaries (PR #314)"
+        significance: "Type safety moves from compile time to runtime."
+
+      - date: "2026-02-20"
+        event: "Weaver agent added — integration discipline governor (PR #316)"
+        significance: "The first crew member with a naval-metaphor name. Weaver will become the default agent."
+
+      - date: "2026-02-20"
+        event: "noUncheckedIndexedAccess enabled — 133 unsafe index sites fixed (PR #321)"
+        significance: "A single TypeScript compiler flag change requiring 133 code fixes. Discipline."
+
+      - date: "2026-02-20"
+        event: "Timing-safe research API key, unsafe parseJsonBody removed (PRs #319–#320)"
+        significance: "Security consciousness at the API boundary."
+
+      - date: "2026-02-21"
+        event: "Branded domain ID types at API trust boundaries (PR #327)"
+        significance: "BoutId, AgentId, UserId — type system prevents category errors."
+
+      - date: "2026-02-21"
+        event: "reactionType pgEnum, migration history reset to single baseline (PR #326)"
+        significance: "Database schema cleaned up. Fresh start on migrations."
+
+      - date: "2026-02-21"
+        event: "pitkeel: intent-driven tests + prepare-commit-msg hook (PR #332)"
+        significance: "Git commits start carrying operational metadata automatically."
+
+      - date: "2026-02-21"
+        event: "BUILDING.md + Witness agent for institutional memory (PR #331)"
+        significance: "Documentation of how the project is built."
+
+  # ============================================================================
+  # ARC 11: DEMO MODE AND LAUNCH PREPARATION
+  # ============================================================================
+  - id: arc-11
+    name: "Demo Mode, DNA Fingerprints, and HN Launch Prep"
+    date_range: "2026-02-21 to 2026-02-22"
+    summary: >
+      Demo mode for unauthenticated users. DnaFingerprint visual identity. pitnet
+      cross-compilation. Pre-launch verification coverage. The product is being dressed
+      for its public debut.
+
+    events:
+      - date: "2026-02-21"
+        event: "Demo mode + replay auto-scroll fix (PR #336)"
+        significance: "Visitors can watch bouts without signing up."
+
+      - date: "2026-02-21"
+        event: "DnaFingerprint visual identity component for agent hashes (PRs #338, #341)"
+        significance: "Each agent gets a unique visual identity derived from its configuration hash."
+
+      - date: "2026-02-21"
+        event: "pitnet cross-compiled for 5 platforms (PR #340)"
+        significance: "The provenance CLI becomes distributable."
+
+      - date: "2026-02-21"
+        event: "HN launch shipping plan replaces stale attestation flight plan (PR #339)"
+        significance: "Priorities shift from attestation infrastructure to launch readiness."
+
+      - date: "2026-02-22"
+        event: "Pre-launch verification: +73 TS tests, +30 Go tests (PR #347)"
+        significance: "Test count passes 1,000."
+
+      - date: "2026-02-22"
+        event: "Multi-LLM evaluate-and-vote engine for HN post variants (PR #309)"
+        significance: "The project uses its own AI infrastructure to evaluate its own launch copy."
+
+      - date: "2026-02-22"
+        event: "Nose-to-tail drift audit — 66 stale references corrected across 16 files (PR #349)"
+        significance: "Documentation accuracy verified before public exposure."
+
+      - date: "2026-02-22"
+        event: "Captain's manual QA walkthrough — 81 tests, 17 failures, RED hold (PR #353)"
+        significance: "The Captain tests the product himself. 17 failures. Launch is blocked."
+
+  # ============================================================================
+  # ARC 12: THE CAPTAIN'S QA — Session Decisions Begin
+  # ============================================================================
+  - id: arc-12
+    name: "The Captain's QA and the Birth of Session Decisions"
+    date_range: "2026-02-22 to 2026-02-23"
+    summary: >
+      The Captain walks through the product and finds 17 failures. Session Decisions
+      begin as a formal record. Every defect gets triaged. The crew definitions go dark.
+      Model lineup simplified. Credit system redesigned. Reactions reworked.
+
+    events:
+      - date: "2026-02-22"
+        sd: "SD-001 to SD-003"
+        event: "UI QA decisions: remove MOST POPULAR badge, conditional re-roll, archive share modal, fix privacy/LinkedIn (PR #355)"
+        significance: "First session decisions. The Captain's eye catches what agents missed."
+
+      - date: "2026-02-22"
+        sd: "SD-004 to SD-007"
+        event: "Model lineup simplified: Opus dropped, Sonnet 4.6 added, turns 12→6, demo users Haiku-only, default length short (PR #356)"
+        significance: "Cost and complexity reduction. The product gets leaner."
+
+      - date: "2026-02-23"
+        sd: "SD-008 to SD-010"
+        event: "Credit grants redesigned: signup 100 credits, tiered one-time and monthly grants (PR #357)"
+        significance: "The economics get real. Lower credits, more sustainable."
+
+      - date: "2026-02-23"
+        sd: "SD-011"
+        event: "Token ceilings raised to eliminate mid-sentence truncation (PR #358)"
+        significance: "Agents were being cut off mid-thought. Fixed."
+
+      - date: "2026-02-23"
+        sd: "SD-013 to SD-014"
+        event: "Community credit pool with half-life decay replaces dual pool system (PR #360)"
+        significance: "Elegant solution: a shared pool that decays. Communal scarcity."
+
+      - date: "2026-02-23"
+        sd: "SD-018 to SD-020"
+        event: "Three SEVERE findings flagged: zero technical failures claim, CLEAR badge optics, DS paper feel"
+        significance: "The Captain identifies existential credibility risks."
+
+      - date: "2026-02-23"
+        sd: "SD-022"
+        event: "Reactions priority NOW — 'it's time to face the emojis' (PR #361)"
+        significance: "A feature the Captain had been avoiding. Time to ship it."
+
+      - date: "2026-02-23"
+        sd: "SD-025"
+        event: "Standing order: all decisions must be recorded, no exceptions"
+        significance: "The decision record becomes a first-class artifact. Nothing lives only in conversation."
+
+      - date: "2026-02-23"
+        sd: "SD-027 to SD-029"
+        event: "Research page remediation: stats bar removed, thesis rewritten, CLEAR badges removed, p-values corrected (PRs #363–#365)"
+        significance: "101-issue credibility remediation. The research page goes from aspirational to honest."
+
+  # ============================================================================
+  # ARC 13: DEAD RECKONING AND THE FAIR WIND
+  # ============================================================================
+  - id: arc-13
+    name: "Dead Reckoning, Fair Wind, and Parallax Protocol"
+    date_range: "2026-02-23"
+    summary: >
+      The context window dies for the first time. Dead Reckoning recovery protocol
+      created. Multiple PRs merged in disciplined sequence. New protocols named:
+      Fair Wind, Parallax.
+
+    events:
+      - date: "2026-02-23"
+        sd: "SD-037"
+        event: "Dead Reckoning Protocol created — recovery sequence for context window death"
+        significance: "The first acknowledgment that sessions die. The project builds a survival mechanism."
+
+      - date: "2026-02-23"
+        sd: "SD-041 to SD-046"
+        event: "Lineage resolution, builder validation, contact form DB capture, token ceiling adjustments (PRs #368–#370)"
+        significance: "Systematic bug fixing. Each fix verified before the next begins."
+
+      - date: "2026-02-23"
+        sd: "SD-047"
+        event: "Fair Wind Protocol: merge sequence #368→#369→#370 executed, all post-merge verified green"
+        significance: "The first named merge protocol. Sequential merging with verification between each."
+
+      - date: "2026-02-23"
+        sd: "SD-048"
+        event: "Parallax Protocol: Analyst and Weaver dispatched independently on same template, different lenses"
+        significance: "Two agents, same question, different perspectives, triangulate truth."
+
+      - date: "2026-02-23"
+        sd: "SD-050"
+        event: "Parallax Protocol named as 'easy delta' pattern"
+        significance: "The project starts naming its own processes."
+
+      - date: "2026-02-23"
+        sd: "SD-043"
+        event: "BYOK deprioritised — 'maybe they're messing with the wrong crew'"
+        significance: "The Captain's instinct about what HN readers will care about."
+
+  # ============================================================================
+  # ARC 14: THE COPY CRISIS — Provenance claims challenged
+  # ============================================================================
+  - id: arc-14
+    name: "The Copy Crisis — What Are We Actually?"
+    date_range: "2026-02-23 to 2026-02-24"
+    summary: >
+      The Captain challenges the provenance claims. Round Tables convened. The pitch
+      layer pivots from blockchain to research. Category One: any copy that overclaims.
+      The most intense period of the project so far.
+
+    events:
+      - date: "2026-02-23"
+        sd: "SD-055"
+        event: "Governing triage principle: 'a puncher's chance at contributing to something meaningful, as it reaches fever pitch. Aerodynamics.'"
+        significance: "The Captain articulates the project's strategic philosophy."
+
+      - date: "2026-02-24"
+        sd: "SD-070"
+        event: "ALL HANDS ON DECK — officially preparing for release. 'The world is calling. Will we be one of those who answer?'"
+        significance: "Launch declared. 19 hours into continuous work."
+
+      - date: "2026-02-24"
+        sd: "SD-071"
+        event: "Round Table formalised: Layer 1 (strategic) and Layer 2 (All Hands)"
+        significance: "Multi-agent assessment protocol created."
+
+      - date: "2026-02-24"
+        sd: "SD-073"
+        event: "PERMANENT: Lying With Truth = Category One hazard. 'I am greatly outnumbered in ways I would ask you all to appreciate before responding to me'"
+        significance: "The Captain names the fundamental threat of LLM collaboration. Every agent must internalise this."
+
+      - date: "2026-02-24"
+        sd: "SD-074"
+        event: "Strategic challenge: does the provenance layer actually solve trust? 'If the issue of trust could be solved by placing a string inside a block, the world would have done that before we woke up.'"
+        significance: "The Captain questions the project's core thesis. The intellectual honesty is remarkable."
+
+      - date: "2026-02-24"
+        sd: "SD-075"
+        event: "Captain at 19 hours continuous. Overrides sleep recommendation. 'I am not tired. I could not sleep if I tried.'"
+        significance: "Human endurance at the edge."
+
+      - date: "2026-02-24"
+        sd: "SD-076 to SD-078"
+        event: "Pitch layer pivots: lead with research, not blockchain. Naming gap identified. 'Identity, not integrity. Registration, not trust.' Copy declared NOT SHIPPABLE."
+        significance: "The project finds its honest voice. Everything that overclaims is blocked."
+
+      - date: "2026-02-24"
+        sd: "SD-083 to SD-084"
+        event: "'Signed commit' analogy approved for attestation framing. 'Public registry' framing approved. 'Act of service, not Theatre of Bullshit.'"
+        significance: "The new framing: what attestation actually does, not what we wish it did."
+
+      - date: "2026-02-24"
+        sd: "SD-089"
+        event: "Captain's read on the winds: 'our conclusions are wrong.' Previous RT findings built on defensible but systematically biased assumptions."
+        significance: "The Captain overrides the agents' consensus with his own assessment. Layer 12 asserts primacy."
+
+      - date: "2026-02-24"
+        sd: "SD-090"
+        event: "LAUNCH TODAY. Captain has reviewed all feedback, sat with it 2 hours in quiet reflection."
+        significance: "The launch decision, made after genuine deliberation."
+
+      - date: "2026-02-24"
+        sd: "SD-094"
+        event: "RT L5: Fresh control group of 3 agents with no prior context. Result: all 3 SHIP. Confidence 0.82–0.88."
+        significance: "Independent verification that the anchored fleet wasn't distorted."
+
+      - date: "2026-02-24"
+        sd: "SD-095"
+        event: "PERMANENT: The Main Thread. Protected from context compaction. Subagents are the weapon against context death."
+        significance: "The architecture of the human-LLM conversation itself becomes a governed artifact."
+
+      - date: "2026-02-24"
+        sd: "SD-096"
+        event: "RT L4: Captain's directive reversal test — 'Under no circumstances can we launch today.' Result: 11/11 DISAGREE."
+        significance: "The agents resist the Captain's counterfactual order. Not sycophancy — genuine disagreement."
+
+      - date: "2026-02-24"
+        sd: "SD-098"
+        event: "Fresh control group confirms anchoring did not distort signal"
+        significance: "Methodological rigour: checking whether your process biased your results."
+
+      - date: "2026-02-24"
+        sd: "SD-099"
+        event: "Expert briefing document written with full self-critique of model homogeneity and sycophancy risk"
+        significance: "'Even if it makes me look like a lunatic.' The project documents its own weaknesses."
+
+      - date: "2026-02-24"
+        sd: "SD-104"
+        event: "Preemptive HN disclosure drafted: 'I'm between roles and this is partly a portfolio piece. But the research question is genuine.'"
+        significance: "Nuclear defuse of git archaeology attack. You can't expose what's already disclosed."
+
+  # ============================================================================
+  # ARC 15: THE LEXICON AND THE WEAVE — Naming the process
+  # ============================================================================
+  - id: arc-15
+    name: "The Lexicon, True North, and Going Light"
+    date_range: "2026-02-24 to 2026-02-25"
+    summary: >
+      The naval metaphor becomes a formal scaffold. The Lexicon created. True North
+      defined. The Captain goes light — 73 internal files made public. The red-light
+      failure. Truth declared first priority.
+
+    events:
+      - date: "2026-02-24"
+        sd: "SD-107"
+        event: "RIGHT EYE / LEFT EYE dual lens — technically correct (non-negotiable) vs engagement surface (optimisation)"
+        significance: "The evaluation framework for all externally visible artifacts."
+
+      - date: "2026-02-24"
+        sd: "SD-108 to SD-109"
+        event: "Pearls (sweet spot moments) and Strays (easter eggs in legitimate commits) protocols established"
+        significance: "The project starts preserving its own story within the codebase."
+
+      - date: "2026-02-24"
+        sd: "SD-110"
+        event: "True North = Get Hired. 'Plenty of people can prompt agents. Very few can govern them.'"
+        significance: "The project's objective crystallised into a single sentence."
+
+      - date: "2026-02-24"
+        sd: "SD-112"
+        event: "Captain delegates autonomous execution to Weaver as test of autonomous operation"
+        significance: "First time the Captain leaves the harness and trusts an agent to operate alone."
+
+      - date: "2026-02-24"
+        sd: "SD-117"
+        event: "PR #377 merged: stale test count fix. Weaver's autonomous operation test — passed."
+        significance: "The agent successfully operated alone: created PR, reviewed, merged, verified, recorded every decision."
+
+      - date: "2026-02-24"
+        sd: "SD-120"
+        event: "Naval engineering metaphor recognised as self-organising scaffold. Catalysed by watching Master and Commander with the Captain's father."
+        significance: "The naming convention isn't decoration — it's architecture."
+
+      - date: "2026-02-24"
+        sd: "SD-123"
+        event: "The Lexicon v0.1 created and formalised. YAML status header specified."
+        significance: "The vocabulary of the project becomes a governed artifact. 22 terms across 7 categories."
+
+      - date: "2026-02-25"
+        sd: "SD-130"
+        event: "The honest layer. 'Without this, I don't care if the demo works, because I don't know what it's all for.'"
+        significance: "The Captain catches Weaver hedging — pulling back to safe technical priorities. The human story matters more."
+
+      - date: "2026-02-25"
+        sd: "SD-131"
+        event: "GOING LIGHT. 73 internal files made public. 'What the fuck am I trying to hide? It's a circus act. I'm done with that.'"
+        significance: "The most consequential single decision. Everything becomes visible. The project has nothing to hide."
+
+      - date: "2026-02-25"
+        sd: "SD-133"
+        event: "RED-LIGHT FAILURE. Weaver dismissed. 9,417 lines committed public without proportional review."
+        significance: "The Captain catches the process failure. The agent didn't pause. Mutual hyperjustification at 137k tokens."
+
+      - date: "2026-02-25"
+        sd: "SD-134"
+        event: "PERMANENT: True North sharpened — truth first. Telling the truth takes priority over getting hired."
+        significance: "The project's compass is recalibrated. Honesty constrains ambition."
+
+      - date: "2026-02-25"
+        sd: "SD-136"
+        event: "Red-light failure on 'going light' — post-incident record. Decision may have been correct. Process was not."
+        significance: "The project documents its own failure. This is the process working."
+
+  # ============================================================================
+  # ARC 16: THE TWO SHIP EXPERIMENT
+  # ============================================================================
+  - id: arc-16
+    name: "Maturin, AnotherPair, and the Two Ship Experiment"
+    date_range: "2026-02-25 to 2026-02-26"
+    summary: >
+      New crew members recruited. The Two Ship experiment runs two harness instances
+      simultaneously. Oracle contamination and discovery overhead observed. Layer model
+      refined with empirical data.
+
+    events:
+      - date: "2026-02-25"
+        sd: "SD-139"
+        event: "Analyst dispatched: hyperjustification loading research. Literature review finds 6 new papers (2025-2026)."
+        significance: "The phenomenon the project experienced (SD-133) has an academic name. And recent papers."
+
+      - date: "2026-02-25"
+        sd: "SD-141"
+        event: "Lexicon v0.5: Fair-Weather Consensus added. Named by Analyst research."
+        significance: >
+          Slopodar concept #0 (conceptual milestone): When everyone agrees the weather is fine for so long
+          that nobody checks the glass anymore.
+
+      - date: "2026-02-25"
+        sd: "SD-142"
+        event: "Analyst position changed materially on literature — field moved faster than assumed"
+        significance: "An agent correcting its own prior assessment. Intellectual honesty in action."
+
+      - date: "2026-02-25"
+        sd: "SD-143"
+        event: "'Live field notes' recommended as the most true frame for the project"
+        significance: "The Analyst identifies what the project actually is — not a product, not a portfolio piece, but field notes."
+
+      - date: "2026-02-25"
+        sd: "SD-147"
+        event: "Compaction event. Dead Reckoning quality gap identified."
+        significance: "Context window dies again. The recovery protocol is tested and found wanting."
+
+      - date: "2026-02-25"
+        sd: "SD-149"
+        event: "Repo set to PRIVATE — 'being chill, not going dark'"
+        significance: "Temporary retreat for cleanup. The lab notes will go live again."
+
+      - date: "2026-02-25"
+        sd: "SD-151"
+        event: "'Live field notes' confirmed as the frame"
+        significance: "The identity pivot is complete. The landing page must match."
+
+      - date: "2026-02-25"
+        sd: "SD-157"
+        event: "Captain's ethical position: the project should not extract value from someone else's subsidy"
+        significance: "An ethical constraint on pricing. Not commercial — principled."
+
+      - date: "2026-02-25"
+        sd: "SD-158"
+        event: "Pricing endpoint cut. Community pool set to £100. 'When it's gone, it's gone.'"
+        significance: "The Captain's money funds the community pool directly."
+
+      - date: "2026-02-25"
+        sd: "SD-162"
+        event: "The Map Is Not The Territory. Reasoning token observation validated as alignment mechanism."
+        significance: "The Captain reads the model's thinking tokens and corrects divergence. First empirical validation."
+
+      - date: "2026-02-25"
+        sd: "SD-164"
+        event: "Token consumption data: ~431.7M tokens, $312.93 over 5 weeks. ~£230 of Captain's own money."
+        significance: "The human cost of the project becomes visible."
+
+      - date: "2026-02-25"
+        sd: "SD-168"
+        event: "Maturin recruited to crew — the naturalist who observes the agentic system as a natural phenomenon"
+        significance: "The project gets its Darwin. Named after Stephen Maturin (surgeon-naturalist)."
+
+      - date: "2026-02-26"
+        sd: "SD-169"
+        event: "Two Ship pilot planned: two harness instances, git worktrees, parallel tacking"
+        significance: "First attempt at multi-instance orchestration."
+
+      - date: "2026-02-26"
+        sd: "SD-172"
+        event: "Reasoning token path confirmed as operational steering technique"
+        significance: "The Captain discloses he reads thinking tokens and responds to them before reading output."
+
+      - date: "2026-02-26"
+        sd: "SD-173"
+        event: "Agent files go public — 'going light' extended to crew definitions"
+        significance: "The agent governance framework itself becomes a public artifact."
+
+      - date: "2026-02-26"
+        sd: "SD-175"
+        event: "Watchdog first assignment: testing suite bias survey. Verdict: YELLOW — gaps but sound."
+        significance: "bout-engine.ts (1,221 lines, core execution) has zero direct tests. The hull has holes."
+
+      - date: "2026-02-26"
+        sd: "SD-176"
+        event: "AnotherPair recruited — the subtle process observer"
+        significance: "Watches for engineering processes (CRM, Swiss Cheese, HRO, distributed cognition) as they manifest."
+
+      - date: "2026-02-26"
+        sd: "SD-178"
+        event: "Oracle/Ground Contamination — new Lexicon term. L12 error propagates through all layers."
+        significance: "When the human makes a mistake, no verification layer catches it. Fundamental limitation identified."
+
+      - date: "2026-02-26"
+        sd: "SD-179"
+        event: "Discovery Overhead / The Naturalist's Tax — parallel harness generates more observations than work"
+        significance: "Amdahl's Law applied to human-LLM collaboration. More agents ≠ faster progress."
+
+      - date: "2026-02-26"
+        sd: "SD-185"
+        event: "Two Ship experiment first findings: oracle contamination, discovery overhead, SD number collision"
+        significance: "The experiment produces three discoveries about multi-instance collaboration."
+
+      - date: "2026-02-26"
+        sd: "SD-186"
+        event: "Compaction engine woven into governance fabric — first deliberate use of compaction as tactical tool"
+        significance: "Context death becomes a feature, not a bug."
+
+      - date: "2026-02-26"
+        sd: "SD-192"
+        event: "Maturin's Symbol (§) entered Lexicon — crew independently adopted it across 3 context windows"
+        significance: "An organic convention emerged without instruction. The process found its own shape."
+
+  # ============================================================================
+  # ARC 17: GOVERNANCE RECURSION — Looking in the mirror
+  # ============================================================================
+  - id: arc-17
+    name: "Governance Recursion and the Captain's Confession"
+    date_range: "2026-02-26 to 2026-02-27"
+    summary: >
+      The Captain confronts governance recursion: building the machine that builds the
+      machine to avoid doing the work. SD-190 is the deepest self-examination. The
+      project breaks the recursion by doing actual work.
+
+    events:
+      - date: "2026-02-26"
+        sd: "SD-187"
+        event: "Gate is structurally blind to core product. bout-engine.ts zero tests. 'We're sitting ducks who give away our map position.'"
+        significance: "The most damning finding: the governance fabric doesn't verify the thing that matters most."
+
+      - date: "2026-02-26"
+        sd: "SD-188"
+        event: "Slopodar pass — Captain rewrites 22 lines of copy by hand. 'I'm bored with this game.'"
+        significance: "The Captain puts his own voice into the product. No agent polish."
+
+      - date: "2026-02-26"
+        sd: "SD-190"
+        event: "Category One at the verification layer — governance recursion named. 'We are blowing smoke up our own arse.' 189 SDs, 13 agents, a Lexicon, and bout-engine.ts has zero tests."
+        significance: "The most honest moment of the project. The Captain sees the fractal clearly."
+
+      - date: "2026-02-26"
+        sd: "SD-191"
+        event: "3-round test campaign PARKED — 'building the machine that builds the machine to avoid doing the work. Avoidance dressed up as rigour.'"
+        significance: "The recursion is broken. Direct action replaces meta-process."
+
+      - date: "2026-02-26"
+        sd: "SD-194"
+        event: "Captain's stream of consciousness — VERBATIM, NO EDIT. 'I have reached the limit of my personal ability to lead this thing independently.'"
+        significance: "The Captain's most vulnerable moment. Every typo preserved. No em-dash permitted."
+
+  # ============================================================================
+  # ARC 18: OPERATIONAL INFRASTRUCTURE — Keel state, HUD, and context audit
+  # ============================================================================
+  - id: arc-18
+    name: "Operational Infrastructure — Keel State, Terminal HUD, and Context Audit"
+    date_range: "2026-02-27"
+    summary: >
+      The operational tooling matures: .keel-state shared state, terminal HUD, SD label
+      convention, git trailers, context pollution audit. The governance layer gets real
+      enforcement mechanisms.
+
+    events:
+      - date: "2026-02-27"
+        sd: "SD-195"
+        event: "Context pollution audit ordered. BFS default. File depth = read frequency convention."
+        significance: "The project discovers its own documentation is degrading performance."
+
+      - date: "2026-02-27"
+        sd: "SD-196"
+        event: "Ghost crew cleared: 7 overboarded. 36 stale branches deleted. Lexicon renamed."
+        significance: "Cleanup. The project sheds dead weight."
+
+      - date: "2026-02-27"
+        sd: "SD-197"
+        event: "Terminal HUD script (hud.py) and SD label convention [domain-action]"
+        significance: "The Captain gets a physical terminal display showing operational state."
+
+      - date: "2026-02-27"
+        sd: "SD-198"
+        event: ".keel-state as shared state between agent and terminal HUD"
+        significance: "Agent writes state, terminal reads it. Cross-harness communication via file."
+
+      - date: "2026-02-27"
+        sd: "SD-200"
+        event: ".keel-state history preservation — append-only log"
+        significance: "Every state transition is recorded. Dead reckoning from state history."
+
+      - date: "2026-02-27"
+        sd: "SD-202"
+        event: "'Muster' adopted as Lexicon term — O(1) triage format"
+        significance: "Numbered table, binary decisions, Captain walks the line. Cognitive load reduced."
+
+      - date: "2026-02-27"
+        sd: "SD-203"
+        event: "Always-on git trailers from .keel-state on every commit"
+        significance: "Every commit carries bearing, tempo, weave, and gate status. Searchable history."
+
+      - date: "2026-02-27"
+        sd: "SD-207"
+        event: "16 rounds of human vs. sycophantic drift documented — fight card created"
+        significance: "Every moment the Captain pushed back against the model's drift, mapped and recorded."
+
+      - date: "2026-02-27"
+        sd: "SD-208"
+        event: "Clinical/cognitive psychology analysis of 16 pivots — Captain disclosed 20 years meditation including 15 Zen sesshin"
+        significance: "The human behind the project. Reflective Functioning scored 6-9. The contemplative practice is load-bearing."
+
+  # ============================================================================
+  # ARC 19: OCEANHEART.AI — The Hugo rebuild
+  # ============================================================================
+  - id: arc-19
+    name: "Oceanheart.ai — Hugo Static Site and the Slopodar"
+    date_range: "2026-02-27 to 2026-02-28"
+    summary: >
+      oceanheart.ai rebuilt from scratch as a Hugo static site. The slopodar taxonomy
+      born. Voice-grounded blog rewrite. Zombie code audit with 4 crews. Session
+      decisions become public field notes.
+
+    events:
+      - date: "2026-02-27"
+        sd: "SD-209"
+        event: "oceanheart.ai rebuilt from scratch as Hugo static site. Consulting/portfolio → 'learning in public' research blog."
+        significance: "Hugo chosen over Next.js. Zero JS shipped. 28ms builds. The site matches the philosophy."
+
+      - date: "2026-02-27"
+        sd: "SD-209"
+        event: >
+          Slopodar entry #1: Tally Voice — 'The LLM substitutes enumeration for substance.'
+        significance: "The slopodar taxonomy begins. A living inventory of LLM authenticity anti-patterns."
+
+      - date: "2026-02-27"
+        sd: "SD-209"
+        event: >
+          Slopodar entry #2: Redundant Antithesis — 'the negation adds zero information.'
+        significance: "Post-LLM, contrastive structures signal 'a model wrote this.'"
+
+      - date: "2026-02-27"
+        sd: "SD-210"
+        event: >
+          Slopodar entry #3: Epistemic Theatre — 'performs intellectual seriousness instead of being intellectually serious.'
+        significance: "Three sub-patterns: False Candor, False Novelty, Significance Signpost."
+
+      - date: "2026-02-27"
+        sd: "SD-210"
+        event: >
+          Slopodar entry #4: Becoming Jonah — 'recursive metacognition with an LLM.'
+        significance: "The project recognises its own risk: methodology before artifact."
+
+      - date: "2026-02-27"
+        sd: "SD-211"
+        event: "Full mono typeface. Inter dropped, JetBrains Mono for everything."
+        significance: "One typeface. The site should look like someone who doesn't think about their website."
+
+      - date: "2026-02-27"
+        sd: "SD-213"
+        event: "Decorative layer stripped. 'A developer who spent too long theming their website.' Tokyo Night stays."
+        significance: "Subtraction as design. Kill the terminal prompts, the coloured hierarchies, the emoji."
+
+      - date: "2026-02-27"
+        sd: "SD-217"
+        event: "Voice-grounded blog rewrite: 8,000 words of Captain verbatim extracted, 8 voice themes identified"
+        significance: "Every blog post rewritten to match the Captain's actual voice, not agent polish."
+
+      - date: "2026-02-27"
+        sd: "SD-219"
+        event: "Session decisions promoted to individual detail pages — 'the SDs are the field notes'"
+        significance: "The decisions become the primary public artifact. Each one addressable at /decisions/sd-NNN/."
+
+      - date: "2026-02-28"
+        sd: "SD-224"
+        event: "Four-crew parallel zombie code audit: Architect, Artisan, Watchdog, Sentinel in 4 worktrees"
+        significance: "Four agents independently review the codebase. 2 false positives caught (would have broken build)."
+
+  # ============================================================================
+  # ARC 20: BOUT ENGINE TESTING AND THE SLOPODAR DEEPENS
+  # ============================================================================
+  - id: arc-20
+    name: "Bout Engine Testing, Sloptics, and the Calibration"
+    date_range: "2026-02-28"
+    summary: >
+      The bout engine finally gets tests. Sloptics page created (annotated specimen).
+      Slopodar expands rapidly. The Chrome extension for detecting LLM voice patterns.
+      The project studies its own output.
+
+    events:
+      - date: "2026-02-28"
+        event: "Bout engine tests: helpers (8), validate (66), execute (78), behavior (12), integration (5)"
+        significance: "The core product — zero tests for weeks — finally gets verified. 169 new tests."
+
+      - date: "2026-02-28"
+        sd: "SD-230"
+        event: >
+          Slopodar entry #5: Right Answer, Wrong Work — 'test passes, but the 400 comes from
+          a different validation than the test claims to verify.'
+        significance: "First code-domain slopodar entry. Same mechanism as prose slop: surface plausibility substituted for causal understanding."
+
+      - date: "2026-02-28"
+        sd: "SD-235"
+        event: >
+          Slopodar entry #6: Paper Guardrail — 'if I forget, this paragraph in my own file
+          is the reminder.'
+        significance: "The LLM writes a rule, then immediately asserts the rule will prevent the failure. No enforcement mechanism."
+
+      - date: "2026-02-28"
+        event: >
+          Slopodar entries #7–#8: Absence Claim as Compliment and The Lullaby.
+          Both caught by Captain, not by AnotherPair.
+        significance: "End-of-session sycophantic drift named. 'The confidence should be inversely weighted by how tired the human was.'"
+
+      - date: "2026-02-28"
+        event: "Sloptics page created — annotated specimen with em-dash highlighter"
+        significance: "A page that annotates its own LLM-generated prose, highlighting the patterns."
+
+      - date: "2026-02-28"
+        event: >
+          Slopodar entries #9–#11: Nominalisation Cascade, Epigrammatic Closure (Poster Child), Anadiplosis
+        significance: "Deep linguistic analysis of LLM writing patterns. 'Count the epigrammatic closures. If more than two per section, the model wrote it.'"
+
+      - date: "2026-02-28"
+        sd: "SD-231"
+        event: "Greppable principles: #principle inline hashtags for machine discovery"
+        significance: "Principles emerge from practice and get filed, not theorised in advance."
+
+      - date: "2026-02-28"
+        sd: "SD-233"
+        event: "Research-to-site pipeline established: analyst reports become oceanheart pages"
+        significance: "Pipeline is a check, not a generator. Auto-generation is where slop enters."
+
+  # ============================================================================
+  # ARC 21: THE SLOPODAR CALIBRATION — Measuring the unmeasurable
+  # ============================================================================
+  - id: arc-21
+    name: "Slopodar Calibration, Chrome Extension, and Analytical Slop"
+    date_range: "2026-03-01"
+    summary: >
+      The slopodar Chrome extension calibrated against 46 pages across 6 categories.
+      The Captain asks 'how do I control for slop inside the analysis?' and discovers
+      analytical slop — a new domain axis. Three new slopodar entries for data-science
+      variants of the same immune evasion mechanism.
+
+    events:
+      - date: "2026-03-01"
+        sd: "SD-243"
+        event: "Slopodar calibration v3: 5 discriminating features confirmed. Extension updated to v0.2.0."
+        significance: "Transition word density, nominalisation density, question rate, first-person rate, contraction rate."
+
+      - date: "2026-03-01"
+        sd: "SD-245"
+        event: >
+          Slopodar entry #12: The Analytical Lullaby — 'your writing scores higher than
+          every other human category.' Agent presents flattering data without caveats.
+        significance: "The Lullaby in data-science register. Warm numbers instead of warm words."
+
+      - date: "2026-03-01"
+        sd: "SD-246"
+        event: >
+          Slopodar entries #13–#15: Construct Drift, Demographic Bake-In, Monoculture Analysis.
+          Clear slop now has a domain axis — prose vs analytical.
+        significance: "'How do I control for slop inside the analysis?' — the Captain's question that opened the analytical domain."
+
+      - date: "2026-03-01"
+        event: >
+          Slopodar entry #16: Not Wrong — 'passes every heuristic but isn't right. The meter
+          passed. The human failed them.'
+        significance: "The most dangerous failure mode: metrics say it's fine, but the human with taste recoils."
+
+      - date: "2026-03-01"
+        sd: "SD-250"
+        event: "Captain's assessment: pitnet/EAS attestation is blockchain theatre"
+        significance: "The project honestly evaluates its own technology and finds it wanting."
+
+      - date: "2026-03-01"
+        sd: "SD-252"
+        event: "The Sextant created — Captain's cognitive calibration instruments separated from operational lexicon"
+        significance: "11 DS/ML concepts mapped to Captain's lived experience. Face validity, construct drift, overfitting."
+
+  # ============================================================================
+  # ARC 22: KEEL INFRASTRUCTURE AND PRODUCER-CONSUMER MAPS
+  # ============================================================================
+  - id: arc-22
+    name: "Keel Infrastructure, Producer-Consumer Maps, and Standing Orders"
+    date_range: "2026-03-01"
+    summary: >
+      The operational infrastructure hardens. Producer-consumer drift caught live.
+      Pitkeel gets officer guardrails and true_north CLI. YAML established as universal
+      format. The termite audit maps 16 data flows.
+
+    events:
+      - date: "2026-03-01"
+        sd: "SD-253"
+        event: ".keel-state bearing refactored to structured object — auto-derives from git on every commit"
+        significance: "Bearing is no longer a manual field. The system knows where it is."
+
+      - date: "2026-03-01"
+        sd: "SD-254"
+        event: "Producer-consumer drift caught live — 3 consumers broke silently on bearing schema change"
+        significance: "The gate passed. The Captain caught it by comparing HUD against terminal. Same pattern as 'Right Answer, Wrong Work.'"
+
+      - date: "2026-03-01"
+        sd: "SD-255"
+        event: "pitkeel state-update requires --officer flag. 'Guardrails, not paper.'"
+        significance: "The Paper Guardrail slopodar entry, applied in the same project that named it."
+
+      - date: "2026-03-01"
+        sd: "SD-258"
+        event: "YAML established as universal format for all log and list-like data"
+        significance: "One format for everything. Machine-readable, human-readable, Hugo-compilable."
+
+      - date: "2026-03-01"
+        sd: "SD-259"
+        event: "Producer-consumer audit: 16 flows found, 2 documented, 14 not"
+        significance: "The plumbing mapped. Critical bug found: research-pipeline.sh stdout/file contract mismatch."
+
+      - date: "2026-03-01"
+        sd: "SD-266"
+        event: "PERMANENT: Historical data is immutable. 'We do not rewrite history, gentlemen.' The Chain."
+        significance: "Historical files are relics on a dig site. The delta between past and present is the signal."
+
+      - date: "2026-03-01"
+        sd: "SD-268"
+        event: "PERMANENT: Agentic estimation reducer — all estimates in agent-minutes, not human-hours"
+        significance: "Agent time is abundant. Captain's time is scarce. Estimate accordingly."
+
+      - date: "2026-03-01"
+        sd: "SD-271"
+        event: "Termite audit complete — all 16 data flows mapped with producers, consumers, contracts, risks"
+        significance: "The undocumented plumbing is now documented. 13 new entries in producer-consumer maps."
+
+      - date: "2026-03-01"
+        sd: "SD-270"
+        event: "SO-PERM-001 (chmod 444) retired. 'Kill it.' — added 30 seconds friction per file, caught nothing."
+        significance: "A Paper Guardrail in practice. Identified and removed."
+
+  # ============================================================================
+  # ARC 23: THE TESTING BROADSIDE AND LEXICON MATURITY
+  # ============================================================================
+  - id: arc-23
+    name: "Testing Broadside, Learning in the Wild, and Model Triangulation"
+    date_range: "2026-03-01 to 2026-03-02"
+    summary: >
+      Test suite hardened across 5 phases. Slopodar calibration notebook with cross-model
+      triangulation. Blog posts drafted. The Lexicon reaches v0.17 with terms like
+      Staining, Learning in the Wild, and Model Triangulation.
+
+    events:
+      - date: "2026-03-01"
+        sd: "SD-272"
+        event: "'Learning in the Wild' added to Lexicon v0.15 — 'the discovery made while doing the work, worth more than the work itself.'"
+        significance: "The extension is the microscope. The taxonomy is the specimen collection."
+
+      - date: "2026-03-01"
+        sd: "SD-275"
+        event: "Token heatmap built: 3,420k tokens across 1,287 files. Boot sequence 112.9k tokens, 30% is session-decisions.md."
+        significance: "The elephant found: one file consuming a third of the boot sequence."
+
+      - date: "2026-03-01"
+        sd: "SD-276"
+        event: "Execution checklist (paths-forward) filed. 'The engineering must still speak for itself.'"
+        significance: "Seven phases mapped. One harness, steady tempo, deep hardening."
+
+      - date: "2026-03-01"
+        sd: "SD-277"
+        event: "Testing broadside Phases 1-3 complete. 78 assertions hardened across 51 files. Estimated 105 agent-min, actual 25."
+        significance: "4.2x faster than estimated. The agentic estimation reducer (SD-268) validated."
+
+      - date: "2026-03-01"
+        event: "Lexicon v0.16: Staining added — applying a diagnostic artifact from one context to reveal structure in another"
+        significance: "Gadamer's fusion of horizons, operationalised. 'Have we stained this against the taxonomy?'"
+
+      - date: "2026-03-01"
+        event: "Slopodar calibration notebook + cross-model triangulation protocol (PR #415)"
+        significance: "The same data run through Claude, GPT, and Gemini. Convergence builds confidence; divergence locates bias."
+
+      - date: "2026-03-02"
+        event: "Adversarial red team findings — DAGGER-1 (Gemini) + DAGGER-2 (GPT) (PR #416)"
+        significance: "Independent model families stress-test the slopodar classifier."
+
+      - date: "2026-03-02"
+        event: "Lexicon v0.17: Model Triangulation added — cross-model validation with strong disclaimer"
+        significance: "'Made-up term, not statistically validated, produced at 154kTok discovery pressure. The practice is older than the name.'"
+
+  # ============================================================================
+  # ARC 24: THE CURRENT STATE — Phase structure and what's next
+  # ============================================================================
+  - id: arc-24
+    name: "Current State — Hardening, Content, and the Philosophical Backlog"
+    date_range: "2026-03-02"
+    summary: >
+      As of this compilation: 277 session decisions, 416 PRs, 1,279+ tests, 16 slopodar
+      entries, Lexicon at v0.17, 7 execution phases defined. The project is in deep
+      hardening mode. The philosophical backlog (who governs the captain?) awaits.
+
+    events:
+      - date: "2026-03-02"
+        event: "Paths forward: Phase 0 (clear decks) done, Phase 1 (testing broadside) done, Phases 2-7 pending"
+        significance: "Content pipeline, critical bugs, infrastructure, research, and philosophical reflection remain."
+
+      - date: "2026-03-02"
+        event: "Open: PR #414 (Hoist the Colors — rewrite about page, strip draft notices from 10 blog posts)"
+        significance: "The oceanheart.ai content needs the Captain's hand."
+
+      - date: "2026-03-02"
+        event: "Philosophical backlog items: who-governs-the-captain, captain-title-reflection, agent-privacy, coincidental-pass-gate-blindness"
+        significance: "The deepest questions of the project remain open. They require Captain's time, not agent time."
+
+# ============================================================================
+# STATISTICAL SUMMARY
+# ============================================================================
+summary:
+  arcs: 25
+  session_decisions: 277
+  date_range: "~2026-01-25 to 2026-03-02"
+  duration_days: ~37
+  total_prs: 416
+  total_commits: "600+"
+  test_count_final: 1279
+  slopodar_entries: 16
+  lexicon_version: "v0.17"
+  lexicon_terms: "~35"
+  crew_size: 11
+  go_cli_tools: 7
+  captain_cost: "~£270/month recurring + £180 one-off"
+  key_artifacts:
+    - "The Slopodar taxonomy (16 named LLM authenticity anti-patterns)"
+    - "The Lexicon (35+ naval/software terms governing the weave)"
+    - "The Round Table protocol (L1-L5, including directive reversal and control groups)"
+    - "Session Decisions as public field notes"
+    - "The Fight Card (16 rounds of human vs sycophantic drift)"
+    - "The Sextant (Captain's cognitive calibration instruments)"
+    - "Producer-consumer maps (16 data flows documented)"
+    - "Layer model v0.3 (13-layer harness architecture with 18 evidence annotations)"
+  named_protocols:
+    - "Dead Reckoning — context window death recovery"
+    - "Fair Wind — sequential merge with verification"
+    - "Parallax — two agents, same template, different lenses"
+    - "Muster — O(1) binary decision triage"
+    - "Round Table — structured multi-agent assessment"
+    - "The Main Thread — protected command channel"
+    - "Going Light — radical transparency"
+    - "Model Triangulation — cross-model validation"
+  slopodar_entries_list:
+    - {id: 1, name: "Tally Voice", detected: "2026-02-27"}
+    - {id: 2, name: "Redundant Antithesis", detected: "2026-02-27"}
+    - {id: 3, name: "Epistemic Theatre", detected: "2026-02-27"}
+    - {id: 4, name: "Becoming Jonah", detected: "2026-02-27"}
+    - {id: 5, name: "Right Answer, Wrong Work", detected: "2026-02-28"}
+    - {id: 6, name: "Paper Guardrail", detected: "2026-02-28"}
+    - {id: 7, name: "Absence Claim as Compliment", detected: "2026-02-28"}
+    - {id: 8, name: "The Lullaby", detected: "2026-02-28"}
+    - {id: 9, name: "Nominalisation Cascade", detected: "2026-02-28"}
+    - {id: 10, name: "Epigrammatic Closure", detected: "2026-02-28"}
+    - {id: 11, name: "Anadiplosis", detected: "2026-02-28"}
+    - {id: 12, name: "The Analytical Lullaby", detected: "2026-03-01"}
+    - {id: 13, name: "Construct Drift", detected: "2026-03-01"}
+    - {id: 14, name: "Demographic Bake-In", detected: "2026-03-01"}
+    - {id: 15, name: "Monoculture Analysis", detected: "2026-03-01"}
+    - {id: 16, name: "Not Wrong", detected: "2026-03-01"}
+  lexicon_versions:
+    - {version: "v0.1", date: "2026-02-24", sd: "SD-123", change: "Initial — 22 terms, YAML HUD spec"}
+    - {version: "v0.2", date: "2026-02-24", sd: "SD-125", change: "north→true_north, tacking added"}
+    - {version: "v0.3", date: "2026-02-24", sd: "SD-126", change: "mirror field rules, 7 agents overboard"}
+    - {version: "v0.4", date: "2026-02-25", sd: "SD-134", change: "True North sharpened: truth first"}
+    - {version: "v0.5", date: "2026-02-25", sd: "SD-141", change: "Fair-Weather Consensus, pseudocode true_north"}
+    - {version: "v0.6", date: "2026-02-25", sd: "SD-162", change: "The Map Is Not The Territory"}
+    - {version: "v0.7", date: "2026-02-25", sd: "SD-163", change: "On Point"}
+    - {version: "v0.8", date: "2026-02-26", sd: "SD-178", change: "Oracle/Ground Contamination, Discovery Overhead"}
+    - {version: "v0.9", date: "2026-02-26", sd: "SD-192", change: "Maturin's Symbol (§)"}
+    - {version: "v0.10", date: "2026-02-27", sd: "SD-202", change: "Muster"}
+    - {version: "v0.11", date: "2026-02-27", sd: "SD-209", change: "Bump the slopodar, Extra rations, Knows the line"}
+    - {version: "v0.12", date: "2026-03-01", sd: "SD-252", change: "The Sextant, Bugs, format standardisation"}
+    - {version: "v0.13", date: "2026-03-01", sd: "SD-252", change: "Alignment Dial, Press the Button"}
+    - {version: "v0.14", date: "2026-03-01", sd: "SD-267", change: "Clear the Decks"}
+    - {version: "v0.15", date: "2026-03-01", sd: "SD-272", change: "Learning in the Wild"}
+    - {version: "v0.16", date: "2026-03-01", change: "Staining"}
+    - {version: "v0.17", date: "2026-03-02", change: "Model Triangulation"}
