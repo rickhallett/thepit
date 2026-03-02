@@ -1,0 +1,58 @@
+# dagger-2-tasks-4-5.yaml
+# Source: GPT-5.2-Codex (DAGGER-2), follow-up for missing deliverables
+# Prompt: "Provide missing deliverables only — cross-validated accuracy, Tasks 4 and 5"
+# Filed by: Weaver, for provenance. Raw output, no commentary.
+
+date: 2026-03-02
+model: gpt-5.2-codex
+operation: DAGGER-2
+deliverable: follow-up (missing from initial raw export)
+
+cross_validated_accuracy:
+  value: 0.7733
+  method: 5-fold stratified
+  classes: 6  # A/B/C/D/E/F — harder task than binary
+  std: 0.1289
+
+task_4_critical_assessment:
+  categories: >-
+    A/B vs C/D are not clean separations; C may be human-written;
+    D is judgment-based; F is short-form and genre-shifted.
+  sample_size: >-
+    Too small for stable inference; wide CIs; multiple comparisons
+    inflate false positives even with BH.
+  feature_set_gaps:
+    - lexical diversity
+    - POS/dep patterns
+    - discourse markers
+    - burstiness
+    - paragraph structure
+    - edit artifacts
+    - genre controls
+  f_vs_ab: >-
+    F shows strong first-person + short-sentence cadence; could be
+    normal style variation rather than a distinct class.
+  trust_verdict: >-
+    Not decision-grade without larger, balanced corpora, genre-matched
+    baselines, author-level controls, and a locked feature extractor.
+
+task_5_comparison:
+  agreement: >-
+    Top discriminators overlap on first-person, nominalisation density,
+    question rate, and contractions; both analyses flag clear A vs C
+    separation with small-n caveats.
+  divergence: >-
+    Original places transition density in top-5; DAGGER-2 ranking
+    elevates short-sentence ratio and epigram metrics above transitions.
+  methods: >-
+    Original reports A-vs-C logistic LOO accuracy ~92.3%; DAGGER-2
+    multi-class GNB accuracy is 77.3% due to harder task + reduced features.
+  targets: >-
+    Original voice-distance ranks most pages within human range;
+    DAGGER-2 classifier marks most research pages as D-suspected while
+    blogs cluster in F/A — likely driven by simplified extractor and
+    genre mismatch.
+  bias_risks: >-
+    DAGGER-2 may under- or mis-classify due to non-parity feature
+    extraction; original may overstate separation due to monoculture
+    features and A-vs-C focus.
