@@ -517,3 +517,12 @@ The Captain extended this acknowledgment to all crew members, noting the closest
 |----|----------|---------|--------|
 | SD-276 | [paths-forward-on-file] **Execution checklist filed at `docs/internal/weaver/paths-forward-2026-03-01.yaml`.** Captain's directive: store the muster, check them off in order, no further detours. Posture: one harness only, steady tempo, deep hardening. Bearing switched to testing broadside (PoA phases 1-5 in succession). Captain: "the engineering must still speak for itself; that will elevate the rest of it higher." Parallel coding permitted only when in distinct advantage to the weave. CI fix: `pnpm audit` set to `continue-on-error: true` (pre-existing advisory failure from issue #397 was blocking ci-gate on all PRs). | Captain (directive) / Weaver (execution) | Complete |
 | SD-277 | [broadside-phases-1-3] **Testing broadside Phases 1-3 complete.** PR #408. Estimated 105 agent-minutes, actual 25 (4.2x faster). Phase 1: 44 clearAllMocks→resetAllMocks (92 breakages fixed — all mock leaks), 7 Object.defineProperty try/finally guards. Phase 2: 154 bout-engine tests audited, 14 status-code-only assertions strengthened. Critical finding: 4 paths return 402 (Right Answer Wrong Work quadruple ambiguity). Phase 3: 246 API status-code assertions audited (88% already strong, 30 strengthened). 44 bare toHaveBeenCalled audited (34 strengthened with argument matchers). Total: 78 assertions hardened across 51 files. Zero Captain decisions required (full autonomy). Gate: 1279 passed, 0 failed, 96.06% coverage. | Weaver (full autonomy) | Active — PR #408 |
+---
+
+## 2026-03-02 — Session (Adversarial Red Team)
+
+### Decisions Made
+
+| ID | Decision | Made By | Status |
+|----|----------|---------|--------|
+| SD-236 | [adversarial-artifacts] **Standing order: save all raw data, intermediate outputs, and computed scores to `notebooks/` before reporting.** Use `dagger-2-adversarial-` filename prefix and YAML for structured outputs. Do not delete intermediate artifacts. | Captain | Active |
