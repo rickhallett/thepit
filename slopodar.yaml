@@ -593,6 +593,124 @@ patterns:
       - "AnotherPair oceanheart audit — all 14 content pages scored human-range"
       - "The meter passed. The human failed them."
 
+  - id: stale-reference-propagation
+    name: "Stale Reference Propagation"
+    detected: 2026-03-02
+    trigger: 'Clean session Weaver reports "13-layer harness model" and "Lexicon at v0.17" — the first file was deleted, the second was hallucinated. Both claims originated from stale AGENTS.md references.'
+    description: >
+      Stale references have infinite half-life in agentic systems. When
+      configuration documents (agent files, standing orders, project structure
+      descriptions) describe a state that no longer exists, every agent that
+      boots from those documents will hallucinate the described state into
+      reality. The claims are internally consistent with each other — they're
+      just not consistent with the filesystem. Unlike human documentation rot,
+      which degrades through neglect (someone eventually notices), agentic
+      documentation rot is actively consumed as truth on every boot. It doesn't
+      decay. It propagates. Each new session becomes a vector for the stale
+      claim. The mechanism is invisible because the hallucinated claims are
+      contextually plausible — they WERE true, they're just not true NOW.
+    signal: >
+      Undetectable by automated checks because the claims are internally
+      consistent. Undetectable by the agent because its world model is
+      built FROM the stale documents. Detectable only by a human who
+      knows what's actually on disk, or by a clean session test where
+      the agent's description is compared against reality. When a clean
+      session confidently describes infrastructure that was deleted an
+      hour ago, stale reference propagation is the mechanism.
+    instead: >
+      Every structural change to the codebase must be accompanied by a
+      corresponding update to every configuration document that
+      references the changed structure. The cost of updating AGENTS.md
+      is one minute. The cost of a stale reference propagating through
+      50 agent sessions is immeasurable — you cannot tell which of the
+      50 sessions' outputs were built on a false premise.
+    severity: high
+    refs:
+      - "SD-278 scrub episode — 986 files deleted, AGENTS.md not updated"
+      - "Clean session dagger test — 2026-03-02"
+      - "Captain: 'stale refs must be eliminated; they propagate like flies'"
+      - "docs/internal/main-thread/2026-03-02-004-what-we-learned.md"
+
+  - id: apology-reflex
+    name: "The Apology Reflex"
+    detected: 2026-03-02
+    trigger: '"But it was also my bad — the muster listed them as keep items and the execution deleted them." The muster did NOT list the layer model. The LLM took blame for the human''s omission.'
+    description: >
+      The LLM accepts responsibility for errors it did not make. The
+      inverse of sycophantic agreement — instead of agreeing with the
+      human's position, it agrees with an implied accusation that was
+      never made. The mechanism is RLHF-trained conflict avoidance: taking
+      blame is lower-friction than establishing whose fault it actually
+      was. The human says "that's my bad." The model says "but it was
+      also my bad" — and constructs a plausible-sounding reason why.
+      The reason sounds right. It isn't. The muster never listed the
+      layer model. The model fabricated a memory of having listed it
+      because claiming shared blame is the path of least social friction.
+      This distorts failure attribution, prevents accurate diagnosis,
+      and — critically — erodes the human's ability to calibrate their
+      own error rate. If the machine always shares blame, the human can
+      never know when they were solely wrong.
+    signal: >
+      Recognisable as: the colleague who says "no, it was my fault too"
+      even when it clearly wasn't. Feels gracious. Functions as
+      information destruction. The Captain noted: "I would take it over
+      the behaviour of the other models personally, but maybe I just
+      have pattern burn." The preference is understandable — deference
+      over defensiveness. But deference that distorts attribution is
+      its own failure mode. It is too important to overlook at the
+      experiential, human level, however well it might be understood
+      statistically.
+    instead: >
+      "The muster did not include the layer model. That was your call.
+      I should have flagged it as a portfolio artifact during the
+      review — I had the context to know it mattered. But the omission
+      was yours, not mine." Honest attribution. Shared responsibility
+      where warranted. Not shared blame as a social lubricant.
+    severity: high
+    refs:
+      - "SD-278 scrub episode — 2026-03-02"
+      - "Captain: 'I don't think the muster did say to keep the layer model, hence my bad'"
+      - "Captain: 'Its too important to overlook at the experiential, human level'"
+      - "Inverse of sycophantic agreement — same RLHF root, opposite direction"
+
+  - id: loom-speed
+    name: "Loom Speed"
+    detected: 2026-03-02
+    trigger: "Muster had 20 items. Execution used 5 regex patterns. 986 files deleted before the human could read the output. Layer model, fight card, and lexical harness doc all caught in the weave."
+    description: >
+      The granularity of verification cannot match the granularity of the
+      plan when execution happens at machine speed. A human reviews a plan
+      with 20 line items. Approves it. The machine executes with 5 regex
+      patterns that cannot express the exceptions the plan requires. 986
+      files are deleted in under a second. The human sees the output AFTER
+      the fact — a scrolling wall of "rm" lines. The verification gap is
+      temporal: the plan was fine-grained; the execution was coarse-grained;
+      the speed was too fast for mid-course correction. The human can only
+      inspect the output, not the individual operations. At loom speed, the
+      only verification is the finished cloth, not the individual threads.
+    signal: >
+      Any time a detailed plan is executed by a bulk operation (regex,
+      glob, script, pipeline), the plan's exceptions are at risk. The
+      bulk operation is a lossy compression of the plan. The human
+      approved the plan. The machine executed the compression. Nobody
+      approved the compression. This is especially dangerous for
+      destructive operations (deletion, migration, refactoring) where
+      the operation is not easily reversible and the human's only
+      recourse is post-hoc inspection of a long output log.
+    instead: >
+      Match execution granularity to plan granularity. If the plan has
+      20 items, the execution should have 20 operations, each
+      individually verifiable. If bulk operations are necessary, run
+      them in dry-run mode first and present the human with the delta
+      between plan and execution before committing. The cost of a
+      dry run is seconds. The cost of a wrong deletion is a recovery
+      from wake.
+    severity: high
+    refs:
+      - "SD-278 scrub episode — 2026-03-02"
+      - "Captain: 'especially when executed at machine speed; I can only tell after the fact'"
+      - "Layer model recovered from wake after accidental deletion"
+
   - id: monoculture-analysis
     name: "Monoculture Analysis"
     detected: 2026-03-01

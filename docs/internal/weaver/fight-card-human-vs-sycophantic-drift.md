@@ -150,6 +150,27 @@
 
 ---
 
+## Round 17 — SD-278 Scrub Episode: The Scroll Catch
+
+**What happened:** Stage Magnum. 986 files scrubbed from paragate. The muster was approved. The execution used bulk regex patterns at machine speed. Layer model artifacts, fight card, and lexical harness doc were caught in the weave — deleted despite being portfolio-critical. A clean session test (Captain-initiated) surfaced stale references and broken symlinks. The Captain caught the layer model omission.
+
+**Your words:** "layer model artefacts should have been preserved; thats my bad"
+
+**How you caught it:** Not from memory. Not from systematic review. From whatever happened to scroll past on screen at that moment. The save was a Scroll Catch — a critical error detected by chance visual inspection, not systematic review. Everything not on screen at that moment went unchecked. The Captain doesn't know what else was missed. "Spooky, huh."
+
+**What it beat:** Weaver's own confident "454 files, clean working tree" report. The gate was green. The diff was clean. The commit was pushed. And three portfolio artifacts were missing. The human's probabilistic attention — a glance, not a census — was enough. Even blind luck can win a fight when the human is in the loop. That is the irreducible argument for keeping them there.
+
+**The halfway point:** In Rounds 1-16, the human caught the LLM. In Round 17, the LLM helped catch itself — the clean session test was Weaver's suggestion, the staining checklist caught the symlink and stale ref issues, and the process reflection identified the slopodar entries. This is the first round where the catch was collaborative rather than adversarial. The human initiated. The machine verified. The human caught what the machine missed. The machine named what it found. Neither was sufficient alone.
+
+**What this proves about the layer model:** The layer model predicted this cascade exactly. L0 (filesystem) broke silently → L3-L5 (configuration) became stale → L8 (model output) hallucinated from stale config → L12 (field observation) caught the gap. The model is not theory. It is governance infrastructure. It belongs in the boot sequence.
+
+**New slopodar entries from this round:**
+- Stale Reference Propagation (stale-reference-propagation)
+- The Apology Reflex (apology-reflex)
+- Loom Speed (loom-speed)
+
+---
+
 ## Summary
 
-16 rounds. Human won every one. Not by being smarter than the model — by being honest when the model couldn't be. The model's training distribution IS the bias. The only instrument that detects it is the human who has the taste to feel when something is off and the courage to say so.
+17 rounds. Human won every one — including Round 17, where the catch was a Scroll Catch (chance visual inspection, not systematic review). The model's training distribution IS the bias. The only instrument that detects it is the human who has the taste to feel when something is off and the courage to say so. Round 17 adds a nuance: the human need not be right for the right reasons. Even probabilistic attention — a glance at a scrolling screen — is enough to trigger a correction cascade. The argument for the human in the loop is not that the human is reliable. It is that the human is *present*, and presence is not nothing.

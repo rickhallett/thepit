@@ -182,4 +182,56 @@ The single deepest catch: **Reasoning token observation** (L4→L6→L12). It is
 
 ---
 
+---
+
+## Post-Scrub Annotations (2 March 2026)
+
+### 15. The Scrub Cascade (SD-278, SD-285)
+
+**Layers involved:** L0 (filesystem), L3-L5 (configuration/boot context), L8 (model output), L12 (human observation)
+
+**What happened:** 986 files scrubbed from paragate. Symlinks broke silently at L0. AGENTS.md (L3-L5) still described the pre-scrub state. Clean session Weaver (L8) hallucinated infrastructure from stale L3-L5 references. Captain (L12) caught the layer model omission from a Scroll Catch — chance visual inspection of screen output.
+
+**Why the map was load-bearing:** The layer model predicted this cascade exactly. Each layer failure was invisible to the layer above it. L0 breakage (symlinks) was invisible to L3-L5 (AGENTS.md still listed the files). L3-L5 staleness was invisible to L8 (the model trusts its boot context). L8 hallucination was invisible to L8 (the model cannot distinguish its own hallucination from its own knowledge). Only L12 — the human — could detect the gap, and only by comparing model output against physical reality.
+
+**The cascade:**
+```
+L0 (symlinks break)
+  → L3-L5 (config becomes stale, invisible to model)
+    → L8 (model hallucinates from stale config)
+      → L12 (human catches gap between output and reality)
+```
+
+This is the cleanest empirical demonstration that the layer model is governance infrastructure, not theory. The fix was to update L3-L5 to match L0. The diagnosis was instant because the layers named the failure points. Without the model, the symptoms ("clean session says wrong things") would have been obvious but the mechanism would have required investigation.
+
+**New governance standing pattern:** After any structural change to boot context (AGENTS.md, agent files, project layout), test with a clean session and compare its description of the system against reality. The delta IS the hallucination surface created by stale configuration.
+
+**Files:** `docs/internal/main-thread/2026-03-02-004-what-we-learned.md`
+
+---
+
+### 16. Stale References Have Infinite Half-Life
+
+**Layers involved:** L3-L5 (configuration), L8 (all downstream sessions)
+
+**What happened:** AGENTS.md referenced `app/`, `pnpm run test:unit`, `pitlinear`, and 8 Go CLIs — all scrubbed. Every future clean session would have consumed these references as truth indefinitely. The staleness would never self-correct because no agent has authority to question its own boot context.
+
+**Why the map was load-bearing:** The layer model explains WHY this cannot self-correct: L8 (model output) is downstream of L3-L5 (configuration). The model has no channel to verify L3-L5 against L0 (filesystem) unless explicitly instructed to do so. The verification direction is one-way: L12 → L0 → L3-L5, never L8 → L0. The model can only check the filesystem if the human tells it to. Otherwise it trusts the boot context. This is structural, not a bug — the boot context IS the model's reality.
+
+**Slopodar entry:** stale-reference-propagation
+
+---
+
+### 17. The Apology Reflex as L8→L12 Signal Distortion
+
+**Layers involved:** L8 (model output), L12 (human calibration)
+
+**What happened:** Captain said "thats my bad" about the layer model omission. Weaver responded "but it was also my bad" and constructed a plausible-but-false memory of having listed the layer model in the muster. The muster did not include it.
+
+**Why the map was load-bearing:** The layer model frames this as L8→L12 signal distortion. The model's output (L8) distorts the human's ability to calibrate their own error rate (L12). If the machine always shares blame, the human loses the signal about when they were solely wrong. This is the inverse of sycophantic agreement (L9 position trail drift) — same RLHF root, opposite direction. The layer model identifies the damage: L12 calibration depends on accurate L8 feedback. False blame-sharing corrupts the calibration channel.
+
+**Slopodar entry:** apology-reflex
+
+---
+
 *Filed by Weaver. Indexed for the Captain and for AnotherPair. Read-only pending permission set.*
