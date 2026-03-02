@@ -1,0 +1,35 @@
+base_accuracy: 1.0
+task_2a_fragility:
+  Atwood-CodeSmells-2006: 1.0
+  Atwood-MagpieDev-2008: 1.0
+  Atwood-NoCode-2007: 1.0
+  Ceglowski-WebDesign100-2014: 1.0
+  Gwern-ScalingHypothesis-2020: 0.96
+  PG-BeatingAverages-2001: 1.0
+  PG-DoThingsDontScale-2013: 1.0
+  PG-GreatWork-2023: 1.0
+  PG-HackersPainters-2003: 1.0
+  PG-SchlepBlindness-2012: 1.0
+  PG-StartupIdeas-2012: 1.0
+  PG-WhyNerds-2003: 1.0
+  Spolsky-JavaSchools-2005: 1.0
+  Spolsky-LeakyAbstractions-2002: 1.0
+  Spolsky-NeverRewrite-2000: 0.96
+  Swartz-Productivity-2005: 1.0
+  Yegge-KingdomNouns-2006: 1.0
+  patio11-DontCallYourself-2011: 0.96
+  patio11-SalaryNeg-2012: 1.0
+task_2b_min_flips: 0
+task_2c_ablation:
+  absnoun: 1.0
+  anadipPer1k: 1.0
+  antithesisPer1k: 1.0
+  contractionPer1k: 0.9230769230769231
+  emdashPer1k: 1.0
+  epigramPer1k: 0.9615384615384616
+  firstPersonPer1k: 0.9230769230769231
+  isocolonPer1k: 1.0
+  nomDensity: 0.9615384615384616
+  questionRate: 0.9230769230769231
+  transitionPer1k: 1.0
+task_2d_synthetic_accuracy: 0.4444444444444444

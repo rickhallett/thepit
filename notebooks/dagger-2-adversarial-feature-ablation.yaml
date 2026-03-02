@@ -1,0 +1,46 @@
+base_loo_accuracy: 0.9230769230769231
+ablation:
+  -
+    removed_feature: contractionPer1k
+    loo_accuracy: 0.9230769230769231
+    delta: 0.0
+  -
+    removed_feature: firstPersonPer1k
+    loo_accuracy: 0.9230769230769231
+    delta: 0.0
+  -
+    removed_feature: questionRate
+    loo_accuracy: 0.9230769230769231
+    delta: 0.0
+  -
+    removed_feature: transitionPer1k
+    loo_accuracy: 1.0
+    delta: 0.07692307692307687
+  -
+    removed_feature: nomDensity
+    loo_accuracy: 0.9615384615384616
+    delta: 0.038461538461538436
+  -
+    removed_feature: emdashPer1k
+    loo_accuracy: 0.9615384615384616
+    delta: 0.038461538461538436
+  -
+    removed_feature: absnoun
+    loo_accuracy: 0.9615384615384616
+    delta: 0.038461538461538436
+  -
+    removed_feature: epigramPer1k
+    loo_accuracy: 0.9230769230769231
+    delta: 0.0
+  -
+    removed_feature: isocolonPer1k
+    loo_accuracy: 0.9615384615384616
+    delta: 0.038461538461538436
+  -
+    removed_feature: antithesisPer1k
+    loo_accuracy: 1.0
+    delta: 0.07692307692307687
+  -
+    removed_feature: anadipPer1k
+    loo_accuracy: 1.0
+    delta: 0.07692307692307687

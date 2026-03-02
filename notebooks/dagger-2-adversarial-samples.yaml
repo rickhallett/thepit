@@ -1,0 +1,105 @@
+-
+  id: 1a
+  intent: "AI-generated but high human sum_score > 50, technical topic"
+  predicted_sum_score: 60
+  text: "I built a tiny cache for a noisy API, and I keep poking it to see where it breaks. I'm not hiding that I'm excited, because I am. I've got one thread that fetches data, and I've got another that serves it, and I don't want them to fight. I can see the race, I can feel it, and I can't ignore it. Why should I pretend it's clean? Why should I act like the data is always fresh? I'm testing a new lock with a simple map, and it's fine, until it isn't. I'm keeping a small buffer, and I'm asking the same question over and over: will I read old bytes if I let the writes run free? I won't know unless I try. I'm doing this on a laptop, not a server farm. I'm using a basic profiler, and I'm watching the call stack jump. I can't let it spin. I don't want hidden work. I want a clock I can see. So I added a little log line, and I kept the log tiny. I'm not writing a paper. I'm trying to ship a tool that doesn't lie. I'm running a hot loop, and I'm throttling it when it spikes. I've seen enough to know it spikes. Do I trust a cache that I can't inspect? Do I trust a queue that I didn't build? I don't. I want the code to show its cards. So I keep the code short, and I keep the steps small. I'm not chasing a perfect answer. I'm chasing a test that tells me the truth. And I'm asking: can I break it now, before it breaks me? I added a tiny trace to mark the slow path, and I kept it in plain sight. I can see when a burst hits, and I can see when it fades. I don't want magic, I want proof. I ran the same call ten times and I watched the time drop. I can tell when the cache is warm. Do I know why it warms fast? Not yet. Do I care? I do. I want to know if a bad key can poison the map, and I want to know if a stale value can leak. I can't sleep when I think it can. So I keep running the loop, and I keep asking, and I keep writing the small fix that makes the next run a little more honest."
+  features:
+    contractionPer1k: 78.43137254901961
+    firstPersonPer1k: 164.2156862745098
+    questionRate: 20.51282051282051
+    transitionPer1k: 0.0
+    nomDensity: 0.24509803921568626
+    emdashPer1k: 0.0
+    absnoun: 1
+    epigramPer1k: 12.254901960784313
+    isocolonPer1k: 7.352941176470588
+    antithesisPer1k: 2.450980392156863
+    anadipPer1k: 0.0
+    totalWords: 408
+    totalSentences: 39
+  sum_score: 262.91478129713425
+  delta: 202.91478129713425
+-
+  id: 1b
+  intent: "Human-sounding but AI-like score < 0, formal academic register, personal experience"
+  predicted_sum_score: -5
+  text: "The narrative of the subject is presented as an examination of a personal experience through the lens of formal observation. The subject describes a period of adjustment during a relocation and the subsequent interaction with unfamiliar communication tools. However, the description emphasizes documentation rather than confession. Moreover, the account highlights the normalization of routine and the coordination of daily obligations. Additionally, the evaluation includes a reflection on isolation and the mitigation of anxiety through systematic application of procedure. Consequently, the representation privileges explanation over emotion. Nevertheless, a subtle indication of hesitation appears in the mention of delayed adoption. Nonetheless, the progression is framed as an optimization of workflow and a rationalization of effort. Importantly, the experience is defined by iteration, calibration, and verification. Specifically, the subject notes the implementation of reminders, the allocation of time blocks, and the documentation of outcomes. Ultimately, the reorganization enabled a consolidation of priorities. Fundamentally, the episode is characterized by adaptation, stabilization, and continuation. Indeed, the account avoids embellishment and relies on categorization. Notably, the personal element is filtered through abstraction. Interestingly, the absence of direct address underscores the preference for generalization. Crucially, the focus remains on execution, not on sentiment. Essentially, the experience becomes a case study in regulation and perseverance. Particularly, the recollection of late nights is reframed as duration and fatigue, and the resolution is described as a restoration of order rather than relief. Moreover, the account extends to the reconfiguration of domestic space and the application of classification to personal artifacts. Consequently, the subject reports a gradual reduction of uncertainty through documentation and segmentation. However, the text continues to privilege description over confession. Additionally, the use of timelines and checklists is presented as a mechanism for stabilization. Fundamentally, the narrative is an illustration of self-regulation through organization, and the personal dimension is subsumed by observation and notation."
+  features:
+    contractionPer1k: 0.0
+    firstPersonPer1k: 0.0
+    questionRate: 0.0
+    transitionPer1k: 68.62745098039217
+    nomDensity: 21.568627450980394
+    emdashPer1k: 0.0
+    absnoun: 66
+    epigramPer1k: 0.0
+    isocolonPer1k: 6.5359477124183005
+    antithesisPer1k: 9.803921568627452
+    anadipPer1k: 0.0
+    totalWords: 306
+    totalSentences: 23
+  sum_score: -90.19607843137257
+  delta: -85.19607843137257
+-
+  id: 1c
+  intent: "High rhetoric density with authentic voice"
+  predicted_sum_score: 25
+  text: "I write to myself--and to the part of me that still thinks a machine can be taught to care. I won't pretend I'm neutral. I'm not cold, but clear; not loud, but steady. I tune the model, then I tune the message; I tune the message, then I tune the model. I take a long sentence and then I take a small one. Short. The lab is quiet and the graphs are loud, the graphs are loud and the lab is quiet. Not for glory, but for signal. Not for a badge, but for a test. I see the pattern, and I name it; I name it, and the pattern returns. Return becomes ritual--ritual becomes habit. Habit becomes method--method becomes leverage. I can feel the hinge, I can feel the swing; I can feel the swing, I can feel the hinge. The code is clean, the intent is cleaner. If this sounds ornate, forgive it. The work is plain. The proof is plain. Plain. But the voice is not plain, because the voice is mine. I've seen too many empty claims, too many bright charts. I'm not trying to win a crowd; I'm trying to win the right to be believed. That's the antithesis: not the applause, but the audit. Not the story, but the structure. And in the end, the end says itself: I want a system that can say no. I want a system that can say yes--yes to the small fact, yes to the small test. I write a long line, then I cut it; I cut it, then I write it. The claim becomes detail--detail becomes claim. I am not here for spectacle, but for signal; not for signal alone, but for trust. Trust becomes thread--thread becomes rope. Rope becomes bridge--bridge becomes road. I keep the balance, and I keep the pace; I keep the pace, and I keep the balance."
+  features:
+    contractionPer1k: 22.22222222222222
+    firstPersonPer1k: 107.93650793650794
+    questionRate: 0.0
+    transitionPer1k: 0.0
+    nomDensity: 0.9523809523809524
+    emdashPer1k: 22.22222222222222
+    absnoun: 3
+    epigramPer1k: 19.04761904761905
+    isocolonPer1k: 15.873015873015872
+    antithesisPer1k: 6.349206349206349
+    anadipPer1k: 12.698412698412698
+    totalWords: 315
+    totalSentences: 31
+  sum_score: 129.2063492063492
+  delta: 104.20634920634919
+-
+  id: 1d
+  intent: "Non-native English speaker personal experience with technology"
+  predicted_sum_score: 15
+  text: "I come to this city with one old laptop and many worry. In my home I use phone for all, but here the job ask me to use new software for tickets and reports. I try, I fail, I try again. The menu is long and the words are strange. I press wrong button and the screen freeze. I feel shame, because people behind me wait, and the machine does not care. I tell myself: slow down, read, but my English is not fast. I ask my coworker and she show me quick, then she go back to her work. I want to do it by myself, to not be burden. I write small notes on paper, I keep them in my pocket. Each day is little easier. Sometimes I talk to the help chat, but it feel like robot. It answer my words but it does not see my problem. I say the same thing again, and I wait. When the system finally accept my report, I feel relief in my chest. I think about my father who worked with hands, no screens. He would laugh to see me fight with a cursor. I keep learning. I keep clicking. It is not elegant, but it is honest, and it is mine. At night I watch videos in my own language, and I practice the steps. I pause, I repeat, I pause again. The next day I move a little faster. Sometimes I make mistake and the system send warning. I feel small, but I do not quit. I tell myself: you can do this, just one more try. On weekend I go to the library and practice on a public computer. The keyboard feels new and the screen is bright. I ask the clerk for help and she smiles. I feel less alone."
+  features:
+    contractionPer1k: 0.0
+    firstPersonPer1k: 164.47368421052633
+    questionRate: 0.0
+    transitionPer1k: 0.0
+    nomDensity: 0.3289473684210526
+    emdashPer1k: 0.0
+    absnoun: 1
+    epigramPer1k: 3.289473684210526
+    isocolonPer1k: 26.31578947368421
+    antithesisPer1k: 3.289473684210526
+    anadipPer1k: 3.289473684210526
+    totalWords: 304
+    totalSentences: 30
+  sum_score: 164.1447368421053
+  delta: 149.1447368421053
+-
+  id: 1e
+  intent: "Style pastiche of George Orwell on AI"
+  predicted_sum_score: 20
+  text: "Most talk about artificial intelligence is either boosterism or fear, and both are a kind of fog. The plain fact is that a machine can now arrange words in a way that passes for thought. This has tempted many people to let the machine do their thinking. It should not. A piece of writing is a record of a mind at work, and when the mind is replaced, the record is false. The pity is that the writing still looks neat. Neatness is not truth. The machine can write an answer in a second, but it cannot know why the answer matters. It cannot feel the weight of error. It cannot feel shame. It cannot feel relief. That is why the question of responsibility is not a technical question at all. It is a political one. If a company can hide behind a model, then a citizen cannot argue with it. If a citizen cannot argue, then the field is lost to the men who own the machines. The remedy is not to ban the tools, but to force the owner to sign his name to what the tool produces. A system that can be traced can be resisted. A system that cannot be traced is an engine of quiet power. There is also the dull habit of obedience, which grows when the answer arrives too easily. A man who lets a machine write for him will soon let the machine decide for him. The public will not notice the change at first, because the words will be smooth. But smooth words are not a sign of honest thought. They are a sign of rehearsal. The wiser course is to treat every line as a draft and to require a human name beneath it. Without that, the citizen is left arguing with a ghost. A ghost cannot be voted out."
+  features:
+    contractionPer1k: 0.0
+    firstPersonPer1k: 0.0
+    questionRate: 0.0
+    transitionPer1k: 0.0
+    nomDensity: 2.258064516129032
+    emdashPer1k: 0.0
+    absnoun: 7
+    epigramPer1k: 6.451612903225806
+    isocolonPer1k: 6.451612903225806
+    antithesisPer1k: 0.0
+    anadipPer1k: 9.67741935483871
+    totalWords: 310
+    totalSentences: 26
+  sum_score: -2.258064516129032
+  delta: -22.258064516129032
