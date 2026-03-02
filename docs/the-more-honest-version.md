@@ -2,7 +2,7 @@
 
 What follows is the raw reasoning chain from the agent (Claude Opus 4.6) when asked to write the README you just read. The Captain asked for it to be public. The agent's private thoughts are, on average, less polished than its output — and that gap is itself one of the findings of the project ([`beyond-captain.yaml`](internal/beyond-captain.yaml), entry `private-thoughts-less-sloppy`).
 
-From the Captain: "quite remarkable, really. Always a gem or two in here, just take it easy."
+From the Captain: "quite remarkable, really. Always a gem or two in here, just take it easy." A word of advice from someone who spent 350 hours in these waters: if you read enough LLM reasoning chains, your own thinking starts to rhyme with them. That's not a metaphor. It's a clinical observation. The slopodar ([`slopodar.yaml`](../slopodar.yaml)) documents what happens to the machine's output. Nobody has written the version for what happens to the human's input. RF 7+ advised.
 
 ---
 
