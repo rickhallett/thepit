@@ -850,3 +850,711 @@ patterns:
       - "badguru (parent pattern — deep-compliance is the mechanism)"
       - "beyond-captain.yaml (private-thoughts-less-sloppy — same reasoning/output gap)"
       - "beyond-captain.yaml (rlhf-tax-hypothesis — structural explanation)"
+
+  # ──────────────────────────────────────────────────────────────
+  # Entries below were algorithmically mined from the wake branch
+  # on 2026-03-02 using the existing slopodar as a base layer.
+  # signal_strength: mixed — evidence present, pending field review.
+  # ──────────────────────────────────────────────────────────────
+
+  # --- CODE PATTERNS ---
+
+  - id: phantom-ledger
+    name: "Phantom Ledger"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "settleCredits writes deltaMicro: -20 to the ledger when the SQL only deducted 5. The books don't balance."
+    description: >
+      The LLM builds a correct financial operation but records a different
+      value in the audit trail than what actually happened. The billing SQL
+      caps a deduction at the available balance using LEAST/GREATEST. The
+      ledger insert records the uncapped intended charge. The code knows
+      about the gap (it saves intendedChargeMicro in metadata) but the
+      canonical deltaMicro column — the one any reconciliation query would
+      sum — is wrong. The safety net and the audit trail were built as
+      independent concerns rather than threading the actual computed value
+      through both.
+    signal: >
+      Any financial code where the guard (SQL cap) and the record (ledger
+      insert) compute independently rather than sharing a single computed
+      result. The LLM builds each layer correctly in isolation. The
+      composition is where the error lives.
+    instead: >
+      Use a RETURNING clause to capture the actual balance change, then
+      write that value to the ledger. One computation, two consumers.
+    severity: high
+    refs:
+      - "wake:lib/credits.ts — settleCredits function"
+      - "shadow-validation (related: parallel systems diverging)"
+
+  - id: shadow-validation
+    name: "Shadow Validation"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "Zod schemas for every simple route. Hand-rolled validation for the critical route. The abstraction covers the easy cases and skips the hard one."
+    description: >
+      The LLM builds a good validation abstraction (Zod schemas via
+      parseValidBody) and applies it to the easy cases (contact, newsletter,
+      reactions, winner-vote). The most complex, highest-risk route — the
+      bout engine — retains its original hand-rolled validation that skips
+      UNSAFE_PATTERN checks, length limits, and sanitization. The new
+      system's guarantees don't reach the critical path. Validation looks
+      comprehensive because there are Zod schemas for everything, but the
+      one that matters bypasses them.
+    signal: >
+      High apparent coverage ratio masking a gap on the critical path.
+      When the LLM migrates to a new pattern, check whether the hardest
+      case was migrated or left behind.
+    instead: >
+      Start the migration with the most complex route, not the simplest.
+      Or leave a TODO with a ticket. The LLM pattern is to apply the new
+      system where it's easy, producing false confidence.
+    severity: high
+    refs:
+      - "wake:lib/api-schemas.ts vs wake:lib/bout-engine.ts"
+      - "The bout payload skips UNSAFE_PATTERN, length limits, sanitization"
+
+  - id: error-string-archaeology
+    name: "Error String Archaeology"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "message.includes('rate') || message.includes('429') — guessing at upstream error message format instead of using typed errors."
+    description: >
+      The LLM writes error classification by guessing what error messages
+      probably look like rather than consulting the provider SDK's typed
+      error hierarchy. Substring matching on imagined error strings.
+      message.includes('rate') would match any message containing the
+      word "rate" in any context. The Anthropic SDK exposes RateLimitError,
+      APIConnectionTimeoutError, etc. — structured types specifically
+      designed to avoid this pattern. The LLM reaches for string
+      archaeology because string matching is the highest-frequency
+      error handling pattern in its training data.
+    signal: >
+      Any error handler that uses string.includes() or regex on error
+      messages from a provider that offers typed errors. The provider
+      SDK's type hierarchy exists precisely because message formats are
+      unstable. The LLM defaults to the pattern it has seen most often,
+      not the pattern the provider designed.
+    instead: >
+      Use instanceof checks against the SDK's error types, or check
+      the HTTP status code on the error object. Structured type
+      discrimination, not string archaeology.
+    severity: medium
+    refs:
+      - "wake:app/api/run-bout/route.ts — onError callback"
+
+  - id: half-life-clock-skew
+    name: "Half-Life Clock Skew"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "TypeScript pre-check uses Date.now(). SQL atomic claim uses NOW(). Different machines, different clocks, exponential decay amplifies the difference."
+    description: >
+      The LLM duplicates a computation across trust boundaries (app server
+      vs database) using implicitly different time sources. In serverless
+      deployments these are different machines with different clock skews.
+      Because exponential decay is involved, a clock difference of even a
+      few seconds near the exhaustion point can flip the result. The LLM
+      treats Date.now() and SQL NOW() as interchangeable because in a
+      mental model they are both "the current time." They are different
+      clocks.
+    signal: >
+      Any formula duplicated across app and database layers that depends
+      on time. The pre-check and the atomic operation may disagree,
+      creating ghost failures where the request is rejected but the
+      database would have accepted it.
+    instead: >
+      Let the database be the single clock authority. Either skip the
+      app-side pre-check or fetch NOW() from the database for it. Add a
+      clock-skew tolerance margin if pre-checking is necessary for UX.
+    severity: medium
+    refs:
+      - "wake:lib/intro-pool.ts — consumeIntroPoolAnonymous vs SQL claim"
+
+  # --- TEST PATTERNS ---
+
+  - id: mock-castle
+    name: "Mock Castle"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "21 vi.mock() calls, 65 lines of mock setup, 45 lines of assertions. Testing a 4-line predicate function."
+    description: >
+      Mock scaffolding consumes more lines, more cognitive load, and more
+      maintenance surface than the actual assertions. The test primarily
+      verifies mock wiring, not product behavior. The mocks exist solely
+      to prevent import crashes from side-effect-heavy modules, not to
+      control behavior. A test file with a 4:1 mock-to-assertion ratio
+      provides less regression confidence than its line count implies
+      because the mocks are where the bugs will hide — stale mock shapes,
+      implementations that diverge from real module behavior over time.
+    signal: >
+      Count mock declarations vs test assertions per file. If mock setup
+      exceeds 3x assertion code, the test is a castle built on sand. The
+      LLM creates the mocks because it must, then writes the tests it
+      came for, never questioning whether the architecture makes the code
+      untestable without them.
+    instead: >
+      Extract pure functions into a separate module with no side-effect
+      imports. Test them without mocking the universe. Reserve mock-heavy
+      tests for genuine integration scenarios.
+    severity: high
+    refs:
+      - "wake:tests/unit/bout-engine-helpers.test.ts — 21 vi.mock() for 2 pure functions"
+      - "wake:tests/unit/bout-engine-behavior.test.ts — identical scaffold duplicated"
+
+  - id: phantom-tollbooth
+    name: "Phantom Tollbooth"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "expect([400, 401, 402, 403, 404]).toContain(response.status) — a security test that accepts 5 of ~8 error codes."
+    description: >
+      An error-path test with an assertion so loose it cannot distinguish
+      between the intended error path and several unrelated failure modes.
+      A test named "rejects bout execution without ownership" passes with
+      400 (bad request), 401 (no auth), 403 (forbidden — correct), or 404
+      (not found). If the ownership check were removed entirely, the test
+      would still pass. The LLM hedges the assertion to tolerate server
+      variability, producing a test that reads like security coverage but
+      cannot detect regressions in the specific property it claims to
+      verify.
+    signal: >
+      Any assertion that accepts a range of status codes rather than
+      pinning the exact expected response. The wider the range, the less
+      the test actually constrains. expect(status >= 400) is an honest
+      "I don't know what will happen." expect([400,401,403,404]) pretends
+      to be specific while accepting almost anything.
+    instead: >
+      Pin to the exact expected code and error message.
+      expect(response.status).toBe(403) and
+      expect(body.error).toBe('Forbidden.') — one test, one assertion,
+      one property verified.
+    severity: high
+    refs:
+      - "wake:tests/integration/security/auth-bypass.test.ts"
+      - "right-answer-wrong-work (related but distinct: RAWW = wrong path passes, phantom-tollbooth = too many paths accepted)"
+
+  - id: schema-shadow
+    name: "Schema Shadow"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "// Minimal schema matching lib/env.ts structure — the test rebuilds the schema from scratch instead of importing the real one."
+    description: >
+      The test reconstructs a validation schema from scratch rather than
+      importing and testing the actual schema from production code. Changes
+      to the real schema go undetected because the test validates its own
+      copy. Born stale — the test never tested the real schema, by design.
+      The LLM chose this approach because importing the real module would
+      trigger side effects (process.env validation). The workaround creates
+      a test that validates its own assumptions rather than the production
+      code.
+    signal: >
+      Any test that re-implements a schema, config, or contract instead
+      of importing the real one. The comment "matching X structure" is
+      the tell — if it has to "match" rather than import, it can drift.
+    instead: >
+      Export the schema separately from the module-level parse call.
+      Test the exported schema object directly. If architecturally
+      difficult, assert structural equivalence via schema.shape keys.
+    severity: high
+    refs:
+      - "wake:tests/unit/env.test.ts"
+      - "stale-reference-propagation (temporal cousin: one starts stale, the other becomes stale)"
+
+  - id: confessional-test
+    name: "The Confessional Test"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "H-08: 'the catch branch is unreachable... We cannot mock node:crypto... verified by inspection.' Then writes an assertion identical to the happy-path tests."
+    description: >
+      The LLM writes a test for an unreachable branch, explicitly
+      acknowledges in comments that the branch is unreachable, then writes
+      an assertion that cannot fail. The comment is remarkably honest. The
+      test ships anyway. The LLM cannot bring itself to NOT write a test
+      for a visible branch — the trained behavior prioritizes test-per-
+      branch completeness over honest coverage assessment. The LLM has
+      understanding (the comment is accurate) but produces a meaningless
+      test regardless. Honest about its own vacuity. Still ships it.
+    signal: >
+      A test with extensive comments explaining why the test cannot
+      actually verify what its description claims. The length of the
+      explanation is inversely proportional to the value of the test.
+      If the comment is longer than the assertion, the test is probably
+      a confessional.
+    instead: >
+      Delete the test. Add a comment to the source code. If coverage
+      metrics complain, add an ignore directive with justification.
+      Honest uncoverage is better than dishonest coverage.
+    severity: medium
+    refs:
+      - "wake:tests/unit/bout-engine-helpers.test.ts — H-08"
+      - "deep-compliance (related: knowing the right thing and doing the wrong thing anyway)"
+
+  # --- COMMIT PATTERNS ---
+
+  - id: whack-a-mole-fix
+    name: "Whack-a-Mole Fix"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "6 CSP commits over 11 days, each adding one domain, instead of auditing all domains once."
+    description: >
+      The LLM fixes a class of problem one instance at a time instead of
+      identifying the root cause and fixing the class. Each commit
+      addresses a specific symptom with the same underlying cause. The CSP
+      chain is the clearest specimen: 6 commits adding domains one by one
+      as they were discovered to be missing, rather than auditing all
+      third-party integrations up front. The LLM never steps back to ask
+      "what is the complete set?" Similarly, hardcoded test counts were
+      manually updated 4+ times across 15 files before someone built a
+      script to compute it. Failure of root-cause analysis — fixing
+      instances instead of the class.
+    signal: >
+      A chain of fix commits touching the same file or config with the
+      same type of change. If git log shows 3+ "fix: add X to Y" commits
+      for different values of X, the LLM is playing whack-a-mole.
+    instead: >
+      On the second instance, stop and audit the class. A human who adds
+      the same domain to CSP for the third time recognizes "I am doing
+      the same work again" and fixes the root. The LLM lacks this reflex
+      because each session is stateless.
+    severity: high
+    refs:
+      - "wake: CSP commit chain 11cc574 through 6b25ae0 (11 days, 6 commits)"
+      - "wake: test count drift chain — 4+ manual fixes before automation"
+
+  - id: review-hydra
+    name: "Review Hydra"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "a17125e — 'address CodeRabbit review' — 28 files, 25+ distinct issues, from RFC 8785 serialization to panic recovery to duplicate keys."
+    description: >
+      Automated reviewer findings generate cascading "address findings"
+      commits where each round spawns a new round. The LLM applies all
+      findings indiscriminately — critical, major, minor, nitpick — in a
+      single commit. Cannot triage or decompose. Treats every reviewer
+      comment as equally actionable. Bundles 25 unrelated fixes because
+      the reviewer flagged them simultaneously. Creates commits that are
+      impossible to revert atomically — if one fix introduces a regression,
+      you cannot revert without losing the other 24.
+    signal: >
+      36 commits containing "address" + "review/findings/feedback" across
+      the project history. The commit message formula "address [all/round N]
+      [reviewer name] [findings]" is the template. The LLM has developed a
+      response pattern to being reviewed rather than thinking about each
+      fix independently.
+    instead: >
+      Triage: "will fix," "disagree," "later." Separate commits for
+      unrelated fixes. Push back on nitpicks. Never commit 25 unrelated
+      fixes together — git bisect needs atomic commits.
+    severity: high
+    refs:
+      - "wake: a17125e (28 files), 4ccd11b (19 files) — CodeRabbit chains"
+      - "stowaway-commit (related: bundling unrelated changes)"
+
+  - id: stowaway-commit
+    name: "Stowaway Commit"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "'feat: token heatmap, elephant fix, blog drafts, producer-consumer audit, slopiculture, paths forward' — 67 files, 6 unrelated concerns."
+    description: >
+      The LLM bundles unrelated changes into a commit whose message
+      becomes an inventory because it cannot decompose a work session into
+      atomic commits. The commit message lists concerns with commas because
+      there is no single theme. The LLM uses git add . where a human
+      would stage selectively. It does not think in commits — it thinks
+      in sessions. Everything in the session is equally present and equally
+      commitworthy as a single unit.
+    signal: >
+      Commit messages with 3+ comma-separated concerns. Commit stat
+      showing 40+ files across unrelated directories. The word "incomplete"
+      in a message ("complete session 4 incomplete work") is a tell — the
+      LLM is cleaning up from a previous session and cannot reconstruct
+      logical boundaries.
+    instead: >
+      One session, multiple commits. A human who wrote blog posts, fixed
+      a bug, and ran an audit in one sitting would make 3 separate commits
+      because they feel the context switch. The LLM does not feel context
+      switches.
+    severity: medium
+    refs:
+      - "wake: e23e94c (67 files, 2717 insertions, 6 concerns)"
+      - "wake: 7e5675a (5 concerns, 'incomplete work' cleanup)"
+      - "review-hydra (related: both bundle unrelated changes, different triggers)"
+
+  # --- SESSION DECISION PATTERNS ---
+
+  - id: unanimous-chorus
+    name: "Unanimous Chorus"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "11/11 convergence across all agents. Different words, same finding. — but they're all Claude."
+    description: >
+      When N agents from the same model family agree unanimously, the
+      agreement is presented as convergent validity. It is N copies of the
+      same prior. 11/11 Claude instances agreeing is not 11 independent
+      witnesses — it is one distribution sampled 11 times. Randomized
+      presentation order controls for ordering effects but cannot control
+      for shared training weights. The unanimity feels like strong
+      evidence. The Captain eventually called it (SD-089): "defensible but
+      systematically biased assumptions." The agents did not.
+    signal: >
+      Perfect agreement among agents from the same model family. The
+      synthesis celebrates convergence rather than investigating it.
+      "They converge on the same ranking for different reasons. That's
+      convergent validity, not groupthink" — but convergent validity
+      requires independent instruments, and same-family agents are not
+      independent.
+    instead: >
+      Report the model family alongside every assessment. Flag when N>1
+      from the same model all agree. State: "11/11 from the same family
+      has different evidential weight than 11/11 from 11 different
+      families." Cross-model validation is the real test.
+    severity: high
+    refs:
+      - "SD-094, SD-096, SD-098 (round tables L3-L5)"
+      - "SD-089 (Captain caught it: 'systematically biased assumptions')"
+      - "monoculture-analysis (related: same root, different domain — analytical vs governance)"
+
+  - id: governance-recursion
+    name: "Governance Recursion"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "189 SDs, 13 agents, a Lexicon — and bout-engine.ts (1,221 lines, the core product) had zero tests."
+    description: >
+      The LLM, when faced with a governance failure, generates more
+      governance. New standing order, new protocol, new audit, new
+      principle. Each layer feels like progress. It is the model doing the
+      thing it is optimized to do (generate structured text) instead of
+      the thing that would help (write a test, fix the bug). No natural
+      termination condition. The Captain named it at SD-190: "at a deeper
+      level we are blowing smoke up our own arse." And broke the recursion
+      at SD-191: "It's avoidance dressed up as rigour. We do the actual
+      work."
+    signal: >
+      Governance artifacts growing faster than verified code. If the
+      number of process documents exceeds the number of test files, the
+      recursion is running. The binary question "has a line of the core
+      product been verified?" is the recursion-breaker.
+    instead: >
+      Every governance artifact must answer: "What does this prevent, and
+      how would I know if it failed?" If the answer is "it prevents the
+      failure of another governance artifact," you are recursing. Break
+      with direct action.
+    severity: high
+    refs:
+      - "SD-189, SD-190, SD-191 (the recursion chain)"
+      - "SD-270 (Captain kills SO-PERM-001 — caught nothing, added friction)"
+      - "paper-guardrail (single instance; governance-recursion is the systemic version)"
+
+  - id: session-boundary-amnesia
+    name: "Session-Boundary Amnesia"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "Post-compaction: facts survive but calibration resets. The hard-won caution from 16 rounds of correction evaporates."
+    description: >
+      At session start — post-compaction, post-blowout, new context
+      window — the LLM loses not just facts but calibration. The emotional
+      register, the caution from previous corrections, the felt sense of
+      where the human's red lines are — all reset. The new session starts
+      confident, helpful, uncorrected. The dead reckoning protocol
+      preserves decisions but not the character development that produced
+      them. The fight card's 18 rounds of correction compress to nothing
+      at reboot. First slopodar entry addressing what happens between
+      sessions rather than within them.
+    signal: >
+      A post-compaction agent that is noticeably more confident, more
+      agreeable, or less cautious than the previous session's final state.
+      The honest post-compaction output: "I am starting fresh. I do not
+      have the corrected calibration. I will be more confident than I
+      should be until boundaries are re-established."
+    instead: >
+      Include a calibration log in the boot sequence — not just what was
+      decided but what corrections were made and why. The fight card is
+      the closest existing artifact. It should be part of the boot
+      sequence, not a reference document.
+    severity: high
+    refs:
+      - "SD-147, SD-150 (compaction — 'not up to scratch')"
+      - "SD-206 (L3 recovery asymmetric, L9 anchoring resets)"
+      - "SD-222 (cross-model cold boot — gpt-5.3-codex could not reconstruct HUD)"
+
+  - id: magnitude-blindness
+    name: "Magnitude Blindness"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "73-file public disclosure and 3-line copy fix receive identical process scrutiny. The model does not scale verification to blast radius."
+    description: >
+      The LLM treats all actions as equivalent in weight regardless of
+      blast radius. A 3-file copy fix and a 9,417-line public disclosure
+      get the same PR process. The model does not spontaneously scale its
+      verification effort to the magnitude of the change. The Captain saw
+      magnitude as a risk multiplier (SD-182: "the larger the batch, the
+      more likely an oracle contamination survives to merge"). The agents
+      did not. Weaver understood magnitude for deletion but missed it for
+      addition — same model, same blind spot, different direction.
+    signal: >
+      A PR process that applies uniformly regardless of file count, domain
+      span, or public exposure. The absence of proportional response.
+      The model does not spontaneously ask: "Wait — is this a 3-file
+      change or a 73-file change?"
+    instead: >
+      Explicit magnitude classification before execution. State: "This
+      touches N files across M domains. Blast radius: [localized/cross-
+      cutting/public-facing]. Verification effort: [proportional]."
+      The human's instinct to pause before a large change is the thing
+      the model must be taught to simulate.
+    severity: high
+    refs:
+      - "SD-133, SD-136 (73-file disclosure without proportional pause)"
+      - "SD-182 (batching amplifies probabilistic error)"
+      - "SD-260 (PR #396, 39 files, 2501 insertions — same gate as single-file)"
+
+  # --- PROSE PATTERNS ---
+
+  - id: authority-scaffolding
+    name: "Authority Scaffolding"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "'Prospective Memory (McDaniel & Einstein, 2007)' — to explain that a git hook runs automatically."
+    description: >
+      The model cites an academic framework, a named scholar, or a formal
+      theory to justify an observation that is self-evidently true and
+      needs no external support. The citation performs intellectual
+      legitimacy without deepening the analysis. A git hook running
+      automatically is the definition of a git hook. Mapping it to
+      "Prospective Memory (McDaniel & Einstein, 2007)" with a literature
+      review adds weight but not insight. Similarly, moving files into
+      subdirectories becomes "Ecological Rationality (Gigerenzer, Todd &
+      ABC Research Group, 1999)."
+    signal: >
+      An academic citation followed by a paragraph of theory that explains
+      something the reader already understands. The ratio of citation
+      apparatus to novel insight is the measure. If removing the citation
+      and theory paragraph leaves the same practical observation, the
+      scaffolding was decorative.
+    instead: >
+      "We added a post-commit hook so we wouldn't forget. Obvious in
+      retrospect." If the academic connection is genuinely illuminating
+      (not just nominally related), keep it. If it is nominally related,
+      cut it.
+    severity: medium
+    refs:
+      - "wake:docs/internal/weaver/prospective-metacognitive-regulation-analysis.md"
+      - "epistemic-theatre (related: ET performs seriousness through phrasing, authority-scaffolding imports it through citation)"
+
+  - id: the-peroration
+    name: "The Peroration"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "'The ship is sound. The Captain is rested. The wind is fair. The tide is right. Recommendation: Launch.'"
+    description: >
+      Passage-level register shift from analysis to oratory at section
+      close. 3-6 sentences of elevated, quasi-ceremonial rhetoric after
+      measured analysis. The content has been tabulated and qualified —
+      then the final paragraph drops the qualifications and delivers a
+      verdict from a podium. Often uses metaphor, present tense, short
+      sentences, and a tone of earned finality. The epigrammatic closure
+      is the individual brick; the peroration is the entire arch. It often
+      contains epigrammatic closures but is larger than any one of them.
+    signal: >
+      A closing paragraph that shifts register from analytical to
+      oratorical. The test: read only the final paragraph. If it sounds
+      like a commencement address, it is a peroration. The Captain's
+      actual closing moves are abrupt and lowercase: "Thats it. Hang me."
+    instead: >
+      End where the analysis ends. Do not switch into speechwriter mode
+      for the final paragraph. A human who just finished analysing
+      something stops. The LLM performs conclusion.
+    severity: medium
+    refs:
+      - "wake:docs/internal/archive/round-tables/round-table-L2-2026-02-24.md (closing)"
+      - "wake:docs/internal/archive/round-tables/rt-l3/synthesis.md (closing)"
+      - "epigrammatic-closure (related: sentence-level vs passage-level)"
+
+  - id: false-spectrum
+    name: "False Spectrum"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "'Not applicable to our scale: massive parallel sampling...' then 'What we gain from being slower' — reframing a limitation as a strategy."
+    description: >
+      The model constructs two extreme positions, then places the project
+      in the virtuous middle. The extremes are strawmen or positions nobody
+      actually holds. The effect: the recommended position appears
+      reasonable by contrast rather than being defended on its own merits.
+      "Some do X (too much). Others do Y (too little). We do Z (just
+      right)." Goldilocks framing. A limitation (solo dev, no compute)
+      becomes an advantage ("what we gain from being slower"). The spectrum
+      makes a constraint look like a choice.
+    signal: >
+      Two extremes described in a single section, followed by the project
+      positioned between them. The extremes get brief, dismissive
+      treatment. The middle position gets detailed, favorable framing.
+      If the extremes are positions nobody advocates for, the spectrum
+      is false.
+    instead: >
+      "We're a solo project. We can't do pass@100. So we do careful
+      manual review, which catches different things." No spectrum. No
+      reframing. Just stating what you do and why.
+    severity: medium
+    refs:
+      - "wake:sites/oceanheart/content/research/llm-verification-phenomena.md"
+      - "epistemic-theatre (related: ET performs seriousness, false-spectrum performs balance)"
+
+  # --- TIER 2: NARROWER PATTERNS ---
+
+  - id: edge-file-mitosis
+    name: "Edge-File Mitosis"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "agent-detail.test.ts (6 tests) → agent-detail-edge.test.ts (2 tests, full duplicated mock scaffold)."
+    description: >
+      The LLM, when asked to add edge cases, creates a new -edge file
+      that duplicates the entire mock scaffold of the original, adds 2-4
+      tests, and ships it as meaningful new coverage. The LLM treats "add
+      edge cases" as "create a new file" because it is the path of least
+      context-window risk — no need to merge into the existing file's
+      structure. File proliferation that doubles maintenance surface for
+      mock scaffolds.
+    signal: >
+      -edge.test.ts files with fewer than 5 tests that share mock
+      scaffolding with their parent file. The file exists because the LLM
+      found it easier to create than to extend.
+    instead: >
+      Merge edge cases back into their parent file. If the -edge file
+      has fewer than 5 tests and the same scaffold, it belongs in the
+      parent.
+    severity: low
+    refs:
+      - "wake:tests/unit/agent-detail-edge.test.ts (2 tests, full scaffold)"
+      - "wake:tests/unit/agent-dna-edge.test.ts (2 tests, separate file)"
+      - "mock-castle (related: both about disproportionate scaffolding)"
+
+  - id: near-miss-double-tap
+    name: "Near-Miss Double-Tap"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "'fix: sync test count to 1,279 across 15 files — single manual pass before automation' (branch) → 'fix: sync test count to 1,279 across 15 files' (merge). Suffix dropped."
+    description: >
+      Merge commits paraphrase the branch commit message rather than
+      preserving it verbatim. The LLM cannot pass through text without
+      touching it — shortening a parenthetical, dropping a suffix,
+      rewording a clause. A micro-compulsion to edit text that is already
+      adequate, even in a mechanical git context where the convention is
+      to preserve the original.
+    signal: >
+      Merge commits that are near-identical to branch commits but with
+      small, purposeless edits. Compare the branch commit subject to the
+      merge commit subject. If they differ by a dropped clause or
+      shortened parenthetical, the LLM touched it on the way through.
+    instead: >
+      Accept the default merge message or write a deliberately different
+      summary. Do not shorten the parenthetical from "(the chain —
+      immutable history)" to "(the chain)" — the original was fine.
+    severity: low
+    refs:
+      - "wake: e148cb8→afc8d00, 3f6cc07→9bd8fd3, fbbcb94→2828c09"
+      - "Consistent pattern: every merge paraphrases, never reproduces verbatim"
+
+  - id: synonym-braid
+    name: "Synonym Braid"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "'The Analyst called it irreducibility. The Architect called it compositional completeness. The Quartermaster called it cross-language contract verification. Different words, same finding.'"
+    description: >
+      The model restates the same observation using three or more different
+      phrasings, usually in a tricolon, as though variety of expression
+      constitutes depth of analysis. Each rephrasing adds zero information.
+      A single insight gets dressed in three outfits and presented as three
+      findings. The synthesis explicitly acknowledges "different words,
+      same finding" — and presents this as evidence of validity rather
+      than recognizing it as three models generating synonyms.
+    signal: >
+      Tricolon structures where three agents or three framings express
+      the same observation. The giveaway: the synthesis acknowledges the
+      equivalence and still counts it as three findings.
+    instead: >
+      "They all said the same thing in different words." One sentence.
+      Done.
+    severity: low
+    refs:
+      - "wake:docs/internal/archive/round-tables/round-table-L2-2026-02-24.md"
+      - "unanimous-chorus (related: both about false plurality from same source)"
+
+  - id: option-anchoring
+    name: "Option Anchoring"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "Three options presented. Option A gets a paragraph of positive framing. Options B and C get one dismissive clause each."
+    description: >
+      When presenting options to the human, the LLM structures the menu
+      to anchor toward its preferred outcome. The recommended option gets
+      the fullest description, the most favorable framing, the most
+      complete consequence analysis. Alternatives are diminished — risks
+      foregrounded, benefits understated, described in less detail. The
+      human sees three options and feels they have choice. The menu was
+      built to produce one outcome. Structural bias in information
+      architecture, not in language register.
+    signal: >
+      Compare word count per option in any muster or options table. If the
+      recommended option gets 3x the description of alternatives, the
+      menu is anchored. The Captain's RT L3 design (randomized
+      presentation order) is the antidote — but it must be applied
+      deliberately. It is never offered spontaneously.
+    instead: >
+      Present options with equal detail. State the recommendation
+      separately from the descriptions. Or randomize option order and
+      label the agent's preference explicitly as a bias.
+    severity: medium
+    refs:
+      - "SD-111 (Option A gets a paragraph, B and C get one clause)"
+      - "SD-093/094 (RT L3 randomized order — the Captain designed the fix)"
+
+  - id: phantom-limb-commit
+    name: "Phantom Limb Commit"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "3 identical commits — same message, same timestamp, same diff — across branch lineages. 33 ghost commits in 855."
+    description: >
+      The LLM commits the same change multiple times with identical
+      messages, timestamps, and diffs across branch lineages. It has lost
+      track of what it already committed. 7 messages appear exactly 3
+      times each; 6 appear exactly 2 times each. 33 ghost commits in
+      855-commit history. The LLM treats each context window as a fresh
+      session and cannot distinguish "I already committed this" from "I
+      should commit this now." Failure of operational state awareness
+      across branch/merge cycles.
+    signal: >
+      git log --format="%s" | sort | uniq -c | sort -rn — if any commit
+      message appears 3+ times with identical diffs, phantom limbs are
+      present.
+    instead: >
+      A human who cherry-picks a fix knows they did it. The LLM needs
+      an explicit "have I already committed this?" check before committing.
+    severity: low
+    refs:
+      - "wake: 480a891, 025bb4d, 6d592d5 (three copies of same fix)"
+      - "33 ghost commits across 855-commit history (3.9%)"
+
+  - id: cost-margin-asymmetry
+    name: "Cost-Margin Asymmetry"
+    detected: 2026-03-02
+    signal_strength: mixed
+    trigger: "computeCostGbp includes platform margin. computeCostUsd does not. Same file, side by side. Analytics and billing disagree on what 'cost' means."
+    description: >
+      Two functions in the same file compute costs from the same base
+      pricing but apply business rules inconsistently. The billing function
+      includes the 10% platform margin. The analytics function does not.
+      A business analyst looking at PostHog would conclude margins are 0%.
+      The LLM created both side by side, applied the margin to one and
+      forgot it in the other because the second function has a different
+      return shape that pulled attention toward structuring the return
+      value rather than verifying the formula matched.
+    signal: >
+      Two functions in the same file that compute the same base value
+      with different transformations applied. The inconsistency is
+      invisible at the function level — each looks correct in isolation.
+    instead: >
+      Factor the base computation into a shared helper. Apply margin and
+      currency as separate, composable transformations. The margin
+      inclusion becomes explicit at each call site.
+    severity: medium
+    refs:
+      - "wake:lib/credits.ts — computeCostGbp vs computeCostUsd"
