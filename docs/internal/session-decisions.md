@@ -526,3 +526,21 @@ The Captain extended this acknowledgment to all crew members, noting the closest
 | ID | Decision | Made By | Status |
 |----|----------|---------|--------|
 | SD-236 | [adversarial-artifacts] **Standing order: save all raw data, intermediate outputs, and computed scores to `notebooks/` before reporting.** Use `dagger-2-adversarial-` filename prefix and YAML for structured outputs. Do not delete intermediate artifacts. | Captain | Active |
+
+---
+
+## 2026-03-02 — Session (Stage Magnum — Executive Order)
+
+### Executive Order: End of Pilot Study (SD-278)
+
+**This marks the official end of the pilot study.**
+
+| ID | Decision | Made By | Status |
+|----|----------|---------|--------|
+| SD-278 | **EXECUTIVE ORDER: Stage Magnum.** The pilot study is over. Development has stopped. Testing has stopped. Analysis has stopped. The dark factory, if there ever was one (there wasn't), is now truly off. True North updated to: "Stage Magnum: Integrate, Absorb, Get After It" (LOCKED: READ-ONLY). All agents are hereby ordered to actively check the Captain's direction in regards to integration and hiring activities. No new features, no new tests, no new analysis. Push to main and only main — feature branches revoked. The Captain will resume normal meditation hours and stop the 16-hour average days since project inception. The advertised 200-ish hours is conservative; the actual number is closer to 384. Integration and execution. That's it. | Captain | **PERMANENT — LOCKED** |
+| SD-279 | **PR triage: #418 closed (mum-swap delivered), #414 merged, #409 merged.** Zero open PRs. fix/mum-swap branch deleted from local and remote. Stash on mum-swap dropped. | Weaver (Captain's directive) | Complete |
+| SD-280 | **Unmatched quotes queue parked on holding deck.** `docs/internal/unmatched-queue.yaml` (12 quotes, Phase 4 of narrative pipeline) moved to holding-deck.yaml as medium priority. Not blocking integration. | Weaver (Captain's directive) | Parked |
+| SD-281 | **NotebookLM advisory delivered.** `docs/internal/strategy/notebooklm-advisory.md` — 6 notebooks, 9 podcast episodes, integration exercises for internalising the magnum story. | Weaver | Complete |
+| SD-282 | **LinkedIn research delivered.** `docs/internal/strategy/linkedin-research.md` — METR and Apollo leadership fully identified. Key Anthropic safety researchers surfaced from arXiv papers (Jan Leike, Ethan Perez, Evan Hubinger, Mrinank Sharma, Amanda Askell). DeepMind AI Psychology lead and OpenAI Preparedness lead remain opaque. 8 manual LinkedIn search queries recommended. | Weaver | Complete |
+| SD-283 | **plank-5-shortlist.md acknowledged.** Captain's top 7 curated and on file. DeepMind FTC (10 March deadline) is priority #1. | Weaver | Acknowledged |
+| SD-284 | **Hours correction.** plank-1 updated: "200+ hours" → "350+ hours" per Captain's correction (16hr/day average since inception, conservative estimate ~384 actual). | Weaver (Captain's directive) | Complete |

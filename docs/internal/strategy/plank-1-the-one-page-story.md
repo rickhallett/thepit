@@ -18,7 +18,7 @@ Governance frameworks for probabilistic systems can be designed, built, and stre
 
 ## What I'm looking for
 
-A role where sustained adversarial evaluation of AI systems under real deployment conditions is the job, not a side project. I bring 200+ hours of documented human-in-the-loop field data, a taxonomy of 16 named LLM anti-patterns with detection heuristics, a governance framework that was tested against reality and honestly assessed, and the build-reflect cycle data that shows when humans actually matter in agentic engineering.
+A role where sustained adversarial evaluation of AI systems under real deployment conditions is the job, not a side project. I bring 350+ hours of documented human-in-the-loop field data, a taxonomy of 16 named LLM anti-patterns with detection heuristics, a governance framework that was tested against reality and honestly assessed, and the build-reflect cycle data that shows when humans actually matter in agentic engineering.
 
 The portfolio is the process, not the product. The repo is public. The session decisions, the fight card, the slopodar, the correlation analysis — all open for scrutiny.
 

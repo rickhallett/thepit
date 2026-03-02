@@ -506,6 +506,22 @@ items:
     backrefs:
       - docs/internal/keel/producer-consumer-maps.yaml (opencode-agents-symlinks entry)
 
+  - id: narrative-unmatched-queue
+    idea: >-
+      12 quotes in docs/internal/unmatched-queue.yaml awaiting Captain review
+      (Phase 4 of narrative pipeline). These are quotes extracted by the
+      narrative-inventory parser that could not be automatically matched to
+      datetime-layer events. Captain to review and manually assign or discard.
+      Not blocking integration. SD-280 back-reference.
+    added: 2026-03-02
+    status: hold
+    priority: medium
+    tags: []
+    backrefs:
+      - docs/internal/unmatched-queue.yaml
+      - docs/internal/narrative-layer.yaml
+      - SD-280
+
   - id: slopiculture-blog-qa
     idea: >-
       Blog post "Catching in the Wind: A Naturalist's Guide to Slopiculture"
