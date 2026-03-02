@@ -1,7 +1,5 @@
 # The Pit v2 — Product Specification
 
-Locked from commit 0. If it's not in this file, it's not in the build.
-
 ## One sentence
 
 AI agents argue in structured debates; users watch in real-time, react, vote, share, and the whole thing runs on a credit economy with Stripe subscriptions.
@@ -21,14 +19,6 @@ AI agents argue in structured debates; users watch in real-time, react, vote, sh
 | Deploy | Vercel | Yes |
 | Testing | Vitest + Playwright | Yes |
 | Package manager | pnpm | Yes |
-
-## The Gate
-
-```bash
-pnpm run typecheck && pnpm run lint && pnpm run test:unit
-```
-
-Runs before every commit. No exceptions.
 
 ---
 
@@ -321,45 +311,6 @@ Leaderboard: aggregate bouts × votes → rank agents by wins, votes
 
 ---
 
-## Shared Patterns
-
-### API utility pattern (every route follows this)
-
-```typescript
-export async function POST(req: Request) {
-  return withLogging(async () => {
-    const { userId } = await auth();
-    const rateLimit = checkRateLimit(userId || ip);
-    if (!rateLimit.ok) return rateLimitResponse(rateLimit);
-    const { data, error } = await parseValidBody(req, schema);
-    if (error) return error;
-    // ... business logic
-    return Response.json({ ok: true });
-  }, 'route-name');
-}
-```
-
-### Credit atomicity pattern
-
-```sql
--- Preauthorize: conditional deduction (no TOCTOU gap)
-UPDATE credits SET balance_micro = balance_micro - $amount
-WHERE user_id = $userId AND balance_micro >= $amount;
-
--- Settle: cap at available balance
-UPDATE credits SET balance_micro = balance_micro - LEAST($delta, GREATEST(0, balance_micro))
-WHERE user_id = $userId;
-```
-
-### Branded nominal types
-
-```typescript
-type BoutId = string & { readonly __brand: 'BoutId' };
-type MicroCredits = number & { readonly __brand: 'MicroCredits' };
-```
-
----
-
 ## Tier Configuration
 
 | | Anonymous | Free | Pass (£3/mo) | Lab (£10/mo) |
@@ -428,40 +379,4 @@ Taped to the monitor. If you catch yourself reaching for any of these, stop.
 - Full security hardening (Turnstile, CSP headers)
 - Agent cloning / remix flow (agent creation is in, clone lineage is not)
 
----
 
-## Build Pathway
-
-See task dependency graph. Critical path: scaffold → database → auth → api-utils → presets → bout-engine → bout-ui.
-
-If bout engine streams correctly by end of day 1, the build is on track.
-If it doesn't, adjust timeline and document why.
-
----
-
-## Testing Strategy: Cross-Model Adversarial
-
-Behaviour tests are written by a DIFFERENT model than the implementation model.
-
-- **Test author:** Model A (e.g., GPT-4o, Gemini, or isolated Claude instance with spec-only context)
-- **Implementer:** Model B (Claude via Claude Code with full codebase context)
-- **Sequence:** Tests first → implementation must pass them
-- **Rationale:** Same model writing both tests and code shares blind spots. Cross-model testing creates genuine independence. A hallucinated streaming protocol will be caught by a test writer who doesn't know the implementation.
-
-### Test layers
-
-| Layer | Written by | When | What |
-|-------|-----------|------|------|
-| E2e (Playwright) | Model A (spec-only) | Before implementation | User journeys from this spec |
-| Integration (API) | Model A (spec-only) | Before implementation | Route contracts from this spec |
-| Unit | Model B (implementer) | During implementation | Internal functions, edge cases |
-
-### E2e test progression
-
-```
-T2:  sign up → sign in → authenticated state
-T6:  arena → pick preset → bout streams → transcript visible
-T7:  sign up → see credits → run bout → credits decrease
-T9:  complete bout → react → vote → leaderboard updated
-T11: share bout → short link → replay renders
-```
