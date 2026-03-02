@@ -35,19 +35,104 @@ const remoteEntries = [
   { url: 'https://danluu.com/programmer-moneyball/', cat: 'B-human-post', label: 'DanLuu-Moneyball' },
   { url: 'https://drewdevault.com/2022/05/12/Supply-chain-when-will-we-learn.html', cat: 'B-human-post', label: 'DrewDeVault-SupplyChain-2022' },
 
-  // === C: AI COMPANY BLOGS (expanded — static HTML alternatives) ===
+  // === C: AI COMPANY BLOGS — n>=75 target (20 companies) ===
+  // v3 had 9 entries. v4 expanded to 51. v4.1 targets 75+.
+  // Anthropic (10)
   { url: 'https://www.anthropic.com/research/building-effective-agents', cat: 'C-ai-co', label: 'Anthropic-EffectiveAgents' },
   { url: 'https://www.anthropic.com/engineering/swe-bench-sonnet', cat: 'C-ai-co', label: 'Anthropic-SWEBench' },
   { url: 'https://www.anthropic.com/research/claude-character', cat: 'C-ai-co', label: 'Anthropic-ClaudeCharacter' },
-  // Try additional Anthropic pages
   { url: 'https://www.anthropic.com/research/mapping-mind-language-model', cat: 'C-ai-co', label: 'Anthropic-MappingMind' },
   { url: 'https://www.anthropic.com/research/probes-catch-sleeper-agents', cat: 'C-ai-co', label: 'Anthropic-SleeperAgents' },
-  // Cohere blog (static HTML)
-  { url: 'https://cohere.com/blog/rerank-3pt5', cat: 'C-ai-co', label: 'Cohere-Rerank3.5' },
-  { url: 'https://cohere.com/blog/command-r7b', cat: 'C-ai-co', label: 'Cohere-CommandR7B' },
-  // Mistral (static)
+  { url: 'https://www.anthropic.com/research/tracing-thoughts-language-model', cat: 'C-ai-co', label: 'Anthropic-TracingThoughts' },
+  { url: 'https://www.anthropic.com/engineering/contextual-retrieval', cat: 'C-ai-co', label: 'Anthropic-ContextualRetrieval' },
+  { url: 'https://www.anthropic.com/research/many-shot-jailbreaking', cat: 'C-ai-co', label: 'Anthropic-ManyShotJailbreaking' },
+  { url: 'https://www.anthropic.com/research/the-case-for-targeted-regulation', cat: 'C-ai-co', label: 'Anthropic-TargetedRegulation' },
+  { url: 'https://www.anthropic.com/research/influence-functions', cat: 'C-ai-co', label: 'Anthropic-InfluenceFunctions' },
+  { url: 'https://www.anthropic.com/research/core-views-on-ai-safety', cat: 'C-ai-co', label: 'Anthropic-CoreViewsSafety' },
+  // Mistral (4)
   { url: 'https://mistral.ai/news/codestral-2501/', cat: 'C-ai-co', label: 'Mistral-Codestral' },
   { url: 'https://mistral.ai/news/mistral-large-2407/', cat: 'C-ai-co', label: 'Mistral-Large2' },
+  { url: 'https://mistral.ai/news/mixtral-of-experts/', cat: 'C-ai-co', label: 'Mistral-MixtralOfExperts' },
+  { url: 'https://mistral.ai/news/codestral/', cat: 'C-ai-co', label: 'Mistral-CodestralOriginal' },
+  // HuggingFace (10)
+  { url: 'https://huggingface.co/blog/llama3', cat: 'C-ai-co', label: 'HuggingFace-Llama3' },
+  { url: 'https://huggingface.co/blog/open-llm-leaderboard-mmlu', cat: 'C-ai-co', label: 'HuggingFace-OpenLLMLeaderboard' },
+  { url: 'https://huggingface.co/blog/mixtral', cat: 'C-ai-co', label: 'HuggingFace-Mixtral' },
+  { url: 'https://huggingface.co/blog/safetensors-security-audit', cat: 'C-ai-co', label: 'HuggingFace-SafetensorsAudit' },
+  { url: 'https://huggingface.co/blog/moe', cat: 'C-ai-co', label: 'HuggingFace-MixtureOfExperts' },
+  { url: 'https://huggingface.co/blog/personal-copilot', cat: 'C-ai-co', label: 'HuggingFace-PersonalCopilot' },
+  { url: 'https://huggingface.co/blog/dpo-trl', cat: 'C-ai-co', label: 'HuggingFace-DPOFineTuning' },
+  { url: 'https://huggingface.co/blog/rlhf', cat: 'C-ai-co', label: 'HuggingFace-RLHF' },
+  { url: 'https://huggingface.co/blog/peft', cat: 'C-ai-co', label: 'HuggingFace-PEFT' },
+  { url: 'https://huggingface.co/blog/falcon', cat: 'C-ai-co', label: 'HuggingFace-Falcon' },
+  { url: 'https://huggingface.co/blog/starcoder', cat: 'C-ai-co', label: 'HuggingFace-StarCoder' },
+  // NVIDIA (3)
+  { url: 'https://developer.nvidia.com/blog/nvidia-tensorrt-llm-supercharges-large-language-model-inference-on-nvidia-h100-gpus/', cat: 'C-ai-co', label: 'NVIDIA-TensorRTLLM' },
+  { url: 'https://developer.nvidia.com/blog/mastering-llm-techniques-inference-optimization/', cat: 'C-ai-co', label: 'NVIDIA-LLMInferenceOptimization' },
+  { url: 'https://developer.nvidia.com/blog/supercharging-llama-3-1-across-nvidia-platforms/', cat: 'C-ai-co', label: 'NVIDIA-SuperchargingLlama31' },
+  // Together AI (2)
+  { url: 'https://together.ai/blog/together-moa', cat: 'C-ai-co', label: 'TogetherAI-MixtureOfAgents' },
+  { url: 'https://together.ai/blog/redpajama-data-v2', cat: 'C-ai-co', label: 'TogetherAI-RedPajamaV2' },
+  // Amazon AI (1)
+  { url: 'https://aws.amazon.com/blogs/machine-learning/evaluate-large-language-models-for-quality-and-responsibility/', cat: 'C-ai-co', label: 'AmazonAI-EvaluateLLMs' },
+  // AI21 Labs (1)
+  { url: 'https://www.ai21.com/blog/introducing-jamba2', cat: 'C-ai-co', label: 'AI21-Jamba2' },
+  // Microsoft Research (1)
+  { url: 'https://www.microsoft.com/en-us/research/blog/autogen-enabling-next-generation-large-language-model-applications/', cat: 'C-ai-co', label: 'Microsoft-AutoGen' },
+  // Databricks (2)
+  { url: 'https://www.databricks.com/blog/introducing-dbrx-new-state-art-open-llm', cat: 'C-ai-co', label: 'Databricks-DBRX' },
+  { url: 'https://www.databricks.com/blog/turbocharged-training-optimizing-databricks-mosaic-ai-stack-fp8', cat: 'C-ai-co', label: 'Databricks-FP8Training' },
+  // Allen AI (1)
+  { url: 'https://blog.allenai.org/olmo-open-language-model-87ccfc95f580', cat: 'C-ai-co', label: 'AllenAI-OLMo' },
+  // LangChain (3)
+  { url: 'https://blog.langchain.dev/langgraph/', cat: 'C-ai-co', label: 'LangChain-LangGraph' },
+  { url: 'https://blog.langchain.dev/reflection-agents/', cat: 'C-ai-co', label: 'LangChain-ReflectionAgents' },
+  { url: 'https://blog.langchain.dev/tool-calling-with-langchain/', cat: 'C-ai-co', label: 'LangChain-ToolCalling' },
+  // Pinecone (3)
+  { url: 'https://www.pinecone.io/learn/retrieval-augmented-generation/', cat: 'C-ai-co', label: 'Pinecone-RAG' },
+  { url: 'https://www.pinecone.io/blog/rag-study/', cat: 'C-ai-co', label: 'Pinecone-RAGStudy' },
+  { url: 'https://www.pinecone.io/learn/chunking-strategies/', cat: 'C-ai-co', label: 'Pinecone-ChunkingStrategies' },
+  // Replicate (2)
+  { url: 'https://replicate.com/blog/run-llama-2-with-an-api', cat: 'C-ai-co', label: 'Replicate-Llama2API' },
+  { url: 'https://replicate.com/blog/all-the-llamas', cat: 'C-ai-co', label: 'Replicate-AllLlamas' },
+  // Vercel (2)
+  { url: 'https://vercel.com/blog/ai-sdk-3-generative-ui', cat: 'C-ai-co', label: 'Vercel-AISDK3' },
+  { url: 'https://vercel.com/blog/how-we-optimized-package-imports-in-next-js', cat: 'C-ai-co', label: 'Vercel-PackageImports' },
+  // Lightning AI (3)
+  { url: 'https://lightning.ai/pages/blog/falcon-a-guide-to-finetune-and-inference/', cat: 'C-ai-co', label: 'LightningAI-FalconGuide' },
+  { url: 'https://lightning.ai/pages/blog/pytorch-lightning-v2-torchmetrics-v1-and-lightning-fabric/', cat: 'C-ai-co', label: 'LightningAI-LightningV2' },
+  { url: 'https://lightning.ai/pages/blog/accelerating-large-language-models-with-mixed-precision-techniques/', cat: 'C-ai-co', label: 'LightningAI-MixedPrecision' },
+  // EleutherAI (1)
+  { url: 'https://blog.eleuther.ai/year-one/', cat: 'C-ai-co', label: 'EleutherAI-YearOne' },
+  // === n>=75 push — 4 new companies ===
+  // Cloudflare (4)
+  { url: 'https://blog.cloudflare.com/workers-ai-streaming/', cat: 'C-ai-co', label: 'Cloudflare-StreamingLLMs' },
+  { url: 'https://blog.cloudflare.com/markdown-for-agents/', cat: 'C-ai-co', label: 'Cloudflare-MarkdownAgents' },
+  { url: 'https://blog.cloudflare.com/workers-ai-update-hello-mistral-7b/', cat: 'C-ai-co', label: 'Cloudflare-Mistral7B' },
+  { url: 'https://blog.cloudflare.com/vectorize-vector-database-open-beta/', cat: 'C-ai-co', label: 'Cloudflare-Vectorize' },
+  // Neptune AI (8)
+  { url: 'https://neptune.ai/blog/how-to-optimize-llm-inference', cat: 'C-ai-co', label: 'NeptuneAI-OptimizeLLM' },
+  { url: 'https://neptune.ai/blog/evaluating-rag-pipelines', cat: 'C-ai-co', label: 'NeptuneAI-EvalRAG' },
+  { url: 'https://neptune.ai/blog/synthetic-data-for-llm-training', cat: 'C-ai-co', label: 'NeptuneAI-SyntheticData' },
+  { url: 'https://neptune.ai/blog/llm-grounding', cat: 'C-ai-co', label: 'NeptuneAI-LLMGrounding' },
+  { url: 'https://neptune.ai/blog/what-are-llm-embeddings', cat: 'C-ai-co', label: 'NeptuneAI-Embeddings' },
+  { url: 'https://neptune.ai/blog/detecting-and-fixing-dead-neurons-in-foundation-models', cat: 'C-ai-co', label: 'NeptuneAI-DeadNeurons' },
+  { url: 'https://neptune.ai/blog/understanding-prompt-injection', cat: 'C-ai-co', label: 'NeptuneAI-PromptInjection' },
+  { url: 'https://neptune.ai/blog/instruction-fine-tuning-fundamentals', cat: 'C-ai-co', label: 'NeptuneAI-InstructFineTuning' },
+  // Cerebras (7)
+  { url: 'https://cerebras.ai/blog/speedandaccuracyblog', cat: 'C-ai-co', label: 'Cerebras-SpeedAccuracy' },
+  { url: 'https://cerebras.ai/blog/moe-guide-why-moe', cat: 'C-ai-co', label: 'Cerebras-MoEFundamentals' },
+  { url: 'https://cerebras.ai/blog/the-cerebras-scaling-law-faster-inference-is-smarter-ai', cat: 'C-ai-co', label: 'Cerebras-ScalingLaw' },
+  { url: 'https://cerebras.ai/blog/moe-guide-router', cat: 'C-ai-co', label: 'Cerebras-MoERouter' },
+  { url: 'https://cerebras.ai/blog/moe-guide-debug', cat: 'C-ai-co', label: 'Cerebras-MoEDebug' },
+  { url: 'https://cerebras.ai/blog/moe-guide-scale', cat: 'C-ai-co', label: 'Cerebras-MoEScale' },
+  { url: 'https://cerebras.ai/blog/latency-debt', cat: 'C-ai-co', label: 'Cerebras-LatencyDebt' },
+  // Lambda Labs (5)
+  { url: 'https://lambda.ai/blog/jax-on-nvidia-gpus-part-2-a-practical-guide-for-ml-engineers', cat: 'C-ai-co', label: 'Lambda-JAXonGPUs' },
+  { url: 'https://lambda.ai/blog/2025-ai-wrapped', cat: 'C-ai-co', label: 'Lambda-2025AIWrapped' },
+  { url: 'https://lambda.ai/blog/neurips-2025-from-bigger-models-to-better-intelligence', cat: 'C-ai-co', label: 'Lambda-NeurIPS2025' },
+  { url: 'https://lambda.ai/blog/kimi-k2-thinking', cat: 'C-ai-co', label: 'Lambda-KimiK2' },
+  { url: 'https://lambda.ai/blog/how-to-serve-kimi-k2-instruct-on-lambda-with-vllm', cat: 'C-ai-co', label: 'Lambda-KimiK2vLLM' },
 
   // === D: SUSPECTED LLM-HEAVY (alternative static-HTML sources) ===
   // Substack AI newsletters (static HTML, likely AI-assisted)
