@@ -16,6 +16,7 @@ const eslintConfig = defineConfig([
     "test-results/**",
     // Python virtual environments contain vendored JS (matplotlib, sklearn)
     "piteval/.venv/**",
+    "notebooks/.venv/**",
     "**/node_modules/**",
     // Standalone Node scripts (require() style, not part of Next.js app)
     "slopodar-ext/**",
