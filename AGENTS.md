@@ -260,20 +260,16 @@ Never end a session with unpushed commits.
 
 ---
 
-## The Local Gate
+## The Local Gate (DISABLED — SD-285)
 
-The **local gate** is the verification bar for merging:
+The local gate is disabled. The pilot study is over. Development, testing, and analysis have stopped (SD-278). The gate served its purpose across 420+ PRs and 1,289 tests. It is preserved here for the record and can be re-enabled if development resumes.
 
 ```bash
-pnpm run typecheck && pnpm run lint && pnpm run test:unit
+# DISABLED — was: pnpm run typecheck && pnpm run lint && pnpm run test:unit
+# DISABLED — was: go vet ./... && go test ./... && go build .
 ```
 
-For Go changes:
-```bash
-go vet ./... && go test ./... && go build .   # in each affected pit* directory
-```
-
-Do NOT wait on remote CI (GitHub Actions) to merge during iteration. Remote CI and remote deployment are later-stage verification layers — earned after the product demonstrates working IP locally. E2E/Playwright tests are paused during high-iteration phases and reintroduced when the product stabilises.
+The GitHub branch protection ruleset on master has also been disabled (SD-278). Push to main directly.
 
 ---
 
