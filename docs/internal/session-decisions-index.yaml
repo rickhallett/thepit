@@ -76,3 +76,7 @@ recent:
     label: "signal-early-results"
     summary: "Signal decode test: 6/6 cold-boot runs, 8/8 questions, perfect comprehension. Model-portable governance transmission."
     status: "EXPLORATORY — PROTOTYPAL"
+  - id: SD-315
+    label: "echo-check-fire"
+    summary: "Default agentic behaviour: echo back understanding in Signal before acting. Echo and check fire are synonyms. Alignment dial — Signal echo demonstrates understanding, prose performs it."
+    status: "STANDING ORDER"

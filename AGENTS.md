@@ -59,6 +59,7 @@ SO.printf      := pipe(value, cli) -> printf !echo              [CLAUDE.md]
 SO.session_end := !unpushed_commits
 SO.yaml_hud    := address(captain) -> yaml_header_first
 SO.uv          := python -> uv_exclusively !exceptions          [SD-310]
+SO.echo        := order -> echo(Signal) BEFORE acting | !excepted [SD-315]
 ```
 
 ---
@@ -118,7 +119,7 @@ Also on disk (not active crew): `analyst.md`, `scribe.md`, `maturin.md`, `anothe
 
 ---
 
-## Lexicon (Compressed — v0.19)
+## Lexicon (Compressed — v0.20)
 
 The vocabulary of this ship. If these terms are not in your context, you are not on this ship [SO-PERM-002].
 
@@ -156,6 +157,8 @@ DEF polecats       := claude_p.agents | one_shot | !interactive        [SD-296]
 DEF prime_context  := min(context) WHERE smart_zone.enabled             [SD-311]
 DEF learning_wild  := discovery(while_doing_work) >> work_itself
 DEF bump_slopodar  := append(slopodar.yaml, new_pattern)
+DEF echo           := agent.compress(understanding) -> Signal BEFORE acting [SD-315]
+DEF check_fire     := echo                                                  [synonym]
 
 -- Spaces & Registers
 DEF quarterdeck    := command | formal | orders
@@ -347,6 +350,7 @@ SD-311 [prime-context]       := min(context) WHERE smart_zone | lexified
 SD-312 [hci-footguns]       := 6 foot guns lexified v0.19 + layer model backrefs
 SD-313 [signal-protocol]    := Signal PoC | 4.5:1 compression | DRAFT
 SD-314 [signal-early-results] := 6/6 decode, 8/8 questions | model_portable | PROTOTYPAL
+SD-315 [echo-check-fire]    := order -> echo(Signal) BEFORE acting | STANDING
 ```
 
 Full chain: `docs/internal/session-decisions.md` | Index: `docs/internal/session-decisions-index.yaml`
