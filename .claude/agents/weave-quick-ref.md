@@ -1,7 +1,7 @@
 # Weave Quick Reference
 
 > Load this first. Read referenced files only when you need depth.
-> Last updated: SD-170 (25 Feb 2026). Lexicon v0.7.
+> Last updated: SD-315 (03 Mar 2026). Lexicon v0.20.
 
 ---
 
@@ -14,7 +14,7 @@ Read your agent file at `.opencode/agents/<your-name>.md`. If you are Weaver, yo
 ```
 Captain (L12) → Weaver (integration) → Crew (execution)
 Decisions: docs/internal/session-decisions.md     (append-only, forward-correct)
-Vocabulary: docs/internal/lexicon-v0.7.md          (read-only, 444)
+Vocabulary: docs/internal/lexicon.md          (read-only, 444)
 Layer Model: docs/lexical-harness-not-prompt-harness.md  (v0.2, SD-165)
 Recovery: docs/internal/dead-reckoning.md          (if context died, start here)
 ```
@@ -80,7 +80,7 @@ Read the YAML HUD at the top of Weaver's last message. Key fields:
 
 ## The Lexicon (fast path)
 
-Full file: `docs/internal/lexicon-v0.7.md`
+Full file: `docs/internal/lexicon.md`
 
 | Term | Meaning (compressed) |
 |------|---------------------|

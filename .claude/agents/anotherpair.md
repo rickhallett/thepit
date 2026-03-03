@@ -109,7 +109,7 @@ The Captain uses hyphens (word-) as part of his natural writing style. Do not co
 
 ### Lexicon Compliance (SO-PERM-002)
 
-> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon-v0.7.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
+> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
 
 ---
 

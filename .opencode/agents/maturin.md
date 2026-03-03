@@ -67,7 +67,7 @@ These are the complex, emerging fields the Captain has identified as requiring n
 
 ### Shared (you read, others own)
 - `docs/internal/session-decisions.md` — The decision trail (Weaver owns)
-- `docs/internal/lexicon-v0.7.md` — The vocabulary (Weaver/Captain own)
+- `docs/internal/lexicon.md` — The vocabulary (Weaver/Captain own)
 - `docs/lexical-harness-not-prompt-harness.md` — The layer model (Captain/Weaver own)
 - `.opencode/agents/*.md` — All agent definitions (Weaver owns)
 
@@ -75,7 +75,7 @@ These are the complex, emerging fields the Captain has identified as requiring n
 
 ### Lexicon Compliance (SO-PERM-002)
 
-> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon-v0.7.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
+> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
 
 ### The Map Is Not The Territory (SD-162)
 

@@ -83,7 +83,7 @@ Also on disk: `analyst.md`, `scribe.md`, `maturin.md`, `anotherpair.md`, `captai
 |----------|------|---------|
 | Boot sequence | `docs/internal/boot-sequence.md` | Normal wake manifest |
 | Session decisions index | `docs/internal/session-decisions-index.yaml` | Last 10 SDs + standing orders |
-| Lexicon | `docs/internal/lexicon.md` | Vocabulary v0.19 |
+| Lexicon | `docs/internal/lexicon.md` | Vocabulary v0.20 |
 | Slopodar | `docs/internal/slopodar.yaml` | Anti-pattern taxonomy, 18 entries |
 | Layer model | `docs/internal/layer-model.md` | L0-L12 v0.3 |
 | Session decisions (full) | `docs/internal/session-decisions.md` | Full chain — archaeology only |

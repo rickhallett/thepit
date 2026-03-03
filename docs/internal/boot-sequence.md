@@ -56,7 +56,7 @@ S3.full_sd   := read(docs/internal/session-decisions.md)       WHEN tracing(spec
 docs/internal/                          -- DEPTH 1 (boot surface)
 ├── boot-sequence.md                    -- THIS FILE
 ├── session-decisions-index.yaml        -- last 10 SDs [S1]
-├── lexicon.md                          -- vocabulary v0.19 [S1, SO-PERM-002]
+├── lexicon.md                          -- vocabulary v0.20 [S1, SO-PERM-002]
 ├── slopodar.yaml                       -- anti-patterns, 18 entries [S1, SD-286]
 ├── layer-model.md                      -- L0-L12 v0.3 [S2]
 ├── session-decisions.md                -- FULL chain, 314 SDs [S3, archaeology only]

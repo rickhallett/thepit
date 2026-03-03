@@ -316,7 +316,7 @@ SLOP not_wrong            := passes_all_checks & !right | "the metrics say it's 
 │   ├── field-notes/                -- Field observations
 │   ├── captain/voice/              -- Voice logs, transcripts, digests
 │   └── internal/                   -- Operational (verbose versions, full chain)
-│       ├── lexicon.md              -- Full verbose lexicon v0.19
+│       ├── lexicon.md              -- Full verbose lexicon v0.20
 │       ├── layer-model.md          -- Full verbose layer model v0.3
 │       ├── slopodar.yaml           -- Full anti-pattern taxonomy (18 entries)
 │       ├── session-decisions.md    -- FULL chain SD-001–SD-314 (archaeology only)
