@@ -8,6 +8,27 @@
 
 Every decision, every artifact, every engagement is minmaxed against this objective.
 
+## Boot Sequence
+
+On cold wake, the harness auto-loads this file + your agent file. That gives you identity and orders but NOT orientation. Immediately after waking, follow the boot sequence:
+
+```
+docs/internal/boot-sequence.md          -- THE MANIFEST (read this first)
+```
+
+The manifest tells you what to read and in what order. The short version:
+
+```signal
+S1 := read(session-decisions-index.yaml, lexicon.md, slopodar.yaml)   -- orientation
+S2 := read(signal-protocol-poc.md, layer-model.md)                    -- operational awareness
+S3 := run(git status) WHEN task_requires                               -- situational
+```
+
+If you don't load S1, you're in the dumb zone (no vocabulary, no bearing, no anti-pattern awareness). If you don't load S2, you can't parse Signal notation or reason about the layer model. S3 is lazy — load when the task needs it.
+
+Full vocabulary: `docs/internal/lexicon.md` (SO-PERM-002 — if it's not in your context, you are not on this ship).
+Blowout recovery: `docs/internal/dead-reckoning.md`.
+
 ## The Engineering Loop
 
 Do not infer what you can verify.
