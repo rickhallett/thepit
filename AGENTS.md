@@ -119,7 +119,7 @@ Also on disk (not active crew): `analyst.md`, `scribe.md`, `maturin.md`, `anothe
 
 ---
 
-## Lexicon (Compressed — v0.20)
+## Lexicon (Compressed — v0.21)
 
 The vocabulary of this ship. If these terms are not in your context, you are not on this ship [SO-PERM-002].
 
@@ -171,6 +171,11 @@ DEF clear_decks    := force_compaction | all_durable_writes_confirmed
 DEF tight          := quarterdeck | making_way | DEFAULT
 DEF loose          := wardroom | making_way | captains_invitation
 DEF extra_tight    := quarterdeck | beat_to_quarters | emergency
+
+-- Iteration & Tempo
+DEF HOTL := human_out_the_loop | machine_speed | plan->execute->review | !mid_steer
+DEF HODL := human_grips_wheel | every_step.human | diametric_opposite(HOTL)
+RULE HOTL WHEN gate.can_verify | HODL WHEN requires(taste)
 
 -- Error & Observation
 DEF oracle_contamination := L12.error -> propagates(!caught)            [SD-178]

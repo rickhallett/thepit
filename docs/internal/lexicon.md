@@ -1,4 +1,4 @@
-# The Lexicon — v0.20
+# The Lexicon — v0.21
 
 Back-reference: SD-120 (naval metaphor as scaffold), SD-121 (loose weave), SD-122 (taxonomy), SD-123 (this file)
 Status: APPROVED by Captain. Read-only by convention. Edits bump version number.
@@ -141,6 +141,13 @@ last_known:
 |------|-----------|-----|
 | **Prime Context** | The most important context for the current job. The minimum set of information that, if present, allows the agent to produce correct output — and if absent, guarantees it cannot. Not the same as "all relevant context" (which is unbounded). Prime context is the kernel that makes the smart zone smart. Identifying prime context is the operator's highest-leverage decision at the start of any task. For a polecat: the plan file IS the prime context. For crew on the main thread: the lexicon, bearing, and current SD chain are prime context. Everything else is available, not prime. | "Do you have the prime context for this?" / "The plan file is the polecat's prime context — nothing else enters." |
 
+### Iteration & Tempo
+
+| Term | Definition | Use |
+|------|-----------|-----|
+| **HOTL (Human Out The Loop)** | Machine-speed iteration with the human removed from the execution loop. Plan → deploy (local) → curl test → iterate, at agentic tempo. The human defines the plan and reviews the output. The human does not steer mid-execution. The cost model inverts: agentic time is cheap, human attention is expensive. HOTL is the operating mode for polecats and for any work where the verification is automated (gate green, curl 200, smoke pass). The human re-enters at review, not at execution. The diametric opposite of HODL. Back-ref: Polecats (fresh context, one-shot, no interactive steering), L6b (DISPATCH mode). | "This is HOTL — plan, execute, review." / "Go HOTL on this; the gate is the reviewer." |
+| **HODL (Hold On for Dear Life)** | The human grips the wheel and will not let go. Every step requires human approval, human review, human presence. The execution tempo is human tempo. Appropriate when the stakes are high and the verification is not automated — deployment to production, irreversible operations, anything where the blast radius exceeds what the gate can catch. The diametric opposite of HOTL. Not a failing — a deliberate tempo choice. The error is applying HODL when HOTL would do, or HOTL when HODL is needed. The distinction is: can the gate verify this, or does it require taste? If the gate can verify it, HOTL. If it requires taste, HODL. Back-ref: L12 (irreducible human judgement), Press the Button (the pathological form — HODL without the thinking). | "This is HODL — I need to see every step." / "We're in HODL until the deploy is confirmed." |
+
 ### Error & Observation
 
 | Term | Definition | Use |
@@ -184,6 +191,7 @@ last_known:
 | v0.18 | 2026-03-03 | **Polecats** added to Communication & Record. `claude -p` agents in a deterministic Makefile pipeline — our version of Stripe's minions. Fresh context, one-shot, no interactive steering. The compaction engine managed by design. First deployment: thepit-v2 calibration run. | SD-296 |
 | v0.19 | 2026-03-03 | **HCI Foot Guns** section added (6 entries): Spinning to Infinity, High on Own Supply, The Dumb Zone, Cold Context Pressure, Hot Context Pressure, Compaction Loss. **Context Engineering** section added: Prime Context. Maturin's Mirror cross-referenced with Spinning to Infinity (tool vs pathology). All entries back-referenced to layer model. | SD-299 |
 | v0.20 | 2026-03-03 | **Echo / Check Fire** added to Communication & Record. Default agentic behaviour: compress understanding into Signal before acting. Alignment dial — Signal echo demonstrates understanding, prose performs it. Synonyms for now; differentiate if usage diverges. Standing order (SD-315). | SD-315 |
+| v0.21 | 2026-03-03 | **Iteration & Tempo** section added (2 entries): HOTL (Human Out The Loop) — machine-speed iteration, human defines plan and reviews output, not mid-execution steering. HODL (Hold On for Dear Life) — human grips the wheel, every step requires human presence. Diametric opposites. Distinction: can the gate verify this (HOTL) or does it require taste (HODL)? | SD-TBD |
 
 ---
 
