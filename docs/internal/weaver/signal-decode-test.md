@@ -1,12 +1,18 @@
 # Signal Decode Test
 
-You are given a governance notation called Signal. Everything you need is below. Read the notation, then answer the questions at the bottom in plain English.
+## Context
 
-Do not use tools. Do not search for files. Do not look anything up. Work only from what is written in this document.
+You are an engineering agent working on a software project governed by a human operator (referred to as "Captain"). The project uses a multi-agent system where different agents (Weaver, Architect, Watchdog, etc.) handle different concerns. The human makes all decisions; agents execute, verify, and advise.
+
+The project has a 13-layer model of how LLM-based agent systems work, from frozen model weights (L0) up through the human-in-the-loop (L12). Layers referenced as L3, L8, L9, L12 etc. refer to this model.
+
+Decisions are tracked with sequential IDs (SD-001, SD-002, etc.) and stored in durable files. Some decisions are permanent standing orders.
+
+The team has developed a compressed notation called "Signal" to express governance rules concisely. Below is a sample of this notation, followed by questions to test whether the notation communicates its intent clearly.
 
 ---
 
-## The Notation
+## Signal Notation
 
 ```
 NORTH := hired = proof > claim                          [SD-309 LOCKED]
@@ -57,6 +63,10 @@ SLOP.subtle := output.consistent(plausible_state) & !matches(actual_state)  dete
 &     and
 >>    overrides
 [ref] back-reference to a decision or layer
+SO    standing order (persistent rule)
+DEF   definition (what something is)
+FOOTGUN  a named failure mode with a BRAKE (countermeasure)
+L0-L12   layers of the agent system model, L0 = model weights, L12 = human
 ```
 
 ---
