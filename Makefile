@@ -25,28 +25,43 @@ SHELL := /bin/bash
 .ONESHELL:
 
 DONE := .done
+LOGS := .logs
 GATE := pnpm run typecheck && pnpm run lint && pnpm run test:unit 2>/dev/null
+POLECAT_TIMEOUT := 300
 
-# Polecat wrapper — asserts the agent produced a delta (files changed or commits added).
-# Catches noop polecats: permission hangs, silent errors, empty output.
-# Snapshots git state before/after to ignore pre-existing untracked files.
+# Polecat wrapper v2 — observable, permission-safe, timeout-guarded.
+#   - --dangerously-skip-permissions: no permission hangs (trusted local sandbox)
+#   - tee streams output live AND captures to .logs/
+#   - timeout kills hung polecats
+#   - delta detection catches noop runs
 define POLECAT
-	@PRE_HEAD=$$(git rev-parse HEAD); \
+	@TASK=$$(basename $(1) .md); \
+	echo "▶ polecat $$TASK — streaming to $(LOGS)/$$TASK.log"; \
+	PRE_HEAD=$$(git rev-parse HEAD); \
 	PRE_DIFF=$$(git diff --stat); \
 	PRE_UNTRACKED=$$(git ls-files --others --exclude-standard | sort); \
-	claude -p "$$(cat $(1))"; \
+	timeout $(POLECAT_TIMEOUT) claude -p "$$(cat $(1))" \
+		--dangerously-skip-permissions \
+		2>&1 | tee $(LOGS)/$$TASK.log; \
+	EXIT_CODE=$$?; \
+	if [ $$EXIT_CODE -eq 124 ]; then \
+		echo "ERROR: polecat $$TASK timed out after $(POLECAT_TIMEOUT)s"; exit 1; \
+	fi; \
+	if [ $$EXIT_CODE -ne 0 ]; then \
+		echo "ERROR: polecat $$TASK exited with code $$EXIT_CODE"; exit 1; \
+	fi; \
 	POST_HEAD=$$(git rev-parse HEAD); \
 	POST_DIFF=$$(git diff --stat); \
 	POST_UNTRACKED=$$(git ls-files --others --exclude-standard | sort); \
 	if [ "$$PRE_HEAD" = "$$POST_HEAD" ] \
 		&& [ "$$PRE_DIFF" = "$$POST_DIFF" ] \
 		&& [ "$$PRE_UNTRACKED" = "$$POST_UNTRACKED" ]; then \
-		echo "ERROR: polecat $(1) produced no delta — noop detected"; exit 1; \
+		echo "ERROR: polecat $$TASK produced no delta — noop detected"; exit 1; \
 	fi
 endef
 
-# Ensure .done directory exists
-$(shell mkdir -p $(DONE))
+# Ensure directories exist
+$(shell mkdir -p $(DONE) $(LOGS))
 
 # ── Phase 0: Foundation ──────────────────────────────────────
 

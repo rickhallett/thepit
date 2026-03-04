@@ -84,7 +84,28 @@ export async function POST(req: NextRequest) {
 
 Note: This version does NOT handle credits or persistence — those are wired in task 13. This is the minimal streaming pipeline: validate → resolve → stream.
 
-### 3. Unit tests
+### 3. SSE error handling and client disconnect
+
+The SSE stream must handle failure modes, not just the happy path:
+
+**Client disconnect:** Use the `cancel()` callback on the `ReadableStream` constructor. When the client disconnects mid-stream:
+- Stop calling the LLM (abort any in-flight request if possible)
+- Clean up resources (no dangling promises)
+- Do NOT throw — the stream is already closed from the client's perspective
+
+**Partial stream / server error:** If the turn loop throws mid-execution:
+- Send an `error` event with `{ code, message }` before closing (if the stream is still writable)
+- The partial transcript up to the error point must be preserved in the callback state (task 13 will persist it)
+- Always call `controller.close()` in a finally block
+
+**Duplicate protection:** Include `turnIndex` in every event. The client uses `turnIndex` to deduplicate if it reconnects and replays. This task does not implement reconnection — it ensures the event format supports it.
+
+**Test coverage for error paths:**
+- Client disconnect mid-stream: verify the stream stops producing events and cleans up
+- LLM error on turn 2 of 4: verify error event is emitted after successful turns 1
+- Controller close is always called (no hanging streams)
+
+### 4. Unit tests
 
 Create `lib/bouts/streaming.test.ts`:
 
@@ -93,8 +114,10 @@ Mock `executeTurnLoop` to produce predictable transcript entries with controlled
 Tests:
 - Test SSE stream produces events in correct order: data-turn → text-start → text-delta(s) → text-end for each turn, then done
 - Test SSE format: each event has `event:` and `data:` lines separated by `\n\n`
-- Test error handling: if turn loop throws, stream emits error event then closes
-- Test done event is always the last event
+- Test error handling: if turn loop throws mid-bout, stream emits error event after successful turns, then closes
+- Test done event is always the last event on success
+- Test client disconnect: cancel the reader mid-stream, verify cleanup runs without throwing
+- Test controller.close() is always called (no hanging streams) — use a spy on the controller
 
 To test the stream, read from the `ReadableStream` and parse the SSE events:
 ```typescript

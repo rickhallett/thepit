@@ -1,4 +1,5 @@
 .done/
+.logs/
 node_modules/
 .next/
 .env

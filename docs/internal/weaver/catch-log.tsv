@@ -1,2 +1,3 @@
 date	control	what_caught	agent	outcome	notes
 2026-03-04	L11 cross-model	governance-friction-audit via non-Claude model	weaver	logged	first L11 firing event; audit identified SO/lexicon dedup + missing firing records; inventory useful, friction analysis incomplete
+2026-03-04	L11 cross-model	build-order cross-examination (codex52)	weaver	reviewed	3 HIGH findings (table count, unit 4 feasibility, SSE failure modes); pre-mortem identifies SSE lifecycle as critical path; 10 unanswered questions
