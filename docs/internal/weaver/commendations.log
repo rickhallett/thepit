@@ -1,4 +1,5 @@
-# Weaver — Commendations Log
-# Extra rations awarded by the Captain. Append-only.
+# Commendations Log — Extra Rations
+# Append-only. Format: date | agent | recipient | reason
+# SO.commendation := extra_rations -> append(commendations.log, {date, agent, recipient, reason})
 
-2026-03-03  extra_rations  oceanheart.ai prod down — compared ARCHIVED with noopit, identified full Hugo pipeline loss (layouts, content, static, data, config), recouped all artifacts (none left behind), caught livereload contamination in build output before deploy, clean build + smoke test (16 routes HTTP 200) + Vercel prod deploy. Site restored.
+2026-03-03 | Captain | Weaver | oceanheart.ai prod down — compared ARCHIVED with noopit, identified full Hugo pipeline loss (layouts, content, static, data, config), recouped all artifacts (none left behind), caught livereload contamination in build output before deploy, clean build + smoke test (16 routes HTTP 200) + Vercel prod deploy. Site restored.

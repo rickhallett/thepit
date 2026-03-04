@@ -1,0 +1,5 @@
+date	time	type	agent	commit	ref	summary	backrefs
+2026-03-04	08:30	L11	Weaver	dd23fa3	governance-friction-audit-2026-03-04.md	Cross-model governance friction audit processed. Useful as inventory, not yet a friction audit.	catch-log.tsv
+2026-03-04	09:15	L11	Weaver	4d452e2	cross-examine-build-order_codex52_20260304-093614.md	L11 build-order cross-examination. 3 HIGH findings: table count (noise), task 13 feasibility (valid), SSE error handling (gap patched).	plans/09-bout-streaming.md
+2026-03-04	10:00	process	Weaver	ed33d01	AGENTS.md	AGENTS.md reordered for positional bias: constraints to primacy, operations to recency, reference to middle.	SD-312
+2026-03-04	14:00	reset	Captain	a922f3d	-	All product code deleted. Rebuilding with feedback infrastructure first. Missing: event log, commendation SO, pitkeel, keel signals.	REVIEW-CHECKLIST.md
