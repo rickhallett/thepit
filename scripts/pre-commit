@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# pre-commit hook — verifies gauntlet attestations before commit.
+#
+# The pre-commit hook is the enforcement layer. It checks that all
+# required attestation files exist in .gauntlet/, match the current
+# tree hash (staged content), and have passing verdicts.
+#
+# Tiers: full (code), docs (markdown only), wip (work-in-progress), sudo (emergency)
+# Set tier explicitly: python3 scripts/pitcommit.py tier --set <tier>
+# Auto-detection: docs files → docs tier, otherwise → full
+#
+# Escape hatch: git commit --no-verify (acceptable for emergencies, logged)
+#
+# Install:
+#   ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
+#
+# Uninstall:
+#   rm .git/hooks/pre-commit
+
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+PITCOMMIT="$ROOT/scripts/pitcommit.py"
+
+# Bootstrap: if pitcommit doesn't exist yet, skip (first install)
+if [ ! -f "$PITCOMMIT" ]; then
+  exit 0
+fi
+
+# Bootstrap: if .gauntlet/ doesn't exist, warn but don't block
+if [ ! -d "$ROOT/.gauntlet" ]; then
+  echo "⚠ No .gauntlet/ directory. Run 'make gauntlet' to verify changes." >&2
+  echo "  Allowing commit (bootstrap mode)." >&2
+  exit 0
+fi
+
+# Run verification
+if ! python3 "$PITCOMMIT" verify; then
+  echo "" >&2
+  echo "Commit blocked by gauntlet." >&2
+  echo "Run 'python3 scripts/pitcommit.py status' for details." >&2
+  echo "Run 'make gauntlet' to verify staged changes." >&2
+  echo "Use 'git commit --no-verify' for emergency bypass (sudo)." >&2
+  exit 1
+fi

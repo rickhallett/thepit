@@ -18,7 +18,16 @@ COMMIT_SOURCE="$2"
 # Skip for merges, squashes, and amends — only run on fresh commits.
 case "$COMMIT_SOURCE" in
   merge|squash|commit)
-    exit 0
+# --- Gauntlet trailer ---
+PITCOMMIT="$ROOT/scripts/pitcommit.py"
+if [ -f "$PITCOMMIT" ] && [ -d "$ROOT/.gauntlet" ]; then
+  GAUNTLET_TRAILER=$(python3 "$PITCOMMIT" trailer 2>/dev/null)
+  if [ -n "$GAUNTLET_TRAILER" ]; then
+    printf '\n%s\n' "$GAUNTLET_TRAILER" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
+exit 0
     ;;
 esac
 

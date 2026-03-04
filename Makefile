@@ -294,38 +294,47 @@ graph:
 DARKCAT_PROMPT := scripts/darkcat.md
 DARKCAT_SYNTH_PROMPT := scripts/darkcat-synth.md
 DARKCAT_TIMEOUT := 180
+PITCOMMIT := python3 scripts/pitcommit.py
+
+# Identity: tree hash of staged content (solves the SHA paradox)
+TREE := $(shell git write-tree 2>/dev/null | cut -c1-8)
+TREE_FULL := $(shell git write-tree 2>/dev/null)
+# SHA kept for display/ad-hoc use only
 SHA := $(shell git rev-parse --short HEAD)
 
 # DC-1: Claude
 darkcat:
-	@echo "▶ DC-1 (Claude) — $(SHA)"
+	@echo "▶ DC-1 (Claude) — $(TREE)"
 	@timeout $(DARKCAT_TIMEOUT) claude -p "$$(cat $(DARKCAT_PROMPT))" \
 		--allowedTools "Bash(git:*) Read" \
-		> $(LOGS)/dc-$(SHA)-claude.log 2>&1
-	@echo "  → $(LOGS)/dc-$(SHA)-claude.log"
-	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-claude.log || true
+		> $(LOGS)/dc-$(TREE)-claude.log 2>&1
+	@echo "  → $(LOGS)/dc-$(TREE)-claude.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(TREE)-claude.log || true
+	@$(PITCOMMIT) attest dc-claude --tree $(TREE_FULL) --log $(LOGS)/dc-$(TREE)-claude.log
 
 # DC-2: OpenAI (Codex)
 darkcat-openai:
-	@echo "▶ DC-2 (OpenAI) — $(SHA)"
+	@echo "▶ DC-2 (OpenAI) — $(TREE)"
 	@timeout $(DARKCAT_TIMEOUT) codex exec --sandbox read-only \
 		"$$(cat $(DARKCAT_PROMPT))" \
-		> $(LOGS)/dc-$(SHA)-openai.log 2>&1
-	@echo "  → $(LOGS)/dc-$(SHA)-openai.log"
-	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-openai.log || true
+		> $(LOGS)/dc-$(TREE)-openai.log 2>&1
+	@echo "  → $(LOGS)/dc-$(TREE)-openai.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(TREE)-openai.log || true
+	@$(PITCOMMIT) attest dc-openai --tree $(TREE_FULL) --log $(LOGS)/dc-$(TREE)-openai.log
 
 # DC-3: Gemini
 darkcat-gemini:
-	@echo "▶ DC-3 (Gemini) — $(SHA)"
-	@timeout $(DARKCAT_TIMEOUT) gemini -p \
+	@echo "▶ DC-3 (Gemini) — $(TREE)"
+	@timeout $(DARKCAT_TIMEOUT) gemini -y -p \
 		"$$(cat $(DARKCAT_PROMPT))" \
-		> $(LOGS)/dc-$(SHA)-gemini.log 2>&1
-	@echo "  → $(LOGS)/dc-$(SHA)-gemini.log"
-	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-gemini.log || true
+		> $(LOGS)/dc-$(TREE)-gemini.log 2>&1
+	@echo "  → $(LOGS)/dc-$(TREE)-gemini.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(TREE)-gemini.log || true
+	@$(PITCOMMIT) attest dc-gemini --tree $(TREE_FULL) --log $(LOGS)/dc-$(TREE)-gemini.log
 
 # All three DCs in parallel
 darkcat-all:
-	@echo "▶ Darkcat Triad — $(SHA)"
+	@echo "▶ Darkcat Triad — $(TREE)"
 	@$(MAKE) -j3 darkcat darkcat-openai darkcat-gemini
 	@echo "✓ All three DCs complete"
 
@@ -333,31 +342,32 @@ darkcat-all:
 # Default: Claude. Override with SYNTH_HARNESS=codex or SYNTH_HARNESS=gemini
 SYNTH_HARNESS ?= claude
 darkcat-synth:
-	@echo "▶ DC-SYNTH ($(SYNTH_HARNESS)) — $(SHA)"
-	@if [ ! -f $(LOGS)/dc-$(SHA)-claude.log ] || \
-	    [ ! -f $(LOGS)/dc-$(SHA)-openai.log ] || \
-	    [ ! -f $(LOGS)/dc-$(SHA)-gemini.log ]; then \
-		echo "ERROR: missing DC logs for $(SHA). Run 'make darkcat-all' first."; exit 1; \
+	@echo "▶ DC-SYNTH ($(SYNTH_HARNESS)) — $(TREE)"
+	@if [ ! -f $(LOGS)/dc-$(TREE)-claude.log ] || \
+	    [ ! -f $(LOGS)/dc-$(TREE)-openai.log ] || \
+	    [ ! -f $(LOGS)/dc-$(TREE)-gemini.log ]; then \
+		echo "ERROR: missing DC logs for $(TREE). Run 'make darkcat-all' first."; exit 1; \
 	fi
 	@if [ "$(SYNTH_HARNESS)" = "claude" ]; then \
 		timeout $(DARKCAT_TIMEOUT) claude -p "$$(cat $(DARKCAT_SYNTH_PROMPT))" \
 			--allowedTools "Bash(git:*) Read" \
-			> $(LOGS)/dc-$(SHA)-synth.log 2>&1; \
+			> $(LOGS)/dc-$(TREE)-synth.log 2>&1; \
 	elif [ "$(SYNTH_HARNESS)" = "codex" ]; then \
 		timeout $(DARKCAT_TIMEOUT) codex exec --sandbox read-only \
 			"$$(cat $(DARKCAT_SYNTH_PROMPT))" \
-			> $(LOGS)/dc-$(SHA)-synth.log 2>&1; \
+			> $(LOGS)/dc-$(TREE)-synth.log 2>&1; \
 	elif [ "$(SYNTH_HARNESS)" = "gemini" ]; then \
-		timeout $(DARKCAT_TIMEOUT) gemini -p \
+		timeout $(DARKCAT_TIMEOUT) gemini -y -p \
 			"$$(cat $(DARKCAT_SYNTH_PROMPT))" \
-			> $(LOGS)/dc-$(SHA)-synth.log 2>&1; \
+			> $(LOGS)/dc-$(TREE)-synth.log 2>&1; \
 	else \
 		echo "ERROR: unknown SYNTH_HARNESS=$(SYNTH_HARNESS)"; exit 1; \
 	fi
-	@echo "  → $(LOGS)/dc-$(SHA)-synth.log"
-	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-synth.log || true
+	@echo "  → $(LOGS)/dc-$(TREE)-synth.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(TREE)-synth.log || true
+	@$(PITCOMMIT) attest synth --tree $(TREE_FULL) --log $(LOGS)/dc-$(TREE)-synth.log
 
-# Review a specific commit
+# Review a specific commit (ad-hoc, uses SHA not tree)
 darkcat-ref:
 	@if [ -z "$(REF)" ]; then echo "Usage: make darkcat-ref REF=<commit>"; exit 1; fi
 	@echo "▶ darkcat — $(REF)"
@@ -367,22 +377,63 @@ darkcat-ref:
 	@echo "  → $(LOGS)/dc-$(REF)-claude.log"
 	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(REF)-claude.log || true
 
-# Full gauntlet: DCs + synth + pitkeel signals
-gauntlet: darkcat-all darkcat-synth
-	@echo ""
+# ── The Gauntlet — Full Verification Pipeline ─────────────
+#
+# Sequential: gate → darkcats → synth → pitkeel → status
+# Each step writes an attestation to .gauntlet/.
+# Pre-commit hook verifies attestations before allowing commit.
+#
+# Tiers: full (default), docs, wip, sudo
+#   make gauntlet                    full tier
+#   make gauntlet TIER=docs          docs tier (gate + pitkeel only)
+#   make gauntlet TIER=wip           wip tier (gate + pitkeel only)
+
+TIER ?= full
+
+gauntlet-gate:
+	@echo "▶ Gate"
+	@if pnpm run typecheck && pnpm run lint && pnpm run test; then \
+		$(PITCOMMIT) attest gate --tree $(TREE_FULL) --verdict pass; \
+	else \
+		$(PITCOMMIT) attest gate --tree $(TREE_FULL) --verdict fail; \
+		exit 1; \
+	fi
+
+gauntlet-pitkeel:
 	@echo "▶ Pitkeel signals"
 	@cd pitkeel && uv run python pitkeel.py
+	@$(PITCOMMIT) attest pitkeel --tree $(TREE_FULL) --verdict pass
+
+gauntlet:
+	@$(MAKE) gauntlet-gate
+	@if [ "$(TIER)" = "full" ]; then \
+		$(MAKE) darkcat-all; \
+		$(MAKE) darkcat-synth; \
+	fi
+	@$(MAKE) gauntlet-pitkeel
 	@echo ""
 	@echo "════════════════════════════════════════════"
-	@echo "  GAUNTLET COMPLETE — $(SHA)"
-	@echo "  DC logs:  $(LOGS)/dc-$(SHA)-{claude,openai,gemini}.log"
-	@echo "  Synth:    $(LOGS)/dc-$(SHA)-synth.log"
-	@echo ""
-	@echo "  Next: review synth verdict, walkthrough, then commit"
+	@echo "  GAUNTLET COMPLETE — $(TREE) [$(TIER)]"
 	@echo "════════════════════════════════════════════"
+	@$(PITCOMMIT) status
+	@if [ "$(TIER)" = "full" ]; then \
+		echo ""; \
+		echo "  Next: python3 scripts/pitcommit.py walkthrough"; \
+		echo "  Then: git commit -m '...'"; \
+	else \
+		echo ""; \
+		echo "  Next: git commit -m '...'"; \
+	fi
+	@echo "════════════════════════════════════════════"
+
+# Install git hooks (run once after clone)
+install-hooks:
+	@ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
+	@ln -sf ../../scripts/prepare-commit-msg .git/hooks/prepare-commit-msg
+	@echo "✓ Hooks installed: pre-commit, prepare-commit-msg"
 
 clean:
 	rm -rf $(DONE)
 	@echo "All task completion markers cleared."
 
-.PHONY: all status graph clean darkcat darkcat-openai darkcat-gemini darkcat-all darkcat-synth darkcat-ref gauntlet 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
+.PHONY: all status graph clean darkcat darkcat-openai darkcat-gemini darkcat-all darkcat-synth darkcat-ref gauntlet gauntlet-gate gauntlet-pitkeel install-hooks 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26

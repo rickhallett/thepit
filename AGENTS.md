@@ -353,6 +353,7 @@ SLOP not_wrong            := passes_all_checks & !right | "the metrics say it's 
 │       ├── dead-reckoning.md       -- Blowout recovery protocol
 │       ├── events.tsv             -- Event log (date, time, type, agent, commit, ref, summary, backrefs)
 │       └── weaver/catch-log.tsv   -- Control firing events (date, control, what, outcome)
+├── .gauntlet/                      -- Attestation files (gitignored, per-step verification state)
 ```
 
 **BFS rule (SD-195):** Depth 1 = every session. Depth 2 = when topic is relevant. Depth 3+ = deliberate research only. `docs/internal/session-decisions.md` is depth 3 (archaeology) — read the index, not the full log.

@@ -263,3 +263,4 @@ make gauntlet             # runs all darkcats + synth + pitkeel
 | Version | Date | Change |
 |---------|------|--------|
 | v0.1 | 2026-03-04 | Initial workflow. DEV → DARKCAT{1,2,3} → SYNTH → PITKEEL → WALKTHROUGH → COMMIT. |
+| v0.2 | 2026-03-04 | Enforcement via attestations. Tree hash identity (solves SHA paradox). Pre-commit hook blocks without attestations. Tiers: full/docs/wip/sudo. Darkcat reviews staged changes (git diff --cached). pitcommit.py manages attestations. Gemini -y flag. |

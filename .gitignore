@@ -12,6 +12,7 @@ dist/
 playwright-report/
 test-results/
 .keel-state
+.gauntlet/
 pitkeel/.venv/
 pitkeel/.pytest_cache/
 __pycache__/
