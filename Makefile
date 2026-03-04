@@ -300,25 +300,28 @@ SHA := $(shell git rev-parse --short HEAD)
 darkcat:
 	@echo "▶ DC-1 (Claude) — $(SHA)"
 	@timeout $(DARKCAT_TIMEOUT) claude -p "$$(cat $(DARKCAT_PROMPT))" \
-		--dangerously-skip-permissions \
-		2>&1 | tee $(LOGS)/dc-$(SHA)-claude.log
+		--allowedTools "Bash(git:*) Read" \
+		> $(LOGS)/dc-$(SHA)-claude.log 2>&1
 	@echo "  → $(LOGS)/dc-$(SHA)-claude.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-claude.log || true
 
 # DC-2: OpenAI (Codex)
 darkcat-openai:
 	@echo "▶ DC-2 (OpenAI) — $(SHA)"
 	@timeout $(DARKCAT_TIMEOUT) codex exec --sandbox read-only \
 		"$$(cat $(DARKCAT_PROMPT))" \
-		2>&1 | tee $(LOGS)/dc-$(SHA)-openai.log
+		> $(LOGS)/dc-$(SHA)-openai.log 2>&1
 	@echo "  → $(LOGS)/dc-$(SHA)-openai.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-openai.log || true
 
 # DC-3: Gemini
 darkcat-gemini:
 	@echo "▶ DC-3 (Gemini) — $(SHA)"
 	@timeout $(DARKCAT_TIMEOUT) gemini -p \
 		"$$(cat $(DARKCAT_PROMPT))" \
-		2>&1 | tee $(LOGS)/dc-$(SHA)-gemini.log
+		> $(LOGS)/dc-$(SHA)-gemini.log 2>&1
 	@echo "  → $(LOGS)/dc-$(SHA)-gemini.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-gemini.log || true
 
 # All three DCs in parallel
 darkcat-all:
@@ -338,28 +341,31 @@ darkcat-synth:
 	fi
 	@if [ "$(SYNTH_HARNESS)" = "claude" ]; then \
 		timeout $(DARKCAT_TIMEOUT) claude -p "$$(cat $(DARKCAT_SYNTH_PROMPT))" \
-			--dangerously-skip-permissions \
-			2>&1 | tee $(LOGS)/dc-$(SHA)-synth.log; \
+			--allowedTools "Bash(git:*) Read" \
+			> $(LOGS)/dc-$(SHA)-synth.log 2>&1; \
 	elif [ "$(SYNTH_HARNESS)" = "codex" ]; then \
 		timeout $(DARKCAT_TIMEOUT) codex exec --sandbox read-only \
 			"$$(cat $(DARKCAT_SYNTH_PROMPT))" \
-			2>&1 | tee $(LOGS)/dc-$(SHA)-synth.log; \
+			> $(LOGS)/dc-$(SHA)-synth.log 2>&1; \
 	elif [ "$(SYNTH_HARNESS)" = "gemini" ]; then \
 		timeout $(DARKCAT_TIMEOUT) gemini -p \
 			"$$(cat $(DARKCAT_SYNTH_PROMPT))" \
-			2>&1 | tee $(LOGS)/dc-$(SHA)-synth.log; \
+			> $(LOGS)/dc-$(SHA)-synth.log 2>&1; \
 	else \
 		echo "ERROR: unknown SYNTH_HARNESS=$(SYNTH_HARNESS)"; exit 1; \
 	fi
 	@echo "  → $(LOGS)/dc-$(SHA)-synth.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(SHA)-synth.log || true
 
 # Review a specific commit
 darkcat-ref:
 	@if [ -z "$(REF)" ]; then echo "Usage: make darkcat-ref REF=<commit>"; exit 1; fi
 	@echo "▶ darkcat — $(REF)"
 	@timeout $(DARKCAT_TIMEOUT) claude -p "$$(cat $(DARKCAT_PROMPT)) \n\nReview this specific commit: $(REF)" \
-		--dangerously-skip-permissions \
-		2>&1 | tee $(LOGS)/dc-$(REF)-claude.log
+		--allowedTools "Bash(git:*) Read" \
+		> $(LOGS)/dc-$(REF)-claude.log 2>&1
+	@echo "  → $(LOGS)/dc-$(REF)-claude.log"
+	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(REF)-claude.log || true
 
 # Full gauntlet: DCs + synth + pitkeel signals
 gauntlet: darkcat-all darkcat-synth
