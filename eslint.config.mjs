@@ -23,6 +23,7 @@ export default [
         // Browser/Web globals
         Response: "readonly",
         Request: "readonly",
+        ReadableStream: "readonly",
         fetch: "readonly",
         URL: "readonly",
         Headers: "readonly",
