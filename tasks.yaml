@@ -1,0 +1,48 @@
+# tasks.yaml — single source of truth for task tracking
+# Managed by pitask CLI. Do not edit manually.
+# Schema: id, title, status, priority, created, updated, plan, tags, notes
+
+tasks:
+  - id: T-001
+    title: Scaffold project (task 01)
+    status: todo
+    priority: high
+    created: 2026-03-04
+    updated: 2026-03-04
+    plan: plans/01-scaffold.md
+    tags: [infrastructure]
+    notes: ""
+  - id: T-002
+    title: Database schema (task 02)
+    status: todo
+    priority: high
+    created: 2026-03-04
+    updated: 2026-03-04
+    plan: plans/02-database.md
+    tags: [infrastructure]
+    notes: ""
+  - id: T-003
+    title: Clerk middleware (task 03)
+    status: todo
+    priority: high
+    created: 2026-03-04
+    updated: 2026-03-04
+    plan: plans/03-clerk-middleware.md
+    tags: [infrastructure]
+    notes: ""
+  - id: T-004
+    title: Port pitkeel loop/HUD mode
+    status: todo
+    priority: medium
+    created: 2026-03-04
+    updated: 2026-03-04
+    tags: [tooling]
+    notes: ""
+  - id: T-005
+    title: Install codex + gemini CLI
+    status: todo
+    priority: high
+    created: 2026-03-04
+    updated: 2026-03-04
+    tags: [tooling]
+    notes: ""
