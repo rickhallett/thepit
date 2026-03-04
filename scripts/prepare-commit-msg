@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook — appends pitkeel signals to commit messages.
+#
+# Pitkeel output is appended as a trailing block after the commit message.
+# Signals are only appended when they are non-nominal (warnings present).
+# The output goes to stderr so agents and humans see it in the terminal,
+# and is appended to the commit message file so it persists in git log.
+#
+# Install:
+#   ln -sf ../../scripts/prepare-commit-msg .git/hooks/prepare-commit-msg
+#
+# Uninstall:
+#   rm .git/hooks/prepare-commit-msg
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip for merges, squashes, and amends — only run on fresh commits.
+case "$COMMIT_SOURCE" in
+  merge|squash|commit)
+    exit 0
+    ;;
+esac
+
+# Find pitkeel — Python version, run via uv.
+ROOT="$(git rev-parse --show-toplevel)"
+PITKEEL="$ROOT/pitkeel/pitkeel.py"
+
+if [ ! -f "$PITKEEL" ]; then
+  exit 0
+fi
+
+# Capture hook output (plain text, no ANSI).
+KEEL_OUTPUT=$(cd "$ROOT/pitkeel" && uv run python pitkeel.py hook 2>/dev/null)
+
+# If pitkeel failed or produced no output, skip silently.
+if [ -z "$KEEL_OUTPUT" ]; then
+  exit 0
+fi
+
+# Print to stderr so it appears in terminal output for human/agent attention.
+printf '\n%s\n' "$KEEL_OUTPUT" >&2
+
+# Only append to commit message if there are actual signals (not just "nominal").
+if printf '%s' "$KEEL_OUTPUT" | grep -qv "^keel: nominal$"; then
+  printf '\n%s\n' "$KEEL_OUTPUT" >> "$COMMIT_MSG_FILE"
+fi
+
+# --- Always-on trailers from .keel-state ---
+STATE="$ROOT/.keel-state"
+
+if [ -f "$STATE" ]; then
+  TRAILERS=$(cd "$ROOT/pitkeel" && uv run python -c "
+import json, sys
+try:
+    d = json.load(open('$STATE'))
+    b = d.get('bearing', {})
+    if isinstance(b, dict):
+        bearing_str = '%s [%s commits]' % (b.get('work', '—'), b.get('commits', '?'))
+        if b.get('note'):
+            bearing_str += ' | %s' % b['note']
+    else:
+        bearing_str = str(b)
+    fields = [
+        ('Officer', d.get('officer', '—')),
+        ('Bearing', bearing_str),
+        ('Tempo', d.get('tempo', '—')),
+        ('Weave', '%s | %s' % (d.get('weave', '—'), d.get('register', '—'))),
+        ('Gate', '%s (%s) | %s passed' % (d.get('gate', '?'), d.get('gate_time', '?'), d.get('tests', '?'))),
+    ]
+    for k, v in fields:
+        print('%s: %s' % (k, v))
+except Exception:
+    sys.exit(0)
+" 2>/dev/null)
+
+  if [ -n "$TRAILERS" ]; then
+    printf '\n%s\n' "$TRAILERS" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
+exit 0

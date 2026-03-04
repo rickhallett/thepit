@@ -38,6 +38,15 @@
 
 ---
 
+### Keel Signal Check — End of Phase 0
+
+- [ ] Run `cd pitkeel && uv run python pitkeel.py` — review session, scope, velocity
+- [ ] If fatigue ≥ moderate: stop, checkpoint, resume fresh
+- [ ] If scope drift to unexpected domains: investigate before proceeding
+- [ ] Run `cd pitkeel && uv run python pitkeel.py state-update --officer <name>` — update .keel-state
+
+---
+
 ## Phase 1: Infrastructure
 
 ### 04 — User Mirroring
@@ -61,6 +70,15 @@
 - [ ] Tests use `vi.useFakeTimers()` for sliding window verification
 - [ ] No external dependencies for rate limiting (in-memory only)
 - [ ] Gate passes
+
+---
+
+### Keel Signal Check — End of Phase 1
+
+- [ ] Run `cd pitkeel && uv run python pitkeel.py` — review all signals
+- [ ] If velocity accelerating: are gates running between each commit?
+- [ ] If rapid-fire warnings: slow down, verify each change independently
+- [ ] Update .keel-state: `cd pitkeel && uv run python pitkeel.py state-update --officer <name>`
 
 ---
 
@@ -146,6 +164,16 @@
 
 ---
 
+### Keel Signal Check — End of Phase 2a/2b (Pre-Convergence)
+
+- [ ] Run `cd pitkeel && uv run python pitkeel.py` — full signal check before convergence
+- [ ] Session fatigue: if ≥ moderate, take a break before task 13
+- [ ] Scope drift: both bout and credit domains should be present — that's expected
+- [ ] Velocity: should be steady, not accelerating (convergence requires care)
+- [ ] Update .keel-state: `cd pitkeel && uv run python pitkeel.py state-update --officer <name>`
+
+---
+
 ## 🚧 CONVERGENCE POINT — Task 13
 
 > This is where bout pipeline and credit pipeline merge.
@@ -197,6 +225,12 @@
 - [ ] Credit balance displayed if user is authenticated
 - [ ] No subscription/checkout UI (task 19)
 - [ ] Gate passes
+
+### Keel Signal Check — End of Phase 3 (Pre-Smoke Test)
+
+- [ ] Run `cd pitkeel && uv run python pitkeel.py` — full signal check
+- [ ] If any fatigue warning: take a break before smoke testing (fresh eyes catch more)
+- [ ] Update .keel-state: `cd pitkeel && uv run python pitkeel.py state-update --officer <name>`
 
 ### 🏁 MID-BUILD SMOKE TEST
 
@@ -317,6 +351,15 @@
 - [ ] Smoke test (6 URLs): /, /arena, /agents, /leaderboard, /recent, /api/health
 - [ ] All smoke test URLs return 200
 - [ ] Gate passes on deployed code
+
+---
+
+### Keel Signal Check — End of Phase 5 (Post-Deploy)
+
+- [ ] Run `cd pitkeel && uv run python pitkeel.py` — final signal check
+- [ ] Review commit trailers in git log: are keel signals attached?
+- [ ] Spot-check: any commits with fatigue or rapid-fire warnings that deserve a second look?
+- [ ] Update .keel-state with final state: `cd pitkeel && uv run python pitkeel.py state-update --officer <name>`
 
 ---
 
