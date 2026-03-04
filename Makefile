@@ -402,9 +402,10 @@ gauntlet-gate:
 gauntlet-pitkeel:
 	@echo "▶ Pitkeel signals"
 	@cd pitkeel && uv run python pitkeel.py
-	@$(PITCOMMIT) attest pitkeel --tree $(TREE_FULL) --verdict pass
+	@cd "$(CURDIR)" && $(PITCOMMIT) attest pitkeel --tree $(TREE_FULL) --verdict pass
 
 gauntlet:
+	@$(PITCOMMIT) tier --set $(TIER)
 	@$(MAKE) gauntlet-gate
 	@if [ "$(TIER)" = "full" ]; then \
 		$(MAKE) darkcat-all; \
