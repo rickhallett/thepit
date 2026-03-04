@@ -332,14 +332,13 @@ darkcat-gemini:
 	@grep -E '^(Findings:|Verdict:|##|###)' $(LOGS)/dc-$(TREE)-gemini.log || true
 	@$(PITCOMMIT) attest dc-gemini --tree $(TREE_FULL) --log $(LOGS)/dc-$(TREE)-gemini.log
 
-# Darkcat triad — currently dc-claude only.
-# DC-2 (openai) and DC-3 (gemini) deferred: gemini hangs in pipe mode (2 failure
-# modes observed, v0.32.1); 1 darkcat sufficient to prove workflow, cuts cost.
-# Restore with: $(MAKE) -j3 darkcat darkcat-openai darkcat-gemini
+# Darkcat pair — dc-claude + dc-openai (codex).
+# DC-3 (gemini) deferred: hangs in pipe mode (2 failure modes, v0.32.1).
+# Restore triad with: $(MAKE) -j3 darkcat darkcat-openai darkcat-gemini
 darkcat-all:
-	@$(MAKE) darkcat
+	@$(MAKE) -j2 darkcat darkcat-openai
 	@echo ""
-	@echo "  ✓ Darkcat complete (claude only)"
+	@echo "  ✓ Darkcat complete (claude + codex)"
 
 # DC-SYNTH: Convergence synthesis (4th polecat, Captain's choice of harness)
 # Default: Claude. Override with SYNTH_HARNESS=codex or SYNTH_HARNESS=gemini

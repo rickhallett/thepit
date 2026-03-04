@@ -42,12 +42,12 @@ STEPS = [
 ]
 
 TIERS = {
-    # full: dc-openai, dc-gemini, synth removed — 1 darkcat sufficient to prove
-    # workflow, gemini hangs in pipe mode (2 failure modes, v0.32.1).
-    # Restore when triad is reliable: gate, dc-claude, dc-openai, dc-gemini, synth, pitkeel, walkthrough
+    # dc-gemini, synth removed — gemini hangs in pipe mode (2 failure modes, v0.32.1).
+    # Restore triad when gemini stabilises: add dc-gemini, synth
     "full": [
         "gate",
         "dc-claude",
+        "dc-openai",
         "pitkeel",
         "walkthrough",
     ],
