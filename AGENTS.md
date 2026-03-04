@@ -353,6 +353,7 @@ SLOP not_wrong            := passes_all_checks & !right | "the metrics say it's 
 │       ├── dead-reckoning.md       -- Blowout recovery protocol
 │       ├── events.tsv             -- Event log (date, time, type, agent, commit, ref, summary, backrefs)
 │       └── weaver/catch-log.tsv   -- Control firing events (date, control, what, outcome)
+├── sites/oceanheart/               -- Hugo site (oceanheart.ai CV, about, research)
 ├── .gauntlet/                      -- Attestation files (gitignored, per-step verification state)
 ```
 
