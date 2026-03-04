@@ -421,7 +421,7 @@ From commit 0:
 
 ## Conventions
 
-- TypeScript, Next.js 15, Tailwind, Drizzle ORM, Neon Postgres
+- TypeScript, Next.js 15, Tailwind, Drizzle ORM, Neon Postgres (prod: `snowy-river-644*****`, branch `noopit-dev` for local dev)
 - Co-located tests: `*.test.ts` beside the module they test
 - One domain = one directory = one agent context boundary [SD-304]
 - DOMAIN.md for architectural boundaries, JSDoc for behaviour, header comment for purpose
