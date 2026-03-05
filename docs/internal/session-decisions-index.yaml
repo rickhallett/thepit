@@ -6,9 +6,9 @@
 # The full log is for provenance and archaeology.
 # Only last 10 SDs shown here — read full file for deeper history.
 
-generated: "2026-03-03T14:30:00.000Z"
-total_decisions: 314
-range: "SD-001 to SD-314"
+generated: "2026-03-05T09:30:00.000Z"
+total_decisions: 316
+range: "SD-001 to SD-316"
 note: "Chain carries forward from tspit (pilot study). noopit is thepit-v2 — diverged at SD-278."
 
 # Standing orders that carry forward (always active)
@@ -80,3 +80,7 @@ recent:
     label: "echo-check-fire"
     summary: "Default agentic behaviour: echo back understanding in Signal before acting. Echo and check fire are synonyms. Alignment dial — Signal echo demonstrates understanding, prose performs it."
     status: "STANDING ORDER"
+  - id: SD-316
+    label: "backref-density"
+    summary: "9 mechanisms adopted to increase ref web density. Events spine to YAML, DC-Ref trailers, curated interaction snapshots, verbatim I/O, flag-and-capture via 'log that'. SDs reserved for decisions not data capture."
+    status: "STANDING"

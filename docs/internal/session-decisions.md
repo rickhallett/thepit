@@ -594,3 +594,18 @@ The Captain extended this acknowledgment to all crew members, noting the closest
 | SD-310 | [uv-exclusive] **Python: uv exclusively, no exceptions.** Applied to voice-log.py (refactored from raw python to `uv run --script`). Standing order for all Python in both repos. | Captain | **STANDING ORDER** |
 | SD-311 | [prime-context-lexified] **"Prime Context" added to Lexicon v0.19.** The minimum context that makes the smart zone smart. For polecats: the plan file. For crew: AGENTS.md + bearing + current SD chain. Identifying prime context is the operator's highest-leverage decision at the start of any task. | Captain (concept) / Weaver (lexification) | **STANDING** |
 | SD-312 | [hci-foot-guns-lexified] **6 HCI foot guns added to Lexicon v0.19 + back-referenced in layer model (v0.3).** Spinning to Infinity (L9, L3), High on Own Supply (L9, L12), The Dumb Zone (L3, L8), Cold Context Pressure (L3, L8), Hot Context Pressure (L3, L9), Compaction Loss (L3, L6d). Maturin's Mirror cross-referenced with Spinning to Infinity (tool vs pathology). New lexicon section: "HCI Foot Guns." New lexicon section: "Context Engineering." | Captain (identification, naming) / Weaver (lexification, layer model back-refs) | Complete |
+| SD-313 | [signal-protocol] **Signal — compressed governance notation.** PoC compresses ~489 lines to ~108 (4.5:1 ratio). NOT a DSL, NOT a language, NOT a prompt engineering technique — no parser, no build step. It compresses process discipline, not prompt wording. Captain names things in Signal; agents must be able to read it. PoC: `docs/weaver/signal-protocol-poc.md`. | Captain (concept) / Weaver (PoC) | **DRAFT** |
+| SD-314 | [signal-early-results] **Signal decode test: 6/6 cold-boot runs, 8/8 questions, perfect comprehension.** Model-portable governance transmission — tested across model families. | Weaver (testing) | **EXPLORATORY — PROTOTYPAL** |
+| SD-315 | [echo-check-fire] **Default agentic behaviour: echo back understanding in Signal before acting.** Echo and check fire are synonyms. Alignment dial — Signal echo demonstrates understanding, prose performs it. Standing order. | Captain | **STANDING ORDER** |
+
+---
+
+## 2026-03-05 — Session (Backref Density Policy — Captain's Voice Log)
+
+> Source: Captain's voice log, 2026-03-05 09:17:15 (492s). Transcribed via Groq Whisper large-v3. Full transcript: `docs/captain/voice/2026-03-05/09-17-15.transcript`. Curated digest: `docs/captain/voice/2026-03-05/digest-curated.md`.
+
+### Decisions Made
+
+| ID | Decision | Made By | Status |
+|----|----------|---------|--------|
+| SD-316 | [backref-density] **Backref density policy: 9 mechanisms adopted to increase the ref web density between LLM↔human I/O.** Captain's observation: "without refs, data is effectively lost forever." Adopted: (2) SD ref column in darkcat-findings.tsv, (4) curated interaction snapshots in `docs/internal/signal-examples.md`, (5) commit message DC-Ref trailers, (6) events spine — migrated from TSV to YAML for readability, (7) `make journal` daily collation target, (8) agent echo must cite SD/SO refs, (9) verbatim I/O recording for all sessions, (10) flag-and-capture via "log that" trigger. Rejected: (1) auto-append SD for DC catches — SDs reserved for explicit decisions, not data capture. Deferred: (3) session transcript dump. Lexicon additions: "log that" (capture this exchange to file), "scrub that" (remove from file, very rare), "mint" (create an SD or ref — evokes value). Lexicon note: "mark that" rejected as trigger for item 10 — collides with "mark" as general confirmation. "log that" adopted (10x better). | Captain (decisions, lexicon) / Weaver (muster, implementation) | **STANDING** |

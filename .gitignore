@@ -16,3 +16,4 @@ test-results/
 pitkeel/.venv/
 pitkeel/.pytest_cache/
 __pycache__/
+*.wav

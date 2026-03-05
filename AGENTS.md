@@ -32,7 +32,7 @@ muster(items)  := present as numbered table for O(1) binary decisions per row
 stain(x, taxonomy) := apply diagnostic taxonomy to x, reveal hidden structure
 ```
 
-Full PoC: `docs/weaver/signal-protocol-poc.md` [SD-313, SD-314]
+Full PoC: `docs/weaver/signal-protocol-poc.md` v0.1 [SD-313, SD-314]
 
 ---
 
@@ -60,10 +60,10 @@ SO.session_end := !unpushed_commits
 SO.yaml_hud    := address(captain) -> yaml_header_first
 SO.uv          := python -> uv_exclusively !exceptions          [SD-310]
 SO.echo        := order -> echo(Signal) BEFORE acting | !excepted [SD-315]
+SO.event_log    := notable_event -> append(events.yaml, {date, time, type, agent, commit, ref, summary, backrefs})
 SO.rerun       := bad_output -> diagnose & reset & rerun !fix_in_place  [dumb_zone]
 SO.atomic_task := 1_action == 1_instruction_set == 1_agent              [all_dev]
 SO.commendation := extra_rations -> append(commendations.log, {date, agent, recipient, reason}) [durable]
-SO.event_log    := notable_event -> append(events.tsv, {date, time, type, agent, commit, ref, summary, backrefs})
 ```
 
 ---
@@ -160,7 +160,7 @@ Also on disk (not active crew): `analyst.md`, `scribe.md`, `maturin.md`, `anothe
 
 ---
 
-## Lexicon (Compressed — v0.21)
+## Lexicon (Compressed — v0.24)
 
 The vocabulary of this ship. If these terms are not in your context, you are not on this ship [SO-PERM-002].
 
@@ -203,6 +203,9 @@ DEF learning_wild  := discovery(while_doing_work) >> work_itself
 DEF bump_slopodar  := append(slopodar.yaml, new_pattern)
 DEF echo           := agent.compress(understanding) -> Signal BEFORE acting [SD-315]
 DEF check_fire     := echo                                                  [synonym]
+DEF log_that       := flag_and_capture -> excerpt(3-5_msgs) -> durable_file [SD-316]
+DEF scrub_that     := remove_from_file | very_rare | !chain(SD-266)         [SD-316]
+DEF mint           := create(SD | ref) | deliberate !automatic              [SD-316]
 
 -- Spaces & Registers
 DEF quarterdeck    := command | formal | orders
@@ -351,7 +354,7 @@ SLOP not_wrong            := passes_all_checks & !right | "the metrics say it's 
 │       ├── session-decisions-index.yaml  -- Last 10 SDs + standing orders
 │       ├── boot-sequence.md        -- Legacy boot manifest (superseded by this file)
 │       ├── dead-reckoning.md       -- Blowout recovery protocol
-│       ├── events.tsv             -- Event log (date, time, type, agent, commit, ref, summary, backrefs)
+│       ├── events.yaml            -- Event log spine (SD-316, migrated from TSV)
 │       └── weaver/catch-log.tsv   -- Control firing events (date, control, what, outcome)
 ├── sites/oceanheart/               -- Hugo site (oceanheart.ai CV, about, research)
 ├── .gauntlet/                      -- Attestation files (gitignored, per-step verification state)
@@ -383,6 +386,7 @@ SD-312 [hci-footguns]       := 6 foot guns lexified v0.19 + layer model backrefs
 SD-313 [signal-protocol]    := Signal PoC | 4.5:1 compression | DRAFT
 SD-314 [signal-early-results] := 6/6 decode, 8/8 questions | model_portable | PROTOTYPAL
 SD-315 [echo-check-fire]    := order -> echo(Signal) BEFORE acting | STANDING
+SD-316 [backref-density]    := 9_mechanisms -> ref_web_density | events_to_yaml | log_that | mint | STANDING
 ```
 
 Full chain: `docs/internal/session-decisions.md` | Index: `docs/internal/session-decisions-index.yaml`

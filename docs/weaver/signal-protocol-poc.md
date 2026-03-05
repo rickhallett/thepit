@@ -1,4 +1,4 @@
-# Signal — Compressed Governance Protocol (Proof of Concept)
+# Signal v0.1 — Compressed Governance Protocol (Proof of Concept)
 
 > "Reliable communications on a protocol that everyone understands, that is documented, that is not overly verbose or over-engineered but min-maxes for clarity and expressing complexity as concisely as possible without becoming illegible." — Captain, voice log 2026-03-03 09:46:19
 

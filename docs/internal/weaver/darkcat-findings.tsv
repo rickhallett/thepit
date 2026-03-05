@@ -1,4 +1,4 @@
-date	sha	model	round	severity	pattern	file	line	finding	status
+date	sha	model	round	severity	pattern	file	line	finding	status	sd_ref
 2026-03-04	ae7e5f6b	claude	1	minor	dead-code	lib/common/api-utils.ts	78	Unused remaining param in rateLimitResponse	fixed
 2026-03-04	ae7e5f6b	claude	1	minor	shadow-validation	lib/common/types.ts	12	Branded type constructors lack validation	acknowledged
 2026-03-04	ae7e5f6b	openai	1	major	structural	lib/common/rate-limit.ts	25	In-memory limiter retains stale keys indefinitely	documented
