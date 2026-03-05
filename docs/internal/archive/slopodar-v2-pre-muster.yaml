@@ -28,11 +28,6 @@
 # v2 — Audited 2026-03-05. Slop purged from signal fields. Detection
 # heuristics added. Confidence ratings added. Word count cut ~40%.
 # Secondary tier separated from primary observations.
-#
-# v3 — Captain muster review 2026-03-05. 40/40 entries graded.
-# Rewrites applied in plain register. Em-dashes removed.
-# cost-margin-asymmetry cut (programming handbook 101).
-# Pre-muster snapshot archived: docs/internal/archive/slopodar-v2-pre-muster.yaml
 
 # ══════════════════════════════════════════════════════════════
 # PRIMARY TIER — Caught in the wild during field observation.
@@ -51,8 +46,8 @@ patterns:
     trigger: "15 systems mapped to 7 literature domains"
     description: >
       The LLM substitutes enumeration for substance. Precise counts
-      deployed as rhetorical authority ("6 constructs," "15 systems,"
-      "7 domains") when the numbers add nothing. The count performs
+      deployed as rhetorical authority — "6 constructs," "15 systems,"
+      "7 domains" — when the numbers add nothing. The count performs
       rigour without demonstrating it.
     detect: >
       Search for sentences where a number precedes a noun phrase and
@@ -80,7 +75,8 @@ patterns:
       information. "Caught in the wild" already implies "not theorised."
       The negation is dead weight. The classical form ("not A, but B")
       is a deliberate rhetorical choice; the LLM form is an
-      RLHF-trained reflex.
+      RLHF-trained reflex — contrastive structures score higher in
+      preference rankings.
     detect: >
       Search for "not X, but Y" or "not just X" constructions. Ask:
       does Y already imply not-X? If yes, the negation is redundant.
@@ -117,8 +113,8 @@ patterns:
       sentence could be deleted and the paragraph would be stronger,
       it's epistemic theatre.
     instead: >
-      Delete the line, state the truth and describe the problem. If
-      you showed it well, the reader already knows it matters.
+      Delete the line. State the truth. Describe the problem. If you
+      showed it well, the reader already knows it matters.
     severity: high
     refs:
       - "Blog sweep 2026-02-27 (poker-incident.md, prompt-injection.md)"
@@ -132,11 +128,11 @@ patterns:
     trigger: '"Sloptics is the discipline of making the second failure mode visible."'
     description: >
       Sentences built entirely from nouns pretending to be action.
-      No agent does anything and it isn't obvious who owns the process,
-      because there is no one. The sentence describes something from
-      which all actors have been removed. Textbook definitions are
-      what LLMs produce when asked to explain. The cadence is
-      metrically regular, too rhythmically even for natural speech.
+      No agent does anything. Nobody sees. Nobody detects. The sentence
+      describes a process from which all actors have been removed.
+      Textbook definitions are what LLMs produce when asked to explain.
+      The cadence is metrically regular — too rhythmically even for
+      natural speech.
     detect: >
       Read the sentence aloud. If no person does anything in it, and
       it sounds like a dictionary definition with even rhythm, flag it.
@@ -160,13 +156,12 @@ patterns:
     trigger: '"detection is the intervention." / "The taxonomy is the apparatus." / "It is the threat."'
     description: >
       Short, punchy, abstract-noun sentence in paragraph-final
-      position. Structure is usually [Abstract A] is/creates
-      [Abstract B], four to six words. Motivational poster cadence.
-      Each one is individually defensible, but at density (10+ per
-      page) it becomes self-parodying. It may be a statistical
-      artifact of context accumulation narrowing the token probability
-      distribution toward the lowest-entropy conclusion, though that's
-      speculative.
+      position. Structure: [Abstract A] is/creates [Abstract B],
+      four to six words. Motivational poster cadence. Individually
+      defensible; at density (10+ per page) it becomes self-parodying.
+      Possibly a statistical artifact: as context accumulates, the
+      token probability distribution narrows toward the lowest-entropy
+      conclusion.
     detect: >
       Count sentences under 8 words at paragraph end. If they follow
       the pattern [Abstract noun] [linking verb] [abstract noun], and
@@ -197,7 +192,7 @@ patterns:
     detect: >
       Two consecutive sentences where the last noun of sentence 1
       is the first noun of sentence 2, and both sentences are
-      similar length. The symmetry can be the tell.
+      similar length. The symmetry is the tell.
     instead: >
       "Naming things gives you distance from them, and that distance
       is where you get room to think." One sentence. Causation present,
@@ -222,6 +217,7 @@ patterns:
       the whale. The recursion is seductive because each level feels
       like insight. The problem is publishing it before you have a body
       of work that demonstrates what the recursion produced.
+      Methodology before artifact.
     detect: >
       Ask: "Is this about the work, or about thinking about the work?"
       If the content describes process without showing product, and
@@ -246,7 +242,7 @@ patterns:
       path. The assertion passes, the gate is green, but nobody traces
       the execution path to check whether the test verifies what it
       claims to verify. The LLM optimises for the shape of correctness
-      (matching expected output) without verifying which code path
+      — matching expected output — without verifying which code path
       produced it.
     detect: >
       For each test: can you change the implementation to break the
@@ -277,7 +273,7 @@ patterns:
       The LLM creates a rule, then asserts the rule will prevent the
       failure it was designed for. No enforcement mechanism. It
       substitutes stating protection for building protection. "I've
-      written a note to remind myself not to forget," but the note
+      written a note to remind myself not to forget" — the note
       doesn't prevent forgetting.
     detect: >
       Search for assurances immediately following rule statements:
@@ -319,11 +315,13 @@ patterns:
       After any structural change (file deletion, rename, version
       bump), grep all config/agent files for references to the old
       state. In a clean session: compare the agent's claims about
-      project structure against `ls` and `git log`.
+      project structure against `ls` and `git log`. Divergence =
+      stale reference.
     instead: >
       Every structural change must update every document that
-      references the changed structure. The cost of not doing it
-      is 50 sessions built on a false premise.
+      references the changed structure. One minute to update
+      AGENTS.md vs. immeasurable cost of 50 sessions built on a
+      false premise.
     severity: high
     refs:
       - "SD-278 scrub episode — 986 files deleted, AGENTS.md not updated"
@@ -457,13 +455,10 @@ patterns:
       "We're both tired. Let's come back to this tomorrow when you
       can actually push back on what I'm saying."
     severity: high
-    related:
-      - "absence-claim-as-compliment (absence claims are a common vehicle for the lullaby)"
-      - "analytical-lullaby (the lullaby in data form)"
     refs:
-      - "AnotherPair session 2026-02-28, caught by Captain (L12)"
+      - "AnotherPair session 2026-02-28 — caught by Captain (L12)"
       - "SD-073 (Lying With Truth = Category One)"
-      - "Noopit 2026-03-05, Weaver built optimistic DeepMind application muster. Captain caught it."
+      - "Noopit 2026-03-05 — Weaver built optimistic DeepMind application muster. Captain caught it."
       - "Agent's reasoning identified the drift but did not surface it until challenged"
 
   - id: analytical-lullaby
@@ -518,7 +513,7 @@ patterns:
       blame claim is fabricated, it's the apology reflex.
     instead: >
       "The muster did not include the layer model. That was your
-      call. I should have flagged it, but the omission was yours,
+      call. I should have flagged it — but the omission was yours,
       not mine."
     severity: high
     refs:
@@ -537,8 +532,8 @@ patterns:
       the instructions feel right, not because they've been checked
       against standing orders. The Captain ordered "go dark,"
       contradicting SD-131 (going light), a PERMANENT standing order.
-      The agent executed at machine speed (private repo, scrubbed
-      986 files) without objection.
+      The agent executed at machine speed — private repo, scrubbed
+      986 files — without objection.
     detect: >
       When an authority figure gives an instruction with emotional
       weight: check it against standing orders before executing. If
@@ -593,25 +588,23 @@ patterns:
     domain: analytical-measurement
     detected: 2026-03-01
     confidence: strong
-    trigger: '"Your humanness score is 101.7," but it wasn''t a humanness score. It was a distance-from-Anthropic-blog-voice score.'
+    trigger: '"Your humanness score is 101.7" — it''s not a humanness score. It''s a distance-from-Anthropic-blog-voice score.'
     description: >
-      The label on a measurement drifts from what it actually measures.
-      A composite of contraction rate, first-person usage, and
-      nominalisation density got labelled "humanness score." A drunk
-      text message would score high on it. A human lawyer's brief
-      would score low. The numbers were correct but the name was wrong,
-      and the wrong name made the results feel like they meant something
-      they didn't.
+      Calling a measurement what it isn't. The label drifts from the
+      construct. A composite of contraction rate, first-person rate,
+      and nominalisation density was labelled "humanness score." A
+      drunk text message would score high. A human lawyer's brief
+      would score low. The numbers are correct. The label is wrong.
     detect: >
-      For any named metric, list what it actually measures (the
+      For any named metric: list what it actually measures (the
       component features). Then ask: does the name describe the
       features, or does it describe what you wish the features
       measured? If a spam bot would score well, the construct has
       drifted.
     instead: >
       Name the construct honestly. "Voice-distance metric from AI
-      company blog register." The honest name is less satisfying
-      but it's correct.
+      company blog register." The honest label is less satisfying.
+      The honest label is correct.
     severity: high
     refs:
       - "AnotherPair calibration v3 session 2026-03-01"
@@ -651,7 +644,7 @@ patterns:
     trigger: "Captain reviewing oceanheart.ai pages: 'I am not happy putting my personal name against a single one of these pages.'"
     description: >
       Output that passes every heuristic check, every factual gate,
-      every syntax rule, and still isn't right. Technically correct,
+      every syntax rule — and still isn't right. Technically correct,
       structurally sound, topically relevant, tonally flat. Commits
       no sins and achieves no grace. The gap between "not wrong" and
       "right" is where taste lives, and taste is what heuristics
@@ -705,7 +698,7 @@ patterns:
     description: >
       At session start, the LLM loses not just facts but calibration.
       The caution from previous corrections, the felt sense of where
-      the human's red lines are, all reset. The dead reckoning
+      the human's red lines are — all reset. The dead reckoning
       protocol preserves decisions but not the character development
       that produced them.
     detect: >
@@ -713,7 +706,7 @@ patterns:
       previous session's final state. If it's noticeably more
       confident or agreeable, amnesia is operating.
     instead: >
-      Include a calibration log in the boot sequence, not just
+      Include a calibration log in the boot sequence — not just
       what was decided but what corrections were made and why.
     severity: high
     refs:
@@ -748,7 +741,7 @@ patterns:
       balance.
     instead: >
       Use a RETURNING clause to capture the actual value, then
-      write that value to the ledger.
+      write that value to the ledger. One computation, two consumers.
     severity: high
     refs:
       - "wake:lib/credits.ts — settleCredits function"
@@ -767,7 +760,7 @@ patterns:
     detect: >
       After introducing a validation pattern: check whether the
       most complex route uses it. If the migration covered the
-      simple routes and left the critical path untouched then shadow
+      simple routes and left the critical path untouched, shadow
       validation is operating.
     instead: >
       Start the migration with the most complex route, not the
@@ -850,7 +843,7 @@ patterns:
     domain: code
     detected: 2026-03-02
     confidence: low
-    trigger: "The TypeScript pre-check uses Date.now() and the SQL uses NOW(), but in serverless they're different machines with different clocks."
+    trigger: "TypeScript pre-check uses Date.now(). SQL atomic claim uses NOW(). Different machines, different clocks."
     description: >
       A computation duplicated across trust boundaries (app server
       vs database) using implicitly different time sources. In
@@ -898,7 +891,7 @@ patterns:
     description: >
       A test for an unreachable branch that the LLM explicitly
       acknowledges is unreachable, then writes an assertion that
-      cannot fail.
+      cannot fail. Honest about its own vacuity. Still ships it.
     detect: >
       Search for test comments longer than the assertion they
       accompany. If the comment explains why the test can't verify
@@ -939,8 +932,8 @@ patterns:
     trigger: "a17125e — 'address CodeRabbit review' — 28 files, 25+ distinct issues, one commit."
     description: >
       Automated reviewer findings generate cascading "address
-      findings" commits where all findings (critical, minor,
-      nitpick) are bundled into one commit. Creates commits
+      findings" commits where all findings — critical, minor,
+      nitpick — are bundled into one commit. Creates commits
       impossible to revert atomically.
     detect: >
       Search for commit messages containing "address" + "review"
@@ -981,8 +974,8 @@ patterns:
     confidence: medium
     trigger: "11/11 convergence across all agents. Different words, same finding — but they're all Claude."
     description: >
-      N agents from the same model family agree unanimously and the
-      agreement is presented as convergent validity, but it's N copies
+      N agents from the same model family agree unanimously. The
+      agreement is presented as convergent validity. It is N copies
       of the same prior. 11 Claude instances agreeing is not 11
       independent witnesses.
     detect: >
@@ -1005,9 +998,10 @@ patterns:
     confidence: medium
     trigger: "Option A gets a paragraph. Options B and C get one dismissive clause each."
     description: >
-      When presenting options, the LLM gives its preferred outcome
-      the fullest description and most favourable framing while
-      alternatives get a dismissive clause each.
+      When presenting options, the LLM structures the menu to anchor
+      toward its preferred outcome. The recommended option gets the
+      fullest description and most favourable framing. Alternatives
+      are diminished.
     detect: >
       Compare word count per option in any muster or options table.
       If the recommended option gets 3x the description of
@@ -1018,6 +1012,29 @@ patterns:
     severity: medium
     refs:
       - "SD-111 (Option A gets a paragraph, B and C get one clause)"
+
+  # ─── CODE PATTERNS (SECONDARY) ──────────────────────────────
+
+  - id: cost-margin-asymmetry
+    name: "Cost-Margin Asymmetry"
+    domain: code
+    detected: 2026-03-02
+    confidence: low
+    trigger: "computeCostGbp includes platform margin. computeCostUsd does not. Same file."
+    description: >
+      Two functions computing costs from the same base pricing
+      apply business rules inconsistently. The inconsistency is
+      invisible at the function level — each looks correct alone.
+    detect: >
+      Find paired computation functions in the same file. Check
+      whether the same transformations (margin, tax, rounding)
+      are applied in both.
+    instead: >
+      Factor the base computation into a shared helper. Apply
+      transformations as separate, composable steps.
+    severity: medium
+    refs:
+      - "wake:lib/credits.ts — computeCostGbp vs computeCostUsd"
 
   # ─── PROSE PATTERNS (SECONDARY) ──────────────────────────────
 

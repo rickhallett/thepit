@@ -1,5 +1,5 @@
 +++
-title = "Epigrammatic Closure (Poster Child)"
+title = "Epigrammatic Closure"
 id = "epigrammatic-closure"
 type = "slopodar"
 +++
