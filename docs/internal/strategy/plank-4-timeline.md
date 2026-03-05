@@ -1,141 +1,76 @@
-# Timeline — Rebased 3 March 2026
+# Timeline — v2 Reframed
 
-## Current Position
+> v2 — Reframed 2026-03-05. v1 archived at `archive-v1-lullaby/`.
+> v1 was built around the DeepMind FTC deadline (10 March). That's scrubbed.
+> v2 reflects: zen retreat from 1700 today, Phase B now includes strategic reframe.
 
-The magnum strategy docs were written on 2 March in the pilot study repo. Since then:
-- The calibration run (noopit) is active and producing results
-- Cross-model validation (Gemini cold read) identified 5 misframing vectors in project docs, now corrected
-- Signal protocol validated at 4.5:1 compression, 6/6 decode, model-portable
-- Framing corrections committed: engineering not research, sycophantic drift not hallucination, not prompt engineering
-- Strategy docs transplanted to noopit and updated for current lens
+## Current Position — 2026-03-05
 
-The original Day 1-2 plan (immediate applications) is superseded. The calibration run is producing material that strengthens everything downstream. Finishing calibration before publishing and applying is the right sequence.
+- Phase A (calibration) closing today
+- 6 of 26 product tasks landed (T-001 through T-006)
+- Governance apparatus is the primary output of the calibration run
+- Strategy planks v1 archived as potential lullaby artifacts
+- Captain on zen retreat from 1700 today through end of March 7
 
-## Strategy Overview
+## Revised Phases
 
-Two tracks, but sequenced differently from the original plan.
+### Phase A: Calibration — closes 2026-03-05 at 1700
 
-**Phase A: Calibration (3-5 March, ~3 days)**
-Finish the calibration run. The cross-model validation, the framing corrections, the Signal protocol results — this is the proof of process that "the piece" will rest on. Don't rush to publish before the calibration is complete. The piece needs to describe a finished thing, not a work in progress.
+**Status:** Closing. The calibration finding is clear: governance is load-bearing, not overhead. EVAL.md amended to reflect this. Strategy reframe in progress.
 
-**Phase B: The Piece (6-7 March)**
-Write and publish the build-reflect piece. This is the community artifact — Alignment Forum, LessWrong, possibly HN. It converts the calibration run into something a stranger can evaluate in 10 minutes. The one-page story (plank-1) is the compressed version for applications; the piece is the full version for the community.
+**Remaining before retreat:**
+- [ ] Strategy planks v2 on file and slop-checked
+- [ ] Commit and push all strategy changes
+- [ ] Manual QA checklist for T-001 through T-006 (if time permits — can defer to post-retreat)
 
-**Phase C: Applications and Outreach (8 March onward)**
-Applications go out with the piece already published. The published piece is social proof that didn't exist in the original Day 1 plan. This is a stronger position.
+### Zen Retreat — 2026-03-06 to 2026-03-07
 
-### Why this sequence
+**No work.** Unplug. The retreat is the priority.
 
-The original plan front-loaded applications because the DeepMind FTC deadline (10 March) created urgency. That deadline still exists. But applying with the calibration run complete and the piece published is materially stronger than applying on Day 2 with neither.
+### Phase B: Build + Apply — 2026-03-08 onward
 
-The build-reflect piece is not content marketing. It's showing the work. The calibration run is what makes the work worth showing.
+Post-retreat, two parallel tracks:
 
----
+**Track 1: Job applications (60% of time initially)**
+- Set up daily LinkedIn/Otta searches for Tier 1 roles
+- Apply to 2-3 Tier 1 engineering roles per week
+- Apply to Apollo Research (London)
+- Anthropic applications (Red Team Engineer + Fellow) — 3 hour time cap, dual-purpose with HN post
 
-## Phase A: Calibration (3-5 March)
+**Track 2: Product + community (40% of time initially)**
+- Continue product build (T-007 onward) — this IS the portfolio
+- Write the build-reflect piece for community posting (AF, LW, HN)
+- The piece is written when it's ready, not on a deadline
 
-### Day 1 — Today, 3 March
+**Ratio inverts** when 3+ active conversations exist. Until then, applications are the primary track.
 
-**What happened already:**
-- [x] Strategy docs transplanted from tspit to noopit
-- [x] Plank-1 rewritten with current framing (two chapters, engineering not research, hypothesis stress testing)
-- [x] Plank-2, plank-3 framing corrections applied
-- [x] Cross-model validation produced 5 corrective insertions, committed
+### Phase C: Applications renamed to Phase B
 
-**Remaining today:**
-- [ ] Continue calibration run — whatever engineering work is in progress
-- [ ] Review updated plank-1 in your own voice. Cut anything that doesn't sound like you.
-
-### Day 2 — 4 March
-
-- [ ] Continue calibration work
-- [ ] If calibration is producing new observations (Signal results, cross-model findings), document them
-- [ ] Begin drafting the build-reflect piece outline — what goes in, what stays out, what the structure is
-
-### Day 3 — 5 March
-
-- [ ] Close out calibration run or reach a natural stopping point
-- [ ] Finalise the build-reflect piece outline
-- [ ] Set up Alignment Forum and LessWrong accounts if not already present
+There is no separate "applications" phase. Building and applying happen together. The product IS the application material. Every task landed strengthens the portfolio.
 
 ---
 
-## Phase B: The Piece (6-7 March)
-
-### Day 4 — 6 March
-
-- [ ] Write the build-reflect piece. Target: 800-1200 words, data-backed, honest, your voice
-- [ ] The piece should describe: what was built, what was observed, what the calibration run tested, what was learned
-- [ ] Framing discipline: engineering observations, not research findings. Hypothesis stress testing, not evidence. Describe, don't sell.
-- [ ] Run through slopodar before publishing. If you catch patterns in your own prose, rewrite.
-
-### Day 5 — 7 March
-
-- [ ] Edit the piece. Same discipline as plank-1 — cut anything performed.
-- [ ] Publish on Alignment Forum, cross-post to LessWrong
-- [ ] Share links on X/Twitter with brief context, not a thread
-
----
-
-## Phase C: Applications (8 March onward)
-
-### Day 6 — 8 March
-
-**Time-critical:** DeepMind FTC deadline is 10 March.
-
-- [ ] Apply to DeepMind FTC (Psychologist/Sociologist, AI Psychology & Safety). Use plank-1 as cover material. Reference the published piece. Attach CV.
-- [ ] Apply to Anthropic: Red Team Engineer (Safeguards) + AI Safety Fellow. Use plank-1 and link both repos.
-
-### Day 7 — 9 March
-
-- [ ] Apply to Apollo Research: Applied Researcher (Product). London-based.
-- [ ] Apply to OpenAI: AI Emerging Risks Analyst. Reference Preparedness Framework v2.
-- [ ] Respond to any comments on the build-reflect piece.
-
-### Day 8-10 — 10-12 March
-
-- [ ] Apply to METR, Vals AI, Patronus AI, Redwood as appropriate
-- [ ] Direct outreach: identify 3-5 people from LinkedIn research (plank-3). Personalised messages, under 200 words, link to the piece and repos.
-- [ ] Submit MATS Expression of Interest if timing works.
-
-### Week 2 (13-19 March)
-
-- [ ] Follow up on silent applications (7 days is reasonable)
-- [ ] Continue community engagement (2-3 meaningful interactions per day)
-- [ ] If the piece gained traction, consider a second piece (candidate: the taxonomy as a practical tool)
-- [ ] If no responses from Tier 1: escalate to direct LinkedIn outreach
-
-### Week 3-4 (20 March - 3 April)
-
-- [ ] Pipeline management: track what advanced, what went cold
-- [ ] If interviews are happening: prepare using the documented observations and the governance self-assessment. Know the material cold.
-- [ ] If no interviews: evaluate whether the framing is landing. Adjust bridge, not work.
-
----
-
-## Time Allocation
-
-During Phase A (calibration):
-- **90% calibration work, 10% strategy review**
-
-During Phase B (the piece):
-- **100% the piece** — get it right before moving on
-
-During Phase C (applications):
-- **60% applications + outreach, 40% ongoing engineering**
-- This ratio inverts once 3+ active conversations exist
-
----
-
-## Success Metrics
+## Success Metrics (Revised)
 
 | Milestone | Target |
 |-----------|--------|
-| End of Phase A (5 March) | Calibration run at natural stopping point, piece outline ready |
-| End of Phase B (7 March) | Piece published, community accounts active |
-| End of Week 1 of Phase C (12 March) | 5+ applications submitted, DeepMind FTC submitted before deadline |
-| End of Week 2 (19 March) | At least 2 responses, at least 1 community conversation |
-| End of Week 3 (26 March) | At least 1 interview scheduled |
-| End of Week 4 (3 April) | At least 2 interviews completed or in pipeline |
+| End of retreat (7 March) | Rested. Strategy on file. |
+| End of Week 1 post-retreat (14 March) | 3+ Tier 1 applications submitted. Anthropic submitted. Apollo submitted. |
+| End of Week 2 (21 March) | 6+ total applications. Build-reflect piece drafted. |
+| End of Week 3 (28 March) | At least 1 response from any tier. Piece published if ready. |
+| End of Week 4 (4 April) | At least 1 interview or reassess targeting. |
 
-If Week 3 target is not met, reassess targeting. The work is there. If it's not landing, the bridge needs adjustment.
+If Week 3 target not met: the work is there, the bridge needs adjustment. Reassess whether Tier 1 targeting is right, or whether the roles need different framing.
+
+---
+
+## What's Different from v1
+
+| v1 | v2 |
+|----|-----|
+| DeepMind FTC deadline drove urgency | No external deadline. Steady cadence. |
+| Phase B was "write the piece" | Phase B is "build + apply" in parallel |
+| Phase C was "applications" | No separate phase — applications start immediately post-retreat |
+| 100% the piece for 2 days | The piece is one track among several |
+| Frontier research positioning | Applied engineering positioning |
+| 5+ applications to research roles | 2-3 engineering applications per week |
