@@ -23,8 +23,10 @@
   "license": "ISC",
   "packageManager": "pnpm@10.28.2",
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.58",
     "@clerk/nextjs": "^6.39.0",
     "@neondatabase/serverless": "^1.0.2",
+    "ai": "^6.0.116",
     "drizzle-orm": "^0.45.1",
     "nanoid": "^5.1.6",
     "next": "^16.1.6",
