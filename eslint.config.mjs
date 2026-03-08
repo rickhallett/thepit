@@ -34,6 +34,8 @@ export default [
     },
     rules: {
       "no-unused-vars": "off",
+      // TypeScript allows same name for value and type (const + type pattern)
+      "no-redeclare": "off",
     },
   },
   {
