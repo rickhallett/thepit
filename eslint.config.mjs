@@ -27,6 +27,9 @@ export default [
         fetch: "readonly",
         URL: "readonly",
         Headers: "readonly",
+        TextEncoder: "readonly",
+        TextDecoder: "readonly",
+        setTimeout: "readonly",
         // React
         React: "readonly",
         JSX: "readonly",

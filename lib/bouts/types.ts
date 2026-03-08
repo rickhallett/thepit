@@ -30,11 +30,15 @@ export type SSEEventType =
   | "error" // { code, message }
   | "done"; // {}
 
+/** Valid model aliases for bout requests. Maps to actual Anthropic model IDs in the route. */
+export const VALID_BOUT_MODELS = ["claude-haiku", "claude-sonnet"] as const;
+export type BoutModel = (typeof VALID_BOUT_MODELS)[number];
+
 export const BoutCreateRequestSchema = z.object({
   boutId: z.string().min(10).max(21),
   presetId: z.string(),
   topic: z.string().max(500).optional(),
-  model: z.string().optional(),
+  model: z.enum(VALID_BOUT_MODELS).optional(),
   length: z.enum(["short", "medium", "long"]).optional(),
   format: z.enum(["debate", "roundtable"]).optional(),
 });
