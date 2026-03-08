@@ -1,6 +1,6 @@
 +++
 title = "About"
-description = "Kai Hallett — agentic systems engineer, former cognitive behavioural therapist. Building the verification infrastructure that makes human-AI delegation reliable."
+description = "Rick Hallett — agentic systems engineer, former cognitive behavioural therapist. Building the verification infrastructure that makes human-AI delegation reliable."
 layout = "about"
 +++
 
