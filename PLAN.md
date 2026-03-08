@@ -4,23 +4,17 @@ Derived from SPEC.md dependency chain and EVAL.md success criteria. Each unit is
 
 ## Already complete
 
-| # | Unit | Commit | What |
-|---|------|--------|------|
-| 0a | Next.js scaffold | `5af3e55` | App Router, TypeScript strict, Tailwind, Vitest, ESLint |
-| 0b | Database schema | `219de37` | Drizzle: 4 enums, 11 tables, Neon connection |
-| 0c | Auth middleware | `6daa92d` | Clerk middleware, sign-in/up pages, ClerkProvider |
+| # | Unit | Plan | Commit | What |
+|---|------|------|--------|------|
+| 0a | Next.js scaffold | 01 | `5af3e55` | App Router, TypeScript strict, Tailwind, Vitest, ESLint |
+| 0b | Database schema | 02 | `219de37` | Drizzle: 4 enums, 11 tables, Neon connection |
+| 0c | Auth middleware | 03 | `6daa92d` | Clerk middleware, sign-in/up pages, ClerkProvider |
+| 1 | GET /api/health | 01 | `045ef8f` | DB connectivity + feature flags |
+| 2 | User sync on first auth | 04 | `1a6c5f0` | ensureUserRecord, referral codes, onboarding orchestrator |
+| — | API utils + rate limiter | 05 | `2622c65` | Branded types, error responses, sliding window rate limiter |
+| 3 | Preset agent definitions | 06 | `0b1e03d` | 4 JSON presets, Zod-validated loader, frozen cache |
 
----
-
-## Phase 1: API Foundation
-
-Proves the plumbing works. No product logic yet.
-
-| # | Unit | Touches | Depends on | Verifiable by |
-|---|------|---------|------------|---------------|
-| 1 | `GET /api/health` | `app/api/health/route.ts` | Schema (0b) | curl returns DB status + feature flags |
-| 2 | User sync on first auth | `lib/auth/ensure-user.ts` | Auth (0c), schema (0b) | Test: Clerk webhook → DB row created, referral code assigned, credit account initialised |
-| 3 | Preset agent definitions | `lib/bouts/presets.ts` | Schema (0b) | Test: resolve preset ID → agent_lineup config |
+**QA signoff:** T-001 through T-006 verified (`docs/internal/weaver/qa-signoff-T001-T006.md`). Gate green. Foundation ready. 49 tests (40 pass, 9 skipped — need live DB).
 
 ---
 

@@ -22,7 +22,7 @@
 - [ ] `db/schema.ts` has 11 tables matching SPEC.md data model
 - [ ] 4 enums: bout_status, agent_tier, user_tier, reaction_type
 - [ ] Foreign keys reference correct parent tables
-- [ ] `bigint` mode is `"bigint"` (not `"number"`) for credit fields
+- [ ] `bigint` mode is `"number"` for credit fields (values stay within Number.MAX_SAFE_INTEGER; avoids BigInt ergonomic pain)
 - [ ] `$onUpdate` on `updatedAt` fields
 - [ ] Unique constraints: reactions composite, winner_votes composite, shortLinks.slug, referralCode
 - [ ] `db/index.ts` uses Neon serverless Pool, not pg

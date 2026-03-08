@@ -106,6 +106,70 @@ RULE := gate.green BEFORE done
 
 ---
 
+## The Bearing Check
+
+A repeatable governance unit. Run at phase boundaries — before starting a new phase of work, after returning from break, or whenever the Captain suspects drift.
+
+```signal
+DEF bearing_check := calibrate(instruments) BEFORE new_heading
+WHEN := phase_boundary | session_start_after_break | captain.suspects(drift)
+
+CHECK spec_drift    := vgrep(SPEC.md) against implementation | note(divergence)
+CHECK eval_validity := read(EVAL.md) | criteria.still_reachable? | amendments.needed?
+CHECK plan_accuracy := read(PLAN.md) | completed_table.current? | deps.still_valid?
+CHECK gate_health   := run(gate) | all_tests.pass? | no_regressions?
+CHECK backlog_sync  := read(backlog.yaml) | items.still_relevant? | priorities.correct?
+
+OUTPUT := findings(per_check) -> note_if_drift | fix_if_small | backlog_if_large
+RULE   := bearing_check.cost ≈ 15_agent_min | drift_cost >> check_cost
+```
+
+This was codified from the 2026-03-08 pre-bouts drift review. The cost of checking is negligible; the cost of building on stale instruments is not.
+
+---
+
+## The Macro Workflow
+
+How work flows through the system at the Captain's level. Each phase boundary triggers a bearing check.
+
+```signal
+WORKFLOW :=
+  ┌─────────────────────────────────────────────────────────────┐
+  │ 1. BEARING CHECK                                            │
+  │    spec.inline? plan.current? eval.valid? gate.green?       │
+  │    fix(drift) | note(findings)                              │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 2. SCOPE                                                    │
+  │    identify(next_phase) from PLAN.md                        │
+  │    decompose into PRs (1_PR == 1_concern)                   │
+  │    write(spec_plan) -> docs/decisions/                      │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 3. DISPATCH                                                 │
+  │    prime_context(plan_file + deps) -> @Agent                │
+  │    agent.implements -> gate.verifies                        │
+  │    RULE: polecat(fresh_context) | !interactive_steering     │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 4. REVIEW                                                   │
+  │    @Weaver.reviews(PR) | reviewer != author                 │
+  │    darkcat(adversarial) | findings.resolved BEFORE merge    │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 5. MERGE + POST-VERIFY                                      │
+  │    gate.on(merge_target) | fail -> investigate.immediately  │
+  │    stain(diff, watchdog_taxonomy)                           │
+  │    update(PLAN.md completed table)                          │
+  ├─────────────────────────────────────────────────────────────┤
+  │ 6. ADVANCE or LOOP                                          │
+  │    phase.complete? -> bearing_check -> next_phase           │
+  │    phase.incomplete? -> next_PR(same_phase)                 │
+  └─────────────────────────────────────────────────────────────┘
+
+CADENCE := bearing_check -> scope -> {dispatch -> review -> merge}* -> advance
+RULE    := human.reviews(AFTER_execution) !during [polecat_principle]
+RULE    := spec_plan BEFORE implementation [provenance]
+```
+
+---
+
 ## HCI Foot Guns — Named Avoidances
 
 Identified in the pilot study. These are the controls this run tightens.
