@@ -2,21 +2,17 @@
 // Playwright not yet installed — tests are skipped placeholders.
 // Will be filled in when @playwright/test is added as a dependency.
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const test = {
+export {};
+
+const boutTest = {
   describe: (_name: string, fn: () => void) => fn(),
   skip: (_name: string, _fn: () => Promise<void>) => {
     // Skipped test placeholder
   },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const expect = (_value: unknown) => ({
-  toBe: (_expected: unknown) => true,
-});
-
-test.describe("Bout viewer", () => {
-  test.skip("navigate to /bout/{id} → see streaming messages → see completion", async () => {
+boutTest.describe("Bout viewer", () => {
+  boutTest.skip("navigate to /bout/{id} → see streaming messages → see completion", async () => {
     // TODO: requires running dev server with test database
     // Will be filled in during integration testing
     //
@@ -29,7 +25,7 @@ test.describe("Bout viewer", () => {
     // 6. Assert share line appears
   });
 
-  test.skip("load completed bout → render static transcript", async () => {
+  boutTest.skip("load completed bout → render static transcript", async () => {
     // TODO: requires seeded test database with completed bout
     //
     // Test plan:
@@ -40,7 +36,7 @@ test.describe("Bout viewer", () => {
     // 5. Assert share line visible
   });
 
-  test.skip("load error bout → show error state", async () => {
+  boutTest.skip("load error bout → show error state", async () => {
     // TODO: requires seeded test database with error bout
     //
     // Test plan:
@@ -50,8 +46,8 @@ test.describe("Bout viewer", () => {
   });
 });
 
-test.describe("Arena page", () => {
-  test.skip("navigate to /arena → see presets → click → redirect to bout page", async () => {
+boutTest.describe("Arena page", () => {
+  boutTest.skip("navigate to /arena → see presets → click → redirect to bout page", async () => {
     // TODO: requires running dev server
     //
     // Test plan:

@@ -176,3 +176,26 @@ export async function getUserReactions(
   }
   return result;
 }
+
+/**
+ * Get the turn index with the most reactions (heart + fire combined).
+ * Returns null if no reactions exist.
+ */
+export async function getMostReactedTurnIndex(
+  boutId: string,
+): Promise<number | null> {
+  const rows = await db
+    .select({
+      turnIndex: reactions.turnIndex,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(reactions)
+    .where(eq(reactions.boutId, boutId))
+    .groupBy(reactions.turnIndex)
+    .orderBy(sql`count(*) DESC`)
+    .limit(1);
+
+  return rows.length > 0 && rows[0].turnIndex !== null
+    ? rows[0].turnIndex
+    : null;
+}
