@@ -23,6 +23,7 @@ export default [
         // Browser/Web globals
         Response: "readonly",
         Request: "readonly",
+        FormData: "readonly",
         ReadableStream: "readonly",
         fetch: "readonly",
         URL: "readonly",
@@ -30,7 +31,6 @@ export default [
         TextEncoder: "readonly",
         TextDecoder: "readonly",
         setTimeout: "readonly",
-        FormData: "readonly",
         AbortController: "readonly",
         globalThis: "readonly",
         // React
