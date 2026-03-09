@@ -24,6 +24,14 @@ export async function preauthorizeCredits(
   estimatedCostMicro: number,
   boutId: string,
 ): Promise<PreauthResult> {
+  // Guard: financial function validates its own invariants.
+  // Zero allows a free bout; negative mints credits via subtraction inversion.
+  if (estimatedCostMicro <= 0) {
+    throw new Error(
+      `Invalid preauth amount: estimatedCostMicro=${estimatedCostMicro}. Must be positive.`,
+    );
+  }
+
   const preauthId = `preauth:${boutId}`;
 
   // Transaction ensures the conditional deduction and audit log are atomic.

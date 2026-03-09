@@ -140,7 +140,11 @@ export async function claimFromIntroPool(
 
   // Actual claim = difference between old and new claimedMicro.
   // This is the ground truth — no fragile JS recomputation of the SQL decay formula.
-  const actualClaim = newClaimedMicro - oldClaimedMicro;
+  // Capped at requestedMicro as a safety bound: if oldClaimedMicro is stale due to
+  // a concurrent claim between getIntroPoolStatus and the UPDATE, the diff could
+  // exceed the requested amount. The SQL LEAST ensures the pool deduction never
+  // exceeds requestedMicro, so the credit grant shouldn't either.
+  const actualClaim = Math.min(newClaimedMicro - oldClaimedMicro, requestedMicro);
 
   // Recompute effective remaining for the return value
   const halfLifeDays = parseFloat(row.halfLifeDays ?? String(DEFAULT_HALF_LIFE_DAYS));

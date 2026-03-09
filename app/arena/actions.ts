@@ -52,6 +52,13 @@ export async function subscribeAction(formData: FormData): Promise<void> {
     throw new Error("Subscriptions are not enabled");
   }
 
+  // Validate tier against allowlist — untrusted input from formData.
+  // Without this, any value other than "pass" silently subscribes to lab.
+  const ALLOWED_TIERS = ["pass", "lab"] as const;
+  if (!ALLOWED_TIERS.includes(tier as (typeof ALLOWED_TIERS)[number])) {
+    throw new Error(`Unknown subscription tier: ${tier}`);
+  }
+
   const priceId =
     tier === "pass" ? env.STRIPE_PASS_PRICE_ID : env.STRIPE_LAB_PRICE_ID;
   if (!priceId) {

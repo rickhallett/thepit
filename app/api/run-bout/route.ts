@@ -68,11 +68,18 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
 
     if (!preauthResult.success) {
-      // Mark bout as error and return 402
-      await db
-        .update(bouts)
-        .set({ status: "error" })
-        .where(eq(bouts.id, data.boutId));
+      // Mark bout as error — best-effort, DB failure must not mask the 402
+      try {
+        await db
+          .update(bouts)
+          .set({ status: "error" })
+          .where(eq(bouts.id, data.boutId));
+      } catch (dbErr) {
+        console.error(
+          `[run-bout] Failed to mark bout ${data.boutId} as error:`,
+          dbErr,
+        );
+      }
 
       return errorResponse(402, "INSUFFICIENT_CREDITS", "Not enough credits");
     }

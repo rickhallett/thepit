@@ -84,12 +84,12 @@ describe("TIER_CONFIG", () => {
   describe("lab tier", () => {
     const config = TIER_CONFIG.lab;
 
-    it("has unlimited rate limit", () => {
-      expect(config.rateLimit.maxRequests).toBe(Infinity);
+    it("has effectively unlimited rate limit", () => {
+      expect(config.rateLimit.maxRequests).toBe(999999);
     });
 
-    it("allows unlimited agents", () => {
-      expect(config.maxAgents).toBe(Infinity);
+    it("allows effectively unlimited agents", () => {
+      expect(config.maxAgents).toBe(999999);
     });
 
     it("has BYOK enabled", () => {

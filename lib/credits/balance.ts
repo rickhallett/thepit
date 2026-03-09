@@ -73,10 +73,14 @@ export async function applyCreditDelta(
   return db.transaction(async (tx) => {
     // Read balance BEFORE update to compute actual applied delta.
     // GREATEST(0, ...) may floor the result, so requested delta ≠ applied delta.
+    // FOR UPDATE locks the row to prevent concurrent reads between SELECT and UPDATE —
+    // without this, two racing transactions both read the same oldBalance and log
+    // incorrect actualDelta values (phantom ledger via race condition).
     const before = await tx
       .select({ balanceMicro: credits.balanceMicro })
       .from(credits)
-      .where(eq(credits.userId, userId));
+      .where(eq(credits.userId, userId))
+      .for("update");
 
     const oldBalance = before[0]?.balanceMicro ?? 0;
 

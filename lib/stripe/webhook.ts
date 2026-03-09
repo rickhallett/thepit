@@ -324,7 +324,8 @@ export async function handleWebhookEvent(event: Stripe.Event): Promise<void> {
       (error.message.includes("unique") ||
         error.message.includes("duplicate") ||
         error.message.includes("violates") ||
-        error.message.includes("invalid"));
+        error.message.includes("invalid") ||
+        error.message.includes("Unknown"));
 
     if (!isPersistent) {
       throw error;

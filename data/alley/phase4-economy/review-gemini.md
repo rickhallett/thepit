@@ -25,7 +25,7 @@ The Stripe webhook handler (`lib/stripe/webhook.ts`) wraps all processing in a t
 
 ```yaml
 review:
-  model: "claude-3-7-sonnet"
+  model: "gemini-3.1-pro-preview"
   date: "2025-02-26"
   branches:
     - "phase4-economy-v2"

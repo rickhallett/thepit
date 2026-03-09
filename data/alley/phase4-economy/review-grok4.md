@@ -18,7 +18,7 @@ Findings are atomic and prioritized by severity. False negatives avoided by flag
 ### Structured Findings
 ```yaml
 review:
-  model: "claude-3-5-sonnet-20241022"
+  model: "grok-4-latest"
   date: "2026-03-15"
   branches:
     - "phase4-economy-v2"

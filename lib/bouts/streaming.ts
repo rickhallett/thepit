@@ -201,15 +201,29 @@ export function createBoutSSEStreamWithPersistence(
         // Emit share line event
         sendEvent("data-share-line", { shareLine });
 
-        // Settle credits if user is authenticated
+        // Settle credits if user is authenticated.
+        // Isolated try/catch: if settlement throws after bout is persisted as
+        // "completed", we must NOT revert to "error" or refund the preauth —
+        // that would give the user a completed bout AND their credits back.
+        // Credits remain deducted at preauth level; manual reconciliation if needed.
         if (userId && estimatedCostMicro > 0) {
-          const actualCostMicro = computeActualCostMicro(transcript, modelId);
-          await settleCredits(
-            userId,
-            boutId,
-            actualCostMicro,
-            estimatedCostMicro,
-          );
+          try {
+            const actualCostMicro = computeActualCostMicro(
+              transcript,
+              modelId,
+            );
+            await settleCredits(
+              userId,
+              boutId,
+              actualCostMicro,
+              estimatedCostMicro,
+            );
+          } catch (settlementErr) {
+            console.error(
+              `[bout:${boutId}] Settlement failed, credits remain preauthorized:`,
+              settlementErr,
+            );
+          }
         }
 
         if (!aborted) {

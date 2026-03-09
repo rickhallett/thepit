@@ -22,6 +22,14 @@ export async function settleCredits(
   actualCostMicro: number,
   estimatedCostMicro: number,
 ): Promise<SettlementResult> {
+  // Guard: financial function validates its own invariants.
+  // Negative values would invert the settlement direction, minting credits.
+  if (actualCostMicro < 0 || estimatedCostMicro < 0) {
+    throw new Error(
+      `Invalid settlement amounts: actualCostMicro=${actualCostMicro}, estimatedCostMicro=${estimatedCostMicro}. Both must be non-negative.`,
+    );
+  }
+
   const referenceId = `settle:${boutId}`;
 
   // Positive delta = refund (overestimated), negative = additional charge (underestimated)
@@ -42,22 +50,23 @@ export async function settleCredits(
     };
   }
 
-  // Underestimate — charge additional, capped at available balance.
-  // Note: read-then-apply has a theoretical TOCTOU race, but GREATEST(0, ...)
-  // in applyCreditDelta prevents negative balances at the SQL level regardless.
-  const currentBalance = await getCreditBalanceMicro(userId);
-  const additionalCharge = Math.min(-rawDelta, currentBalance);
+  // Underestimate — charge additional. GREATEST(0, ...) in applyCreditDelta
+  // prevents negative balances at the SQL level. We read balance before and after
+  // to compute the actual adjustment (which may differ from rawDelta if the floor
+  // was hit). The TOCTOU between reads is bounded: it only affects the reported
+  // adjustmentMicro, not the financial operation itself.
+  const balanceBefore = await getCreditBalanceMicro(userId);
 
   const finalBalance = await applyCreditDelta(
     userId,
-    -additionalCharge,
+    rawDelta, // negative — applyCreditDelta's GREATEST(0,...) prevents going below zero
     CreditSource.SETTLEMENT,
     referenceId,
   );
 
   return {
     finalBalance,
-    adjustmentMicro: -additionalCharge,
+    adjustmentMicro: finalBalance - balanceBefore,
   };
 }
 

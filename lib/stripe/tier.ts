@@ -49,9 +49,9 @@ export const TIER_CONFIG: Record<UserTier, TierConfig> = {
     grantMicro: 30000, // 300 credits = 30000 micro
   },
   lab: {
-    rateLimit: { windowMs: 3600000, maxRequests: Infinity },
+    rateLimit: { windowMs: 3600000, maxRequests: 999999 },
     models: ["claude-haiku", "claude-sonnet"],
-    maxAgents: Infinity,
+    maxAgents: 999999,
     byok: true,
     apiAccess: true,
     grantMicro: 60000, // 600 credits = 60000 micro

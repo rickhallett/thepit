@@ -166,8 +166,8 @@ describe("intro-pool", () => {
 
       const result = await claimFromIntroPool("user-123", 10000);
 
-      // Should have claimed the available amount, not the requested
-      expect(result.claimed).toBeLessThanOrEqual(10000);
+      // Should have claimed exactly 3000 (the available amount), not the requested 10000
+      expect(result.claimed).toBe(3000);
     });
 
     it("returns zero when requesting zero or negative", async () => {
