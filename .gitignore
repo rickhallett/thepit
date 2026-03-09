@@ -17,4 +17,5 @@ pitkeel/.venv/
 pitkeel.mk
 pitkeel/.pytest_cache/
 __pycache__/
+*.egg-info/
 *.wav
