@@ -1,0 +1,21 @@
+run_id: run-20260309-171533
+computed_at: '2026-03-09T17:15:33.186441+00:00'
+reviews:
+  R1:
+    model: claude-3-7-sonnet
+    date: '2025-02-26'
+    branches:
+    - phase4-economy-v2
+    finding_count: 8
+  R2:
+    model: gpt-5
+    date: '2026-03-09'
+    branches:
+    - phase4-economy-v2
+    finding_count: 15
+  R3:
+    model: claude-3-5-sonnet-20241022
+    date: '2026-03-15'
+    branches:
+    - phase4-economy-v2
+    finding_count: 14

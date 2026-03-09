@@ -1,0 +1,252 @@
+computed_at: '2026-03-09T17:15:33.186441+00:00'
+finding_count:
+  R1:
+    model: claude-3-7-sonnet
+    total: 8
+    unique: 6
+    shared_2: 2
+    shared_3: 0
+  R2:
+    model: gpt-5
+    total: 15
+    unique: 13
+    shared_2: 2
+    shared_3: 0
+  R3:
+    model: claude-3-5-sonnet-20241022
+    total: 14
+    unique: 14
+    shared_2: 0
+    shared_3: 0
+convergence_rate:
+  total_unique_findings: 35
+  n_reviews: 3
+  converged_all: 0
+  converged_2: 2
+  single_model: 33
+  rate_all: 0.0
+  rate_2plus: 0.0571
+  rate_single: 0.9429
+marginal_value:
+  dispatch_order:
+    order:
+    - R1
+    - R2
+    - R3
+    cumulative: &id001
+    - model: claude-3-7-sonnet
+      review_id: R1
+      cumulative_unique: 8
+      new_unique: 8
+    - model: gpt-5
+      review_id: R2
+      cumulative_unique: 21
+      new_unique: 13
+    - model: claude-3-5-sonnet-20241022
+      review_id: R3
+      cumulative_unique: 35
+      new_unique: 14
+  all_permutations:
+  - order:
+    - R1
+    - R2
+    - R3
+    cumulative: *id001
+  - order:
+    - R1
+    - R3
+    - R2
+    cumulative:
+    - model: claude-3-7-sonnet
+      review_id: R1
+      cumulative_unique: 8
+      new_unique: 8
+    - model: claude-3-5-sonnet-20241022
+      review_id: R3
+      cumulative_unique: 22
+      new_unique: 14
+    - model: gpt-5
+      review_id: R2
+      cumulative_unique: 35
+      new_unique: 13
+  - order:
+    - R2
+    - R1
+    - R3
+    cumulative:
+    - model: gpt-5
+      review_id: R2
+      cumulative_unique: 15
+      new_unique: 15
+    - model: claude-3-7-sonnet
+      review_id: R1
+      cumulative_unique: 21
+      new_unique: 6
+    - model: claude-3-5-sonnet-20241022
+      review_id: R3
+      cumulative_unique: 35
+      new_unique: 14
+  - order:
+    - R2
+    - R3
+    - R1
+    cumulative:
+    - model: gpt-5
+      review_id: R2
+      cumulative_unique: 15
+      new_unique: 15
+    - model: claude-3-5-sonnet-20241022
+      review_id: R3
+      cumulative_unique: 29
+      new_unique: 14
+    - model: claude-3-7-sonnet
+      review_id: R1
+      cumulative_unique: 35
+      new_unique: 6
+  - order:
+    - R3
+    - R1
+    - R2
+    cumulative:
+    - model: claude-3-5-sonnet-20241022
+      review_id: R3
+      cumulative_unique: 14
+      new_unique: 14
+    - model: claude-3-7-sonnet
+      review_id: R1
+      cumulative_unique: 22
+      new_unique: 8
+    - model: gpt-5
+      review_id: R2
+      cumulative_unique: 35
+      new_unique: 13
+  - order:
+    - R3
+    - R2
+    - R1
+    cumulative:
+    - model: claude-3-5-sonnet-20241022
+      review_id: R3
+      cumulative_unique: 14
+      new_unique: 14
+    - model: gpt-5
+      review_id: R2
+      cumulative_unique: 29
+      new_unique: 15
+    - model: claude-3-7-sonnet
+      review_id: R1
+      cumulative_unique: 35
+      new_unique: 6
+  position_means:
+  - position: 1
+    mean_new_unique: 12.33
+    mean_cumulative: 12.33
+  - position: 2
+    mean_new_unique: 11.67
+    mean_cumulative: 24.0
+  - position: 3
+    mean_new_unique: 11.0
+    mean_cumulative: 35.0
+  model_means:
+    R1:
+      model: claude-3-7-sonnet
+      mean_new_unique: 7.0
+    R2:
+      model: gpt-5
+      mean_new_unique: 14.0
+    R3:
+      model: claude-3-5-sonnet-20241022
+      mean_new_unique: 14.0
+  n_permutations: 6
+severity_distribution:
+  R1:
+    model: claude-3-7-sonnet
+    medium: 1
+    low: 0
+    high: 3
+    critical: 4
+  R2:
+    model: gpt-5
+    medium: 4
+    low: 3
+    high: 5
+    critical: 3
+  R3:
+    model: claude-3-5-sonnet-20241022
+    medium: 4
+    low: 6
+    high: 2
+    critical: 2
+watchdog_distribution:
+  R1:
+    model: claude-3-7-sonnet
+    categories:
+      WD-LRT: 2
+      WD-SH: 2
+      WD-CB: 3
+      WD-PL: 1
+  R2:
+    model: gpt-5
+    categories:
+      WD-PL: 4
+      WD-PG: 3
+      WD-LRT: 3
+      WD-SH: 4
+      WD-TDF: 1
+  R3:
+    model: claude-3-5-sonnet-20241022
+    categories:
+      WD-PL: 3
+      WD-PG: 2
+      WD-SH: 1
+      WD-DC: 1
+      WD-TDF: 1
+      WD-LRT: 1
+      WD-CB: 1
+severity_calibration:
+- finding: Client disconnect abort triggers full refund after API costs are incurred
+  match_confidence: 0.6231
+  severity_R1: high
+  severity_R2: high
+  agreement: true
+  max_delta: 0
+- finding: Intro pool calculation mints infinite credits when pool is empty
+  match_confidence: 0.6158
+  severity_R1: critical
+  severity_R2: critical
+  agreement: true
+  max_delta: 0
+false_positive_rate:
+  status: pending_adjudication
+  note: |-
+    FP rate requires human verification of each finding. Values below are placeholders, not measurements.
+  per_model:
+    R1:
+      model: claude-3-7-sonnet
+      total_findings: 8
+      confirmed_true: null
+      confirmed_false: null
+      disputed: null
+      fp_rate: null
+    R2:
+      model: gpt-5
+      total_findings: 15
+      confirmed_true: null
+      confirmed_false: null
+      disputed: null
+      fp_rate: null
+    R3:
+      model: claude-3-5-sonnet-20241022
+      total_findings: 14
+      confirmed_true: null
+      confirmed_false: null
+      disputed: null
+      fp_rate: null
+match_diagnostics:
+  threshold: 0.6
+  total_groups: 35
+  converged_groups: 2
+  singleton_groups: 33
+  avg_confidence: 0.6195
+  min_confidence: 0.6158
+  max_confidence: 0.6231

@@ -1,0 +1,183 @@
+review:
+  model: gpt-5
+  date: '2026-03-09'
+  branches:
+  - phase4-economy-v2
+  base_commit: unknown
+findings:
+- id: F-001
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: 245-304
+  severity: critical
+  watchdog: WD-PG
+  slopodar: paper-guardrail
+  title: Webhook handler swallows processing errors, causing Stripe events to be permanently acknowledged
+  description: |
+    handleWebhookEvent catches all exceptions and does not rethrow, while the route always returns HTTP 200 after calling it. Any transient DB or crediting failure during purchase/subscription/monthly-grant handling is therefore acknowledged to Stripe and never retried, permanently losing credits or subscription updates.
+  recommendation: Let transient processing failures propagate so the webhook route returns non-2xx and Stripe retries.
+- id: F-002
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: 16-22, 41-53, 87-95, 140-148, 228-236
+  severity: high
+  watchdog: WD-LRT
+  slopodar: right-answer-wrong-work
+  title: Webhook idempotency uses SELECT-then-apply instead of treating unique reference conflicts as success
+  description: |
+    The handlers call hasProcessedReference(referenceId) before applyCreditDelta(). Concurrent duplicate deliveries can both pass the SELECT and race into the write. The new UNIQUE constraint prevents double-persist, but idempotency is still being implemented as a pre-check rather than at the mutation boundary, making behavior depend on rollback/exception timing instead of an intentional no-op path.
+  recommendation: |
+    Remove pre-check idempotency for credit grants and handle duplicate reference_id conflicts from the write path as "already processed" success.
+- id: F-003
+  branch: phase4-economy-v2
+  file: lib/credits/balance.ts
+  line: 15-35
+  severity: high
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: ensureCreditAccount balance creation and signup ledger insertion are not atomic
+  description: |
+    ensureCreditAccount performs the credits row insert and the signup transaction insert as two separate statements outside a transaction. If one succeeds and the other does not (manual repair drift, partial historical failure, import mismatch), the stored balance and ledger diverge: either free credits exist without a signup transaction, or a signup transaction exists without the matching balance grant.
+  recommendation: |
+    Wrap credit-account creation and signup transaction insertion in a single transaction, or derive one strictly from the other with conflict-aware reconciliation.
+- id: F-004
+  branch: phase4-economy-v2
+  file: lib/credits/intro-pool.ts
+  line: 86-149
+  severity: critical
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: Intro pool claim updates pool and user balance in separate operations
+  description: |
+    claimFromIntroPool first increments introPool.claimedMicro, then credits the user via applyCreditDelta() afterward. If the second step fails, pool capacity is consumed without the user receiving credits. The function comment says the claim is atomic, but only the pool-side update is atomic; the end-to-end financial transfer is not.
+  recommendation: |
+    Execute pool consumption and user credit grant inside one database transaction, or record a durable claim row and make both sides derive from that single source of truth.
+- id: F-005
+  branch: phase4-economy-v2
+  file: lib/credits/intro-pool.ts
+  line: 120-149
+  severity: high
+  watchdog: WD-LRT
+  slopodar: right-answer-wrong-work
+  title: claimFromIntroPool reconstructs actualClaim from post-update state with unreliable math
+  description: |
+    After the SQL UPDATE clamps the claim with LEAST(...), the code tries to infer the actual claimed amount using recomputed decay math and the new claimedMicro value. This reconstruction is not equivalent to returning the SQL delta directly and can overstate or understate what the update actually consumed, causing the user credit grant to diverge from pool depletion.
+  recommendation: |
+    Return the actual increment from SQL directly (for example via old/new values or a CTE) and use that exact value when crediting the user.
+- id: F-006
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: 173-243
+  severity: critical
+  watchdog: WD-SH
+  slopodar: stale-reference-propagation
+  title: Payment failure downgrades tier to free and payment recovery never restores paid tier
+  description: |
+    invoice.payment_failed overwrites subscriptionTier to free. Later, invoice.payment_succeeded computes the monthly grant from the current DB tier and only sets subscriptionStatus to active. Because the paid tier was erased, recovered subscribers can remain on free and receive no monthly grant even though billing resumed. The comment claiming tier restoration is not implemented.
+  recommendation: |
+    Preserve the subscribed tier separately from billing status, or restore tier from Stripe subscription data on payment recovery before computing grants.
+- id: F-007
+  branch: phase4-economy-v2
+  file: app/arena/actions.ts
+  line: 42-55
+  severity: medium
+  watchdog: WD-PG
+  slopodar: paper-guardrail
+  title: subscribeAction does not validate tier and treats any non-pass value as lab
+  description: |
+    The server action reads formData.get('tier') as an arbitrary string and maps tier === 'pass' ? PASS : LAB. Any malformed or attacker-supplied value silently creates a Lab checkout session instead of being rejected. Hidden form inputs are not a trust boundary for payment entrypoints.
+  recommendation: |-
+    Validate tier against an explicit enum ('pass' | 'lab') and reject unknown values with 400-style action errors.
+- id: F-008
+  branch: phase4-economy-v2
+  file: app/arena/actions.ts
+  line: 71-78
+  severity: medium
+  watchdog: WD-LRT
+  slopodar: stale-reference-propagation
+  title: Credit pack purchases are incorrectly gated on SUBSCRIPTIONS_ENABLED
+  description: |
+    buyCreditPackAction checks env.SUBSCRIPTIONS_ENABLED rather than a credits- or checkout-specific flag. Deployments that want one-time top-ups without subscriptions will have credit pack checkout disabled by unrelated configuration, which is a wrong feature gate for this path.
+  recommendation: |-
+    Gate credit-pack checkout on CREDITS_ENABLED or a dedicated purchase flag instead of SUBSCRIPTIONS_ENABLED.
+- id: F-009
+  branch: phase4-economy-v2
+  file: app/api/run-bout/route.ts
+  line: 44-84
+  severity: high
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: Bout row and preauth can be left orphaned if route fails before stream start executes
+  description: |
+    The route inserts a running bout row, may preauthorize credits, and only then creates the persistence-aware stream whose start() handler performs settlement/refund cleanup. Any exception after the insert/preauth but before start() runs leaves a bout stuck in running and can leave reserved credits unreconciled.
+  recommendation: |
+    Wrap route setup in try/catch and explicitly mark the bout errored / refund preauth on pre-stream failures, or defer durable state changes until stream startup is guaranteed.
+- id: F-010
+  branch: phase4-economy-v2
+  file: lib/bouts/streaming.ts
+  line: 131-145
+  severity: high
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: Client disconnect is recorded as error and fully refunded even though execution is not abortable
+  description: |
+    The file header states cancel() does not abort the in-flight LLM call, yet when aborted is observed after executeTurnLoop returns the code marks the bout as status='error' and refunds the full preauth. This can mislabel successful server-side execution as failure and refund the user while the platform still incurred model cost.
+  recommendation: |
+    Distinguish client disconnect from execution failure, and do not auto-refund solely because the SSE consumer disconnected when backend execution was not actually aborted.
+- id: F-011
+  branch: phase4-economy-v2
+  file: lib/credits/settlement.ts
+  line: 18-77
+  severity: medium
+  watchdog: WD-PG
+  slopodar: paper-guardrail
+  title: Settlement and refund functions are not explicitly idempotent on retry
+  description: |
+    settleCredits() and refundPreauth() use deterministic reference IDs, but they do not catch duplicate reference_id insertion as an already-processed success. A retried settlement/refund call will raise from applyCreditDelta() instead of returning the prior outcome, which is brittle for accounting paths that may be retried after ambiguous failures.
+  recommendation: |
+    Make settlement/refund operations idempotent by treating duplicate reference_id as success and returning the current balance or previously recorded result.
+- id: F-012
+  branch: phase4-economy-v2
+  file: app/api/credits/webhook/route.ts
+  line: 10-29
+  severity: medium
+  watchdog: WD-TDF
+  slopodar: none
+  title: Webhook route bypasses central env validation and uses non-null assertions at module scope
+  description: |
+    The route constructs Stripe with process.env.STRIPE_SECRET_KEY! at import time and later uses process.env.STRIPE_WEBHOOK_SECRET! directly instead of getEnv(). In a misconfigured deployment this can fail during module initialization rather than returning a controlled webhook error, and it is inconsistent with the rest of the branch.
+  recommendation: |-
+    Use getEnv() inside the request path or a validated lazy singleton instead of process.env! at module scope.
+- id: F-013
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: 279-286
+  severity: low
+  watchdog: WD-SH
+  slopodar: none
+  title: Webhook error-handling comment claims Stripe will retry transient errors, but code prevents retries
+  description: |
+    The catch block comment says transient errors are acceptable because Stripe will retry, but the function logs and suppresses the exception, so the route returns 200 and Stripe will not retry. The documentation describes behavior the code does not implement.
+  recommendation: Correct the comment and, more importantly, align behavior by rethrowing retryable failures.
+- id: F-014
+  branch: phase4-economy-v2
+  file: lib/credits/intro-pool.ts
+  line: 79-85
+  severity: low
+  watchdog: WD-SH
+  slopodar: paper-guardrail
+  title: Intro pool docstring claims atomic claim semantics that the implementation does not provide
+  description: |
+    The comment says claimFromIntroPool is atomic and race-safe, but only the introPool UPDATE is atomic. The subsequent user credit mutation is outside that transaction and can fail independently, so the stated end-to-end guarantee is not enforced.
+  recommendation: Update the documentation to match reality or implement the full claim as one transaction.
+- id: F-015
+  branch: phase4-economy-v2
+  file: lib/credits/balance.ts
+  line: 10-14, 15-35
+  severity: low
+  watchdog: WD-SH
+  slopodar: phantom-ledger
+  title: ensureCreditAccount documentation overstates coherent account creation semantics
+  description: |
+    The function is documented as creating a credit account with default starting balance and logging the signup transaction, but these are separate non-transactional writes. The comments imply a single coherent operation that the implementation does not enforce.
+  recommendation: Document the split behavior explicitly or make the two writes transactional.

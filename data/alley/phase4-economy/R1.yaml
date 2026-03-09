@@ -1,0 +1,103 @@
+review:
+  model: claude-3-7-sonnet
+  date: '2025-02-26'
+  branches:
+  - phase4-economy-v2
+  base_commit: unknown
+findings:
+- id: F-001
+  branch: phase4-economy-v2
+  file: app/api/run-bout/route.ts
+  line: 55-72
+  severity: critical
+  watchdog: WD-CB
+  slopodar: shadow-validation
+  title: Anonymous requests bypass credit preauthorization and limits entirely
+  description: |
+    The check `if (userId && env.CREDITS_ENABLED)` skips credit preauthorization for unauthenticated users (`userId` is null). The execution stream proceeds and skips `settleCredits` at the end. Because the route has no anonymous rate limiting enforced, unauthenticated users can execute unlimited bouts and drain the platform's Anthropic API limits for free.
+  recommendation: |-
+    Add a branch for `!userId` that rejects the request, enforces an anonymous rate limit, or explicitly deducts from the intro pool.
+- id: F-002
+  branch: phase4-economy-v2
+  file: lib/credits/intro-pool.ts
+  line: 132-143
+  severity: critical
+  watchdog: WD-SH
+  slopodar: right-answer-wrong-work
+  title: Intro pool calculation mints infinite credits when pool is empty
+  description: |
+    The JS logic reverse-engineers the atomic SQL `UPDATE` to calculate `actualClaim`. If the pool is empty, the SQL safely claims 0. However, the JS calculation uses `newClaimedMicro - requestedMicro` to guess the old claimed amount. Because the update didn't actually add `requestedMicro`, this creates an artificially low "old" claim value, inflating `availableBefore`. The formula evaluates to `actualClaim === requestedMicro`, allowing users to endlessly mint credits from an empty pool.
+  recommendation: |-
+    Refactor the atomic update to use `SELECT ... FOR UPDATE` inside a transaction to precisely capture the amount actually claimed, rather than reverse-engineering mathematically broken decay formulas in JavaScript.
+- id: F-003
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: 289-303
+  severity: critical
+  watchdog: WD-SH
+  slopodar: paper-guardrail
+  title: Swallowed errors in webhook handler prevent Stripe from retrying
+  description: |
+    The `catch` block logs the error and returns implicitly. The caller route then returns a `200 OK`.  The comment hallucinates that "Stripe will retry", but Stripe strictly respects the 200 status code  and drops the webhook permanently. Transient database failures will silently destroy paid customer upgrades and credits.
+  recommendation: |-
+    Rethrow the error inside the catch block (or return a 500 Response directly) so Stripe actually registers the failure and schedules a retry.
+- id: F-004
+  branch: phase4-economy-v2
+  file: lib/credits/balance.ts
+  line: 73-95
+  severity: critical
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: applyCreditDelta records raw delta instead of applied delta, corrupting ledger
+  description: |
+    The SQL query uses `GREATEST(0, balance + delta)` to prevent negative balances. However, the subsequent INSERT into `creditTransactions` indiscriminately records the `delta` argument. If a user has a 1,000 balance  and is charged 5,000, their balance correctly goes to 0, but the ledger records -5,000.  The double-entry accounting trail diverges from the actual balance permanently.
+  recommendation: |-
+    Compute the actual applied delta. This requires a transaction that SELECTs the current balance FOR UPDATE, calculates `newBalance` and `appliedDelta = newBalance - oldBalance`, then executes the UPDATE and INSERT.
+- id: F-005
+  branch: phase4-economy-v2
+  file: lib/bouts/streaming.ts
+  line: 176-187
+  severity: high
+  watchdog: WD-LRT
+  slopodar: right-answer-wrong-work
+  title: Client disconnect abort triggers full refund after API costs are incurred
+  description: |
+    If a client disconnects (`aborted = true`), the code persists the partial state and then explicitly calls `refundPreauth`. However, the in-flight `executeTurnLoop` does not actually cancel its LLM API requests, meaning the platform has fully paid Anthropic for the execution. Users can systematically start expensive bouts, immediately disconnect, incur server costs, and retrieve their full credit balance.
+  recommendation: |-
+    Remove the `refundPreauth` call in the `aborted` branch if the stream loop successfully executed, or implement true `AbortSignal` plumbing down to the Anthropic API.
+- id: F-006
+  branch: phase4-economy-v2
+  file: lib/bouts/streaming.ts
+  line: 191-236
+  severity: high
+  watchdog: WD-LRT
+  slopodar: loom-speed
+  title: Secondary share-line failure triggers full refund of primary bout cost
+  description: |
+    After the primary bout loop successfully completes (and burns tokens), `generateShareLine` is called. If this secondary Haiku call fails (e.g., due to an Anthropic 529 error or transient network issue),  the main catch block triggers. It marks the bout as "error" and refunds the entire preauth to the user,  causing the platform to eat the cost of the successful primary execution.
+  recommendation: |-
+    Wrap `generateShareLine` in its own try/catch block. If it fails, log the error and save the transcript without a share line. Do not refund the successfully completed primary bout.
+- id: F-007
+  branch: phase4-economy-v2
+  file: lib/credits/intro-pool.ts
+  line: 145-152
+  severity: high
+  watchdog: WD-CB
+  slopodar: phantom-ledger
+  title: Missing idempotency check on intro pool claim causes 500 error and lost credits
+  description: |
+    `claimFromIntroPool` uses a static `referenceId = intro:${userId}`. If a user legitimately  claims multiple times, the second call to `applyCreditDelta` will trigger a Postgres unique constraint  violation on `referenceId` and throw. Because the `introPool` deduction already committed in the previous statement,  the credits are permanently removed from the shared pool but the user's transaction crashes.
+  recommendation: |-
+    Append a timestamp or UUID to the `referenceId` for intro pool claims, or query `hasProcessedReference` and manage the state inside a single transaction.
+- id: F-008
+  branch: phase4-economy-v2
+  file: app/api/credits/webhook/route.ts
+  line: 11-13
+  severity: medium
+  watchdog: WD-CB
+  slopodar: none
+  title: Top-level Stripe instantiation crashes Next.js build without runtime secrets
+  description: |
+    The Stripe SDK is instantiated at module level using `process.env.STRIPE_SECRET_KEY!`. During the  Next.js build phase (which traces dependencies), if the build environment lacks runtime secrets,  the Stripe constructor will throw, breaking CI/CD. This pattern was correctly avoided in `checkout.ts`.
+  recommendation: |-
+    Move the `stripe` initialization inside the `POST` handler function or implement a lazy-loading getter like the one used in `checkout.ts`.

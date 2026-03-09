@@ -1,0 +1,247 @@
+- title: Client disconnect abort triggers full refund after API costs are incurred
+  file: lib/bouts/streaming.ts
+  severity: high
+  convergence:
+  - R1
+  - R2
+  convergence_count: 2
+  match_confidence: 0.6231
+- title: Intro pool calculation mints infinite credits when pool is empty
+  file: lib/credits/intro-pool.ts
+  severity: critical
+  convergence:
+  - R1
+  - R2
+  convergence_count: 2
+  match_confidence: 0.6158
+- title: Anonymous requests bypass credit preauthorization and limits entirely
+  file: app/api/run-bout/route.ts
+  severity: critical
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Swallowed errors in webhook handler prevent Stripe from retrying
+  file: lib/stripe/webhook.ts
+  severity: critical
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: applyCreditDelta records raw delta instead of applied delta, corrupting ledger
+  file: lib/credits/balance.ts
+  severity: critical
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Secondary share-line failure triggers full refund of primary bout cost
+  file: lib/bouts/streaming.ts
+  severity: high
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Missing idempotency check on intro pool claim causes 500 error and lost credits
+  file: lib/credits/intro-pool.ts
+  severity: high
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Top-level Stripe instantiation crashes Next.js build without runtime secrets
+  file: app/api/credits/webhook/route.ts
+  severity: medium
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Webhook handler swallows processing errors, causing Stripe events to be permanently acknowledged
+  file: lib/stripe/webhook.ts
+  severity: critical
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Webhook idempotency uses SELECT-then-apply instead of treating unique reference conflicts as success
+  file: lib/stripe/webhook.ts
+  severity: high
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: ensureCreditAccount balance creation and signup ledger insertion are not atomic
+  file: lib/credits/balance.ts
+  severity: high
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: claimFromIntroPool reconstructs actualClaim from post-update state with unreliable math
+  file: lib/credits/intro-pool.ts
+  severity: high
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Payment failure downgrades tier to free and payment recovery never restores paid tier
+  file: lib/stripe/webhook.ts
+  severity: critical
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: subscribeAction does not validate tier and treats any non-pass value as lab
+  file: app/arena/actions.ts
+  severity: medium
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Credit pack purchases are incorrectly gated on SUBSCRIPTIONS_ENABLED
+  file: app/arena/actions.ts
+  severity: medium
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Bout row and preauth can be left orphaned if route fails before stream start executes
+  file: app/api/run-bout/route.ts
+  severity: high
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Settlement and refund functions are not explicitly idempotent on retry
+  file: lib/credits/settlement.ts
+  severity: medium
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Webhook route bypasses central env validation and uses non-null assertions at module scope
+  file: app/api/credits/webhook/route.ts
+  severity: medium
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Webhook error-handling comment claims Stripe will retry transient errors, but code prevents retries
+  file: lib/stripe/webhook.ts
+  severity: low
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Intro pool docstring claims atomic claim semantics that the implementation does not provide
+  file: lib/credits/intro-pool.ts
+  severity: low
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: ensureCreditAccount documentation overstates coherent account creation semantics
+  file: lib/credits/balance.ts
+  severity: low
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Bout UPDATE to 'completed' and credit settlement not atomic
+  file: lib/bouts/streaming.ts
+  severity: critical
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: User tier UPDATE and grant application not atomic in subscription created
+  file: lib/stripe/webhook.ts
+  severity: high
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: applyCreditDelta logs transaction even if no credit row exists
+  file: lib/credits/balance.ts
+  severity: critical
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: Floating-point decay recompute in JS may mismatch SQL due to timing
+  file: lib/credits/intro-pool.ts
+  severity: medium
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: Idempotency checked for grants but not for all DB updates
+  file: lib/stripe/webhook.ts
+  severity: high
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: No input validation for checkout params
+  file: lib/stripe/checkout.ts
+  severity: medium
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: Documentation claims apiVersion that may not exist
+  file: app/api/credits/webhook/route.ts
+  severity: low
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: TOCTOU race in underestimate path despite comment
+  file: lib/credits/settlement.ts
+  severity: medium
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: SUBSCRIPTIONS_ENABLED checked but not for all paths
+  file: app/arena/actions.ts
+  severity: low
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: generateShareLine test truncates to 100 chars but asserts without verifying ellipsis
+  file: lib/bouts/engine.test.ts
+  severity: low
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: 'Dead code in UPDATE: GREATEST(0, ...) allows negative delta to floor but positive unbounded'
+  file: lib/credits/balance.ts
+  severity: medium
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: Error handling uses console.error without structured logging
+  file: lib/stripe/webhook.ts
+  severity: low
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: MODEL_MAP uses similar-but-wrong keys (claude-haiku-4-5)
+  file: app/api/run-bout/route.ts
+  severity: low
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null
+- title: Decay formula duplicated in getIntroPoolStatus and claimFromIntroPool
+  file: lib/credits/intro-pool.ts
+  severity: low
+  convergence:
+  - R3
+  convergence_count: 1
+  match_confidence: null

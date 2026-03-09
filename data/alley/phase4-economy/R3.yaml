@@ -1,0 +1,161 @@
+review:
+  model: claude-3-5-sonnet-20241022
+  date: '2026-03-15'
+  branches:
+  - phase4-economy-v2
+  base_commit: unknown
+findings:
+- id: F-001
+  branch: phase4-economy-v2
+  file: lib/bouts/streaming.ts
+  line: 109-148
+  severity: critical
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: Bout UPDATE to 'completed' and credit settlement not atomic
+  description: |
+    In createBoutSSEStreamWithPersistence, db.update(bouts) to 'completed' and settleCredits are separate. If settlement fails after UPDATE, bout is marked completed without credit adjustment, creating phantom audit.
+  recommendation: Wrap UPDATE and settleCredits in db.transaction
+- id: F-002
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: 88-119
+  severity: high
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: User tier UPDATE and grant application not atomic in subscription created
+  description: |
+    db.update(users) sets tier, then applyCreditDelta grants credits. If grant fails, user has tier without credits. Similar in updated handler (lines 126-169).
+  recommendation: Wrap in db.transaction(async (tx) => { update; grant })
+- id: F-003
+  branch: phase4-economy-v2
+  file: lib/credits/balance.ts
+  line: 65-96
+  severity: critical
+  watchdog: WD-PL
+  slopodar: phantom-ledger
+  title: applyCreditDelta logs transaction even if no credit row exists
+  description: |
+    If UPDATE affects 0 rows (no account), result=[], newBalance=0, but then INSERTs transaction as if delta applied. Audit trail claims change without actual balance update.
+  recommendation: Check result.length > 0 before INSERT; or ensure account exists first
+- id: F-004
+  branch: phase4-economy-v2
+  file: lib/credits/intro-pool.ts
+  line: 85-149
+  severity: medium
+  watchdog: none
+  slopodar: none
+  title: Floating-point decay recompute in JS may mismatch SQL due to timing
+  description: |
+    Atomic UPDATE uses SQL power(0.5, ...), then JS recomputes actualClaim with Math.pow. Millisecond delays or FP precision could cause discrepancies in claimed amount.
+  recommendation: Return actual claimed from UPDATE RETURNING clause instead of recompute
+- id: F-005
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: n/a
+  severity: high
+  watchdog: WD-PG
+  slopodar: paper-guardrail
+  title: Idempotency checked for grants but not for all DB updates
+  description: |
+    hasProcessedReference protects grants, but user UPDATEs (e.g., tier changes) occur without checks. Duplicate events could overwrite tiers without grant reapplication.
+  recommendation: Wrap all handler ops in transaction with reference_id check
+- id: F-006
+  branch: phase4-economy-v2
+  file: lib/stripe/checkout.ts
+  line: n/a
+  severity: medium
+  watchdog: none
+  slopodar: none
+  title: No input validation for checkout params
+  description: |
+    createSubscriptionCheckout and createCreditPackCheckout assume params like userId, priceId are valid without checks. Could create invalid sessions if bad data passed.
+  recommendation: Add Zod schemas for params
+- id: F-007
+  branch: phase4-economy-v2
+  file: app/api/credits/webhook/route.ts
+  line: '11'
+  severity: low
+  watchdog: WD-SH
+  slopodar: none
+  title: Documentation claims apiVersion that may not exist
+  description: |
+    Stripe init uses apiVersion: '2026-02-25.clover' — appears as placeholder or error, does not match actual Stripe versions.
+  recommendation: Update to valid apiVersion or remove if intentional
+- id: F-008
+  branch: phase4-economy-v2
+  file: lib/credits/settlement.ts
+  line: 14-59
+  severity: medium
+  watchdog: none
+  slopodar: shadow-validation
+  title: TOCTOU race in underestimate path despite comment
+  description: |
+    Reads currentBalance, then applies capped delta. Comment notes GREATEST prevents negatives, but race could charge wrong amount if concurrent delta.
+  recommendation: 'Use atomic SQL for cap: UPDATE with SET balance = GREATEST(0, balance + delta)'
+- id: F-009
+  branch: phase4-economy-v2
+  file: app/arena/actions.ts
+  line: n/a
+  severity: low
+  watchdog: WD-PG
+  slopodar: paper-guardrail
+  title: SUBSCRIPTIONS_ENABLED checked but not for all paths
+  description: |
+    Throws if !env.SUBSCRIPTIONS_ENABLED, but assumes priceId exists without check (e.g., if not configured). Rule stated in env but not enforced.
+  recommendation: Add checks for required env vars like STRIPE_PASS_PRICE_ID
+- id: F-010
+  branch: phase4-economy-v2
+  file: lib/bouts/engine.test.ts
+  line: 426-473
+  severity: low
+  watchdog: none
+  slopodar: right-answer-wrong-work
+  title: generateShareLine test truncates to 100 chars but asserts without verifying ellipsis
+  description: |
+    Test expects 'A'.repeat(100) + '...' but does not assert the truncation logic directly—passes via prompt content.
+  recommendation: Add explicit assertion for truncated string in prompt
+- id: F-011
+  branch: phase4-economy-v2
+  file: lib/credits/balance.ts
+  line: '69'
+  severity: medium
+  watchdog: WD-DC
+  slopodar: none
+  title: 'Dead code in UPDATE: GREATEST(0, ...) allows negative delta to floor but positive unbounded'
+  description: |
+    GREATEST floors at 0 for negatives, but positives can overflow without cap—unreachable in context but copied pattern.
+  recommendation: Add upper bound if needed or remove if intentional
+- id: F-012
+  branch: phase4-economy-v2
+  file: lib/stripe/webhook.ts
+  line: 286-293
+  severity: low
+  watchdog: WD-TDF
+  slopodar: none
+  title: Error handling uses console.error without structured logging
+  description: |
+    Catches errors and logs with console.error—reflects common practice but not best (e.g., no Sentry integration).
+  recommendation: Use a logging library for production
+- id: F-013
+  branch: phase4-economy-v2
+  file: app/api/run-bout/route.ts
+  line: 30-33
+  severity: low
+  watchdog: WD-LRT
+  slopodar: none
+  title: MODEL_MAP uses similar-but-wrong keys (claude-haiku-4-5)
+  description: |
+    Maps to 'claude-haiku-4-5' but comment mentions deprecated 3.5—potential for wrong API if not updated.
+  recommendation: Validate against actual Anthropic models
+- id: F-014
+  branch: phase4-economy-v2
+  file: lib/credits/intro-pool.ts
+  line: 41-59
+  severity: low
+  watchdog: WD-CB
+  slopodar: none
+  title: Decay formula duplicated in getIntroPoolStatus and claimFromIntroPool
+  description: |
+    power(0.5, ...) logic repeated—correct in isolation but not extracted for consistency.
+  recommendation: Extract to shared function
