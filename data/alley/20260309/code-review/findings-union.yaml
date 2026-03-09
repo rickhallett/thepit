@@ -364,7 +364,8 @@
   severity: high
   found_by:
   - R2
-  convergence_count: 1
+  - R3
+  convergence_count: 2
   details:
     R2:
       id: F-009
@@ -375,12 +376,23 @@
         to insert, causing 500 errors on unique constraint violations.
 
         '
+    R3:
+      id: F-003
+      severity: medium
+      watchdog: WD-CB
+      slopodar: none
+      description: 'toggleReaction does a read-then-insert/delete flow without conflict handling. Concurrent requests for
+        the same reaction can both observe no row and one insert will hit the unique constraint, leading to a 500 instead
+        of a deterministic toggle result.
+
+        '
 - title: Winner vote rowCount from Drizzle insert may be undefined
   file: lib/engagement/votes.ts
-  severity: medium
+  severity: high
   found_by:
   - R2
-  convergence_count: 1
+  - R3
+  convergence_count: 2
   details:
     R2:
       id: F-010
@@ -389,6 +401,15 @@
       slopodar: none
       description: 'The code assumes Drizzle''s insert returns rowCount for conflict detection,  but some database drivers
         return undefined instead of 0 or 1.
+
+        '
+    R3:
+      id: F-005
+      severity: high
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      description: 'castWinnerVote inserts the provided agentId without verifying that it is part of the bout''s agent lineup.
+        Clients can submit any agentId, which corrupts winner tallies and leaderboard data.
 
         '
 - title: WinnerVoteRequestSchema missing .min(1) on IDs
@@ -453,5 +474,37 @@
       description: 'presetId, topic, and model are read directly from searchParams and passed into Arena auto-start. There
         is no schema validation or allowlist for model/presetId, so invalid inputs can leak into downstream execution instead
         of being rejected early.
+
+        '
+- title: Slug collision not handled; unique constraint can throw
+  file: lib/sharing/short-links.ts
+  severity: medium
+  found_by:
+  - R3
+  convergence_count: 1
+  details:
+    R3:
+      id: F-004
+      severity: medium
+      watchdog: WD-CB
+      slopodar: none
+      description: 'createShortLink only guards conflicts on boutId. If nanoid(8) collides with an existing slug, the insert
+        will throw and the function does not retry or recover, causing a 500 for valid input.
+
+        '
+- title: In-memory rate limiting is instance-local in serverless
+  file: lib/common/rate-limit.ts
+  severity: low
+  found_by:
+  - R3
+  convergence_count: 1
+  details:
+    R3:
+      id: F-006
+      severity: low
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      description: 'The limiter stores state in-process. In serverless/multi-instance deployments, the limit is per-instance
+        and can be bypassed with parallel requests. The API routes present hard limits but they are only best-effort.
 
         '

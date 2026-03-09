@@ -8,7 +8,7 @@ findings:
 - id: F-001
   branch: phase2-ui
   file: app/api/reactions/route.ts
-  line: 81-112
+  line: n/a
   severity: medium
   watchdog: WD-PG
   slopodar: paper-guardrail
@@ -18,12 +18,11 @@ findings:
     fingerprinting.
 
     '
-  recommendation: Use a trusted platform IP source (e.g. req.ip/headers set by the edge) and reject/ignore untrusted x-forwarded-for
-    values.
+  recommendation: Use a trusted platform IP source and ignore untrusted x-forwarded-for values.
 - id: F-002
   branch: phase2-ui
   file: app/bout/[id]/page.tsx
-  line: 36-65
+  line: n/a
   severity: medium
   watchdog: none
   slopodar: none
@@ -33,5 +32,58 @@ findings:
     being rejected early.
 
     '
-  recommendation: Validate searchParams with a Zod schema or allowlist and drop/normalize invalid values before passing to
-    Arena.
+  recommendation: Validate searchParams with a Zod schema or allowlist before passing to Arena.
+- id: F-003
+  branch: phase2-ui
+  file: lib/engagement/reactions.ts
+  line: n/a
+  severity: medium
+  watchdog: WD-CB
+  slopodar: none
+  title: toggleReaction races and throws on unique conflict
+  description: 'toggleReaction does a read-then-insert/delete flow without conflict handling. Concurrent requests for the
+    same reaction can both observe no row and one insert will hit the unique constraint, leading to a 500 instead of a deterministic
+    toggle result.
+
+    '
+  recommendation: Use an atomic upsert/transaction or handle unique-violation by retrying/returning 'added'.
+- id: F-004
+  branch: phase2-ui
+  file: lib/sharing/short-links.ts
+  line: n/a
+  severity: medium
+  watchdog: WD-CB
+  slopodar: none
+  title: Slug collision not handled; unique constraint can throw
+  description: 'createShortLink only guards conflicts on boutId. If nanoid(8) collides with an existing slug, the insert will
+    throw and the function does not retry or recover, causing a 500 for valid input.
+
+    '
+  recommendation: Catch slug-unique violations and retry slug generation; or use onConflictDoNothing on slug and loop.
+- id: F-005
+  branch: phase2-ui
+  file: lib/engagement/votes.ts
+  line: n/a
+  severity: high
+  watchdog: WD-PG
+  slopodar: paper-guardrail
+  title: Winner vote accepts arbitrary agentId (not validated against bout)
+  description: 'castWinnerVote inserts the provided agentId without verifying that it is part of the bout''s agent lineup.
+    Clients can submit any agentId, which corrupts winner tallies and leaderboard data.
+
+    '
+  recommendation: Validate agentId against the bout's lineup before insert; reject with 400 if not present.
+- id: F-006
+  branch: phase2-ui
+  file: lib/common/rate-limit.ts
+  line: n/a
+  severity: low
+  watchdog: WD-PG
+  slopodar: paper-guardrail
+  title: In-memory rate limiting is instance-local in serverless
+  description: 'The limiter stores state in-process. In serverless/multi-instance deployments, the limit is per-instance and
+    can be bypassed with parallel requests. The API routes present hard limits but they are only best-effort.
+
+    '
+  recommendation: Back rate limiting with shared storage (Redis/DB) or document it as best-effort and lower reliance on it
+    for abuse control.

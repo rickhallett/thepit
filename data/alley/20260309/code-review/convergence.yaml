@@ -126,13 +126,15 @@
   severity: high
   convergence:
   - R2
-  convergence_count: 1
+  - R3
+  convergence_count: 2
 - title: Winner vote rowCount from Drizzle insert may be undefined
   file: lib/engagement/votes.ts
-  severity: medium
+  severity: high
   convergence:
   - R2
-  convergence_count: 1
+  - R3
+  convergence_count: 2
 - title: WinnerVoteRequestSchema missing .min(1) on IDs
   file: lib/engagement/votes.ts
   severity: medium
@@ -154,6 +156,18 @@
 - title: Auto-start query params forwarded without validation
   file: app/bout/[id]/page.tsx
   severity: medium
+  convergence:
+  - R3
+  convergence_count: 1
+- title: Slug collision not handled; unique constraint can throw
+  file: lib/sharing/short-links.ts
+  severity: medium
+  convergence:
+  - R3
+  convergence_count: 1
+- title: In-memory rate limiting is instance-local in serverless
+  file: lib/common/rate-limit.ts
+  severity: low
   convergence:
   - R3
   convergence_count: 1
