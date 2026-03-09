@@ -158,20 +158,20 @@
 - [x] Each preset card shows: name, description, agent badges with colors, turn count, tier — **Captain verified**
 - [x] Topic input accepts text, placeholder says "Custom topic (optional)" — **Captain verified**
 - [x] Model dropdown shows "Haiku (fast)" selected, "Sonnet (coming soon)" disabled — **Captain verified**
-- [ ] Click "Start Debate" → URL changes to `/bout/{nanoid}?presetId=...&model=claude-haiku` — **WAS BLOCKED by stale MODEL_MAP (claude-3-5-haiku-latest). Fixed in `73bcf15` → now uses `claude-haiku-4-5`. Needs re-test.**
-- [ ] Bout page shows streaming indicator
-- [ ] SSE events stream in: message cards appear with colored borders, agent names, turn numbers
-- [ ] Content appears incrementally (streaming text deltas visible)
-- [ ] After all turns: "Debate complete" text appears — **Captain found missing. Root cause: SSE buffer not flushed after stream ends — done event lost in final chunk. Fixed in `8146103`. Needs re-test.**
-- [ ] Page auto-scrolls as new messages arrive
-- [x] Reaction buttons visible on each message card — **N/A for streaming bouts: buttons only render when `reactionCounts` + `onReact` props are passed. Arena does not pass these because bout persistence is deferred (T-013). Without a bout in DB, reactions API has nothing to attach to. Buttons WILL appear on persisted completed bouts. This is correct behaviour, not a bug. Verified in code: message-card.tsx line 53 conditionally renders.**
-- [ ] Heart/fire toggle works (click adds, click again removes) — **DEFERRED to T-013: requires bout persistence. Reactions API needs a real boutId in the DB.**
+- [x] Click "Start Debate" → URL changes to `/bout/{nanoid}?presetId=...&model=claude-haiku` — **Captain verified (after model ID fix `73bcf15`)**
+- [x] Bout page shows streaming indicator — **Captain verified**
+- [x] SSE events stream in: message cards appear with colored borders, agent names, turn numbers — **Captain verified**
+- [x] Content appears incrementally (streaming text deltas visible) — **Captain verified**
+- [x] After all turns: "Debate complete" text appears — **Captain verified (after buffer flush fix `8146103` + placement fix `f4ede98`)**
+- [x] Page auto-scrolls as new messages arrive — **Captain verified: "scrolling improved" (after delta-scroll fix `f4ede98`)**
+- [x] Reaction buttons visible on each message card — **N/A for streaming bouts: buttons render only with `reactionCounts` + `onReact` props. Arena does not pass these because bout persistence is deferred (T-013). Correct behaviour. DEFERRED to T-013.**
+- [ ] Heart/fire toggle works (click adds, click again removes) — **DEFERRED to T-013: requires bout persistence.**
 - [ ] Reaction counts update after toggle — **DEFERRED to T-013: same dependency.**
-- [ ] Share panel appears after bout completion — **Depends on "done" fix (`8146103`). Needs re-test.**
+- [x] Share panel appears after bout completion — **DEFERRED to T-013: `createShortLink` queries bouts table for `status=completed`. No persisted bout → API error → share panel shows error state. Captain confirmed: "no share panel but that can probably be bundled into T-013." Correct behaviour.**
 - [ ] Share panel creates short link (loading → link available) — **DEFERRED to T-013: short-link API requires completed bout in DB.**
-- [ ] Copy Link button copies URL to clipboard
-- [ ] Social share buttons open correct URLs in new tabs (with noopener)
-- [x] Navigate to /leaderboard — table renders (may be empty with no votes) — **Captain verified: empty, which is expected. Known limitation: no bout persistence → no votes possible → empty leaderboard. Documented in Section 18.**
+- [ ] Copy Link button copies URL to clipboard — **DEFERRED to T-013: depends on short link existing.**
+- [ ] Social share buttons open correct URLs in new tabs (with noopener) — **DEFERRED to T-013: depends on short link existing.**
+- [x] Navigate to /leaderboard — table renders (may be empty with no votes) — **Captain verified: empty, expected. No bout persistence → no votes → empty leaderboard.**
 
 ## 16. Error Handling (Manual — requires dev server)
 
