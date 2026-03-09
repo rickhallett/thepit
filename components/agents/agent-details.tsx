@@ -42,7 +42,7 @@ export function AgentDetails({ agent }: AgentDetailsProps) {
         )}
         {agent.createdAt && (
           <span className="text-stone-500">
-            Created {agent.createdAt.toLocaleDateString()}
+            Created {agent.createdAt.toLocaleDateString("en-GB")}
           </span>
         )}
       </div>

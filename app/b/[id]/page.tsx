@@ -6,6 +6,7 @@
  * Server component — DB queries run per-request, not statically generated.
  */
 
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
@@ -15,7 +16,7 @@ import { bouts } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { resolveShortLink } from "@/lib/sharing/short-links";
 import { getReactionCounts, getMostReactedTurnIndex } from "@/lib/engagement/reactions";
-import { getWinnerVoteCounts } from "@/lib/engagement/votes";
+// import { getWinnerVoteCounts } from "@/lib/engagement/votes"; // Re-enable when vote display is built
 import { getPresetById } from "@/lib/bouts/presets";
 import { BoutHero } from "@/components/engagement/bout-hero";
 import { Arena } from "@/components/arena/arena";
@@ -42,6 +43,16 @@ async function resolveBoutId(id: string): Promise<string | null> {
   return null;
 }
 
+/**
+ * Cached bout lookup — shared between generateMetadata and ReplayPage.
+ * React.cache() deduplicates within a single request (Next.js only dedupes fetch()).
+ */
+const getBout = cache(async (boutId: string) => {
+  return db.query.bouts.findFirst({
+    where: eq(bouts.id, boutId),
+  });
+});
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -52,9 +63,7 @@ export async function generateMetadata({
     return { title: "Not Found | The Pit" };
   }
 
-  const bout = await db.query.bouts.findFirst({
-    where: eq(bouts.id, boutId),
-  });
+  const bout = await getBout(boutId);
 
   if (!bout) {
     return { title: "Not Found | The Pit" };
@@ -88,9 +97,7 @@ export default async function ReplayPage({ params }: PageProps) {
     notFound();
   }
 
-  const bout = await db.query.bouts.findFirst({
-    where: eq(bouts.id, boutId),
-  });
+  const bout = await getBout(boutId);
 
   if (!bout) {
     notFound();
@@ -101,10 +108,9 @@ export default async function ReplayPage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch engagement data in parallel
-  const [reactionCounts, winnerVoteCounts, mostReactedTurn] = await Promise.all([
+  // Fetch engagement data in parallel (winnerVoteCounts removed until vote display is built)
+  const [reactionCounts, mostReactedTurn] = await Promise.all([
     getReactionCounts(boutId),
-    getWinnerVoteCounts(boutId),
     getMostReactedTurnIndex(boutId),
   ]);
 
@@ -122,9 +128,6 @@ export default async function ReplayPage({ params }: PageProps) {
 
   // Check if user is signed in (for CTA banner)
   const { userId } = await auth();
-
-  // TODO: Wire winnerVoteCounts into UI when vote display component is built.
-  void winnerVoteCounts;
 
   return (
     <div data-testid="replay-page" className="mx-auto max-w-3xl px-4 py-8">

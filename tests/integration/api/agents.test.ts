@@ -83,11 +83,12 @@ describe.skipIf(!hasDb)("POST /api/agents (live database)", () => {
 
     expect(response.status).toBe(201);
     expect(body.agentId).toBeDefined();
+
+    // Track for cleanup BEFORE assertions that might throw — prevents orphaned DB records
+    createdAgentIds.push(body.agentId);
+
     expect(body.agentId).toHaveLength(21);
     expect(body.promptHash).toMatch(/^0x[a-f0-9]{64}$/);
-
-    // Track for cleanup
-    createdAgentIds.push(body.agentId);
   });
 
   it("returns 401 when not authenticated", async () => {

@@ -92,8 +92,14 @@ export function AgentBuilder() {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error?.message || data.message || "Failed to create agent");
+        let message = "Failed to create agent";
+        try {
+          const data = await res.json();
+          message = data.error?.message || data.message || message;
+        } catch {
+          // Non-JSON error response (e.g. 502 HTML) — use fallback
+        }
+        throw new Error(message);
       }
 
       const data = await res.json();
@@ -295,6 +301,7 @@ export function AgentBuilder() {
                   onChange={(e) => updateField("customInstructions", e.target.value)}
                   placeholder="Write custom system prompt instructions..."
                   rows={8}
+                  maxLength={10000}
                   className="w-full resize-none border border-stone-700 bg-stone-800 px-3 py-2 font-mono text-sm placeholder-stone-500 focus:border-stone-500 focus:outline-none"
                 />
               </div>
