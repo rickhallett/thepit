@@ -20,3 +20,4 @@ pitheat/target/
 __pycache__/
 *.egg-info/
 *.wav
+midgets/evidence/
