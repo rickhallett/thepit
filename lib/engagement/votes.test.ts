@@ -23,13 +23,18 @@ vi.mock("drizzle-orm", () => ({
   sql: vi.fn((strings, ...values) => ({ type: "sql", strings, values })),
 }));
 
-// Mock schema
+// Mock schema — include bouts for castWinnerVote validation
 vi.mock("@/db/schema", () => ({
   winnerVotes: {
     id: { name: "id" },
     boutId: { name: "bout_id" },
     userId: { name: "user_id" },
     agentId: { name: "agent_id" },
+  },
+  bouts: {
+    id: { name: "id" },
+    status: { name: "status" },
+    agentLineup: { name: "agent_lineup" },
   },
 }));
 
@@ -77,16 +82,49 @@ describe("castWinnerVote", () => {
     vi.clearAllMocks();
   });
 
-  it("returns ok=true, alreadyVoted=false when vote is cast (rowCount=1)", async () => {
+  /**
+   * Helper: sets up db.select for bout validation and db.insert for the vote.
+   */
+  function setupVoteMocks(
+    db: Record<string, ReturnType<typeof vi.fn>>,
+    opts: {
+      bout: { status: string; agentLineup: Array<{ id: string }> } | null;
+      insertResult: Array<{ id: number }>;
+    },
+  ) {
+    let selectCallCount = 0;
+    db.select.mockImplementation(() => {
+      selectCallCount++;
+      if (selectCallCount === 1) {
+        // Bout validation query
+        return {
+          from: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue(opts.bout ? [opts.bout] : []),
+        };
+      }
+      // Shouldn't be called more than once in castWinnerVote
+      return { from: vi.fn().mockReturnThis(), where: vi.fn().mockReturnThis(), limit: vi.fn().mockResolvedValue([]) };
+    });
+
+    const mockInsertChain = {
+      values: vi.fn().mockReturnThis(),
+      onConflictDoNothing: vi.fn().mockReturnThis(),
+      returning: vi.fn().mockResolvedValue(opts.insertResult),
+    };
+    db.insert.mockReturnValue(mockInsertChain);
+
+    return { mockInsertChain };
+  }
+
+  it("returns ok=true, alreadyVoted=false when vote is cast", async () => {
     const dbModule = await import("@/db");
     const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
 
-    // Setup: insert returns rowCount 1 (success)
-    const mockInsertChain = {
-      values: vi.fn().mockReturnThis(),
-      onConflictDoNothing: vi.fn().mockResolvedValue({ rowCount: 1 }),
-    };
-    db.insert.mockReturnValue(mockInsertChain);
+    setupVoteMocks(db, {
+      bout: { status: "completed", agentLineup: [{ id: "agent_xyz" }] },
+      insertResult: [{ id: 1 }], // non-empty = insert succeeded
+    });
 
     const { castWinnerVote } = await import("./votes");
 
@@ -101,16 +139,14 @@ describe("castWinnerVote", () => {
     expect(db.insert).toHaveBeenCalled();
   });
 
-  it("returns ok=true, alreadyVoted=true when vote exists (rowCount=0)", async () => {
+  it("returns ok=true, alreadyVoted=true when vote exists (conflict)", async () => {
     const dbModule = await import("@/db");
     const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
 
-    // Setup: insert returns rowCount 0 (conflict)
-    const mockInsertChain = {
-      values: vi.fn().mockReturnThis(),
-      onConflictDoNothing: vi.fn().mockResolvedValue({ rowCount: 0 }),
-    };
-    db.insert.mockReturnValue(mockInsertChain);
+    setupVoteMocks(db, {
+      bout: { status: "completed", agentLineup: [{ id: "agent_xyz" }] },
+      insertResult: [], // empty = conflict, already voted
+    });
 
     const { castWinnerVote } = await import("./votes");
 
@@ -124,27 +160,52 @@ describe("castWinnerVote", () => {
     expect(result.alreadyVoted).toBe(true);
   });
 
-  it("handles undefined rowCount as already voted", async () => {
+  it("throws VoteValidationError when bout not found", async () => {
     const dbModule = await import("@/db");
     const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
 
-    // Setup: rowCount undefined (edge case)
-    const mockInsertChain = {
-      values: vi.fn().mockReturnThis(),
-      onConflictDoNothing: vi.fn().mockResolvedValue({}),
-    };
-    db.insert.mockReturnValue(mockInsertChain);
-
-    const { castWinnerVote } = await import("./votes");
-
-    const result = await castWinnerVote({
-      boutId: "bout_abc",
-      userId: "user_123",
-      agentId: "agent_xyz",
+    setupVoteMocks(db, {
+      bout: null,
+      insertResult: [],
     });
 
-    expect(result.ok).toBe(true);
-    expect(result.alreadyVoted).toBe(true);
+    const { castWinnerVote, VoteValidationError } = await import("./votes");
+
+    await expect(
+      castWinnerVote({ boutId: "nonexistent", userId: "user_123", agentId: "agent_xyz" }),
+    ).rejects.toThrow(VoteValidationError);
+  });
+
+  it("throws VoteValidationError when bout is not completed", async () => {
+    const dbModule = await import("@/db");
+    const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
+
+    setupVoteMocks(db, {
+      bout: { status: "running", agentLineup: [{ id: "agent_xyz" }] },
+      insertResult: [],
+    });
+
+    const { castWinnerVote, VoteValidationError } = await import("./votes");
+
+    await expect(
+      castWinnerVote({ boutId: "bout_abc", userId: "user_123", agentId: "agent_xyz" }),
+    ).rejects.toThrow(VoteValidationError);
+  });
+
+  it("throws VoteValidationError when agent not in bout", async () => {
+    const dbModule = await import("@/db");
+    const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
+
+    setupVoteMocks(db, {
+      bout: { status: "completed", agentLineup: [{ id: "agent_other" }] },
+      insertResult: [],
+    });
+
+    const { castWinnerVote, VoteValidationError } = await import("./votes");
+
+    await expect(
+      castWinnerVote({ boutId: "bout_abc", userId: "user_123", agentId: "agent_xyz" }),
+    ).rejects.toThrow(VoteValidationError);
   });
 });
 

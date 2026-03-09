@@ -47,7 +47,9 @@ export async function getLeaderboardData(
   // Build time filter condition
   const timeFilter = cutoff ? gte(bouts.createdAt, cutoff) : undefined;
 
-  // Step 1: Get all votes with bout info (only completed bouts)
+  // Step 1: Get all votes with bout info (only completed bouts).
+  // TODO: Push aggregation to SQL (GROUP BY + window functions) when dataset
+  // grows beyond ~10K votes. Current approach loads all votes into memory.
   const votesQuery = db
     .select({
       boutId: winnerVotes.boutId,
@@ -99,35 +101,45 @@ export async function getLeaderboardData(
     boutsSet.add(vote.boutId);
   }
 
-  // Step 3: Determine winner of each bout (agent with most votes)
+  // Step 3: Determine winner of each bout (agent with most votes).
+  // Tie policy: no winner is awarded when multiple agents share the max vote count.
+  // This is deterministic and avoids order-dependent artifacts.
   const agentWins = new Map<string, number>();
 
   for (const [, boutAgentVotes] of boutVotes) {
     let maxVotes = 0;
-    let winner: string | null = null;
+    const leaders: string[] = [];
 
     for (const [agentId, votes] of boutAgentVotes) {
       if (votes > maxVotes) {
         maxVotes = votes;
-        winner = agentId;
+        leaders.length = 0;
+        leaders.push(agentId);
+      } else if (votes === maxVotes) {
+        leaders.push(agentId);
       }
     }
 
-    if (winner) {
-      agentWins.set(winner, (agentWins.get(winner) ?? 0) + 1);
+    // Only award a win if there is a single clear winner (no ties)
+    if (leaders.length === 1) {
+      agentWins.set(leaders[0], (agentWins.get(leaders[0]) ?? 0) + 1);
     }
   }
 
-  // Step 4: Get agent names for all agents with votes
+  // Step 4: Get agent names for all agents with votes.
+  // Guard: empty array would cause a Postgres type-inference error with ANY().
   const agentIds = Array.from(agentTotalVotes.keys());
-  const agentRows = await db
-    .select({ id: agents.id, name: agents.name })
-    .from(agents)
-    .where(sql`${agents.id} = ANY(${agentIds})`);
-
   const agentNames = new Map<string, string>();
-  for (const row of agentRows) {
-    agentNames.set(row.id, row.name ?? "Unknown Agent");
+
+  if (agentIds.length > 0) {
+    const agentRows = await db
+      .select({ id: agents.id, name: agents.name })
+      .from(agents)
+      .where(sql`${agents.id} = ANY(${agentIds})`);
+
+    for (const row of agentRows) {
+      agentNames.set(row.id, row.name ?? "Unknown Agent");
+    }
   }
 
   // Step 5: Build entries

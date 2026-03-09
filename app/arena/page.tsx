@@ -8,8 +8,7 @@ import { PresetCard } from "@/components/arena/preset-card";
 export default async function ArenaPage() {
   const presets = getAllPresets();
 
-  // Credit balance display deferred until credits domain is implemented.
-  // For now, the arena is open to all users.
+  // TODO(phase4-economy): Add credit balance display here once credits domain lands.
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">

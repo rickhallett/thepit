@@ -9,7 +9,7 @@ import { reactions } from "@/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 
 export const ReactionRequestSchema = z.object({
-  boutId: z.string(),
+  boutId: z.string().min(1, "boutId is required"),
   turnIndex: z.number().int().min(0),
   reactionType: z.enum(["heart", "fire"]),
 });
@@ -42,6 +42,10 @@ export function computeFingerprint(userId: string | null, ip: string): string {
  * If reaction exists: delete it (removed).
  * If not exists: insert it (added).
  * Returns action taken and updated counts for the turn.
+ *
+ * Uses a transaction to prevent TOCTOU race conditions.
+ * The DB unique constraint on (boutId, turnIndex, reactionType, clientFingerprint)
+ * is the ultimate safety net; the transaction ensures consistent toggle + count.
  */
 export async function toggleReaction(params: {
   boutId: string;
@@ -52,42 +56,60 @@ export async function toggleReaction(params: {
 }): Promise<ToggleResult> {
   const { boutId, turnIndex, reactionType, userId, clientFingerprint } = params;
 
-  // Check for existing reaction
-  const existing = await db
-    .select({ id: reactions.id })
-    .from(reactions)
-    .where(
-      and(
-        eq(reactions.boutId, boutId),
-        eq(reactions.turnIndex, turnIndex),
-        eq(reactions.reactionType, reactionType),
-        eq(reactions.clientFingerprint, clientFingerprint),
-      ),
-    )
-    .limit(1);
+  return await db.transaction(async (tx) => {
+    // Check for existing reaction within transaction
+    const existing = await tx
+      .select({ id: reactions.id })
+      .from(reactions)
+      .where(
+        and(
+          eq(reactions.boutId, boutId),
+          eq(reactions.turnIndex, turnIndex),
+          eq(reactions.reactionType, reactionType),
+          eq(reactions.clientFingerprint, clientFingerprint),
+        ),
+      )
+      .limit(1);
 
-  let action: "added" | "removed";
+    let action: "added" | "removed";
 
-  if (existing.length > 0) {
-    // Remove existing reaction
-    await db.delete(reactions).where(eq(reactions.id, existing[0].id));
-    action = "removed";
-  } else {
-    // Add new reaction
-    await db.insert(reactions).values({
-      boutId,
-      turnIndex,
-      reactionType,
-      userId,
-      clientFingerprint,
-    });
-    action = "added";
-  }
+    if (existing.length > 0) {
+      // Remove existing reaction
+      await tx.delete(reactions).where(eq(reactions.id, existing[0].id));
+      action = "removed";
+    } else {
+      // Add new reaction — unique constraint prevents duplicate on race
+      await tx.insert(reactions).values({
+        boutId,
+        turnIndex,
+        reactionType,
+        userId,
+        clientFingerprint,
+      });
+      action = "added";
+    }
 
-  // Get updated counts for this turn
-  const counts = await getCountsForTurn(boutId, turnIndex);
+    // Get updated counts within the same transaction for consistency
+    const countRows = await tx
+      .select({
+        reactionType: reactions.reactionType,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(reactions)
+      .where(
+        and(eq(reactions.boutId, boutId), eq(reactions.turnIndex, turnIndex)),
+      )
+      .groupBy(reactions.reactionType);
 
-  return { action, counts };
+    const counts: ReactionCounts = { heart: 0, fire: 0 };
+    for (const row of countRows) {
+      if (row.reactionType === "heart" || row.reactionType === "fire") {
+        counts[row.reactionType] = row.count;
+      }
+    }
+
+    return { action, counts };
+  });
 }
 
 /**

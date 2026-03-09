@@ -1,8 +1,9 @@
 /**
  * POST /api/short-links — Create a short link for a bout.
  *
- * No auth required — anyone can create a short link for a public bout.
+ * No auth required — anyone can create a short link for a completed bout.
  * Idempotent: same boutId always returns same slug.
+ * Only completed bouts can be shared (not running or errored).
  */
 
 import { NextRequest } from "next/server";
@@ -28,15 +29,19 @@ export async function POST(req: NextRequest) {
 
   const { boutId } = parsed.data;
 
-  // 2. Verify bout exists
+  // 2. Verify bout exists AND is completed (only completed bouts are shareable)
   const [bout] = await db
-    .select({ id: bouts.id })
+    .select({ id: bouts.id, status: bouts.status })
     .from(bouts)
     .where(eq(bouts.id, boutId))
     .limit(1);
 
   if (!bout) {
     return errorResponse(404, API_ERRORS.NOT_FOUND, "Bout not found");
+  }
+
+  if (bout.status !== "completed") {
+    return errorResponse(400, "BOUT_NOT_COMPLETED", "Only completed bouts can be shared");
   }
 
   // 3. Create short link (idempotent)

@@ -9,12 +9,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { computeFingerprint } from "./reactions";
 
-// Mock the db module
+// Mock the db module. toggleReaction uses db.transaction(), so we mock
+// a transaction function that passes a mock tx to the callback.
 vi.mock("@/db", () => ({
   db: {
     select: vi.fn(),
     insert: vi.fn(),
     delete: vi.fn(),
+    transaction: vi.fn(),
   },
 }));
 
@@ -73,27 +75,59 @@ describe("toggleReaction", () => {
     vi.clearAllMocks();
   });
 
+  /**
+   * Helper: creates a mock tx object for db.transaction() and configures
+   * db.transaction to call the callback with that tx.
+   */
+  function setupTransactionMock(
+    db: Record<string, ReturnType<typeof vi.fn>>,
+    opts: {
+      existingReaction: { id: number } | null;
+      countsAfter: Array<{ reactionType: string; count: number }>;
+    },
+  ) {
+    const mockInsert = vi.fn();
+    const mockDelete = vi.fn();
+    const mockSelect = vi.fn();
+
+    // select chain: first call = existence check (limit), second call = counts (groupBy)
+    const selectChain = {
+      from: vi.fn().mockReturnThis(),
+      where: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockResolvedValue(
+        opts.existingReaction ? [opts.existingReaction] : [],
+      ),
+      groupBy: vi.fn().mockResolvedValue(opts.countsAfter),
+    };
+    mockSelect.mockReturnValue(selectChain);
+
+    // insert chain
+    const insertChain = { values: vi.fn().mockResolvedValue(undefined) };
+    mockInsert.mockReturnValue(insertChain);
+
+    // delete chain
+    const deleteChain = { where: vi.fn().mockResolvedValue(undefined) };
+    mockDelete.mockReturnValue(deleteChain);
+
+    const tx = { select: mockSelect, insert: mockInsert, delete: mockDelete };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    db.transaction.mockImplementation(async (cb: (t: any) => Promise<unknown>) => cb(tx));
+
+    return { tx, mockInsert, mockDelete, mockSelect };
+  }
+
   it("inserts new reaction when none exists (action=added)", async () => {
     const dbModule = await import("@/db");
     const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
 
-    // Setup: select returns empty array (no existing reaction)
-    const mockSelectChain = {
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([]),
-      groupBy: vi.fn().mockResolvedValue([
+    const { mockInsert } = setupTransactionMock(db, {
+      existingReaction: null,
+      countsAfter: [
         { reactionType: "heart", count: 1 },
         { reactionType: "fire", count: 0 },
-      ]),
-    };
-    db.select.mockReturnValue(mockSelectChain);
-
-    // Insert chain
-    const mockInsertChain = {
-      values: vi.fn().mockResolvedValue(undefined),
-    };
-    db.insert.mockReturnValue(mockInsertChain);
+      ],
+    });
 
     const { toggleReaction } = await import("./reactions");
 
@@ -106,30 +140,21 @@ describe("toggleReaction", () => {
     });
 
     expect(result.action).toBe("added");
-    expect(db.insert).toHaveBeenCalled();
+    // Verify insert was actually called (not just select)
+    expect(mockInsert).toHaveBeenCalled();
   });
 
   it("deletes existing reaction (action=removed)", async () => {
     const dbModule = await import("@/db");
     const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
 
-    // Setup: select returns existing reaction, then counts
-    const mockSelectChain = {
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([{ id: 42 }]),
-      groupBy: vi.fn().mockResolvedValue([
+    const { mockDelete } = setupTransactionMock(db, {
+      existingReaction: { id: 42 },
+      countsAfter: [
         { reactionType: "heart", count: 0 },
         { reactionType: "fire", count: 2 },
-      ]),
-    };
-    db.select.mockReturnValue(mockSelectChain);
-
-    // Delete chain
-    const mockDeleteChain = {
-      where: vi.fn().mockResolvedValue(undefined),
-    };
-    db.delete.mockReturnValue(mockDeleteChain);
+      ],
+    });
 
     const { toggleReaction } = await import("./reactions");
 
@@ -142,29 +167,21 @@ describe("toggleReaction", () => {
     });
 
     expect(result.action).toBe("removed");
-    expect(db.delete).toHaveBeenCalled();
+    // Verify delete was actually called
+    expect(mockDelete).toHaveBeenCalled();
   });
 
   it("returns correct counts after toggle", async () => {
     const dbModule = await import("@/db");
     const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
 
-    // Setup for add scenario
-    const mockSelectChain = {
-      from: vi.fn().mockReturnThis(),
-      where: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockResolvedValue([]),
-      groupBy: vi.fn().mockResolvedValue([
+    setupTransactionMock(db, {
+      existingReaction: null,
+      countsAfter: [
         { reactionType: "heart", count: 5 },
         { reactionType: "fire", count: 3 },
-      ]),
-    };
-    const mockInsertChain = {
-      values: vi.fn().mockResolvedValue(undefined),
-    };
-
-    db.select.mockReturnValue(mockSelectChain);
-    db.insert.mockReturnValue(mockInsertChain);
+      ],
+    });
 
     const { toggleReaction } = await import("./reactions");
 

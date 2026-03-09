@@ -44,8 +44,12 @@ export default async function BoutPage({ params, searchParams }: PageProps) {
     dbStatus === "completed" ? "done" : dbStatus === "running" ? "streaming" : dbStatus ?? "idle";
 
   // Auto-start config from query params (when navigating from /arena).
-  const autoStart = search.presetId
-    ? { presetId: search.presetId, topic: search.topic, model: search.model }
+  // Validate presetId/model format to prevent invalid data reaching client components.
+  const presetId = search.presetId?.slice(0, 64);
+  const model = search.model?.slice(0, 64);
+  const topic = search.topic?.slice(0, 500);
+  const autoStart = presetId
+    ? { presetId, topic, model }
     : undefined;
 
   return (

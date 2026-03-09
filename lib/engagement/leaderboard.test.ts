@@ -191,16 +191,14 @@ describe("getLeaderboardData", () => {
       callCount++;
 
       if (callCount === 1) {
-        // Bout 1: tie at 2 votes each, first one processed wins
+        // Bout 1: agent_x gets 3 votes, agent_y gets 2 — clear winner
         return {
           from: vi.fn().mockReturnThis(),
           innerJoin: vi.fn().mockReturnThis(),
           where: vi.fn().mockResolvedValue([
-            // agent_x gets 3 votes in bout_1
             { boutId: "bout_1", agentId: "agent_x" },
             { boutId: "bout_1", agentId: "agent_x" },
             { boutId: "bout_1", agentId: "agent_x" },
-            // agent_y gets 2 votes in bout_1
             { boutId: "bout_1", agentId: "agent_y" },
             { boutId: "bout_1", agentId: "agent_y" },
           ]),
@@ -225,6 +223,50 @@ describe("getLeaderboardData", () => {
     const agentY = result.find((e) => e.agentId === "agent_y");
 
     expect(agentX?.wins).toBe(1);
+    expect(agentY?.wins).toBe(0);
+  });
+
+  it("awards no win when agents are tied in votes", async () => {
+    const dbModule = await import("@/db");
+    const db = dbModule.db as unknown as Record<string, ReturnType<typeof vi.fn>>;
+
+    let callCount = 0;
+
+    db.select.mockImplementation(() => {
+      callCount++;
+
+      if (callCount === 1) {
+        // Bout 1: exact tie — 2 votes each
+        return {
+          from: vi.fn().mockReturnThis(),
+          innerJoin: vi.fn().mockReturnThis(),
+          where: vi.fn().mockResolvedValue([
+            { boutId: "bout_1", agentId: "agent_x" },
+            { boutId: "bout_1", agentId: "agent_x" },
+            { boutId: "bout_1", agentId: "agent_y" },
+            { boutId: "bout_1", agentId: "agent_y" },
+          ]),
+        };
+      }
+
+      return {
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockResolvedValue([
+          { id: "agent_x", name: "Agent X" },
+          { id: "agent_y", name: "Agent Y" },
+        ]),
+      };
+    });
+
+    const { getLeaderboardData } = await import("./leaderboard");
+
+    const result = await getLeaderboardData("all");
+
+    // Neither agent should have a win — tie policy is no winner
+    const agentX = result.find((e) => e.agentId === "agent_x");
+    const agentY = result.find((e) => e.agentId === "agent_y");
+
+    expect(agentX?.wins).toBe(0);
     expect(agentY?.wins).toBe(0);
   });
 

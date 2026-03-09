@@ -11,10 +11,12 @@ import {
 } from "@/lib/common/api-utils";
 import { createRateLimiter } from "@/lib/common/rate-limit";
 import { requireAuth, AuthenticationError } from "@/lib/auth/middleware";
-import { WinnerVoteRequestSchema, castWinnerVote } from "@/lib/engagement/votes";
+import { WinnerVoteRequestSchema, castWinnerVote, VoteValidationError } from "@/lib/engagement/votes";
 
-// 60 requests per hour per user
-const rateLimiter = createRateLimiter({ windowMs: 3600000, maxRequests: 60 });
+// Rate limits: configurable via env, with safe defaults
+const VOTE_RATE_WINDOW_MS = Number(process.env.VOTE_RATE_WINDOW_MS) || 3600000; // 1 hour
+const VOTE_RATE_MAX = Number(process.env.VOTE_RATE_MAX) || 60;
+const rateLimiter = createRateLimiter({ windowMs: VOTE_RATE_WINDOW_MS, maxRequests: VOTE_RATE_MAX });
 
 export async function POST(req: NextRequest) {
   // 1. Require auth
@@ -56,6 +58,18 @@ export async function POST(req: NextRequest) {
 
     return Response.json({ ok: true });
   } catch (err) {
+    if (err instanceof VoteValidationError) {
+      const statusMap = {
+        BOUT_NOT_FOUND: 404,
+        BOUT_NOT_COMPLETED: 400,
+        AGENT_NOT_IN_BOUT: 400,
+      } as const;
+      return errorResponse(
+        statusMap[err.code],
+        err.code,
+        err.message,
+      );
+    }
     console.error("Winner vote failed:", err);
     return errorResponse(500, API_ERRORS.INTERNAL, "Failed to cast vote");
   }

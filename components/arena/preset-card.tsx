@@ -2,6 +2,8 @@
 
 // PresetCard — displays a debate preset with agent lineup and start button.
 // Generates a nanoid boutId on submit and navigates to /bout/{id} with query params.
+// The bout does not exist in DB yet at navigation time — /bout/[id] renders
+// Arena with initialBout=null, which starts the bout via SSE on mount.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
