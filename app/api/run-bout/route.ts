@@ -19,9 +19,12 @@ export async function POST(req: NextRequest): Promise<Response> {
   // 2. Resolve model — default to preset's model, map to actual Anthropic model ID.
   // model field is validated as enum by BoutCreateRequestSchema, so only valid values arrive here.
   const modelId = data.model || preset.defaultModel;
+  // Map internal model aliases to current Anthropic API IDs.
+  // Updated 2026-03-09: claude-3-5-* series deprecated; current gen is 4.x.
+  // See: https://docs.anthropic.com/en/docs/about-claude/models
   const MODEL_MAP: Record<string, string> = {
-    "claude-haiku": "claude-3-5-haiku-latest",
-    "claude-sonnet": "claude-3-5-sonnet-latest",
+    "claude-haiku": "claude-haiku-4-5",
+    "claude-sonnet": "claude-sonnet-4-6",
   };
   const anthropicModelId = MODEL_MAP[modelId];
   if (!anthropicModelId) {
