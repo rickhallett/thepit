@@ -42,7 +42,9 @@ export async function settleCredits(
     };
   }
 
-  // Underestimate — need to charge additional, capped at available balance
+  // Underestimate — charge additional, capped at available balance.
+  // Note: read-then-apply has a theoretical TOCTOU race, but GREATEST(0, ...)
+  // in applyCreditDelta prevents negative balances at the SQL level regardless.
   const currentBalance = await getCreditBalanceMicro(userId);
   const additionalCharge = Math.min(-rawDelta, currentBalance);
 

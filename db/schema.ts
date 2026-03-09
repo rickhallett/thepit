@@ -112,7 +112,7 @@ export const creditTransactions = pgTable("credit_transactions", {
   userId: varchar("user_id", { length: 128 }).references(() => users.id),
   deltaMicro: bigint("delta_micro", { mode: "number" }),
   source: varchar("source", { length: 32 }),
-  referenceId: varchar("reference_id", { length: 256 }),
+  referenceId: varchar("reference_id", { length: 256 }).unique(),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").defaultNow(),
 });

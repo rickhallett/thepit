@@ -26,22 +26,43 @@ export async function preauthorizeCredits(
 ): Promise<PreauthResult> {
   const preauthId = `preauth:${boutId}`;
 
-  // Atomic conditional deduction — only succeeds if balance >= cost
-  const result = await db
-    .update(credits)
-    .set({
-      balanceMicro: sql`${credits.balanceMicro} - ${estimatedCostMicro}`,
-    })
-    .where(
-      and(
-        eq(credits.userId, userId),
-        gte(credits.balanceMicro, estimatedCostMicro),
-      ),
-    )
-    .returning({ balanceMicro: credits.balanceMicro });
+  // Transaction ensures the conditional deduction and audit log are atomic.
+  // Without this, a failed INSERT leaves credits deducted with no audit trail.
+  const txResult = await db.transaction(async (tx) => {
+    // Atomic conditional deduction — only succeeds if balance >= cost
+    const result = await tx
+      .update(credits)
+      .set({
+        balanceMicro: sql`${credits.balanceMicro} - ${estimatedCostMicro}`,
+      })
+      .where(
+        and(
+          eq(credits.userId, userId),
+          gte(credits.balanceMicro, estimatedCostMicro),
+        ),
+      )
+      .returning({ balanceMicro: credits.balanceMicro });
 
-  if (result.length === 0) {
-    // WHERE clause rejected — insufficient funds or no account
+    if (result.length === 0) {
+      // WHERE clause rejected — insufficient funds or no account
+      return { success: false as const };
+    }
+
+    const newBalance = result[0].balanceMicro ?? 0;
+
+    // Log the preauth transaction
+    await tx.insert(creditTransactions).values({
+      userId,
+      deltaMicro: -estimatedCostMicro,
+      source: CreditSource.PREAUTH,
+      referenceId: preauthId,
+    });
+
+    return { success: true as const, newBalance };
+  });
+
+  if (!txResult.success) {
+    // Read balance outside transaction — no mutation to protect
     const currentBalance = await db
       .select({ balanceMicro: credits.balanceMicro })
       .from(credits)
@@ -54,19 +75,9 @@ export async function preauthorizeCredits(
     };
   }
 
-  const newBalance = result[0].balanceMicro ?? 0;
-
-  // Log the preauth transaction
-  await db.insert(creditTransactions).values({
-    userId,
-    deltaMicro: -estimatedCostMicro,
-    source: CreditSource.PREAUTH,
-    referenceId: preauthId,
-  });
-
   return {
     success: true,
-    newBalance,
+    newBalance: txResult.newBalance,
     preauthId,
   };
 }

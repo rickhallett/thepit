@@ -23,22 +23,18 @@ export async function ensureCreditAccount(userId: string): Promise<void> {
     })
     .onConflictDoNothing({ target: credits.userId });
 
-  // Log signup transaction — idempotent via reference_id check
+  // Log signup transaction — idempotent via unique constraint on reference_id.
+  // ON CONFLICT DO NOTHING eliminates the TOCTOU race of SELECT-then-INSERT.
   const referenceId = `signup:${userId}`;
-  const existing = await db
-    .select({ id: creditTransactions.id })
-    .from(creditTransactions)
-    .where(eq(creditTransactions.referenceId, referenceId))
-    .limit(1);
-
-  if (existing.length === 0) {
-    await db.insert(creditTransactions).values({
+  await db
+    .insert(creditTransactions)
+    .values({
       userId,
       deltaMicro: DEFAULT_BALANCE_MICRO,
       source: CreditSource.SIGNUP,
       referenceId,
-    });
-  }
+    })
+    .onConflictDoNothing({ target: creditTransactions.referenceId });
 }
 
 /**
@@ -72,25 +68,29 @@ export async function applyCreditDelta(
   referenceId: string,
   metadata?: Record<string, unknown>,
 ): Promise<number> {
-  // Update balance with floor at 0
-  const result = await db
-    .update(credits)
-    .set({
-      balanceMicro: sql`GREATEST(0, ${credits.balanceMicro} + ${delta})`,
-    })
-    .where(eq(credits.userId, userId))
-    .returning({ balanceMicro: credits.balanceMicro });
+  // Transaction ensures balance update and audit log are atomic.
+  // Without this, a failed INSERT leaves balance changed with no audit trail.
+  return db.transaction(async (tx) => {
+    // Update balance with floor at 0
+    const result = await tx
+      .update(credits)
+      .set({
+        balanceMicro: sql`GREATEST(0, ${credits.balanceMicro} + ${delta})`,
+      })
+      .where(eq(credits.userId, userId))
+      .returning({ balanceMicro: credits.balanceMicro });
 
-  const newBalance = result[0]?.balanceMicro ?? 0;
+    const newBalance = result[0]?.balanceMicro ?? 0;
 
-  // Log the transaction
-  await db.insert(creditTransactions).values({
-    userId,
-    deltaMicro: delta,
-    source,
-    referenceId,
-    metadata: metadata ?? null,
+    // Log the transaction
+    await tx.insert(creditTransactions).values({
+      userId,
+      deltaMicro: delta,
+      source,
+      referenceId,
+      metadata: metadata ?? null,
+    });
+
+    return newBalance;
   });
-
-  return newBalance;
 }

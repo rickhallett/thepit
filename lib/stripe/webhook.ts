@@ -264,29 +264,41 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
 // ── Main dispatcher ───────────────────────────────────────
 
 export async function handleWebhookEvent(event: Stripe.Event): Promise<void> {
-  switch (event.type) {
-    case "checkout.session.completed":
-      return handleCheckoutCompleted(
-        event.data.object as Stripe.Checkout.Session,
-      );
-    case "customer.subscription.created":
-      return handleSubscriptionCreated(
-        event.data.object as Stripe.Subscription,
-      );
-    case "customer.subscription.updated":
-      return handleSubscriptionUpdated(
-        event.data.object as Stripe.Subscription,
-      );
-    case "customer.subscription.deleted":
-      return handleSubscriptionDeleted(
-        event.data.object as Stripe.Subscription,
-      );
-    case "invoice.payment_failed":
-      return handlePaymentFailed(event.data.object as Stripe.Invoice);
-    case "invoice.payment_succeeded":
-      return handlePaymentSucceeded(event.data.object as Stripe.Invoice);
-    default:
-      // Ignore unknown events
-      return;
+  try {
+    switch (event.type) {
+      case "checkout.session.completed":
+        return await handleCheckoutCompleted(
+          event.data.object as Stripe.Checkout.Session,
+        );
+      case "customer.subscription.created":
+        return await handleSubscriptionCreated(
+          event.data.object as Stripe.Subscription,
+        );
+      case "customer.subscription.updated":
+        return await handleSubscriptionUpdated(
+          event.data.object as Stripe.Subscription,
+        );
+      case "customer.subscription.deleted":
+        return await handleSubscriptionDeleted(
+          event.data.object as Stripe.Subscription,
+        );
+      case "invoice.payment_failed":
+        return await handlePaymentFailed(event.data.object as Stripe.Invoice);
+      case "invoice.payment_succeeded":
+        return await handlePaymentSucceeded(
+          event.data.object as Stripe.Invoice,
+        );
+      default:
+        // Ignore unknown events
+        return;
+    }
+  } catch (error) {
+    // Log but don't rethrow — returning 200 to Stripe prevents infinite retries
+    // for persistent errors (e.g., bad data, unique constraint violations).
+    // Transient errors (DB timeouts) are acceptable losses; Stripe will retry.
+    console.error(
+      `[webhook] Error handling ${event.type} (${event.id}):`,
+      error,
+    );
   }
 }
