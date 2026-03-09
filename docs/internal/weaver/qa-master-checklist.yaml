@@ -43,10 +43,10 @@ checks:
     desc: "Gate green on phase2-ui branch (typecheck + lint + test)"
     category: automated
     blocking: true
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:57:22Z"
+    notes: "Fixed: eslint globals added (d2eb0e4). typecheck:ok lint:ok test:ok (142 pass, 9 skip)"
 
   - id: P23-G02
     phase: phase2-ui
@@ -54,10 +54,10 @@ checks:
     desc: "Test count >= 151 (142 pass + 9 skip baseline)"
     category: automated
     blocking: true
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:56:04Z"
+    notes: "actual: 151 (142 pass + 9 skip)"
 
   - id: P23-G03
     phase: phase2-ui
@@ -65,10 +65,10 @@ checks:
     desc: "No test regressions from foundation (49 original tests still pass)"
     category: automated
     blocking: true
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:56:04Z"
+    notes: "15 test files, all foundation tests present and passing"
 
   # ── Code Review: Bout Engine ─────────────────────────────
   - id: P23-CR01
@@ -362,10 +362,10 @@ checks:
     desc: "Gate green on phase4-economy branch (typecheck + lint + test)"
     category: automated
     blocking: true
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:56:10Z"
+    notes: "typecheck:ok lint:ok test:ok (223 pass, 35 skip)"
 
   - id: P4-G02
     phase: phase4-economy
@@ -373,10 +373,10 @@ checks:
     desc: "Test count >= 258 (223 pass + 35 skip)"
     category: automated
     blocking: true
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:56:11Z"
+    notes: "actual: 258 (223 pass + 35 skip)"
 
   - id: P4-G03
     phase: phase4-economy
@@ -384,10 +384,10 @@ checks:
     desc: "DB-dependent credit tests skip gracefully without DATABASE_URL"
     category: automated
     blocking: false
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:56:11Z"
+    notes: "All 35 skipped tests are DB-dependent, skip gracefully"
 
   # ── Code Review: Credit Engine ───────────────────────────
   - id: P4-CR01
@@ -615,10 +615,10 @@ checks:
     desc: "Gate green on phase5-discovery branch (typecheck + lint + test)"
     category: automated
     blocking: true
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:56:16Z"
+    notes: "typecheck:ok lint:ok test:ok (150 pass, 14 skip)"
 
   - id: P5-G02
     phase: phase5-discovery
@@ -626,10 +626,10 @@ checks:
     desc: "Test count >= 164 (150 pass + 14 skip)"
     category: automated
     blocking: true
-    status: pending
-    verified_by: null
-    timestamp: null
-    notes: null
+    status: pass
+    verified_by: captain
+    timestamp: "2026-03-09T09:56:16Z"
+    notes: "actual: 164 (150 pass + 14 skip)"
 
   # ── Code Review: Agent API ───────────────────────────────
   - id: P5-CR01
