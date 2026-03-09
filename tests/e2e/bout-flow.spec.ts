@@ -49,3 +49,18 @@ test.describe("Bout viewer", () => {
     // 3. Assert error message visible
   });
 });
+
+test.describe("Arena page", () => {
+  test.skip("navigate to /arena → see presets → click → redirect to bout page", async () => {
+    // TODO: requires running dev server
+    //
+    // Test plan:
+    // 1. Navigate to /arena
+    // 2. Verify preset cards are visible (h2 with preset name)
+    // 3. Verify agent badges display with correct colors
+    // 4. Fill in optional topic
+    // 5. Click "Start Debate" on first preset
+    // 6. Verify redirect to /bout/{id} with query params
+    // 7. Verify URL contains presetId, model params
+  });
+});

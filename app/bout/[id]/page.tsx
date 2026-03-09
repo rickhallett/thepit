@@ -1,5 +1,6 @@
 // Bout page — renders completed bouts statically or streams live bouts.
 // Server component that fetches bout from DB, passes to Arena client component.
+// Reads searchParams for auto-start when navigating from /arena.
 
 import { db } from "@/db";
 import { bouts } from "@/db/schema";
@@ -9,10 +10,12 @@ import type { TranscriptEntry } from "@/lib/bouts/types";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ presetId?: string; topic?: string; model?: string }>;
 }
 
-export default async function BoutPage({ params }: PageProps) {
+export default async function BoutPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const search = await searchParams;
 
   const bout = await db.query.bouts.findFirst({
     where: eq(bouts.id, id),
@@ -40,6 +43,11 @@ export default async function BoutPage({ params }: PageProps) {
   const displayStatus =
     dbStatus === "completed" ? "done" : dbStatus === "running" ? "streaming" : dbStatus ?? "idle";
 
+  // Auto-start config from query params (when navigating from /arena).
+  const autoStart = search.presetId
+    ? { presetId: search.presetId, topic: search.topic, model: search.model }
+    : undefined;
+
   return (
     <Arena
       boutId={id}
@@ -54,6 +62,7 @@ export default async function BoutPage({ params }: PageProps) {
             }
           : null
       }
+      autoStart={autoStart}
     />
   );
 }

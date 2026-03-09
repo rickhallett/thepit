@@ -16,9 +16,13 @@ Derived from SPEC.md dependency chain and EVAL.md success criteria. Each unit is
 | 4a | Bout validation | 07 | `50c12dc` | BoutStatus enum, TranscriptEntry, SSEEventType, Zod schema, content safety, idempotency |
 | 4b | Bout turn loop | 08 | `7df99e5` | executeTurnLoop, round-robin agents, AI SDK streaming, buildTurnMessages |
 | 4c | Bout streaming + route | 09 | `6c254e3` | createBoutSSEStream (SSE), POST /api/run-bout, model enum validation, double-close guard |
+| 5a | useBout hook | 14 | `cd384a3` | React hook: fetch POST → SSE parsing → state, chunk-safe, AbortController cleanup |
+| 5b | Bout viewer page | 15 | `9d7e00d` | Server page + Arena client + MessageCard, auto-scroll, static/streaming modes |
+| 5c | Arena page | 16 | *(pending)* | Preset grid, PresetCard, topic input, model selector, autoStart wiring |
 
 **QA signoff:** T-001 through T-006 verified (`docs/internal/weaver/qa-signoff-T001-T006.md`). Gate green. Foundation ready. 49 tests (40 pass, 9 skipped — need live DB).
 **T-007–T-009:** Phase 2 Unit 4 complete. Bout engine works end-to-end (without persistence/credits). 95 tests (86 pass, 9 skip). Darkcat-verified (2 rounds, critical double-close fixed).
+**T-014–T-016:** Phase 2 Units 5+6 complete. Full UI loop: arena → preset → bout page → SSE stream → display. 109 tests (100 pass, 9 skip). QA pending (`docs/internal/weaver/qa-signoff-T007-T016.md`).
 
 ---
 
