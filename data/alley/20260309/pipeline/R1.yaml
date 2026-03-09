@@ -13,15 +13,10 @@ findings:
   watchdog: WD-PL
   slopodar: shadow-validation
   title: Greedy matching is order-dependent and non-commutative
-  description: 'match_findings uses greedy first-come-first-served assignment. The iteration order depends on dict insertion
-    order of the reviews argument, which depends on CLI argument position. Swapping R1 and R2 at the CLI can produce different
-    convergence numbers. For a tool whose output feeds portfolio visualisations, non-deterministic results undermine defensibility.
-    The algorithm also only compares candidates against the group seed, not all group members, producing false negatives when
-    reviewers use different vocabulary for the same issue.
-
-    '
-  recommendation: Compute similarity against best-in-group (not seed only). Run matching on all permutations of review order
-    and report variance. If variance is zero, the matching is robust; if non-zero, report the range.
+  description: |
+    match_findings uses greedy first-come-first-served assignment. The iteration order depends on dict insertion order of the reviews argument, which depends on CLI argument position. Swapping R1 and R2 at the CLI can produce different convergence numbers. For a tool whose output feeds portfolio visualisations, non-deterministic results undermine defensibility. The algorithm also only compares candidates against the group seed, not all group members, producing false negatives when reviewers use different vocabulary for the same issue.
+  recommendation: |-
+    Compute similarity against best-in-group (not seed only). Run matching on all permutations of review order and report variance. If variance is zero, the matching is robust; if non-zero, report the range.
 - id: F-002
   branch: numerical-pipeline
   file: bin/triangulate
@@ -30,14 +25,10 @@ findings:
   watchdog: WD-PL
   slopodar: shadow-validation
   title: Seed-only similarity comparison produces false negatives
-  description: 'The inner matching loop compares f_j against f_i (the seed) only. Two findings that are both similar to a
-    third but dissimilar to each other will not be grouped. This is the primary failure mode of the matching algorithm: R1
-    says ''missing error handling'', R2 says ''lacks try-catch blocks'', R3 says ''no error handling''. R1-R3 match, R1-R2
-    might not, so R2 ends up as a separate single-model finding despite describing the same issue.
-
-    '
-  recommendation: 'Compare candidates against all findings in the group (best-of-group score) rather than only the seed. Alternatively,
-    use transitive closure: if A matches B and B matches C, group all three.'
+  description: |
+    The inner matching loop compares f_j against f_i (the seed) only. Two findings that are both similar to a third but dissimilar to each other will not be grouped. This is the primary failure mode of the matching algorithm: R1 says 'missing error handling', R2 says 'lacks try-catch blocks', R3 says 'no error handling'. R1-R3 match, R1-R2 might not, so R2 ends up as a separate single-model finding despite describing the same issue.
+  recommendation: |-
+    Compare candidates against all findings in the group (best-of-group score) rather than only the seed. Alternatively, use transitive closure: if A matches B and B matches C, group all three.
 - id: F-003
   branch: numerical-pipeline
   file: bin/triangulate
@@ -46,14 +37,10 @@ findings:
   watchdog: WD-PG
   slopodar: phantom-ledger
   title: Marginal value computed for single ordering only
-  description: 'The marginal value metric answers ''what does the Nth review add?'' but only for the ordering determined by
-    CLI argument position. The first review always gets credit for the most findings. With 3 reviews there are 6 possible
-    orderings; the tool computes 1. The resulting line chart will show a declining curve that is partly an artifact of evaluation
-    order, not a true measurement of diminishing returns. This is the most misleading metric in the tool.
-
-    '
-  recommendation: Compute marginal value for all 6 permutations of review order. Report mean, min, max marginal value per
-    model. This is 6x the work but the permutation count is trivially small.
+  description: |
+    The marginal value metric answers 'what does the Nth review add?' but only for the ordering determined by CLI argument position. The first review always gets credit for the most findings. With 3 reviews there are 6 possible orderings; the tool computes 1. The resulting line chart will show a declining curve that is partly an artifact of evaluation order, not a true measurement of diminishing returns. This is the most misleading metric in the tool.
+  recommendation: |-
+    Compute marginal value for all 6 permutations of review order. Report mean, min, max marginal value per model. This is 6x the work but the permutation count is trivially small.
 - id: F-004
   branch: numerical-pipeline
   file: bin/triangulate
@@ -62,13 +49,10 @@ findings:
   watchdog: WD-PG
   slopodar: phantom-ledger
   title: False positive rate outputs measured-looking zeros instead of null
-  description: 'The FP rate metric defaults all findings to confirmed_true=total, confirmed_false=0, fp_rate=0.0. Downstream
-    consumers will render this as ''0% false positive rate'' which implies empirical verification that has not occurred. This
-    is a phantom ledger: the books show a clean audit trail that doesn''t correspond to any actual audit.
-
-    '
-  recommendation: 'Output null or omit the FP rate fields entirely until human adjudication data exists. If the placeholder
-    must exist, add a field ''adjudicated: false'' so downstream tools can filter it.'
+  description: |
+    The FP rate metric defaults all findings to confirmed_true=total, confirmed_false=0, fp_rate=0.0. Downstream consumers will render this as '0% false positive rate' which implies empirical verification that has not occurred. This is a phantom ledger: the books show a clean audit trail that doesn't correspond to any actual audit.
+  recommendation: |-
+    Output null or omit the FP rate fields entirely until human adjudication data exists. If the placeholder must exist, add a field 'adjudicated: false' so downstream tools can filter it.
 - id: F-005
   branch: numerical-pipeline
   file: bin/triangulate
@@ -77,14 +61,10 @@ findings:
   watchdog: WD-CB
   slopodar: paper-guardrail
   title: Finding validation checks presence but not types
-  description: 'validate_finding checks that required fields exist but does not validate their types. severity: 42, line:
-    [1,2,3], or title: true (parsed as boolean by YAML) will pass validation or produce confusing warning messages. The watchdog
-    field is validated against a set but only as string membership — a list value would produce a misleading warning. No ID
-    format validation (F-NNN expected). No duplicate ID detection within or across reviews.
-
-    '
-  recommendation: 'Add type checks: severity must be str, line must be str or int, id must match r''F-\d{3}''. Track seen
-    IDs and warn on duplicates.'
+  description: |
+    validate_finding checks that required fields exist but does not validate their types. severity: 42, line: [1,2,3], or title: true (parsed as boolean by YAML) will pass validation or produce confusing warning messages. The watchdog field is validated against a set but only as string membership — a list value would produce a misleading warning. No ID format validation (F-NNN expected). No duplicate ID detection within or across reviews.
+  recommendation: |-
+    Add type checks: severity must be str, line must be str or int, id must match r'F-\d{3}'. Track seen IDs and warn on duplicates.
 - id: F-006
   branch: numerical-pipeline
   file: bin/triangulate
@@ -93,14 +73,10 @@ findings:
   watchdog: none
   slopodar: none
   title: No inter-rater reliability statistic (kappa)
-  description: 'The tool computes severity agreement as a binary (agree/disagree) and max_delta. It does not compute Cohen''s
-    or Fleiss'' kappa, which is the standard measure for inter-rater reliability. The portfolio audience (Anthropic red team,
-    ML researchers) will expect this metric. Its absence signals either unfamiliarity with the standard or deliberate avoidance
-    — neither is a good signal.
-
-    '
-  recommendation: Implement ordinal-weighted Fleiss' kappa for severity ratings across converged findings. Even with small
-    N, the metric demonstrates methodological awareness.
+  description: |
+    The tool computes severity agreement as a binary (agree/disagree) and max_delta. It does not compute Cohen's or Fleiss' kappa, which is the standard measure for inter-rater reliability. The portfolio audience (Anthropic red team, ML researchers) will expect this metric. Its absence signals either unfamiliarity with the standard or deliberate avoidance — neither is a good signal.
+  recommendation: |-
+    Implement ordinal-weighted Fleiss' kappa for severity ratings across converged findings. Even with small N, the metric demonstrates methodological awareness.
 - id: F-007
   branch: numerical-pipeline
   file: bin/triangulate

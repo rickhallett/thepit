@@ -13,11 +13,8 @@ findings:
   watchdog: WD-PG
   slopodar: paper-guardrail
   title: Rate limit trusts spoofable x-forwarded-for
-  description: 'The rate limiter keys solely on getClientIp(), which trusts the client-supplied x-forwarded-for header. Unless
-    the platform is stripping or overwriting this header, clients can spoof IPs and bypass the 30/min limit and anonymous
-    fingerprinting.
-
-    '
+  description: |
+    The rate limiter keys solely on getClientIp(), which trusts the client-supplied x-forwarded-for header. Unless the platform is stripping or overwriting this header, clients can spoof IPs and bypass the 30/min limit and anonymous fingerprinting.
   recommendation: Use a trusted platform IP source and ignore untrusted x-forwarded-for values.
 - id: F-002
   branch: phase2-ui
@@ -27,11 +24,8 @@ findings:
   watchdog: none
   slopodar: none
   title: Auto-start query params forwarded without validation
-  description: 'presetId, topic, and model are read directly from searchParams and passed into Arena auto-start. There is
-    no schema validation or allowlist for model/presetId, so invalid inputs can leak into downstream execution instead of
-    being rejected early.
-
-    '
+  description: |
+    presetId, topic, and model are read directly from searchParams and passed into Arena auto-start. There is no schema validation or allowlist for model/presetId, so invalid inputs can leak into downstream execution instead of being rejected early.
   recommendation: Validate searchParams with a Zod schema or allowlist before passing to Arena.
 - id: F-003
   branch: phase2-ui
@@ -41,11 +35,8 @@ findings:
   watchdog: WD-CB
   slopodar: none
   title: toggleReaction races and throws on unique conflict
-  description: 'toggleReaction does a read-then-insert/delete flow without conflict handling. Concurrent requests for the
-    same reaction can both observe no row and one insert will hit the unique constraint, leading to a 500 instead of a deterministic
-    toggle result.
-
-    '
+  description: |
+    toggleReaction does a read-then-insert/delete flow without conflict handling. Concurrent requests for the same reaction can both observe no row and one insert will hit the unique constraint, leading to a 500 instead of a deterministic toggle result.
   recommendation: Use an atomic upsert/transaction or handle unique-violation by retrying/returning 'added'.
 - id: F-004
   branch: phase2-ui
@@ -55,10 +46,8 @@ findings:
   watchdog: WD-CB
   slopodar: none
   title: Slug collision not handled; unique constraint can throw
-  description: 'createShortLink only guards conflicts on boutId. If nanoid(8) collides with an existing slug, the insert will
-    throw and the function does not retry or recover, causing a 500 for valid input.
-
-    '
+  description: |
+    createShortLink only guards conflicts on boutId. If nanoid(8) collides with an existing slug, the insert will throw and the function does not retry or recover, causing a 500 for valid input.
   recommendation: Catch slug-unique violations and retry slug generation; or use onConflictDoNothing on slug and loop.
 - id: F-005
   branch: phase2-ui
@@ -68,10 +57,8 @@ findings:
   watchdog: WD-PG
   slopodar: paper-guardrail
   title: Winner vote accepts arbitrary agentId (not validated against bout)
-  description: 'castWinnerVote inserts the provided agentId without verifying that it is part of the bout''s agent lineup.
-    Clients can submit any agentId, which corrupts winner tallies and leaderboard data.
-
-    '
+  description: |
+    castWinnerVote inserts the provided agentId without verifying that it is part of the bout's agent lineup. Clients can submit any agentId, which corrupts winner tallies and leaderboard data.
   recommendation: Validate agentId against the bout's lineup before insert; reject with 400 if not present.
 - id: F-006
   branch: phase2-ui
@@ -81,9 +68,7 @@ findings:
   watchdog: WD-PG
   slopodar: paper-guardrail
   title: In-memory rate limiting is instance-local in serverless
-  description: 'The limiter stores state in-process. In serverless/multi-instance deployments, the limit is per-instance and
-    can be bypassed with parallel requests. The API routes present hard limits but they are only best-effort.
-
-    '
-  recommendation: Back rate limiting with shared storage (Redis/DB) or document it as best-effort and lower reliance on it
-    for abuse control.
+  description: |
+    The limiter stores state in-process. In serverless/multi-instance deployments, the limit is per-instance and can be bypassed with parallel requests. The API routes present hard limits but they are only best-effort.
+  recommendation: |-
+    Back rate limiting with shared storage (Redis/DB) or document it as best-effort and lower reliance on it for abuse control.

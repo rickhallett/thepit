@@ -1,270 +1,3 @@
-- title: 0% FP rate is unmeasured, not measured
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: critical
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-001
-      severity: critical
-      watchdog: WD-PG
-      slopodar: paper-guardrail
-      description: 'The false positive rate defaults all findings to ''confirmed true'' pending human verification. Claiming
-        0% FP under these conditions is a paper guardrail by the team''s own taxonomy — a stated metric with no enforcement
-        mechanism. This is the single most credibility-damaging claim in the methodology because it is trivially falsifiable
-        upon inspection.
-
-        '
-- title: Matching algorithm unvalidated — all quantitative claims depend on it
-  file: bin/triangulate
-  severity: critical
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-002
-      severity: critical
-      watchdog: WD-PG
-      slopodar: shadow-validation
-      description: 'The greedy SequenceMatcher-based matching is order-dependent, uses unvalidated weights (0.3/0.7) and threshold
-        (0.6), and has no measured false match or missed match rate. Every downstream metric — convergence rate, unique finding
-        count, marginal value curve — is a function of this matcher. An unvalidated instrument produces unvalidated measurements.
-
-        '
-- title: 'No baseline: same-model-3x comparison missing'
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: critical
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-003
-      severity: critical
-      watchdog: none
-      slopodar: none
-      description: 'The 74% single-model uniqueness rate is the central claim, but without a same-model-3x baseline, it is
-        impossible to distinguish cross-model diversity from stochastic review variation. If 3 runs of Claude with different
-        seeds produce a similar uniqueness rate, the entire cross-model rationale collapses. This is the single most important
-        experiment to run.
-
-        '
-- title: N=1 codebase with generalisation language
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-004
-      severity: high
-      watchdog: WD-CB
-      slopodar: none
-      description: 'All claims are derived from a single codebase, a single code author (Claude polecats), a single review
-        prompt, and a single snapshot. The blind spot map, diminishing returns curve, and category distribution are observations
-        from one case, not generalisable findings. Confidence intervals on the 74% rate span [55%, 88%] at 95% confidence.
-        The ''Semantic Hallucination is Claude-only'' claim rests on 3 instances — insufficient for any statistical test.
-
-        '
-- title: Human delta confounded by priming and residual effects
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  found_by:
-  - R1
-  - R3
-  convergence_count: 2
-  details:
-    R1:
-      id: F-005
-      severity: high
-      watchdog: none
-      slopodar: none
-      description: 'DP-3 (Human Delta) measures what humans find AFTER seeing model findings on FIXED code. The human is primed
-        by knowledge of model categories and operates on a different defect population (post-fix residuals). The counterfactual
-        — what the human would find on raw code without model exposure — is not measured and cannot be recovered from this
-        design.
-
-        '
-    R3:
-      id: F-007
-      severity: high
-      watchdog: WD-PG
-      slopodar: shadow-validation
-      description: 'Human review occurs after model outputs, priming the reviewer and inflating the apparent human delta.
-        This measures residuals after models, not human capability.
-
-        '
-- title: Cost-benefit analysis contains no cost data
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  found_by:
-  - R1
-  - R3
-  convergence_count: 2
-  details:
-    R1:
-      id: F-006
-      severity: high
-      watchdog: none
-      slopodar: none
-      description: 'DP-4 claims a cost-benefit analysis but includes no cost measurements — no API token costs, no human dispatch
-        time, no wall-clock latency, no opportunity cost comparison. Without costs, this is a benefit-only analysis. The most
-        important missing comparison is same-model-3x vs cross-model-3x at equivalent token budget.
-
-        '
-    R3:
-      id: F-006
-      severity: high
-      watchdog: WD-PL
-      slopodar: phantom-ledger
-      description: 'The methodology promises cost justification but does not model costs or severity-weighted benefits. This
-        is benefit-only accounting.
-
-        '
-- title: Convergence may measure training data overlap, not independent verification
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  found_by:
-  - R1
-  - R3
-  convergence_count: 2
-  details:
-    R1:
-      id: F-007
-      severity: medium
-      watchdog: WD-TDF
-      slopodar: none
-      description: 'The single 3-way convergent finding (applyCreditDelta non-transactional) maps to a well-known pattern
-        (database atomicity) present in training corpora for all three models. Convergence on template-derivable findings
-        is expected and does not demonstrate independent analytical capability. The signal value of convergence varies by
-        finding type but this distinction is not made.
-
-        '
-    R3:
-      id: F-003
-      severity: high
-      watchdog: WD-LRT
-      slopodar: shadow-validation
-      description: 'Convergence can reflect shared training priors rather than independent discovery. The current process
-        lacks controls to distinguish these causes.
-
-        '
-- title: Finding count asymmetry confounds uniqueness rate
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: medium
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-008
-      severity: medium
-      watchdog: none
-      slopodar: none
-      description: 'Claude produced 18 findings, Gemini 6, Codex 11. A more verbose model mechanically produces more unmatched
-        findings regardless of quality. The uniqueness rate is partially an artefact of count asymmetry. Normalisation (unique
-        findings as fraction of that model''s total) or rate-based metrics would partially address this.
-
-        '
-- title: Taxonomy priming may bias category distribution across models
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: medium
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-009
-      severity: medium
-      watchdog: none
-      slopodar: none
-      description: 'All reviewers receive the Watchdog taxonomy and Slopodar patterns. Different models may respond differently
-        to categorical priming — one model may anchor more heavily on provided category names than another. The observed category
-        distribution may partially reflect differential priming response rather than differential detection capability.
-
-        '
-- title: Author-reviewer model family correlation uncontrolled
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: medium
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-010
-      severity: medium
-      watchdog: none
-      slopodar: none
-      description: 'Code is authored by Claude polecats and reviewed by Claude Opus among others. A model reviewing its own
-        family''s output may have correlated blind spots (monoculture risk) or privileged insight into its own failure modes.
-        The direction of this bias is unknown and uncontrolled. Claude''s higher finding count (18 vs 6/11) could reflect
-        either effect.
-
-        '
-- title: Severity calibration metric uses ordinal distance instead of weighted kappa
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-011
-      severity: low
-      watchdog: none
-      slopodar: none
-      description: 'Metric 6 measures inter-rater severity agreement using ordinal distance between ratings. This treats all
-        adjacent-level disagreements as equal (critical-high = medium-low). Cohen''s weighted kappa or Krippendorff''s alpha
-        would be more informative and are standard for ordinal inter-rater agreement.
-
-        '
-- title: Model version temporal instability not acknowledged
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-012
-      severity: low
-      watchdog: none
-      slopodar: none
-      description: 'The blind spot map and category distribution are snapshots of specific model versions (Claude Opus, Gemini
-        3.1, Codex 52) at a specific date. Model updates may change these profiles. The shelf life of the findings is not
-        discussed.
-
-        '
-- title: 0% False Positive rate is mathematically invalid
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: critical
-  found_by:
-  - R2
-  - R3
-  convergence_count: 2
-  details:
-    R2:
-      id: F-001
-      severity: critical
-      watchdog: WD-PG
-      slopodar: paper-guardrail
-      description: 'Metric 8 defaults all findings to ''confirmed true'' pending human verification, resulting in a reported
-        0% False Positive rate. This is a literal Paper Guardrail—the metric outputs a comforting number (0% FP) while skipping
-        the actual verification mechanism required to generate it. This invalidates DP-1, DP-2, and DP-4.
-
-        '
-    R3:
-      id: F-002
-      severity: critical
-      watchdog: WD-PG
-      slopodar: paper-guardrail
-      description: 'The FP rate defaults all findings to confirmed true. This makes the precision chart and any quality claims
-        invalid until independent human verification is completed.
-
-        '
 - title: 74% single-model rate lacks an intra-model baseline
   file: docs/internal/weaver/darkcat-alley.md
   severity: high
@@ -272,72 +5,350 @@
   - R2
   - R3
   convergence_count: 2
+  match_confidence: 0.8398
   details:
     R2:
       id: F-002
       severity: high
       watchdog: WD-LRT
       slopodar: shadow-validation
-      description: 'The headline claim relies on the 74% single-model-only finding rate to prove that multi-model review is
-        necessary. However, without running the exact same model 3 times to measure its own internal variance, it''s impossible
-        to know if this 74% is driven by diverse model architectures or simply standard LLM sampling variance.
-
-        '
+      line: n/a
+      description: |
+        The headline claim relies on the 74% single-model-only finding rate to prove that multi-model review is necessary. However, without running the exact same model 3 times to measure its own internal variance, it's impossible to know if this 74% is driven by diverse model architectures or simply standard LLM sampling variance.
+      recommendation: |-
+        Run a control group: R1=Claude, R2=Claude, R3=Claude. Compare the single-run-only rate of the control group against the multi-model group to isolate the actual marginal value of model diversity.
     R3:
       id: F-004
       severity: high
       watchdog: WD-CB
       slopodar: none
-      description: 'The 74% single-model rate is presented as evidence of model complementarity without comparison to repeated
-        runs of the same model or larger token budgets.
-
-        '
+      line: n/a
+      description: |
+        The 74% single-model rate is presented as evidence of model complementarity without comparison to repeated runs of the same model or larger token budgets.
+      recommendation: Run within-model variance baselines and report comparative rates.
+- title: Convergence may measure training data overlap, not independent verification
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  found_by:
+  - R1
+  - R3
+  convergence_count: 2
+  match_confidence: 0.759
+  details:
+    R1:
+      id: F-007
+      severity: medium
+      watchdog: WD-TDF
+      slopodar: none
+      line: n/a
+      description: |
+        The single 3-way convergent finding (applyCreditDelta non-transactional) maps to a well-known pattern (database atomicity) present in training corpora for all three models. Convergence on template-derivable findings is expected and does not demonstrate independent analytical capability. The signal value of convergence varies by finding type but this distinction is not made.
+      recommendation: |-
+        Classify convergent findings as 'template-derived' (maps to known vulnerability pattern) vs 'analysis-derived' (codebase-specific structural defect). Only analysis-derived convergence supports the independent verification claim.
+    R3:
+      id: F-003
+      severity: high
+      watchdog: WD-LRT
+      slopodar: shadow-validation
+      line: n/a
+      description: |
+        Convergence can reflect shared training priors rather than independent discovery. The current process lacks controls to distinguish these causes.
+      recommendation: 'Add baselines: same-model multi-run and prompt-variance controls.'
+- title: Cost-benefit analysis contains no cost data
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  found_by:
+  - R1
+  - R3
+  convergence_count: 2
+  match_confidence: 0.7494
+  details:
+    R1:
+      id: F-006
+      severity: high
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        DP-4 claims a cost-benefit analysis but includes no cost measurements — no API token costs, no human dispatch time, no wall-clock latency, no opportunity cost comparison. Without costs, this is a benefit-only analysis. The most important missing comparison is same-model-3x vs cross-model-3x at equivalent token budget.
+      recommendation: |-
+        Log and report actual API costs per review. Estimate severity-weighted value per finding. Rename to 'benefit analysis' until cost term is populated.
+    R3:
+      id: F-006
+      severity: high
+      watchdog: WD-PL
+      slopodar: phantom-ledger
+      line: n/a
+      description: |
+        The methodology promises cost justification but does not model costs or severity-weighted benefits. This is benefit-only accounting.
+      recommendation: Include explicit cost model and compare to cheaper baselines.
+- title: 0% False Positive rate is mathematically invalid
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: critical
+  found_by:
+  - R2
+  - R3
+  convergence_count: 2
+  match_confidence: 0.7083
+  details:
+    R2:
+      id: F-001
+      severity: critical
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      line: n/a
+      description: |
+        Metric 8 defaults all findings to 'confirmed true' pending human verification, resulting in a reported 0% False Positive rate. This is a literal Paper Guardrail—the metric outputs a comforting number (0% FP) while skipping the actual verification mechanism required to generate it. This invalidates DP-1, DP-2, and DP-4.
+      recommendation: |-
+        Change Metric 8 to report three states: True Positive, False Positive, and Unadjudicated. Default all findings to Unadjudicated until a human explicitly flags them.
+    R3:
+      id: F-002
+      severity: critical
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      line: n/a
+      description: |
+        The FP rate defaults all findings to confirmed true. This makes the precision chart and any quality claims invalid until independent human verification is completed.
+      recommendation: Require human adjudication of every finding before reporting FP/precision.
+- title: Human delta confounded by priming and residual effects
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  found_by:
+  - R1
+  - R3
+  convergence_count: 2
+  match_confidence: 0.6624
+  details:
+    R1:
+      id: F-005
+      severity: high
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        DP-3 (Human Delta) measures what humans find AFTER seeing model findings on FIXED code. The human is primed by knowledge of model categories and operates on a different defect population (post-fix residuals). The counterfactual — what the human would find on raw code without model exposure — is not measured and cannot be recovered from this design.
+      recommendation: |-
+        Either add a blind human review arm (same raw diff, no model findings) or reframe DP-3 as 'human residual value after model review' with explicit acknowledgement of the priming confound.
+    R3:
+      id: F-007
+      severity: high
+      watchdog: WD-PG
+      slopodar: shadow-validation
+      line: n/a
+      description: |
+        Human review occurs after model outputs, priming the reviewer and inflating the apparent human delta. This measures residuals after models, not human capability.
+      recommendation: Add blind human-first baseline with counterbalanced order.
+- title: 0% FP rate is unmeasured, not measured
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: critical
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-001
+      severity: critical
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      line: n/a
+      description: |
+        The false positive rate defaults all findings to 'confirmed true' pending human verification. Claiming 0% FP under these conditions is a paper guardrail by the team's own taxonomy — a stated metric with no enforcement mechanism. This is the single most credibility-damaging claim in the methodology because it is trivially falsifiable upon inspection.
+      recommendation: |-
+        Human-audit all 31 findings immediately. Report actual FP rate. Remove 0% claim until audit is complete.
+- title: Matching algorithm unvalidated — all quantitative claims depend on it
+  file: bin/triangulate
+  severity: critical
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-002
+      severity: critical
+      watchdog: WD-PG
+      slopodar: shadow-validation
+      line: n/a
+      description: |
+        The greedy SequenceMatcher-based matching is order-dependent, uses unvalidated weights (0.3/0.7) and threshold (0.6), and has no measured false match or missed match rate. Every downstream metric — convergence rate, unique finding count, marginal value curve — is a function of this matcher. An unvalidated instrument produces unvalidated measurements.
+      recommendation: |-
+        Switch to stable matching (Hungarian algorithm). Run sensitivity analysis on threshold [0.4-0.8]. Human-validate all 31 matches/non-matches.
+- title: 'No baseline: same-model-3x comparison missing'
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: critical
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-003
+      severity: critical
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        The 74% single-model uniqueness rate is the central claim, but without a same-model-3x baseline, it is impossible to distinguish cross-model diversity from stochastic review variation. If 3 runs of Claude with different seeds produce a similar uniqueness rate, the entire cross-model rationale collapses. This is the single most important experiment to run.
+      recommendation: |-
+        Run Claude 3 times on the same diff with temperature >0 or varied system prompts. Compare single-run uniqueness rate to cross-model uniqueness rate.
+- title: N=1 codebase with generalisation language
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-004
+      severity: high
+      watchdog: WD-CB
+      slopodar: none
+      line: n/a
+      description: |
+        All claims are derived from a single codebase, a single code author (Claude polecats), a single review prompt, and a single snapshot. The blind spot map, diminishing returns curve, and category distribution are observations from one case, not generalisable findings. Confidence intervals on the 74% rate span [55%, 88%] at 95% confidence. The 'Semantic Hallucination is Claude-only' claim rests on 3 instances — insufficient for any statistical test.
+      recommendation: |-
+        Reframe all claims as case study observations. Use language like 'we observed' not 'we found.' State sample sizes alongside every claim. Reserve generalisation for after multi-codebase replication.
+- title: Finding count asymmetry confounds uniqueness rate
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: medium
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-008
+      severity: medium
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        Claude produced 18 findings, Gemini 6, Codex 11. A more verbose model mechanically produces more unmatched findings regardless of quality. The uniqueness rate is partially an artefact of count asymmetry. Normalisation (unique findings as fraction of that model's total) or rate-based metrics would partially address this.
+      recommendation: |-
+        Report normalised uniqueness rates alongside absolute counts. Investigate whether Gemini's lower count reflects capability, prompt handling, or context window differences.
+- title: Taxonomy priming may bias category distribution across models
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: medium
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-009
+      severity: medium
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        All reviewers receive the Watchdog taxonomy and Slopodar patterns. Different models may respond differently to categorical priming — one model may anchor more heavily on provided category names than another. The observed category distribution may partially reflect differential priming response rather than differential detection capability.
+      recommendation: |-
+        Consider a control condition: one run without the taxonomy (free-form findings) compared to one run with it. If infeasible, acknowledge priming as a confound in the blind spot map.
+- title: Author-reviewer model family correlation uncontrolled
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: medium
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-010
+      severity: medium
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        Code is authored by Claude polecats and reviewed by Claude Opus among others. A model reviewing its own family's output may have correlated blind spots (monoculture risk) or privileged insight into its own failure modes. The direction of this bias is unknown and uncontrolled. Claude's higher finding count (18 vs 6/11) could reflect either effect.
+      recommendation: |-
+        Acknowledge the correlation. In future runs on non-Claude-authored code, compare Claude's finding rate to establish whether the asymmetry is stable or author-dependent.
+- title: Severity calibration metric uses ordinal distance instead of weighted kappa
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-011
+      severity: low
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        Metric 6 measures inter-rater severity agreement using ordinal distance between ratings. This treats all adjacent-level disagreements as equal (critical-high = medium-low). Cohen's weighted kappa or Krippendorff's alpha would be more informative and are standard for ordinal inter-rater agreement.
+      recommendation: |-
+        Use Cohen's weighted kappa for severity calibration. Report both the kappa statistic and the raw agreement table.
+- title: Model version temporal instability not acknowledged
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-012
+      severity: low
+      watchdog: none
+      slopodar: none
+      line: n/a
+      description: |
+        The blind spot map and category distribution are snapshots of specific model versions (Claude Opus, Gemini 3.1, Codex 52) at a specific date. Model updates may change these profiles. The shelf life of the findings is not discussed.
+      recommendation: |-
+        Date-stamp all findings and note model versions explicitly. Acknowledge that the blind spot map requires re-validation when model versions change.
 - title: Greedy string matching on titles is brittle
   file: docs/internal/weaver/darkcat-alley.md
   severity: medium
   found_by:
   - R2
   convergence_count: 1
+  match_confidence: null
   details:
     R2:
       id: F-003
       severity: medium
       watchdog: none
       slopodar: loom-speed
-      description: 'difflib.SequenceMatcher weighted heavily to titles (0.7) will fail to match findings where models identified
-        the exact same defect but used different vocabulary (e.g. ''SQL Injection'' vs ''Unsanitized query payload''). It
-        is also order-dependent.
-
-        '
+      line: n/a
+      description: |
+        difflib.SequenceMatcher weighted heavily to titles (0.7) will fail to match findings where models identified the exact same defect but used different vocabulary (e.g. 'SQL Injection' vs 'Unsanitized query payload'). It is also order-dependent.
+      recommendation: |-
+        Replace difflib with a semantic matching step (LLM-as-a-judge) to cluster functionally identical findings, or manually audit the first N=100 findings to establish a known false-negative match rate for the string algorithm.
 - title: Claims rely on unverified matching accuracy
   file: docs/internal/weaver/darkcat-alley.md
   severity: critical
   found_by:
   - R3
   convergence_count: 1
+  match_confidence: null
   details:
     R3:
       id: F-001
       severity: critical
       watchdog: WD-PG
       slopodar: paper-guardrail
-      description: 'The matching algorithm is greedy and uncalibrated, but all downstream metrics depend on its correctness.
-        Without measured false-merge and missed-merge rates, convergence and uniqueness metrics are unreliable.
-
-        '
+      line: n/a
+      description: |
+        The matching algorithm is greedy and uncalibrated, but all downstream metrics depend on its correctness. Without measured false-merge and missed-merge rates, convergence and uniqueness metrics are unreliable.
+      recommendation: Calibrate matching on a human-labeled gold set and report match error rates.
 - title: General claims from N=1 codebase
   file: docs/internal/weaver/darkcat-alley.md
   severity: critical
   found_by:
   - R3
   convergence_count: 1
+  match_confidence: null
   details:
     R3:
       id: F-005
       severity: critical
       watchdog: WD-PG
       slopodar: stale-reference-propagation
-      description: 'Claims about model blind spots and diminishing returns are drawn from a single codebase with 31 findings.
-        This cannot support generalisation.
-
-        '
+      line: n/a
+      description: |
+        Claims about model blind spots and diminishing returns are drawn from a single codebase with 31 findings. This cannot support generalisation.
+      recommendation: Evaluate across multiple diverse codebases and report confidence intervals.

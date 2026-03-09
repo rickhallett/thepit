@@ -3,16 +3,19 @@
   severity: high
   convergence:
   - R1
+  - R3
+  - R2
+  convergence_count: 3
+  match_confidence: 0.8232
+- title: Validation misses base_commit and slopodar enumerations
+  file: bin/triangulate
+  severity: medium
+  convergence:
   - R2
   - R3
-  convergence_count: 3
-- title: Seed-only similarity comparison produces false negatives
-  file: bin/triangulate
-  severity: critical
-  convergence:
   - R1
-  - R2
-  convergence_count: 2
+  convergence_count: 3
+  match_confidence: 0.6376
 - title: Marginal value computed for single ordering only
   file: bin/triangulate
   severity: high
@@ -20,50 +23,15 @@
   - R1
   - R3
   convergence_count: 2
-- title: False positive rate outputs measured-looking zeros instead of null
+  match_confidence: 0.6389
+- title: Seed-only similarity comparison produces false negatives
   file: bin/triangulate
-  severity: medium
-  convergence:
-  - R1
-  convergence_count: 1
-- title: Finding validation checks presence but not types
-  file: bin/triangulate
-  severity: medium
+  severity: critical
   convergence:
   - R1
   - R2
-  - R3
-  convergence_count: 3
-- title: No inter-rater reliability statistic (kappa)
-  file: bin/triangulate
-  severity: medium
-  convergence:
-  - R1
-  convergence_count: 1
-- title: YAML extraction regex fragile with nested code fences
-  file: bin/triangulate
-  severity: medium
-  convergence:
-  - R1
-  convergence_count: 1
-- title: findings-union.yaml silently drops recommendation and line fields
-  file: bin/triangulate
-  severity: high
-  convergence:
-  - R2
-  convergence_count: 1
-- title: Multi-line strings break YAML readability in export
-  file: bin/triangulate
-  severity: low
-  convergence:
-  - R2
-  convergence_count: 1
-- title: Fragile CLI argument parsing crashes on optional flags before positionals
-  file: bin/triangulate
-  severity: low
-  convergence:
-  - R2
-  convergence_count: 1
+  convergence_count: 2
+  match_confidence: 0.607
 - title: Metric 7 (Pre-QA vs Post-QA delta) is missing from implementation
   file: bin/triangulate
   severity: medium
@@ -71,15 +39,60 @@
   - R2
   - R3
   convergence_count: 2
+  match_confidence: 0.6059
+- title: False positive rate outputs measured-looking zeros instead of null
+  file: bin/triangulate
+  severity: medium
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: No inter-rater reliability statistic (kappa)
+  file: bin/triangulate
+  severity: medium
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: YAML extraction regex fragile with nested code fences
+  file: bin/triangulate
+  severity: medium
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: findings-union.yaml silently drops recommendation and line fields
+  file: bin/triangulate
+  severity: high
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Multi-line strings break YAML readability in export
+  file: bin/triangulate
+  severity: low
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+- title: Fragile CLI argument parsing crashes on optional flags before positionals
+  file: bin/triangulate
+  severity: low
+  convergence:
+  - R2
+  convergence_count: 1
+  match_confidence: null
 - title: Convergence rates reflect matching quality more than reviewer overlap
   file: bin/triangulate
   severity: medium
   convergence:
   - R3
   convergence_count: 1
+  match_confidence: null
 - title: Derived 2-of-3 percentage uses rounded rates
   file: bin/triangulate
   severity: low
   convergence:
   - R3
   convergence_count: 1
+  match_confidence: null

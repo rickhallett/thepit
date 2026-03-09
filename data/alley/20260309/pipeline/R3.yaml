@@ -13,14 +13,10 @@ findings:
   watchdog: WD-PL
   slopodar: shadow-validation
   title: Greedy matching causes order-dependent false matches
-  description: 'match_findings uses a single-pass greedy clustering with SequenceMatcher. The first acceptable match absorbs
-    a finding, preventing better later matches. This can collapse distinct findings into one group or split true duplicates,
-    depending on the order of all_findings. Convergence metrics and marginal value then reflect matching artifacts rather
-    than reviewer overlap.
-
-    '
-  recommendation: Use a stable clustering strategy (e.g., pairwise scores + max-weight matching or hierarchical clustering)
-    and record match confidence per group.
+  description: |
+    match_findings uses a single-pass greedy clustering with SequenceMatcher. The first acceptable match absorbs a finding, preventing better later matches. This can collapse distinct findings into one group or split true duplicates, depending on the order of all_findings. Convergence metrics and marginal value then reflect matching artifacts rather than reviewer overlap.
+  recommendation: |-
+    Use a stable clustering strategy (e.g., pairwise scores + max-weight matching or hierarchical clustering) and record match confidence per group.
 - id: F-002
   branch: numerical-pipeline
   file: bin/triangulate
@@ -29,13 +25,10 @@ findings:
   watchdog: WD-PL
   slopodar: paper-guardrail
   title: Marginal value depends on arbitrary group order
-  description: 'Marginal value is computed by iterating groups in their existing order, which depends on file read order and
-    the greedy matcher. This makes the cumulative curve non-deterministic across equivalent inputs and biases the "value of
-    the nth reviewer" interpretation.
-
-    '
-  recommendation: Define and document a deterministic ordering for groups (e.g., sort by canonical_file/title) or compute
-    marginal value across all permutations and report mean/variance.
+  description: |
+    Marginal value is computed by iterating groups in their existing order, which depends on file read order and the greedy matcher. This makes the cumulative curve non-deterministic across equivalent inputs and biases the "value of the nth reviewer" interpretation.
+  recommendation: |-
+    Define and document a deterministic ordering for groups (e.g., sort by canonical_file/title) or compute marginal value across all permutations and report mean/variance.
 - id: F-003
   branch: numerical-pipeline
   file: bin/triangulate
@@ -44,13 +37,10 @@ findings:
   watchdog: WD-LRT
   slopodar: right-answer-wrong-work
   title: Convergence rates reflect matching quality more than reviewer overlap
-  description: 'Convergence uses the deduplicated group count as denominator. If the matcher over-merges or over-splits, the
-    convergence rate and total_unique_findings become artifacts of the similarity threshold and ordering, undermining the
-    cost-benefit interpretation.
-
-    '
-  recommendation: Report matching diagnostics (avg similarity, distribution) and separate raw finding counts from grouped
-    finding counts.
+  description: |
+    Convergence uses the deduplicated group count as denominator. If the matcher over-merges or over-splits, the convergence rate and total_unique_findings become artifacts of the similarity threshold and ordering, undermining the cost-benefit interpretation.
+  recommendation: |-
+    Report matching diagnostics (avg similarity, distribution) and separate raw finding counts from grouped finding counts.
 - id: F-004
   branch: numerical-pipeline
   file: bin/triangulate
@@ -59,12 +49,10 @@ findings:
   watchdog: WD-DC
   slopodar: paper-guardrail
   title: Schema validation is shallow and can pass malformed types
-  description: 'validate_finding checks presence and enum membership but not data types or formats. Non-dict entries or non-string
-    line values can pass and later break downstream tools. base_commit is required by spec but not validated.
-
-    '
-  recommendation: Add type checks and format validation for fields (line, branch, file) and include base_commit in required
-    metadata.
+  description: |
+    validate_finding checks presence and enum membership but not data types or formats. Non-dict entries or non-string line values can pass and later break downstream tools. base_commit is required by spec but not validated.
+  recommendation: |-
+    Add type checks and format validation for fields (line, branch, file) and include base_commit in required metadata.
 - id: F-005
   branch: numerical-pipeline
   file: bin/triangulate
@@ -73,10 +61,8 @@ findings:
   watchdog: WD-PL
   slopodar: right-answer-wrong-work
   title: Derived 2-of-3 percentage uses rounded rates
-  description: 'The summary derives the 2-of-3 percentage from rounded rate_2plus and rate_3, which can produce small but
-    avoidable discrepancies. This weakens the precision of reported convergence percentages.
-
-    '
+  description: |
+    The summary derives the 2-of-3 percentage from rounded rate_2plus and rate_3, which can produce small but avoidable discrepancies. This weakens the precision of reported convergence percentages.
   recommendation: Compute the 2-of-3 percentage from integer counts directly.
 - id: F-006
   branch: numerical-pipeline
@@ -86,8 +72,7 @@ findings:
   watchdog: WD-PL
   slopodar: paper-guardrail
   title: No output placeholder for metric 7 (pre/post QA delta)
-  description: 'The spec lists metric 7, but the output schema in metrics does not include a placeholder for it. This creates
-    downstream schema drift and makes notebook code more brittle across runs.
-
-    '
-  recommendation: Add a null/placeholder metric_7_delta field to metrics output with an explicit 'not implemented' status.
+  description: |
+    The spec lists metric 7, but the output schema in metrics does not include a placeholder for it. This creates downstream schema drift and makes notebook code more brittle across runs.
+  recommendation: |-
+    Add a null/placeholder metric_7_delta field to metrics output with an explicit 'not implemented' status.

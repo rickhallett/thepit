@@ -1,85 +1,3 @@
-- title: 0% FP rate is unmeasured, not measured
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: critical
-  convergence:
-  - R1
-  convergence_count: 1
-- title: Matching algorithm unvalidated — all quantitative claims depend on it
-  file: bin/triangulate
-  severity: critical
-  convergence:
-  - R1
-  convergence_count: 1
-- title: 'No baseline: same-model-3x comparison missing'
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: critical
-  convergence:
-  - R1
-  convergence_count: 1
-- title: N=1 codebase with generalisation language
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  convergence:
-  - R1
-  convergence_count: 1
-- title: Human delta confounded by priming and residual effects
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  convergence:
-  - R1
-  - R3
-  convergence_count: 2
-- title: Cost-benefit analysis contains no cost data
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  convergence:
-  - R1
-  - R3
-  convergence_count: 2
-- title: Convergence may measure training data overlap, not independent verification
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: high
-  convergence:
-  - R1
-  - R3
-  convergence_count: 2
-- title: Finding count asymmetry confounds uniqueness rate
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: medium
-  convergence:
-  - R1
-  convergence_count: 1
-- title: Taxonomy priming may bias category distribution across models
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: medium
-  convergence:
-  - R1
-  convergence_count: 1
-- title: Author-reviewer model family correlation uncontrolled
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: medium
-  convergence:
-  - R1
-  convergence_count: 1
-- title: Severity calibration metric uses ordinal distance instead of weighted kappa
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: low
-  convergence:
-  - R1
-  convergence_count: 1
-- title: Model version temporal instability not acknowledged
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: low
-  convergence:
-  - R1
-  convergence_count: 1
-- title: 0% False Positive rate is mathematically invalid
-  file: docs/internal/weaver/darkcat-alley.md
-  severity: critical
-  convergence:
-  - R2
-  - R3
-  convergence_count: 2
 - title: 74% single-model rate lacks an intra-model baseline
   file: docs/internal/weaver/darkcat-alley.md
   severity: high
@@ -87,21 +5,120 @@
   - R2
   - R3
   convergence_count: 2
+  match_confidence: 0.8398
+- title: Convergence may measure training data overlap, not independent verification
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  convergence:
+  - R1
+  - R3
+  convergence_count: 2
+  match_confidence: 0.759
+- title: Cost-benefit analysis contains no cost data
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  convergence:
+  - R1
+  - R3
+  convergence_count: 2
+  match_confidence: 0.7494
+- title: 0% False Positive rate is mathematically invalid
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: critical
+  convergence:
+  - R2
+  - R3
+  convergence_count: 2
+  match_confidence: 0.7083
+- title: Human delta confounded by priming and residual effects
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  convergence:
+  - R1
+  - R3
+  convergence_count: 2
+  match_confidence: 0.6624
+- title: 0% FP rate is unmeasured, not measured
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: critical
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Matching algorithm unvalidated — all quantitative claims depend on it
+  file: bin/triangulate
+  severity: critical
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: 'No baseline: same-model-3x comparison missing'
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: critical
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: N=1 codebase with generalisation language
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: high
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Finding count asymmetry confounds uniqueness rate
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: medium
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Taxonomy priming may bias category distribution across models
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: medium
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Author-reviewer model family correlation uncontrolled
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: medium
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Severity calibration metric uses ordinal distance instead of weighted kappa
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: low
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+- title: Model version temporal instability not acknowledged
+  file: docs/internal/weaver/darkcat-alley.md
+  severity: low
+  convergence:
+  - R1
+  convergence_count: 1
+  match_confidence: null
 - title: Greedy string matching on titles is brittle
   file: docs/internal/weaver/darkcat-alley.md
   severity: medium
   convergence:
   - R2
   convergence_count: 1
+  match_confidence: null
 - title: Claims rely on unverified matching accuracy
   file: docs/internal/weaver/darkcat-alley.md
   severity: critical
   convergence:
   - R3
   convergence_count: 1
+  match_confidence: null
 - title: General claims from N=1 codebase
   file: docs/internal/weaver/darkcat-alley.md
   severity: critical
   convergence:
   - R3
   convergence_count: 1
+  match_confidence: null

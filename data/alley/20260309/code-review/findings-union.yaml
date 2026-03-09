@@ -1,80 +1,3 @@
-- title: Short links endpoint has no rate limiting
-  file: app/api/short-links/route.ts
-  severity: medium
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-001
-      severity: medium
-      watchdog: WD-CB
-      slopodar: none
-      description: 'Every other mutation endpoint in the diff has rate limiting (reactions: 30/min, votes: 60/hr). Short link
-        creation has none. Unauthenticated, hits DB on every call. Idempotency prevents data corruption but not DB load from
-        enumeration/DoS.
-
-        '
-- title: x-forwarded-for trusted without proxy trust boundary documentation
-  file: app/api/reactions/route.ts
-  severity: high
-  found_by:
-  - R1
-  - R2
-  convergence_count: 2
-  details:
-    R1:
-      id: F-002
-      severity: high
-      watchdog: WD-PG
-      slopodar: paper-guardrail
-      description: 'getClientIp trusts x-forwarded-for directly, taking first IP in chain. Without upstream proxy stripping,
-        any client can spoof their IP to bypass rate limiting and impersonate other users'' reaction fingerprints. Falls back
-        to 127.0.0.1 if no headers present, collapsing all users.
-
-        '
-    R2:
-      id: F-004
-      severity: high
-      watchdog: WD-LRT
-      slopodar: none
-      description: 'Reaction fingerprinting and rate limiting use x-forwarded-for with a fallback to 127.0.0.1.  On proxies
-        that don''t pass these headers, all clients collapse into a single identity.
-
-        '
-- title: ALREADY_VOTED uses string literal instead of API_ERRORS constant
-  file: app/api/winner-vote/route.ts
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-003
-      severity: low
-      watchdog: WD-CB
-      slopodar: none
-      description: 'All other error codes in the codebase use API_ERRORS.XXX constants. This one uses a raw string "ALREADY_VOTED".
-        Inconsistent with the established pattern and invisible to grep-based error code auditing.
-
-        '
-- title: Reaction toggle errors return opaque 500 for all failure modes
-  file: app/api/reactions/route.ts
-  severity: medium
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-004
-      severity: medium
-      watchdog: WD-LRT
-      slopodar: none
-      description: 'The catch block returns a generic 500 for any toggleReaction error, including UNIQUE constraint violations
-        from concurrent toggles. Compare with winner-vote route which has specific alreadyVoted handling. Two endpoints in
-        the same domain handle conflicts differently.
-
-        '
 - title: navigator.clipboard.writeText has no error handling
   file: components/engagement/share-panel.tsx
   severity: low
@@ -82,283 +5,26 @@
   - R1
   - R2
   convergence_count: 2
+  match_confidence: 0.6646
   details:
     R1:
       id: F-005
       severity: low
       watchdog: WD-LRT
       slopodar: none
-      description: 'navigator.clipboard requires secure context (HTTPS) and can throw in iframes, sandboxed contexts, or when
-        permission is denied. The await will throw uncaught, silently breaking the copy button without user feedback.
-
-        '
+      line: '87'
+      description: |
+        navigator.clipboard requires secure context (HTTPS) and can throw in iframes, sandboxed contexts, or when permission is denied. The await will throw uncaught, silently breaking the copy button without user feedback.
+      recommendation: Wrap in try/catch, fall back to document.execCommand('copy') or show error toast
     R2:
       id: F-013
       severity: low
       watchdog: WD-CB
       slopodar: shadow-validation
-      description: 'The copy functionality relies exclusively on navigator.clipboard without error handling. Secure-context
-        failures (like HTTP or nested iframes) will silently no-op.
-
-        '
-- title: Leaderboard uses black/white/gray palette inconsistent with app stone palette
-  file: components/leaderboard/leaderboard-table.tsx
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-006
-      severity: low
-      watchdog: WD-CB
-      slopodar: none
-      description: 'The leaderboard uses bg-white, bg-gray-50, bg-black, border-2 border-black. The rest of the app uses stone-*
-        variants (bg-stone-900, bg-stone-800, text-stone-400). Visually jarring — component looks like it belongs to a different
-        application.
-
-        '
-- title: PresetCard isSubmitting has no timeout or error recovery
-  file: components/arena/preset-card.tsx
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-007
-      severity: low
-      watchdog: none
-      slopodar: none
-      description: 'If router.push fails silently, the button stays permanently disabled with text "Starting..." and no way
-        for the user to retry. No timeout, no error handling on the navigation call.
-
-        '
-- title: Rate limiter keys on raw IP while fingerprint uses hashed IP
-  file: app/api/reactions/route.ts
-  severity: medium
-  found_by:
-  - R1
-  - R3
-  convergence_count: 2
-  details:
-    R1:
-      id: F-008
-      severity: medium
-      watchdog: WD-LRT
-      slopodar: none
-      description: 'Rate limiting uses raw ip as the key. Reaction identity uses computeFingerprint(userId, ip) which is a
-        hashed derivative. If proxy doesn''t set forwarding headers, all anonymous users collapse to 127.0.0.1, sharing both
-        rate limit and fingerprint identity.
-
-        '
-    R3:
-      id: F-001
-      severity: medium
-      watchdog: WD-PG
-      slopodar: paper-guardrail
-      description: 'The rate limiter keys solely on getClientIp(), which trusts the client-supplied x-forwarded-for header.
-        Unless the platform is stripping or overwriting this header, clients can spoof IPs and bypass the 30/min limit and
-        anonymous fingerprinting.
-
-        '
-- title: Short link creation accepts non-completed bouts
-  file: app/api/short-links/route.ts
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-009
-      severity: low
-      watchdog: WD-CB
-      slopodar: none
-      description: 'The endpoint verifies bout existence but not bout status. Short links can be created for bouts that are
-        still running, pending, or failed. Sharing a link to an in-progress bout may produce a poor user experience on the
-        replay page.
-
-        '
-- title: Leaderboard page has no caching — queries DB on every request
-  file: app/leaderboard/page.tsx
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-010
-      severity: low
-      watchdog: none
-      slopodar: none
-      description: 'getLeaderboardData is called in a server component with no caching directive (no revalidate, no cache
-        headers). Combined with the prior finding that leaderboard does in-memory aggregation, every page load fetches and
-        aggregates all votes. Will not scale.
-
-        '
-- title: Reaction key format assumes turnIndex:type but has no type documentation
-  file: components/arena/message-card.tsx
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-011
-      severity: low
-      watchdog: WD-SH
-      slopodar: none
-      description: 'userReactions is a Set<string> with keys like "0:heart", "1:fire". The key format is constructed in MessageCard
-        (turnIndex + ":" + type) but there is no type definition, comment, or shared constant defining this format. The parent
-        component must know to construct the same format. Fragile coupling via implicit string convention.
-
-        '
-- title: SharePanel creates short link on every mount without deduplication
-  file: components/engagement/share-panel.tsx
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-012
-      severity: low
-      watchdog: none
-      slopodar: none
-      description: 'The useEffect fires on mount and POSTs to /api/short-links. In React strict mode (dev) or on parent re-renders,
-        this fires multiple times. The API is idempotent so no data issues, but unnecessary network traffic. No AbortController
-        cleanup on unmount — response may arrive after unmount.
-
-        '
-- title: Short link redirect has no caching — DB lookup on every access
-  file: app/b/[id]/page.tsx
-  severity: low
-  found_by:
-  - R1
-  convergence_count: 1
-  details:
-    R1:
-      id: F-013
-      severity: low
-      watchdog: none
-      slopodar: none
-      description: 'Every short link access queries resolveShortLink with no caching. Short link mappings are immutable (same
-        boutId always returns same slug), so this is a missed caching opportunity. High-traffic shared links will repeatedly
-        hit the database for the same lookup.
-
-        '
-- title: applyCreditDelta UPDATE+INSERT not wrapped in db.transaction()
-  file: lib/credits/balance.ts
-  severity: critical
-  found_by:
-  - R2
-  convergence_count: 1
-  details:
-    R2:
-      id: F-001
-      severity: critical
-      watchdog: WD-PL
-      slopodar: phantom-ledger
-      description: 'Balance UPDATE and transaction INSERT are separate queries. If INSERT fails after UPDATE, balance is modified
-        without audit trail.
-
-        '
-- title: preauthorizeCredits UPDATE+INSERT not wrapped in db.transaction()
-  file: lib/credits/preauth.ts
-  severity: critical
-  found_by:
-  - R2
-  convergence_count: 1
-  details:
-    R2:
-      id: F-002
-      severity: critical
-      watchdog: WD-PL
-      slopodar: phantom-ledger
-      description: 'Balance UPDATE and transaction INSERT are executed without a transaction. Failing halfway through results
-        in modified balances without an audit ledger entry.
-
-        '
-- title: credit_transactions.reference_id has no UNIQUE constraint
-  file: db/schema.ts
-  severity: high
-  found_by:
-  - R2
-  convergence_count: 1
-  details:
-    R2:
-      id: F-003
-      severity: high
-      watchdog: WD-PG
-      slopodar: paper-guardrail
-      description: 'Webhook handlers claim idempotency via reference_id check, but the column allows duplicates at DB level.
-        Concurrent webhook deliveries can double-grant credits.
-
-        '
-- title: Webhook route hard-asserts env vars causing 500 errors
-  file: app/api/credits/webhook/route.ts
-  severity: high
-  found_by:
-  - R2
-  convergence_count: 1
-  details:
-    R2:
-      id: F-005
-      severity: high
-      watchdog: WD-CB
-      slopodar: none
-      description: 'STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are asserted at the module level. Missing environment variables
-        will cause an unhandled 500 error on instantiation instead of failing gracefully.
-
-        '
-- title: Intro pool UPDATE without WHERE clause updates all rows
-  file: lib/credits/intro-pool.ts
-  severity: high
-  found_by:
-  - R2
-  convergence_count: 1
-  details:
-    R2:
-      id: F-006
-      severity: high
-      watchdog: WD-CB
-      slopodar: shadow-validation
-      description: 'If the intro pool table ever contains more than 1 row (violating the singleton assumption),  the naked
-        UPDATE will modify all rows, causing silent data corruption.
-
-        '
-- title: Agent ID uses crypto.randomUUID().slice(0,21) instead of nanoid(21)
-  file: lib/agents/create.ts
-  severity: medium
-  found_by:
-  - R2
-  convergence_count: 1
-  details:
-    R2:
-      id: F-007
-      severity: medium
-      watchdog: WD-TDF
-      slopodar: none
-      description: 'Using sliced UUIDs changes the format and entropy characteristics compared to nanoid(21), which causes
-        divergence and potential breakage if other components assume base62 format.
-
-        '
-- title: createShortLink returns result.slug! which may throw
-  file: lib/sharing/short-links.ts
-  severity: medium
-  found_by:
-  - R2
-  convergence_count: 1
-  details:
-    R2:
-      id: F-008
-      severity: medium
-      watchdog: WD-LRT
-      slopodar: none
-      description: 'If the insert is a no-op due to conflict, but the row is missing (e.g. deleted concurrently), the subsequent
-        select will return empty, and the non-null assertion on result.slug! will throw.
-
-        '
+      line: n/a
+      description: |
+        The copy functionality relies exclusively on navigator.clipboard without error handling. Secure-context failures (like HTTP or nested iframes) will silently no-op.
+      recommendation: Add a try/catch block and fallback error UI.
 - title: toggleReaction select-then-insert race condition
   file: lib/engagement/reactions.ts
   severity: high
@@ -366,26 +32,54 @@
   - R2
   - R3
   convergence_count: 2
+  match_confidence: 0.6571
   details:
     R2:
       id: F-009
       severity: high
       watchdog: WD-LRT
       slopodar: shadow-validation
-      description: 'Select-then-insert pattern is race-vulnerable. Concurrent requests will both see empty records and attempt
-        to insert, causing 500 errors on unique constraint violations.
-
-        '
+      line: n/a
+      description: |
+        Select-then-insert pattern is race-vulnerable. Concurrent requests will both see empty records and attempt to insert, causing 500 errors on unique constraint violations.
+      recommendation: Use INSERT ... ON CONFLICT DO NOTHING to ensure atomic operations.
     R3:
       id: F-003
       severity: medium
       watchdog: WD-CB
       slopodar: none
-      description: 'toggleReaction does a read-then-insert/delete flow without conflict handling. Concurrent requests for
-        the same reaction can both observe no row and one insert will hit the unique constraint, leading to a 500 instead
-        of a deterministic toggle result.
-
-        '
+      line: n/a
+      description: |
+        toggleReaction does a read-then-insert/delete flow without conflict handling. Concurrent requests for the same reaction can both observe no row and one insert will hit the unique constraint, leading to a 500 instead of a deterministic toggle result.
+      recommendation: Use an atomic upsert/transaction or handle unique-violation by retrying/returning 'added'.
+- title: x-forwarded-for trusted without proxy trust boundary documentation
+  file: app/api/reactions/route.ts
+  severity: high
+  found_by:
+  - R1
+  - R2
+  convergence_count: 2
+  match_confidence: 0.6412
+  details:
+    R1:
+      id: F-002
+      severity: high
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      line: 281-292
+      description: |
+        getClientIp trusts x-forwarded-for directly, taking first IP in chain. Without upstream proxy stripping, any client can spoof their IP to bypass rate limiting and impersonate other users' reaction fingerprints. Falls back to 127.0.0.1 if no headers present, collapsing all users.
+      recommendation: |-
+        Document the proxy trust assumption. Consider validating IP format. Add comment noting Vercel-specific behaviour.
+    R2:
+      id: F-004
+      severity: high
+      watchdog: WD-LRT
+      slopodar: none
+      line: n/a
+      description: |
+        Reaction fingerprinting and rate limiting use x-forwarded-for with a fallback to 127.0.0.1.  On proxies that don't pass these headers, all clients collapse into a single identity.
+      recommendation: Implement robust client fingerprinting or validate proxy configurations.
 - title: Winner vote rowCount from Drizzle insert may be undefined
   file: lib/engagement/votes.ts
   severity: high
@@ -393,118 +87,443 @@
   - R2
   - R3
   convergence_count: 2
+  match_confidence: 0.6187
   details:
     R2:
       id: F-010
       severity: medium
       watchdog: WD-LRT
       slopodar: none
-      description: 'The code assumes Drizzle''s insert returns rowCount for conflict detection,  but some database drivers
-        return undefined instead of 0 or 1.
-
-        '
+      line: n/a
+      description: |
+        The code assumes Drizzle's insert returns rowCount for conflict detection,  but some database drivers return undefined instead of 0 or 1.
+      recommendation: Validate driver behavior or use an explicit SELECT if rowCount is unavailable.
     R3:
       id: F-005
       severity: high
       watchdog: WD-PG
       slopodar: paper-guardrail
-      description: 'castWinnerVote inserts the provided agentId without verifying that it is part of the bout''s agent lineup.
-        Clients can submit any agentId, which corrupts winner tallies and leaderboard data.
-
-        '
+      line: n/a
+      description: |
+        castWinnerVote inserts the provided agentId without verifying that it is part of the bout's agent lineup. Clients can submit any agentId, which corrupts winner tallies and leaderboard data.
+      recommendation: Validate agentId against the bout's lineup before insert; reject with 400 if not present.
+- title: Rate limiter keys on raw IP while fingerprint uses hashed IP
+  file: app/api/reactions/route.ts
+  severity: medium
+  found_by:
+  - R1
+  - R3
+  convergence_count: 2
+  match_confidence: 0.6126
+  details:
+    R1:
+      id: F-008
+      severity: medium
+      watchdog: WD-LRT
+      slopodar: none
+      line: 307-310
+      description: |
+        Rate limiting uses raw ip as the key. Reaction identity uses computeFingerprint(userId, ip) which is a hashed derivative. If proxy doesn't set forwarding headers, all anonymous users collapse to 127.0.0.1, sharing both rate limit and fingerprint identity.
+      recommendation: Document the proxy dependency. Consider keying rate limit on fingerprint for consistency.
+    R3:
+      id: F-001
+      severity: medium
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      line: n/a
+      description: |
+        The rate limiter keys solely on getClientIp(), which trusts the client-supplied x-forwarded-for header. Unless the platform is stripping or overwriting this header, clients can spoof IPs and bypass the 30/min limit and anonymous fingerprinting.
+      recommendation: Use a trusted platform IP source and ignore untrusted x-forwarded-for values.
+- title: Short links endpoint has no rate limiting
+  file: app/api/short-links/route.ts
+  severity: medium
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-001
+      severity: medium
+      watchdog: WD-CB
+      slopodar: none
+      line: 1-51
+      description: |
+        Every other mutation endpoint in the diff has rate limiting (reactions: 30/min, votes: 60/hr). Short link creation has none. Unauthenticated, hits DB on every call. Idempotency prevents data corruption but not DB load from enumeration/DoS.
+      recommendation: Add rate limiter (e.g., 10/min per IP) matching the pattern in reactions/votes routes
+- title: ALREADY_VOTED uses string literal instead of API_ERRORS constant
+  file: app/api/winner-vote/route.ts
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-003
+      severity: low
+      watchdog: WD-CB
+      slopodar: none
+      line: '448'
+      description: |
+        All other error codes in the codebase use API_ERRORS.XXX constants. This one uses a raw string "ALREADY_VOTED". Inconsistent with the established pattern and invisible to grep-based error code auditing.
+      recommendation: Add ALREADY_VOTED to API_ERRORS constant object, or use API_ERRORS.CONFLICT
+- title: Reaction toggle errors return opaque 500 for all failure modes
+  file: app/api/reactions/route.ts
+  severity: medium
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-004
+      severity: medium
+      watchdog: WD-LRT
+      slopodar: none
+      line: 330-333
+      description: |
+        The catch block returns a generic 500 for any toggleReaction error, including UNIQUE constraint violations from concurrent toggles. Compare with winner-vote route which has specific alreadyVoted handling. Two endpoints in the same domain handle conflicts differently.
+      recommendation: |-
+        Catch specific error types (DB constraint violation) and return appropriate status codes (409 for conflict)
+- title: Leaderboard uses black/white/gray palette inconsistent with app stone palette
+  file: components/leaderboard/leaderboard-table.tsx
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-006
+      severity: low
+      watchdog: WD-CB
+      slopodar: none
+      line: 1-185
+      description: |
+        The leaderboard uses bg-white, bg-gray-50, bg-black, border-2 border-black. The rest of the app uses stone-* variants (bg-stone-900, bg-stone-800, text-stone-400). Visually jarring — component looks like it belongs to a different application.
+      recommendation: Replace with stone palette to match arena, message-card, and preset-card components
+- title: PresetCard isSubmitting has no timeout or error recovery
+  file: components/arena/preset-card.tsx
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-007
+      severity: low
+      watchdog: none
+      slopodar: none
+      line: 2000-2006
+      description: |
+        If router.push fails silently, the button stays permanently disabled with text "Starting..." and no way for the user to retry. No timeout, no error handling on the navigation call.
+      recommendation: Add try/catch around router.push with setIsSubmitting(false) on failure, or add a timeout reset
+- title: Short link creation accepts non-completed bouts
+  file: app/api/short-links/route.ts
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-009
+      severity: low
+      watchdog: WD-CB
+      slopodar: none
+      line: 1-51
+      description: |
+        The endpoint verifies bout existence but not bout status. Short links can be created for bouts that are still running, pending, or failed. Sharing a link to an in-progress bout may produce a poor user experience on the replay page.
+      recommendation: 'Add status check: only create short links for completed bouts, or document the intentional behaviour'
+- title: Leaderboard page has no caching — queries DB on every request
+  file: app/leaderboard/page.tsx
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-010
+      severity: low
+      watchdog: none
+      slopodar: none
+      line: '589'
+      description: |
+        getLeaderboardData is called in a server component with no caching directive (no revalidate, no cache headers). Combined with the prior finding that leaderboard does in-memory aggregation, every page load fetches and aggregates all votes. Will not scale.
+      recommendation: Add ISR revalidation (e.g., revalidate = 60) or cache the aggregation result
+- title: Reaction key format assumes turnIndex:type but has no type documentation
+  file: components/arena/message-card.tsx
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-011
+      severity: low
+      watchdog: WD-SH
+      slopodar: none
+      line: 31-34
+      description: |
+        userReactions is a Set<string> with keys like "0:heart", "1:fire". The key format is constructed in MessageCard (turnIndex + ":" + type) but there is no type definition, comment, or shared constant defining this format. The parent component must know to construct the same format. Fragile coupling via implicit string convention.
+      recommendation: Extract key generation to a shared utility function or document the convention
+- title: SharePanel creates short link on every mount without deduplication
+  file: components/engagement/share-panel.tsx
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-012
+      severity: low
+      watchdog: none
+      slopodar: none
+      line: 23-39
+      description: |
+        The useEffect fires on mount and POSTs to /api/short-links. In React strict mode (dev) or on parent re-renders, this fires multiple times. The API is idempotent so no data issues, but unnecessary network traffic. No AbortController cleanup on unmount — response may arrive after unmount.
+      recommendation: Add AbortController cleanup in useEffect return. Consider caching the slug in parent state.
+- title: Short link redirect has no caching — DB lookup on every access
+  file: app/b/[id]/page.tsx
+  severity: low
+  found_by:
+  - R1
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R1:
+      id: F-013
+      severity: low
+      watchdog: none
+      slopodar: none
+      line: 509-522
+      description: |
+        Every short link access queries resolveShortLink with no caching. Short link mappings are immutable (same boutId always returns same slug), so this is a missed caching opportunity. High-traffic shared links will repeatedly hit the database for the same lookup.
+      recommendation: Add Cache-Control or use Next.js revalidation for this route
+- title: applyCreditDelta UPDATE+INSERT not wrapped in db.transaction()
+  file: lib/credits/balance.ts
+  severity: critical
+  found_by:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R2:
+      id: F-001
+      severity: critical
+      watchdog: WD-PL
+      slopodar: phantom-ledger
+      line: n/a
+      description: |
+        Balance UPDATE and transaction INSERT are separate queries. If INSERT fails after UPDATE, balance is modified without audit trail.
+      recommendation: Wrap in db.transaction(async (tx) => { ... })
+- title: preauthorizeCredits UPDATE+INSERT not wrapped in db.transaction()
+  file: lib/credits/preauth.ts
+  severity: critical
+  found_by:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R2:
+      id: F-002
+      severity: critical
+      watchdog: WD-PL
+      slopodar: phantom-ledger
+      line: n/a
+      description: |
+        Balance UPDATE and transaction INSERT are executed without a transaction. Failing halfway through results in modified balances without an audit ledger entry.
+      recommendation: Wrap in db.transaction(async (tx) => { ... })
+- title: credit_transactions.reference_id has no UNIQUE constraint
+  file: db/schema.ts
+  severity: high
+  found_by:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R2:
+      id: F-003
+      severity: high
+      watchdog: WD-PG
+      slopodar: paper-guardrail
+      line: n/a
+      description: |
+        Webhook handlers claim idempotency via reference_id check, but the column allows duplicates at DB level. Concurrent webhook deliveries can double-grant credits.
+      recommendation: Add .unique() to reference_id column definition
+- title: Webhook route hard-asserts env vars causing 500 errors
+  file: app/api/credits/webhook/route.ts
+  severity: high
+  found_by:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R2:
+      id: F-005
+      severity: high
+      watchdog: WD-CB
+      slopodar: none
+      line: n/a
+      description: |
+        STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are asserted at the module level. Missing environment variables will cause an unhandled 500 error on instantiation instead of failing gracefully.
+      recommendation: Move environment variable assertions to app startup or handle gracefully.
+- title: Intro pool UPDATE without WHERE clause updates all rows
+  file: lib/credits/intro-pool.ts
+  severity: high
+  found_by:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R2:
+      id: F-006
+      severity: high
+      watchdog: WD-CB
+      slopodar: shadow-validation
+      line: n/a
+      description: |
+        If the intro pool table ever contains more than 1 row (violating the singleton assumption),  the naked UPDATE will modify all rows, causing silent data corruption.
+      recommendation: Add a WHERE clause or enforce a strict singleton constraint.
+- title: Agent ID uses crypto.randomUUID().slice(0,21) instead of nanoid(21)
+  file: lib/agents/create.ts
+  severity: medium
+  found_by:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R2:
+      id: F-007
+      severity: medium
+      watchdog: WD-TDF
+      slopodar: none
+      line: n/a
+      description: |
+        Using sliced UUIDs changes the format and entropy characteristics compared to nanoid(21), which causes divergence and potential breakage if other components assume base62 format.
+      recommendation: Use nanoid(21) for consistent ID generation.
+- title: createShortLink returns result.slug! which may throw
+  file: lib/sharing/short-links.ts
+  severity: medium
+  found_by:
+  - R2
+  convergence_count: 1
+  match_confidence: null
+  details:
+    R2:
+      id: F-008
+      severity: medium
+      watchdog: WD-LRT
+      slopodar: none
+      line: n/a
+      description: |
+        If the insert is a no-op due to conflict, but the row is missing (e.g. deleted concurrently), the subsequent select will return empty, and the non-null assertion on result.slug! will throw.
+      recommendation: Handle undefined results gracefully before returning slug.
 - title: WinnerVoteRequestSchema missing .min(1) on IDs
   file: lib/engagement/votes.ts
   severity: medium
   found_by:
   - R2
   convergence_count: 1
+  match_confidence: null
   details:
     R2:
       id: F-011
       severity: medium
       watchdog: WD-PG
       slopodar: paper-guardrail
-      description: 'The Zod schema does not enforce .min(1) on boutId and agentId. Empty strings will pass validation unchecked.
-
-        '
+      line: n/a
+      description: |
+        The Zod schema does not enforce .min(1) on boutId and agentId. Empty strings will pass validation unchecked.
+      recommendation: Append .min(1) to all required string fields in the schema.
 - title: /b/[id] uses length-based ID resolution
   file: app/b/[id]/page.tsx
   severity: low
   found_by:
   - R2
   convergence_count: 1
+  match_confidence: null
   details:
     R2:
       id: F-012
       severity: low
       watchdog: WD-CB
       slopodar: none
-      description: 'The page uses hardcoded length assumptions (8 vs 21 characters) to distinguish between full IDs and short
-        links, which is brittle and will break if ID formats change.
-
-        '
+      line: n/a
+      description: |
+        The page uses hardcoded length assumptions (8 vs 21 characters) to distinguish between full IDs and short links, which is brittle and will break if ID formats change.
+      recommendation: Use explicit prefixing (e.g., 'slug_') or robust format validators.
 - title: Leaderboard in-memory aggregation
   file: lib/engagement/leaderboard.ts
   severity: low
   found_by:
   - R2
   convergence_count: 1
+  match_confidence: null
   details:
     R2:
       id: F-014
       severity: low
       watchdog: WD-TDF
       slopodar: none
-      description: 'The leaderboard aggregates votes in application memory via Maps instead of using SQL GROUP BY, which will
-        scale poorly as vote volume grows.
-
-        '
+      line: n/a
+      description: |
+        The leaderboard aggregates votes in application memory via Maps instead of using SQL GROUP BY, which will scale poorly as vote volume grows.
+      recommendation: Rewrite query to perform aggregation inside the database.
 - title: Auto-start query params forwarded without validation
   file: app/bout/[id]/page.tsx
   severity: medium
   found_by:
   - R3
   convergence_count: 1
+  match_confidence: null
   details:
     R3:
       id: F-002
       severity: medium
       watchdog: none
       slopodar: none
-      description: 'presetId, topic, and model are read directly from searchParams and passed into Arena auto-start. There
-        is no schema validation or allowlist for model/presetId, so invalid inputs can leak into downstream execution instead
-        of being rejected early.
-
-        '
+      line: n/a
+      description: |
+        presetId, topic, and model are read directly from searchParams and passed into Arena auto-start. There is no schema validation or allowlist for model/presetId, so invalid inputs can leak into downstream execution instead of being rejected early.
+      recommendation: Validate searchParams with a Zod schema or allowlist before passing to Arena.
 - title: Slug collision not handled; unique constraint can throw
   file: lib/sharing/short-links.ts
   severity: medium
   found_by:
   - R3
   convergence_count: 1
+  match_confidence: null
   details:
     R3:
       id: F-004
       severity: medium
       watchdog: WD-CB
       slopodar: none
-      description: 'createShortLink only guards conflicts on boutId. If nanoid(8) collides with an existing slug, the insert
-        will throw and the function does not retry or recover, causing a 500 for valid input.
-
-        '
+      line: n/a
+      description: |
+        createShortLink only guards conflicts on boutId. If nanoid(8) collides with an existing slug, the insert will throw and the function does not retry or recover, causing a 500 for valid input.
+      recommendation: Catch slug-unique violations and retry slug generation; or use onConflictDoNothing on slug and loop.
 - title: In-memory rate limiting is instance-local in serverless
   file: lib/common/rate-limit.ts
   severity: low
   found_by:
   - R3
   convergence_count: 1
+  match_confidence: null
   details:
     R3:
       id: F-006
       severity: low
       watchdog: WD-PG
       slopodar: paper-guardrail
-      description: 'The limiter stores state in-process. In serverless/multi-instance deployments, the limit is per-instance
-        and can be bypassed with parallel requests. The API routes present hard limits but they are only best-effort.
-
-        '
+      line: n/a
+      description: |
+        The limiter stores state in-process. In serverless/multi-instance deployments, the limit is per-instance and can be bypassed with parallel requests. The API routes present hard limits but they are only best-effort.
+      recommendation: |-
+        Back rate limiting with shared storage (Redis/DB) or document it as best-effort and lower reliance on it for abuse control.

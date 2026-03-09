@@ -1,4 +1,4 @@
-computed_at: '2026-03-09T11:55:42.964458+00:00'
+computed_at: '2026-03-09T12:19:09.209097+00:00'
 finding_count:
   R1:
     model: claude
@@ -20,63 +20,177 @@ finding_count:
     shared_3: 2
 convergence_rate:
   total_unique_findings: 13
-  converged_3: 2
+  n_reviews: 3
+  converged_all: 2
   converged_2: 3
   single_model: 8
-  rate_3: 0.1538
+  rate_all: 0.1538
   rate_2plus: 0.3846
   rate_single: 0.6154
 marginal_value:
-  order:
-  - R1
-  - R2
-  - R3
-  cumulative:
-  - model: claude
-    review_id: R1
-    cumulative_unique: 7
-    new_unique: 7
-  - model: gemini-3.1-pro-preview
-    review_id: R2
-    cumulative_unique: 11
-    new_unique: 4
-  - model: codex52
-    review_id: R3
-    cumulative_unique: 13
-    new_unique: 2
+  dispatch_order:
+    order:
+    - R1
+    - R2
+    - R3
+    cumulative: &id001
+    - model: claude
+      review_id: R1
+      cumulative_unique: 7
+      new_unique: 7
+    - model: gemini-3.1-pro-preview
+      review_id: R2
+      cumulative_unique: 11
+      new_unique: 4
+    - model: codex52
+      review_id: R3
+      cumulative_unique: 13
+      new_unique: 2
+  all_permutations:
+  - order:
+    - R1
+    - R2
+    - R3
+    cumulative: *id001
+  - order:
+    - R1
+    - R3
+    - R2
+    cumulative:
+    - model: claude
+      review_id: R1
+      cumulative_unique: 7
+      new_unique: 7
+    - model: codex52
+      review_id: R3
+      cumulative_unique: 10
+      new_unique: 3
+    - model: gemini-3.1-pro-preview
+      review_id: R2
+      cumulative_unique: 13
+      new_unique: 3
+  - order:
+    - R2
+    - R1
+    - R3
+    cumulative:
+    - model: gemini-3.1-pro-preview
+      review_id: R2
+      cumulative_unique: 7
+      new_unique: 7
+    - model: claude
+      review_id: R1
+      cumulative_unique: 11
+      new_unique: 4
+    - model: codex52
+      review_id: R3
+      cumulative_unique: 13
+      new_unique: 2
+  - order:
+    - R2
+    - R3
+    - R1
+    cumulative:
+    - model: gemini-3.1-pro-preview
+      review_id: R2
+      cumulative_unique: 7
+      new_unique: 7
+    - model: codex52
+      review_id: R3
+      cumulative_unique: 10
+      new_unique: 3
+    - model: claude
+      review_id: R1
+      cumulative_unique: 13
+      new_unique: 3
+  - order:
+    - R3
+    - R1
+    - R2
+    cumulative:
+    - model: codex52
+      review_id: R3
+      cumulative_unique: 6
+      new_unique: 6
+    - model: claude
+      review_id: R1
+      cumulative_unique: 10
+      new_unique: 4
+    - model: gemini-3.1-pro-preview
+      review_id: R2
+      cumulative_unique: 13
+      new_unique: 3
+  - order:
+    - R3
+    - R2
+    - R1
+    cumulative:
+    - model: codex52
+      review_id: R3
+      cumulative_unique: 6
+      new_unique: 6
+    - model: gemini-3.1-pro-preview
+      review_id: R2
+      cumulative_unique: 10
+      new_unique: 4
+    - model: claude
+      review_id: R1
+      cumulative_unique: 13
+      new_unique: 3
+  position_means:
+  - position: 1
+    mean_new_unique: 6.67
+    mean_cumulative: 6.67
+  - position: 2
+    mean_new_unique: 3.67
+    mean_cumulative: 10.33
+  - position: 3
+    mean_new_unique: 2.67
+    mean_cumulative: 13.0
+  model_means:
+    R1:
+      model: claude
+      mean_new_unique: 4.67
+    R2:
+      model: gemini-3.1-pro-preview
+      mean_new_unique: 4.67
+    R3:
+      model: codex52
+      mean_new_unique: 3.67
+  n_permutations: 6
 severity_distribution:
   R1:
     model: claude
-    low: 0
-    high: 3
     medium: 4
+    high: 3
+    low: 0
     critical: 0
   R2:
     model: gemini-3.1-pro-preview
-    low: 2
-    high: 1
     medium: 3
+    high: 1
+    low: 2
     critical: 1
   R3:
     model: codex52
-    low: 3
-    high: 1
     medium: 2
+    high: 1
+    low: 3
     critical: 0
 watchdog_distribution:
   R1:
     model: claude
     categories:
       WD-PL: 2
-      WD-PG: 2
       WD-CB: 1
+      WD-PG: 2
       WD-SH: 1
   R2:
     model: gemini-3.1-pro-preview
     categories:
       WD-CB: 1
-      WD-LRT: 2
       WD-PL: 1
+      WD-LRT: 2
       WD-PG: 2
       WD-SH: 1
   R3:
@@ -87,51 +201,68 @@ watchdog_distribution:
       WD-LRT: 1
 severity_calibration:
 - finding: Greedy matching is order-dependent and non-commutative
+  match_confidence: 0.8232
   severity_R1: high
-  severity_R2: medium
   severity_R3: high
+  severity_R2: medium
   agreement: false
   max_delta: 1
-- finding: Seed-only similarity comparison produces false negatives
-  severity_R1: high
-  severity_R2: critical
+- finding: Validation misses base_commit and slopodar enumerations
+  match_confidence: 0.6376
+  severity_R2: medium
+  severity_R3: low
+  severity_R1: medium
   agreement: false
   max_delta: 1
 - finding: Marginal value computed for single ordering only
+  match_confidence: 0.6389
   severity_R1: high
   severity_R3: medium
   agreement: false
   max_delta: 1
-- finding: Finding validation checks presence but not types
-  severity_R1: medium
-  severity_R2: medium
-  severity_R3: low
+- finding: Seed-only similarity comparison produces false negatives
+  match_confidence: 0.607
+  severity_R1: high
+  severity_R2: critical
   agreement: false
   max_delta: 1
 - finding: Metric 7 (Pre-QA vs Post-QA delta) is missing from implementation
+  match_confidence: 0.6059
   severity_R2: medium
   severity_R3: low
   agreement: false
   max_delta: 1
 false_positive_rate:
-  R1:
-    model: claude
-    total_findings: 7
-    confirmed_true: 7
-    confirmed_false: 0
-    disputed: 0
-    fp_rate: 0.0
-  R2:
-    model: gemini-3.1-pro-preview
-    total_findings: 7
-    confirmed_true: 7
-    confirmed_false: 0
-    disputed: 0
-    fp_rate: 0.0
-  R3:
-    model: codex52
-    total_findings: 6
-    confirmed_true: 6
-    confirmed_false: 0
-    disputed: 0
-    fp_rate: 0.0
+  status: pending_adjudication
+  note: |-
+    FP rate requires human verification of each finding. Values below are placeholders, not measurements.
+  per_model:
+    R1:
+      model: claude
+      total_findings: 7
+      confirmed_true: null
+      confirmed_false: null
+      disputed: null
+      fp_rate: null
+    R2:
+      model: gemini-3.1-pro-preview
+      total_findings: 7
+      confirmed_true: null
+      confirmed_false: null
+      disputed: null
+      fp_rate: null
+    R3:
+      model: codex52
+      total_findings: 6
+      confirmed_true: null
+      confirmed_false: null
+      disputed: null
+      fp_rate: null
+match_diagnostics:
+  threshold: 0.6
+  total_groups: 13
+  converged_groups: 5
+  singleton_groups: 8
+  avg_confidence: 0.6625
+  min_confidence: 0.6059
+  max_confidence: 0.8232

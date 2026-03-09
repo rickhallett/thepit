@@ -13,11 +13,8 @@ findings:
   watchdog: WD-LRT
   slopodar: right-answer-wrong-work
   title: Severity calibration drops data due to model_name dict key
-  description: 'In Metric 6, `severities_seen` uses `model_name` as the dictionary key. If multiple review files share the
-    same `model` string (e.g., evaluating non-determinism across 3 runs of gpt-4), the severities will overwrite each other.
-    This leads to artificially small sets and phantom agreement (`len(set(ordinals)) == 1`), hiding actual calibration disagreements.
-
-    '
+  description: |
+    In Metric 6, `severities_seen` uses `model_name` as the dictionary key. If multiple review files share the same `model` string (e.g., evaluating non-determinism across 3 runs of gpt-4), the severities will overwrite each other. This leads to artificially small sets and phantom agreement (`len(set(ordinals)) == 1`), hiding actual calibration disagreements.
   recommendation: Key `severities_seen` by `rid` (Review ID) instead of `model_name`.
 - id: F-002
   branch: numerical-pipeline
@@ -27,12 +24,10 @@ findings:
   watchdog: WD-PG
   slopodar: shadow-validation
   title: findings-union.yaml silently drops recommendation and line fields
-  description: 'In `export_all`, when constructing the deduplicated union, the `details` dict explicitly extracts `id`, `severity`,
-    `watchdog`, `slopodar`, and `description`, but completely drops `recommendation` and `line`. This breaks the utility of
-    the union export for human reviewers attempting to fix the codebase.
-
-    '
-  recommendation: 'Add `recommendation: f.get(''recommendation'')` and `line: f.get(''line'')` to the detail extraction dictionary.'
+  description: |
+    In `export_all`, when constructing the deduplicated union, the `details` dict explicitly extracts `id`, `severity`, `watchdog`, `slopodar`, and `description`, but completely drops `recommendation` and `line`. This breaks the utility of the union export for human reviewers attempting to fix the codebase.
+  recommendation: |-
+    Add `recommendation: f.get('recommendation')` and `line: f.get('line')` to the detail extraction dictionary.
 - id: F-003
   branch: numerical-pipeline
   file: bin/triangulate
@@ -41,14 +36,10 @@ findings:
   watchdog: WD-CB
   slopodar: none
   title: Greedy matching algorithm is order-dependent and prone to false positives
-  description: 'The matching algorithm combines file similarity (0.3) and title similarity (0.7). If the file path matches
-    exactly (score 1.0), the combined score is already 0.3. To cross the 0.6 threshold, the title only needs a 0.428 similarity.
-    This means distinct bugs within the same file that have vaguely similar titles will be incorrectly merged into a single
-    finding.
-
-    '
-  recommendation: Increase the threshold to 0.75, or adjust the weights to demand higher title similarity when the file path
-    is identical.
+  description: |
+    The matching algorithm combines file similarity (0.3) and title similarity (0.7). If the file path matches exactly (score 1.0), the combined score is already 0.3. To cross the 0.6 threshold, the title only needs a 0.428 similarity. This means distinct bugs within the same file that have vaguely similar titles will be incorrectly merged into a single finding.
+  recommendation: |-
+    Increase the threshold to 0.75, or adjust the weights to demand higher title similarity when the file path is identical.
 - id: F-004
   branch: numerical-pipeline
   file: bin/triangulate
@@ -57,12 +48,10 @@ findings:
   watchdog: WD-PL
   slopodar: paper-guardrail
   title: Validation misses base_commit and slopodar enumerations
-  description: '`validate_review` checks for `model`, `date`, and `branches`, but ignores `base_commit` which is required
-    by the schema. Similarly, `validate_finding` strictly checks `watchdog` against a constant set, but does not validate
-    the `slopodar` field against known patterns, allowing typos to corrupt downstream analytics.
-
-    '
-  recommendation: Add `base_commit` to metadata validation loop, and add a `VALID_SLOPODAR` set to validate `slopodar` values.
+  description: |
+    `validate_review` checks for `model`, `date`, and `branches`, but ignores `base_commit` which is required by the schema. Similarly, `validate_finding` strictly checks `watchdog` against a constant set, but does not validate the `slopodar` field against known patterns, allowing typos to corrupt downstream analytics.
+  recommendation: |-
+    Add `base_commit` to metadata validation loop, and add a `VALID_SLOPODAR` set to validate `slopodar` values.
 - id: F-005
   branch: numerical-pipeline
   file: bin/triangulate
@@ -71,14 +60,11 @@ findings:
   watchdog: WD-SH
   slopodar: none
   title: Multi-line strings break YAML readability in export
-  description: '`write_yaml` uses the default PyYAML dumper. Without a custom representer for multiline strings, fields like
-    `description` and `recommendation` will be serialized as single strings with explicit `\n` characters or wrapped in double
-    quotes. This makes the generated YAML files unreadable for humans.
-
-    '
-  recommendation: 'Add a block scalar representer to the YAML dumper for strings containing `
-
-    ` to force literal block style (`|`).'
+  description: |
+    `write_yaml` uses the default PyYAML dumper. Without a custom representer for multiline strings, fields like `description` and `recommendation` will be serialized as single strings with explicit `\n` characters or wrapped in double quotes. This makes the generated YAML files unreadable for humans.
+  recommendation: |-
+    Add a block scalar representer to the YAML dumper for strings containing `
+    ` to force literal block style (`|`).
 - id: F-006
   branch: numerical-pipeline
   file: bin/triangulate
@@ -87,11 +73,8 @@ findings:
   watchdog: WD-LRT
   slopodar: none
   title: Fragile CLI argument parsing crashes on optional flags before positionals
-  description: 'Functions like `cmd_summary` and `cmd_export` assume the first three arguments are review files, manually
-    indexing `args[0:3]`. They iterate over `args` looking for optional flags. If a user provides flags first (e.g., `triangulate
-    export --out dir r1 r2 r3`), the tool tries to open `--out` as a file and crashes.
-
-    '
+  description: |
+    Functions like `cmd_summary` and `cmd_export` assume the first three arguments are review files, manually indexing `args[0:3]`. They iterate over `args` looking for optional flags. If a user provides flags first (e.g., `triangulate export --out dir r1 r2 r3`), the tool tries to open `--out` as a file and crashes.
   recommendation: Use Python's built-in `argparse` module for robust CLI argument and flag handling.
 - id: F-007
   branch: numerical-pipeline
