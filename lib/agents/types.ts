@@ -12,7 +12,7 @@ export const AgentCreateInputSchema = z.object({
     .string()
     .min(1, "Name is required")
     .max(80, "Name must be 80 characters or fewer"),
-  systemPrompt: z.string().optional(),
+  systemPrompt: z.string().max(10000, "System prompt must be 10000 characters or fewer").optional(),
   archetype: z.string().max(200).optional(),
   tone: z.string().max(200).optional(),
   quirks: z.array(z.string()).optional(),

@@ -55,9 +55,9 @@ export function BoutHero({
       {/* Preset name and agent badges */}
       <h1 className="mb-4 text-2xl font-bold text-stone-100">{presetName}</h1>
       <div className="mb-6 flex flex-wrap gap-2">
-        {agents.map((agent) => (
+        {agents.map((agent, idx) => (
           <span
-            key={agent.name}
+            key={`${agent.name}-${idx}`}
             className="inline-flex items-center gap-1.5 rounded border border-stone-700 bg-stone-800 px-2 py-1 text-sm"
           >
             <span
