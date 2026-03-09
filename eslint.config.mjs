@@ -30,6 +30,9 @@ export default [
         TextEncoder: "readonly",
         TextDecoder: "readonly",
         setTimeout: "readonly",
+        FormData: "readonly",
+        AbortController: "readonly",
+        globalThis: "readonly",
         // React
         React: "readonly",
         JSX: "readonly",
