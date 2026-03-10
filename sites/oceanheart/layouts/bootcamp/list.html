@@ -37,8 +37,7 @@
         <span style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.85rem;">{{ .Params.step }}.</span>
         <span style="color: var(--text-primary); margin-left: 0.5rem;">{{ .Title }}</span>
         {{ with .Params.estimate }}<span style="color: var(--text-secondary); font-size: 0.85rem; float: right;">{{ . }}</span>{{ end }}
-        {{ if .Params.sample }}<span style="color: var(--green); font-size: 0.8rem; margin-left: 0.5rem;">[sample]</span>{{ end }}
-        {{ if not .Params.sample }}<span style="color: var(--text-secondary); font-size: 0.8rem; margin-left: 0.5rem;">[coming]</span>{{ end }}
+        {{ if lt (countwords .RawContent) 200 }}<span style="color: var(--text-secondary); font-size: 0.8rem; margin-left: 0.5rem;">[coming]</span>{{ end }}
       </a>
       {{ end }}
     </div>
