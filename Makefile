@@ -54,6 +54,8 @@ gate:
 	@docker run --rm $(MIDGET_IMAGE) /opt/test-drive.sh
 	@echo "▶ Running OCR test suite inside container..."
 	@docker run --rm $(MIDGET_IMAGE) /opt/test-ocr.sh
+	@echo "▶ Running Chromium test suite inside container..."
+	@docker run --rm $(MIDGET_IMAGE) /opt/test-chromium.sh
 
 # ── Polecat Wrapper ───────────────────────────────────────────
 #

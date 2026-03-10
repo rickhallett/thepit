@@ -229,13 +229,16 @@ def cmd_apps(args):
         if not args.name:
             _emit({"ok": False, "error": "name required"}, args.json)
             return 1
+        cmd = [args.name]
+        if getattr(args, "args", None):
+            cmd += args.args.split()
         subprocess.Popen(
-            [args.name],
+            cmd,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
         time.sleep(0.5)
-        output = {"ok": True, "action": "launch", "app": args.name}
+        output = {"ok": True, "action": "launch", "app": args.name, "cmd": cmd}
         _emit(output, args.json)
 
     elif action == "activate":
@@ -377,6 +380,7 @@ def build_parser():
     p_apps = sub.add_parser("apps", help="List/launch/activate apps")
     p_apps.add_argument("action", choices=["list", "launch", "activate"])
     p_apps.add_argument("name", nargs="?", help="App name (for launch/activate)")
+    p_apps.add_argument("--args", help="Extra arguments to pass to launched app (space-separated)")
     p_apps.add_argument("--json", action="store_true")
     p_apps.set_defaults(func=cmd_apps)
 
