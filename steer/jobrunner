@@ -146,11 +146,13 @@ def process_job(job_path: Path) -> dict:
 
 
 def write_result(result: dict) -> Path:
-    """Write result YAML to done/ directory."""
+    """Write result YAML to done/ directory (atomic via temp + rename)."""
     DONE.mkdir(parents=True, exist_ok=True)
     out_path = DONE / f"{result['job_id']}.yaml"
-    with open(out_path, "w") as f:
+    tmp_path = DONE / f".{result['job_id']}.yaml.tmp"
+    with open(tmp_path, "w") as f:
         yaml.dump(result, f, default_flow_style=False, sort_keys=False)
+    tmp_path.rename(out_path)  # atomic on same filesystem
     return out_path
 
 

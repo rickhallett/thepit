@@ -116,13 +116,16 @@ def cmd_run(args):
     wrapped = f'echo "{start_marker}" ; {cmd} ; echo "{done_marker}:$?"'
     tmux("send-keys", "-t", session, wrapped, "Enter", capture=False)
 
-    # Poll capture-pane for done marker
+    # Poll capture-pane for done marker on its own line with exit code.
+    # Must match the actual echo output (e.g. "__DONE_abc123def456:0"),
+    # NOT the typed command line which also contains the marker template.
+    done_line_re = re.compile(rf'^{re.escape(done_marker)}:\d+$', re.MULTILINE)
     deadline = time.time() + timeout
     pane_content = ""
     while time.time() < deadline:
         time.sleep(0.2)
         rc, pane_content, _ = tmux("capture-pane", "-t", session, "-p", "-S", "-32768")
-        if done_marker in pane_content:
+        if done_line_re.search(pane_content):
             break
     else:
         output = {

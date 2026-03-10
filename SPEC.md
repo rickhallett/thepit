@@ -113,7 +113,7 @@ Output extracted between markers.
 
 ### Job protocol (Phase C)
 
-A job is a YAML file written to `/opt/jobs/incoming/<id>.yaml`:
+A job is a YAML file written to the jobs incoming directory. Default: `/tmp/jobs/incoming/<id>.yaml` (override via `MIDGET_JOBS_DIR` env var):
 
 ```yaml
 job_id: <uuid>
@@ -126,7 +126,7 @@ context:
 timeout: 300
 ```
 
-Result written to `/opt/jobs/done/<id>.yaml`:
+Result written to `/tmp/jobs/done/<id>.yaml` (same base as incoming):
 
 ```yaml
 job_id: <uuid>

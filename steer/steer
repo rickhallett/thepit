@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
 steer-linux — Linux equivalent of mac-mini-agent's steer (Swift).
-Wraps xdotool, scrot, wmctrl, xclip behind the same CLI interface.
+Wraps xdotool, scrot, wmctrl, xclip, tesseract behind the same CLI interface.
 
-POC scope: see, click, type, hotkey, apps, screenshot.
-No accessibility tree yet (AT-SPI2 is phase 2).
-No OCR yet (tesseract is phase 2).
+Capabilities: see (screenshot + window list), see --ocr (tesseract),
+click, type, hotkey, scroll, apps (list/launch/activate), clipboard, screens.
+No accessibility tree yet (AT-SPI2 is future phase).
 """
 
 import argparse
 import json
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -21,11 +22,15 @@ STORE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def run(cmd, capture=True):
-    """Run a shell command, return stdout."""
+    """Run a shell command, return (success, stdout).
+
+    Always returns a tuple so callers can check success.
+    When capture=False, stdout is empty string.
+    """
     result = subprocess.run(cmd, capture_output=capture, text=True)
-    if result.returncode != 0 and capture:
-        return None
-    return result.stdout.strip() if capture else None
+    ok = result.returncode == 0
+    output = result.stdout.strip() if capture else ""
+    return ok, output
 
 
 def timestamp_id():
@@ -41,17 +46,17 @@ def cmd_see(args):
     png_path = STORE_DIR / f"{snap_id}.png"
 
     # Screenshot via scrot
-    run(["scrot", "-o", str(png_path)], capture=False)
+    scrot_ok, _ = run(["scrot", "-o", str(png_path)], capture=False)
 
-    if not png_path.exists():
+    if not scrot_ok or not png_path.exists():
         output = {"ok": False, "error": "Screenshot failed"}
         _emit(output, args.json)
         return 1
 
     # Window list via wmctrl
     windows = []
-    wmctrl_out = run(["wmctrl", "-l", "-p", "-G"])
-    if wmctrl_out:
+    wmctrl_ok, wmctrl_out = run(["wmctrl", "-l", "-p", "-G"])
+    if wmctrl_ok and wmctrl_out:
         for line in wmctrl_out.splitlines():
             parts = line.split(None, 8)
             if len(parts) >= 9:
@@ -68,7 +73,7 @@ def cmd_see(args):
                 })
 
     # Active window
-    active_wid = run(["xdotool", "getactivewindow"])
+    _, active_wid = run(["xdotool", "getactivewindow"])
 
     output = {
         "ok": True,
@@ -85,8 +90,8 @@ def cmd_see(args):
 
     # OCR via tesseract (optional — only when --ocr flag is set)
     if getattr(args, "ocr", False):
-        tess_result = run(["tesseract", str(png_path), "stdout", "--psm", "3", "-l", "eng"])
-        output["ocr_text"] = tess_result or ""
+        tess_ok, tess_result = run(["tesseract", str(png_path), "stdout", "--psm", "3", "-l", "eng"])
+        output["ocr_text"] = tess_result if tess_ok else ""
 
     _emit(output, args.json)
     return 0
@@ -112,18 +117,20 @@ def cmd_click(args):
     else:
         cmd += ["click", button]
 
-    run(cmd, capture=False)
+    click_ok, _ = run(cmd, capture=False)
 
     output = {
-        "ok": True,
+        "ok": click_ok,
         "action": "click",
         "x": args.x,
         "y": args.y,
         "button": {"1": "left", "2": "middle", "3": "right"}[button],
         "double": args.double,
     }
+    if not click_ok:
+        output["error"] = "xdotool click failed"
     _emit(output, args.json)
-    return 0
+    return 0 if click_ok else 1
 
 
 def cmd_type(args):
@@ -138,16 +145,18 @@ def cmd_type(args):
         time.sleep(0.05)
 
     # xdotool type with delay for reliability
-    run(["xdotool", "type", "--delay", "12", "--", text], capture=False)
+    type_ok, _ = run(["xdotool", "type", "--delay", "12", "--", text], capture=False)
 
     output = {
-        "ok": True,
+        "ok": type_ok,
         "action": "type",
         "text": text,
         "cleared_first": args.clear,
     }
+    if not type_ok:
+        output["error"] = "xdotool type failed"
     _emit(output, args.json)
-    return 0
+    return 0 if type_ok else 1
 
 
 def cmd_hotkey(args):
@@ -163,15 +172,17 @@ def cmd_hotkey(args):
     combo = combo.replace("delete", "Delete")
     combo = combo.replace("backspace", "BackSpace")
 
-    run(["xdotool", "key", combo], capture=False)
+    key_ok, _ = run(["xdotool", "key", combo], capture=False)
 
     output = {
-        "ok": True,
+        "ok": key_ok,
         "action": "hotkey",
         "combo": combo,
     }
+    if not key_ok:
+        output["error"] = "xdotool key failed"
     _emit(output, args.json)
-    return 0
+    return 0 if key_ok else 1
 
 
 def cmd_scroll(args):
@@ -183,17 +194,22 @@ def cmd_scroll(args):
     button_map = {"up": "4", "down": "5", "left": "6", "right": "7"}
     button = button_map.get(direction, "5")
 
+    scroll_ok = True
     for _ in range(lines):
-        run(["xdotool", "click", button], capture=False)
+        ok, _ = run(["xdotool", "click", button], capture=False)
+        if not ok:
+            scroll_ok = False
 
     output = {
-        "ok": True,
+        "ok": scroll_ok,
         "action": "scroll",
         "direction": direction,
         "lines": lines,
     }
+    if not scroll_ok:
+        output["error"] = "xdotool scroll failed"
     _emit(output, args.json)
-    return 0
+    return 0 if scroll_ok else 1
 
 
 def cmd_apps(args):
@@ -202,8 +218,8 @@ def cmd_apps(args):
 
     if action == "list":
         apps = []
-        wmctrl_out = run(["wmctrl", "-l", "-p"])
-        if wmctrl_out:
+        list_ok, wmctrl_out = run(["wmctrl", "-l", "-p"])
+        if list_ok and wmctrl_out:
             seen_pids = set()
             for line in wmctrl_out.splitlines():
                 parts = line.split(None, 4)
@@ -231,7 +247,7 @@ def cmd_apps(args):
             return 1
         cmd = [args.name]
         if getattr(args, "args", None):
-            cmd += args.args.split()
+            cmd += shlex.split(args.args)
         subprocess.Popen(
             cmd,
             stdout=subprocess.DEVNULL,
@@ -245,8 +261,10 @@ def cmd_apps(args):
         if not args.name:
             _emit({"ok": False, "error": "name required"}, args.json)
             return 1
-        run(["wmctrl", "-a", args.name], capture=False)
-        output = {"ok": True, "action": "activate", "app": args.name}
+        activate_ok, _ = run(["wmctrl", "-a", args.name], capture=False)
+        output = {"ok": activate_ok, "action": "activate", "app": args.name}
+        if not activate_ok:
+            output["error"] = f"wmctrl activate failed for '{args.name}'"
         _emit(output, args.json)
 
     return 0
@@ -257,8 +275,8 @@ def cmd_clipboard(args):
     action = args.action
 
     if action == "read":
-        text = run(["xclip", "-selection", "clipboard", "-o"])
-        output = {"ok": True, "action": "read", "text": text or ""}
+        clip_ok, text = run(["xclip", "-selection", "clipboard", "-o"])
+        output = {"ok": True, "action": "read", "text": text if clip_ok else ""}
         _emit(output, args.json)
 
     elif action == "write":
@@ -279,8 +297,8 @@ def cmd_clipboard(args):
 def cmd_screens(args):
     """List connected displays."""
     screens = []
-    xdpyinfo = run(["xdpyinfo"])
-    if xdpyinfo:
+    xdpy_ok, xdpyinfo = run(["xdpyinfo"])
+    if xdpy_ok and xdpyinfo:
         for line in xdpyinfo.splitlines():
             if "dimensions:" in line:
                 parts = line.split()

@@ -80,14 +80,14 @@ if echo "$OCR_TEXT" | grep -qiE "CHROMIUMPROOF|CHROMIUMPR00F|CHROM.*PROOF"; then
     MATCHED=$(echo "$OCR_TEXT" | grep -oiE "CHROMIUMPROOF|CHROMIUMPR00F|CHROM.*PROOF" | head -1)
     pass "OCR read Chrome page content (matched: $MATCHED, windows: $WIN_COUNT)"
 else
-    # Chrome may not render data: URLs with OCR-readable text in all configs.
-    # Fallback: require Chrome is running AND window count increased AND
-    # OCR captured substantial text (not just window chrome).
-    TEXT_WORDS=$(echo "$OCR_TEXT" | wc -w)
-    if [ "$WIN_COUNT" -ge 2 ] && [ "$TEXT_WORDS" -gt 2 ]; then
-        pass "Chrome open ($WIN_COUNT windows, $TEXT_WORDS OCR words) - data: URL OCR inconclusive"
+    # Tier 2: Chrome may show its welcome/first-run page instead of the data: URL.
+    # Accept text that proves Chrome rendered a real page AND OCR read it.
+    # "Welcome to Google Chrome" or "Make Chrome your own" are first-run strings.
+    if echo "$OCR_TEXT" | grep -qiE "Welcome to.*Chrome|Make Chrome your own|Get started with Chrome"; then
+        MATCHED=$(echo "$OCR_TEXT" | grep -oiE "Welcome to.*Chrome|Make Chrome your own|Get started with Chrome" | head -1)
+        pass "OCR read Chrome welcome page (matched: $MATCHED, windows: $WIN_COUNT)"
     else
-        fail "Chrome OCR failed (windows=$WIN_COUNT, words=$TEXT_WORDS, text=$(echo "$OCR_TEXT" | head -3))"
+        fail "Chrome OCR failed - no CHROMIUMPROOF or Chrome welcome text (windows=$WIN_COUNT, text=$(echo "$OCR_TEXT" | head -3))"
     fi
 fi
 

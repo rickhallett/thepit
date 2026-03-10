@@ -66,18 +66,21 @@ else
     fail "ls /tmp failed: $RESULT"
 fi
 
-# 4. drive run git status
+# 4. drive run git status (expected to fail - no repo in container)
 echo "[4/9] drive run git status"
-# In the container there's no git repo, so we run git in /home/agent
-# Either "not a git repository" or 0 exit with status — both are acceptable
-# We test that the command completes and output is captured
-RESULT=$("$DRIVE" run "$SESSION" "git status 2>&1 || true" --json 2>/dev/null)
+# In the container there's no git repo, so git status SHOULD fail.
+# We verify: (a) drive captures the output, (b) output contains the expected
+# error message. No || true - we need to see the real exit code.
+RESULT=$("$DRIVE" run "$SESSION" "git status 2>&1" --json 2>/dev/null)
 OK=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin)['ok'])" 2>/dev/null)
+EXIT_CODE=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('exit_code', 'none'))" 2>/dev/null)
 OUTPUT=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin)['output'])" 2>/dev/null)
-if [ "$OK" = "True" ] && [ -n "$OUTPUT" ]; then
-    pass "git status output captured: $(echo "$OUTPUT" | head -1)"
+# drive returns ok:true when the sentinel completes (even for non-zero exit)
+# The git command should exit non-zero with "not a git repository" or similar
+if [ "$OK" = "True" ] && echo "$OUTPUT" | grep -qiE "not a git repository|fatal|On branch"; then
+    pass "git status output captured (exit=$EXIT_CODE): $(echo "$OUTPUT" | head -1)"
 else
-    fail "git status run failed: $RESULT"
+    fail "git status: unexpected result (ok=$OK exit=$EXIT_CODE output=$(echo "$OUTPUT" | head -1))"
 fi
 
 # 5. drive run steer see

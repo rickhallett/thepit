@@ -62,17 +62,15 @@ OCR_TEXT=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.std
 
 # Tesseract may misread some chars (O vs 0, etc.) but core word should appear.
 # Check for at least one of the recognisable fragments.
-if echo "$OCR_TEXT" | grep -qiE "OCRPROOF|OCRPR00F|0CRPROOF|echo"; then
-    MATCHED=$(echo "$OCR_TEXT" | grep -oiE "OCRPROOF|OCRPR00F|0CRPROOF|echo" | head -1)
+# No lenient fallback - if OCR cannot read a known token at 14pt DejaVu, it is broken.
+if echo "$OCR_TEXT" | grep -qiE "OCRPROOF|OCRPR00F|0CRPROOF"; then
+    MATCHED=$(echo "$OCR_TEXT" | grep -oiE "OCRPROOF|OCRPR00F|0CRPROOF" | head -1)
     pass "OCR read known text from screen (matched: $MATCHED)"
+elif echo "$OCR_TEXT" | grep -qiE "echo.*OCR|OCR.*PROOF"; then
+    # Partial match - tesseract split the word but recognized fragments
+    pass "OCR partial match (tesseract split the token)"
 else
-    # Lenient fallback: any non-empty OCR output from a terminal with text
-    TEXT_LEN=$(echo "$OCR_TEXT" | wc -w)
-    if [ "$TEXT_LEN" -gt 2 ]; then
-        pass "OCR returned $TEXT_LEN words (exact match not required - terminal rendered)"
-    else
-        fail "OCR returned too little text (got: $(echo "$OCR_TEXT" | head -2))"
-    fi
+    fail "OCR could not read OCRPROOF from terminal (got: $(echo "$OCR_TEXT" | head -3))"
 fi
 
 echo ""
