@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     x11-utils \
     xterm \
     tmux \
+    tesseract-ocr \
     python3 \
     python3-pip \
     python3-venv \
@@ -30,7 +31,8 @@ COPY steer/ /opt/steer/
 COPY entrypoint.sh /opt/entrypoint.sh
 COPY test-poc.sh /opt/test-poc.sh
 COPY test-drive.sh /opt/test-drive.sh
-RUN chmod +x /opt/entrypoint.sh /opt/steer/steer /opt/steer/drive /opt/test-poc.sh /opt/test-drive.sh
+COPY test-ocr.sh /opt/test-ocr.sh
+RUN chmod +x /opt/entrypoint.sh /opt/steer/steer /opt/steer/drive /opt/test-poc.sh /opt/test-drive.sh /opt/test-ocr.sh
 
 # Non-root agent user
 RUN useradd -m -s /bin/bash agent

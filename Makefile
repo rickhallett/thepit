@@ -52,6 +52,8 @@ gate:
 	@docker run --rm $(MIDGET_IMAGE) /opt/test-poc.sh
 	@echo "▶ Running drive test suite inside container..."
 	@docker run --rm $(MIDGET_IMAGE) /opt/test-drive.sh
+	@echo "▶ Running OCR test suite inside container..."
+	@docker run --rm $(MIDGET_IMAGE) /opt/test-ocr.sh
 
 # ── Polecat Wrapper ───────────────────────────────────────────
 #
@@ -97,46 +99,56 @@ include mk/gauntlet.mk
 
 # ── Meta Targets ──────────────────────────────────────────────
 
-all: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
+all: A1 A2 A3 A4 A5 B1 B2 B3 B4 C1 C2 C3 C4
+
+_done_mark = $(if $(wildcard $(DONE)/$(1)),✓,·)
 
 status:
-	@echo "Completed tasks:"
-	@ls -1 $(DONE)/ 2>/dev/null | sort -n || echo "  (none)"
 	@echo ""
-	@echo "Remaining:"
-	@for i in $$(seq -w 1 26); do \
-		[ ! -f $(DONE)/$$i ] && echo "  $$i — $$(head -1 plans/$$i-*.md 2>/dev/null | sed 's/^# //')"; \
-	done
+	@echo "── Midgets Phase Status ──────────────────────────────"
+	@echo ""
+	@echo "Phase A — Agent in container"
+	@printf "  %s A1  gate: build container + test-poc.sh\n"        "$(call _done_mark,A1)"
+	@printf "  %s A2  terminal protocol: drive + tmux sentinel\n"   "$(call _done_mark,A2)"
+	@printf "  %s A3  OCR: tesseract + steer see --ocr\n"           "$(call _done_mark,A3)"
+	@printf "  %s A4  Chromium: headless browser\n"                 "$(call _done_mark,A4)"
+	@printf "  %s A5  agent framework in container\n"               "$(call _done_mark,A5)"
+	@echo ""
+	@echo "Phase B — Governance adapted"
+	@printf "  %s B1  SPEC.md\n"                                    "$(call _done_mark,B1)"
+	@printf "  %s B2  Makefile rewrite for midgets\n"               "$(call _done_mark,B2)"
+	@printf "  %s B3  gauntlet for containers\n"                    "$(call _done_mark,B3)"
+	@printf "  %s B4  EVAL.md\n"                                    "$(call _done_mark,B4)"
+	@echo ""
+	@echo "Phase C — Multi-agent coordination"
+	@printf "  %s C1  listen port: job server\n"                    "$(call _done_mark,C1)"
+	@printf "  %s C2  inter-container communication\n"              "$(call _done_mark,C2)"
+	@printf "  %s C3  multi-container orchestration\n"              "$(call _done_mark,C3)"
+	@printf "  %s C4  governance crew as physical agents\n"         "$(call _done_mark,C4)"
+	@echo ""
+	@echo "──────────────────────────────────────────────────────"
+	@echo ""
 
 graph:
-	@echo "Dependency Graph (→ means 'depends on')"
+	@echo "Dependency Graph (← depends on)"
 	@echo ""
-	@echo "01 scaffold"
-	@echo "└── 02 database"
-	@echo "    ├── 03 clerk"
-	@echo "    │   ├── 04 user-mirroring"
-	@echo "    │   └── 05 api-utils"
-	@echo "    │       ├── 06 presets"
-	@echo "    │       │   └── 07 bout-validation"
-	@echo "    │       │       └── 08 bout-turn-loop"
-	@echo "    │       │           └── 09 bout-streaming"
-	@echo "    │       │               └── 13 bout-persistence+credits ←(+10)"
-	@echo "    │       │                   └── 14 useBout-hook"
-	@echo "    │       │                       └── 15 bout-viewer"
-	@echo "    │       │                           └── 16 arena-page"
-	@echo "    │       ├── 10 credit-balance"
-	@echo "    │       │   └── 11 credit-preauth"
-	@echo "    │       │       └── 12 credit-catalog"
-	@echo "    │       │           └── 17 tier-config"
-	@echo "    │       │               └── 18 stripe-webhook"
-	@echo "    │       │                   └── 19 stripe-checkout"
-	@echo "    │       ├── 20 reactions"
-	@echo "    │       │   └── 21 votes+leaderboard"
-	@echo "    │       │       └── 22 short-links"
-	@echo "    │       └── 23 agent-api"
-	@echo "    │           └── 24 agent-pages"
-	@echo "    └── 25 replay ←(15+22)"
-	@echo "        └── 26 deploy"
+	@echo "A1 gate"
+	@echo "├── A2 terminal protocol"
+	@echo "│   └── (A5)"
+	@echo "├── A3 OCR"
+	@echo "│   └── A4 chromium"
+	@echo "│       └── A5 agent framework ←(A2+A3+A4)"
+	@echo "│           ├── B3 gauntlet-containers ←(A5+B2)"
+	@echo "│           │   └── C4 governance crew ←(C3+B3)"
+	@echo "│           └── C1 job server"
+	@echo "│               ├── C2 inter-container"
+	@echo "│               │   └── C3 orchestration ←(C1+C2)"
+	@echo "│               └── (C3)"
+	@echo "├── B2 makefile ←(A1+B1)"
+	@echo "│   └── (B3)"
+	@echo "B1 SPEC.md"
+	@echo "├── B2 (see above)"
+	@echo "└── B4 EVAL.md"
 
 install-hooks:
 	@ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
@@ -214,4 +226,3 @@ ebook-clean:
 .PHONY: ebook ebook-prep ebook-epub ebook-slim ebook-slim-prep ebook-slim-epub ebook-all ebook-clean
 .PHONY: darkcat darkcat-openai darkcat-gemini darkcat-all darkcat-synth darkcat-ref
 .PHONY: gauntlet gauntlet-gate gauntlet-pitkeel
-.PHONY: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26

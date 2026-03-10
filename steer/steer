@@ -82,6 +82,12 @@ def cmd_see(args):
         "active_window_id": active_wid,
         "window_count": len(windows),
     }
+
+    # OCR via tesseract (optional — only when --ocr flag is set)
+    if getattr(args, "ocr", False):
+        tess_result = run(["tesseract", str(png_path), "stdout", "--psm", "3", "-l", "eng"])
+        output["ocr_text"] = tess_result or ""
+
     _emit(output, args.json)
     return 0
 
@@ -334,6 +340,7 @@ def build_parser():
     # see
     p_see = sub.add_parser("see", help="Screenshot + window list")
     p_see.add_argument("--json", action="store_true")
+    p_see.add_argument("--ocr", action="store_true", help="Run tesseract OCR on screenshot")
     p_see.set_defaults(func=cmd_see)
 
     # click
