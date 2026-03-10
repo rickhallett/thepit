@@ -13,10 +13,6 @@ Step 2 of 9 in Bootcamp IV: Evaluation & Adversarial Testing.
 
 ---
 
-Step 2 of 9 in the Evaluation & Adversarial Testing Bootcamp.
-
----
-
 ## Why This Step Exists
 
 Step 1 built your instrument calibration. You now understand what an eval score can

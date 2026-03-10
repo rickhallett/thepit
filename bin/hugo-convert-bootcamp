@@ -76,7 +76,7 @@ def strip_header(body: str) -> str:
       while start < len(lines) and lines[start].strip() == '':
         start += 1
       break
-    if line.startswith('**') or line == '':
+    if line.startswith('**') or line == '' or re.match(r'^Step \d+ of \d+', line):
       start += 1
     else:
       break

@@ -13,10 +13,6 @@ Step 1 of 9 in Bootcamp IV: Evaluation & Adversarial Testing.
 
 ---
 
-Step 1 of 9 in the Evaluation & Adversarial Testing Bootcamp.
-
----
-
 ## Why This Step Exists
 
 Before you design an eval, build a dataset, write a rubric, or interpret a score, you

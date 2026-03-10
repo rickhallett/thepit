@@ -13,10 +13,6 @@ Step 7 of 9 in Bootcamp IV: Evaluation & Adversarial Testing.
 
 ---
 
-Step 7 of 9 in the Evaluation & Adversarial Testing Bootcamp.
-
----
-
 ## Why This Step Exists
 
 Step 6 taught you adversarial testing methodology: red teaming as a structured

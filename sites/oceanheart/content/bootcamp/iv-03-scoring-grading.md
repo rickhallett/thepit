@@ -13,10 +13,6 @@ Step 3 of 9 in Bootcamp IV: Evaluation & Adversarial Testing.
 
 ---
 
-Step 3 of 9 in the Evaluation & Adversarial Testing Bootcamp.
-
----
-
 ## Why This Step Exists
 
 You have a dataset (Step 2). You understand what measurement means and what can go wrong

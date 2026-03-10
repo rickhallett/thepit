@@ -13,10 +13,6 @@ Step 5 of 9 in Bootcamp IV: Evaluation & Adversarial Testing.
 
 ---
 
-Step 5 of 9 in the Evaluation & Adversarial Testing Bootcamp.
-
----
-
 ## Why This Step Exists
 
 You can now design evals that measure what they claim to measure (Step 1). You can build

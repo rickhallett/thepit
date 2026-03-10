@@ -13,10 +13,6 @@ Step 4 of 9 in Bootcamp IV: Evaluation & Adversarial Testing.
 
 ---
 
-Step 4 of 9 in the Evaluation & Adversarial Testing Bootcamp.
-
----
-
 ## Why This Step Exists
 
 Steps 1 through 3 taught you to evaluate single input-output pairs. You learned what

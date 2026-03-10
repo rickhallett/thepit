@@ -13,10 +13,6 @@ Step 6 of 9 in Bootcamp IV: Evaluation & Adversarial Testing.
 
 ---
 
-Step 6 of 9 in the Evaluation & Adversarial Testing Bootcamp.
-
----
-
 ## Why This Step Exists
 
 Steps 1 through 5 taught you to evaluate cooperatively. You designed evals to measure
