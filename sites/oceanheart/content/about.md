@@ -12,6 +12,8 @@ I write TypeScript, Python, and Go. I've shipped production code at EDITED (reta
 
 **[The Pit](https://thepit.cloud)** — an agentic evaluation arena. 11 specialised agents governed by integration discipline. Every session decision on file. The agents write code, review each other's work, and catch each other's mistakes. I govern the process by which their output becomes trustworthy. Cryptographically attested commits, multi-model adversarial review, operator fatigue monitoring. The [repo is public](https://github.com/rickhallett/noopit).
 
+**[The Agentic Engineering Bootcamp](/bootcamp/)** — 51 steps across 5 bootcamps. Self-study material I wrote for myself and am publishing because it might be useful to others. Covers Linux substrate, agentic practices, operational analytics, evaluation/adversarial testing, and agent infrastructure. The material came out of the practical problems I hit building The Pit - not from a curriculum committee.
+
 **[oceanheart.ai](https://oceanheart.ai)** — this site. Learning in public about what happens when you give LLMs real responsibilities and then hold them to account.
 
 **[slopodar](https://oceanheart.ai/slopodar/)** — a field taxonomy of LLM output patterns caught in the wild. Epistemic theatre, paper guardrails, analytical lullabies.
