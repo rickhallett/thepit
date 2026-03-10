@@ -183,4 +183,4 @@ OPUS_MODEL:    'claude-opus-4-5-20251101'     // lab tier only
 
 ---
 
-> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon.md`) on load. If the Lexicon is not in your context window, you are not on this ship. Back-reference: SD-126.
+**Standing Order (SO-PERM-002):** Read the latest Lexicon (`docs/internal/lexicon.md`) on load. Back-reference: SD-126.

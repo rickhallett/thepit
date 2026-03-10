@@ -1,6 +1,4 @@
-# Dead Reckoning Protocol — noopit (thepit-v2)
-
-> When the instruments fail, navigate from last known fixed position.
+# Dead Reckoning Protocol - noopit (thepit-v2)
 
 **What this is:** Blowout recovery sequence. If the context window died, the session crashed, or you are a fresh instance with no memory of prior sessions, this document tells you where you are and how to get your bearings.
 

@@ -1,8 +1,7 @@
 # Agentic System Layer Model — Compressed Reference
 
-> The Map Is Not The Territory (SD-162, Lexicon v0.7 line 67).
-> This map improves through empirical soundings, not inference.
-> Version: 0.3 (28 Feb 2026 — 18 evidence annotations from SD-195→SD-206 + post-compaction observations + metacognitive analysis)
+Back-ref: SD-162, Lexicon v0.7 line 67 ("The Map Is Not The Territory" - Korzybski).
+Version: 0.3 (28 Feb 2026 - 18 evidence annotations from SD-195 to SD-206 + post-compaction observations + metacognitive analysis)
 
 Read bottom-up for data flow, top-down for control flow.
 Format: `LAYER | primitives | interface_to_next_layer`

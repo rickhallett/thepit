@@ -1,8 +1,7 @@
 # Ship's Orders - midgets (Phase 3)
 
-> Governance is inescapable. This is not reduced governance - it is refined governance.
-> This file IS the boot sequence. Everything an agent needs to operate is here or referenced with a file path.
-> If you only read one file, this is it.
+This file IS the boot sequence. Everything an agent needs to operate is here or referenced with a file path.
+If you only read one file, this is it.
 
 ## Shorthand Conventions
 

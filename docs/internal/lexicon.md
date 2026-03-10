@@ -4,9 +4,6 @@ Back-reference: SD-120 (naval metaphor as scaffold), SD-123 (v0.1), SD-309 (true
 Status: APPROVED by Operator. Read-only by convention. Edits bump version number.
 Provenance: v0.1–v0.25 grown organically from *Master and Commander* (2003, Weir) through the tspit pilot study and noopit calibration run. v0.26 distilled 2026-03-10 via independent cross-triangulation: Architect (naval→Linux mapping) + Analyst (naval→SWE mapping). Both analyses found ~60% of terms map to established frameworks. This version grounds the working vocabulary in those frameworks without replacing it. The novel contributions (~18%) are marked explicitly.
 
-> The naval metaphor was scaffolding. The principles underneath are substrate-neutral.
-> What matters is the grounding, not the accent.
-
 ---
 
 ## YAML Status Header

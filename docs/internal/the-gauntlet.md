@@ -1,9 +1,5 @@
 # The Gauntlet
 
-> Every change runs the gauntlet before it enters the codebase.
-> The probability of a defect surviving is the product of the probabilities at each gate.
-> Stack enough gates and the product approaches zero.
-
 ## Definition of DONE
 
 **DONE** requires all of:
