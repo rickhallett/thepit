@@ -29,7 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY steer/ /opt/steer/
 COPY entrypoint.sh /opt/entrypoint.sh
 COPY test-poc.sh /opt/test-poc.sh
-RUN chmod +x /opt/entrypoint.sh /opt/steer/steer /opt/test-poc.sh
+COPY test-drive.sh /opt/test-drive.sh
+RUN chmod +x /opt/entrypoint.sh /opt/steer/steer /opt/steer/drive /opt/test-poc.sh /opt/test-drive.sh
 
 # Non-root agent user
 RUN useradd -m -s /bin/bash agent

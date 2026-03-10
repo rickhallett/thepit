@@ -48,8 +48,10 @@ SHA := $(shell git rev-parse --short HEAD)
 gate:
 	@echo "▶ Building midget container..."
 	@docker build -t $(MIDGET_IMAGE) . 2>&1
-	@echo "▶ Running test suite inside container..."
+	@echo "▶ Running steer test suite inside container..."
 	@docker run --rm $(MIDGET_IMAGE) /opt/test-poc.sh
+	@echo "▶ Running drive test suite inside container..."
+	@docker run --rm $(MIDGET_IMAGE) /opt/test-drive.sh
 
 # ── Polecat Wrapper ───────────────────────────────────────────
 #

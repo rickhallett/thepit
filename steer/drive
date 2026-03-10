@@ -1,0 +1,343 @@
+#!/usr/bin/env python3
+"""
+drive — Terminal automation via tmux for midget agents.
+
+Provides programmatic control over tmux sessions: create sessions,
+run commands with reliable completion detection (sentinel protocol),
+capture output, poll for patterns, and send raw keystrokes.
+
+Ported from mac-mini-agent's drive app. Adapted for Linux container use.
+
+Sentinel protocol:
+  echo "__START_<token>" ; <cmd> ; echo "__DONE_<token>:$?"
+  Completion detected by polling capture-pane for __DONE_ marker.
+  Exit code extracted from marker. Output extracted between markers.
+
+Usage:
+  drive session create <name> [--json]
+  drive session list [--json]
+  drive session kill <name> [--json]
+  drive run <session> <cmd> [--timeout N] [--json]
+  drive send <session> <text> [--no-enter] [--json]
+  drive logs <session> [--lines N] [--json]
+  drive poll <session> --until <pattern> [--timeout N] [--interval F] [--json]
+"""
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import uuid
+from pathlib import Path
+
+
+# --- TMUX HELPERS ---
+
+def tmux(*args, capture=True):
+    """Run a tmux command."""
+    cmd = ["tmux"] + list(args)
+    result = subprocess.run(cmd, capture_output=capture, text=True)
+    if capture:
+        return result.returncode, result.stdout.strip(), result.stderr.strip()
+    return result.returncode, "", ""
+
+
+def session_exists(name):
+    rc, out, _ = tmux("has-session", "-t", name)
+    return rc == 0
+
+
+# --- COMMANDS ---
+
+def cmd_session(args):
+    action = args.action
+
+    if action == "create":
+        name = args.name
+        if session_exists(name):
+            output = {"ok": False, "error": f"session '{name}' already exists"}
+            _emit(output, args.json)
+            return 1
+        rc, _, err = tmux("new-session", "-d", "-s", name, capture=True)
+        if rc != 0:
+            output = {"ok": False, "error": f"tmux new-session failed: {err}"}
+            _emit(output, args.json)
+            return 1
+        output = {"ok": True, "action": "create", "session": name}
+        _emit(output, args.json)
+        return 0
+
+    elif action == "list":
+        rc, out, _ = tmux("list-sessions", "-F", "#{session_name}")
+        sessions = out.splitlines() if out else []
+        output = {"ok": True, "sessions": sessions, "count": len(sessions)}
+        _emit(output, args.json)
+        return 0
+
+    elif action == "kill":
+        name = args.name
+        if not session_exists(name):
+            output = {"ok": False, "error": f"session '{name}' not found"}
+            _emit(output, args.json)
+            return 1
+        rc, _, err = tmux("kill-session", "-t", name)
+        if rc != 0:
+            output = {"ok": False, "error": f"kill-session failed: {err}"}
+            _emit(output, args.json)
+            return 1
+        output = {"ok": True, "action": "kill", "session": name}
+        _emit(output, args.json)
+        return 0
+
+    output = {"ok": False, "error": f"unknown action: {action}"}
+    _emit(output, args.json)
+    return 1
+
+
+def cmd_run(args):
+    """Run a command with sentinel protocol. Waits for completion, returns exit code + output."""
+    session = args.session
+    cmd = args.cmd
+    timeout = args.timeout or 60
+
+    if not session_exists(session):
+        output = {"ok": False, "error": f"session '{session}' not found"}
+        _emit(output, args.json)
+        return 1
+
+    token = uuid.uuid4().hex[:12]
+    start_marker = f"__START_{token}"
+    done_marker = f"__DONE_{token}"
+
+    # Wrap command with sentinel markers
+    wrapped = f'echo "{start_marker}" ; {cmd} ; echo "{done_marker}:$?"'
+    tmux("send-keys", "-t", session, wrapped, "Enter", capture=False)
+
+    # Poll capture-pane for done marker
+    deadline = time.time() + timeout
+    pane_content = ""
+    while time.time() < deadline:
+        time.sleep(0.2)
+        rc, pane_content, _ = tmux("capture-pane", "-t", session, "-p", "-S", "-32768")
+        if done_marker in pane_content:
+            break
+    else:
+        output = {
+            "ok": False,
+            "error": f"timeout after {timeout}s waiting for command to complete",
+            "partial_output": pane_content[-2000:] if pane_content else "",
+        }
+        _emit(output, args.json)
+        return 1
+
+    # Extract exit code from done marker
+    exit_code = None
+    for line in pane_content.splitlines():
+        m = re.search(rf"__DONE_{token}:(\d+)", line)
+        if m:
+            exit_code = int(m.group(1))
+            break
+
+    # Extract output between markers
+    captured = _extract_between(pane_content, start_marker, done_marker)
+
+    output = {
+        "ok": True,
+        "session": session,
+        "cmd": cmd,
+        "exit_code": exit_code,
+        "output": captured,
+    }
+    _emit(output, args.json)
+    return 0 if exit_code == 0 else exit_code or 1
+
+
+def cmd_send(args):
+    """Send raw keystrokes to a session (no completion waiting)."""
+    session = args.session
+    text = args.text
+
+    if not session_exists(session):
+        output = {"ok": False, "error": f"session '{session}' not found"}
+        _emit(output, args.json)
+        return 1
+
+    if args.no_enter:
+        tmux("send-keys", "-t", session, text, capture=False)
+    else:
+        tmux("send-keys", "-t", session, text, "Enter", capture=False)
+
+    output = {"ok": True, "action": "send", "session": session, "text": text, "enter": not args.no_enter}
+    _emit(output, args.json)
+    return 0
+
+
+def cmd_logs(args):
+    """Capture current pane content."""
+    session = args.session
+
+    if not session_exists(session):
+        output = {"ok": False, "error": f"session '{session}' not found"}
+        _emit(output, args.json)
+        return 1
+
+    lines = args.lines or 200
+    rc, pane_content, _ = tmux("capture-pane", "-t", session, "-p", "-S", f"-{lines}")
+
+    output = {
+        "ok": True,
+        "session": session,
+        "lines": lines,
+        "content": pane_content,
+    }
+    _emit(output, args.json)
+    return 0
+
+
+def cmd_poll(args):
+    """Wait for a pattern to appear in pane output."""
+    session = args.session
+    pattern = args.until
+    timeout = args.timeout or 30
+    interval = args.interval or 0.5
+
+    if not session_exists(session):
+        output = {"ok": False, "error": f"session '{session}' not found"}
+        _emit(output, args.json)
+        return 1
+
+    deadline = time.time() + timeout
+    pane_content = ""
+    while time.time() < deadline:
+        rc, pane_content, _ = tmux("capture-pane", "-t", session, "-p", "-S", "-500")
+        if re.search(pattern, pane_content):
+            m = re.search(pattern, pane_content)
+            output = {
+                "ok": True,
+                "session": session,
+                "pattern": pattern,
+                "matched": m.group(0) if m else "",
+                "content": pane_content,
+            }
+            _emit(output, args.json)
+            return 0
+        time.sleep(interval)
+
+    output = {
+        "ok": False,
+        "error": f"pattern '{pattern}' not found within {timeout}s",
+        "content": pane_content[-2000:] if pane_content else "",
+    }
+    _emit(output, args.json)
+    return 1
+
+
+# --- HELPERS ---
+
+def _extract_between(text, start_marker, done_prefix):
+    """Extract lines between start and done markers.
+
+    Uses exact-line matching to avoid false positives from the command
+    line text that tmux shows in the pane (which also contains the markers
+    as part of the echo command strings).
+
+    The actual echo output is exactly the marker on its own line.
+    The command text line contains the marker embedded in a longer string.
+    """
+    lines = text.splitlines()
+    capturing = False
+    captured = []
+    done_re = re.compile(rf'^{re.escape(done_prefix)}:\d+$')
+    for line in lines:
+        stripped = line.strip()
+        if stripped == start_marker:
+            capturing = True
+            continue
+        if done_re.match(stripped):
+            break
+        if capturing:
+            captured.append(line)
+    return "\n".join(captured).strip()
+
+
+def _emit(data, as_json=False):
+    """Dual output: JSON for agents, human-readable for operators."""
+    if as_json:
+        print(json.dumps(data, indent=2))
+    else:
+        if not data.get("ok"):
+            print(f"ERROR: {data.get('error', 'unknown')}", file=sys.stderr)
+            return
+        for k, v in data.items():
+            if k == "ok":
+                continue
+            if isinstance(v, list):
+                print(f"{k}: ({len(v)} items)")
+                for item in v:
+                    print(f"  - {item}")
+            else:
+                print(f"{k}: {v}")
+
+
+# --- CLI ---
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog="drive",
+        description="drive: terminal automation via tmux for midget agents",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # session
+    p_sess = sub.add_parser("session", help="Manage tmux sessions")
+    p_sess.add_argument("action", choices=["create", "list", "kill"])
+    p_sess.add_argument("name", nargs="?", help="Session name (create/kill)")
+    p_sess.add_argument("--json", action="store_true")
+    p_sess.set_defaults(func=cmd_session)
+
+    # run
+    p_run = sub.add_parser("run", help="Run command with sentinel, wait for completion")
+    p_run.add_argument("session", help="Target tmux session")
+    p_run.add_argument("cmd", help="Command to run")
+    p_run.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
+    p_run.add_argument("--json", action="store_true")
+    p_run.set_defaults(func=cmd_run)
+
+    # send
+    p_send = sub.add_parser("send", help="Send raw keystrokes (no completion wait)")
+    p_send.add_argument("session", help="Target tmux session")
+    p_send.add_argument("text", help="Text to send")
+    p_send.add_argument("--no-enter", action="store_true", help="Do not send Enter after text")
+    p_send.add_argument("--json", action="store_true")
+    p_send.set_defaults(func=cmd_send)
+
+    # logs
+    p_logs = sub.add_parser("logs", help="Capture pane output")
+    p_logs.add_argument("session", help="Target tmux session")
+    p_logs.add_argument("--lines", type=int, default=200, help="Lines of scrollback")
+    p_logs.add_argument("--json", action="store_true")
+    p_logs.set_defaults(func=cmd_logs)
+
+    # poll
+    p_poll = sub.add_parser("poll", help="Wait for pattern in pane output")
+    p_poll.add_argument("session", help="Target tmux session")
+    p_poll.add_argument("--until", required=True, help="Regex pattern to wait for")
+    p_poll.add_argument("--timeout", type=int, default=30, help="Timeout in seconds")
+    p_poll.add_argument("--interval", type=float, default=0.5, help="Poll interval in seconds")
+    p_poll.add_argument("--json", action="store_true")
+    p_poll.set_defaults(func=cmd_poll)
+
+    return parser
+
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+    sys.exit(args.func(args))
+
+
+if __name__ == "__main__":
+    main()
