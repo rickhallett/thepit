@@ -15,7 +15,7 @@ TIER ?= full
 
 gauntlet-gate:
 	@echo "▶ Gate"
-	@if pnpm run typecheck && pnpm run lint && pnpm run test; then \
+	@if $(MAKE) gate; then \
 		$(PITCOMMIT) attest gate --tree $(TREE_FULL) --verdict pass; \
 	else \
 		$(PITCOMMIT) attest gate --tree $(TREE_FULL) --verdict fail; \

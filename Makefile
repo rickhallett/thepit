@@ -26,7 +26,7 @@ SHELL := /bin/bash
 
 DONE := .done
 LOGS := .logs
-GATE := pnpm run typecheck && pnpm run lint && pnpm run test:unit 2>/dev/null
+MIDGET_IMAGE := midget-poc
 POLECAT_TIMEOUT := 300
 
 DARKCAT_PROMPT := scripts/darkcat.md
@@ -39,6 +39,17 @@ TREE := $(shell git write-tree 2>/dev/null | cut -c1-8)
 TREE_FULL := $(shell git write-tree 2>/dev/null)
 # SHA kept for display/ad-hoc use only
 SHA := $(shell git rev-parse --short HEAD)
+
+# ── Gate ─────────────────────────────────────────────────────
+#
+# Builds the midget container and runs test-poc.sh inside it.
+# All 10 tests must pass. Exit 0 = green.
+
+gate:
+	@echo "▶ Building midget container..."
+	@docker build -t $(MIDGET_IMAGE) . 2>&1
+	@echo "▶ Running test suite inside container..."
+	@docker run --rm $(MIDGET_IMAGE) /opt/test-poc.sh
 
 # ── Polecat Wrapper ───────────────────────────────────────────
 #
@@ -134,7 +145,71 @@ clean:
 	rm -rf $(DONE)
 	@echo "All task completion markers cleared."
 
-.PHONY: all status graph clean install-hooks
+# ── Ebook Build ───────────────────────────────────────────────
+#
+# Builds "The Agentic Engineer: A Practitioner's Field Manual" v1.0
+# Source: sites/oceanheart/content/bootcamp/*.md (51 chapters)
+# Pipeline: bin/ebook-prep (stage) -> pandoc (convert) -> EPUB3
+#
+EBOOK_BUILD := build/ebook
+EBOOK_OUT := $(EBOOK_BUILD)/the-agentic-engineer-v1.0.epub
+EBOOK_CSS := assets/ebook.css
+
+EBOOK_SLIM_BUILD := build/ebook-slim
+EBOOK_SLIM_OUT := $(EBOOK_SLIM_BUILD)/the-agentic-engineer-v1.0-slim.epub
+
+ebook: ebook-epub
+	@echo ""
+	@echo "EPUB (full): $(EBOOK_OUT)"
+	@ls -lh $(EBOOK_OUT)
+
+ebook-slim: ebook-slim-epub
+	@echo ""
+	@echo "EPUB (slim): $(EBOOK_SLIM_OUT)"
+	@ls -lh $(EBOOK_SLIM_OUT)
+
+ebook-all: ebook ebook-slim
+	@echo ""
+	@echo "Both editions built."
+
+ebook-prep:
+	@uv run bin/ebook-prep
+
+ebook-slim-prep:
+	@uv run bin/ebook-prep --edition slim
+
+ebook-epub: ebook-prep
+	@pandoc \
+		--from markdown \
+		--to epub3 \
+		--metadata-file $(EBOOK_BUILD)/metadata.yaml \
+		--toc \
+		--toc-depth 2 \
+		--split-level 1 \
+		--css $(EBOOK_CSS) \
+		-o $(EBOOK_OUT) \
+		$$(cat $(EBOOK_BUILD)/manifest.txt)
+	@echo "EPUB generated: $(EBOOK_OUT)"
+
+ebook-slim-epub: ebook-slim-prep
+	@pandoc \
+		--from markdown \
+		--to epub3 \
+		--metadata-file $(EBOOK_SLIM_BUILD)/metadata.yaml \
+		--toc \
+		--toc-depth 2 \
+		--split-level 1 \
+		--css $(EBOOK_CSS) \
+		-o $(EBOOK_SLIM_OUT) \
+		$$(cat $(EBOOK_SLIM_BUILD)/manifest.txt)
+	@echo "EPUB generated: $(EBOOK_SLIM_OUT)"
+
+ebook-clean:
+	rm -rf $(EBOOK_BUILD) $(EBOOK_SLIM_BUILD)
+	@echo "Ebook build directories cleared."
+
+.PHONY: all status graph clean install-hooks gate
+.PHONY: ebook ebook-prep ebook-epub ebook-slim ebook-slim-prep ebook-slim-epub ebook-all ebook-clean
 .PHONY: darkcat darkcat-openai darkcat-gemini darkcat-all darkcat-synth darkcat-ref
 .PHONY: gauntlet gauntlet-gate gauntlet-pitkeel
 .PHONY: 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26

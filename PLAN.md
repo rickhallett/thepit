@@ -65,4 +65,4 @@ A1: adapt the gate. Rewrite `make gate` to build the container and run `test-poc
 
 | # | Date | Commit | Notes |
 |---|------|--------|-------|
-| - | - | - | - |
+| A1 | 2026-03-10 | - | Gate adapted: `make gate` builds container, runs test-poc.sh, 10/10 passing |
