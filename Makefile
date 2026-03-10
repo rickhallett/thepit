@@ -22,6 +22,13 @@
 SHELL := /bin/bash
 .ONESHELL:
 
+# ── Environment ───────────────────────────────────────────────
+# Load .env if present (ANTHROPIC_API_KEY etc). Gitignored.
+ifneq (,$(wildcard .env))
+  include .env
+  export
+endif
+
 # ── Shared Variables ──────────────────────────────────────────
 
 DONE := .done
@@ -58,6 +65,8 @@ gate:
 	@docker run --rm $(MIDGET_IMAGE) /opt/test-chromium.sh
 	@echo "▶ Running agent framework test suite inside container..."
 	@docker run --rm $(MIDGET_IMAGE) /opt/test-agent.sh
+	@echo "▶ Running job server test suite inside container..."
+	@docker run --rm $(MIDGET_IMAGE) /opt/test-jobs.sh
 
 # ── Polecat Wrapper ───────────────────────────────────────────
 #

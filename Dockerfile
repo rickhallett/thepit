@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
     python3-venv \
+    python3-yaml \
     procps \
     && rm -rf /var/lib/apt/lists/*
 
@@ -52,9 +53,11 @@ COPY test-drive.sh /opt/test-drive.sh
 COPY test-ocr.sh /opt/test-ocr.sh
 COPY test-chromium.sh /opt/test-chromium.sh
 COPY test-agent.sh /opt/test-agent.sh
+COPY test-jobs.sh /opt/test-jobs.sh
 RUN chmod +x /opt/entrypoint.sh /opt/steer/steer /opt/steer/drive \
+        /opt/steer/jobrunner \
         /opt/test-poc.sh /opt/test-drive.sh /opt/test-ocr.sh \
-        /opt/test-chromium.sh /opt/test-agent.sh
+        /opt/test-chromium.sh /opt/test-agent.sh /opt/test-jobs.sh
 
 # Non-root agent user
 RUN useradd -m -s /bin/bash agent
