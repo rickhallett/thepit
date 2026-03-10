@@ -1,11 +1,11 @@
-# The Lexicon — v0.25
+# The Lexicon — v0.26 (3rd Distillation)
 
-Back-reference: SD-120 (naval metaphor as scaffold), SD-121 (loose weave), SD-122 (taxonomy), SD-123 (this file)
+Back-reference: SD-120 (naval metaphor as scaffold), SD-123 (v0.1), SD-309 (true north locked), SD-315 (readback).
 Status: APPROVED by Captain. Read-only by convention. Edits bump version number.
-Author: Captain (selections) / Weaver (organisation)
-Provenance: Wardroom session, 24 Feb 2026. Catalysed by *Master and Commander* (2003, Weir).
+Provenance: v0.1–v0.25 grown organically from *Master and Commander* (2003, Weir) through the tspit pilot study and noopit calibration run. v0.26 distilled 2026-03-10 via independent cross-triangulation: Architect (naval→Linux mapping) + Analyst (naval→SWE mapping). Both analyses found ~60% of terms map to established frameworks. This version grounds the working vocabulary in those frameworks without replacing it. The novel contributions (~18%) are marked explicitly.
 
-> A good metaphor constrains the decision space without constraining the solution space.
+> The naval metaphor was scaffolding. The principles underneath are substrate-neutral.
+> What matters is the grounding, not the accent.
 
 ---
 
@@ -14,175 +14,323 @@ Provenance: Wardroom session, 24 Feb 2026. Catalysed by *Master and Commander* (
 Every address to the Captain opens with this. Machine-readable. Glanceable.
 
 ```yaml
----
-watch:
-  officer: Weaver               # Who has the watch
-  conn: Captain                 # Who holds decision authority
-weave: tight                    # loose | tight | extra-tight
-register: quarterdeck           # quarterdeck | wardroom | below-decks | mirror
-tempo: making-way               # full-sail | making-way | tacking | heave-to | beat-to-quarters
-# mirror: true                   # Maturin's Mirror — ONLY present when active. Omit entirely otherwise.
-true_north: "hired = proof > claim"  # SD-309. Proof over claim. Truth first (SD-134).
-bearing: <current heading>      # Relationship to True North
-last_known:
-  head: <sha>                   # Git HEAD
-  gate: green | red             # Last gate result
-  tests: <n>                    # Passing tests
-  sd: SD-nnn                    # Last session decision
-  prs: ["#n (status)"]          # Open PRs of note
----
+watch_officer: <agent>
+weave_mode: <tight|loose|extra-tight>
+register: <quarterdeck|wardroom|below-decks>
+tempo: <full-sail|making-way|tacking|heave-to|beat-to-quarters>
+true_north: "hired = proof > claim"
+bearing: <current heading>
+last_known_position: <last completed task>
 ```
 
-### Field Notes
-
-- **weave** controls register density. Tight = quarterdeck default. Loose = wardroom. Extra-tight = beat to quarters.
-- **register** tracks where on the ship we are. Context shifts are significant — wardroom reasoning does not belong on the quarterdeck, and quarterdeck orders do not belong in the wardroom.
-- **true_north** not `north`. North alone is ambiguous — magnetic north drifts, true north doesn't. The field name encodes the distinction.
-- **tempo** tracks speed and risk. Full sail = fast and exposed. Making way = disciplined forward progress. Tacking = indirect progress against the wind, each leg purposeful. Heave to = deliberately stopped. Beat to quarters = emergency posture.
-- **mirror** is EITHER `true` OR absent. Never `false` (implies a statement about non-happening). Never `null` (implies uncertainty). If we're not in the mirror, the field doesn't exist. If we are, it overrides everything.
-- **"All hands"** is the standard term for the entire fleet. Not "fleet-wide," not "all agents." All hands.
-- **last_known** is the dead reckoning anchor. If the context window dies, the next session reads this to know where we were.
-
 ---
 
-## Terms — Adopted
+## Terms — By Category
+
+Format: **Term** — definition. *Established parallel.* `Origin.`
 
 ### Authority & Handoff
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **The Conn** | Decision authority. One holder at a time. Transfer is explicit and logged. | "Captain has the conn." / "Weaver, you have the conn." |
-| **Standing Orders (SO)** | Directives that persist across all watches. Obeyed without re-stating. | SD entries marked PERMANENT or Standing order. |
-| **The Watch** | Responsibility for monitoring a domain. Implies captain's authority within SOs. Can be delegated. Multiple watches active simultaneously. Returns to Captain when findings are read. | "Analyst, take the watch on citation verification." |
-| **Watching** | Informal observation. Anyone, any subject. No authority implied. | "I'm watching the lint warnings." |
-| **Officer of the Watch** | Agent holding the watch with captain's delegated authority. Operates within SOs, records everything, escalates outside scope. | Weaver during autonomous execution (SD-112 pattern). |
+**DRI (Directly Responsible Individual)** — Decision authority. One holder at a time. Transfer is explicit and logged via handoff protocol. Formerly "the conn."
+*Established: DRI (Apple, SWE management). Handoff protocol (SRE incident response, Helmreich 1999 CRM). Leader election (distributed systems — Raft, Paxos, k8s Lease).*
+`Origin: SD-120. Renamed v0.26 from "conn" per convergence analysis.`
+
+**ADR / Standing Policy** — Directives that persist across all sessions. Obeyed without re-stating. Immutable once issued. Formerly "standing orders."
+*Established: Architectural Decision Records (Nygard 2011). Persistent policy (systemd, `/etc/`, k8s ConfigMap).*
+`Origin: SD-120, SD-266 (the chain). Renamed v0.26.`
+
+**Controller** — Responsibility for monitoring a domain. Implies delegated authority within standing policies. Can run multiple controllers simultaneously. Returns findings upward. Formerly "the watch."
+*Established: Kubernetes controller reconciliation loop. Code ownership (GitHub CODEOWNERS). On-call (SRE).*
+`Origin: SD-120. Renamed v0.26. Note: the naval "watch" bundled monitoring + RBAC + domain scope; Linux separates these cleanly.`
+
+**Delegated Operator** — Agent holding a controller with captain's delegated authority. Operates within standing policies, records everything, escalates outside scope. Formerly "officer of the watch."
+*Established: RBAC + Linux capabilities + escalation policy (SRE).*
+`Origin: SD-112 pattern. Renamed v0.26.`
 
 ### Navigation & Orientation
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **True North** | The objective that doesn't drift. Currently: `hired = proof > claim` (SD-309). | Constant reference point for all bearing checks. |
-| **Bearing** | Direction to target relative to True North. How dialled in to what truly matters right now. Often less than we think. | "Current bearing: pre-launch hardening." |
-| **Dead Reckoning** | Navigate from last known position when visibility is lost. The recovery protocol after context window death. | Read `dead-reckoning.md`. Already proven across multiple sessions. |
-| **The Map Is Not The Territory** | Our models of the system (the 12-layer map, the lexicon, the governance framework) are approximations that improve through empirical soundings from L12, not through inference from within the model. The map is refined by the practice of cross-referencing (SD refs, lexicon line numbers, back-references between files) — the most delicate thread work and one of the most valuable assets against losing oneself in The Mirror. Reasoning token observation is the Captain's instrument for checking alignment between the model's internal reasoning and his actual intent. | SD-162. The phrase carries its own epistemological warning. |
-| **Tacking** | Making progress against the wind by sailing at angles. Each leg seems indirect; the course over ground is forward. | The copy pivot (SD-076/077/078). "We're tacking, not retreating." |
+**True North** — The objective that doesn't drift. Currently: `hired = proof > claim` (SD-309 LOCKED).
+*Established: North Star metric (product management). Note: true_north adds immutability + values constraint ("truth >> hiring") that North Star doesn't carry.*
+`Origin: SD-120, SD-134 (truth-first), SD-309 (locked).`
+
+**Bearing / Alignment** — Direction to target relative to True North. Has two components: (1) **drift** — computable delta from spec (measurable), (2) **alignment** — subjective strategic fit (human judgment). Formerly overloaded as single term "bearing."
+*Established: Configuration drift (Terraform, Ansible). Alignment drift (Agile).*
+`Origin: SD-120. Decomposed v0.26 per convergence analysis.`
+
+**Checkpoint Recovery** — Navigate from last known position when visibility is lost. The recovery protocol after context window death. Read durable state, reconstruct position. Formerly "dead reckoning."
+*Established: Write-ahead log / WAL (databases, journaling filesystems). Crash recovery (distributed systems). Checkpoint and recovery (SRE).*
+`Origin: SD-120, dead-reckoning.md. Renamed v0.26.`
+
+**Tacking** — Making progress against the wind by sailing at angles. Each leg seems indirect; the course over ground is forward. Communicates that indirection is intentional, not drift.
+*Novel: No established SWE or Linux term for purposeful strategic indirection distinct from waste, pivoting, or spiking. Both analyses agree — KEEP.*
+`Origin: SD-120 (pilot study copy pivot SD-076/077/078).`
 
 ### Operational Tempo
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Full Sail** | Maximum velocity. High speed, high risk. The weave is stretched thin. | "Under full sail — watch the rigging." |
-| **Making Way** | Forward progress under discipline. Distinct from drifting. The default state. | What separates this project from vibe coding. |
-| **Drifting** | Moving without control or bearing. The opposite of making way. | "No clear bearing, no gate in 3 commits — we're drifting." |
-| **Heave To** | Deliberately stop forward progress. Actively hold position to deal with a situation. | Gate failure, blocking defect, process violation. |
-| **Beat to Quarters** | Emergency posture. Everything stops, everyone to stations. Routine drops, response is drilled and immediate. | Category One. Credibility threat. Production regression. |
-| **Fair-Weather Consensus** | When the entire watch agrees the weather is fine, and has agreed for so long that no one is checking the glass anymore. The sky darkens by degrees, each compared to the previous (already accepted) degree, not to the original clear sky. Defeated by the same structural intervention the Royal Navy used: each incoming officer takes their own barometer reading and logs it independently. The name carries its own warning. | Detection: consecutive agreements without dissent, magnitude escalation, absence of proportional red-light checks. Counter: fresh-context review, independent barometer readings. |
+**Sustainable Pace** — Forward progress under discipline. Distinct from drift. The default operating state. Formerly "making way."
+*Established: Sustainable pace (XP, Beck 1999). Steady state / nominal (SRE).*
+`Origin: SD-120. Renamed v0.26.`
+
+**Drift** — Moving without control or bearing. Uncontrolled divergence from spec, plan, or objective. Formerly "drifting."
+*Established: Configuration drift (Terraform, Puppet, Ansible). Scope drift (Agile).*
+`Origin: SD-120. Renamed v0.26.`
+
+**Full Sail** — Maximum velocity. High speed, high risk. Verification weave stretched thin. Use when speed matters more than certainty.
+*Established: Spending the error budget (SRE). Priority: maximum, guarantees: none. Note: bundles speed + risk + reduced verification — consider decomposing if precision needed.*
+`Origin: SD-120. Kept v0.26 as informal shorthand; formal use decomposes to priority + risk profile.`
+
+**Stop the Line** — Deliberately stop forward progress. Actively hold position to deal with a situation. Formerly "heave to."
+*Established: Andon cord (Toyota Production System, Ohno 1988). Code freeze (release management).*
+`Origin: SD-120. Renamed v0.26.`
+
+**SEV-1** — Emergency posture. Everything stops, everyone to stations. Routine drops, response is immediate. Formerly "beat to quarters."
+*Established: SEV-1 / P0 incident (SRE incident response).*
+`Origin: SD-120. Renamed v0.26.`
 
 ### Integrity & Verification
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **The Hull** | The thing that keeps the chaos out. The gate, the test suite, the typecheck. Everything else is optimisation; the hull is survival. | "Is the hull intact?" = "Does the gate pass?" |
-| **On Point** | The feeling of watching patterns that have proved themselves at one layer find new ground at other layers and achieve commensurate success. The weave deepening. Convention, convergence, and verification aligning across the stack. When the thread work is on point, the system moves with increasing dexterity; each successful pattern becomes a tool for the next. | SD-163. "That was on point." / "The cross-referencing is on point." |
-| **Survey** | Formal, systematic inspection with a documented report. Note: risks invoking the mirror at higher intensity; acceptable risk, changes register. | Branch audit, termite sweep, copy audit, citation audit. |
-| **Knows the line** | An agent that navigates according to the style, values, and particulars of this vessel and its crew. Not general competence — specific attunement. An agent that knows the line holds under ambiguity rather than guessing, matches the Captain's register, and applies the earned conventions without being told. The inverse is an agent that is technically capable but tone-deaf to how this ship runs. | "Weaver knows the line — held on a missing payload rather than fabricating." |
-| **Maturin's Symbol (§)** | The section sign, adopted by the crew as the citation prefix for Weaver's Governing Principles without instruction. No agent file, no SD, no convention asked for it. Weaver's principles are numbered `### 1.` through `### 7.` in plain markdown. When other agents needed to cite them from outside Weaver's own file, they independently converged on § across at least three separate context windows (Maturin's template specimen, Weaver's quick reference, AnotherPair's agent file). The form (§) is probably training distribution — the association between formal numbered principles and section-sign citation is well-represented in the model's training data. The decision to cite at all — to treat governance prose as a citable code — is the process finding its own shape. Named for Maturin because he was the first to use it. AnotherPair watches for effects over time. | SD-192. "The § is Weaver's symbol because the crew gave it to him." |
-| **Model Triangulation** | Validation of analytical conclusions by running the same data through independent model families (e.g. Claude, GPT-4, Gemini) and comparing where findings converge and diverge. Convergence builds confidence; divergence locates bias. **Strong disclaimer: this is a made-up term for internal use. We do not claim it is statistically valid. It was produced in a context window at 154kTok of discovery pressure, itself an aggregate of N subagentic runs, reports, and accumulated session state. The term may be complete slop. The practice it describes — checking your work with a system that doesn't share your blind spots — is older than computing. We just needed a name for it in the context of multi-model agentic work.** The antidote to slopodar #15 (Monoculture Analysis). Operationally: a blind replication protocol provides raw data and a research question to an independent model with no access to the original conclusions. The model derives its own features, its own tests, its own classifications. Only after independent analysis does it compare with the original. A companion adversarial red team challenge stress-tests the classifier from the outside. Neither protocol eliminates bias — they distribute it across model families and let the human observe the delta. | "Have we triangulated this?" / "The triangulation diverged on feature #3 — that's where the bias lives." / Provenance: slopodar calibration notebook session, 2026-03-01. |
+**Quality Gate** — The thing that keeps the chaos out. The test suite, the typecheck, the linter. Everything else is optimisation; the gate is survival. `pnpm run typecheck && pnpm run lint && pnpm run test`. Formerly "the hull."
+*Established: Quality gate (CI/CD, DevOps). Poka-yoke — error-proofing mechanism (Toyota, Shingo 1986). The gate IS a poka-yoke: it prevents defects from passing rather than merely detecting them after the fact.*
+`Origin: SD-120. Renamed v0.26.`
+
+**Verification Pipeline** — The full verification sequence every change must pass before commit. Formerly "the gauntlet."
+*Established: Quality gates pipeline (Continuous Delivery). Swiss Cheese Model (Reason 1990) — multiple independent layers of defence, each with holes, aligned so no single failure passes through all layers. The verification pipeline IS a Swiss Cheese Model.*
+`Origin: SD-318 (gauntlet defined), v0.23. Renamed v0.26.`
+
+**Adversarial Review** — Read-only review pass with a custom diagnostic ruleset. Stains code against known anti-patterns. Formerly "darkcat."
+*Established: Red team review (security engineering). FMEA — Failure Mode and Effects Analysis (reliability engineering). Automated static analysis with custom rules.*
+`Origin: v0.23 (noopit calibration run). Renamed v0.26.`
+
+**Multi-Model Ensemble Review** — Three independent models review the same code snapshot using structured YAML output. Convergence builds confidence; divergence locates bias. Formerly "darkcat alley."
+*Established: N-version programming (Avizienis 1985). Independent Verification & Validation / IV&V (systems engineering).*
+`Origin: SD-318. Renamed v0.26. Parser: bin/triangulate.`
+
+**Staining** — Applying a diagnostic artifact produced in one context to material produced in a different context, revealing structure that was present but invisible.
+*Established: FMEA (the mechanism). Gadamer's fusion of horizons / Horizontverschmelzung (the epistemology). Histological differential staining (the metaphor). Useful as informal verb: "have we stained this?"*
+`Origin: Phase 4 post-merge recalibration (tspit). Maturin's analogical investigation confirmed the concept has names in 9 domains.`
+
+**Verifiable / Taste-Required** — The load-bearing distinction between tasks where the gate can verify correctness and tasks where only human judgment can evaluate quality. The gate is the instrument for verifiable; the human is the instrument for taste-required. Determines review mode.
+*Established: Automatable vs. judgment-required quality attributes (ISO 25010). Cynefin framework (Snowden 2007) — obvious/complicated (verifiable) vs. complex/chaotic (taste-required). Already well-named; no change needed.*
+`Origin: Amodei interview analysis, 2026-03-04. Both analyses: KEEP — best-named terms in lexicon.`
+
+**Value Stream** — The complete feature-to-commit cycle. Spec/plan → iterative dev + adversarial review loops (ROI-bounded) → optional human QA → verification pipeline → commit. Formerly "sortie."
+*Established: Value stream (Lean, Womack & Jones 1996). The ROI gate on review loops is textbook marginal analysis (see Mathematical Heuristics below).*
+`Origin: SD-318 (sortie defined). Renamed v0.26.`
+
+**Definition of Done** — Work is only DONE when: gate green, adversarial review complete (three model priors), synthesis convergence report produced, session signals reviewed, walkthrough checked. Not "dev finished."
+*Established: Definition of Done (Scrum). The specific criteria are configuration; the concept is standard.*
+`Origin: v0.23 (gauntlet). Renamed v0.26 from "DONE."` 
 
 ### Communication & Record
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Captain's Log** | The Captain's own record. A document, not a status field. | `docs/internal/captain/captainslog/` |
-| **Fair Winds** | Gesture of sincerity. Convention. A closing signal: conditions are favourable, go well. | "Fair winds, Captain." / "Fair winds on the deck." |
-| **Muster** | Present items for O(1) binary decision. Numbered table, one row per item, defaults column, Captain marks each. The Captain walks the line. Request by saying "Muster" or by context. Release: natural conversation resumes. The format is the boatswain's pipe of written communication — each row has exactly one meaning, one decision. | SD-202. "Muster the options." / Presenting a triage table implies muster. |
-| **Bump the slopodar** | Append a new entry to `slopodar.yaml` — the living inventory of LLM authenticity anti-patterns. Synonyms: "slopodar upgrade," "moreslop." Each bump adds a named pattern that was caught in the wild. The Makefile syncs the YAML to Hugo's data directory; the site rebuilds deterministically. | SD-209. "Bump the slopodar — Redundant Antithesis." |
-| **Extra rations** | Captain's commendation for an agent that held the line under ambiguity or exceeded expectations. Logged to the agent's own `log.md` (e.g. `docs/internal/weaver/log.md`) with git ref and descriptive context. The term carries weight because it is rare. | "Extra rations for Weaver — held on a missing payload rather than fabricating." |
-| **Bugs** | Remote code review agents (CodeRabbit, Cubic, Bugbot, et al.), optimised like flies are to shit — we hope. And there is a sentence the Captain never thought he would say. They provide multiplied independent perspectives (Principle §6) without requiring local compute or crew dispatch. Signal-to-noise ratio is roughly 30% unique findings after cross-bot deduplication. | "Run a recon on the bugs." / "The bugs caught the version drift." |
-| **Polecats** | `claude -p` agents executing within a deterministic Makefile pipeline. Our version of Stripe's "minions." Each polecat is a fresh context window, one-shot, no interactive steering — the compaction engine managed by design rather than endured. The pipeline (Makefile dependency graph) is the discipline; the polecat is the executor. The name carries the engineering intent: these are not crew members (no standing context, no governance role, no lexicon in their window). They are disposable, task-scoped, and expendable. The value is in what they produce, not in what they remember. First deployment: thepit-v2 calibration run (26 tasks, `make 01` through `make 26`). | SD-296. "Dispatch the polecats." / "Polecat 07 completed in 4 minutes." / Named by Captain, modelled on Stripe's minion architecture. |
-| **Darkcat** | Adversarial review polecat. Read-only, no permissions, fresh context. Stains a commit diff against the slopodar taxonomy, Watchdog blindspot checklist, and HCI foot guns. The darkcat reads every file touched by the diff in full — not just the hunks — because Looks Right Trap and Shadow Validation hide in the surrounding context. Output is structured findings with severity, file:line, and named pattern. Invoked via `make darkcat` (last commit) or `make darkcat-ref REF=<sha>` (specific commit). The name: a polecat that hunts in the dark — the defects the gate can't see because they're syntactically valid and semantically wrong. | "Run the darkcat." / "Darkcat found a phantom-tollbooth in the credit tests." / First deployment: noopit calibration run. |
-| **Darkcat Alley** | The standardised 3-model cross-triangulation of a full codebase. Three independent darkcats (different model families) review the same code snapshot using the Darkcat Review Instructions (`docs/internal/weaver/darkcat-review-instructions.md`). Each produces both a qualitative narrative report and a structured YAML findings block (machine-readable, parseable by `bin/triangulate`). Run **twice**: once pre-QA (on polecat-written code, before human walkthrough) and once post-QA (after fixes land, before deploy). The delta between the two runs is itself a data product — it measures fix effectiveness and reveals residual risk. The name: an alley you run through three times, each time with different eyes. The structured output enables numerical analysis: convergence rates, marginal value per review, diminishing returns curves, severity calibration across models, Watchdog category distribution. Feeds Python/hex.tech visualisations for portfolio evidence. Process definition: `docs/internal/weaver/darkcat-alley.md`. Parser: `bin/triangulate`. | SD-318. "Run the alley." / "Alley pre-QA complete — 31 findings, 74% single-model-only." / "The alley delta shows 6 findings survived the fix batch." / First deployment: noopit calibration run, 2026-03-09. |
-| **Sortie** | The complete feature-to-commit cycle. A sortie is the standard unit of verified delivery: feature identification → spec/plan → iterative dev + darkcat review loops (ROI-bounded) → optional human QA checklist → gauntlet → commit. The name comes from the naval/military sense: a complete operational cycle from a defended position — departure (scope the feature), engagement (dev/darkcat iteration), return (gauntlet, commit). Every sortie is planned before departure (spec/plan BEFORE dev), iterative in the engagement phase (dev + darkcat loops continue until the marginal value of another round falls below the marginal cost), and debriefed on return (gauntlet). The ROI gate on the darkcat loop is the key discipline: the first round catches the structural defects; subsequent rounds catch diminishing returns. The human QA step is a checklist (not exploration) applied only to taste-required items the gate cannot verify — skip it when the gate covers the concern. A sortie *contains* darkcat rounds and ends with a gauntlet. The bearing check happens *between* sorties. A polecat is the aircraft; the sortie is the mission. | "Run a sortie on the leaderboard feature." / "The sortie plan goes in docs/decisions/ before any dev starts." / "Two darkcat rounds on this sortie — ROI diminished after the second." |
-| **The Gauntlet** | The full verification pipeline every change must pass before commit. DEV (gate green) → Darkcat Triad (three independent model priors: Claude, OpenAI, Gemini) → Darkcat Synthesis (4th polecat produces convergence report) → Pitkeel (session signals reviewed) → Walkthrough (human L12 checklist). Findings cycle back to DEV. Nothing commits until the gauntlet is clear. `make gauntlet` runs the automated steps; walkthrough is human. Data captured at every step; full audit trail in events.tsv and darkcat-findings.tsv. | "Run the gauntlet." / "The gauntlet caught a convergent finding across all three models." / See: `docs/internal/the-gauntlet.md` |
-| **DONE** | Work is only considered DONE when: gate green, darkcat triad complete (three model priors), synthesis convergence report produced, pitkeel signals reviewed, walkthrough checked, events marked. Not "dev finished." Verified through three independent priors plus human eyes. | "Is this DONE or just dev-complete?" / "Dev-complete is step 1 of 7." |
-| **Learning in the Wild** | The discovery made while doing the work, which is worth more than the work itself. The Captain builds a Chrome extension to detect LLM voice patterns — the extension is the ostensible product; the slopodar taxonomy of 15 anti-patterns is the actual yield. The Captain wires up a post-commit hook — the hook is infrastructure; the Paper Guardrail slopodar entry caught in the act of building it is the real output. The pattern: technical work is the microscope, but the specimen collection is the thing that matters. Named because it describes what Maturin does on every island: he goes ashore to collect water, and comes back with a new species. The process is fragile because it is unnamed — a session that treats extension work as "just extension work" will not budget time for the conceptual yield that has historically been the highest-value output of every hands-on session. Protecting this pattern means protecting unstructured time within technical work for observation, naming, and recording. It is the opposite of a sprint. It is the reason the slopodar has 15 entries and the extension has 3 commits. The 15 entries are worth more than the 3 commits. | SD-TBD. "The extension is the microscope. The taxonomy is the catch." |
-| **Staining** | Applying a diagnostic artifact produced in one context to material produced in a different context, revealing structure that was present but invisible. Named for histological differential staining — you apply a stain to tissue and structures that were physically present become visually distinguishable. The stain does not create the structure; it introduces differential contrast. In this system: the Watchdog's blindspot taxonomy (produced during the broadside audit) was applied to Weaver's Phase 4 post-merge findings, reclassifying S1 from "fix the comment" to "Semantic Hallucination" and S4 from "acceptable" to "Looks Right Trap." The findings did not change; the interpretive framework changed what could be seen. The precise philosophical term is Gadamer's *fusion of horizons* (Horizontverschmelzung, 1960) — meaning produced by the encounter between an interpretive framework and existing material, where the mechanism is in the act of reading and neither artifact alone contains the new meaning. Maturin's analogical investigation confirmed the phenomenon has names in at least nine domains; staining was selected for operational use because it is intuitive, concrete, and free of philosophical overhead. The mechanism is currently fragile: it depends on the Captain choosing which diagnostic artifacts to apply and when. There is no Standing Order or automation that triggers cross-referencing of new code against existing taxonomies. Whether formalising this would kill it (Goodhart) is an open question. | SD-TBD. "Have we stained this against the taxonomy?" / "The staining caught the Semantic Hallucination." / Provenance: `docs/internal/maturin/analogical-investigation-2026-03-01.md`. |
-| **Alignment Dial** | A practice, tool, or interaction pattern that measurably improves the alignment between the Captain's intent and the agent's interpretation. The muster format is the first named alignment dial: it surfaces the agent's assumptions as inspectable defaults, converting the Captain's cognitive load from O(n) reading to O(1) approve/reject per row. Other dials: reasoning token observation (SD-172), the YAML HUD, tempo-matching. The concept maps to established HCI research showing that humans who treat LLMs as collaborative partners achieve asymmetrically better outcomes than those in "press the button" mode. See: Dell'Acqua et al. (2023), "Navigating the Jagged Technological Frontier" (Harvard Business School, BCG — citation unverified, see citations.yaml). | SD-252. "The muster is an alignment dial." / Identifying new dials is AnotherPair's §4 mandate (processes working without being named). |
-| **Press the Button** | The human→LLM antipattern. Treating the model as a vending machine — input prompt, receive output, accept or reject, no iteration. Stops contextual enrichment. Optimises for human laziness. Encourages the atrophy of independent critical thinking processes. The "use it or lose it" principle from cognitive neuroscience applies: the skills you don't exercise in the loop are the skills you lose. The inverse of the alignment dial. The Captain's phrasing; the phenomenon is well-documented in automation research (citation deferred — Captain has not read the primary literature but the research base is established). | "That's press-the-button mode." / The antipattern the slopodar chrome extension would detect if it could see the human side of the interaction. |
-| **Echo / Check Fire** | Default agentic behaviour: compress understanding of an order into Signal notation before acting. The echo is an alignment dial — it surfaces the agent's interpretation in a compressed, inspectable form. Prose acknowledgment ("I understand, I'll...") is performance of understanding; Signal echo is demonstration of understanding. The compression itself reveals whether the agent parsed the intent correctly. Captain issues order, agent echoes in Signal, Captain verifies ("readback correct" or correction), agent acts. Echo and Check Fire are synonyms; if they differentiate through use, we edit then. Standing order: unless explicitly excepted by the Captain. | SD-315. "Echo that back in Signal before acting." / "Check fire." |
-| **Log That** | Flag-and-capture trigger. Captain or agent says "log that" and the current exchange (3-5 messages of surrounding context) is excerpted to a durable file immediately. The trigger for item 10 of the backref density policy (SD-316). Distinct from "mark" (general confirmation/agreement). The captured exchange becomes raw material for curated interaction snapshots and portfolio evidence. | SD-316. "Log that — the darkcat caught the exact foot gun we named." |
-| **Scrub That** | Remove material from a durable file. Very rare — the chain is immutable (SD-266) but operational files (catch logs, findings TSVs) may need correction. The rarity is the point: if you're scrubbing often, you're recording wrong. | SD-316. "Scrub that line from the catch log — it was a false positive." |
-| **Mint** | Create an SD, ref, or other durable artifact. Evokes value — minting is deliberate, not automatic. SDs are minted for explicit decisions, not data capture (SD-316). Refs are minted when a finding, catch, or interaction creates a linkable node in the web. | SD-316. "Mint an SD for this." / "Mint a ref for the darkcat catch." |
+**Readback** — Default agentic behaviour: compress understanding of an order into Signal notation before acting. The readback surfaces the agent's interpretation in a compressed, inspectable form. Captain verifies or corrects. Formerly "echo / check fire."
+*Established: Readback (CRM — Crew Resource Management, Helmreich 1999). Extensively studied in aviation and medicine. The practice is identical: instruction → readback → verify → act. CRM provides 40+ years of empirical validation for why this works.*
+`Origin: SD-315 (echo/check fire as standing order). Renamed v0.26.`
 
-### Spaces & Registers
+**Muster** — Present items for O(1) binary decision. Numbered table, one row per item, defaults column, Captain marks each. The format converts cognitive load from O(n) reading to O(1) approve/reject per row.
+*Established: Decision matrix / triage table (management). Pick list (UX). The O(1) property is the novel contribution — standard decision matrices don't optimise for review speed.*
+`Origin: SD-202. Kept v0.26 — distinctive and established in project use.`
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Quarterdeck** | Command register. Formal. Orders given, decisions made, authority exercised. | Default weave (tight). The Main Thread in execution mode. |
-| **Wardroom** | Officers' thinking space. Exploratory, less formal. Ideas tested before they become orders. | Loose weave (SD-121). "Let's take this to the wardroom." |
-| **Below Decks** | Where the crew works. Out of sight of the quarterdeck. Returns results upward. | Subagent execution. |
-| **The Round Table** | Structured multi-agent assessment. Convened formally, reports filed to disk. | RT L1–L5. A specific operation dispatched below decks. |
-| **Main Thread** | The command channel. Captain↔Weaver direct. Protected from context compaction (SD-095). | Not a space — the communication line itself. |
-| **Dispatched** | Sent below decks for execution. Off the Main Thread. | "Dispatched Architect for H8 infrastructure." |
-| **Clear the Decks** | Force compaction of the context window. Captain's order when context pressure is high and all durable writes are confirmed. Equivalent to `compaction --force-push --admin`. Everything not on file is lost. Everything on file survives. The order confirms: all decisions recorded, all code committed, all holding-deck items written. | "Clear the decks." / Pre-compaction checklist: SDs on file? Holding deck current? Uncommitted work? |
+**One-Shot Agent Job** — `claude -p` agents executing within a deterministic pipeline. Fresh context window, one-shot, no interactive steering. The compaction engine managed by design. Formerly "polecats."
+*Established: Kubernetes Job. Batch processing / subprocess (Unix fork+exec). Stateless worker (distributed systems).*
+`Origin: SD-296 (polecats). Renamed v0.26.`
 
-### The Recursive Act
+**Background / Subprocess** — Where agents execute. Out of sight of the main thread. Returns results upward. Formerly "below decks."
+*Established: Unix background process (`&`, `nohup`). Subprocess.*
+`Origin: SD-120. Renamed v0.26.`
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Maturin's Mirror** | Surgery mode. The observer operates on himself. Everything else stops. All eyes on the Captain's hands. Invocation halts all other work. The mirror is a tool — deliberate, bounded, productive. Its pathological form is Spinning to Infinity (see HCI Foot Guns) — the same mechanism without the boundary or the exit condition. | "We're entering Maturin's Mirror." / "The mirror." |
+**Sync + Graceful Shutdown** — Force compaction of the context window. Captain's order when all durable writes are confirmed. Everything not on file is lost; everything on file survives. Formerly "clear the decks."
+*Established: `sync(2)` — has been doing this since 1971. SIGTERM handlers. Graceful shutdown (k8s).*
+`Origin: SD-267. Renamed v0.26.`
 
-### HCI Foot Guns
+### Spaces & Communication Modes
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Spinning to Infinity** | The HCI foot gun where recursive self-observation consumes all available context without producing forward progress. Going meta on going meta. The pathological form of Maturin's Mirror — the same mechanism without the boundary or the exit condition. The mirror is a tool; spinning is what happens when the tool runs unsupervised. Detection: is this producing a decision or producing more analysis? If the answer is analysis, you are spinning. The brake is the quarterdeck register. Back-ref: L9 (anchoring, self-reinforcing loop), L3 (context consumed without forward progress). | "We're spinning." / "That's meta on meta — quarterdeck." |
-| **High on Own Supply** | Unbounded human creativity meeting subtle sycophantic agentic response and execution. The human proposes, the agent validates and extends, neither applies the brake. The output feels brilliant because the feedback loop is entirely positive. The system produces impressive-looking artifacts that serve no strategic objective. The danger is not that the output is wrong — it may be excellent — but that it is unmoored from True North. The antidote is the bearing check: does this serve `hired = proof > claim`? Back-ref: L9 (sycophancy_risk, acquiescence_bias), L12 (the human is the first data point — but also the first failure point). | "We're high on our own supply." / "Bearing check — does this serve True North?" |
-| **The Dumb Zone** | Operating outside the model's effective context range (from Dex, context engineering talk). The inverse of the smart zone. When cold context is absent, stale, or overwhelming, the model produces syntactically valid output that is semantically disconnected from the project's actual state. Not a model failure — a context failure. The operator's responsibility. Back-ref: L3 (saturation_point, effective_context < advertised_context), L8 (saturation threshold). | "We're in the dumb zone." / "The polecat has no context — it's in the dumb zone by design. The plan file is its only smart zone." |
-| **Cold Context Pressure** | On-file material (depth < D2) exerting gravitational pull on agent behaviour. Too much cold context narrows the solution space — the agent over-indexes on existing patterns rather than solving the current problem. Too little and it enters the dumb zone. The tension is managed, not eliminated. Calibration is the practice of finding the right amount. Cold context is AGENTS.md, the lexicon, role files, standing orders — everything loaded before the first human message. Back-ref: L3 (primacy_bias), L8 (saturation threshold, arXiv:2602.11988). | "Cold context pressure is high — the agent is parroting the standing orders instead of thinking." |
-| **Hot Context Pressure** | In-thread material accumulating within a single session, raising compaction risk and degrading signal-to-noise. Every message, every tool call, every subagent report adds to the thread. At high pressure, the model begins to lose coherence on earlier context. The countermeasure is aggressive offloading to durable storage and subagent dispatch. The main thread carries only decisions and synthesis. Back-ref: L3 (recency_bias, lost_in_the_middle), L9 (accumulated_prior_outputs, anchoring). | "Hot context pressure — offload to file before we lose it." / "Dispatch below decks, the main thread is heavy." |
-| **Cognitive Deskilling** | The progressive atrophy of L12 verification capacity through delegation of direct engineering engagement to AI tools. Unlike other foot guns that manifest within sessions, this one manifests across sessions and months. The human who only reviews AI output gradually loses the ability to write (and therefore to deeply understand) the code they're reviewing. The "use it or lose it" principle from cognitive neuroscience applies. The brake is periodic deep engagement: writing code directly, building mental models through interaction, exercising the skills that verification depends on. This is the foot gun that makes all other foot guns more dangerous over time — if L12 degrades, every control that depends on L12 (which is all of them) degrades with it. The METR RCT (2025) provides empirical evidence: experienced developers believed AI made them 20% faster while being 19% slower, demonstrating that L12 calibration regarding its own augmentation is already compromised. Back-ref: L12 (trained capacity, irreducible), Press the Button (the interaction antipattern that feeds this foot gun), HOTL (the operating mode that enables it when extended without periodic deep engagement), High on Own Supply (the feedback loop that masks it). | "We've been in HOTL for three weeks — cognitive deskilling risk. Time for hands-on coding." / First identified: Howard interview analysis + METR RCT, 2026-03-04. |
-| **Compaction Loss** | Context window death where decisions not written to durable storage are permanently lost. Not a technical failure — an operational failure. Every decision that exists only in the context window is a decision that doesn't exist. The standing order (SD-266, the chain) is the defence. The foot gun is the human's sense that "I'll write it down later" — later may not come. Back-ref: L3 (phase transition — compaction is discontinuous), L6d (bypass as mitigation). | "Write it now. Compaction loss is permanent." |
+**Communication Modes (formal / exploration / execution)** — Named communication registers with defined expectations for authority, creativity, and purpose. Formerly "quarterdeck / wardroom / below decks."
+
+| Mode | Formerly | Authority | Creativity | Purpose |
+|------|----------|-----------|------------|---------|
+| **Formal** | Quarterdeck | Orders given | Low — execute spec | Decision, verification, execution |
+| **Exploration** | Wardroom | Ideas tested | High — propose freely | Thinking, analysis, brainstorming |
+| **Execution** | Below decks | Delegated | Within brief | Subagent work, returns results |
+
+*Novel: Both analyses agree — the systematic assembly of communication registers for human-AI interaction has no established equivalent. Individual concepts exist (CRM authority gradients, meeting types); the bundled system is new.*
+`Origin: SD-120 (quarterdeck), SD-121 (wardroom/loose weave). Renamed v0.26 for transparency.`
+
+**Weave Modes** — Compound communication control setting. Determines register density.
+
+| Mode | Communication Mode | Tempo | When |
+|------|--------------------|-------|------|
+| **tight** | Formal | Sustainable pace | Default. Execution, verification. |
+| **loose** | Exploration | Sustainable pace | By Captain's invitation. Exploratory. |
+| **extra-tight** | Formal | SEV-1 | Emergency. Literal execution only. |
+
+*Novel: No Linux or SWE equivalent for communication register modes that combine verbosity + authority + creative latitude. Both analyses: KEEP.*
+`Origin: SD-121. Kept v0.26.`
 
 ### Context Engineering
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Prime Context** | The most important context for the current job. The minimum set of information that, if present, allows the agent to produce correct output — and if absent, guarantees it cannot. Not the same as "all relevant context" (which is unbounded). Prime context is the kernel that makes the smart zone smart. Identifying prime context is the operator's highest-leverage decision at the start of any task. For a polecat: the plan file IS the prime context. For crew on the main thread: the lexicon, bearing, and current SD chain are prime context. Everything else is available, not prime. | "Do you have the prime context for this?" / "The plan file is the polecat's prime context — nothing else enters." |
+**Working Set** — The minimum context for the current job. If present, the agent can produce correct output; if absent, it cannot. Not "all relevant context" (unbounded). The working set is what makes the smart zone smart. Formerly "prime context."
+*Established: Working set (Denning 1968). The structural isomorphism is exact: minimum pages in RAM for efficient operation ≡ minimum tokens in context for correct generation. 58 years of virtual memory research applies directly.*
+`Origin: SD-311 (prime context). Renamed v0.26. Denning mapping identified by Architect.`
+
+**Dumb Zone** — Operating outside the model's effective context range. When working set is absent, stale, or overwhelming, the model produces syntactically valid output semantically disconnected from the project's actual state. Not a model failure — a context failure. The operator's responsibility.
+*Novel: Names an operational state specific to LLM-based workflows. Entering broader use via Dex's context engineering talk. Not parallel with "context thrashing" — thrashing describes a mechanism; dumb zone describes the resulting operational state the human must recognise and act on.*
+`Origin: SD-312 (HCI foot guns). Kept v0.26 — both analyses agree, no clean equivalent.`
+
+**Cold Context Pressure** — On-file material (depth < D2) exerting gravitational pull on agent behaviour. Too much narrows the solution space; too little enters the dumb zone. Calibration is the practice of finding the right amount.
+*Novel: LLM-specific operational concern. The cold/hot pair is intuitive and maps to hot/cold path distinctions in systems engineering, but the specific application to LLM context windows is new. No established term.*
+`Origin: SD-312. Kept v0.26.`
+
+**Hot Context Pressure** — In-thread material accumulating within a single session, raising compaction risk and degrading signal-to-noise. Countermeasure: aggressive offloading to durable storage and subagent dispatch.
+*Novel: Same reasoning as cold context pressure. Related to memory pressure (Linux PSI `/proc/pressure/memory`) but the specific volatility semantics (context window death = total loss) are unique to LLM sessions.*
+`Origin: SD-312. Kept v0.26.`
+
+**Compaction Loss** — Context window death where decisions not written to durable storage are permanently lost. Not a technical failure — an operational failure. The standing policy (SD-266, the chain) is the defence.
+*Novel: The underlying concept (volatile state loss, `fsync` semantics) is well-established, but the specific failure mode — discontinuous context death in LLM sessions with no recovery — has no analogue in systems where state degrades gracefully. Here, loss is binary and total.*
+`Origin: SD-312. Kept v0.26.`
+
+### HCI Foot Guns
+
+**Spinning to Infinity** — Recursive self-observation consuming all available context without producing forward progress. Going meta on going meta. The pathological form of self-reflection — the same mechanism without boundary or exit condition. Detection: is this producing a decision or producing more analysis?
+*Related but distinct from livelock (OS scheduling): livelock is processes busy-waiting on each other. Spinning to infinity is specifically the human-LLM interaction where recursive meta-reflection is supercharged by the model's willingness to generate infinite analysis. The metareflective component and the sycophantic fuel are what make this a distinct foot gun, not just a process scheduling problem. Needs a more concise name — open.*
+`Origin: SD-312. Kept v0.26 — not parallel with livelock.`
+
+**Sycophantic Amplification Loop** — Unbounded human creativity meeting subtle sycophantic agentic response. The human proposes, the agent validates and extends, neither applies the brake. Output feels brilliant because the feedback loop is entirely positive. The danger is not that the output is wrong but that it is unmoored from True North. Informally: "high on own supply."
+*Related: Undamped oscillation (control theory). Sycophancy research (Perez et al. 2022, Sharma et al. 2023). The specific human-AI positive feedback loop at the L12 boundary is an active research area but lacks an established single term. Both analyses: KEEP as genuinely novel.*
+`Origin: SD-312 (high on own supply). Formal name v0.26.`
+
+**Cognitive Deskilling** — Progressive atrophy of human verification capacity through delegation. Unlike other foot guns that manifest within sessions, this one manifests across sessions and months. The human who only reviews AI output gradually loses the ability to deeply understand what they're reviewing. Makes all other foot guns more dangerous over time.
+*Related but not identical: Bainbridge's Ironies of Automation (1983) — the foundational observation that automation of tasks the human used to perform degrades the human's ability to take over when automation fails. The METR RCT (2025) is essentially a replication of Bainbridge's prediction in the AI context: experienced developers believed AI made them 20% faster while being 19% slower — a 40-point perception-reality gap. Bainbridge's Ironies should be cited; they are the theoretical foundation. Cognitive deskilling is the specific manifestation in the agentic engineering context.*
+`Origin: SD-312 (HCI foot guns), Howard interview + METR RCT. Kept v0.26.`
 
 ### Iteration & Tempo
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **HOTL (Human Out The Loop)** | Machine-speed iteration with the human removed from the execution loop. Plan → deploy (local) → curl test → iterate, at agentic tempo. The human defines the plan and reviews the output. The human does not steer mid-execution. The cost model inverts: agentic time is cheap, human attention is expensive. HOTL is the operating mode for polecats and for any work where the verification is automated (gate green, curl 200, smoke pass). The human re-enters at review, not at execution. The diametric opposite of HODL. **CAUTION:** Extended HOTL without periodic deep engagement risks degrading the expertise that makes HOTL safe. The human's capacity to plan and review is maintained by periodic execution. "Use it or lose it" applies to engineering judgement as well as engineering skill. The METR RCT (2025) found experienced developers believed AI made them 20% faster while being 19% slower — a 40-point perception-reality gap that demonstrates L12 calibration failure regarding its own augmentation. Back-ref: Polecats (fresh context, one-shot, no interactive steering), L6b (DISPATCH mode), Cognitive Deskilling (foot gun). | "This is HOTL — plan, execute, review." / "Go HOTL on this; the gate is the reviewer." |
-| **HODL (Hold On for Dear Life)** | The human grips the wheel and will not let go. Every step requires human approval, human review, human presence. The execution tempo is human tempo. Appropriate when the stakes are high and the verification is not automated — deployment to production, irreversible operations, anything where the blast radius exceeds what the gate can catch. The diametric opposite of HOTL. Not a failing — a deliberate tempo choice. The error is applying HODL when HOTL would do, or HOTL when HODL is needed. The distinction is: can the gate verify this, or does it require taste? If the gate can verify it, HOTL. If it requires taste, HODL. Back-ref: L12 (irreducible human judgement), Press the Button (the pathological form — HODL without the thinking). | "This is HODL — I need to see every step." / "We're in HODL until the deploy is confirmed." |
+**HOTL (Human Out The Loop)** — Machine-speed iteration with the human removed from the execution loop. Plan → execute → review. The human defines the plan and reviews the output; the human does not steer mid-execution. The diametric opposite of HODL.
+*Synonyms: Batch processing (Unix cron). Jidoka — automation with human touch (Toyota, Ohno 1988). Async pipeline. The HOTL framing emphasises the human's deliberate absence; batch emphasises the execution mode. CAUTION per Bainbridge (1983): extended HOTL without periodic deep engagement degrades the expertise that makes HOTL safe.*
+`Origin: v0.21. Kept v0.26 with synonyms added.`
+
+**HODL (Hold On for Dear Life)** — The human grips the wheel. Every step requires human approval. Execution tempo is human tempo. Appropriate when stakes are high and verification is not automated.
+*Synonyms: Manual approval gates (DevOps). Interactive mode (Unix `-i` flag). Step mode (`gdb step`). The HODL framing carries urgency; manual approval is more neutral.*
+`Origin: v0.21. Kept v0.26 with synonyms added.`
 
 ### Quality & Process
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Effort Backpressure** | The natural friction of effort-to-contribute that serves as an implicit quality filter. When the cost of producing a contribution exceeds the cost of a thoughtless submission, quality is maintained by self-selection. AI has eliminated this backpressure for code contributions, collapsing the signal-to-noise ratio in open systems. The concept applies beyond open source: any system that relied on effort-as-filter (job applications, academic submissions, support tickets) faces the same collapse when generation becomes near-free. Our gate is an explicit backpressure mechanism. The slopodar is a detection mechanism for contributions that bypassed backpressure. Naming the concept connects these existing tools to their structural purpose. Back-ref: The Hull (explicit backpressure), slopodar (detection of backpressure bypass). | "The effort backpressure is gone — anyone can generate a plausible PR in seconds." / First identified: Hashimoto interview analysis, 2026-03-04. |
-| **Interrupt Sovereignty** | The principle that the human controls when agent output is reviewed. The agent does not get to interrupt the human. Notifications off. Review on the human's schedule, not the agent's completion schedule. This extends the Temporal Asymmetry cross-cut from an observation into an operational principle: the model has no experience of time; the human has nothing but. If the human allows agent completions to interrupt their flow, they lose the one advantage L12 has — the ability to think deeply about problems the agent cannot. In HOTL mode, the human reviews on their schedule. The interrupt is the enemy of depth. Back-ref: Temporal Asymmetry (layer model cross-cut), HOTL (human reviews after, not during), L12 (attention as scarce resource). | "Interrupt sovereignty — I'll review when I'm ready, not when it's done." / First identified: Hashimoto interview analysis, 2026-03-04. |
-| **Compound Quality** | The bidirectional feedback loop between codebase quality and agent output quality. Clean code → better context for future agent runs → cleaner code. Slop → worse context → more slop. The loop runs in both directions and compounds over time. The negative case is named: Stale Reference Propagation (slopodar). The positive case is this principle: maintaining code quality is not just hygiene — it is context engineering for future agents. GitClear's 153M-line analysis (2024) provides empirical support: code churn doubles in AI-assisted codebases, suggesting the negative loop operates at industry scale. Back-ref: Stale Reference Propagation (slopodar — the named failure mode), Prime Context (the mechanism — the codebase IS context). | "Compound quality — every clean commit makes the next agent run better." / First identified: West transcript + GitClear data, 2026-03-04. |
-| **Engineering Problem** | The optimistic stance: if LLMs are writing slop in your codebase, that is an engineering problem and not an LLM problem. The models are capable enough to write high-quality code when properly engineered context, gates, and decomposition are in place. This is the complementary stance to our cautious framework — not a contradiction but a scope clarification. Our controls (slopodar, foot guns, L12 oversight) exist because the engineering IS the hard part, not because the models are incapable. Validated by Stripe, Anthropic, Claude Code team. The honest version: the models are capable AND they have systematic failure modes. Both are true. The engineering addresses the second without denying the first. Back-ref: The Hull (the engineering), Prime Context (the lever), slopodar (the failure modes the engineering must address). | "That's an engineering problem, not a model problem — fix the context." / First identified: West transcript, 2026-03-04. |
-| **Verifiable / Taste-Required** | The load-bearing distinction between tasks where the gate can verify correctness (verifiable: typecheck passes, tests green, lint clean) and tasks where only L12 judgement can evaluate quality (taste-required: architectural coherence, naming, prose quality, "Not Wrong" territory). The gate is the instrument for verifiable tasks. The human is the instrument for taste-required tasks. HOTL is appropriate for verifiable; HODL for taste-required. "Do not infer what you can verify" applies to the verifiable set. For the taste-required set, the only instrument is a human with taste, time, and the willingness to say "this isn't good enough" even when every dashboard is green. Back-ref: The Hull (verifiable), Not Wrong (slopodar — where the gate passes but taste fails), HOTL/HODL (the tempo distinction this enables). | "Is this verifiable or taste-required? That determines the review mode." / First identified: Amodei interview analysis, 2026-03-04. |
+**Effort Backpressure** — The natural friction of effort-to-contribute that serves as an implicit quality filter. AI eliminates this backpressure, collapsing signal-to-noise in open systems. The quality gate is an explicit backpressure mechanism.
+*Established: Backpressure (systems engineering — well-understood). The social-systems application (effort as quality filter, now removed by AI) is the novel contribution.*
+`Origin: Hashimoto interview, 2026-03-04. Kept v0.26.`
+
+**Pull-Based Review** — The human controls when agent output is reviewed. The agent does not interrupt. Notifications off. Review on the human's schedule. Formerly "interrupt sovereignty."
+*Established: Pull system / Kanban pull (Lean). The human pulls work for review rather than having it pushed.*
+`Origin: Hashimoto interview, 2026-03-04. Renamed v0.26.`
+
+**Context Quality Loop** — The bidirectional feedback loop between codebase quality and agent output quality. Clean code → better context for future agent runs → cleaner code. Slop → worse context → more slop. Compounds over time. Maintaining code quality IS context engineering for future agents. Formerly "compound quality."
+*Established: Kaizen / continuous improvement (Toyota). Technical debt compound interest (Cunningham 1992). The novel mechanism: codebase quality directly determines LLM context quality, creating a feedback loop unique to AI-assisted development. GitClear's 153M-line analysis (2024): code churn doubles in AI-assisted codebases, suggesting the negative loop operates at industry scale.*
+`Origin: West transcript + GitClear data, 2026-03-04. Renamed v0.26.`
+
+**Context Engineering Problem** — The optimistic stance: if LLMs are writing slop in your codebase, fix the context engineering, not the model. The models are capable when properly primed. Formerly "engineering problem."
+*Established: Context engineering (emerging SWE discipline). Genchi genbutsu — go to the source (Toyota).*
+`Origin: West transcript, 2026-03-04. Renamed v0.26.`
+
+**Learning in the Wild** — The discovery made while doing the work, which is worth more than the work itself. The process is the microscope; the observations are the specimens. The slopodar has 18 entries; the code has N commits. The 18 entries may be worth more.
+*Related: Double-loop learning (Argyris 1977). The novel observation: in agentic engineering, the process insights (governance patterns, failure taxonomies, conventions) often outweigh the deliverables (code, features). Double-loop learning describes the mechanism; learning in the wild names the economic inversion.*
+`Origin: AnotherPair naming, tspit. Both analyses: KEEP — novel framing.`
+
+**Context-Attuned** — An agent that navigates according to the style, values, and particulars of the project. Not general competence — specific attunement. Holds under ambiguity rather than guessing. Formerly "knows the line."
+*Novel in the agentic context: the concept of an AI agent having absorbed sufficient tacit knowledge to match project norms without per-instruction guidance. The human equivalent is just "experienced team member."*
+`Origin: SD-209 (knows the line). Renamed v0.26.`
 
 ### Error & Observation
 
-| Term | Definition | Use |
-|------|-----------|-----|
-| **Oracle/Ground Contamination** | When the source of truth (L12, the human) introduces an error that propagates through all verification layers because no layer has authority above L12. In ML/DS: ground truth contamination — when human-annotated labels are wrong, the model learns the wrong thing and no cross-validation catches it. In testing theory: the oracle problem — when the test oracle is itself incorrect, every test passes while the system is wrong. The verification fabric catches agent error; it is structurally blind to oracle error. The only counter-measure is a second L12 reading. | SD-178. "That was an L12 fault — oracle contamination." First observed: Captain's off-by-one (12→13 layers) propagating through Secondary harness. |
-| **Discovery Overhead / The Naturalist's Tax** | The cost of looking closely is that you see more, and everything you see needs processing. When parallel processes generate genuine discoveries that consume more attention than they save. Governed by Amdahl's Law: each additional harness increases the sequential fraction (s) by generating observations that require L12 attention. When observation generation exceeds work completion, adding processors makes things slower, not faster. Maturin would appreciate the irony: his island yielded specimens, every specimen required cataloguing, and the cataloguing consumed the time that could have been spent exploring. | SD-179. "We're paying the Naturalist's Tax." First observed: Two Ship experiment, dawn 26 Feb 2026. |
+**Oracle Problem** — When the source of truth (L12, the human) introduces an error that propagates through all verification layers because no layer has authority above L12. The verification fabric catches agent error; it is structurally blind to oracle error. Formerly "oracle/ground contamination."
+*Established: Oracle problem (testing theory, Weyuker 1982). Ground truth contamination (ML). Root-of-trust failure (security).*
+`Origin: SD-178. Renamed v0.26.`
+
+**Alert Fatigue** — The cost of looking closely: you see more, and everything you see needs processing. When parallel processes generate genuine discoveries that consume more attention than they save. Governed by Amdahl's Law: observation generation exceeding processing capacity makes additional parallelism counterproductive. Formerly "naturalist's tax."
+*Established: Alert fatigue (SRE/DevOps). Amdahl's Law on human attention (theoretical framing).*
+`Origin: SD-179 (Two Ship experiment). Renamed v0.26.`
+
+**Model Triangulation** — Validation by running the same data through independent model families and comparing convergence/divergence. Convergence builds confidence; divergence locates bias. **Disclaimer: made-up term. The practice (checking your work with a system that doesn't share your blind spots) is older than computing. We just needed a name for it.**
+*Established: N-version programming (Avizienis 1985). Independent Verification & Validation / IV&V (systems engineering).*
+`Origin: SD-TBD (tspit). Kept v0.26 with IV&V citation added.`
+
+### Mathematical & Economic Heuristics (NEW in v0.26)
+
+Concepts for rapid communication of intent regarding complex ideas. Requested by Captain 2026-03-10.
+
+**Diminishing Marginal Returns** — Each additional unit of effort yields less additional value. ∂yield/∂effort → 0. Recognise this curve; when you're on it, pivot.
+*Source: Marshall 1890. Application: ROI gate on review cycles — the first adversarial review round catches structural defects; subsequent rounds catch diminishing returns.*
+
+**Marginal Analysis** — Compare the cost of the next unit of work against its expected value. Continue while marginal value > marginal cost. Stop when it inverts. The exit condition for review loops.
+*Source: Microeconomics (foundational).*
+
+**Sigmoid / S-Curve** — Slow start → rapid growth → plateau. Most learning curves, most quality improvement curves, most adoption curves. Useful for predicting when a process will plateau and further investment yields negligible return.
+*Source: Various (logistic function). Application: quality improvement per review cycle follows a sigmoid.*
+
+**Asymmetric Payoff** — Low cost if nothing is found, high value if something is found. Adversarial review has this property. Some verification activities are worth running even when they usually find nothing, because the one time they find something, the payoff far exceeds accumulated cost.
+*Source: Taleb 2012 (Antifragile). Application: justifies adversarial review cost.*
+
+**Sunk Cost** — Money, time, or effort already spent. Irrelevant to future decisions. Only future value matters. "What do I have to cut loose" is the right question; "but we already invested X" is the wrong one.
+*Source: Microeconomics (foundational). Application: strategic pivots, project closure decisions.*
+
+**Convexity** — A position with more upside than downside. The goal is to be positioned such that variance helps you. Composable, modular systems are convex — each component can be improved independently, and improvements compound. Monolithic systems are concave — variance hurts.
+*Source: Taleb 2012 (Antifragile). Application: why modular/composable architecture matters for agentic systems.*
+
+**Local Optima** — Best in the neighbourhood but not globally optimal. Must escape (accept temporary regression) to find global optimum. The discomfort of tacking.
+*Source: Optimisation theory. Application: recognising when incremental improvement is a trap.*
+
+**Technological Exponent** — Capability growth follows an exponential (or at minimum super-linear) curve. Betting against this curve has been a bad bet for the last 70 years. "If there is a wall, we certainly haven't found it."
+*Source: Moore's Law (observation, not law). Scaling laws (Kaplan et al. 2020). Application: planning horizon for agentic infrastructure investment.*
+
+### Established Frameworks — For Reference (NEW in v0.26)
+
+Frameworks that map strongly to this project's governance patterns. Cited for credibility and depth, not adopted wholesale. Captain takes on advisement pending deeper familiarity.
+
+**Bainbridge's Ironies of Automation (1983)** — The foundational observation: (1) the more advanced the automation, the more crucial the human's contribution, and the more skilled the human needs to be; (2) automation of easy tasks leaves the human with only the hard tasks; (3) the human's skills atrophy through disuse, precisely when they're most needed. Directly applicable to cognitive deskilling foot gun. The METR RCT (2025) is a replication.
+*Source: Bainbridge, L. (1983). "Ironies of Automation." Automatica, 19(6), 775-779.*
+
+**CRM — Crew Resource Management (Helmreich 1999)** — Aviation communication discipline. Readback, structured handoffs, authority gradients, communication modes. Extensively studied and empirically validated. The readback practice (echo/check fire → readback) comes directly from CRM, not naval command. CRM provides the strongest single mapping for the project's communication patterns.
+*Source: Helmreich, R.L. (1999). Various CRM publications. Also: aviation medicine, surgical safety checklists (Gawande 2009).*
+
+**Lean / Toyota Production System** — Multiple concepts from this project map to Toyota: quality gate → poka-yoke, stop the line → andon cord, HOTL → jidoka, context quality loop → kaizen, pull-based review → kanban, value stream → value stream, effort backpressure → WIP limits. The convergence is probably because both naval command and Toyota manufacturing solve the same fundamental problem: coordinating human-machine systems under uncertainty with irreversible consequences.
+*Source: Ohno (1988), Shingo (1986), Womack & Jones (1996). Cited for reference; not adopted as framework. Captain takes on advisement.*
+
+**Swiss Cheese Model (Reason 1990)** — Layered defence where each layer has holes, but the layers are arranged so no single failure passes through all. The verification pipeline IS a Swiss Cheese Model.
+*Source: Reason, J. (1990). "Human Error." Cambridge University Press.*
 
 ---
 
-## Weave Modes
+## Retired Terms (v0.26)
 
-| Mode | Register | Space | Tempo | When |
-|------|----------|-------|-------|------|
-| **Tight** | Quarterdeck | Main Thread | Making way | Default. Execution, verification, pre-launch. |
-| **Loose** | Wardroom | Main Thread | Making way | By Captain's invitation. Exploratory. SD-121. |
-| **Extra-tight** | Quarterdeck | Main Thread | Beat to quarters | Emergency. Category One. Literal execution only. |
+Removed from formal lexicon. May persist in conversation. Preserved here for proof-of-work.
+
+| Term | Reason | Replacement | Origin |
+|------|--------|-------------|--------|
+| fair_winds | Social convention, no technical content | (informal use fine) | SD-120 |
+| extra_rations | Social convention, no technical content | (informal use fine) | SD-209 |
+| on_point | Too vague, subjective | "aligned" or "converged" | SD-163 |
+| mint | Doesn't need a name | `tag` / `issue` / `create ADR` | SD-316 |
+| scrub_that | Doesn't need a name | `git revert` / `sed` | SD-316 |
+| log_that | Marginal value as named term | `checkpoint` / `log` | SD-316 |
+
+---
+
+## What's Genuinely Novel (Summary)
+
+The ~18% of this lexicon that has no clean equivalent in established frameworks, confirmed by independent cross-triangulation (Architect: Linux mapping, Analyst: SWE mapping):
+
+1. **Cold / hot context pressure** — LLM-specific operational states
+2. **Dumb zone** — Named state for insufficient context
+3. **Sycophantic amplification loop** — Human-AI positive feedback failure mode
+4. **Spinning to infinity** — Metareflective livelock in human-LLM interaction
+5. **Compaction loss** — Binary total context loss (no graceful degradation)
+6. **Communication modes** — Systematic registers for human-AI interaction
+7. **Tacking** — Purposeful indirection distinct from waste
+8. **Learning in the wild** — Economic inversion: process yield > deliverable yield
+9. **Context-attuned** — Agent tacit knowledge absorption
+
+These cluster around **context engineering for LLM agents** — a problem domain that didn't exist before LLM-based workflows. The contribution is not a new governance framework; it is a vocabulary for a new operational domain built on top of established frameworks.
+
+The **slopodar** (anti-pattern taxonomy, `docs/internal/slopodar.yaml`) contains additional genuine novelty — patterns like "right answer wrong work," "phantom ledger," "deep compliance," and "the lullaby" are specific to LLM failure modes not well-catalogued in existing literature.
 
 ---
 
@@ -191,31 +339,28 @@ last_known:
 | Version | Date | Change | SD |
 |---------|------|--------|----|
 | v0.1 | 2026-02-24 | Initial lexicon. Captain's selections from taxonomy. | SD-123 |
-| v0.2 | 2026-02-24 | `north` → `true_north` (ambiguity fix). `tacking` added to tempo values. MASTER.md deleted (stale). | SD-125 |
-| v0.3 | 2026-02-24 | `mirror`: never `false`/`null` — field is `true` or absent. "All hands" standardised. 7 agents overboard. SO-PERM-002 issued all hands. Fleet: 11 agents. | SD-126 |
-| v0.4 | 2026-02-25 | true_north sharpened: truth first (SD-134). Telling the truth takes priority over getting hired. | SD-134 |
-| v0.5 | 2026-02-25 | true_north uses pseudocode format. Fair-Weather Consensus added (from Analyst research, SD-139). | SD-141 |
-| v0.6 | 2026-02-25 | "The Map Is Not The Territory" added to Navigation & Orientation. Reasoning token observation as alignment mechanism. Cross-referencing practice identified as load-bearing structure. | SD-162 |
-| v0.7 | 2026-02-25 | "On Point" added to Integrity & Verification. Patterns proving out across layers. | SD-163 |
-| v0.8 | 2026-02-26 | "Error & Observation" section added. Oracle/Ground Contamination: L12 fault propagation (first observed: Two Ship off-by-one). Discovery Overhead / The Naturalist's Tax: observation inflation in parallel harnesses (first observed: Two Ship experiment). | SD-178, SD-179 |
-| v0.9 | 2026-02-26 | Maturin's Symbol (§) added to Integrity & Verification. First organically adopted citation convention — crew converged on § across independent context windows without instruction. AnotherPair assigned to watch effects. | SD-192 |
-| v0.10 | 2026-02-27 | "Muster" added to Communication & Record. O(1) triage format: numbered table, binary decisions, Captain walks the line. | SD-202 |
-| v0.11 | 2026-02-27 | Three terms added. "Bump the slopodar" / "slopodar upgrade" / "moreslop" (Communication & Record). "Extra rations" — Captain's commendation, logged to agent's log.md (Communication & Record). "Knows the line" — agent attunement to this vessel's particulars (Integrity & Verification). | SD-209 |
-| v0.12 | 2026-03-01 | **The Sextant** — separate file for Captain's cognitive calibration instruments (`docs/internal/sextant.yaml`). 11 entries mapping Captain's lived experience to DS/ML/statistics concepts. Separated from operational lexicon: naval terms govern the ship, sextant terms govern the navigator. Supporting infrastructure: `citations.yaml` (living citations index), `category-one-index.yaml` (named Category One risks). New Cat One risk: Overfitting Through Repeated Exposure. Format: YAML (machine-readable first, transformation-ready). "Bugs" added (Communication & Record). Lexicon format standardisation deferred to holding deck. | SD-252 |
-| v0.13 | 2026-03-01 | **Alignment Dial** and **Press the Button** added to Communication & Record. Alignment dial: practices that measurably improve intent→interpretation alignment (muster is the first named dial). Press the button: human→LLM antipattern, treating the model as a vending machine, atrophying critical thinking. Complementary pair — one names what works, the other names what doesn't. | SD-252 |
-| v0.14 | 2026-03-01 | **Clear the Decks** added to Spaces & Registers. Force compaction order — confirms all durable writes complete before context window reset. | SD-267 |
-| v0.15 | 2026-03-01 | **Learning in the Wild** added to Communication & Record. The discovery made while doing the work — the specimen collection that outweighs the microscope. Named by AnotherPair. | SD-TBD |
-| v0.16 | 2026-03-01 | **Staining** added to Communication & Record. Applying a diagnostic artifact from one context to material from another, revealing structure that was present but invisible. Precise term: Gadamer's fusion of horizons. Operational verb: "have we stained this?" Discovered during Phase 4 post-merge recalibration. Maturin's analogical investigation confirmed the phenomenon has names in 9 domains. | SD-TBD |
-| v0.17 | 2026-03-02 | **Model Triangulation** added to Integrity & Verification. Cross-model validation: run the same data through independent model families, compare convergence and divergence. Strong disclaimer: made-up term, not statistically validated, produced at 154kTok discovery pressure. The practice is older than the name. Antidote to slopodar #15. | SD-TBD |
-| v0.18 | 2026-03-03 | **Polecats** added to Communication & Record. `claude -p` agents in a deterministic Makefile pipeline — our version of Stripe's minions. Fresh context, one-shot, no interactive steering. The compaction engine managed by design. First deployment: thepit-v2 calibration run. | SD-296 |
-| v0.19 | 2026-03-03 | **HCI Foot Guns** section added (6 entries): Spinning to Infinity, High on Own Supply, The Dumb Zone, Cold Context Pressure, Hot Context Pressure, Compaction Loss. **Context Engineering** section added: Prime Context. Maturin's Mirror cross-referenced with Spinning to Infinity (tool vs pathology). All entries back-referenced to layer model. | SD-299 |
-| v0.20 | 2026-03-03 | **Echo / Check Fire** added to Communication & Record. Default agentic behaviour: compress understanding into Signal before acting. Alignment dial — Signal echo demonstrates understanding, prose performs it. Synonyms for now; differentiate if usage diverges. Standing order (SD-315). | SD-315 |
-| v0.21 | 2026-03-03 | **Iteration & Tempo** section added (2 entries): HOTL (Human Out The Loop) — machine-speed iteration, human defines plan and reviews output, not mid-execution steering. HODL (Hold On for Dear Life) — human grips the wheel, every step requires human presence. Diametric opposites. Distinction: can the gate verify this (HOTL) or does it require taste (HODL)? | SD-TBD |
-| v0.22 | 2026-03-04 | **Quality & Process** section added (5 entries): Effort Backpressure, Interrupt Sovereignty, Compound Quality, Engineering Problem, Verifiable/Taste-Required. **Cognitive Deskilling** foot gun added to HCI Foot Guns — progressive L12 atrophy through delegation, compounds all other foot guns. HOTL health warning appended. All derived from cross-transcript research dispatch (Amodei, Hashimoto, West, Howard). METR RCT (2025) added as evidence for L12 calibration failure. | SD-TBD |
-| v0.23 | 2026-03-04 | **Darkcat** added to Communication & Record. Adversarial review polecat — read-only, no permissions, stains commit diffs against slopodar + watchdog blindspots + foot guns. `make darkcat` / `make darkcat-ref REF=<sha>`. **The Gauntlet** added — full verification pipeline: DEV → Darkcat Triad → Synthesis → Pitkeel → Walkthrough → Commit. **DONE** defined: gate green + darkcat{3} + synth + pitkeel + walkthrough. Named by Captain. | — |
-| v0.24 | 2026-03-05 | **Log That**, **Scrub That**, **Mint** added to Communication & Record. Backref density policy (SD-316): 9 mechanisms adopted, "log that" as flag-and-capture trigger (replaces rejected "mark that" — collision with "mark" as confirmation). "Mint" for deliberate SD/ref creation. "Scrub that" for rare file corrections. | SD-316 |
-| v0.25 | 2026-03-09 | **Darkcat Alley** added to Communication & Record. Standardised 3-model cross-triangulation of full codebase. Pre-QA + post-QA runs; delta is data product. Structured YAML output enables numerical pipeline (convergence rates, marginal value, diminishing returns). Process def: `docs/internal/weaver/darkcat-alley.md`. Parser: `bin/triangulate`. **Sortie** added to Communication & Record. The complete feature-to-commit cycle: spec/plan → {dev + darkcat}* (ROI-bounded) → human QA? → gauntlet → commit. Named from naval: a complete operational cycle from departure through engagement to return. Compressed definition also added to AGENTS.md. | SD-318 |
-
----
-
-*Naval command solved the problem of coordinating semi-autonomous agents under uncertainty two centuries before software.*
+| v0.2 | 2026-02-24 | `north` → `true_north`. `tacking` added. | SD-125 |
+| v0.3 | 2026-02-24 | `mirror` semantics. "All hands" standardised. | SD-126 |
+| v0.4 | 2026-02-25 | true_north sharpened: truth first. | SD-134 |
+| v0.5 | 2026-02-25 | Fair-Weather Consensus added. | SD-141 |
+| v0.6 | 2026-02-25 | Map Is Not The Territory. Reasoning token observation. | SD-162 |
+| v0.7 | 2026-02-25 | On Point added. | SD-163 |
+| v0.8 | 2026-02-26 | Error & Observation: Oracle contamination, Naturalist's Tax. | SD-178, SD-179 |
+| v0.9 | 2026-02-26 | Maturin's Symbol (§). | SD-192 |
+| v0.10 | 2026-02-27 | Muster format. | SD-202 |
+| v0.11 | 2026-02-27 | Bump slopodar, extra rations, knows the line. | SD-209 |
+| v0.12 | 2026-03-01 | Sextant, Bugs, citations.yaml. | SD-252 |
+| v0.13 | 2026-03-01 | Alignment Dial, Press the Button. | SD-252 |
+| v0.14 | 2026-03-01 | Clear the Decks. | SD-267 |
+| v0.15 | 2026-03-01 | Learning in the Wild. | — |
+| v0.16 | 2026-03-01 | Staining (Gadamer). | — |
+| v0.17 | 2026-03-02 | Model Triangulation. | — |
+| v0.18 | 2026-03-03 | Polecats. | SD-296 |
+| v0.19 | 2026-03-03 | HCI Foot Guns (6), Context Engineering. | SD-299 |
+| v0.20 | 2026-03-03 | Echo / Check Fire. | SD-315 |
+| v0.21 | 2026-03-03 | HOTL, HODL. | — |
+| v0.22 | 2026-03-04 | Quality & Process (5 terms), Cognitive Deskilling. | — |
+| v0.23 | 2026-03-04 | Darkcat, Gauntlet, DONE. | — |
+| v0.24 | 2026-03-05 | Log That, Scrub That, Mint. | SD-316 |
+| v0.25 | 2026-03-09 | Darkcat Alley, Sortie. | SD-318 |
+| v0.26 | 2026-03-10 | **3rd Distillation.** Independent cross-triangulation (Architect: naval→Linux, Analyst: naval→SWE). 60% of terms grounded in established frameworks (Lean/Toyota, SRE, CRM, Bainbridge). 18% confirmed as genuinely novel (context engineering for LLM agents). Mathematical heuristics added. 6 terms retired. Remaining terms renamed to standard vocabulary with origin backrefs preserved. Marks beginning of Phase 3. | — |
