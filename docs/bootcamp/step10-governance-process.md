@@ -1,15 +1,8 @@
-+++
-title = "Governance, Process, and Enterprise Integration"
-date = "2026-03-10"
-description = "The engineering loop. Atomic changes. HOTL/HODL spectrum. Bearing checks. Pull-based review."
-tags = ["governance", "enterprise", "process", "bootcamp"]
-step = 10
-tier = 3
-estimate = "5-6 hours"
-bootcamp = 2
-+++
+# Step 10: Governance, Process, and Enterprise Integration
 
-Step 10 of 11 in Bootcamp II: Agentic Engineering Practices.
+**Estimated time:** 5-6 hours
+**Prerequisites:** Step 2 (agent architecture - harness layer, one-shot agent jobs), Step 5 (tool design - CI/CD integration), Step 6 (verification and quality - the gate, HOTL/HODL, verifiable/taste-required), Step 7 (human-AI interface - sycophantic drift, CRM foundations, cognitive deskilling), Bootcamp I Step 7 (git internals - atomic commits, plumbing verification)
+**Leads to:** Step 11 (cost, security, legal, and compliance - the operational constraints that governance must satisfy)
 
 ---
 
@@ -1432,4 +1425,3 @@ governance decision from this step - HOTL/HODL dial position, review depth, adop
 level - has a cost dimension that Step 11 quantifies. The bearing check from Section 8
 gets a cost line. The pull-based review from Section 9 gets a throughput model. Process
 without cost awareness is governance theatre.
-

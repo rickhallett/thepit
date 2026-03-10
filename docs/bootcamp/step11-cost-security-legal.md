@@ -1,15 +1,8 @@
-+++
-title = "Cost, Security, Legal, and Compliance"
-date = "2026-03-10"
-description = "Token economics, sandbox design, prompt injection, credential management. IP ownership and audit trails."
-tags = ["cost", "security", "legal", "compliance", "bootcamp"]
-step = 11
-tier = 3
-estimate = "4-5 hours"
-bootcamp = 2
-+++
+# Step 11: Cost, Security, Legal, and Compliance
 
-Step 11 of 11 in Bootcamp II: Agentic Engineering Practices.
+**Estimated time:** 4-5 hours
+**Prerequisites:** Step 2 (agent architecture - routing patterns, L6 harness), Step 5 (tool design - sandboxing, L7 tool calls), Bootcamp I Step 9 (container internals - namespaces, cgroups)
+**Leads to:** Step 12 (putting it all together)
 
 ---
 
@@ -1310,4 +1303,3 @@ management (Step 4), tool design (Step 5), verification (Step 6), human oversigh
 multi-model review (Step 8), failure recovery (Step 9), governance (Step 10), and the cost,
 security, and legal controls from this step. Every concept converges into a single system
 that you build, verify, and defend.
-
