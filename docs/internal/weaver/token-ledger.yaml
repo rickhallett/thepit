@@ -1,0 +1,79 @@
+# Darkcat Fleet Token Ledger
+# Tracks input/output tokens per model per run for spend monitoring.
+# Backref: fleet.yaml v2, SD-318
+#
+# Pricing (per Mtok, from Artificial Analysis 2026-03-09):
+#   claude-opus-4:    $10.00 input, $30.00 output
+#   gemini-3.1-pro:   $1.25 input, $10.00 output
+#   gpt-5.4:          $2.50 input, $15.00 output
+#   grok-4:           $3.00 input, $15.00 output
+#
+# Cost formula: (input_tokens * input_price + output_tokens * output_price) / 1_000_000
+
+runs:
+  - run_id: "smoke-test-fleet-v2"
+    date: "2026-03-09"
+    purpose: "Validate new 4-model fleet (v2) API access and structured output"
+    models:
+      - id: claude-opus-4
+        api_model: "claude-opus-4-20250514"
+        input_tokens: 596
+        output_tokens: 623
+        reasoning_tokens: 0
+        cost_usd: 0.0246
+        status: ok
+        findings: 3
+        notes: "Self-identified as claude-3.5-sonnet (hallucinated identity)"
+
+      - id: gemini-3.1-pro
+        api_model: "gemini-3.1-pro-preview"
+        input_tokens: 558
+        output_tokens: 854
+        reasoning_tokens: 0
+        cost_usd: 0.0092
+        status: ok
+        findings: 4
+        notes: "Self-identified as OpenAI-o1 (hallucinated identity). Required 8192 maxOutputTokens (2000 truncated)."
+
+      - id: gpt-5.4
+        api_model: "gpt-5.4"
+        input_tokens: 486
+        output_tokens: 825
+        reasoning_tokens: 0
+        cost_usd: 0.0136
+        status: ok
+        findings: 3
+        notes: "Self-identified as gpt-5 (hallucinated identity). Uses max_completion_tokens not max_tokens."
+
+      - id: grok-4
+        api_model: "grok-4-0709"
+        input_tokens: 1158
+        output_tokens: 697
+        reasoning_tokens: 870
+        cost_usd: 0.0139
+        status: ok
+        findings: 3
+        notes: "Self-identified as grok-beta (hallucinated identity). Uses reasoning tokens."
+
+    totals:
+      input_tokens: 2798
+      output_tokens: 2999
+      reasoning_tokens: 870
+      cost_usd: 0.0613
+      models_ok: 4
+      models_failed: 0
+
+# Template for future runs:
+# - run_id: "<name>"
+#   date: "YYYY-MM-DD"
+#   purpose: "<what was reviewed>"
+#   models:
+#     - id: "<fleet-id>"
+#       api_model: "<actual model ID returned>"
+#       input_tokens: N
+#       output_tokens: N
+#       reasoning_tokens: N
+#       cost_usd: 0.00
+#       status: ok|error|quota_exceeded
+#       findings: N
+#       notes: ""

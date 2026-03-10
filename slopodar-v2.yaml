@@ -1,0 +1,13 @@
+# Slopodar v2 — Anti-pattern taxonomy for the calibration run
+# Started empty. Append-only. Do NOT cross-reference the original slopodar during the build.
+# Compare taxonomies on analysis day.
+#
+# Format:
+#   - id: short-kebab-case-name
+#     discovered: ISO date
+#     task: which build task (T0-T12)
+#     description: what happened (one sentence)
+#     class: rlhf | autoregressive | context | process | human
+#     severity: low | medium | high
+
+entries: []
