@@ -50,3 +50,16 @@
   created: '2026-03-09T09:53:25.454394+00:00'
   closed: null
   reason: null
+- id: BL-006
+  title: 'Slopmop v2: Unix pipe filter for slop detection/replacement (T0 deterministic
+    + T2 semantic). Prior work shows structural heuristics (T1) unreliable. Added
+    complexity vs marginal gain relative to true north.'
+  status: open
+  priority: low
+  tags:
+  - tooling
+  - portfolio
+  epic: null
+  created: '2026-03-10T12:00:00+00:00'
+  closed: null
+  reason: 'Parked: complexity vs marginal gain. See docs/field-notes/2026-03-10-slopmop-pipe-filter-exploration.md'
