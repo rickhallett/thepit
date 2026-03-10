@@ -172,79 +172,89 @@ Also on disk (not active crew): `analyst.md`, `scribe.md`, `maturin.md`, `anothe
 
 ---
 
-## Lexicon (Compressed - v0.25)
+## Lexicon (Compressed - v0.26)
 
-The vocabulary of this ship. If these terms are not in your context, you are not on this ship.
+The vocabulary of this project. Grounded in established frameworks (Lean/Toyota, SRE, CRM, Bainbridge) per 3rd distillation. ~18% genuinely novel (context engineering for LLM agents). Old naval names shown in parentheses where renamed.
 
 **Authority & Handoff**
-- **conn** - decision authority; one holder at a time; transfer is explicit
-- **standing order** - persists across watches; obey without restatement
-- **watch** - domain monitoring under Operator's authority; delegatable
-- **officer watch** - watch + Operator's delegated authority + standing orders + escalation
+- **DRI** (was: conn) - decision authority; one holder at a time; transfer is explicit. (Apple DRI, SRE handoff protocol)
+- **standing policy / ADR** (was: standing order) - persists across all sessions; obey without restatement; immutable once issued. (Nygard 2011 ADRs)
+- **controller** (was: watch) - responsibility for monitoring a domain; delegated authority within standing policies. (k8s controller reconciliation loop)
+- **delegated operator** (was: officer of the watch) - agent holding controller with Operator's delegated authority; operates within policies, escalates outside scope
 
-**Navigation**
+**Navigation & Orientation**
 - **true north** - primary objective that does not drift: hired = proof > claim [SD-309]
-- **bearing** - direction relative to true north; how dialled-in we are
-- **dead reckoning** - navigate from last known position when visibility is gone
-- **tacking** - indirect but forward progress against headwinds
+- **bearing / alignment** - direction relative to true north; drift (measurable delta) + alignment (human judgment)
+- **checkpoint recovery** (was: dead reckoning) - navigate from last known position when visibility is lost; read durable state, reconstruct. (WAL, crash recovery)
+- **tacking** - indirect but forward progress against headwinds. NOVEL: no established SWE equivalent for purposeful strategic indirection
 
-**Tempo**
-- **full sail** - max velocity, high risk, thin verification
-- **making way** - forward progress with discipline; not drifting; DEFAULT
-- **drifting** - no control, no bearing; opposite of making way
-- **heave to** - deliberate stop; hold position
-- **beat to quarters** - emergency; everything stops; stations
+**Operational Tempo**
+- **sustainable pace** (was: making way) - forward progress with discipline; not drifting; DEFAULT. (XP, Beck 1999)
+- **drift** - uncontrolled divergence from spec, plan, or objective. (Configuration drift, scope drift)
+- **full sail** - max velocity, high risk, thin verification. Informal shorthand; formal use decomposes to priority + risk profile
+- **stop the line** (was: heave to) - deliberate stop; hold position to deal with a situation. (Andon cord, Toyota)
+- **SEV-1** (was: beat to quarters) - emergency; everything stops; stations. (SRE incident response)
 
-**Integrity**
-- **hull** - gate + tests + typecheck = survival, not optimisation
-- **on point** - convention, convergence, and verification all align [SD-163]
-- **staining** - apply diagnostic from one context to material from another to reveal hidden structure [Gadamer]
-- **knows the line** - agent attuned to the vessel's style and crew values
+**Integrity & Verification**
+- **quality gate** (was: hull) - test suite + typecheck + linter = survival, not optimisation. (CI/CD quality gate, Toyota poka-yoke)
+- **verification pipeline** (was: gauntlet) - full verification sequence: dev gate -> adversarial review (3 models) -> synthesis -> pitkeel -> walkthrough -> commit. (Swiss Cheese Model, Reason 1990)
+- **adversarial review** (was: darkcat) - read-only review pass with custom diagnostic ruleset; stains code against known anti-patterns. (Red team, FMEA)
+- **multi-model ensemble review** (was: darkcat alley) - 3 independent models review same code snapshot using structured YAML. Convergence builds confidence; divergence locates bias. Parser: `bin/triangulate` [SD-318]. (N-version programming, IV&V)
+- **staining** - apply diagnostic from one context to material from another to reveal hidden structure. (FMEA mechanism, Gadamer epistemology)
+- **verifiable / taste-required** - the load-bearing distinction: gate can verify vs only human judgment can evaluate. Determines review mode [Amodei]
+- **value stream** (was: sortie) - feature-to-commit cycle: spec/plan -> (dev + adversarial review)* ROI-bounded -> optional human QA -> verification pipeline -> commit. (Lean value stream, Womack & Jones 1996)
+- **definition of done** (was: DONE) - gate green + 3 adversarial reviews complete + synthesis pass + pitkeel reviewed + walkthrough checked
 
-**Communication**
+**Communication & Record**
+- **readback** (was: echo / check fire) - readback understanding before acting [SD-315]. (CRM, Helmreich 1999 - 40+ years empirical validation)
 - **muster** - decision table (number, question, default, Operator's call), O(1) per row [SD-202]
-- **polecats** - one-shot `claude -p` agents, no interactive steering [SD-296]
-- **darkcat** - adversarial review polecat; read-only; stains diff against slopodar + watchdog + foot guns
-- **darkcat alley** - 3-model cross-triangulation of codebase, pre-QA and post-QA, structured YAML + narrative. Parser: `bin/triangulate`. 8 metrics, 7 visualisation targets [SD-318]
-- **sortie** - feature cycle: spec/plan -> (dev + darkcat)* until ROI diminishes -> human QA if taste required -> gauntlet -> commit. Spec/plan before dev. Darkcat loop exits when marginal value < marginal cost.
-- **gauntlet** - dev gate -> darkcat (Claude, OpenAI, Gemini) -> synthesis -> pitkeel -> walkthrough -> commit
-- **DONE** - gate green + 3 darkcats complete + synthesis pass + pitkeel reviewed + walkthrough checked
-- **prime context** - minimum context that makes the smart zone smart [SD-311]
-- **echo / check fire** - readback understanding before acting [SD-315]
-- **log that** - flag and capture 3-5 message excerpt to durable file [SD-316]
-- **scrub that** - remove from file; very rare; does not break the chain [SD-316]
-- **mint** - deliberately create an SD or ref [SD-316]
+- **one-shot agent job** (was: polecats) - `claude -p` agents; fresh context, one-shot, no interactive steering [SD-296]. (k8s Job, Unix fork+exec)
 
-**Spaces & Registers**
-- **quarterdeck** - command register; formal; orders
-- **wardroom** - thinking register; exploratory; loose weave
-- **below decks** - subagent execution; not the main thread
+**Communication Modes & Weave**
+
+| Mode | Authority | Creativity | Purpose |
+|------|-----------|------------|---------|
+| **formal** (was: quarterdeck) | orders given | low - execute spec | decision, verification |
+| **exploration** (was: wardroom) | ideas tested | high - propose freely | thinking, analysis |
+| **execution** (was: below decks) | delegated | within brief | subagent work |
+
 - **main thread** - direct Operator <-> agent channel; protected
-- **clear decks** - force compaction; all durable writes confirmed first
+- **sync + graceful shutdown** (was: clear decks) - force compaction; all durable writes confirmed first. (sync(2), SIGTERM handlers)
 
-**Weave Modes**
-- **tight** - quarterdeck + making way; DEFAULT
-- **loose** - wardroom + making way; on Operator's invitation
-- **extra tight** - quarterdeck + beat to quarters; emergency
+**Weave modes:** tight (formal + sustainable pace, DEFAULT), loose (exploration + sustainable pace, Operator's invitation), extra-tight (formal + SEV-1, emergency)
+
+**Context Engineering** (NOVEL cluster - LLM-specific)
+- **working set** (was: prime context) - minimum context for the current job; if present, agent produces correct output; if absent, it cannot [SD-311]. (Denning 1968 working set - exact structural isomorphism)
+- **dumb zone** - operating outside effective context range; syntactically valid output, semantically disconnected. Not a model failure - a context failure. NOVEL
+- **cold context pressure** - too little on-file context pushes model to pattern-match instead of solving. NOVEL
+- **hot context pressure** - too much in-thread context risks compaction and signal/noise degradation. NOVEL
+- **compaction loss** - context window death with decisions not written to file = permanent loss. Binary and total, no graceful degradation. NOVEL
 
 **Iteration & Tempo**
-- **HOTL** - human out the loop; machine speed; plan -> execute -> review, no mid-steer. CAUTION: extended HOTL without deep engagement degrades the expertise that makes HOTL safe (Bainbridge)
-- **HODL** - human grips the wheel; every step reviewed; opposite of HOTL
+- **HOTL** - human out the loop; machine speed; plan -> execute -> review, no mid-steer. CAUTION: extended HOTL without deep engagement degrades the expertise that makes HOTL safe (Bainbridge 1983). (Jidoka, batch processing)
+- **HODL** - human grips the wheel; every step reviewed; opposite of HOTL. (Manual approval gates, interactive mode)
 - RULE: HOTL when the gate can verify; HODL when it requires taste
-- **verifiable** - gate can check it; automated; deterministic
-- **taste required** - gate can't check it; L12 only; "not wrong" territory [Amodei]
-- RULE: verify what you can, taste what you can't
 
 **Error & Observation**
-- **oracle contamination** - L12 error propagates uncaught [SD-178]
-- **naturalist's tax** - discovery overhead from parallel work saturates L12
-- **model triangulation** - cross-model validation reveals convergence or divergence
+- **oracle problem** (was: oracle contamination) - L12 error propagates through all verification layers because no layer has authority above L12 [SD-178]. (Oracle problem, Weyuker 1982)
+- **alert fatigue** (was: naturalist's tax) - observation generation exceeding processing capacity makes additional parallelism counterproductive. (SRE alert fatigue, Amdahl's Law)
+- **model triangulation** - cross-model validation reveals convergence or divergence. (N-version programming, IV&V)
 
 **Quality & Process**
-- **effort backpressure** - effort to contribute is an implicit quality filter; AI eliminates effort, so signal/noise collapses
-- **interrupt sovereignty** - human controls review timing; agents do not interrupt
-- **compound quality** - clean code leads to better context leads to cleaner code. Inverse: stale reference propagation
-- **engineering problem** - slop in the codebase is an engineering problem, not a model problem; models are capable when context is correct
+- **effort backpressure** - effort to contribute is an implicit quality filter; AI eliminates effort, so signal/noise collapses. (Backpressure, systems engineering)
+- **pull-based review** (was: interrupt sovereignty) - human controls review timing; agents do not interrupt. (Kanban pull, Lean)
+- **context quality loop** (was: compound quality) - clean code -> better context -> cleaner code. Inverse: stale reference propagation. (Kaizen, technical debt compound interest)
+- **context engineering problem** (was: engineering problem) - slop in the codebase is a context engineering problem, not a model problem; models are capable when context is correct
+- **learning in the wild** - discovery made while doing the work, worth more than the work itself. NOVEL
+
+**Mathematical Heuristics** (NEW v0.26)
+- **diminishing marginal returns** - each additional unit of effort yields less value; recognise the curve, pivot when on it
+- **marginal analysis** - continue while marginal value > marginal cost; exit condition for review loops
+- **asymmetric payoff** - low cost if nothing found, high value if something found; justifies adversarial review cost (Taleb)
+- **sunk cost** - already spent; irrelevant to future decisions; only future value matters
+- **convexity** - positioned so variance helps; composable systems are convex; monolithic systems are concave (Taleb)
+
+**Retired in v0.26:** fair_winds, extra_rations, on_point, mint, scrub_that, log_that
 
 Full verbose lexicon: `docs/internal/lexicon.md`
 
