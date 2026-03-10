@@ -72,3 +72,4 @@ A1: adapt the gate. Rewrite `make gate` to build the container and run `test-poc
 | B2 | 2026-03-10 | c8087d3 | Makefile: 13 phase targets (A1-A5, B1-B4, C1-C4), status, graph, done markers |
 | A4 | 2026-03-10 | 4ce0827 | Chrome stable in container, steer apps launch --args, 3/3 passing. Gate: 25/25 |
 | B4 | 2026-03-10 | 4ce0827 | EVAL.md: criteria, failure modes, confounds, thesis proof scenario |
+| A5 | 2026-03-10 | 7b39823 | Node.js + claude 2.1.72 in container, agent loop 4/4 passing. Gate: 29/29 |
