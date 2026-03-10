@@ -56,3 +56,12 @@ events:
     ref: catch-log.tsv
     summary: "Lullaby caught by Operator (L12). Weaver built 8-section DeepMind application muster that named credential gaps then optimised past them. Operator: 'We are in lullaby territory. I should be applying for applied and agentic engineering roles, not globally competitive research pools.' DeepMind scrubbed. The cost on human sensemaking is high."
     backrefs: [slopodar:the-lullaby, slopodar:option-anchoring, catch-log.tsv]
+
+  - date: "2026-03-10"
+    time: "14:00"
+    type: observation
+    agent: Weaver
+    commit: d8d5e03
+    ref: blog/2026-03-10-agentic-bootcamp.md
+    summary: "Operator flagged bootcamp blog post as positive reference for low-slop prose. Post passes full slopodar - no tally voice, no epistemic theatre, no epigrammatic closures, no nominalisation. Structure: observation, problem, what I built, ranking criteria, who it's for. Claims backed by structure, not rhetoric. Use as reference when writing public-facing content."
+    backrefs: [slopodar.yaml, bootcamp]
