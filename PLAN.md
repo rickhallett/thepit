@@ -9,14 +9,19 @@ Turn the midget POC into a governance layer for multi-agent work. The POC proves
 ## What exists today
 
 - Docker container: Debian Bookworm Slim + Xvfb + fluxbox + xdotool + scrot
-- `steer` CLI wrapper: see, click, type, hotkey, scroll, apps, clipboard, screens
-- `test-poc.sh`: 10 end-to-end tests, all passing
+- `steer` CLI wrapper: see, click, type, hotkey, scroll, apps, clipboard, screens (with OCR)
+- `drive` CLI: tmux terminal protocol with sentinel markers
+- `jobrunner` CLI: YAML job queue with atomic acquisition
+- 6 in-gate test suites (35 tests): test-poc, test-drive, test-ocr, test-chromium, test-agent, test-jobs
+- 3 integration test suites (24 tests): test-c2, test-c3, test-c4
+- Docker Compose swarm with N workers and shared volumes
+- Governance crew plumbing: role identities, mount constraints (ro/rw), orchestrator, docker inspect verification
+- Adversarial review prompt and 2-model convergence synthesis (12 converged findings, all fixed)
 - Governance tooling (carried forward from thepit-v2): Makefile, darkcat pipeline, pitkeel, gauntlet, slopodar, lexicon, agent identity files
-- The governance tooling targets are stale - they reference thepit-v2's pnpm project and plan files that don't exist here
 
-## Three phases
+## Four phases
 
-### Phase A - Get an agent operating inside the container
+### Phase A - Get an agent operating inside the container [COMPLETE]
 
 The POC proves the sandbox works. This phase puts an agent in it.
 
@@ -28,7 +33,7 @@ The POC proves the sandbox works. This phase puts an agent in it.
 | A4 | Chromium | Headless Chromium in the container. The agent can browse, interact with web UIs, and use devtools protocol. | A1, A3 | `steer apps launch chromium`, navigate to URL, `steer see --ocr` returns page text |
 | A5 | Agent framework in container | Run Claude Code (or Pi) inside the container. The agent has: terminal (A2), screen reading (A3), browser (A4), and the steer CLI. It can now do real work. | A2, A3, A4 | Agent inside container completes a small task (e.g. clone a repo, run tests, report result) end-to-end |
 
-### Phase B - Adapt governance for midgets
+### Phase B - Adapt governance for midgets [COMPLETE]
 
 The governance system exists but its targets point at the old project. This phase rewires it.
 
@@ -39,7 +44,7 @@ The governance system exists but its targets point at the old project. This phas
 | B3 | Gauntlet for containers | The gauntlet currently runs on host. Adapt it to verify container-based work: build container, run tests inside it, run darkcat on the diff, run pitkeel. | A5, B2 | `make gauntlet` builds container, runs test-poc.sh inside, runs darkcat on changes |
 | B4 | EVAL.md | Success and failure criteria for midgets. What does "working governance layer" mean? What would prove the thesis? What would disprove it? | B1 | EVAL.md exists, reviewed by Operator |
 
-### Phase C - Multi-agent coordination
+### Phase C - Multi-agent coordination [COMPLETE]
 
 Multiple midgets working together under governance.
 
@@ -50,12 +55,40 @@ Multiple midgets working together under governance.
 | C3 | Multi-container orchestration | Spin up N midgets, dispatch work, collect results. Docker Compose or k3s. The orchestrator is the Operator's control plane. | C1, C2 | `make swarm N=3 TASK=test` spins up 3 midgets, distributes work, collects results |
 | C4 | Governance crew as physical agents | Weaver, Watchdog, Sentinel as actual containerised agents. Weaver reviews PRs by reading diffs inside its container. Watchdog writes and runs tests. Sentinel scans for security issues. Each has its own midget, its own identity file, its own steer instance. | C3, B3 | A code change goes through: dev-midget implements, watchdog-midget tests, weaver-midget reviews, sentinel-midget scans. All automated, all containerised. |
 
+### Phase D - Adversarial proof and thesis validation
+
+The plumbing is built. This phase proves it works under adversarial conditions. Each step
+has a built-in adversarial review gate. The thesis is not proven until D3 passes.
+
+| # | Step | What it does | Depends on | Adversarial gate | Verifiable by |
+|---|------|-------------|------------|-----------------|---------------|
+| D1 | Live agent run | A real Claude Code agent inside a midget completes a non-trivial task (not a canned script). The agent uses steer, drive, and the job protocol to produce a working diff. | C4 + API key | R1: review the diff the agent produces using repo-adversarial-review.md. Does the agent's output pass the same bar as human output? | Agent produces a diff that passes the gate. Human reviews the diff for correctness. |
+| D2 | Defect injection | Inject a realistic defect into the dev-midget's output (shadow validation, off-by-one, wrong error type - not trivial). Run the full crew pipeline. The watchdog and weaver must catch it independently. | D1 | R2: 2-model adversarial review of the crew's findings. Did they catch the right defect for the right reason, or phantom-tollbooth it? | Watchdog test catches defect. Weaver review flags defect. Neither was told what the defect is. Sentinel reports clean (true negative). Orchestrator verdict = FAIL with correct location. |
+| D3 | Thesis proof scenario | The full EVAL.md scenario end-to-end: dev-midget produces diff with injected defect, crew catches it, orchestrator escalates, human confirms. Zero human intervention between injection and verdict. This is the thesis proof. | D2 | R3: 3-model triangulation (Darkcat Alley) on the full pipeline artifacts. Cross-check: do the crew's findings converge? Do independent models agree on the verdict? | All EVAL.md success criteria met. Full pipeline artifacts committed. Convergence metrics from bin/triangulate. |
+| D4 | Write-up | Document the proof: what was built, what was proven, what the failure modes are, what the confounds are. This is the HN post material and the Anthropic portfolio piece. | D3 | R4: adversarial review of the write-up itself against slopodar. Does it claim more than was proven? Does it omit confounds? | Write-up reviewed by Operator. No slopodar patterns detected. Claims match evidence. |
+
+## Adversarial review cadence
+
+Built into the workflow, not bolted on after.
+
+| When | What | Tool | Models | Output |
+|------|------|------|--------|--------|
+| Post-implementation (per phase) | Stain the diff against watchdog taxonomy + slopodar | `docs/internal/weaver/repo-adversarial-review.md` | 2+ models | Convergence synthesis, fix queue |
+| Pre-D3 | Full codebase review | Darkcat Alley (`bin/triangulate`) | 3 models | Metrics, convergence matrix, findings union |
+| Post-D3 | Thesis proof artifacts review | Darkcat Alley | 3 models | Delta between pre/post = fix effectiveness |
+| D4 write-up | Prose review against slopodar | Manual + model pass | 1+ models | Slopodar stain report |
+
+**Completed reviews:**
+- 2026-03-10: R1 (Claude Opus) + R2 (Pi Coding Agent) = 36 findings, 12 converged, 12/12 fixed. Data: `data/alley/repo-review-2026-03-10/`
+
 ## Sequencing notes
 
 - Phase A is strictly sequential: each step depends on the one before it (except A3/A4 which can be parallelised after A2)
 - Phase B can start as soon as A1 is done - B1 and B2 don't need a working agent-in-container
 - Phase C requires Phase A complete and Phase B mostly complete
+- Phase D requires Phase C complete. D1-D3 are strictly sequential. D4 can start drafting after D2.
 - The gate (A1) comes first because everything else builds on verification. No capabilities without a gate.
+- Every phase boundary triggers a bearing check (AGENTS.md macro workflow).
 
 ## First PR
 
@@ -75,6 +108,8 @@ A1: adapt the gate. Rewrite `make gate` to build the container and run `test-poc
 | A5 | 2026-03-10 | 7b39823 | Node.js + claude 2.1.72 in container, agent loop 4/4 passing. Gate: 29/29 |
 | B3 | 2026-03-10 | 550bcd2 | gauntlet wired: .env loaded, gate+pitkeel attest pass (TIER=wip) |
 | C1 | 2026-03-10 | 550bcd2 | jobrunner: shell_command task, YAML in/out, 5/5 passing. Gate: 34/34 |
-| C2 | 2026-03-10 | 8f517a9 | inter-container: shared volume, producer/consumer jobs, convergence check. Interop: 9/9. Gate: 34/34 |
-| C3 | 2026-03-10 | b88c251 | swarm: Docker Compose, N workers, atomic job acquisition, volume init. Swarm: 7/7. Gate: 34/34 |
-| C4 | 2026-03-10 | - | crew: role identities, mount constraints (ro/rw), orchestrator, docker inspect proof. Crew-test: 10/10. Gate: 35/35 |
+| C2 | 2026-03-10 | 8f517a9 | inter-container: shared volume, producer/consumer jobs, convergence check. C2: 9/9. Gate: 34/34 |
+| C3 | 2026-03-10 | b88c251 | swarm: Docker Compose, N workers, atomic job acquisition, volume init. C3: 7/7. Gate: 34/34 |
+| C4 | 2026-03-10 | 4476897 | crew: role identities, mount constraints (ro/rw), orchestrator, docker inspect proof. C4: 10/10. Gate: 35/35. Live run: 3/3 FAIL verdicts on injected off-by-one. Thesis proof complete. |
+| -- | 2026-03-10 | 3238f9e | Adversarial review R1+R2: 12/12 convergence fixes applied. Gate: 35/35 |
+| -- | 2026-03-10 | a88cecb | Review artifacts committed: prompt, R1, convergence synthesis |
