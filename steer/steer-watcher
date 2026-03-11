@@ -15,7 +15,7 @@ Architecture:
                                           |
                                       claude --input-format stream-json < pipe
 
-Message files are JSON: {"type": "user", "content": "..."}
+Message files are JSON: {"type": "user", "message": {"role": "user", "content": "..."}}
 They are processed in filename order and deleted after being written
 to the pipe. Atomic rename prevents partial reads.
 

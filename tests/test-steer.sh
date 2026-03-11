@@ -122,7 +122,8 @@ if [ -n "$MSG_FILE" ]; then
 import sys, json
 d = json.load(sys.stdin)
 assert d['type'] == 'user', f'type={d[\"type\"]}'
-assert 'change approach' in d['content'], f'content={d[\"content\"]}'
+assert d['message']['role'] == 'user', f'role={d[\"message\"][\"role\"]}'
+assert 'change approach' in d['message']['content'], f'content={d[\"message\"][\"content\"]}'
 print('valid')
 " 2>/dev/null | grep -q "valid"; then
         pass "steer message is valid stream-json format"
@@ -194,7 +195,7 @@ docker exec -d "$CONTAINER" bash -c "cat /tmp/steer/agent.pipe > /tmp/pipe-outpu
 sleep 0.3
 
 # Write a steer message directly to /tmp/steer (where watcher is watching)
-MSG='{"type":"user","content":"test pipe delivery"}'
+MSG='{"type":"user","message":{"role":"user","content":"test pipe delivery"}}'
 docker exec "$CONTAINER" bash -c "printf '%s' '$MSG' > /tmp/steer/999-test.json"
 sleep 1.5
 

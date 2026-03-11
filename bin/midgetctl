@@ -368,8 +368,8 @@ def cmd_steer(args):
         print("No message provided.", file=sys.stderr)
         sys.exit(1)
 
-    # Build the stream-json message
-    msg = json.dumps({"type": "user", "content": message})
+    # Build the stream-json message (Claude Code format)
+    msg = json.dumps({"type": "user", "message": {"role": "user", "content": message}})
 
     # Generate a sequenced filename for ordering
     import time
