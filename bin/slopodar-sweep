@@ -680,8 +680,12 @@ def aggregate_results(data_dir: Path) -> dict:
         if not isinstance(data, dict):
             continue
 
-        model = data.get("review", {}).get("model", "unknown")
-        chunk = data.get("review", {}).get("chunk", "unknown")
+        # Extract model key and chunk from filename (chunk-NNN_modelkey.yaml)
+        # This is authoritative - models self-report inconsistently (35+ names for 3 models)
+        stem = response_file.stem  # e.g. "chunk-042_grok"
+        parts = stem.rsplit("_", 1)
+        model = parts[1] if len(parts) == 2 else data.get("review", {}).get("model", "unknown")
+        chunk = parts[0] if len(parts) == 2 else data.get("review", {}).get("chunk", "unknown")
 
         for inst in data.get("instance_findings", []) or []:
             if isinstance(inst, dict):
