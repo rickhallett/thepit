@@ -61,6 +61,7 @@ hardening that has not been done.
 - [Governance Crew](docs/diagrams/governance-crew.md) - mount constraints, role separation, crew run results
 - [Full Gauntlet](docs/diagrams/gauntlet.md) - 6-stage verification pipeline
 - [Audit Trail](docs/diagrams/audit-trail.md) - per-agent action traces, what is captured and why
+- [Value Proposition](docs/diagrams/value-proposition.md) - where midgets add value, where they don't
 
 Terminal diagrams: `bin/diagrams [stack|gate|interop|crew|gauntlet|all]`
 
