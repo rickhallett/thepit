@@ -113,8 +113,12 @@ crew-test:
 # Runs on HOST. Launches containers, writes steering messages, verifies.
 
 steering:
-	@echo "▶ Mid-flight steering tests"
+	@echo "▶ Mid-flight steering tests (deterministic)"
 	@bash tests/test-steer.sh
+
+steering-live:
+	@echo "▶ Live steering tests (costs API tokens, requires ANTHROPIC_API_KEY)"
+	@bash tests/test-steer-live.sh
 
 crew:
 	@echo "▶ Live crew orchestration (cross-model, costs API calls)"
