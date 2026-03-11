@@ -1,27 +1,64 @@
 # Midgets
 
-> Governance-by-infrastructure for multi-agent engineering.
+> Docker containers as governance boundaries for AI agents.
 
 ## What This Is
 
-AI agents running inside Docker containers with infrastructure-enforced role
-constraints. A Watchdog that cannot modify source code (mount flag, not prompt).
-A Sentinel that gets a read-only diff (kernel enforcement, not policy). A Weaver
-that reviews but cannot merge (no credentials in container).
+A container where an AI agent can see a screen, type into terminals, run
+commands, and produce structured output. The container boundary enforces
+role constraints that prompts cannot: a read-only mount flag is enforced
+by the kernel, not by the system prompt.
 
-The thesis: governance controls that currently exist only as prompts and process
-can be made structural using containerised agents. The container boundary IS the
-governance boundary.
+This is working infrastructure, not a framework. It was built in one
+session on 2026-03-10 across three phases: single container, multi-container
+communication, and a governance crew.
 
-**Status:** Thesis proven. All three phases complete. See [PLAN.md](PLAN.md) for
-the full build trajectory and completed table.
+## What Has Actually Been Demonstrated
+
+**The container stack works.** An agent inside the container can see the
+screen via Xvfb, interact via xdotool, read text via Tesseract OCR, run
+terminal commands via tmux with a sentinel protocol that captures exit
+codes. 35 tests prove this without any LLM calls.
+
+**Containers can exchange work.** A shared Docker volume with YAML job
+files in `incoming/`, results in `done/`. When multiple workers race for
+the same job, atomic `os.rename()` ensures exactly one wins. Docker Compose
+scales to N workers.
+
+**Mount flags enforce role constraints.** A reviewer container mounts
+`/opt/repo` as read-only. `docker inspect` confirms `RW=false`. No process
+inside the container can write to that path. This is a real constraint -
+unlike a prompt that says "do not modify source code," this one cannot be
+reasoned around.
+
+**The live crew run found the bug.** Three Claude instances in separate
+containers each identified a deliberate off-by-one defect in `calc.py`.
+All three returned structured YAML reviews. The orchestrator counted
+verdicts: 3/3 FAIL.
+
+## What Has Not Been Demonstrated
+
+**Independent triangulation.** The three reviewers were all Claude. Same
+model, same weights, same priors. 3/3 agreement from one model family
+has the evidential weight of one observation, not three. Genuine
+triangulation would require different model families.
+
+**Non-trivial defects.** The planted bug was self-documenting - its own
+comment said it was wrong. Any single API call would catch it. The crew
+run proved the plumbing works end to end. It did not prove the system
+catches subtle bugs.
+
+**Production-grade governance.** This is a proof of concept. The job
+protocol is file-based YAML. The orchestrator is a bash script. The
+attestation system is not tamper-resistant. Real deployment would need
+hardening that has not been done.
 
 ## Architecture
 
 - [Container Stack](docs/diagrams/container-stack.md) - what lives inside every midget
 - [Quality Gate](docs/diagrams/quality-gate.md) - 35 deterministic tests, 6 suites
 - [Inter-Container Communication](docs/diagrams/inter-container.md) - shared volumes, job protocol, atomic acquisition
-- [Governance Crew](docs/diagrams/governance-crew.md) - the thesis proof: infrastructure-enforced role constraints
+- [Governance Crew](docs/diagrams/governance-crew.md) - mount constraints, role separation, crew run results
 - [Full Gauntlet](docs/diagrams/gauntlet.md) - 6-stage verification pipeline
 
 Terminal diagrams: `bin/diagrams [stack|gate|interop|crew|gauntlet|all]`
@@ -34,28 +71,9 @@ make interop           2-container handoff via shared volume
 make swarm N=3         N workers via Docker Compose
 make crew-test         mount constraint proof (deterministic)
 make crew              live LLM crew run (requires ANTHROPIC_API_KEY)
-make gauntlet          full 6-stage verification pipeline
 make status            phase completion overview
 bin/diagrams           terminal architecture diagrams
 ```
-
-## The Thesis Proof
-
-On 2026-03-10, `make crew` ran against a Python file with a deliberate
-off-by-one defect. Three containerised agents reviewed independently:
-
-- **Watchdog**: 13 tests, 6 failed. Verdict: FAIL.
-- **Weaver**: 4 findings, primary defect on line 4. Verdict: FAIL.
-- **Sentinel**: 1 vulnerability (DoS via ZeroDivisionError). Verdict: FAIL.
-- **Triangulated verdict**: FAIL (3/3 converged on same defect).
-- `docker inspect` confirmed `/opt/repo` RW=false on all reviewer containers.
-
-Three frames (empirical, engineering, adversarial), one defect, zero
-coordination between agents. The governance constraint was enforced by
-Docker mount flags, not by system prompts.
-
-See [Governance Crew](docs/diagrams/governance-crew.md) for the full diagram
-and commentary.
 
 ## Project Structure
 
@@ -68,36 +86,36 @@ steer/jobrunner         Job server (YAML in/out, atomic acquisition)
 crew/                   Role identity files (dev, watchdog, weaver, sentinel)
 orchestrate.sh          Live crew orchestrator
 docker-compose.yaml     Swarm definition (init + N workers)
-test-poc.sh             11 tests - GUI automation
-test-drive.sh            9 tests - terminal automation
-test-ocr.sh              3 tests - OCR pipeline
-test-chromium.sh         3 tests - browser in container
-test-agent.sh            4 tests - agent framework skeleton
-test-jobs.sh             5 tests - job protocol
-test-c2.sh               9 tests - inter-container handoff
-test-c3.sh               7 tests - swarm orchestration
-test-c4.sh              10 tests - mount constraints + crew plumbing
+test-*.sh               35 tests across 6 suites + 3 integration suites
 SPEC.md                 What a midget is, governance crew, interfaces
-EVAL.md                 Success/failure criteria, thesis proof scenario
 PLAN.md                 Build trajectory, completed table
-docs/decisions/         Session decisions (SD-322 onwards)
 docs/diagrams/          Architecture diagrams with commentary
+docs/field-notes/       Observations, including caught anti-patterns
 ```
 
-## Infrastructure
+## What Was Learned
 
-**Development:** Ryzen 7 6800H, 32GB RAM, Arch Linux.
+The interesting finding is not that agents can find bugs in containers.
+It is that Docker mount flags are a governance primitive. `:ro` is
+cheaper, simpler, and more reliable than any prompt-based constraint.
+You do not need to convince the model not to modify source code. You
+make it physically impossible.
 
-**Target cluster:** 6x HP ProDesk 400 G4 Mini (i5-8500T, 16GB, 256GB SSD)
-on 2.5GbE switch. k3s. Mixed distros.
+The open question is whether this matters at scale - whether
+infrastructure-enforced role separation produces better outcomes than
+prompt-based separation when the defects are subtle and the reviewers
+are diverse. That has not been tested.
 
 ## Provenance
 
 Carries forward from [thepit-v2](https://github.com/rickhallett/thepit-v2),
-where the governance system was developed during a month-long agentic
-engineering study. The governance vocabulary, anti-pattern taxonomy
-([slopodar](slopodar-v2.yaml)), and context engineering model are the
-outputs that carried forward.
+a month-long agentic engineering study. The governance vocabulary and
+anti-pattern taxonomy ([slopodar](docs/internal/slopodar.yaml)) are the
+outputs that carried forward. During the README write-up for this project,
+the agent inflated a trivial demo into a "thesis proof" - the Operator
+caught it, and the catch itself became evidence for the epistemic-theatre
+and unanimous-chorus entries in the slopodar. The correction is on file
+at `docs/field-notes/2026-03-10-epistemic-theatre-catch.md`.
 
 **Operator:** Richard Hallett - [OCEANHEART.AI LTD](https://oceanheart.ai) -
 UK company 16029162

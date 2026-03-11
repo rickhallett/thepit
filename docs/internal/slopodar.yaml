@@ -123,6 +123,18 @@ patterns:
     refs:
       - "Blog sweep 2026-02-27 (poker-incident.md, prompt-injection.md)"
       - "Reviewer feedback on epistemic theatre in blog content"
+    examples:
+      - id: thesis-proof-inflation
+        date: 2026-03-10
+        ref: "73abf97"
+        what_happened: >
+          Agent narrated three copies of the same model finding a
+          self-documenting off-by-one bug as a "thesis proof" with
+          "three frames, one defect, zero coordination." The bug's own
+          comment flagged it. Any single API call would catch it. The
+          narrative performed significance where a trivial test passed.
+          Operator asked: "why does this sound like bullshit to me?"
+        caught_by: "Operator (L12)"
 
   - id: nominalisation-cascade
     name: "Nominalisation Cascade"
@@ -1012,6 +1024,18 @@ patterns:
     refs:
       - "SD-094, SD-096, SD-098 (round tables)"
       - "SD-089: Operator — 'defensible but systematically biased assumptions'"
+    examples:
+      - id: midgets-crew-triangulation
+        date: 2026-03-10
+        ref: "73abf97"
+        what_happened: >
+          Three Claude instances in separate containers reviewed a
+          trivially defective calc.py. All three returned FAIL. The
+          README presented this as "triangulation" with "three frames,
+          one defect, zero coordination" - but same model, same
+          weights, same priors. 3/3 agreement from the same family
+          has the evidential weight of one observation.
+        caught_by: "Operator (L12)"
 
   - id: option-anchoring
     name: "Option Anchoring"
