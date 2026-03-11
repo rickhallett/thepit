@@ -65,6 +65,26 @@ hardening that has not been done.
 
 Terminal diagrams: `bin/diagrams [stack|gate|interop|crew|gauntlet|all]`
 
+## midgetctl
+
+Central control plane for midget containers.
+
+```
+midgetctl ps                        list running midgets
+midgetctl inspect <container>       mounts, env, resources, network
+midgetctl logs <container>          stream container logs
+midgetctl stop <container|all>      graceful shutdown
+midgetctl kill <container|all>      immediate kill
+midgetctl pause <container>         freeze without killing (inspect state)
+midgetctl resume <container>        resume paused midget
+midgetctl stats [container]         live CPU/memory/network per midget
+midgetctl history                   list past crew runs with verdicts
+midgetctl audit <run-id>            full audit trail for a run
+midgetctl tokens [run-id]           token usage per agent, per run, or all
+midgetctl watch <container>         open VNC viewer to midget display
+midgetctl run <role> [--vnc]        launch a single midget with role
+```
+
 ## Make Targets
 
 ```
@@ -72,7 +92,8 @@ make gate              35 tests inside the container (deterministic)
 make interop           2-container handoff via shared volume
 make swarm N=3         N workers via Docker Compose
 make crew-test         mount constraint proof (deterministic)
-make crew              live LLM crew run (requires ANTHROPIC_API_KEY)
+make crew              live LLM crew run (cross-model, costs API calls)
+make watch             VNC into a midget (ROLE=x CMD="...")
 make status            phase completion overview
 bin/diagrams           terminal architecture diagrams
 ```

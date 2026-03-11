@@ -149,6 +149,9 @@ run_gemini() {
     stage_prompt "$ROLE" "$PROMPT_FILE"
 
     docker run --rm \
+        --label midget=true \
+        --label midget.role="$ROLE" \
+        --label midget.run="$RUN_ID" \
         -v "$VOL_REPO:/opt/repo:ro" \
         -v "$VOL_JOBS":/opt/jobs \
         -e GEMINI_API_KEY="$GEMINI_API_KEY" \
@@ -189,6 +192,9 @@ run_grok() {
     # We ask it to output ONLY the YAML content.
     # Full API response preserved as trace for audit.
     docker run --rm \
+        --label midget=true \
+        --label midget.role="$ROLE" \
+        --label midget.run="$RUN_ID" \
         -v "$VOL_REPO:/opt/repo:ro" \
         -v "$VOL_JOBS":/opt/jobs \
         -e XAI_API_KEY="$XAI_API_KEY" \
@@ -251,6 +257,9 @@ run_codex() {
     stage_prompt "$ROLE" "$PROMPT_FILE"
 
     docker run --rm \
+        --label midget=true \
+        --label midget.role="$ROLE" \
+        --label midget.run="$RUN_ID" \
         -v "$VOL_REPO:/opt/repo:ro" \
         -v "$VOL_JOBS":/opt/jobs \
         -e OPENAI_API_KEY="$OPENAI_API_KEY" \
