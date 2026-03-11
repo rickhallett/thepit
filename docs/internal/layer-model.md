@@ -124,7 +124,9 @@ L11 CROSS_MODEL    | different_priors · different_inductive_bias · different_r
                    | One sample from a different distribution > N additional samples from the same distribution.
                    | Tests whether findings are model-specific or evidence-specific.
                    | >> produces: independent_signal (bounded by shared training data overlap)
-                   | ATTESTATION: not yet exercised. all agents are Claude. this is a known limitation (SD-098).
+                   | ATTESTATION: exercised 2026-03-11 via slopodar-sweep (claude-haiku-4.5, gemini-3-flash, grok-4-1-fast).
+                   |   3,108 instances across 93 corpus chunks. 3 new patterns converged cross-model (maturity-theatre,
+                   |   provenance-theatre, convergence-theatre). Prior status: "not yet exercised" (SD-098, stale).
 
 L12 HUMAN_IN_LOOP  | operators_walkthrough · manual_qa · domain_expertise · tacit_knowledge · irreducible_uncertainty
                    | reasoning_token_observation · intent_verification · rubric_provision · compaction_control

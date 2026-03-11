@@ -173,7 +173,7 @@ Also on disk (not active crew): `analyst.md`, `scribe.md`, `maturin.md`, `anothe
 
 ## Lexicon (Compressed - v0.26)
 
-The vocabulary of this project. Grounded in established frameworks (Lean/Toyota, SRE, CRM, Bainbridge) per 3rd distillation. ~18% genuinely novel (context engineering for LLM agents). Old naval names shown in parentheses where renamed.
+The vocabulary of this project. Grounded in established frameworks (Lean/Toyota, SRE, CRM, Bainbridge) per 3rd distillation. Context engineering cluster is LLM-specific but the patterns are already well-known [SD-291]. Old naval names shown in parentheses where renamed.
 
 **Authority & Handoff**
 - **DRI** (was: conn) - decision authority; one holder at a time; transfer is explicit. (Apple DRI, SRE handoff protocol)
