@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""
+steer-watcher - in-container process that bridges steering messages
+from the filesystem to a named pipe for agent stdin consumption.
+
+Used by midgetctl steer (infrastructure-enforced steering).
+
+Architecture:
+    HOST                              CONTAINER
+    midgetctl steer <cid> "msg"  -->  /opt/jobs/steer/NNN-msg.json
+                                          |
+                                      steer-watcher (this script)
+                                          |
+                                      /opt/jobs/steer/agent.pipe (named pipe)
+                                          |
+                                      claude --input-format stream-json < pipe
+
+Message files are JSON: {"type": "user", "content": "..."}
+They are processed in filename order and deleted after being written
+to the pipe. Atomic rename prevents partial reads.
+
+Usage:
+    steer-watcher [--steer-dir /opt/jobs/steer] [--pipe /opt/jobs/steer/agent.pipe]
+    steer-watcher --setup    # create dirs + pipe, then exit
+"""
+
+import argparse
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+DEFAULT_STEER_DIR = Path(os.environ.get("MIDGET_STEER_DIR", "/opt/jobs/steer"))
+DEFAULT_PIPE = DEFAULT_STEER_DIR / "agent.pipe"
+POLL_INTERVAL = 0.5
+
+
+def setup(steer_dir: Path, pipe_path: Path):
+    """Create steer directory and named pipe."""
+    steer_dir.mkdir(parents=True, exist_ok=True)
+    if pipe_path.exists():
+        pipe_path.unlink()
+    os.mkfifo(pipe_path)
+    print(f"steer-watcher: created {pipe_path}", flush=True)
+
+
+def watch(steer_dir: Path, pipe_path: Path):
+    """Watch for message files and write them to the named pipe."""
+    steer_dir.mkdir(parents=True, exist_ok=True)
+
+    if not pipe_path.exists():
+        os.mkfifo(pipe_path)
+        print(f"steer-watcher: created pipe {pipe_path}", flush=True)
+
+    print(f"steer-watcher: watching {steer_dir} -> {pipe_path}", flush=True)
+
+    # Open pipe in write mode. This blocks until a reader connects.
+    # The agent process (claude --input-format stream-json) is the reader.
+    print("steer-watcher: waiting for agent to connect to pipe...", flush=True)
+    pipe_fd = open(pipe_path, "w")
+    print("steer-watcher: agent connected, ready for steering messages", flush=True)
+
+    processed = set()
+
+    try:
+        while True:
+            # Look for message files (NNN-msg.json pattern)
+            msg_files = sorted(steer_dir.glob("*.json"))
+            for msg_file in msg_files:
+                if msg_file in processed:
+                    continue
+
+                # Atomic acquisition: rename to .sending
+                claimed = msg_file.with_suffix(".sending")
+                try:
+                    os.rename(msg_file, claimed)
+                except (FileNotFoundError, OSError):
+                    continue
+
+                processed.add(msg_file)
+
+                try:
+                    content = claimed.read_text().strip()
+                    # Validate JSON
+                    msg = json.loads(content)
+                    # Write to pipe as a single line of JSON
+                    pipe_fd.write(json.dumps(msg) + "\n")
+                    pipe_fd.flush()
+                    print(f"steer-watcher: sent message from {msg_file.name}", flush=True)
+                    claimed.unlink()
+                except json.JSONDecodeError as e:
+                    print(f"steer-watcher: invalid JSON in {msg_file.name}: {e}",
+                          file=sys.stderr, flush=True)
+                    claimed.unlink()
+                except BrokenPipeError:
+                    print("steer-watcher: pipe closed (agent exited?)", flush=True)
+                    return
+                except Exception as e:
+                    print(f"steer-watcher: error processing {msg_file.name}: {e}",
+                          file=sys.stderr, flush=True)
+
+            time.sleep(POLL_INTERVAL)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        pipe_fd.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="steer-watcher",
+        description="Bridge steering messages from filesystem to agent pipe",
+    )
+    parser.add_argument("--steer-dir", type=Path, default=DEFAULT_STEER_DIR,
+                        help=f"Directory to watch (default: {DEFAULT_STEER_DIR})")
+    parser.add_argument("--pipe", type=Path, default=DEFAULT_PIPE,
+                        help=f"Named pipe path (default: {DEFAULT_PIPE})")
+    parser.add_argument("--setup", action="store_true",
+                        help="Create dirs + pipe, then exit")
+
+    args = parser.parse_args()
+
+    if args.setup:
+        setup(args.steer_dir, args.pipe)
+    else:
+        watch(args.steer_dir, args.pipe)
+
+
+if __name__ == "__main__":
+    main()

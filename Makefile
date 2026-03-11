@@ -105,6 +105,17 @@ crew-test:
 	@echo "▶ Governance crew plumbing (C4 — deterministic)"
 	@bash tests/test-c4.sh
 
+# ── Steer ─────────────────────────────────────────────────────
+#
+# Mid-flight steering tests. Tests both mechanisms:
+#   - steer: infrastructure-enforced (stream-json pipe, Claude Code only)
+#   - signal: prompt-based (instructions.md file poll, any model)
+# Runs on HOST. Launches containers, writes steering messages, verifies.
+
+steering:
+	@echo "▶ Mid-flight steering tests"
+	@bash tests/test-steer.sh
+
 crew:
 	@echo "▶ Live crew orchestration (cross-model, costs API calls)"
 	@bash orchestrate.sh

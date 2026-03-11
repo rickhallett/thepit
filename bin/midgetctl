@@ -20,6 +20,8 @@ Usage:
     midgetctl tokens [run-id]             token usage summary
     midgetctl watch <container>           open VNC viewer to midget display
     midgetctl run <role> [--model M]      launch a single midget with role
+    midgetctl steer <container> <msg>     inject message into agent context (infrastructure)
+    midgetctl signal <container> <msg>    write steering file for agent to poll (prompt-based)
 """
 
 import argparse
@@ -345,6 +347,115 @@ def cmd_watch(args):
         sys.exit(1)
 
 
+def cmd_steer(args):
+    """Inject a message into a running agent's context via named pipe.
+
+    INFRASTRUCTURE-ENFORCED. Uses Claude Code's --input-format stream-json.
+    The steer-watcher process inside the container picks up JSON message
+    files from /opt/jobs/steer/ and writes them to a named pipe that the
+    agent reads as stdin.
+
+    Requires: agent started with steer-watcher and --input-format stream-json.
+    Only works with Claude Code. Other CLIs do not support streaming stdin.
+    The message enters the agent's context window as a new user turn.
+
+    See also: 'signal' for prompt-based steering that works with any model.
+    """
+    cid = args.container
+    message = " ".join(args.message)
+
+    if not message:
+        print("No message provided.", file=sys.stderr)
+        sys.exit(1)
+
+    # Build the stream-json message
+    msg = json.dumps({"type": "user", "content": message})
+
+    # Generate a sequenced filename for ordering
+    import time
+    seq = int(time.time() * 1000)
+    filename = f"{seq}-steer.json"
+
+    # Write message file into the container's steer directory
+    # Use /tmp/steer as fallback if /opt/jobs is not writable (no volume mounted)
+    try:
+        docker("exec", cid, "bash", "-c",
+               f"SDIR=/opt/jobs/steer; mkdir -p \"$SDIR\" 2>/dev/null || {{ SDIR=/tmp/steer; mkdir -p \"$SDIR\"; }}; "
+               f"printf '%s' '{msg}' > \"$SDIR\"/{filename}")
+    except subprocess.CalledProcessError:
+        print(f"Failed to write steer message to {cid}.", file=sys.stderr)
+        print("Is the container running?", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Steered {cid}: {message}")
+    print(f"  Method: infrastructure (stream-json pipe)")
+    print(f"  File: /opt/jobs/steer/{filename}")
+    print(f"  Delivery: guaranteed if steer-watcher is running")
+
+
+def cmd_signal(args):
+    """Write a steering file for the agent to poll.
+
+    PROMPT-BASED. Writes (or appends to) /opt/jobs/steer/instructions.md
+    inside the container. The agent's system prompt tells it to check this
+    file periodically and follow any new instructions it finds.
+
+    Works with any model/CLI. Does not require special stdin support.
+    Delivery depends on agent compliance - the agent must actually read
+    the file. There is no guarantee it will check before completing its
+    current action.
+
+    The file is append-only with timestamps, so the agent can see the
+    full history of steering instructions and distinguish old from new.
+
+    See also: 'steer' for infrastructure-enforced injection into Claude Code.
+    """
+    cid = args.container
+    message = " ".join(args.message)
+
+    if not message:
+        print("No message provided.", file=sys.stderr)
+        sys.exit(1)
+
+    from datetime import datetime, timezone
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    # Append timestamped instruction to the steering file
+    entry = f"\\n---\\n[{ts}] {message}\\n"
+
+    try:
+        # Create file with header if it doesn't exist, then append
+        # Use /tmp/steer as fallback if /opt/jobs is not writable
+        docker("exec", cid, "bash", "-c",
+               f"SDIR=/opt/jobs/steer; mkdir -p \"$SDIR\" 2>/dev/null || {{ SDIR=/tmp/steer; mkdir -p \"$SDIR\"; }}; "
+               f"[ -f \"$SDIR\"/instructions.md ] || "
+               f"printf '%s\\n' '# Steering Instructions' "
+               f"'Check this file before each action. Follow the latest instruction.' "
+               f"'' > \"$SDIR\"/instructions.md; "
+               f"printf '{entry}' >> \"$SDIR\"/instructions.md")
+    except subprocess.CalledProcessError:
+        print(f"Failed to write signal to {cid}.", file=sys.stderr)
+        print("Is the container running?", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Signalled {cid}: {message}")
+    print(f"  Method: prompt-based (file poll)")
+    print(f"  File: /opt/jobs/steer/instructions.md")
+    print(f"  Delivery: best-effort (depends on agent reading the file)")
+
+    if args.show:
+        print()
+        print("Current instructions.md:")
+        try:
+            content = docker("exec", cid, "bash", "-c",
+                             "cat /opt/jobs/steer/instructions.md 2>/dev/null || "
+                             "cat /tmp/steer/instructions.md 2>/dev/null || "
+                             "echo '(not found)'")
+            print(content)
+        except subprocess.CalledProcessError:
+            print("  (could not read file)")
+
+
 def cmd_run(args):
     """Launch a single midget with a role."""
     role = args.role
@@ -494,6 +605,17 @@ def main():
     p = sub.add_parser("watch", help="Open VNC viewer to midget")
     p.add_argument("container", help="Container ID or name")
 
+    # steer
+    p = sub.add_parser("steer", help="Inject message into agent context (infrastructure-enforced, Claude Code only)")
+    p.add_argument("container", help="Container ID or name")
+    p.add_argument("message", nargs="+", help="Message to inject into agent context")
+
+    # signal
+    p = sub.add_parser("signal", help="Write steering file for agent to poll (prompt-based, any model)")
+    p.add_argument("container", help="Container ID or name")
+    p.add_argument("message", nargs="+", help="Instruction to append to steering file")
+    p.add_argument("--show", action="store_true", help="Show current instructions.md after writing")
+
     # run
     p = sub.add_parser("run", help="Launch a single midget")
     p.add_argument("role", help="Agent role (e.g. watchdog, weaver, sentinel)")
@@ -521,6 +643,8 @@ def main():
         "audit": cmd_audit,
         "tokens": cmd_tokens,
         "watch": cmd_watch,
+        "steer": cmd_steer,
+        "signal": cmd_signal,
         "run": cmd_run,
     }
 

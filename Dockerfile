@@ -72,7 +72,7 @@ COPY tests/test-jobs.sh /opt/test-jobs.sh
 RUN printf '#!/bin/sh\nexit 0\n' > /usr/bin/fbsetbg
 
 RUN chmod +x /opt/entrypoint.sh /opt/steer/steer /opt/steer/drive \
-        /opt/steer/jobrunner \
+        /opt/steer/jobrunner /opt/steer/steer-watcher \
         /opt/test-poc.sh /opt/test-drive.sh /opt/test-ocr.sh \
         /opt/test-chromium.sh /opt/test-agent.sh /opt/test-jobs.sh
 

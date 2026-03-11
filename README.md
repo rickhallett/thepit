@@ -78,6 +78,8 @@ midgetctl kill <container|all>      immediate kill
 midgetctl pause <container>         freeze without killing (inspect state)
 midgetctl resume <container>        resume paused midget
 midgetctl stats [container]         live CPU/memory/network per midget
+midgetctl steer <cid> <message>     inject into agent context (infrastructure, Claude only)
+midgetctl signal <cid> <message>    append to steering file (prompt-based, any model)
 midgetctl history                   list past crew runs with verdicts
 midgetctl audit <run-id>            full audit trail for a run
 midgetctl tokens [run-id]           token usage per agent, per run, or all
@@ -93,6 +95,7 @@ make interop           2-container handoff via shared volume
 make swarm N=3         N workers via Docker Compose
 make crew-test         mount constraint proof (deterministic)
 make crew              live LLM crew run (cross-model, costs API calls)
+make steering          mid-flight steering tests (16 tests)
 make watch             VNC into a midget (ROLE=x CMD="...")
 make status            phase completion overview
 bin/diagrams           terminal architecture diagrams
