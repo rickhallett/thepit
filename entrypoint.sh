@@ -25,6 +25,10 @@ if ! kill -0 $XVFB_PID 2>/dev/null; then
     exit 1
 fi
 
+# Fluxbox config — disable wallpaper setter (fbsetbg xmessage on headless)
+mkdir -p ~/.fluxbox
+printf "session.screen0.rootCommand:\n" > ~/.fluxbox/init
+
 # Start fluxbox (minimal window manager — needed for window focus/raise)
 fluxbox -display :99 >>"$MIDGET_LOG" 2>&1 &
 FLUXBOX_PID=$!
