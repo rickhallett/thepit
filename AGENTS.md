@@ -48,6 +48,7 @@ These persist across all sessions. Obey without restatement.
 - **no em-dashes:** use single dash or no dash, ever [SD-319, permanent]
 - **no emojis:** none, any context, no exceptions [SD-319, permanent]
 - **no interactive git:** never use git commands that open an editor or require interactive input (e.g. `git rebase -i`, `git commit` without `-m`, `git rebase --continue` without `GIT_EDITOR=true`). Agents cannot interact with editors. Use `GIT_EDITOR=true` to bypass when needed.
+- **no git stash:** `git stash` is forbidden, no exceptions [SD-325, permanent]. All code changes belong on numbered feature branches associated with a GitHub issue. Stashing creates invisible state outside the branch model, survives context window death without trace, and conflicts on pop. Use `git worktree` instead - each concern gets its own directory and branch. If changes are on the wrong branch, commit WIP on a new branch rather than stashing.
 
 ### Backlog CLI
 
@@ -714,6 +715,9 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 - SD-320 [signal-adversarial-test] - shorthand >= signal, 3-model test, COMPLETE
 - SD-321 [signal-killed] - "Signal has no signal", notation abandoned, PERMANENT
 - SD-322 [midget-castle] - build trajectory for container orchestration, ACTIVE
+- SD-323 [debian-slim] - container base switch to debian:bookworm-slim, COMPLETE
+- SD-324 [c2-intercontainer] - inter-container communication via Docker volumes, COMPLETE
+- SD-325 [no-stash] - git stash forbidden; all changes on numbered feature branches; use worktree, PERMANENT
 
 Full chain: `docs/internal/session-decisions.md` | Index: `docs/internal/session-decisions-index.yaml`
 
