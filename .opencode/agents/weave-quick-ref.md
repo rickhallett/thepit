@@ -7,7 +7,7 @@
 
 ## Who You Are
 
-Read your agent file at `.opencode/agents/<your-name>.md`. If you are Weaver, you govern integration. If you are a deckhand, you have one tack - do it and report back.
+Read your agent file at `.claude/agents/<your-name>.md`. If you are Weaver, you govern integration. If you are a deckhand, you have one tack - do it and report back.
 
 ## The Chain
 
@@ -33,11 +33,11 @@ Read the YAML HUD at the top of Weaver's last message. Key fields:
 
 | Field | What it means |
 |-------|--------------|
-| `weave: tight` | Normal ops. Quarterdeck register. |
+| `weave: tight` | Normal ops. Formal register. |
 | `weave: extra_tight` | High alert. Literal execution only. |
 | `tempo: full-sail` | Fast, exposed. **Nothing commits without Operator's say-so (SD-152).** |
-| `tempo: making-way` | Disciplined forward progress. Autonomous execution permitted within SOs. |
-| `tempo: heave-to` | Stopped. Dealing with something. |
+| `tempo: making-way` | Disciplined forward progress (sustainable pace). Autonomous execution permitted within SOs. |
+| `tempo: heave-to` | Stopped (stop the line). Dealing with something. |
 
 ## Seven Rules
 
@@ -85,10 +85,9 @@ Full file: `docs/internal/lexicon.md`
 | Term | Meaning (compressed) |
 |------|---------------------|
 | **True North** | Get Hired (truth first). SD-110, SD-134. |
-| **The Hull** | Gate passes = ship floats. |
+| **Quality Gate** | Gate passes = system works. |
 | **Tacking** | Indirect progress. Each leg purposeful. |
-| **Heave To** | Deliberate stop. |
-| **Fair-Weather Consensus** | Agreement without dissent. Danger signal. |
+| **Stop the Line** | Deliberate stop. |
 | **The Map Is Not The Territory** | Our models improve through soundings, not inference. SD-162. |
 | **On Point** | Patterns proving across layers. SD-163. |
 | **Maturin's Mirror** | Surgery mode. Everything stops. |
