@@ -161,4 +161,5 @@ sites/oceanheart/data/slopodar.yaml
 # Gas Town (added by gt)
 .runtime/
 .claude/
+.beads/
 state.json
