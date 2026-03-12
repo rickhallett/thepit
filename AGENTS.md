@@ -138,7 +138,7 @@ If the gate fails, the change is not ready. The hull is survival; everything els
 
 ### Pitcommit (Gauntlet Attestation)
 
-Manages verification attestations. The pre-commit hook calls `verify`; Makefile targets call `attest`. Tree hash (`git write-tree`) is the identity - it hashes staged content before the commit exists.
+Manages verification attestations. The pre-commit hook calls `verify`; justfile targets call `attest`. Tree hash (`git write-tree`) is the identity - it hashes staged content before the commit exists.
 
 Invocation: `python3 scripts/pitcommit.py <command>`
 
@@ -167,7 +167,7 @@ sudo pitcommit walkthrough                          # Operator attestation (requ
 
 1. Stage changes: `git add <files>`
 2. Set tier if not code: `pitcommit tier --set docs`
-3. Run pipeline: `make gauntlet` (or `make darkcat-all` for just adversarial review)
+3. Run pipeline: `just gauntlet` (or `just darkcat-all` for adversarial review only)
 4. Walkthrough: `sudo python3 scripts/pitcommit.py walkthrough`
 5. Commit: `git commit -m "..."` - pre-commit hook calls `pitcommit verify`
 
@@ -179,19 +179,19 @@ sudo pitcommit walkthrough                          # Operator attestation (requ
 - `.gauntlet/` directory is gitignored - attestations are ephemeral, per-machine state
 - `--no-verify` on git commit bypasses the hook (emergency only, logged)
 
-**Makefile integration:**
+**Justfile integration:**
 
 ```
-make gate              # run tests (Docker container suite)
-make darkcat           # DC-1 adversarial review (Claude)
-make darkcat-openai    # DC-2 (Codex)
-make darkcat-gemini    # DC-3 (Gemini)
-make darkcat-all       # DC pair in parallel (Claude + Codex)
-make darkcat-synth     # convergence synthesis (requires all 3 DC logs)
-make darkcat-ref REF=<commit>  # ad-hoc review of specific commit
-make gauntlet          # full pipeline: gate -> darkcat-all -> pitkeel
-make gauntlet TIER=docs  # docs tier: gate -> pitkeel only
-make install-hooks     # symlink pre-commit + prepare-commit-msg
+just gate                        # run tests (Docker container suite)
+just darkcat                     # DC-1 adversarial review (Claude)
+just darkcat-openai              # DC-2 (Codex)
+just darkcat-gemini              # DC-3 (Gemini)
+just darkcat-all                 # DC pair in parallel (Claude + Codex)
+just darkcat-synth               # convergence synthesis (requires all 3 DC logs)
+just darkcat-ref <commit>        # ad-hoc review of specific commit
+just gauntlet                    # full pipeline: gate -> darkcat-all -> pitkeel
+just gauntlet tier=docs          # docs tier: gate -> pitkeel only
+just install-hooks               # symlink pre-commit + prepare-commit-msg
 ```
 
 ---
@@ -624,7 +624,7 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 / (repo root)
 ├── AGENTS.md                       -- THIS FILE (auto-loaded, canonical)
 ├── CLAUDE.md                       -- Symlink -> AGENTS.md (harness compat)
-├── Makefile                        -- 26 polecat tasks (deterministic build)
+├── justfile                        -- build orchestration (just)
 ├── .claude/agents/*.md             -- Symlinks -> .opencode/agents/ (harness compat)
 ├── .opencode/agents/*.md           -- Agent identity files (canonical copies)
 ├── lib/                            -- Source code (flat files, no subdirectories)
@@ -744,7 +744,7 @@ From commit 0:
 
 ## Polecats (Deterministic Execution)
 
-`claude -p` agents in the Makefile pipeline. One-shot, fresh context, no interactive steering. The plan file is the polecat's **prime context** - nothing else enters. The pipeline is the discipline; the polecat is the executor.
+`claude -p` agents in the justfile pipeline. One-shot, fresh context, no interactive steering. The plan file is the polecat's **prime context** - nothing else enters. The pipeline is the discipline; the polecat is the executor.
 
 Human reviews AFTER execution, not during. This kills trajectory corruption, anthropomorphisation drag, and context bloat at source.
 

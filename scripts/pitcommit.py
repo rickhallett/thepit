@@ -2,7 +2,7 @@
 """pitcommit — gauntlet attestation manager.
 
 Manages verification attestations for the gauntlet pipeline.
-The pre-commit hook calls verify; Makefile targets call attest.
+The pre-commit hook calls verify; justfile targets call attest.
 Tree hash (git write-tree) is the identity — it hashes the staged
 content before the commit exists, solving the SHA paradox.
 
