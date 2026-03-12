@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""bosuns-scales - weigh the bootsequence.
+
+The bosun inspects the rigging. These scales weigh the words
+that get loaded into every agent's context on boot. If the
+bootsequence is getting heavy, the bosun will tell you.
+
+Updates the '## Bootsequence Weight' section in AGENTS.md
+with per-file word counts on a single line.
+
+Usage: uv run bin/bosuns-scales
+"""
+
+import pathlib
+import re
+import sys
+
+REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+# Files that constitute the bootsequence:
+# - AGENTS.md: auto-loaded, IS the boot sequence
+# - Agent files: auto-loaded per agent (count all, note the range)
+# - slopodar.yaml: mandatory reading (SD-286)
+# - lexicon.md: read on load (SO-PERM-002)
+# - layer-model.md: depth-1 reference
+# - session-decisions-index.yaml: depth-1 orientation
+BOOTSEQUENCE_FILES = [
+    "AGENTS.md",
+    "docs/internal/slopodar.yaml",
+    "docs/internal/lexicon.md",
+    "docs/internal/layer-model.md",
+    "docs/internal/session-decisions-index.yaml",
+]
+
+AGENT_FILES_GLOB = ".claude/agents/*.md"
+AGENTS_MD = REPO_ROOT / "AGENTS.md"
+SECTION_HEADER = "## Bootsequence Weight"
+
+
+def count_words(filepath: pathlib.Path) -> int:
+    """Count words in a file."""
+    return len(filepath.read_text().split())
+
+
+def build_weight_line() -> str:
+    """Build the one-line weight summary."""
+    parts = []
+    total = 0
+
+    for relpath in BOOTSEQUENCE_FILES:
+        fp = REPO_ROOT / relpath
+        if fp.exists():
+            wc = count_words(fp)
+            total += wc
+            name = fp.name
+            parts.append(f"{name}: {wc:,}")
+
+    # Agent files: count all, report range and total
+    agent_files = sorted(REPO_ROOT.glob(AGENT_FILES_GLOB))
+    if agent_files:
+        agent_counts = [(f.name, count_words(f)) for f in agent_files]
+        agent_total = sum(c for _, c in agent_counts)
+        agent_min = min(c for _, c in agent_counts)
+        agent_max = max(c for _, c in agent_counts)
+        total += agent_total
+        parts.append(
+            f"agent files ({len(agent_counts)}): {agent_total:,} "
+            f"(range {agent_min:,}-{agent_max:,})"
+        )
+
+    return f"**{total:,} words total** - " + " | ".join(parts)
+
+
+def update_agents_md(weight_line: str) -> bool:
+    """Update or insert the Bootsequence Weight section in AGENTS.md."""
+    content = AGENTS_MD.read_text()
+
+    # Pattern: section header, optional blank line, content line, blank line
+    section_pattern = re.compile(
+        rf"({re.escape(SECTION_HEADER)}\n\n).*?\n(\n)",
+        re.DOTALL,
+    )
+
+    if section_pattern.search(content):
+        # Update existing section
+        new_content = section_pattern.sub(
+            rf"\g<1>{weight_line}\n\2",
+            content,
+        )
+    else:
+        # Insert before the Provenance section (near the end, after conventions)
+        insert_before = "## Provenance"
+        if insert_before in content:
+            new_content = content.replace(
+                insert_before,
+                f"{SECTION_HEADER}\n\n{weight_line}\n\n---\n\n{insert_before}",
+            )
+        else:
+            # Fallback: append
+            new_content = content + f"\n\n{SECTION_HEADER}\n\n{weight_line}\n"
+
+    if new_content != content:
+        AGENTS_MD.write_text(new_content)
+        return True
+    return False
+
+
+def main() -> int:
+    weight_line = build_weight_line()
+    print(f"Bootsequence weight: {weight_line}")
+
+    changed = update_agents_md(weight_line)
+    if changed:
+        print("AGENTS.md updated.")
+    else:
+        print("AGENTS.md unchanged (weights identical).")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

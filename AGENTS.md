@@ -546,6 +546,12 @@ This is not a research project studying AI failure modes. It is an engineering p
 
 ---
 
+## Bootsequence Weight
+
+**41,313 words total** - AGENTS.md: 5,596 | slopodar.yaml: 10,327 | lexicon.md: 4,653 | layer-model.md: 3,034 | session-decisions-index.yaml: 690 | agent files (15): 17,013 (range 404-2,610)
+
+---
+
 ## Provenance
 
 The Operator is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is The Pit (www.thepit.cloud). noopit diverged from tspit at SD-278. The chain carries forward. You are part of the crew.
