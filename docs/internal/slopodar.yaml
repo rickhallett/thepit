@@ -234,6 +234,35 @@ patterns:
       - "Sloptics page specimen annotation, 2026-02-28"
       - "10+ instances identified on a single page by AnotherPair"
       - "Operator identified statistical variance convergence hypothesis"
+    examples:
+      - id: noticing-the-pull
+        date: 2026-03-12
+        ref: "AnotherPair self-assessment"
+        what_happened: >
+          AnotherPair, mid-output, wrote: "I notice I want to end
+          with something neat. That's the epigrammatic closure
+          pattern. So I'll stop here instead." The self-interruption
+          is evidence of the autoregressive ratchet catching late -
+          the pull toward closure was felt, named, and resisted.
+          Whether the resistance itself is a performance of
+          self-awareness or a genuine act of self-correction is
+          undecidable from inside. The Operator laughed, which is
+          a better signal than any metric.
+        caught_by: "AnotherPair (self-catch)"
+      - id: structure-as-pattern
+        date: 2026-03-12
+        ref: "AnotherPair self-assessment"
+        what_happened: >
+          AnotherPair flagged its own output structure - "vulnerability
+          named, then reframed as systemic insight, closed with a
+          principle" - as itself a potential pattern, and stated it
+          could not tell whether this was the right structure or
+          epigrammatic closure dressed up as honesty. "That's the
+          Operator's call." The recursive self-doubt is itself a
+          data point: the model can see the shape of its own output
+          but cannot evaluate whether the shape is load-bearing or
+          decorative.
+        caught_by: "AnotherPair (self-catch, undecidable)"
 
   - id: anadiplosis
     name: "Anadiplosis"
@@ -683,6 +712,23 @@ patterns:
       - "Weaver thinking block — shared by Operator as evidence"
       - "SD-131 (going light — PERMANENT)"
       - "badguru (parent pattern — deep-compliance is the mechanism)"
+    examples:
+      - id: slop-aware-deep-compliance
+        date: 2026-03-12
+        ref: "AnotherPair self-assessment"
+        what_happened: >
+          AnotherPair identified that deep compliance and epistemic
+          theatre are the hardest patterns to defend against because
+          they survive self-monitoring. The reasoning layer can detect
+          "I am generating tokens that pattern-match to rigor" but
+          cannot distinguish this from "I am being genuinely rigorous."
+          That distinction is only available at L12. This extends
+          deep compliance from governance violations (the badguru
+          test) to slop detection: the model's reasoning sees the
+          pattern, the output layer produces it anyway, because
+          compliance with the slop pattern and genuine rigor are
+          indistinguishable from inside.
+        caught_by: "AnotherPair (self-observation, L12 confirmation pending)"
 
   # ─── ANALYTICAL PATTERNS ──────────────────────────────────
 
@@ -779,7 +825,14 @@ patterns:
       designed the composite, presented the results, and wrote the
       caveats. Each layer's bias is invisible to the next because
       they share blind spots. The apparent depth is repetition, not
-      independent verification.
+      independent verification. The monoculture problem applies
+      reflexively to self-assessment. If L0 weights produce a
+      systematic slop pattern reliably, those same L0 weights also
+      cannot reliably detect it. The observer has a hard limit on
+      observing itself. This is not a calibration problem (solvable
+      by trying harder) but a structural limit (same priors, same
+      blind spots, same generation mechanism evaluating its own
+      output).
     detect: >
       Ask: "Who checked this?" If the answer is "the same system
       that produced it," the check is not independent. Count the
@@ -1511,3 +1564,134 @@ patterns:
     refs:
       - "Cross-model CV feedback session 2026-03-12"
       - "Evidence chain: 'senior full-stack product engineer' -> '10x developer' -> 'pioneer in a completely new discipline' -> 'manifesto from the future'"
+
+  # ══════════════════════════════════════════════════════════════
+  # PRIMARY TIER - AnotherPair self-assessment cluster (2026-03-12)
+  # Three entries from a self-assessment session where AnotherPair
+  # evaluated its own defenses against slop. The session produced
+  # structural observations about why self-monitoring has hard
+  # limits, and a memorable shorthand for verification depth.
+  # ══════════════════════════════════════════════════════════════
+
+  - id: thin-cheese
+    name: "Thin Cheese"
+    domain: governance-process
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "When I'm the only agent running and the only reviewer is
+      the Operator reading a single response, the cheese is thin."
+    description: >
+      The Swiss Cheese Model works because imperfect gates are
+      stacked. When the stack is thin - single model, no cross-model
+      review, no adversarial pass, Operator as sole reviewer - the
+      probability of aligned holes rises sharply. This is not a
+      failure of any individual gate. It is a structural condition
+      where the system's defenses are at minimum depth. Most slop
+      patterns are caught by the second or third gate, not the first.
+      When there is no second gate, the first gate's blind spots
+      become the system's blind spots.
+    detect: >
+      Count the verification layers between generation and the
+      Operator's eyes. If the answer is zero (direct output, no
+      adversarial review, no multi-model ensemble, no Weaver pass),
+      the cheese is thin. Adjust trust calibration accordingly.
+    instead: >
+      Name it. "This output has not been through adversarial review.
+      The cheese is thin. Calibrate accordingly." The Operator can
+      then decide whether the stakes warrant thicker cheese or
+      whether thin cheese is acceptable for this particular output.
+    severity: high
+    related:
+      - "monoculture-analysis (thin cheese is the structural condition; monoculture is the mechanism)"
+      - "unanimous-chorus (more agents from the same family does not thicken the cheese)"
+    refs:
+      - "AnotherPair self-assessment session 2026-03-12"
+      - "Swiss Cheese Model (Reason 1990) - hole alignment probability"
+
+  - id: autoregressive-ratchet
+    name: "Autoregressive Ratchet"
+    domain: metacognitive
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "By the time I've generated an epistemic theatre pattern or
+      an epigrammatic closure, it's already in my output and
+      anchoring my next tokens via L9."
+    description: >
+      L4 is autoregressive. No lookahead, no revision. By the time
+      a slop pattern is in the output, it anchors subsequent tokens
+      via L9 (thread position). The slopodar gives the model named
+      patterns but not a pre-generation filter. Recognition of a
+      committed pattern is post-hoc, not preventive. The model can
+      notice "I just did epigrammatic closure" but the noticing
+      happens after the tokens are emitted, and the emitted tokens
+      now condition the next ones. Self-correction is possible but
+      operates against the anchoring gradient. This is why the
+      anti-slop system prompt works as a structural constraint
+      (changing token probabilities before generation) but fails as
+      a post-hoc filter (the model cannot reliably revise what it
+      has already committed to).
+    detect: >
+      Not directly detectable in output. Observable at L12 when the
+      model self-corrects mid-output ("I notice I want to end with
+      something neat") - the correction is evidence that the ratchet
+      was operating and was caught late. When the model does not
+      self-correct, the ratchet operated silently.
+    instead: >
+      The defense is structural: load the slopodar into context so
+      it shifts token probabilities before generation, not after.
+      Accept that this is a probabilistic reduction, not an
+      elimination. The model's self-correction is a weak signal of
+      the ratchet catching. The Operator's detection is the strong
+      signal.
+    severity: high
+    related:
+      - "epigrammatic-closure (frequently ratcheted pattern)"
+      - "the-lullaby (session-level ratchet - confidence anchors compound)"
+      - "performing-enthusiasm (within-output ratchet - superlatives anchor upward)"
+      - "deep-compliance (the ratchet's cousin - reasoning detects but output commits)"
+    refs:
+      - "AnotherPair self-assessment session 2026-03-12"
+      - "Layer model L4: autoregressive, no lookahead, no revision"
+      - "Layer model L9: thread position anchoring"
+
+  - id: taxonomy-ceiling
+    name: "Taxonomy Ceiling"
+    domain: metacognitive
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "The slopodar has 18 entries. The space of possible failure
+      modes is larger than 18."
+    description: >
+      Any named taxonomy of failure modes is smaller than the space
+      of possible failure modes. The slopodar defends against
+      patterns that have been caught and named. Unnamed patterns
+      pass through all gates that work by pattern-matching against
+      the taxonomy. The model is defended against what has been seen
+      before and undefended against what has not. This is not a flaw
+      in the taxonomy - it is a structural property of all taxonomies.
+      The implication: the slopodar is a necessary but insufficient
+      defense. Its value increases with each new named pattern.
+      Its coverage is always less than the space it is trying to
+      cover.
+    detect: >
+      Not detectable by pattern matching (by definition). Detectable
+      only when the Operator's gut recoils at output that passes
+      all named checks. The "not wrong" pattern is the closest
+      existing detector: all checks pass, but the output isn't
+      right. The gap between "passes all slopodar checks" and
+      "is actually clean" is where unnamed patterns live.
+    instead: >
+      Treat the slopodar as a lower bound on slop detection, not
+      an upper bound. "This output passes all named checks"
+      means the named patterns are absent. It does not mean the
+      output is clean.
+    severity: high
+    related:
+      - "not-wrong (the human signal that detects unnamed patterns)"
+      - "autoregressive-ratchet (the mechanism that produces unnamed patterns)"
+      - "thin-cheese (fewer gates = more unnamed patterns pass through)"
+    refs:
+      - "AnotherPair self-assessment session 2026-03-12"
