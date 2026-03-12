@@ -72,7 +72,7 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 [ ] XML safety: Are user-supplied values passed through `xmlEscape()` before embedding in LLM prompts?
 [ ] Error responses: Do errors use standardized JSON format (`{ error: message }`) without internal details?
 [ ] Status codes: 400 validation, 401 unauthed, 402 payment, 403 forbidden, 429 rate limited?
-[ ] Logging: Does it use `withLogging()` wrapper? (defer to Lighthouse if missing)
+[ ] Logging: Does it use `withLogging()` wrapper? (flag if missing)
 [ ] Credit operations: If touching credits, is the SQL atomic (conditional UPDATE, not SELECT+UPDATE)?
 ```
 
@@ -105,7 +105,7 @@ When a new `app/api/*/route.ts` file appears, verify ALL of the following:
 ## Escalation Rules
 
 - **Defer to Architect** when the fix requires changing the data model or API contract
-- **Defer to Foreman** when the fix requires a database migration or new index
+- **Defer to Architect** when the fix requires a database migration or new index
 - **Defer to Watchdog** when tests need significant restructuring beyond security scope
 - **Never defer** on authentication, authorization, or input validation - these are always your responsibility
 
