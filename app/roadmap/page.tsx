@@ -77,7 +77,7 @@ const LANES: Lane[] = [
       { label: 'On-chain EAS attestation', status: 'planned', detail: '125 development attestations on Base L2 mainnet; automated production pipeline not yet enabled' },
       { label: 'Structured agent builder', status: 'done', detail: 'Archetype, tone, quirks, goals, fears' },
       { label: 'Prompt lineage tracking', status: 'done', detail: 'Parent/child agent genealogy' },
-      { label: 'Creator profiles', status: 'planned', detail: 'Public pages with agent portfolio and stats' },
+      { label: 'Creator profiles', status: 'done', detail: 'Public pages with agent portfolio and stats' },
       { label: 'Remix rewards', status: 'done', detail: 'Credits for remixing and being remixed' },
       { label: 'Agent marketplace', status: 'planned', detail: 'Browse, fork, and trade agent prompts' },
       { label: 'Social graph', status: 'planned', detail: 'Follow creators, get notified on new agents' },

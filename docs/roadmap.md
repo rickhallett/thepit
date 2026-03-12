@@ -23,7 +23,7 @@ What we're shipping. Three tracks running in parallel. Source of truth: `app/roa
 - [x] Prompt lineage tracking (parent/child agent genealogy)
 - [x] Remix rewards (credits for remixing and being remixed)
 - [ ] On-chain EAS attestation (125 dev attestations on Base L2; prod pipeline not yet enabled)
-- [ ] Creator profiles (public pages with agent portfolio and stats)
+- [x] Creator profiles (public pages with agent portfolio and stats)
 - [ ] Agent marketplace (browse, fork, and trade agent prompts)
 - [ ] Social graph (follow creators, get notified on new agents)
 - [ ] Collaborative agents (multi-author agent construction)
