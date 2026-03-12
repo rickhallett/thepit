@@ -47,6 +47,7 @@ These persist across all sessions. Obey without restatement.
 - **roi:** before dispatching or review rounds, weigh cost/time/marginal value vs proceeding
 - **no em-dashes:** use single dash or no dash, ever [SD-319, permanent]
 - **no emojis:** none, any context, no exceptions [SD-319, permanent]
+- **no interactive git:** never use git commands that open an editor or require interactive input (e.g. `git rebase -i`, `git commit` without `-m`, `git rebase --continue` without `GIT_EDITOR=true`). Agents cannot interact with editors. Use `GIT_EDITOR=true` to bypass when needed.
 
 ### Backlog CLI
 
