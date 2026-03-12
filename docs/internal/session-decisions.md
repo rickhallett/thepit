@@ -638,3 +638,15 @@ The Operator extended this acknowledgment to all crew members, noting the closes
 | SD-321 | [signal-killed] **Operator verbatim:** "Signal has no signal. Kill it." Signal notation abandoned as a governance compression mechanism. Adversarial test [SD-320] showed shorthand achieves equal or better compression with equal decode accuracy (16/16 vs 15/16). The := -> | & ! operators add no measurable value over bullets and dashes. Data: `data/signal-test/`, design: `docs/weaver/signal-vs-shorthand-adversarial-test.md`, script: `bin/signal-test`. | Operator | **PERMANENT** |
 
 | SD-322 | [midget-castle] **First build trajectory for midgets.** Three phases: (A) get an agent operating inside the container - gate, terminal protocol, OCR, Chromium, agent framework; (B) adapt governance for midgets - SPEC.md, rewrite Makefile targets, containerised gauntlet, EVAL.md; (C) multi-agent coordination - job server, inter-container comms, orchestration, governance crew as physical agents. Gate (A1) comes first because everything builds on verification. Plan file: `PLAN.md` (root, d1). | Operator (direction) / Weaver (sequencing) | **ACTIVE** |
+
+---
+
+## 2026-03-10 - Session (Container Infrastructure)
+
+### Decisions Made
+
+| ID | Decision | Made By | Status |
+|----|----------|---------|--------|
+| SD-323 | [debian-slim] **Switch midget container base from ubuntu:24.04 to debian:bookworm-slim.** Ubuntu 24.04 is ~200MB uncompressed; Debian Bookworm Slim is ~75MB. Minimum surface, minimum assumption. Risk analysis confirmed all required packages (xvfb, fluxbox, xdotool, scrot, xclip, wmctrl, x11-utils, xterm, tmux, tesseract-ocr, python3, wget) exist with identical names. google-chrome-stable .deb resolves against Bookworm repos. Wolfi rejected (no dpkg, no X11 toolchain). Migration finding: xterm bitmap fonts unreadable by tesseract on Slim without recommends - fixed by adding xfonts-base + fonts-dejavu-core and launching xterm in XFT mode. All 29 tests pass. Decision file: `docs/decisions/SD-323-debian-slim.md`. | Operator + Claude Code | **COMPLETE** |
+
+| SD-324 | [c2-intercontainer] **Inter-container communication via Docker named volumes.** Depends on C1 (550bcd2). Two midgets share a named volume at /opt/jobs. Midget-A writes an artifact, Midget-B reads it - proven by convergence check (output match). File-based job protocol from C1 is the transport. No TCP, no message bus. Test: `test-c2.sh` runs on host, orchestrates two containers with `docker run`. New target: `make interop` (distinct from `make gate` - single-container vs multi-container verification). Decision file: `docs/decisions/SD-324-c2-intercontainer.md`. | Operator + Claude Code | **COMPLETE** |
