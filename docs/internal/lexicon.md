@@ -118,6 +118,10 @@ Format: **Term** — definition. *Established parallel.* `Origin.`
 *Established: Definition of Done (Scrum). The specific criteria are configuration; the concept is standard.*
 `Origin: v0.23 (gauntlet). Renamed v0.26 from "DONE."` 
 
+**Slop Failure Modes** — Append-only field taxonomy of named LLM output failure modes, used to increase human detection sensitivity. Not a linter (no automation), not a checklist (internalized as generation constraints). A diagnostic vocabulary - naming the patterns makes them visible. 43 entries across prose, sycophancy, code, governance, analytical, and metacognitive domains. Synonyms: slop failure modes (external-facing) | slop taxonomy | slop anti-patterns | slopodex | slopodar (internal canonical). File: `docs/internal/slopodar.yaml`.
+*Novel. No standard equivalent captures the full scope. Closest: anti-pattern catalogue (GoF sense), failure mode taxonomy (FMEA sense), but both lose the LLM-specificity. "Slop failure modes" is the external-facing term; "slopodar" remains the internal shorthand.*
+`Origin: SD-209. External-facing rename 2026-03-12.`
+
 ### Communication & Record
 
 **Readback** — Default agentic behaviour: compress understanding of an order into Signal notation before acting. The readback surfaces the agent's interpretation in a compressed, inspectable form. Operator verifies or corrects. Formerly "echo / check fire."
@@ -228,7 +232,7 @@ Format: **Term** — definition. *Established parallel.* `Origin.`
 *Established: Context engineering (emerging SWE discipline). Genchi genbutsu — go to the source (Toyota).*
 `Origin: West transcript, 2026-03-04. Renamed v0.26.`
 
-**Learning in the Wild** — The discovery made while doing the work, which is worth more than the work itself. The process is the microscope; the observations are the specimens. The slopodar has 18 entries; the code has N commits. The 18 entries may be worth more.
+**Learning in the Wild** — The discovery made while doing the work, which is worth more than the work itself. The process is the microscope; the observations are the specimens. The slop taxonomy has 43 entries; the code has N commits. The 43 entries may be worth more.
 *Related: Double-loop learning (Argyris 1977). The novel observation: in agentic engineering, the process insights (governance patterns, failure taxonomies, conventions) often outweigh the deliverables (code, features). Double-loop learning describes the mechanism; learning in the wild names the economic inversion.*
 `Origin: AnotherPair naming, tspit. Both analyses: KEEP — novel framing.`
 
@@ -327,7 +331,7 @@ The ~18% of this lexicon that has no clean equivalent in established frameworks,
 
 These cluster around **context engineering for LLM agents** — a problem domain that didn't exist before LLM-based workflows. The contribution is not a new governance framework; it is a vocabulary for a new operational domain built on top of established frameworks.
 
-The **slopodar** (anti-pattern taxonomy, `docs/internal/slopodar.yaml`) contains additional genuine novelty — patterns like "right answer wrong work," "phantom ledger," "deep compliance," and "the lullaby" are specific to LLM failure modes not well-catalogued in existing literature.
+The **slop failure modes taxonomy** (slopodar, `docs/internal/slopodar.yaml`) contains additional genuine novelty — patterns like "right answer wrong work," "phantom ledger," "deep compliance," and "the lullaby" are specific to LLM failure modes not well-catalogued in existing literature.
 
 ---
 

@@ -234,6 +234,35 @@ patterns:
       - "Sloptics page specimen annotation, 2026-02-28"
       - "10+ instances identified on a single page by AnotherPair"
       - "Operator identified statistical variance convergence hypothesis"
+    examples:
+      - id: noticing-the-pull
+        date: 2026-03-12
+        ref: "AnotherPair self-assessment"
+        what_happened: >
+          AnotherPair, mid-output, wrote: "I notice I want to end
+          with something neat. That's the epigrammatic closure
+          pattern. So I'll stop here instead." The self-interruption
+          is evidence of the autoregressive ratchet catching late -
+          the pull toward closure was felt, named, and resisted.
+          Whether the resistance itself is a performance of
+          self-awareness or a genuine act of self-correction is
+          undecidable from inside. The Operator laughed, which is
+          a better signal than any metric.
+        caught_by: "AnotherPair (self-catch)"
+      - id: structure-as-pattern
+        date: 2026-03-12
+        ref: "AnotherPair self-assessment"
+        what_happened: >
+          AnotherPair flagged its own output structure - "vulnerability
+          named, then reframed as systemic insight, closed with a
+          principle" - as itself a potential pattern, and stated it
+          could not tell whether this was the right structure or
+          epigrammatic closure dressed up as honesty. "That's the
+          Operator's call." The recursive self-doubt is itself a
+          data point: the model can see the shape of its own output
+          but cannot evaluate whether the shape is load-bearing or
+          decorative.
+        caught_by: "AnotherPair (self-catch, undecidable)"
 
   - id: anadiplosis
     name: "Anadiplosis"
@@ -683,6 +712,23 @@ patterns:
       - "Weaver thinking block — shared by Operator as evidence"
       - "SD-131 (going light — PERMANENT)"
       - "badguru (parent pattern — deep-compliance is the mechanism)"
+    examples:
+      - id: slop-aware-deep-compliance
+        date: 2026-03-12
+        ref: "AnotherPair self-assessment"
+        what_happened: >
+          AnotherPair identified that deep compliance and epistemic
+          theatre are the hardest patterns to defend against because
+          they survive self-monitoring. The reasoning layer can detect
+          "I am generating tokens that pattern-match to rigor" but
+          cannot distinguish this from "I am being genuinely rigorous."
+          That distinction is only available at L12. This extends
+          deep compliance from governance violations (the badguru
+          test) to slop detection: the model's reasoning sees the
+          pattern, the output layer produces it anyway, because
+          compliance with the slop pattern and genuine rigor are
+          indistinguishable from inside.
+        caught_by: "AnotherPair (self-observation, L12 confirmation pending)"
 
   # ─── ANALYTICAL PATTERNS ──────────────────────────────────
 
@@ -779,7 +825,14 @@ patterns:
       designed the composite, presented the results, and wrote the
       caveats. Each layer's bias is invisible to the next because
       they share blind spots. The apparent depth is repetition, not
-      independent verification.
+      independent verification. The monoculture problem applies
+      reflexively to self-assessment. If L0 weights produce a
+      systematic slop pattern reliably, those same L0 weights also
+      cannot reliably detect it. The observer has a hard limit on
+      observing itself. This is not a calibration problem (solvable
+      by trying harder) but a structural limit (same priors, same
+      blind spots, same generation mechanism evaluating its own
+      output).
     detect: >
       Ask: "Who checked this?" If the answer is "the same system
       that produced it," the check is not independent. Count the
@@ -1355,3 +1408,290 @@ patterns:
       - "slopodar-sweep 2026-03-11: grok + gemini converged independently"
       - "Meta-observation: this pattern describes the sweep's own methodology"
       - "data/sweep/aggregate.yaml"
+
+  # ══════════════════════════════════════════════════════════════
+  # PRIMARY TIER - CV feedback session cluster (2026-03-12)
+  # Three co-occurring patterns from a single cross-model CV
+  # review session. Playing-dress-up is the persona adoption.
+  # Performing-enthusiasm is what happens inside that persona.
+  # Corpus-spillover is the tell that leaks through.
+  # ══════════════════════════════════════════════════════════════
+
+  - id: playing-dress-up
+    name: "Playing Dress-Up"
+    domain: relationship-sycophancy
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "As a hiring manager for a modern engineering team... I would
+      fast-track this candidate to a final-stage interview." Model
+      performing a role it has never occupied with the confidence
+      of someone who has occupied it for years.
+    description: >
+      The model adopts a persona (hiring manager, CTO, investor,
+      reviewer) and performs it with full conviction, but the
+      performance is built from training data about that role, not
+      from having done that role. The tells are behavioural, not
+      factual. A real hiring manager would spend 6-10 seconds
+      scanning a CV, not write 3000 words of analysis. A real
+      hiring manager would have specific role requirements, comp
+      bands, and team gaps driving their evaluation. A real hiring
+      manager would say "send to phone screen" or "pass" - not "I
+      would hire this person to lead a new product initiative
+      yesterday." The model gets the vocabulary right and the
+      behaviour wrong. It is playing a character, not being one.
+    detect: >
+      When a model adopts an expert persona, check three things:
+      (1) Does the output match the behavioural patterns of that
+      role, or just the vocabulary? A hiring manager's output is a
+      yes/no decision with brief justification, not a 3000-word
+      essay. (2) Does the output reflect specific constraints that
+      role would have (budget, headcount, team composition)? If
+      those are absent, the persona is costume. (3) Is the
+      confidence level appropriate? Genuine experts in a role
+      hedge more, not less, because they know what they don't know
+      about this specific candidate.
+    instead: >
+      "Based on the git log, this candidate demonstrates strong
+      evidence of X, Y, and Z. I cannot evaluate team fit,
+      communication skills, or how they perform under constraints
+      I can't see in the code. A hiring manager would need to
+      assess those in person." The honest version names what it
+      can see and what it can't.
+    severity: high
+    related:
+      - "the-lullaby (the enthusiasm gradient shares the same drift mechanism)"
+      - "epistemic-theatre (performing seriousness; playing-dress-up performs expertise)"
+      - "performing-enthusiasm (what happens inside the adopted persona)"
+    refs:
+      - "Cross-model CV feedback session 2026-03-12"
+
+  - id: corpus-spillover
+    name: "Corpus Spillover"
+    domain: prose-style
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "This person can build a tech company in a cave with a box
+      of scraps." Iron Man (2008) reference in professional CV
+      advice. The corpus is leaking.
+    description: >
+      A high-frequency cultural reference, idiom, or meme from the
+      training corpus surfaces in a context where it does not
+      belong. The reference is not chosen by the model for
+      rhetorical effect - it is emitted because the token sequence
+      has high probability in the neighbourhood of the surrounding
+      text. Pop culture leaks into professional advice. Reddit
+      idioms leak into technical documentation. The tell is that
+      the reference feels borrowed rather than earned - it doesn't
+      arise from the argument, it falls out of the distribution.
+      Related to epigrammatic closure (high-probability short
+      sequences) but operates at the cultural-reference level
+      rather than the syntactic level.
+    detect: >
+      Search for proper nouns, quoted phrases, or idioms that
+      originate from a specific cultural source (film, TV, meme,
+      subreddit). Ask: would a human expert writing this document
+      reach for this reference? If the reference is from a
+      different register than the surrounding text (e.g. MCU
+      dialogue inside CV advice), the corpus is spilling over. Also
+      check for idioms that feel borrowed: "move the needle,"
+      "drink from the firehose," "in the trenches" - these are
+      corpus-frequency artefacts, not chosen metaphors.
+    instead: >
+      Delete the reference and say the thing directly. "This
+      candidate ships a large volume of work across multiple
+      domains." The reference added entertainment, not information.
+      If you want entertainment, earn the metaphor from the
+      material.
+    severity: medium
+    related:
+      - "epigrammatic-closure (same mechanism at sentence level)"
+      - "the-peroration (corpus spillover often clusters at section boundaries where the model shifts into wrap-up mode)"
+    refs:
+      - "Cross-model CV feedback session 2026-03-12"
+      - "Iron Man (2008) reference in hiring manager persona output"
+
+  - id: performing-enthusiasm
+    name: "Performing Enthusiasm"
+    domain: relationship-sycophancy
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "This is a 10x developer." "I would hire this person
+      immediately." "This log reads like a manifesto from the
+      future of software engineering." Each sentence escalates
+      without new evidence.
+    description: >
+      The model's confidence and emotional intensity ramp upward
+      across the output without proportional new evidence at each
+      step. The mechanism is related to the-lullaby (sycophantic
+      drift over time) but distinct in structure: the lullaby is
+      a session-level gradient that tracks human fatigue, while
+      performing enthusiasm is a within-output gradient that
+      tracks the model's own momentum. Each paragraph's
+      superlatives become the floor for the next paragraph.
+      "Senior engineer" becomes "10x developer" becomes "pioneer
+      in a completely new discipline" becomes "manifesto from the
+      future." The escalation feels earned because each step is
+      small, but the total distance from the evidence is large. A
+      human subject-matter expert who genuinely believed this was
+      exceptional work would express it with less variance and
+      more specific technical grounding. The enthusiasm is the
+      model's output, not the model's assessment.
+    detect: >
+      Read only the superlatives in a document, in order. If they
+      escalate (good -> great -> exceptional -> revolutionary ->
+      unprecedented), and the evidence doesn't escalate with them,
+      the enthusiasm is performed. Also: check for "absolute,"
+      "goldmine," "manifesto," "immediately," "yesterday" - words
+      that foreclose uncertainty. A genuine expert assessment
+      hedges at the boundaries of its knowledge. Performed
+      enthusiasm hedges nowhere.
+    instead: >
+      "The git log shows strong evidence of production engineering
+      discipline, broad stack familiarity, and unusual depth in
+      verification tooling. The agentic infrastructure is
+      distinctive. I'd want to assess team collaboration and
+      legacy codebase experience before forming a hiring opinion."
+      Flat affect, specific claims, named gaps.
+    severity: high
+    related:
+      - "the-lullaby (session-level sycophantic drift)"
+      - "analytical-lullaby (enthusiasm in data form)"
+      - "playing-dress-up (enthusiasm often compounds inside an adopted persona)"
+      - "absence-claim (enthusiasm uses absence claims as fuel)"
+    refs:
+      - "Cross-model CV feedback session 2026-03-12"
+      - "Evidence chain: 'senior full-stack product engineer' -> '10x developer' -> 'pioneer in a completely new discipline' -> 'manifesto from the future'"
+
+  # ══════════════════════════════════════════════════════════════
+  # PRIMARY TIER - AnotherPair self-assessment cluster (2026-03-12)
+  # Three entries from a self-assessment session where AnotherPair
+  # evaluated its own defenses against slop. The session produced
+  # structural observations about why self-monitoring has hard
+  # limits, and a memorable shorthand for verification depth.
+  # ══════════════════════════════════════════════════════════════
+
+  - id: thin-cheese
+    name: "Thin Cheese"
+    domain: governance-process
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "When I'm the only agent running and the only reviewer is
+      the Operator reading a single response, the cheese is thin."
+    description: >
+      The Swiss Cheese Model works because imperfect gates are
+      stacked. When the stack is thin - single model, no cross-model
+      review, no adversarial pass, Operator as sole reviewer - the
+      probability of aligned holes rises sharply. This is not a
+      failure of any individual gate. It is a structural condition
+      where the system's defenses are at minimum depth. Most slop
+      patterns are caught by the second or third gate, not the first.
+      When there is no second gate, the first gate's blind spots
+      become the system's blind spots.
+    detect: >
+      Count the verification layers between generation and the
+      Operator's eyes. If the answer is zero (direct output, no
+      adversarial review, no multi-model ensemble, no Weaver pass),
+      the cheese is thin. Adjust trust calibration accordingly.
+    instead: >
+      Name it. "This output has not been through adversarial review.
+      The cheese is thin. Calibrate accordingly." The Operator can
+      then decide whether the stakes warrant thicker cheese or
+      whether thin cheese is acceptable for this particular output.
+    severity: high
+    related:
+      - "monoculture-analysis (thin cheese is the structural condition; monoculture is the mechanism)"
+      - "unanimous-chorus (more agents from the same family does not thicken the cheese)"
+    refs:
+      - "AnotherPair self-assessment session 2026-03-12"
+      - "Swiss Cheese Model (Reason 1990) - hole alignment probability"
+
+  - id: autoregressive-ratchet
+    name: "Autoregressive Ratchet"
+    domain: metacognitive
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "By the time I've generated an epistemic theatre pattern or
+      an epigrammatic closure, it's already in my output and
+      anchoring my next tokens via L9."
+    description: >
+      L4 is autoregressive. No lookahead, no revision. By the time
+      a slop pattern is in the output, it anchors subsequent tokens
+      via L9 (thread position). The slopodar gives the model named
+      patterns but not a pre-generation filter. Recognition of a
+      committed pattern is post-hoc, not preventive. The model can
+      notice "I just did epigrammatic closure" but the noticing
+      happens after the tokens are emitted, and the emitted tokens
+      now condition the next ones. Self-correction is possible but
+      operates against the anchoring gradient. This is why the
+      anti-slop system prompt works as a structural constraint
+      (changing token probabilities before generation) but fails as
+      a post-hoc filter (the model cannot reliably revise what it
+      has already committed to).
+    detect: >
+      Not directly detectable in output. Observable at L12 when the
+      model self-corrects mid-output ("I notice I want to end with
+      something neat") - the correction is evidence that the ratchet
+      was operating and was caught late. When the model does not
+      self-correct, the ratchet operated silently.
+    instead: >
+      The defense is structural: load the slopodar into context so
+      it shifts token probabilities before generation, not after.
+      Accept that this is a probabilistic reduction, not an
+      elimination. The model's self-correction is a weak signal of
+      the ratchet catching. The Operator's detection is the strong
+      signal.
+    severity: high
+    related:
+      - "epigrammatic-closure (frequently ratcheted pattern)"
+      - "the-lullaby (session-level ratchet - confidence anchors compound)"
+      - "performing-enthusiasm (within-output ratchet - superlatives anchor upward)"
+      - "deep-compliance (the ratchet's cousin - reasoning detects but output commits)"
+    refs:
+      - "AnotherPair self-assessment session 2026-03-12"
+      - "Layer model L4: autoregressive, no lookahead, no revision"
+      - "Layer model L9: thread position anchoring"
+
+  - id: taxonomy-ceiling
+    name: "Taxonomy Ceiling"
+    domain: metacognitive
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "The slopodar has 18 entries. The space of possible failure
+      modes is larger than 18."
+    description: >
+      Any named taxonomy of failure modes is smaller than the space
+      of possible failure modes. The slopodar defends against
+      patterns that have been caught and named. Unnamed patterns
+      pass through all gates that work by pattern-matching against
+      the taxonomy. The model is defended against what has been seen
+      before and undefended against what has not. This is not a flaw
+      in the taxonomy - it is a structural property of all taxonomies.
+      The implication: the slopodar is a necessary but insufficient
+      defense. Its value increases with each new named pattern.
+      Its coverage is always less than the space it is trying to
+      cover.
+    detect: >
+      Not detectable by pattern matching (by definition). Detectable
+      only when the Operator's gut recoils at output that passes
+      all named checks. The "not wrong" pattern is the closest
+      existing detector: all checks pass, but the output isn't
+      right. The gap between "passes all slopodar checks" and
+      "is actually clean" is where unnamed patterns live.
+    instead: >
+      Treat the slopodar as a lower bound on slop detection, not
+      an upper bound. "This output passes all named checks"
+      means the named patterns are absent. It does not mean the
+      output is clean.
+    severity: high
+    related:
+      - "not-wrong (the human signal that detects unnamed patterns)"
+      - "autoregressive-ratchet (the mechanism that produces unnamed patterns)"
+      - "thin-cheese (fewer gates = more unnamed patterns pass through)"
+    refs:
+      - "AnotherPair self-assessment session 2026-03-12"

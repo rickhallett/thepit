@@ -16,7 +16,7 @@ The psychology turns out to be load-bearing. It directly produced the operator t
 
 **[oceanheart.ai](https://oceanheart.ai)** - this site. Learning in public about what happens when you give LLMs real responsibilities and then hold them to account.
 
-**[slopodar](https://oceanheart.ai/slopodar/)** - a field taxonomy of LLM output patterns caught in the wild. Epistemic theatre, paper guardrails, analytical lullabies.
+**[Slop Failure Modes](https://oceanheart.ai/slopodar/)** - a field taxonomy of LLM output anti-patterns caught in the wild. Epistemic theatre, paper guardrails, analytical lullabies.
 
 ## What I think about
 

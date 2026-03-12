@@ -193,6 +193,29 @@ control_grain  : human_control_resolution = 1_input_per_generation_cycle (L6a)
 
 ---
 
+### Joint Cognitive Defense (cross-cutting concern - applies at L4, L9, L10, L12)
+
+```
+slop_defense    : not_self_monitoring · joint_cognitive_system · connection_is_the_defense
+                  The primary defense against slop is not model self-monitoring.
+                  It is the joint cognitive system: the model generating with the
+                  slopodar loaded (shifting L0 token probabilities), the Operator
+                  reading with the slopodar loaded (calibrating L12 detection),
+                  and the divergence between what the model thinks is clean and
+                  what the Operator flags as slop being the actual calibration
+                  mechanism. Neither node alone is sufficient. The system's
+                  defense is in the connection.
+thin_cheese     : when the connection is absent (unreviewed output, single model,
+                  no adversarial pass), defense degrades to single-node
+                  self-monitoring. Single-node self-monitoring is structurally
+                  limited by: autoregressive ratchet (L4 - cannot revise committed
+                  tokens), monoculture blindness (L10 - same weights cannot detect
+                  what same weights produce), and taxonomy ceiling (named patterns
+                  < total failure space).
+                  [Evidence: AnotherPair self-assessment 2026-03-12]
+                  [Back-ref: slopodar entries thin-cheese, autoregressive-ratchet, taxonomy-ceiling]
+```
+
 ### Loading Points (SD-162, SD-163)
 
 Each layer has characteristic loading points where patterns prove out or fail.
