@@ -822,32 +822,61 @@ async function _executeBoutInner(
           },
           { role: 'user', content: userContent },
         ],
+        timeout: { totalMs: 30000, chunkMs: 10000 },
       });
 
       let fullText = '';
       let estimatedOutputTokens = 0;
       let ttftLogged = false;
-      for await (const delta of result.textStream) {
-        // TTFT: Log slow provider responses (>2s to first token)
-        if (!ttftLogged) {
-          const ttft = Date.now() - turnStart;
-          if (ttft > 2000) {
-            log.warn('slow_provider_response', {
-              requestId,
-              boutId,
-              turn: i,
-              modelId,
-              ttft_ms: ttft,
-            });
+      let turnTimedOut = false;
+      try {
+        for await (const delta of result.textStream) {
+          // TTFT: Log slow provider responses (>2s to first token)
+          if (!ttftLogged) {
+            const ttft = Date.now() - turnStart;
+            if (ttft > 2000) {
+              log.warn('slow_provider_response', {
+                requestId,
+                boutId,
+                turn: i,
+                modelId,
+                ttft_ms: ttft,
+              });
+            }
+            ttftLogged = true;
           }
-          ttftLogged = true;
+          fullText += delta;
+          estimatedOutputTokens += estimateTokensFromText(delta, 0);
+          onEvent?.({ type: 'text-delta', id: turnId, delta });
         }
-        fullText += delta;
-        estimatedOutputTokens += estimateTokensFromText(delta, 0);
-        onEvent?.({ type: 'text-delta', id: turnId, delta });
+      } catch (streamError) {
+        // Handle timeout by emitting error event and skipping this turn
+        const errMsg = streamError instanceof Error ? streamError.message : String(streamError);
+        const isTimeout = errMsg.includes('timeout') || errMsg.includes('Timeout');
+        if (isTimeout) {
+          turnTimedOut = true;
+          log.warn('Turn timed out', {
+            requestId,
+            boutId,
+            turn: i,
+            agentId: agent.id,
+            partialTextLength: fullText.length,
+            error: errMsg,
+          });
+          // Emit error SSE event for this turn
+          onEvent?.({ type: 'text-delta', id: turnId, delta: '\n[Turn timed out]' });
+        } else {
+          // Re-throw non-timeout errors
+          throw streamError;
+        }
       }
 
       onEvent?.({ type: 'text-end', id: turnId });
+
+      // If turn timed out, use partial text or skip if empty
+      if (turnTimedOut && fullText.length === 0) {
+        fullText = '[Turn timed out - no response received]';
+      }
 
       const usage = await result.usage;
       let turnInputTokens = 0;
@@ -961,42 +990,62 @@ async function _executeBoutInner(
       const shareContent = buildSharePrompt(clippedTranscript);
 
       // Share line is always platform-funded (Haiku) — use traced variant.
+      // 15s timeout with empty string fallback on failure.
       const shareLineStart = Date.now();
       const shareResult = tracedStreamText({
         model: getModel(FREE_MODEL_ID),
         maxOutputTokens: 80,
         messages: [{ role: 'user', content: shareContent }],
+        timeout: { totalMs: 15000 },
       });
 
       let shareText = '';
-      for await (const delta of shareResult.textStream) {
-        shareText += delta;
+      try {
+        for await (const delta of shareResult.textStream) {
+          shareText += delta;
+        }
+      } catch (shareStreamError) {
+        // Timeout or other stream error - fall back to empty string
+        const errMsg = shareStreamError instanceof Error ? shareStreamError.message : String(shareStreamError);
+        log.warn('Share line stream failed, falling back to empty', {
+          boutId,
+          error: errMsg,
+          partialTextLength: shareText.length,
+        });
+        shareText = '';
       }
-      shareLine = shareText.trim().replace(/^["']|["']$/g, '');
-      if (shareLine.length > 140) {
-        shareLine = `${shareLine.slice(0, 137).trimEnd()}...`;
+      const trimmedShare = shareText.trim().replace(/^["']|["']$/g, '');
+      if (trimmedShare.length === 0) {
+        // Empty or whitespace-only - treat as null (failure fallback)
+        shareLine = null;
+      } else if (trimmedShare.length > 140) {
+        shareLine = `${trimmedShare.slice(0, 137).trimEnd()}...`;
+      } else {
+        shareLine = trimmedShare;
       }
 
-      // PostHog LLM analytics for share line generation
-      const shareUsage = await shareResult.usage;
-      const shareInputTokens = shareUsage?.inputTokens ?? estimateTokensFromText(shareContent, 1);
-      const shareOutputTokens = shareUsage?.outputTokens ?? estimateTokensFromText(shareText, 1);
-      const shareDurationMs = Date.now() - shareLineStart;
-      const shareCost = computeCostUsd(shareInputTokens, shareOutputTokens, FREE_MODEL_ID);
-      serverCaptureAIGeneration(userId ?? 'anonymous', {
-        model: FREE_MODEL_ID,
-        provider: 'anthropic',
-        inputTokens: shareInputTokens,
-        outputTokens: shareOutputTokens,
-        inputCostUsd: shareCost.inputCostUsd,
-        outputCostUsd: shareCost.outputCostUsd,
-        totalCostUsd: shareCost.totalCostUsd,
-        durationMs: shareDurationMs,
-        boutId,
-        presetId,
-        isByok: false,
-        generationType: 'share_line',
-      });
+      // PostHog LLM analytics for share line generation (only if we got text)
+      if (shareLine !== null) {
+        const shareUsage = await shareResult.usage;
+        const shareInputTokens = shareUsage?.inputTokens ?? estimateTokensFromText(shareContent, 1);
+        const shareOutputTokens = shareUsage?.outputTokens ?? estimateTokensFromText(shareText, 1);
+        const shareDurationMs = Date.now() - shareLineStart;
+        const shareCost = computeCostUsd(shareInputTokens, shareOutputTokens, FREE_MODEL_ID);
+        serverCaptureAIGeneration(userId ?? 'anonymous', {
+          model: FREE_MODEL_ID,
+          provider: 'anthropic',
+          inputTokens: shareInputTokens,
+          outputTokens: shareOutputTokens,
+          inputCostUsd: shareCost.inputCostUsd,
+          outputCostUsd: shareCost.outputCostUsd,
+          totalCostUsd: shareCost.totalCostUsd,
+          durationMs: shareDurationMs,
+          boutId,
+          presetId,
+          isByok: false,
+          generationType: 'share_line',
+        });
+      }
     } catch (error) {
       log.warn('Failed to generate share line', toError(error), { boutId });
     }
