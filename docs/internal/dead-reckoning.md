@@ -81,7 +81,7 @@ Also on disk: `scribe.md`, `maturin.md`, `operatorslog.md`, `weave-quick-ref.md`
 
 | Document | Path | Purpose |
 |----------|------|---------|
-| Boot sequence | `docs/internal/boot-sequence.md` | Normal wake manifest |
+| Boot sequence | `docs/internal/boot-sequence.md` | Legacy boot manifest (superseded by AGENTS.md) |
 | Session decisions index | `docs/internal/session-decisions-index.yaml` | Last 10 SDs + standing orders |
 | Lexicon | `docs/internal/lexicon.md` | Vocabulary v0.20 |
 | Slopodar | `docs/internal/slopodar.yaml` | Anti-pattern taxonomy, 49 entries |

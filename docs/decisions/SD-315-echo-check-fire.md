@@ -1,5 +1,10 @@
 # SD-315 - Echo / Check Fire
 
+> **Amendment (2026-03-12):** SD-321 killed Signal notation. The readback principle
+> (echo understanding before acting) remains a standing order. The mechanism has changed:
+> agents use plain language readback, not Signal compression. The Signal-specific
+> mechanism described below is historical.
+
 **Label:** echo-check-fire
 **Status:** STANDING ORDER
 **Made by:** Operator
