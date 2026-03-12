@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""bosuns-scales - weigh the bootsequence.
+"""bosuns-scales - weigh the context.
 
 The bosun inspects the rigging. These scales weigh the words
-that get loaded into every agent's context on boot. If the
-bootsequence is getting heavy, the bosun will tell you.
+that agents load into context. Split into two categories:
 
-Updates the '## Bootsequence Weight' section in AGENTS.md
-with per-file word counts on a single line.
+  Auto-loaded: harness-injected, guaranteed present.
+    AGENTS.md + the invoking agent's .claude/agents/{role}.md
+
+  Instructed: standing orders say "read on load" but compliance
+    depends on the agent following the instruction. Not injected
+    by the harness. Would need @-prefix or explicit tool call.
+
+Updates the '## Context Weight' section in AGENTS.md.
 
 Usage: uv run bin/bosuns-scales
 """
@@ -17,24 +22,25 @@ import sys
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-# Files that constitute the bootsequence:
-# - AGENTS.md: auto-loaded, IS the boot sequence
-# - Agent files: auto-loaded per agent (count all, note the range)
-# - slopodar.yaml: mandatory reading (SD-286)
-# - lexicon.md: read on load (SO-PERM-002)
-# - layer-model.md: depth-1 reference
-# - session-decisions-index.yaml: depth-1 orientation
-BOOTSEQUENCE_FILES = [
+# Auto-loaded by the harness on every invocation.
+# AGENTS.md is always injected. The agent file is per-invocation
+# (one of the .claude/agents/*.md files), so we report the range.
+AUTO_LOADED = [
     "AGENTS.md",
-    "docs/internal/slopodar.yaml",
-    "docs/internal/lexicon.md",
-    "docs/internal/layer-model.md",
-    "docs/internal/session-decisions-index.yaml",
+]
+AGENT_FILES_GLOB = ".claude/agents/*.md"
+
+# Instructed reading: standing orders or depth-1 refs in AGENTS.md
+# tell agents to read these, but the harness does not inject them.
+INSTRUCTED = [
+    ("docs/internal/slopodar.yaml", "mandatory reading [SD-286]"),
+    ("docs/internal/lexicon.md", "read on load [SO-PERM-002]"),
+    ("docs/internal/layer-model.md", "depth-1 reference"),
+    ("docs/internal/session-decisions-index.yaml", "depth-1 orientation"),
 ]
 
-AGENT_FILES_GLOB = ".claude/agents/*.md"
 AGENTS_MD = REPO_ROOT / "AGENTS.md"
-SECTION_HEADER = "## Bootsequence Weight"
+SECTION_HEADER = "## Context Weight"
 
 
 def count_words(filepath: pathlib.Path) -> int:
@@ -42,62 +48,79 @@ def count_words(filepath: pathlib.Path) -> int:
     return len(filepath.read_text().split())
 
 
-def build_weight_line() -> str:
-    """Build the one-line weight summary."""
-    parts = []
-    total = 0
+def build_weight_section() -> str:
+    """Build the multi-line weight summary."""
+    auto_parts = []
+    auto_total = 0
+    instructed_parts = []
+    instructed_total = 0
 
-    for relpath in BOOTSEQUENCE_FILES:
+    # Auto-loaded files
+    for relpath in AUTO_LOADED:
         fp = REPO_ROOT / relpath
         if fp.exists():
             wc = count_words(fp)
-            total += wc
-            name = fp.name
-            parts.append(f"{name}: {wc:,}")
+            auto_total += wc
+            auto_parts.append(f"{fp.name}: {wc:,}")
 
-    # Agent files: count all, report range and total
+    # Agent files (auto-loaded, one per invocation)
     agent_files = sorted(REPO_ROOT.glob(AGENT_FILES_GLOB))
     if agent_files:
         agent_counts = [(f.name, count_words(f)) for f in agent_files]
         agent_total = sum(c for _, c in agent_counts)
         agent_min = min(c for _, c in agent_counts)
         agent_max = max(c for _, c in agent_counts)
-        total += agent_total
-        parts.append(
-            f"agent files ({len(agent_counts)}): {agent_total:,} "
-            f"(range {agent_min:,}-{agent_max:,})"
+        auto_total += agent_total
+        auto_parts.append(
+            f"agent files ({len(agent_counts)}): "
+            f"{agent_total:,} (range {agent_min:,}-{agent_max:,})"
         )
 
-    return f"**{total:,} words total** - " + " | ".join(parts)
+    # Instructed files
+    for relpath, _reason in INSTRUCTED:
+        fp = REPO_ROOT / relpath
+        if fp.exists():
+            wc = count_words(fp)
+            instructed_total += wc
+            instructed_parts.append(f"{fp.name}: {wc:,}")
+
+    grand_total = auto_total + instructed_total
+
+    lines = [
+        f"**Auto-loaded** (harness-injected, guaranteed): "
+        f"**{auto_total:,}** - " + " | ".join(auto_parts),
+        f"**Instructed** (standing orders, compliance varies): "
+        f"**{instructed_total:,}** - " + " | ".join(instructed_parts),
+        f"**Ceiling** (if everything gets read): **{grand_total:,}**",
+    ]
+    return "\n".join(lines)
 
 
-def update_agents_md(weight_line: str) -> bool:
-    """Update or insert the Bootsequence Weight section in AGENTS.md."""
+def update_agents_md(section_body: str) -> bool:
+    """Update or insert the Context Weight section in AGENTS.md."""
     content = AGENTS_MD.read_text()
 
-    # Pattern: section header, optional blank line, content line, blank line
+    # Match the section: header, blank line, content until next section or ---
     section_pattern = re.compile(
-        rf"({re.escape(SECTION_HEADER)}\n\n).*?\n(\n)",
+        rf"({re.escape(SECTION_HEADER)}\n\n).*?(\n\n---)",
         re.DOTALL,
     )
 
     if section_pattern.search(content):
-        # Update existing section
         new_content = section_pattern.sub(
-            rf"\g<1>{weight_line}\n\2",
+            rf"\g<1>{section_body}\2",
             content,
         )
     else:
-        # Insert before the Provenance section (near the end, after conventions)
+        # Insert before Provenance
         insert_before = "## Provenance"
         if insert_before in content:
             new_content = content.replace(
                 insert_before,
-                f"{SECTION_HEADER}\n\n{weight_line}\n\n---\n\n{insert_before}",
+                f"{SECTION_HEADER}\n\n{section_body}\n\n---\n\n{insert_before}",
             )
         else:
-            # Fallback: append
-            new_content = content + f"\n\n{SECTION_HEADER}\n\n{weight_line}\n"
+            new_content = content + f"\n\n{SECTION_HEADER}\n\n{section_body}\n"
 
     if new_content != content:
         AGENTS_MD.write_text(new_content)
@@ -106,10 +129,12 @@ def update_agents_md(weight_line: str) -> bool:
 
 
 def main() -> int:
-    weight_line = build_weight_line()
-    print(f"Bootsequence weight: {weight_line}")
+    section_body = build_weight_section()
+    print("Context weight:")
+    print(section_body)
+    print()
 
-    changed = update_agents_md(weight_line)
+    changed = update_agents_md(section_body)
     if changed:
         print("AGENTS.md updated.")
     else:

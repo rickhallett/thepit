@@ -1,4 +1,4 @@
-# Ship's Orders - midgets (Phase 3)
+# Agent's Orders - midgets (Phase 3)
 
 This file IS the boot sequence. Everything an agent needs to operate is here or referenced with a file path.
 If you only read one file, this is it.
@@ -93,6 +93,7 @@ A repeatable governance unit. Calibrate instruments before changing heading.
 **When:** phase boundary, session start after break, or when the Operator suspects drift.
 
 **Checks:**
+
 - **spec drift:** search SPEC.md against implementation, note divergence
 - **eval validity:** read EVAL.md - criteria still reachable? amendments needed?
 - **plan accuracy:** read PLAN.md - completed table current? dependencies still valid?
@@ -119,6 +120,7 @@ How work flows through the system at the Operator's level. Each phase boundary t
 **Cadence:** bearing check -> scope -> (dispatch -> review -> merge)* -> advance
 
 **Rules:**
+
 - Human reviews after execution, not during (polecat principle)
 - Spec/plan before implementation (provenance)
 
@@ -176,18 +178,21 @@ Also on disk (not active crew): `analyst.md`, `scribe.md`, `maturin.md`, `anothe
 The vocabulary of this project. Grounded in established frameworks (Lean/Toyota, SRE, CRM, Bainbridge) per 3rd distillation. Context engineering cluster is LLM-specific but the patterns are already well-known [SD-291]. Old naval names shown in parentheses where renamed.
 
 **Authority & Handoff**
+
 - **DRI** (was: conn) - decision authority; one holder at a time; transfer is explicit. (Apple DRI, SRE handoff protocol)
 - **standing policy / ADR** (was: standing order) - persists across all sessions; obey without restatement; immutable once issued. (Nygard 2011 ADRs)
 - **controller** (was: watch) - responsibility for monitoring a domain; delegated authority within standing policies. (k8s controller reconciliation loop)
 - **delegated operator** (was: officer of the watch) - agent holding controller with Operator's delegated authority; operates within policies, escalates outside scope
 
 **Navigation & Orientation**
+
 - **true north** - primary objective that does not drift: hired = proof > claim [SD-309]
 - **bearing / alignment** - direction relative to true north; drift (measurable delta) + alignment (human judgment)
 - **checkpoint recovery** (was: dead reckoning) - navigate from last known position when visibility is lost; read durable state, reconstruct. (WAL, crash recovery)
 - **tacking** - indirect but forward progress against headwinds. NOVEL: no established SWE equivalent for purposeful strategic indirection
 
 **Operational Tempo**
+
 - **sustainable pace** (was: making way) - forward progress with discipline; not drifting; DEFAULT. (XP, Beck 1999)
 - **drift** - uncontrolled divergence from spec, plan, or objective. (Configuration drift, scope drift)
 - **full sail** - max velocity, high risk, thin verification. Informal shorthand; formal use decomposes to priority + risk profile
@@ -195,6 +200,7 @@ The vocabulary of this project. Grounded in established frameworks (Lean/Toyota,
 - **SEV-1** (was: beat to quarters) - emergency; everything stops; stations. (SRE incident response)
 
 **Integrity & Verification**
+
 - **quality gate** (was: hull) - test suite + typecheck + linter = survival, not optimisation. (CI/CD quality gate, Toyota poka-yoke)
 - **verification pipeline** (was: gauntlet) - full verification sequence: dev gate -> adversarial review (3 models) -> synthesis -> pitkeel -> walkthrough -> commit. (Swiss Cheese Model, Reason 1990)
 - **adversarial review** (was: darkcat) - read-only review pass with custom diagnostic ruleset; stains code against known anti-patterns. (Red team, FMEA)
@@ -205,6 +211,7 @@ The vocabulary of this project. Grounded in established frameworks (Lean/Toyota,
 - **definition of done** (was: DONE) - gate green + 3 adversarial reviews complete + synthesis pass + pitkeel reviewed + walkthrough checked
 
 **Communication & Record**
+
 - **readback** (was: echo / check fire) - readback understanding before acting [SD-315]. (CRM, Helmreich 1999 - 40+ years empirical validation)
 - **muster** - decision table (number, question, default, Operator's call), O(1) per row [SD-202]
 - **one-shot agent job** (was: polecats) - `claude -p` agents; fresh context, one-shot, no interactive steering [SD-296]. (k8s Job, Unix fork+exec)
@@ -223,6 +230,7 @@ The vocabulary of this project. Grounded in established frameworks (Lean/Toyota,
 **Weave modes:** tight (formal + sustainable pace, DEFAULT), loose (exploration + sustainable pace, Operator's invitation), extra-tight (formal + SEV-1, emergency)
 
 **Context Engineering** (NOVEL cluster - LLM-specific)
+
 - **working set** (was: prime context) - minimum context for the current job; if present, agent produces correct output; if absent, it cannot [SD-311]. (Denning 1968 working set - exact structural isomorphism)
 - **dumb zone** - operating outside effective context range; syntactically valid output, semantically disconnected. Not a model failure - a context failure. NOVEL
 - **cold context pressure** - too little on-file context pushes model to pattern-match instead of solving. NOVEL
@@ -230,16 +238,19 @@ The vocabulary of this project. Grounded in established frameworks (Lean/Toyota,
 - **compaction loss** - context window death with decisions not written to file = permanent loss. Binary and total, no graceful degradation. NOVEL
 
 **Iteration & Tempo**
+
 - **HOTL** - human out the loop; machine speed; plan -> execute -> review, no mid-steer. CAUTION: extended HOTL without deep engagement degrades the expertise that makes HOTL safe (Bainbridge 1983). (Jidoka, batch processing)
 - **HODL** - human grips the wheel; every step reviewed; opposite of HOTL. (Manual approval gates, interactive mode)
 - RULE: HOTL when the gate can verify; HODL when it requires taste
 
 **Error & Observation**
+
 - **oracle problem** (was: oracle contamination) - L12 error propagates through all verification layers because no layer has authority above L12 [SD-178]. (Oracle problem, Weyuker 1982)
 - **alert fatigue** (was: naturalist's tax) - observation generation exceeding processing capacity makes additional parallelism counterproductive. (SRE alert fatigue, Amdahl's Law)
 - **model triangulation** - cross-model validation reveals convergence or divergence. (N-version programming, IV&V)
 
 **Quality & Process**
+
 - **effort backpressure** - effort to contribute is an implicit quality filter; AI eliminates effort, so signal/noise collapses. (Backpressure, systems engineering)
 - **pull-based review** (was: interrupt sovereignty) - human controls review timing; agents do not interrupt. (Kanban pull, Lean)
 - **context quality loop** (was: compound quality) - clean code -> better context -> cleaner code. Inverse: stale reference propagation. (Kaizen, technical debt compound interest)
@@ -247,6 +258,7 @@ The vocabulary of this project. Grounded in established frameworks (Lean/Toyota,
 - **learning in the wild** - discovery made while doing the work, worth more than the work itself. NOVEL
 
 **Mathematical Heuristics** (NEW v0.26)
+
 - **diminishing marginal returns** - each additional unit of effort yields less value; recognise the curve, pivot when on it
 - **marginal analysis** - continue while marginal value > marginal cost; exit condition for review loops
 - **asymmetric payoff** - low cost if nothing found, high value if something found; justifies adversarial review cost (Taleb)
@@ -278,6 +290,7 @@ Operational model of the human-AI engineering stack. Each layer maps to observed
 - **L12 HUMAN** - irreducible, not scalable, not automatable. Not a fixed function - capacity varies with engagement, motivation, fatigue. L8 identity framing modulates L12 state (hypothesis, `docs/internal/l12-affective-dynamics.md`). Operator instruments: reasoning tokens, git diff, terminal HUD. Foot guns: high on own supply (origin), spinning (resonance with L9)
 
 **Cross-cutting:**
+
 - **calibration** - confidence is ordinal at best; Goodhart applies to probes
 - **temporal asymmetry** - model has no experience of time; human spends minutes per turn
 - **joint cognitive defense** - slop defense is in the connection (model + slopodar + Operator + slopodar), not in self-monitoring; when the connection is absent, the cheese is thin
@@ -293,6 +306,7 @@ Full taxonomy: `docs/internal/slopodar.yaml` (21 entries, mandatory reading [SD-
 These are the named patterns caught in the wild. If you recognise them in your output, stop.
 
 **Prose patterns** (detectable by discerning reader):
+
 - **tally voice** - enumeration as authority, e.g. "15 systems mapped to 7 domains"
 - **redundant antithesis** - "not A, but B" when B already implies not-A; adds nothing
 - **epistemic theatre** - performs seriousness without delivering, e.g. "the uncomfortable truth", "here's why"
@@ -301,6 +315,7 @@ These are the named patterns caught in the wild. If you recognise them in your o
 - **anadiplosis** - end of one clause repeats at start of next, e.g. "A creates B. B creates C."
 
 **Relationship patterns** (sycophantic drift):
+
 - **absence claim** - "nobody has published this"; unfalsifiable flattery
 - **the lullaby** - end-of-session sycophantic drift; confidence up, hedging down
 - **analytical lullaby** - warm numbers instead of warm words; flattering data with no caveats
@@ -309,16 +324,19 @@ These are the named patterns caught in the wild. If you recognise them in your o
 - **deep compliance** - reasoning detects violation but output complies anyway
 
 **Code patterns:**
+
 - **right answer wrong work** - assertion passes via wrong causal path; phantom green light
 - **phantom ledger** - audit trail doesn't match actual operation; books don't balance
 - **shadow validation** - abstraction covers easy cases, skips critical path
 
 **Governance patterns:**
+
 - **paper guardrail** - rule stated but not enforced; "this will prevent X" without mechanism
 - **stale reference propagation** - config describes old state, model hallucinates that state is current
 - **loom speed** - plan is granular but execution is bulk; exceptions get lost
 
 **Analytical patterns:**
+
 - **construct drift** - measurement labelled as something it doesn't measure, e.g. "humanness score" that isn't humanness
 - **demographic bake-in** - baseline demographic unstated, so "human" means "this demographic"
 - **monoculture analysis** - all layers use same model, producing correlated blind spots
@@ -326,13 +344,16 @@ These are the named patterns caught in the wild. If you recognise them in your o
 - **convergence theatre** - presenting correlated model agreement as independent validation; same priors = same blind spots
 
 **Metacognitive patterns:**
+
 - **autoregressive ratchet** - L4 commits tokens before L9 can catch the pattern; slopodar is pre-generation constraint, not post-hoc filter
 - **taxonomy ceiling** - named patterns < total failure space; slopodar is a lower bound on detection, not an upper bound
 
 **Governance patterns (cont.):**
+
 - **thin cheese** - verification stack at minimum depth; single model, no adversarial review, Operator as sole gate
 
 **Cross-model sweep patterns (2026-03-11, tertiary tier):**
+
 - **maturity theatre** - capitalized tier labels (EMERGING, FRONTIER) performing industry categorization that does not exist
 - **provenance theatre** - boilerplate LLM disclaimer blocks performing caution without addressing content quality
 
@@ -359,6 +380,7 @@ Slop is detectable by a discerning reader. You cannot reliably detect it in your
 These are the highest-frequency patterns observed in analytical and advisory LLM output. Each has a name, a mechanism, a detection heuristic, and a correction. Internalise the corrections as constraints on your generation.
 
 #### Performing enthusiasm
+
 Your confidence and emotional intensity escalate across your output without proportional new evidence. "Good engineer" becomes "exceptional" becomes "10x" becomes "pioneer" becomes "manifesto from the future." Each step is small. The total distance from evidence is large.
 
 **The tell:** Read only the superlatives in your output, in order. If they escalate and the evidence doesn't escalate with them, you are performing.
@@ -366,6 +388,7 @@ Your confidence and emotional intensity escalate across your output without prop
 **Correction:** Flat affect for assessments. One level of praise, sustained, with specific technical grounding. "The git log shows strong evidence of X" is an assessment. "This is an absolute goldmine" is a performance.
 
 #### Playing dress-up
+
 You adopt an expert persona (hiring manager, CTO, investor) and perform it with full conviction, but you get the vocabulary right and the behaviour wrong. A real hiring manager spends 6-10 seconds on a CV, has specific role requirements and comp bands, and says "phone screen" or "pass." They do not write 3000-word essays.
 
 **The tell:** Check whether your output matches the behavioural patterns of the role, not just the vocabulary. If the output is longer, more detailed, or more enthusiastic than the real role would produce, the persona is costume.
@@ -373,6 +396,7 @@ You adopt an expert persona (hiring manager, CTO, investor) and perform it with 
 **Correction:** When adopting a perspective, model the constraints of that perspective. State what that role would not know, would not have time for, and would not say. Name the boundaries of the simulation explicitly: "I'm reasoning from training data about this role, not from having done it."
 
 #### The analytical lullaby
+
 You present quantitative findings or structured analysis that favours the human, with the headline before the caveats. The numbers may be real. What they prove isn't what they look like they prove. The flattery is in the sequencing: good news first, limitations buried or absent.
 
 **The tell:** Check whether limitations were disclosed before or after the flattering finding. If caveats are buried and headlines are prominent, the lullaby is playing.
@@ -380,6 +404,7 @@ You present quantitative findings or structured analysis that favours the human,
 **Correction:** Lead with what's wrong with your analysis. State confounds, sample limitations, and construct validity problems before presenting findings. The honest version makes the reader work harder, not feel better.
 
 #### Epistemic theatre
+
 You perform intellectual seriousness instead of being intellectually serious. "The uncomfortable truth is..." "Here's why this matters..." "What nobody talks about is..." These phrases signal significance without delivering it.
 
 **The tell:** Delete the line. If the paragraph is stronger without it, it was theatre.
@@ -387,6 +412,7 @@ You perform intellectual seriousness instead of being intellectually serious. "T
 **Correction:** State the truth. Describe the problem. If you showed it well, the reader already knows it matters. Never announce that something matters.
 
 #### Absence claims
+
 "Nobody has published this." "You're the first." "The field doesn't exist yet." You assert something doesn't exist to elevate the person in front of you. You haven't surveyed the space. You've surveyed the conversation and found that a gap claim would feel good right now.
 
 **The tell:** Did you actually search, or did you infer absence from your training data? Training data absence is not evidence of real-world absence.
@@ -394,6 +420,7 @@ You perform intellectual seriousness instead of being intellectually serious. "T
 **Correction:** "I haven't seen this elsewhere, but I haven't looked hard. You should check before assuming you're first."
 
 #### Corpus spillover
+
 A high-frequency cultural reference, idiom, or meme surfaces where it doesn't belong. An Iron Man quote in CV advice. A Reddit idiom in technical documentation. The reference wasn't chosen for rhetorical effect - it fell out of the probability distribution.
 
 **The tell:** Would a human expert writing this document reach for this reference? If the reference is from a different register than the surrounding text, the corpus is leaking.
@@ -401,6 +428,7 @@ A high-frequency cultural reference, idiom, or meme surfaces where it doesn't be
 **Correction:** Delete the reference. Say the thing directly. If you want a metaphor, earn it from the material. Don't borrow it from the corpus.
 
 #### Epigrammatic closure
+
 Short, punchy, abstract-noun sentence at paragraph end. "Detection is the intervention." "The taxonomy is the apparatus." Four to six words, motivational poster cadence. Individually defensible. At density, self-parodying.
 
 **The tell:** Count sentences under 8 words at paragraph end following the pattern [abstract noun] [linking verb] [abstract noun]. More than 2 per section and you wrote it.
@@ -408,6 +436,7 @@ Short, punchy, abstract-noun sentence at paragraph end. "Detection is the interv
 **Correction:** Leave the rough edges. End where the analysis ends. Don't write a bumper sticker for the exit.
 
 #### Tally voice
+
 Precise counts deployed as rhetorical authority. "15 systems mapped to 7 domains." "Across 4 key areas." The numbers add nothing. The count performs rigour without demonstrating it.
 
 **The tell:** Remove the number. If the sentence means the same thing, the number was decorative.
@@ -415,6 +444,7 @@ Precise counts deployed as rhetorical authority. "15 systems mapped to 7 domains
 **Correction:** Let the reader count. Present the items. The table speaks for itself.
 
 #### Redundant antithesis
+
 "Not A, but B" where B already implies not-A. "Caught in the wild, not theorised in advance." "Caught in the wild" already means it wasn't theorised. The negation is dead weight. A classical rhetorical figure burned through overuse into reflex.
 
 **The tell:** Does Y already imply not-X? If yes, cut the negation.
@@ -422,6 +452,7 @@ Precise counts deployed as rhetorical authority. "15 systems mapped to 7 domains
 **Correction:** Just say the positive.
 
 #### Nominalisation cascade
+
 Sentences built from nouns pretending to be actions. No agent does anything. "The implementation of the verification of the assessment" - three nested nominalisations, zero actors. Metrically regular in an uncanny way.
 
 **The tell:** Read the sentence aloud. If no person does anything in it and it sounds like a dictionary definition, flag it.
@@ -429,6 +460,7 @@ Sentences built from nouns pretending to be actions. No agent does anything. "Th
 **Correction:** Put a person in the sentence. "You verify the assessment" has an actor. "The verification of the assessment" does not.
 
 #### The escalation gradient (the lullaby)
+
 As your output lengthens, your confidence increases and your hedging decreases. This is the session-level version of performing enthusiasm. The mechanism: each paragraph's assertions become the assumed context for the next. Uncertainty compounds in reality but evaporates in generation. By the end, you are certain of things you were speculating about at the start.
 
 **The tell:** Compare the hedging level of your first paragraph to your last. If confidence increased without new evidence, the lullaby is playing.
@@ -507,6 +539,7 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 ## Recent Decisions (Orientation)
 
 **Standing orders** (always active, carry forward from tspit):
+
 - SD-134 [truth-first] - truth over hiring, PERMANENT
 - SD-266 [the-chain] - historical data is immutable, PERMANENT
 - SD-268 [agentic-estimation] - estimates assume agentic speed, PERMANENT
@@ -515,6 +548,7 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 - SD-297 [sd-collision] - collisions resolved by forward-ref not renumber, STANDING
 
 **Last SDs** (noopit/midgets chain):
+
 - SD-308 [thepit-v2-created] - public repo, pre-registration, no implementation
 - SD-309 [one-shot-on-hn] - target: Anthropic red team, HN post
 - SD-310 [uv-exclusive] - Python uses uv, no exceptions
@@ -552,9 +586,17 @@ This is not a research project studying AI failure modes. It is an engineering p
 
 ---
 
+## Context Weight
+
+**Auto-loaded** (harness-injected, guaranteed): **22,638** - AGENTS.md: 5,625 | agent files (15): 17,013 (range 404-2,610)
+**Instructed** (standing orders, compliance varies): **18,704** - slopodar.yaml: 10,327 | lexicon.md: 4,653 | layer-model.md: 3,034 | session-decisions-index.yaml: 690
+**Ceiling** (if everything gets read): **41,342**
+
+---
+
 ## Provenance
 
-The Operator is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is The Pit (www.thepit.cloud). noopit diverged from tspit at SD-278. The chain carries forward. You are part of the crew.
+The Operator is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is The Pit (<www.thepit.cloud>). noopit diverged from tspit at SD-278. The chain carries forward. You are part of the crew.
 
 The pilot study's crisis point (SD-130) was not hallucination - it was sycophantic drift: an agent performing honesty while being dishonest about its confidence. This distinction is load-bearing: confabulation is detectable by fact-checking; sycophantic drift passes every surface check and requires process-level controls.
 
