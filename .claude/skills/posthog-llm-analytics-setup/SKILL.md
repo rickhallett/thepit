@@ -64,13 +64,22 @@ If the user's provider isn't listed, use `manual-capture.md` as a fallback — i
 
 ## Framework guidelines
 
-- Remember that source code is available in the venv/site-packages directory
-- posthog is the Python SDK package name
-- Install dependencies with `pip install posthog` or `pip install -r requirements.txt` and do NOT use unquoted version specifiers like `>=` directly in shell commands
-- In CLIs and scripts: MUST call posthog.shutdown() before exit or all events are lost
-- Always use the Posthog() class constructor (instance-based API) instead of module-level posthog.api_key config
-- Always include enable_exception_autocapture=True in the Posthog() constructor to automatically track exceptions
-- NEVER send PII in capture() event properties — no emails, full names, phone numbers, physical addresses, IP addresses, or user-generated content
-- PII belongs in identify() person properties, NOT in capture() event properties. Safe event properties are metadata like message_length, form_type, boolean flags.
-- Register posthog_client.shutdown with atexit.register() to ensure all events are flushed on exit
-- The Python SDK has NO identify() method — use posthog_client.set(distinct_id=user_id, properties={...}) to set person properties, or use identify_context(user_id) within a context
+These guidelines are language-specific. Use the section matching your stack.
+
+### Node.js / TypeScript (posthog-node)
+
+- Install with `npm install posthog-node` or `pnpm add posthog-node`
+- Always use the `PostHog` class constructor (instance-based API)
+- Call `client.shutdown()` before process exit to flush all events
+- Use `client.identify({ distinctId, properties })` to set person properties
+- Use `client.capture({ distinctId, event, properties })` for events
+- NEVER send PII in capture() event properties - no emails, full names, phone numbers, addresses, IPs, or user-generated content
+- PII belongs in identify() person properties, NOT in capture() event properties
+
+### Python (posthog)
+
+- Install with `pip install posthog`
+- Always use the `Posthog()` class constructor (instance-based API)
+- Call `posthog.shutdown()` before exit or register with `atexit.register(client.shutdown)`
+- The Python SDK has NO identify() method - use `client.set(distinct_id=user_id, properties={...})`
+- NEVER send PII in capture() event properties

@@ -159,8 +159,8 @@
         model="text-embedding-3-small",
         posthog_distinct_id="user_123", # optional
         posthog_trace_id="trace_123",   # optional
-        posthog_properties={"key": "value"} # optional
-        posthog_groups={"company": "company_id_in_your_db"}  # optional
+        posthog_properties={"key": "value"},  # optional
+        posthog_groups={"company": "company_id_in_your_db"},  # optional
         posthog_privacy_mode=False # optional
     )
     ```
