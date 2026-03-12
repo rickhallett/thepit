@@ -78,10 +78,8 @@ These guidelines are language-specific. Use the section matching your stack.
 
 ### Python (posthog)
 
-- Install with `pip install posthog` or `pip install -r requirements.txt` and do NOT use unquoted version specifiers like `>=` directly in shell commands
-- Always use the `Posthog()` class constructor (instance-based API) instead of module-level posthog.api_key config
-- Always include enable_exception_autocapture=True in the Posthog() constructor to automatically track exceptions
-- Call `posthog.shutdown()` before exit or register with `atexit.register(client.shutdown)` to ensure all events are flushed
-- The Python SDK has NO identify() method - use `client.set(distinct_id=user_id, properties={...})` to set person properties
-- NEVER send PII in capture() event properties - no emails, full names, phone numbers, physical addresses, IP addresses, or user-generated content
-- PII belongs in identify() person properties, NOT in capture() event properties. Safe event properties are metadata like message_length, form_type, boolean flags.
+- Install with `pip install posthog`
+- Always use the `Posthog()` class constructor (instance-based API)
+- Call `posthog.shutdown()` before exit or register with `atexit.register(client.shutdown)`
+- The Python SDK has NO identify() method - use `client.set(distinct_id=user_id, properties={...})`
+- NEVER send PII in capture() event properties
