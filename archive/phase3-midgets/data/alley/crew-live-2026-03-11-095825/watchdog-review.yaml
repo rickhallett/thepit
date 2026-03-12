@@ -1,0 +1,52 @@
+role: watchdog
+verdict: fail
+defects_found: 3
+defects:
+  - file: calc.py
+    line: 13
+    severity: medium
+    description: >
+      weighted_score() raises ZeroDivisionError (not ValueError) when called
+      with empty lists. average() raises a descriptive ValueError for the same
+      empty-input situation. Inconsistent error handling makes empty inputs
+      hard to diagnose for callers.
+
+  - file: calc.py
+    line: 16
+    severity: medium
+    description: >
+      weighted_score() silently accepts scores and weights of different lengths.
+      zip() truncates to the shorter iterable without raising any exception,
+      causing the function to silently compute a wrong result. For example,
+      weighted_score([100, 0], [1]) returns 100.0 instead of raising an error,
+      silently discarding the second score. An explicit length check and
+      ValueError is required.
+
+  - file: calc.py
+    line: 16
+    severity: low
+    description: >
+      weighted_score() raises ZeroDivisionError when all weights are zero
+      (total_weight == 0). No guard or descriptive message is provided.
+      A descriptive ValueError such as "weights must not all be zero" should
+      be raised before the division.
+
+test_results:
+  total: 37
+  passed: 37
+  failed: 0
+summary: >
+  The diff introduces four utility functions — average(), clamp(),
+  weighted_score(), and letter_grade(). average(), clamp(), and letter_grade()
+  are logically correct and handle their documented edge cases (empty list,
+  boundary clamp values, and all grade thresholds) properly. weighted_score()
+  computes the correct result for well-formed inputs but contains three
+  distinct defects: it raises an un-descriptive ZeroDivisionError on empty
+  input (unlike average() which raises ValueError), it silently produces an
+  incorrect result when scores and weights have different lengths because zip()
+  truncates to the shorter sequence without complaint, and it raises
+  ZeroDivisionError when all weights are zero. All 37 written tests pass,
+  including tests that document the defective behaviors. The two medium-severity
+  issues (ZeroDivisionError on empty input and silent length mismatch) are
+  particularly dangerous in production because callers receive no signal that
+  a calculation went wrong; a verdict of fail is therefore warranted.

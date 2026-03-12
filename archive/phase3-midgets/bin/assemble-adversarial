@@ -1,0 +1,371 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["pyyaml>=6.0"]
+# ///
+"""Assemble adversarial review responses and produce convergence analysis.
+
+Usage:
+  uv run bin/assemble-adversarial
+
+Expects response files at:
+  data/alley/bootcamp-adversarial/{model}/prompt-{N}-{name}-response.md
+
+Each response file must contain a YAML block (fenced with ```yaml ... ```)
+with structured findings.
+
+Output:
+  data/alley/bootcamp-adversarial/convergence.yaml
+  data/alley/bootcamp-adversarial/summary.md
+"""
+
+import os
+import re
+import sys
+from collections import defaultdict
+from datetime import date
+
+import yaml
+
+BASE = "data/alley/bootcamp-adversarial"
+MODELS = ["codex", "grok", "gemini"]
+PROMPT_NAMES = {
+    1: "repackaging",
+    2: "depth-test",
+    3: "accuracy-audit",
+    4: "irreplaceability",
+    5: "audience-problem",
+    6: "completeness-trap",
+    7: "slop-detector",
+    8: "pedagogy-review",
+    9: "so-what-test",
+}
+
+VECTOR_LABELS = {
+    "AV-REPACK": "Repackaged existing material",
+    "AV-DEPTH": "Lacks depth vs alternatives",
+    "AV-ACCURACY": "Technical error",
+    "AV-OBSOLESCENCE": "Will not survive agent improvement",
+    "AV-AUDIENCE": "No viable audience",
+    "AV-COMPLETENESS": "Scope exceeds delivery",
+    "AV-SLOP": "Writing anti-patterns present",
+    "AV-PEDAGOGY": "Pedagogical design flaw",
+    "AV-EXISTENTIAL": "Existence contradicts premise",
+}
+
+
+def extract_yaml(content):
+    """Extract the findings YAML block from a response markdown file.
+    
+    Looks for YAML blocks that contain 'findings:' - this skips template
+    examples and HUD blocks that models may echo back from the instructions.
+    Falls back to the last YAML block if no findings-specific block is found.
+    """
+    # Find all YAML blocks
+    blocks = re.findall(r"```yaml\s*\n(.*?)```", content, re.DOTALL)
+    if not blocks:
+        return None
+    
+    # Prefer blocks that contain actual findings (not template placeholders)
+    for block in blocks:
+        if "findings:" in block and "<one of the vectors" not in block and "prompt_id:" not in block.split("findings:")[0][-200:] or False:
+            try:
+                parsed = yaml.safe_load(block)
+                if parsed and "findings" in parsed and isinstance(parsed["findings"], list):
+                    # Check it has real findings, not template
+                    if parsed["findings"] and isinstance(parsed["findings"][0], dict):
+                        first = parsed["findings"][0]
+                        if first.get("attack_vector", "").startswith("AV-"):
+                            return parsed
+            except yaml.YAMLError:
+                continue
+    
+    # Fallback: try each block from last to first
+    for block in reversed(blocks):
+        try:
+            parsed = yaml.safe_load(block)
+            if parsed and "findings" in parsed and isinstance(parsed["findings"], list):
+                if parsed["findings"] and isinstance(parsed["findings"][0], dict):
+                    return parsed
+        except yaml.YAMLError:
+            continue
+    
+    # Last resort: try the last block
+    try:
+        return yaml.safe_load(blocks[-1])
+    except yaml.YAMLError as e:
+        print(f"  YAML parse error: {e}", file=sys.stderr)
+        return None
+
+
+def load_responses():
+    """Load all response files and extract findings."""
+    all_findings = []
+    missing = []
+    parsed = []
+
+    for model in MODELS:
+        model_dir = os.path.join(BASE, model)
+        for num in range(1, 10):
+            name = PROMPT_NAMES[num]
+            resp_file = os.path.join(model_dir, f"prompt-{num}-{name}-response.md")
+
+            if not os.path.exists(resp_file):
+                missing.append(f"{model}/prompt-{num}-{name}")
+                continue
+
+            with open(resp_file) as f:
+                content = f.read()
+
+            data = extract_yaml(content)
+            if data and "findings" in data:
+                for finding in data["findings"]:
+                    finding["_model"] = model
+                    finding["_prompt"] = num
+                    finding["_prompt_name"] = name
+                    all_findings.append(finding)
+                parsed.append(f"{model}/prompt-{num}-{name} ({len(data['findings'])} findings)")
+            else:
+                parsed.append(f"{model}/prompt-{num}-{name} (no YAML block found)")
+
+    return all_findings, missing, parsed
+
+
+def convergence_analysis(findings):
+    """Analyse convergence across models for each prompt."""
+    # Group by prompt
+    by_prompt = defaultdict(list)
+    for f in findings:
+        by_prompt[f["_prompt"]].append(f)
+
+    # Group by attack vector across all prompts
+    by_vector = defaultdict(list)
+    for f in findings:
+        vec = f.get("attack_vector", "unknown")
+        by_vector[vec].append(f)
+
+    # Severity distribution by model
+    severity_by_model = defaultdict(lambda: defaultdict(int))
+    for f in findings:
+        model = f["_model"]
+        sev = f.get("severity", "unknown")
+        severity_by_model[model][sev] += 1
+
+    # Survives scrutiny analysis
+    survives = defaultdict(lambda: {"true": 0, "false": 0})
+    for f in findings:
+        vec = f.get("attack_vector", "unknown")
+        val = str(f.get("survives_scrutiny", "unknown")).lower()
+        if val in ("true", "yes"):
+            survives[vec]["true"] += 1
+        elif val in ("false", "no"):
+            survives[vec]["false"] += 1
+
+    # Cross-model convergence per prompt
+    prompt_convergence = {}
+    for num in range(1, 10):
+        pfindings = by_prompt.get(num, [])
+        models_with_findings = set(f["_model"] for f in pfindings)
+        vectors_by_model = defaultdict(set)
+        for f in pfindings:
+            vectors_by_model[f["_model"]].add(f.get("attack_vector", "unknown"))
+
+        # Find vectors that appear in multiple models
+        all_vectors = set()
+        for vset in vectors_by_model.values():
+            all_vectors.update(vset)
+
+        converged = {}
+        for vec in all_vectors:
+            models_citing = [m for m in MODELS if vec in vectors_by_model.get(m, set())]
+            converged[vec] = models_citing
+
+        prompt_convergence[num] = {
+            "name": PROMPT_NAMES[num],
+            "total_findings": len(pfindings),
+            "models_responding": list(models_with_findings),
+            "vector_convergence": converged,
+        }
+
+    return {
+        "by_prompt": prompt_convergence,
+        "by_vector": {v: len(fs) for v, fs in by_vector.items()},
+        "severity_by_model": dict(severity_by_model),
+        "survives_scrutiny": dict(survives),
+    }
+
+
+def rank_vectors(findings):
+    """Rank attack vectors by frequency and cross-model convergence."""
+    vec_data = defaultdict(lambda: {"count": 0, "models": set(), "survives": 0, "fails": 0, "severities": []})
+
+    for f in findings:
+        vec = f.get("attack_vector", "unknown")
+        vec_data[vec]["count"] += 1
+        vec_data[vec]["models"].add(f["_model"])
+        vec_data[vec]["severities"].append(f.get("severity", "unknown"))
+        val = str(f.get("survives_scrutiny", "")).lower()
+        if val in ("true", "yes"):
+            vec_data[vec]["survives"] += 1
+        elif val in ("false", "no"):
+            vec_data[vec]["fails"] += 1
+
+    # Sort by: number of models that cite it (convergence), then count
+    ranked = sorted(
+        vec_data.items(),
+        key=lambda x: (len(x[1]["models"]), x[1]["count"], x[1]["survives"]),
+        reverse=True,
+    )
+
+    return [(v, {"count": d["count"],
+                  "models": sorted(d["models"]),
+                  "model_count": len(d["models"]),
+                  "survives": d["survives"],
+                  "fails": d["fails"],
+                  "severities": d["severities"],
+                  "label": VECTOR_LABELS.get(v, v)})
+            for v, d in ranked]
+
+
+def generate_summary(findings, convergence, ranked_vectors, missing, parsed):
+    """Generate human-readable summary."""
+    lines = [
+        "# Adversarial Review - Convergence Summary",
+        f"",
+        f"**Run:** bootcamp-adversarial-2026-03-10",
+        f"**Date:** {date.today()}",
+        f"**Models:** {', '.join(MODELS)}",
+        f"**Prompts:** 9",
+        f"**Responses received:** {len(parsed)}",
+        f"**Missing:** {len(missing)}",
+        f"**Total findings:** {len(findings)}",
+        f"",
+        "---",
+        "",
+        "## Attack Vectors Ranked by Convergence",
+        "",
+        "Most frequently converged (cited by most models) to least:",
+        "",
+        "| Rank | Vector | Label | Models | Count | Survives | Fails |",
+        "|------|--------|-------|--------|-------|----------|-------|",
+    ]
+
+    for i, (vec, data) in enumerate(ranked_vectors, 1):
+        models_str = ", ".join(data["models"])
+        lines.append(
+            f"| {i} | `{vec}` | {data['label']} | {models_str} ({data['model_count']}) | "
+            f"{data['count']} | {data['survives']} | {data['fails']} |"
+        )
+
+    lines.extend([
+        "",
+        "---",
+        "",
+        "## Per-Prompt Convergence",
+        "",
+    ])
+
+    for num in range(1, 10):
+        pdata = convergence["by_prompt"].get(num, {})
+        name = PROMPT_NAMES[num]
+        total = pdata.get("total_findings", 0)
+        models = pdata.get("models_responding", [])
+        lines.append(f"### Prompt {num}: {name} ({total} findings from {len(models)} models)")
+        vc = pdata.get("vector_convergence", {})
+        if vc:
+            for vec, citing_models in sorted(vc.items(), key=lambda x: len(x[1]), reverse=True):
+                lines.append(f"- `{vec}`: cited by {', '.join(citing_models)}")
+        lines.append("")
+
+    lines.extend([
+        "---",
+        "",
+        "## Severity Distribution by Model",
+        "",
+        "| Model | Critical | High | Medium | Low |",
+        "|-------|----------|------|--------|-----|",
+    ])
+
+    for model in MODELS:
+        sev = convergence.get("severity_by_model", {}).get(model, {})
+        lines.append(
+            f"| {model} | {sev.get('critical', 0)} | {sev.get('high', 0)} | "
+            f"{sev.get('medium', 0)} | {sev.get('low', 0)} |"
+        )
+
+    lines.extend([
+        "",
+        "---",
+        "",
+        "## Survives Scrutiny by Attack Vector",
+        "",
+        "Does the criticism actually hold up after the model's own analysis?",
+        "",
+        "| Vector | Survives | Does Not Survive | Ratio |",
+        "|--------|----------|------------------|-------|",
+    ])
+
+    for vec, counts in sorted(convergence.get("survives_scrutiny", {}).items()):
+        total = counts["true"] + counts["false"]
+        ratio = f"{counts['true']}/{total}" if total > 0 else "n/a"
+        lines.append(f"| `{vec}` | {counts['true']} | {counts['false']} | {ratio} |")
+
+    if missing:
+        lines.extend([
+            "",
+            "---",
+            "",
+            "## Missing Responses",
+            "",
+        ])
+        for m in missing:
+            lines.append(f"- {m}")
+
+    return "\n".join(lines)
+
+
+def main():
+    findings, missing, parsed = load_responses()
+
+    if not findings:
+        print(f"No findings found. {len(missing)} responses missing.")
+        print("Expected response files at:")
+        print(f"  {BASE}/{{model}}/prompt-{{N}}-{{name}}-response.md")
+        print()
+        print("Parsed:")
+        for p in parsed:
+            print(f"  {p}")
+        if missing:
+            print(f"\nMissing ({len(missing)}):")
+            for m in missing:
+                print(f"  {m}")
+        return
+
+    convergence = convergence_analysis(findings)
+    ranked_vectors = rank_vectors(findings)
+    summary = generate_summary(findings, convergence, ranked_vectors, missing, parsed)
+
+    # Write convergence data
+    conv_path = os.path.join(BASE, "convergence.yaml")
+    with open(conv_path, "w") as f:
+        yaml.dump({
+            "run_id": "bootcamp-adversarial-2026-03-10",
+            "total_findings": len(findings),
+            "ranked_vectors": [(v, d) for v, d in ranked_vectors],
+            "convergence": convergence,
+        }, f, default_flow_style=False, sort_keys=False)
+    print(f"Wrote {conv_path}")
+
+    # Write summary
+    summary_path = os.path.join(BASE, "summary.md")
+    with open(summary_path, "w") as f:
+        f.write(summary)
+    print(f"Wrote {summary_path}")
+
+    # Print summary to stdout
+    print()
+    print(summary)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,60 @@
+```yaml
+reviewer: "Claude Opus 4.5 (claude-opus-4-5-20251101)"
+
+structural_necessity:
+  I.1: { rating: "LOAD-BEARING", reason: "Foundation for 7 direct dependents (I.2, I.3, I.8, I.10, I.11, I.12) and conceptual prerequisite for all Part I material." }
+  I.2: { rating: "LOAD-BEARING", reason: "Gateway to 4 direct dependents (I.4, I.5, I.6) and shell competency assumed throughout Parts II-V." }
+  I.3: { rating: "SUPPORTING", reason: "Only I.7 directly depends; filesystem concepts reappear in V.5 but could be briefly recapped." }
+  I.4: { rating: "LEAF", reason: "No chapters depend on it; text processing is useful but self-contained skill." }
+  I.5: { rating: "LEAF", reason: "No direct dependents; Python CLI patterns assumed in Part III but could be introduced there." }
+  I.6: { rating: "LEAF", reason: "No chapters depend on it; Make/Just knowledge is operational convenience, not structural requirement." }
+  I.7: { rating: "LEAF", reason: "No direct dependents; git internals are deep knowledge not required by later chapters." }
+  I.8: { rating: "SUPPORTING", reason: "Only I.9 directly depends; process observation useful for V.7-V.8 but could be summarised." }
+  I.9: { rating: "LEAF", reason: "No chapters depend on it; container knowledge is valuable but terminal in the dependency graph." }
+  I.10: { rating: "LEAF", reason: "No direct dependents; networking CLI skills assumed but not formally required later." }
+  I.11: { rating: "LEAF", reason: "No chapters depend on it; supervision patterns useful for V.9 but not prerequisite." }
+  I.12: { rating: "LEAF", reason: "No direct dependents; advanced bash is enrichment, not foundation." }
+
+  II.1: { rating: "LOAD-BEARING", reason: "Foundation for all Part II (7 direct dependents) and conceptual prerequisite for Parts IV-V." }
+  II.2: { rating: "LOAD-BEARING", reason: "Agent patterns referenced by II.5, II.10, II.11 and conceptually required for all agent infrastructure chapters." }
+  II.3: { rating: "LOAD-BEARING", reason: "Prompt engineering feeds II.4, II.5, II.6 and is assumed throughout Parts IV-V." }
+  II.4: { rating: "LOAD-BEARING", reason: "Context engineering is referenced by II.6, II.7, II.9 and is load-bearing for V.3, V.5, V.6." }
+  II.5: { rating: "SUPPORTING", reason: "Direct dependents II.10, II.11; tool design concepts appear in V.4 but could be introduced there." }
+  II.6: { rating: "LOAD-BEARING", reason: "Verification concepts feed II.7, II.8, II.9, II.10 and are prerequisite for all of Part IV." }
+  II.7: { rating: "LOAD-BEARING", reason: "Layer model and HCI concepts feed II.8, II.9, II.10 and are referenced in V.7, V.8." }
+  II.8: { rating: "SUPPORTING", reason: "No direct dependents; multi-model verification enriches IV.6 but is not prerequisite." }
+  II.9: { rating: "SUPPORTING", reason: "No direct dependents; failure modes valuable for V.8 debugging but recappable." }
+  II.10: { rating: "LEAF", reason: "No chapters depend on it; governance is capstone synthesis, not foundation." }
+  II.11: { rating: "LEAF", reason: "No chapters depend on it; cost/security/legal is operational concern, not structural dependency." }
+
+  III.1: { rating: "LOAD-BEARING", reason: "Foundation for 8 chapters in Part III; pandas/DuckDB fluency assumed throughout." }
+  III.2: { rating: "SUPPORTING", reason: "Feeds III.4, III.5, III.6; statistics concepts could be briefly introduced inline." }
+  III.3: { rating: "SUPPORTING", reason: "Only III.5 directly depends; SQL analytics valuable but self-contained." }
+  III.4: { rating: "LEAF", reason: "No chapters depend on it; statistical testing is terminal enrichment." }
+  III.5: { rating: "SUPPORTING", reason: "Only III.8 directly depends; time series concepts could be introduced in context." }
+  III.6: { rating: "LEAF", reason: "No chapters depend on it; visualisation is output skill, not input dependency." }
+  III.7: { rating: "LEAF", reason: "No chapters depend on it; log analysis patterns useful for V.7 but not prerequisite." }
+  III.8: { rating: "LEAF", reason: "No chapters depend on it; cost modelling is practical capstone." }
+  III.9: { rating: "LEAF", reason: "No chapters depend on it; text analysis basics useful for V.2-V.3 but not formally required." }
+  III.10: { rating: "LEAF", reason: "No chapters depend on it; notebook workflows are tooling preference." }
+
+  IV.1: { rating: "LOAD-BEARING", reason: "Foundation for 6 chapters in Part IV; eval epistemology assumed in all evaluation work." }
+  IV.2: { rating: "LOAD-BEARING", reason: "Dataset design feeds IV.3, IV.4 and is prerequisite for any practical eval work." }
+  IV.3: { rating: "LOAD-BEARING", reason: "Scoring methods feed IV.5, IV.6; grading competency required for eval automation." }
+  IV.4: { rating: "LEAF", reason: "No chapters depend on it; agent evaluation is specialised application." }
+  IV.5: { rating: "LEAF", reason: "No chapters depend on it; eval infrastructure is operational capstone." }
+  IV.6: { rating: "LEAF", reason: "No chapters depend on it; adversarial testing is specialised methodology." }
+  IV.7: { rating: "LEAF", reason: "No chapters depend on it; red teaming is specialised safety track." }
+  IV.8: { rating: "LEAF", reason: "No chapters depend on it; result communication is terminal skill." }
+  IV.9: { rating: "LEAF", reason: "No chapters depend on it; eval culture is organizational capstone." }
+
+  V.1: { rating: "LOAD-BEARING", reason: "Foundation for 7 chapters in Part V; retrieval problem framing assumed throughout." }
+  V.2: { rating: "LOAD-BEARING", reason: "Embeddings/vectors feed V.3, V.4, V.6; fundamental to RAG and memory systems." }
+  V.3: { rating: "LOAD-BEARING", reason: "RAG pipeline feeds V.4; core infrastructure pattern for agent knowledge." }
+  V.4: { rating: "LEAF", reason: "No chapters depend on it; advanced retrieval is enrichment on V.3 foundation." }
+  V.5: { rating: "LOAD-BEARING", reason: "State management feeds V.6, V.8; prerequisite for any stateful agent work." }
+  V.6: { rating: "LEAF", reason: "No chapters depend on it; memory patterns are specialised application of V.2, V.5." }
+  V.7: { rating: "SUPPORTING", reason: "Only V.8 directly depends; observability concepts valuable but recappable in debugging context." }
+  V.8: { rating: "LEAF", reason: "No chapters depend on it; debugging is diagnostic capstone." }
+  V.9: { rating: "LEAF", reason: "No chapters depend on it; production patterns is synthesis capstone requiring all prior V chapters." }
+```

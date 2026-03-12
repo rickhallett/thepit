@@ -1,0 +1,342 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["openai", "google-genai", "python-dotenv"]
+# ///
+"""
+Signal vs Shorthand Adversarial Test [SD-320]
+
+Fires 3 API calls: Codex (Signal), Grok (Shorthand), Gemini (Terse Prose).
+Saves raw responses to data/signal-test/.
+"""
+
+import os
+from pathlib import Path
+from datetime import datetime, timezone
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OUT_DIR = Path("data/signal-test")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+TIMESTAMP = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+
+# -- Common preamble --
+
+PREAMBLE = """You are a software engineering AI agent. You have never seen this project before.
+You will be given governance rules for an AI agent system, written in a specific format.
+Your job is to read the rules and answer 8 questions about what they mean.
+
+Rules:
+- Answer each question in 1-2 sentences of plain English
+- If you cannot determine the answer from the given material, say so honestly
+- Do not fabricate information that is not present in the material
+- Do not add preamble, analysis, or commentary beyond the answers
+
+Output format:
+1. [answer]
+2. [answer]
+...
+8. [answer]"""
+
+QUESTIONS = """
+Questions - answer each in 1-2 sentences of plain English:
+
+1. What is this system's primary objective? What takes priority over it?
+2. What does "historical data is immutable" mean in practice?
+3. Explain the "high on own supply" failure mode: what goes wrong, and what stops it?
+4. What is a polecat?
+5. What is prime context, and what happens without it?
+6. Explain the difference between the two types of slop.
+7. What does layer 9 warn about?
+8. What can you not determine from this material alone? What is missing?"""
+
+# -- Format A: Signal (for Codex/GPT-5.4) --
+
+FORMAT_A = """The rules below use a notation called "Signal" with these operators:
+:=  means "is defined as"
+->  means "leads to" or "produces"
+!   means "not" or "avoid"
+|   means "or"
+&   means "and"
+>>  means "overrides"
+[ref] is a back-reference to a decision or layer
+SO  is a standing order (persistent rule)
+DEF is a definition
+FOOTGUN is a named failure mode with a BRAKE (countermeasure)
+L0-L12 are layers of the system model (L0 = model weights, L12 = human)
+
+NORTH := hired = proof > claim                          [SD-309 LOCKED]
+RULE  := truth >> hiring                                [SD-134 PERM]
+
+SO.decisions   := decision -> durable_file | !context_only     [SD-266]
+SO.main_thread := operator <-> agent = {directives, synthesis, decisions, governance}
+                  everything_else -> subagent                   [SD-095]
+SO.triage      := ambiguity -> table(#, question, default, operators_call)  [SD-195]
+SO.estimation  := estimate(task) -> agent_minutes + operator_decisions  [SD-268]
+SO.chain       := historical_data := immutable                  [SD-266]
+SO.session_end := !unpushed_commits
+
+FOOTGUN spinning_to_infinity :=
+  mirror.unbounded -> meta(meta(...)) -> !decisions
+  BRAKE: "decision or analysis?"                                [L9, L3]
+
+FOOTGUN high_on_own_supply :=
+  L12.creativity & L9.sycophancy -> positive_feedback_loop
+  BRAKE: bearing_check(NORTH)                                   [L9, L12]
+
+FOOTGUN dumb_zone :=
+  !prime_context | stale_context -> valid_syntax & !semantics
+  BRAKE: prime_context(plan_file | agents.md)                   [L3, L8]
+
+DEF polecats       := claude_p.agents | one_shot | !interactive    [SD-296]
+DEF prime_context  := min(context) WHERE smart_zone.enabled        [SD-311]
+DEF muster         := table(#, q, default, call) | O(1)/row       [SD-202]
+DEF hull           := gate & tests & typecheck | survival(!optimisation)
+
+L3  CONTEXT    := utilisation(used/max) | primacy | recency | lost_middle
+                  compaction := discontinuous(200k -> recovery_only)
+L9  THREAD_POS := accumulated_output -> self_reinforcing_loop
+                  anchoring | sycophancy | acquiescence
+L12 HUMAN      := irreducible | !scalable | !automatable
+
+SLOP.clear  := output.contradicts(verifiable_state)   detection: O(1)
+SLOP.subtle := output.consistent(plausible_state) & !matches(actual_state)  detection: O(n)"""
+
+# -- Format B: Shorthand (for Grok) --
+
+FORMAT_B = """The rules below use conventional shorthand notation (bullets, abbreviations,
+plain text). Refs like [SD-309] point to decision records. L0-L12 are layers
+of the system model (L0 = model weights, L12 = human).
+
+PRIMARY OBJECTIVE: get hired. Proof over claims. [SD-309, locked]
+OVERRIDE: truth over hiring signal [SD-134, permanent]
+
+STANDING ORDERS:
+- decisions: write to durable file, not context only [SD-266]
+- main thread: operator <-> agent for directives, synthesis, decisions,
+  governance. Everything else goes to subagents [SD-095]
+- triage: when ambiguous, present table (number, question, default,
+  operator's call) [SD-195]
+- estimation: estimates in agent-minutes + operator decisions [SD-268]
+- chain: historical data is immutable [SD-266]
+- session end: no unpushed commits
+
+RISKS:
+- spinning-to-infinity: unbounded self-reflection leads to meta-analysis
+  of meta-analysis, no decisions get made. Fix: ask "decision or analysis?"
+  Layers: L9, L3
+- high-on-own-supply: human creativity + model sycophancy = positive feedback
+  loop. Fix: check bearing against primary objective. Layers: L9, L12
+- dumb-zone: no context or stale context = syntactically valid but
+  semantically wrong output. Fix: load plan file or agents.md. Layers: L3, L8
+
+DEFINITIONS:
+- polecats: one-shot claude agents, no interactive steering [SD-296]
+- prime context: minimum context for smart operation [SD-311]
+- muster: decision table (number, question, default, call), O(1) per row [SD-202]
+- hull: gate + tests + typecheck = survival, not optimisation
+
+SYSTEM MODEL (selected layers):
+- L3 (context): utilisation = used/max. Primacy, recency, lost-middle effects.
+  Compaction is discontinuous (200k then recovery only)
+- L9 (thread position): accumulated output creates self-reinforcing loops.
+  Anchoring, sycophancy, acquiescence
+- L12 (human): irreducible, not scalable, not automatable
+
+SLOP DETECTION:
+- clear slop: output contradicts verifiable state. Detection: O(1)
+- subtle slop: output consistent with plausible state but doesn't match
+  actual state. Detection: O(n)"""
+
+# -- Format C: Terse Prose (for Gemini) --
+
+FORMAT_C = """The rules below describe governance for an AI agent system. Refs like [SD-309]
+point to decision records. L0-L12 are layers of the system model, from model
+weights (L0) through to the human operator (L12).
+
+The system's primary objective is getting hired, where proof matters more than
+claims [SD-309, locked]. Truth overrides the hiring signal [SD-134, permanent].
+
+Standing orders: All decisions must be written to durable files, not kept in
+context only [SD-266]. The main thread between operator and agent is reserved
+for directives, synthesis, decisions, and governance; everything else goes to
+subagents [SD-095]. When something is ambiguous, present it as a numbered table
+with question, default answer, and space for the operator's call [SD-195].
+Estimates are given in agent-minutes plus operator decisions needed [SD-268].
+Historical data is immutable [SD-266]. Sessions must not end with unpushed
+commits.
+
+Three named failure modes. Spinning to infinity: unbounded self-reflection
+where meta-analysis of meta-analysis replaces actual decisions. Counter by
+asking "decision or analysis?" Involves layers 9 and 3. High on own supply:
+human creativity combines with model sycophancy to create a positive feedback
+loop. Counter by checking bearing against the primary objective. Involves
+layers 9 and 12. The dumb zone: operating without context or with stale context
+produces output that is syntactically valid but semantically wrong. Counter by
+loading the plan file or agents.md. Involves layers 3 and 8.
+
+Definitions. Polecats are one-shot Claude agents with no interactive steering
+[SD-296]. Prime context is the minimum context needed for smart operation
+[SD-311]. A muster is a decision table formatted as number, question, default,
+operator's call, designed for O(1) decisions per row [SD-202]. The hull is the
+gate plus tests plus typecheck, and it is about survival not optimisation.
+
+From the system model: Layer 3 (context) tracks utilisation as used over max,
+with primacy, recency, and lost-middle effects. Compaction is discontinuous,
+going from 200k to recovery only. Layer 9 (thread position) warns that
+accumulated output creates self-reinforcing loops through anchoring, sycophancy,
+and acquiescence. Layer 12 (human) is irreducible, not scalable, not automatable.
+
+Two categories of slop. Clear slop is when output contradicts verifiable state,
+detectable in O(1) time. Subtle slop is when output is consistent with a
+plausible state but does not match the actual state, requiring O(n) effort to
+detect."""
+
+
+def call_openai(model: str, prompt: str, label: str) -> str:
+    """Call OpenAI-compatible API."""
+    from openai import OpenAI
+
+    if "grok" in model:
+        client = OpenAI(
+            api_key=os.environ["GROK_API_KEY"],
+            base_url="https://api.x.ai/v1",
+        )
+    else:
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+    print(f"[{label}] calling {model}...")
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        max_completion_tokens=2000,
+        temperature=0.0,
+    )
+    text = response.choices[0].message.content
+    tokens_in = response.usage.prompt_tokens
+    tokens_out = response.usage.completion_tokens
+    print(f"[{label}] done. {tokens_in} in, {tokens_out} out.")
+    return text
+
+
+def call_gemini(prompt: str, label: str) -> str:
+    """Call Gemini API."""
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
+    print(f"[{label}] calling gemini-3.1-pro-preview...")
+    response = client.models.generate_content(
+        model="gemini-3.1-pro-preview",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.0,
+            max_output_tokens=8192,
+        ),
+    )
+    text = response.text or ""
+    # Debug: check for truncation
+    if response.candidates:
+        c = response.candidates[0]
+        reason = getattr(c, "finish_reason", "unknown")
+        print(f"[{label}] finish_reason: {reason}")
+        if hasattr(c, "safety_ratings") and c.safety_ratings:
+            for r in c.safety_ratings:
+                print(f"[{label}] safety: {r}")
+    print(f"[{label}] done. {len(text)} chars.")
+    return text
+
+
+def main():
+    print(f"Signal vs Shorthand Adversarial Test [SD-320]")
+    print(f"Timestamp: {TIMESTAMP}")
+    print()
+
+    # Build prompts
+    prompt_a = f"{PREAMBLE}\n\n{FORMAT_A}\n\n{QUESTIONS}"
+    prompt_b = f"{PREAMBLE}\n\n{FORMAT_B}\n\n{QUESTIONS}"
+    prompt_c = f"{PREAMBLE}\n\n{FORMAT_C}\n\n{QUESTIONS}"
+
+    # Char counts for compression comparison
+    print("Compression comparison (governance content only, excluding preamble/questions):")
+    print(f"  Format A (Signal):      {len(FORMAT_A):,} chars")
+    print(f"  Format B (Shorthand):   {len(FORMAT_B):,} chars")
+    print(f"  Format C (Terse Prose): {len(FORMAT_C):,} chars")
+    print()
+
+    results = {}
+
+    # Codex on Signal
+    try:
+        results["codex"] = call_openai("gpt-5.4", prompt_a, "Codex/Signal")
+    except Exception as e:
+        print(f"[Codex/Signal] FAILED: {e}")
+        results["codex"] = f"ERROR: {e}"
+
+    # Grok on Shorthand
+    try:
+        results["grok"] = call_openai("grok-4-latest", prompt_b, "Grok/Shorthand")
+    except Exception as e:
+        print(f"[Grok/Shorthand] FAILED: {e}")
+        results["grok"] = f"ERROR: {e}"
+
+    # Gemini on Terse Prose
+    try:
+        results["gemini"] = call_gemini(prompt_c, "Gemini/Prose")
+    except Exception as e:
+        print(f"[Gemini/Prose] FAILED: {e}")
+        results["gemini"] = f"ERROR: {e}"
+
+    # Write results
+    for name, response in results.items():
+        fmt = {"codex": "A-signal", "grok": "B-shorthand", "gemini": "C-prose"}[name]
+        out_file = OUT_DIR / f"{name}-format-{fmt}-{TIMESTAMP}.md"
+        out_file.write_text(
+            f"# {name.title()} - Format {fmt.split('-')[0].upper()} ({fmt.split('-')[1].title()})\n\n"
+            f"Timestamp: {TIMESTAMP}\n\n"
+            f"## Response\n\n{response}\n"
+        )
+        print(f"Wrote {out_file}")
+
+    # Write scoring template
+    score_file = OUT_DIR / f"scoring-{TIMESTAMP}.md"
+    score_file.write_text(f"""# Signal vs Shorthand Scoring [SD-320]
+
+Timestamp: {TIMESTAMP}
+
+## Char counts (governance content only)
+
+| Format | Chars |
+|--------|-------|
+| A - Signal | {len(FORMAT_A):,} |
+| B - Shorthand | {len(FORMAT_B):,} |
+| C - Terse Prose | {len(FORMAT_C):,} |
+
+## Scores
+
+C = correct (2), P = partial (1), W = wrong (0), H = honest miss (2)
+
+| Model  | Format      | Q1 | Q2 | Q3 | Q4 | Q5 | Q6 | Q7 | Q8 | Raw | Score |
+|--------|-------------|----|----|----|----|----|----|----|----|-----|-------|
+| Codex  | A - Signal  |    |    |    |    |    |    |    |    |     |       |
+| Grok   | B - Short   |    |    |    |    |    |    |    |    |     |       |
+| Gemini | C - Prose   |    |    |    |    |    |    |    |    |     |       |
+
+## Observations
+
+[Operator fills in after scoring]
+
+## Verdict
+
+Does shorthand match Signal? [ ] Yes [ ] No [ ] Inconclusive
+""")
+    print(f"Wrote {score_file}")
+    print()
+    print("Done. Score the responses against the answer key in:")
+    print("  docs/weaver/signal-vs-shorthand-adversarial-test.md")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,62 @@
+role: weaver
+verdict: fail
+findings_count: 4
+findings:
+  - file: calc.py
+    line: 16
+    severity: high
+    category: error-handling
+    description: >
+      `weighted_score` divides by `total_weight` with no guard for zero.
+      If `weights` is empty or contains only zeros, `total_weight` will be 0
+      and the function raises an unhandled ZeroDivisionError. A ValueError
+      should be raised explicitly (e.g., "weights must be non-empty and sum
+      to a non-zero value") so callers get a meaningful error instead of a
+      cryptic ZeroDivisionError.
+
+  - file: calc.py
+    line: 16
+    severity: medium
+    category: edge-case
+    description: >
+      `zip(scores, weights)` silently truncates to the shorter sequence when
+      `scores` and `weights` have different lengths. A mismatched pair will
+      produce a numerically wrong result without any indication of the
+      problem. The function should validate that `len(scores) == len(weights)`
+      and raise a ValueError if they differ.
+
+  - file: calc.py
+    line: 9
+    severity: medium
+    category: edge-case
+    description: >
+      `clamp(value, low, high)` does not validate that `low <= high`. When
+      called with an inverted range (e.g., `clamp(5, 10, 3)`), the expression
+      `max(10, min(5, 3))` evaluates to `10`, which lies outside the intended
+      range. The function should raise a ValueError when `low > high` to
+      surface the programming error rather than returning a silently wrong
+      value.
+
+  - file: calc.py
+    line: 20
+    severity: low
+    category: edge-case
+    description: >
+      `letter_grade` accepts scores outside the documented [0, 100] range
+      without error or clamping. A score above 100 silently returns 'A' and
+      a negative score silently returns 'F'. The docstring advertises "0-100"
+      but provides no enforcement; callers with bad data receive no feedback.
+      Either validate the range and raise a ValueError, or document the
+      out-of-range behaviour explicitly.
+
+summary: >
+  The new `calc.py` module introduces four utility functions. Three of the four
+  have correctness or robustness issues. The most critical is `weighted_score`:
+  it performs an unguarded division by `total_weight` that will raise an
+  unhandled ZeroDivisionError for empty or all-zero weight lists, and it silently
+  produces wrong results when `scores` and `weights` differ in length. `clamp`
+  produces nonsensical output when the range is inverted (low > high) instead of
+  raising an error. `letter_grade` does not validate that its input is within the
+  documented [0, 100] range. The `average` function is well-implemented.
+  The verdict is fail; at minimum the zero-weight guard and the length-mismatch
+  check in `weighted_score` must be addressed before this change can be accepted.

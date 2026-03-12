@@ -1,0 +1,55 @@
+role: sentinel
+verdict: pass
+vulnerabilities_found: 2
+vulnerabilities:
+  - file: calc.py
+    line: 15
+    severity: low
+    category: missing-validation
+    description: >
+      `weighted_score` computes `total_weight = sum(weights)` without checking
+      whether the result is zero. If `weights` is an empty list or contains
+      values that sum to zero, the subsequent division
+      `sum(s * w ...) / total_weight` raises an unhandled `ZeroDivisionError`.
+      In a web or API context this crash could be triggered by a caller
+      supplying crafted input, causing a denial-of-service or leaking a stack
+      trace that reveals internal paths/versions.
+    recommendation: >
+      Validate before dividing: `if total_weight == 0: raise ValueError("weights
+      must not sum to zero")`. Also guard against an empty `weights` list
+      separately if that case should carry a distinct message.
+
+  - file: calc.py
+    line: 16
+    severity: low
+    category: missing-validation
+    description: >
+      `zip(scores, weights)` silently truncates to the shorter of the two
+      sequences when they differ in length. A caller passing mismatched lists
+      receives a numerically wrong result with no exception or warning. If the
+      output is used in a grading or scoring decision, an attacker who
+      understands this behaviour could craft a shorter `weights` list to exclude
+      unfavourable score terms from the calculation.
+    recommendation: >
+      Assert equal lengths before processing:
+      `if len(scores) != len(weights): raise ValueError("scores and weights must
+      have the same length")`. Alternatively use `itertools.zip_longest` with an
+      explicit fill value and validate afterward.
+
+summary: >
+  The diff introduces a new pure-Python math utility (calc.py) containing four
+  functions: average, clamp, weighted_score, and letter_grade. The file has no
+  I/O, no subprocess invocations, no eval/exec, no network or database access,
+  and no authentication logic, so the traditional high-severity security
+  categories (injection, auth bypass, path traversal, command injection,
+  information disclosure) do not apply. Two low-severity missing-validation
+  issues were identified in `weighted_score`: (1) a potential division-by-zero
+  when the weight list is empty or sums to zero, which could surface as an
+  unhandled exception in a deployed service; and (2) silent result truncation
+  when `scores` and `weights` differ in length due to the behaviour of
+  `zip`. Neither issue is directly exploitable for privilege escalation or data
+  exfiltration in isolation, but both could be leveraged for denial-of-service
+  or result manipulation if this module is exposed to untrusted input without
+  an outer validation layer. No changes to the verdict are warranted beyond
+  flagging these for the development team to address before the code handles
+  user-supplied data.

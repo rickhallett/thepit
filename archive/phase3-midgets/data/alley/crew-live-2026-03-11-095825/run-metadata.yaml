@@ -1,0 +1,13 @@
+run_id: crew-live-2026-03-11-095825
+date: 2026-03-11T10:02:18+00:00
+image: midget-poc
+injected_defect: "zip truncation in weighted_score(): silently drops scores when len(scores) != len(weights). No crash, wrong answer."
+crew_members:
+  - watchdog
+  - weaver
+  - sentinel
+verdict:
+  pass: 1
+  fail: 2
+  missing: 0
+  triangulated: FAIL

@@ -1,0 +1,58 @@
+reviewer: "OpenAI GPT-5"
+
+availability:
+  I.1: { rating: "WIDELY", reason: "Unix processes, file descriptors, pipes, and signals are covered well across man pages, university notes, and classic free systems programming material." }
+  I.2: { rating: "WIDELY", reason: "POSIX shell and bash have extensive free documentation, FAQs, style guides, and deep tutorial material that reaches production-level depth." }
+  I.3: { rating: "PARTIALLY", reason: "The pieces are well documented, but inodes, permissions, /proc, /sys, and the filesystem-as-state framing are usually scattered across many sources." }
+  I.4: { rating: "WIDELY", reason: "The Unix text toolchain has abundant high-quality free coverage through manuals, cookbooks, tutorials, and conference material." }
+  I.5: { rating: "PARTIALLY", reason: "Python CLI fundamentals are easy to learn for free, but the full combination with subprocess discipline and uv is newer and less consolidated." }
+  I.6: { rating: "PARTIALLY", reason: "Make is richly documented, but comparable free depth that also treats just and deterministic orchestration as a coherent topic is more fragmented." }
+  I.7: { rating: "WIDELY", reason: "Git internals are unusually well served by free resources, especially official docs and openly available book-length explanations." }
+  I.8: { rating: "PARTIALLY", reason: "Each observability tool is documented, but a unified operational guide to process observation across strace, ltrace, lsof, and ss is less common." }
+  I.9: { rating: "WIDELY", reason: "Container internals have strong free coverage from kernel-focused blog posts, conference talks, and deep technical explainers." }
+  I.10: { rating: "PARTIALLY", reason: "The individual tools are well covered, but equivalent depth across curl, TLS inspection, DNS, packet capture, and firewalling usually requires stitching sources together." }
+  I.11: { rating: "PARTIALLY", reason: "systemd, cron, and supervisord are each documented, but cross-tool guidance on supervising agent processes is less centralized." }
+  I.12: { rating: "WIDELY", reason: "Advanced bash topics are supported by the Bash manual, Wooledge resources, and many detailed free examples." }
+
+  II.1: { rating: "WIDELY", reason: "Transformer basics and operational consequences are now well explained in free papers, talks, visual explainers, and engineering blogs." }
+  II.2: { rating: "PARTIALLY", reason: "Agent patterns are discussed widely, but equivalent-depth, durable material for practitioners is still concentrated in a small number of vendor and expert sources." }
+  II.3: { rating: "PARTIALLY", reason: "Prompting is over-discussed at the surface level, but system-prompt design as serious systems engineering is still fragmented across docs and essays." }
+  II.4: { rating: "SCARCE", reason: "The Denning-style working-set framing and named failure concepts like hot and cold pressure or compaction loss are not covered in mature public literature at comparable depth." }
+  II.5: { rating: "PARTIALLY", reason: "Tool use and MCP-related material exists, but robust ACI design guidance for agents remains scattered and relatively young." }
+  II.6: { rating: "PARTIALLY", reason: "The ingredients are available from testing, safety, and reliability literature, but integrated guidance for verifying probabilistic agent systems is still patchy." }
+  II.7: { rating: "SCARCE", reason: "A layered human-AI operational model plus named HCI failure taxonomies is largely bespoke and not matched by published free resources." }
+  II.8: { rating: "PARTIALLY", reason: "There is enough material on ensembles, self-consistency, and classical N-version ideas to reconstruct this, but not usually in one practitioner-grade package." }
+  II.9: { rating: "SCARCE", reason: "Operational recovery patterns for agent failure modes, especially cognitive deskilling and governance recursion, have little direct free coverage." }
+  II.10: { rating: "PARTIALLY", reason: "Governance themes are common, but concrete engineering-loop practices for AI coding agents are spread across process writing, vendor guidance, and internal-style posts." }
+  II.11: { rating: "PARTIALLY", reason: "All subtopics have free material, but equivalent depth across economics, sandboxing, security, legal, and auditability is highly fragmented." }
+
+  III.1: { rating: "WIDELY", reason: "pandas and DuckDB both have strong free documentation and many tutorials that cover practical analysis patterns deeply." }
+  III.2: { rating: "WIDELY", reason: "Descriptive statistics is foundational material with extensive free textbook, course, and tutorial coverage." }
+  III.3: { rating: "WIDELY", reason: "SQL analytics patterns including windows, CTEs, pivots, and time operations are very well covered in free SQL and DuckDB resources." }
+  III.4: { rating: "WIDELY", reason: "Practical hypothesis testing has abundant free educational coverage at the level most engineers need." }
+  III.5: { rating: "WIDELY", reason: "Introductory time series concepts are widely available through free stats courses, notebooks, and practitioner tutorials." }
+  III.6: { rating: "WIDELY", reason: "Decision-oriented visualization with matplotlib and common charting patterns is covered broadly and well for free." }
+  III.7: { rating: "PARTIALLY", reason: "Log analysis is common in practice, but cohesive free teaching material on parsing, session reconstruction, and latency analysis is less standardized." }
+  III.8: { rating: "PARTIALLY", reason: "General API cost modeling exists, but token-level unit economics and forecasting for AI systems are still mostly spread across blogs and vendor examples." }
+  III.9: { rating: "WIDELY", reason: "Basic text analysis techniques from TF-IDF to similarity and simple classification are well represented in free NLP resources." }
+  III.10: { rating: "WIDELY", reason: "Notebook workflow hygiene and reproducibility are common topics with plenty of free practitioner guidance." }
+
+  IV.1: { rating: "PARTIALLY", reason: "Construct validity and Goodhart are well covered in adjacent fields, but their integrated application to LLM evals is still scattered." }
+  IV.2: { rating: "PARTIALLY", reason: "Useful material exists on dataset design and benchmarking, but practitioner-grade guidance for agent eval sets is not yet fully consolidated." }
+  IV.3: { rating: "PARTIALLY", reason: "Free resources cover code grading, rubric design, and LLM-as-judge separately, but not always at equivalent integrated depth." }
+  IV.4: { rating: "PARTIALLY", reason: "Agent evaluation is an active area with some strong docs and papers, but deep workflow-level coverage remains uneven." }
+  IV.5: { rating: "PARTIALLY", reason: "Eval automation in CI is discussed increasingly often, yet detailed free guidance on infrastructure tradeoffs and cost control is still developing." }
+  IV.6: { rating: "PARTIALLY", reason: "Adversarial testing concepts are available, but a structured end-to-end methodology for agent systems is still spread thinly across security and safety sources." }
+  IV.7: { rating: "PARTIALLY", reason: "There is meaningful free frontier-safety and red-team material, but it is specialized and not abundant for practitioners." }
+  IV.8: { rating: "PARTIALLY", reason: "Statistics and reporting guidance exists, but honest communication of LLM eval results is still more discussed than systematically taught." }
+  IV.9: { rating: "PARTIALLY", reason: "Building evaluation culture is addressed in MLOps and platform writing, but sustained free material focused on agent organizations is limited." }
+
+  V.1: { rating: "WIDELY", reason: "The basic retrieval problem and naive RAG pipeline are heavily covered in free docs, papers, blog posts, and talks." }
+  V.2: { rating: "WIDELY", reason: "Embeddings and vector search have extensive free coverage from vendors, OSS projects, and educational content." }
+  V.3: { rating: "PARTIALLY", reason: "Chunking, context assembly, citation, and RAG evaluation are discussed a lot, but equivalent-depth guidance is still fragmented and inconsistent." }
+  V.4: { rating: "PARTIALLY", reason: "Advanced retrieval patterns are available in papers and vendor posts, but the field is moving fast and the free material is uneven in rigor." }
+  V.5: { rating: "PARTIALLY", reason: "State management is well understood in systems generally, but agent-specific state design and concurrency patterns are not yet well unified in public resources." }
+  V.6: { rating: "PARTIALLY", reason: "Conversation memory patterns are common in framework docs, but selective forgetting and durable session design are not deeply standardized." }
+  V.7: { rating: "PARTIALLY", reason: "Observability for LLM systems has good vendor and OpenTelemetry material, but equivalent-depth cross-stack treatment remains somewhat scattered." }
+  V.8: { rating: "SCARCE", reason: "Deep, practical material on replay debugging and layered diagnosis for agent systems is still sparse in free published form." }
+  V.9: { rating: "PARTIALLY", reason: "Production reliability patterns are widely documented in general, but agent-specific synthesis around fallback, scaling, and cost control is still emerging." }
