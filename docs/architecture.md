@@ -21,7 +21,7 @@ Custom JSON event stream (via `createUIMessageStream`):
 Client parsing happens in `lib/use-bout.ts` with `parseJsonEventStream`.
 
 ## Data Model (Drizzle)
-20 tables (see `db/schema.ts`):
+22 tables (see `db/schema.ts`):
 - `bouts` — status, transcript, owner, topic, response length, share line, updatedAt
 - `agents` — system prompt, tier, DNA hashes, lineage, archived flag, attestation fields
 - `credits` + `credit_transactions` — credit balance + append-only ledger
@@ -169,13 +169,13 @@ Release traffic simulator with evaluate-vote engine. Commands: `run` (execute tr
 AI model cost and performance analysis. Free: `models` (pricing comparison table). Premium: `estimate` (hypothetical bout cost), `cost` (exact token cost), `margin` (platform margin verification).
 
 ## QA Framework
-Custom test automation framework in `qa/`. Parses user stories from `docs/qa-report.md` and orchestrates execution.
+Custom test automation framework in `qa/`. Parses user stories from `docs/archive/qa-report.md` and orchestrates execution.
 
 - **Runner** (`qa/runner.ts`): CLI orchestrator — parses args, checks connectivity, filters by category/tier/ID, executes tests, writes results
 - **Parser** (`qa/parser.ts`): extracts test IDs, categories, descriptions, and status flags (`qa:x`, `func:x`, `broken:x`) from markdown
-- **Writer** (`qa/writer.ts`): updates `docs/qa-report.md` with results, generates JSON for CI
+- **Writer** (`qa/writer.ts`): updates `docs/archive/qa-report.md` with results, generates JSON for CI
 - **Registry** (`qa/registry.ts`): test self-registration with `setup?`/`run`/`teardown?` lifecycle
-- **Tiers** (`qa/tiers.ts`): maps tests to automation tiers — `api` (~93), `browser` (~125), `partial` (~21), `human` (6)
+- **Tiers** (`qa/tiers.ts`): maps tests to automation tiers - `api` (~93), `browser` (~125), `partial` (~21), `human` (7)
 - **69 security tests implemented** across auth bypass, injection, IDOR, credit edge cases, race conditions, payment webhooks, subscriptions, and rate limiting
 - **CLI:** `pnpm run qa`, `pnpm run qa:dry`, `pnpm run qa:setup`, `pnpm run qa:teardown`, `pnpm run qa:single <ID>`
 

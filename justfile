@@ -67,36 +67,36 @@ gate: setup
 # C2: inter-container communication test.
 
 interop: setup
-    @echo ">> Inter-container communication (C2)"
-    bash tests/test-c2.sh
+    #!/usr/bin/env bash
+    echo "ERROR: tests/test-c2.sh does not exist. This target needs implementation." && exit 1
 
 # ── Swarm ────────────────────────────────────────────────────
 #
 # C3: multi-container orchestration test.
 
 swarm n="3": setup
-    @echo ">> Multi-container orchestration (C3) - N={{ n }}"
-    N={{ n }} bash tests/test-c3.sh
+    #!/usr/bin/env bash
+    echo "ERROR: tests/test-c3.sh does not exist. This target needs implementation." && exit 1
 
 # ── Crew ─────────────────────────────────────────────────────
 #
 # C4: governance crew as physical agents.
 
 crew-test: setup
-    @echo ">> Governance crew plumbing (C4 - deterministic)"
-    bash tests/test-c4.sh
+    #!/usr/bin/env bash
+    echo "ERROR: tests/test-c4.sh does not exist. This target needs implementation." && exit 1
 
 steering: setup
-    @echo ">> Mid-flight steering tests (deterministic)"
-    bash tests/test-steer.sh
+    #!/usr/bin/env bash
+    echo "ERROR: tests/test-steer.sh does not exist. This target needs implementation." && exit 1
 
 steering-live: setup
-    @echo ">> Live steering tests (costs API tokens, requires ANTHROPIC_API_KEY)"
-    bash tests/test-steer-live.sh
+    #!/usr/bin/env bash
+    echo "ERROR: tests/test-steer-live.sh does not exist. This target needs implementation." && exit 1
 
 crew: setup
     @echo ">> Live crew orchestration (cross-model, costs API calls)"
-    bash orchestrate.sh
+    bash midgets/orchestrate.sh
 
 # ── Polecat Wrapper ──────────────────────────────────────────
 #
@@ -335,7 +335,7 @@ gauntlet-pitkeel:
     #!/usr/bin/env bash
     set -euo pipefail
     echo ">> Pitkeel signals"
-    if (cd pitkeel && uv run python pitkeel.py); then
+    if (cd pitkeel-py && uv run python pitkeel.py); then
         {{ pitcommit }} attest pitkeel --tree {{ tree_full }} --verdict pass
     else
         {{ pitcommit }} attest pitkeel --tree {{ tree_full }} --verdict fail

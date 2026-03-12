@@ -2,15 +2,15 @@
 
 # tests/
 
-111 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
+119 test files across 4 directories. Unit and API tests run via Vitest; E2E tests run via Playwright. Coverage thresholds are enforced at 85% on 11 critical lib modules. CI is enforced via GitHub Actions (`.github/workflows/ci.yml` for the gate, `.github/workflows/e2e.yml` for Playwright on Vercel preview deploys).
 
 ## Directory Structure
 
 ```
 tests/
-├── unit/               69 test files — pure function tests, mocked DB/external deps
-├── api/                32 test files — API route handler tests with mocked deps
-├── integration/         3 test files — real DB + security integration tests
+├── unit/               75 test files — pure function tests, mocked DB/external deps
+├── api/                34 test files — API route handler tests with mocked deps
+├── integration/         6 test files — real DB + security integration tests
 │   ├── db.test.ts                    — real DB operations via TEST_DATABASE_URL
 │   └── security/                     — auth bypass and race condition tests
 └── e2e/                 7 test files — Playwright browser tests
@@ -28,12 +28,12 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 
 ## Test Coverage by Domain
 
-### Unit Tests (69 files in `tests/unit/`)
+### Unit Tests (75 files in `tests/unit/`)
 
 | Domain | Files | What's Tested |
 |--------|-------|---------------|
 | Agent system | `agent-dna.test.ts`, `agent-dna-edge.test.ts`, `agent-prompts.test.ts`, `agent-registry.test.ts`, `agent-detail.test.ts`, `agent-detail-edge.test.ts`, `agent-lineage.test.ts`, `agent-mapper.test.ts`, `agent-links.test.ts` | Manifest hashing, prompt generation, registry resolution, lineage chain walking, row mapping, URL encoding |
-| Credits & economy | `credits.test.ts`, `credits-settle.test.ts`, `credit-catalog.test.ts`, `intro-pool.test.ts`, `free-bout-pool.test.ts` | Cost computation, preauthorization, settlement (refund/charge/exact), pool mechanics |
+| Credits & economy | `credits.test.ts`, `credits-settle.test.ts`, `credit-catalog.test.ts`, `intro-pool.test.ts` | Cost computation, preauthorization, settlement (refund/charge/exact), pool mechanics |
 | Users & auth | `users.test.ts`, `users-edge.test.ts`, `admin.test.ts`, `admin-auth.test.ts`, `referrals.test.ts`, `onboarding.test.ts` | User sync, profile refresh, email masking, admin checks, token auth, referral bonuses |
 | Server actions | `actions.test.ts`, `actions-happy.test.ts` | All 8 server actions: auth guards, validation, Stripe flow, redirects |
 | Tier system | `tier.test.ts`, `tier-helpers.test.ts` | Tier resolution, bout/model/agent access checks, daily limits |
@@ -46,7 +46,7 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 | Infrastructure | `async-context.test.ts`, `env.test.ts`, `ip.test.ts`, `logger.test.ts`, `context-budget.test.ts` | AsyncLocalStorage context, env validation, IP resolution, structured logging, context budget tracking |
 | Utilities | `hash.test.ts`, `form-utils.test.ts`, `rate-limit.test.ts`, `response-formats.test.ts`, `response-lengths.test.ts`, `presets.test.ts`, `winner-votes-lib.test.ts`, `reactions-lib.test.ts`, `api-utils.test.ts`, `errors.test.ts`, `validation.test.ts` | Hashing, form data, rate limiting, response config, preset integrity, API utils, error handling, input validation |
 
-### API Tests (32 files in `tests/api/`)
+### API Tests (34 files in `tests/api/`)
 
 | Domain | Files | Scenarios |
 |--------|-------|-----------|
@@ -62,11 +62,14 @@ pnpm run test:ci            # Full gate: lint + typecheck + unit + integration
 | Billing | `webhook-subscription.test.ts`, `webhook-edge-cases.test.ts` | Subscription lifecycle, idempotency, edge cases |
 | Security | `security-topic-length.test.ts`, `security-contact-validation.test.ts`, `security-admin-auth.test.ts` | Input bounds, validation, admin auth |
 
-### Integration Tests (3 files)
+### Integration Tests (6 files)
 
 | File | Description |
 |------|-------------|
 | `db.test.ts` | Real DB operations: credit ledger, intro pool, referral credits. Requires `TEST_DATABASE_URL`; skipped when absent. Full cleanup in `afterAll`. |
+| `bout-engine-credits.integration.test.ts` | Bout engine credit flow integration: preauthorization, settlement, refund paths with real DB. |
+| `reactions-validation.integration.test.ts` | Reaction validation integration: deduplication and constraint enforcement. |
+| `winner-vote.integration.test.ts` | Winner vote integration: one-vote-per-user enforcement and tally accuracy. |
 | `security/auth-bypass.test.ts` | Authorization bypass testing: endpoint protection, token validation, timing-safe comparisons. |
 | `security/race-conditions.test.ts` | Concurrent request handling: reaction deduplication, credit race conditions. |
 
@@ -123,11 +126,11 @@ Common mock helpers (`setupSelect()`, `setupInsert()`, `setupUpdate()`) are defi
 
 - `vi.resetModules()` in `beforeEach` when dynamic imports are used
 - `catchRedirect`/`expectRedirect` helpers for testing server action redirects
-- No shared test utility module — mocks are copy-pasted per file
+- Shared test utilities exist in `tests/integration/security/utils.ts`. Unit and API test mocks are copy-pasted per file
 
 ## Design Decisions & Trade-offs
 
-- **No shared test utilities** — Mock setup helpers are duplicated across ~101 test files. This maximizes isolation (no hidden shared state) but increases maintenance cost when DB mock patterns change. Extracting a `tests/helpers/` module with shared mock factories would reduce duplication. This is the most impactful improvement opportunity in the test layer.
+- **Minimal shared test utilities** — Integration security tests share `tests/integration/security/utils.ts`. Unit and API mock setup helpers are duplicated across test files. This maximizes isolation (no hidden shared state) but increases maintenance cost when DB mock patterns change. Extracting a `tests/helpers/` module with shared mock factories would reduce duplication.
 - **CI enforced via GitHub Actions** — `.github/workflows/ci.yml` runs the full gate (lint + typecheck + unit + integration) on every push and PR. `.github/workflows/e2e.yml` runs Playwright against Vercel preview deployments on `deployment_status` events.
 - **Coverage targets are selective** — 11 critical lib modules have enforced 85% coverage (agent-dna, agent-prompts, agent-registry, credits, free-bout-pool, rate-limit, referrals, response-formats, response-lengths, tier, validation). Other modules have no minimum. This focuses coverage enforcement on the highest-risk code without creating busywork for UI-adjacent modules.
 - **Seven E2E tests** — Playwright specs cover the core bout flow, citation validation, mobile responsiveness, hydration checks, OG images, pagination, and the unleashed feature. E2E tests are paused during high-iteration phases and not part of `test:ci`.

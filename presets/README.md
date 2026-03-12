@@ -20,7 +20,8 @@ JSON preset definitions for The Pit's debate scenarios. Each preset defines a ca
 | `mansion.json` | Free | Murder mystery mansion |
 | `summit.json` | Free | Diplomatic summit |
 | `flatshare.json` | Free | Flatmate conflicts |
-| `special-guest-hal.json` | Free (dormant) | HAL 9000 guest appearance — exists on disk but is not imported by `lib/presets.ts` at runtime |
+| `rea-baseline.json` | Research | RE-A: Village Baseline - research experiment testing belief persistence in agents with shared environmental assumptions |
+| `special-guest-hal.json` | Free (dormant) | HAL 9000 guest appearance - exists on disk but is not imported by `lib/presets.ts` at runtime |
 | `presets-top5.json` | Premium | Top 5 premium pack (5 presets) |
 | `presets-remaining6.json` | Premium | Remaining 6 premium pack (6 presets) |
 
