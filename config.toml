@@ -3,6 +3,7 @@ startup_timeout_sec = 30
 
 [smoke_targets.sentry]
 region_url = "https://us.sentry.io"
+# NOTE: organization_slug is from a prior employer (Brandwatch). Update if Sentry is configured for thepit.
 organization_slug = "brandwatch-77a365983"
 project_slug = "thepit"
 project_id = "4510870484746240"
