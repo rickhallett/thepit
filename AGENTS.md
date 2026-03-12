@@ -1,4 +1,4 @@
-# Agent's Orders - midgets (Phase 3)
+# Agent's Orders
 
 This file IS the boot sequence. Everything an agent needs to operate is here or referenced with a file path.
 If you only read one file, this is it.
@@ -21,7 +21,7 @@ section or in `docs/internal/lexicon.md`.
 **PRIMARY OBJECTIVE:** get hired - proof over claims [SD-309, locked]
 **OVERRIDE:** truth over hiring signal [SD-134, permanent]
 
-Every decision, every artifact, every engagement is minmaxed against this objective. Target: Anthropic red teaming role, HN post. "One shot on HN." [SD-309]
+Every decision, every artifact, every engagement is minmaxed against this objective. Target: Product Engineering, AI Native
 
 ---
 
@@ -166,10 +166,12 @@ last_known_position: <last completed task>
 | Sentinel | security |
 | Keel | stability, human factor |
 | Janitor | hygiene, refactoring |
+| Analyst | research, prior art, landscape analysis |
+| AnotherPair | subtle process observation, slop detection |
 
 Agent files: `.claude/agents/{role}.md`
 
-Also on disk (not active crew): `analyst.md`, `scribe.md`, `maturin.md`, `anotherpair.md`, `operatorslog.md`, `weave-quick-ref.md`.
+Also on disk (not active crew): `scribe.md`, `maturin.md`, `operatorslog.md`, `weave-quick-ref.md`.
 
 ---
 
