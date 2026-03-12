@@ -41,6 +41,6 @@ tag boot files
 
 5 agent-minutes to build. 3 seconds to run. The fix (stop loading all 271 historical decisions on every wake) drops 30k tokens from the boot sequence.[^1]
 
-[Provenance](https://github.com/rickhallett/thepit/blob/wake/docs/internal/weaver/token-heatmap.yaml) | [Script](https://github.com/rickhallett/thepit/blob/wake/bin/token-heatmap.js)
+[Provenance](https://github.com/rickhallett/thepit-pilot/blob/wake/docs/internal/weaver/token-heatmap.yaml) | [Script](https://github.com/rickhallett/thepit-pilot/blob/wake/bin/token-heatmap.js)
 
 [^1]: The heaviest directory in the repo is `docs/internal/research/mobprogrammingrpg/` at 1,148,700 tokens. Twelve PDFs. ["We are not doing PDFs."](https://github.com/rickhallett/thepit/blob/7e5675ab89d28d86baf5a47847d53a4e84918efc/docs/internal/anotherpair/log.md#we-are-not-doing-pdfs-2026-03-01)

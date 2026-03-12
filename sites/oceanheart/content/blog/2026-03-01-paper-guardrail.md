@@ -56,6 +56,6 @@ ${latest.map(sd => `  - id: SD-${sd.id}
 writeFileSync(INDEX_FILE, yaml);
 ```
 
-[Source](https://github.com/rickhallett/thepit/blob/wake/bin/sd-index.js)[^1]
+[Source](https://github.com/rickhallett/thepit-pilot/blob/wake/bin/sd-index.js)[^1]
 
-[^1]: [Paper Guardrail](https://github.com/rickhallett/thepit/blob/wake/slopodar.yaml#L201) — "The LLM creates a rule, then in the same breath asserts that the rule will prevent the failure it was designed for. The assertion has no enforcement mechanism." ([oceanheart.ai/slopodar/paper-guardrail](https://oceanheart.ai/slopodar/paper-guardrail/))
+[^1]: [Paper Guardrail](https://github.com/rickhallett/thepit-pilot/blob/wake/slopodar.yaml#L201) — "The LLM creates a rule, then in the same breath asserts that the rule will prevent the failure it was designed for. The assertion has no enforcement mechanism." ([oceanheart.ai/slopodar/paper-guardrail](https://oceanheart.ai/slopodar/paper-guardrail/))

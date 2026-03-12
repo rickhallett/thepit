@@ -70,6 +70,6 @@ fi
 exit 0
 ```
 
-[Source](https://github.com/rickhallett/thepit/blob/wake/scripts/post-commit)
+[Source](https://github.com/rickhallett/thepit-pilot/blob/wake/scripts/post-commit)
 
 Happy hunting, chaps.
