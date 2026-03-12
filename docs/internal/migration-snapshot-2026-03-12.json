@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-03-12",
+  "migration": "MIGRATION-001",
+  "repos": {
+    "tspit-ARCHIVED": {
+      "path": "/home/mrkai/code/repo/tspit-ARCHIVED",
+      "github": "git@github.com:rickhallett/thepit.git",
+      "current_branch": "paragate",
+      "working_tree": "clean",
+      "branches": {
+        "wake": {
+          "sha": "f0b5a91c168724bf776de2758aad9199029bd69b",
+          "commits": 855,
+          "files": 1438,
+          "note": "BASE - full product code, the spine"
+        },
+        "paragate": {
+          "sha": "3edbec95b5a2f0ae976440bb9b977aef63025649",
+          "commits": 870,
+          "note": "scrubbed branch, governance only"
+        },
+        "origin/paragate": {
+          "sha": "d6ac6c4",
+          "note": "5 commits ahead of local paragate"
+        },
+        "origin/master": {
+          "sha": "209c2df",
+          "commits": 869,
+          "note": "GitHub default branch, has slopodar domain mapping"
+        },
+        "control-case-magnum": {
+          "sha": "4523b45",
+          "commits": 872
+        },
+        "distilled-codex": {
+          "sha": "f0b5a91",
+          "note": "same as wake HEAD"
+        }
+      },
+      "total_commits_all_branches": 878
+    },
+    "noopit": {
+      "path": "/home/mrkai/code/noopit",
+      "github": "git@github.com:rickhallett/thepit-v2.git",
+      "current_branch": "main",
+      "working_tree": "dirty (12 files - typechanged symlinks)",
+      "branches": {
+        "main": {
+          "sha": "616326d2015218b7d6f00e780e31d34da6dc2351",
+          "commits": 147
+        },
+        "phase2": {
+          "sha": "5acd344",
+          "note": "remote only, 274 tests passing"
+        },
+        "phase2-ui": {
+          "sha": "efa449f"
+        },
+        "phase4-economy": {
+          "sha": "7cee577"
+        },
+        "phase4-economy-v2": {
+          "sha": "dce22b8"
+        },
+        "phase5-discovery": {
+          "sha": "5a1e011"
+        },
+        "phase6-ship": {
+          "sha": "7512e3d"
+        }
+      },
+      "total_commits_all_branches": 160
+    },
+    "midgets": {
+      "path": "/home/mrkai/code/midgets",
+      "github": "git@github.com:rickhallett/phantoms.git",
+      "current_branch": "main",
+      "working_tree": "dirty (8 files - uncommitted work + .todo. files)",
+      "branches": {
+        "main": {
+          "sha": "f3e0ae19f31e4f29a5482f7caa5d244b1cc65ec3",
+          "commits": 97
+        }
+      },
+      "total_commits_all_branches": 97
+    }
+  }
+}

@@ -35,3 +35,6 @@ sites/oceanheart/resources/
 # Slopodar sweep (generated corpus and raw API responses)
 data/sweep/corpus/
 data/sweep/responses/
+
+# Directives (PR sensitive)
+*.todo.*
