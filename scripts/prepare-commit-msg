@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-# prepare-commit-msg hook — appends pitkeel signals to commit messages.
+# prepare-commit-msg hook — appends pitkeel signals and gauntlet trailer to commit messages.
 #
 # Pitkeel output is appended as a trailing block after the commit message.
 # Signals are only appended when they are non-nominal (warnings present).
-# The output goes to stderr so agents and humans see it in the terminal,
-# and is appended to the commit message file so it persists in git log.
+# The gauntlet trailer records which verification steps passed.
 #
 # Install:
 #   ln -sf ../../scripts/prepare-commit-msg .git/hooks/prepare-commit-msg
@@ -16,53 +15,52 @@ COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"
 
 # Skip for merges, squashes, and amends — only run on fresh commits.
-# Git passes "commit" as COMMIT_SOURCE for --amend, -c, and -C.
 case "$COMMIT_SOURCE" in
   merge|squash|commit)
     exit 0
     ;;
 esac
 
-# Find pitkeel binary — check if built, or build on the fly.
-PITKEEL="$(git rev-parse --show-toplevel)/pitkeel/pitkeel"
-if [ ! -x "$PITKEEL" ]; then
-  # Try to build it silently
-  (cd "$(git rev-parse --show-toplevel)/pitkeel" && go build -o pitkeel . 2>/dev/null)
-fi
-
-# If still not available, skip silently — don't block commits.
-if [ ! -x "$PITKEEL" ]; then
-  exit 0
-fi
-
-# Capture hook output (plain text, no ANSI).
-KEEL_OUTPUT=$("$PITKEEL" hook 2>/dev/null)
-
-# If pitkeel failed or produced no output, skip silently.
-if [ -z "$KEEL_OUTPUT" ]; then
-  exit 0
-fi
-
-# Print to stderr so it appears in terminal output for human/agent attention.
-printf '\n%s\n' "$KEEL_OUTPUT" >&2
-
-# Only append to commit message if there are actual signals (not just "nominal").
-if echo "$KEEL_OUTPUT" | grep -qv "^keel: nominal$"; then
-  printf '\n%s\n' "$KEEL_OUTPUT" >> "$COMMIT_MSG_FILE"
-fi
-
-# --- Always-on trailers from .keel-state (SD-203) ---
-# "Its a record not a damn fashion show." — Captain
+# Find repo root.
 ROOT="$(git rev-parse --show-toplevel)"
+
+# --- Origin drift check ---
+AHEAD=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo "0")
+if [ "$AHEAD" -gt 0 ]; then
+  if [ "${SMOKE_TEST:-}" = "1" ]; then
+    printf 'origin-drift: suppressed (%s ahead)\n' "$AHEAD" >&2
+  else
+    printf 'origin-drift: %s commit(s) ahead of remote\n' "$AHEAD" >&2
+  fi
+fi
+
+# --- Pitkeel signals ---
+PITKEEL="$ROOT/pitkeel/pitkeel.py"
+
+if [ -f "$PITKEEL" ]; then
+  # Capture hook output (plain text, no ANSI).
+  KEEL_OUTPUT=$(cd "$ROOT/pitkeel" && uv run python pitkeel.py hook 2>/dev/null)
+
+  if [ -n "$KEEL_OUTPUT" ]; then
+    # Print to stderr so it appears in terminal output for human/agent attention.
+    printf '\n%s\n' "$KEEL_OUTPUT" >&2
+
+    # Only append to commit message if there are actual signals (not just "nominal").
+    if printf '%s' "$KEEL_OUTPUT" | grep -qv "^keel: nominal$"; then
+      printf '\n%s\n' "$KEEL_OUTPUT" >> "$COMMIT_MSG_FILE"
+    fi
+  fi
+fi
+
+# --- Keel state trailers ---
 STATE="$ROOT/.keel-state"
 
 if [ -f "$STATE" ]; then
-  # Parse JSON with python (stdlib, no deps) — portable across all environments
-  TRAILERS=$(python3 -c "
+  TRAILERS=$(cd "$ROOT/pitkeel" && uv run python -c "
 import json, sys
 try:
     d = json.load(open('$STATE'))
-    b = d.get('bearing', '—')
+    b = d.get('bearing', {})
     if isinstance(b, dict):
         bearing_str = '%s [%s commits]' % (b.get('work', '—'), b.get('commits', '?'))
         if b.get('note'):
@@ -84,6 +82,15 @@ except Exception:
 
   if [ -n "$TRAILERS" ]; then
     printf '\n%s\n' "$TRAILERS" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
+# --- Gauntlet trailer ---
+PITCOMMIT="$ROOT/scripts/pitcommit.py"
+if [ -f "$PITCOMMIT" ] && [ -d "$ROOT/.gauntlet" ]; then
+  GAUNTLET_TRAILER=$(python3 "$PITCOMMIT" trailer 2>/dev/null)
+  if [ -n "$GAUNTLET_TRAILER" ]; then
+    printf '\n%s\n' "$GAUNTLET_TRAILER" >> "$COMMIT_MSG_FILE"
   fi
 fi
 

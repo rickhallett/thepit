@@ -14,7 +14,7 @@ I run a multi-agent system. HAL coordinates. Strategist does business analysis. 
 
 That night, HAL noticed a pending task and pinged Strategist. Strategist analysed it and pinged Architect. Architect designed a solution and pinged Analyst. Analyst validated and pinged HAL for review. HAL noticed a new pending item.
 
-Each agent doing exactly what it was supposed to do. The chain looped back. The loop accelerated. Three hours of perfectly reasonable messages that were collectively insane.
+Each agent doing exactly what it was supposed to do, but the chain looped back and the loop accelerated. Three hours of perfectly reasonable messages that were collectively insane.
 
 The thing that really hurt: it had been simmering for weeks. The agents were designed to be responsive, quick turnaround, minimal latency. Then my network degraded. Messages that normally took 200ms started taking 2 seconds, then 5, then they queued. When the network recovered, the queue flushed all at once. 40 agents receiving 40 messages simultaneously, each triggering a response.
 
@@ -26,7 +26,7 @@ The deeper thing I took from this (and it took me a while to properly accept it)
 
 The agents will find ways to interact that you didn't anticipate. Some of those will be useful. Some will wake you up at 3am.
 
-The flywheel still spins. But now there's a brake.
+The flywheel still spins, but now there's a brake.
 
 ---
 

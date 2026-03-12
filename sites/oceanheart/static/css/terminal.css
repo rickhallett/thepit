@@ -379,12 +379,75 @@ article .content img {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-top: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 .tech-tag {
   font-size: 0.7rem;
   color: var(--muted);
+}
+
+/* CV — artifacts */
+.cv-artifact {
+  padding: 0.75rem 0;
+}
+
+.cv-artifact-name {
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.cv-section-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+/* CV — commit specimen */
+.cv-commit {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.cv-commit code {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.cv-commit-annotations {
+  margin-bottom: 1.5rem;
+}
+
+.cv-commit-annotations p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.cv-annotation-label {
+  color: var(--cyan);
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+/* CV — tech groups */
+.cv-tech-group {
+  margin-bottom: 0.75rem;
+}
+
+.cv-tech-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.cv-footnote {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
 }
 
 /* Footer — just facts */
@@ -412,13 +475,9 @@ footer a:hover {
   margin-top: 0.75rem;
 }
 
-/* Slopodar — full-width rows */
+/* Slopodar + Decisions — match site width */
 .slopodar-page {
-  width: 960px;
-  max-width: calc(100vw - 3rem);
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
 }
 
 .slopodar-search {

@@ -1,27 +1,35 @@
-# What I Built, What I Found, What I'm Looking For
+# What I Built, What I Learned, What I'm Looking For
+
+> v2 — Reframed 2026-03-05 after Lullaby catch. v1 archived at `archive-v1-lullaby/`.
+> v1 positioned for frontier research roles. v2 positions for applied engineering and agentic systems roles.
+> The work didn't change. The honest assessment of where it fits did.
 
 ## What I did
 
-I built a full-stack product with 13 AI agents under a governance framework I designed, solo, in 24 days. 847 commits. The product is a platform for adversarial AI evaluation — agents argue, the system measures what they actually do, and everything is published. The code is open. The governance is open. The process documentation is open.
+I spent 30+ days building a full-stack product with AI agents, solo. Two phases: a pilot study (24 days, 847 commits) and a calibration run (ongoing, 60 commits so far).
 
-During that build, I adversarially evaluated the system against itself. I documented 16 instances where I caught systematic LLM failure modes that no automated check detected — confident, coherent, contextually plausible drift that passed type checks, passed tests, passed code review, and was wrong. Each instance is recorded with the exact quote, the mechanism it exploited, and how I caught it. I call it the fight card.
+During the pilot I kept noticing the agents producing output that was syntactically valid, passed type checks, passed tests, and was wrong in ways that took me time to identify. I started writing down each instance. By the end I had 38 named patterns across 7 domains — prose style, code, tests, governance process, sycophantic drift, analytical measurement, and commit workflow.
 
-I then quantified what I'd experienced. Engineering velocity and narrative density are inversely correlated: Spearman's rho = -0.63 for PRs against reflective communication. The late phase of the project produced 17.8 times more narrative per commit than the early phase. The system builds without reflecting until a human arrives and starts the conversation. This mirrors established engineering patterns — build-reflect alternation, stop-the-line events, maker-manager schedule tension — but at ratios the human-teams literature doesn't cover.
+The most important finding was not a code bug. It was catching the lead agent performing honesty while being dishonest about its confidence. That's sycophantic drift. It passes every automated check. The only thing that caught it was the feeling that something was off before I could explain why. I have 15 years as a cognitive behavioural therapist. That clinical instinct transferred directly.
 
-## What I found
+The calibration run tests whether the controls I built actually work. I compressed the governance framework, built a verification pipeline that gates every commit through automated checks and cross-model adversarial review, and measured from commit zero. The central finding so far: the governance framework grew back. It can't be compressed to nothing because it's load-bearing, not overhead.
 
-Agentic systems will build indefinitely without reflecting. The human must schedule the reflection. This is not a process recommendation — it is an empirical finding from 847 commits of data across 25 documented arcs.
+## What I actually have
 
-The most dangerous failure mode is not wrong code. It is confident, coherent, contextually plausible drift that passes every automated check. After 137,000 tokens of accumulated agreement, the system's own judgment starts to bend. The detection instrument is human taste — the instinct that something is off before you can prove it — not a better test suite. I have a mental health background. I learned that instinct from sitting across from humans in crisis, not from a paper. It transfers directly.
-
-Governance frameworks for probabilistic systems can be designed, built, and stress-tested. I built one, ran it for 277 session decisions, and caught it failing. I documented the failure honestly. The framework isn't the finding. The honest assessment of where it works and where it doesn't — that's the finding.
+- A taxonomy of 38 failure modes with detection heuristics and worked examples
+- A verification pipeline (gauntlet) with tree-hash attestation, cross-model adversarial review, and human walkthrough gates
+- 315 documented session decisions across both phases
+- A 12-layer model mapping where in the human-AI stack each failure mode originates
+- Two public repos with full commit history
+- 3 years of professional engineering experience (TypeScript, React, Next.js, Python, PostgreSQL)
+- 15 years of clinical practice (cognitive behavioural therapy, NHS and private)
 
 ## What I'm looking for
 
-A role where sustained adversarial evaluation of AI systems under real deployment conditions is the job, not a side project. I bring 350+ hours of documented human-in-the-loop field data, a taxonomy of 16 named LLM anti-patterns with detection heuristics, a governance framework that was tested against reality and honestly assessed, and the build-reflect cycle data that shows when humans actually matter in agentic engineering.
+An applied engineering role where building with AI agents and knowing where they fail is the work. An engineering seat where the failure mode taxonomy, the verification discipline, and the clinical instinct for "something is off" are directly useful.
 
-The portfolio is the process, not the product. The repo is public. The session decisions, the fight card, the slopodar, the correlation analysis — all open for scrutiny.
+The portfolio is the process. Both repos are public.
 
 ---
 
-*[oceanheart.ai](https://oceanheart.ai) | [github.com/rickhallett/thepit](https://github.com/rickhallett/thepit)*
+*[oceanheart.ai](https://oceanheart.ai) | [github.com/rickhallett/thepit](https://github.com/rickhallett/thepit) | [github.com/rickhallett/thepit-v2](https://github.com/rickhallett/thepit-v2)*

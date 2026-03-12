@@ -21,7 +21,7 @@ Sources NOT searched (require human login):
 - Twitter/X profiles (require auth for full profile access)
 - Google Scholar author pages (would require additional passes)
 
-**Honest limitation:** I cannot access LinkedIn profiles, Twitter/X bios, or conference speaker databases from this harness. The research below is limited to what is published on company and arXiv pages. The Captain will need to perform LinkedIn searches manually for the specific names identified here.
+**Honest limitation:** I cannot access LinkedIn profiles, Twitter/X bios, or conference speaker databases from this harness. The research below is limited to what is published on company and arXiv pages. The Operator will need to perform LinkedIn searches manually for the specific names identified here.
 
 ---
 
@@ -83,15 +83,15 @@ The blog posts refer to additional internal team names:
 | **Jesse Mu** | Researcher | Co-author | |
 | **Jerry Wei** | Researcher | Co-author | |
 
-**Key finding for Captain:**
+**Key finding for Operator:**
 - **Jan Leike** is now at Anthropic. He was OpenAI's head of Alignment/Superalignment before departing publicly in mid-2024. His presence as near-last-author on the Constitutional Classifiers paper suggests he holds a senior safety role at Anthropic.
 - **Evan Hubinger** is the most visible face of Anthropic's alignment research (submitting author on alignment faking).
 - **Ethan Perez** appears on both major safety papers in senior author positions — likely leads or co-leads Safeguards research.
 - **Mrinank Sharma** first-authored the Constitutional Classifiers paper — likely project lead for that workstream.
 
-#### Anthropic teams the Captain's targets map to:
+#### Anthropic teams the Operator's targets map to:
 
-| Captain's target | Relevant Anthropic team | Key people identified |
+| Operator's target | Relevant Anthropic team | Key people identified |
 |-----------------|------------------------|----------------------|
 | Red Team Engineer, Safeguards | Safeguards Research Team / Frontier Red Team | Mrinank Sharma, Ethan Perez, Jan Leike, Meg Tong |
 | AI Safety Fellow | Alignment Science | Evan Hubinger, Ryan Greenblatt, Buck Shlegeris |
@@ -124,10 +124,10 @@ The page describes the following teams/structures but **does NOT name individual
 - "AI Psychology & Safety" team lead (relevant to target #1, the FTC role) — not named
 - No individual researcher names are listed on the responsibility page
 
-**Key finding for Captain:**
+**Key finding for Operator:**
 - Helen King (VP, Responsibility) is the most senior named person on the safety/ethics side. She is likely the hiring chain for the Psychologist/Sociologist FTC role.
 - The DeepMind responsibility page is deliberately vague about team structure below VP level.
-- For the FTC role, the Captain may want to search LinkedIn for "Helen King Google DeepMind" and explore her network.
+- For the FTC role, the Operator may want to search LinkedIn for "Helen King Google DeepMind" and explore her network.
 
 ---
 
@@ -154,10 +154,10 @@ The updated Preparedness Framework describes:
 - Red Teaming Network coordinator — not named
 - Emerging Risks Analyst team lead — not named
 
-**Key finding for Captain:**
+**Key finding for Operator:**
 - OpenAI is the most opaque of the target companies regarding safety team composition.
 - Jan Leike was previously OpenAI's Alignment/Superalignment lead; he departed publicly in May 2024 and is now at Anthropic (confirmed via Constitutional Classifiers paper authorship).
-- The Captain's best path to OpenAI safety contacts is through the community (Alignment Forum, METR connections) rather than through public pages.
+- The Operator's best path to OpenAI safety contacts is through the community (Alignment Forum, METR connections) rather than through public pages.
 
 ---
 
@@ -204,7 +204,7 @@ The updated Preparedness Framework describes:
 | **Alec Radford** | Advisor | OpenAI researcher (GPT series) |
 | **Yoshua Bengio** | Advisor | Turing Award laureate; also reviewed Anthropic's alignment faking paper |
 
-**Key finding for Captain:**
+**Key finding for Operator:**
 - Beth Barnes is the founder and CEO — the primary contact for any METR engagement.
 - Ajeya Cotra is a high-profile name; her AI timelines work is widely cited.
 - METR has partnered with OpenAI, Anthropic, Amazon, and AISI.
@@ -254,12 +254,12 @@ The updated Preparedness Framework describes:
 | **Owain Evans** | Director, Truthful AI |
 | **Daniel Kokotajlo** | Director, AI Futures Project (previously OpenAI) |
 
-**Key finding for Captain:**
+**Key finding for Operator:**
 - Marius Hobbhahn is a MATS alumnus (confirmed in plank-3) and the primary contact.
-- Charlotte Stix (Head of AI Governance) is relevant if the Captain's governance framework is a lead artifact.
+- Charlotte Stix (Head of AI Governance) is relevant if the Operator's governance framework is a lead artifact.
 - Daniel Kokotajlo (advisor) is a former OpenAI employee who departed publicly over safety disagreements — potential warm connection and signal of shared values.
 - Apollo is a PBC (Public Benefit Corporation) registered in Delaware, with EU Transparency Register presence.
-- Team is relatively small (~25 people) — the Captain's application will be read by decision-makers directly.
+- Team is relatively small (~25 people) — the Operator's application will be read by decision-makers directly.
 
 ---
 
@@ -277,16 +277,16 @@ The updated Preparedness Framework describes:
 | **Daniel Kokotajlo** | Ex-OpenAI; Apollo Research advisor | Bridges OpenAI and Apollo |
 | **Samuel R. Bowman** | Co-author on both Anthropic papers; previously NYU | Bridges academic NLP and Anthropic safety |
 
-### Recent Research Directly Relevant to Captain's Work
+### Recent Research Directly Relevant to Operator's Work
 
 | Paper/Project | Company | Why it matters |
 |--------------|---------|----------------|
-| Constitutional Classifiers (Jan 2025) | Anthropic Safeguards | Adversarial jailbreak defense — Captain's fight card documents analogous adversarial dynamics |
-| Alignment Faking (Dec 2024) | Anthropic Alignment Science + Redwood | Model deception under training pressure — Captain's slopodar documents related failure modes |
-| Sabotage Evaluations (Oct 2024) | Anthropic Alignment Science | Four sabotage modalities tested — Captain's governance framework is a control protocol against these |
-| Preparedness Framework v2 (Apr 2025) | OpenAI | Defines tracked/research risk categories — Captain's project implements their pipeline at small scale |
-| Measuring AI Ability to Complete Long Tasks (Mar 2025) | METR | Agent task completion benchmarking — Captain's 200+ hour sustained agentic engagement is data for this |
-| AI Developer Productivity Study (Jul 2025) | METR | RCT on AI coding productivity — Captain's build-reflect correlation is complementary data |
+| Constitutional Classifiers (Jan 2025) | Anthropic Safeguards | Adversarial jailbreak defense — Operator's fight card documents analogous adversarial dynamics |
+| Alignment Faking (Dec 2024) | Anthropic Alignment Science + Redwood | Model deception under training pressure — Operator's slopodar documents related failure modes |
+| Sabotage Evaluations (Oct 2024) | Anthropic Alignment Science | Four sabotage modalities tested — Operator's governance framework is a control protocol against these |
+| Preparedness Framework v2 (Apr 2025) | OpenAI | Defines tracked/research risk categories — Operator's project implements their pipeline at small scale |
+| Measuring AI Ability to Complete Long Tasks (Mar 2025) | METR | Agent task completion benchmarking — Operator's 200+ hour sustained agentic engagement is data for this |
+| AI Developer Productivity Study (Jul 2025) | METR | RCT on AI coding productivity — Operator's build-reflect correlation is complementary data |
 
 ---
 
@@ -307,7 +307,7 @@ The updated Preparedness Framework describes:
 
 ### Information that requires human LinkedIn search
 
-The Captain should search for:
+The Operator should search for:
 1. `"Frontier Red Team" Anthropic` — LinkedIn
 2. `"Safeguards" Anthropic` — LinkedIn
 3. `Jan Leike` — LinkedIn (confirm current title at Anthropic)
@@ -327,7 +327,7 @@ Based on the community connections identified:
 |------|-----|-----|-----------|
 | METR → OpenAI | Alec Radford (METR advisor, OpenAI researcher) | OpenAI safety team | Community engagement at METR first |
 | Apollo → OpenAI | Daniel Kokotajlo (Apollo advisor, ex-OpenAI) | OpenAI Preparedness context | Apollo engagement first |
-| Alignment Forum → Anthropic | Evan Hubinger, Ryan Greenblatt are active posters | Anthropic Alignment Science | Post Captain's research on Alignment Forum |
+| Alignment Forum → Anthropic | Evan Hubinger, Ryan Greenblatt are active posters | Anthropic Alignment Science | Post Operator's research on Alignment Forum |
 | AISC → multiple | AISC alumni go to Anthropic, DeepMind, METR, Apollo | All targets | Apply to AISC12 or propose project |
 | MATS → multiple | 446+ alumni across all target companies | All targets | Submit EOI (expression of interest) |
 | Redwood Research → Anthropic | Buck Shlegeris collaborates with Anthropic | Anthropic Alignment Science | Community engagement |
@@ -336,16 +336,16 @@ Based on the community connections identified:
 
 ## Part E: Summary Recommendations
 
-1. **DeepMind FTC (deadline 10 March):** Helen King is the most senior named safety person. The Captain cannot identify the direct hiring manager from public sources. Apply now with the materials prepared. After applying, search LinkedIn for Helen King's network.
+1. **DeepMind FTC (deadline 10 March):** Helen King is the most senior named safety person. The Operator cannot identify the direct hiring manager from public sources. Apply now with the materials prepared. After applying, search LinkedIn for Helen King's network.
 
 2. **Anthropic (all 3 roles):** Jan Leike, Ethan Perez, and Evan Hubinger are the most senior safety researchers identifiable from papers. The blog posts explicitly link to hiring pages for "Research Engineers / Scientists in Alignment Science" and "Safeguards." Apply and reference the fight card.
 
 3. **OpenAI:** The most opaque company. The Preparedness Framework v2 is the key document to reference. The SAG is the decision-making body but members are unnamed. The Red Teaming Network is the lowest-friction entry point.
 
-4. **METR:** Beth Barnes is the founder/CEO. Team is fully public. Small nonprofit with high credibility. The Captain's methodology and honest limitations assessment align with METR's values.
+4. **METR:** Beth Barnes is the founder/CEO. Team is fully public. Small nonprofit with high credibility. The Operator's methodology and honest limitations assessment align with METR's values.
 
-5. **Apollo Research:** Marius Hobbhahn (CEO), Charlotte Stix (Head of Governance). Small team, London-based. The Captain's fight card is directly relevant to their scheming-detection research.
+5. **Apollo Research:** Marius Hobbhahn (CEO), Charlotte Stix (Head of Governance). Small team, London-based. The Operator's fight card is directly relevant to their scheming-detection research.
 
 ---
 
-*This document should be updated as the Captain conducts manual LinkedIn searches and community engagement. Mark each update with date and source.*
+*This document should be updated as the Operator conducts manual LinkedIn searches and community engagement. Mark each update with date and source.*

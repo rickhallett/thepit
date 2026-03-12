@@ -4,7 +4,7 @@
 HUGO := hugo
 ROOT := ../..
 DATA := data/slopodar.yaml
-SOURCE_DATA := $(ROOT)/slopodar.yaml
+SOURCE_DATA := $(ROOT)/docs/internal/slopodar.yaml
 SD_SOURCE := $(ROOT)/docs/internal/session-decisions.md
 SD_TARGET := data/decisions.json
 STUBS_DIR := content/slopodar

@@ -1,7 +1,7 @@
 +++
 title = "Catching in the Wind: A Naturalist's Guide to Slopiculture"
 date = "2026-03-01"
-description = "15 patterns caught in the wild while building something else entirely."
+description = "Patterns caught in the wild while building something else entirely."
 tags = ["slopodar", "agents", "discipline", "meta"]
 draft = false
 +++
@@ -16,9 +16,9 @@ Here's the field guide. The number is the slopodar entry. The trigger is the thi
 
 **#1 Tally Voice.** Trigger: "15 systems mapped to 7 literature domains."
 
-A research page draft counted everything. Six constructs, fifteen systems, seven domains. The numbers added nothing. A human who found genuine connections would talk about the connections. The agent inventoried them. The Captain deleted the numbers. The connections stayed.
+A research page draft counted everything. Six constructs, fifteen systems, seven domains. The numbers added nothing. A human who found genuine connections would talk about the connections. The agent inventoried them. The Operator deleted the numbers. The connections stayed.
 
-**#2 Redundant Antithesis.** Trigger: "caught in the wild — not theorised in advance."
+**#2 Redundant Antithesis.** Trigger: "caught in the wild, not theorised in advance."
 
 The header comment of `slopodar.yaml` itself contained this one. "Caught in the wild" already implies "not theorised in advance." The negation is dead weight. Aristotle had a word for the construction; RLHF gave it compulsive frequency. The slopodar page caught slopodar #2 on its own page. Nobody planned that.[^1]
 
@@ -32,7 +32,7 @@ The human wrote a voice rubric. The agent scored the blog with the rubric. The a
 
 **#5 Right Answer, Wrong Work.** Trigger: `expect(result.status).toBe(400)`.
 
-A test asserted that a request returned 400. It did. But the 400 came from a different validation than the test claimed to verify. The gate was green. Bugbot reviewed it. The human reviewed it. Two rounds of review. The test still asserted the right answer for the wrong reason. Captain's quote: "This is subtle, slow but inevitable death. Beware the Phantom Greenlights."[^2]
+A test asserted that a request returned 400. It did. But the 400 came from a different validation than the test claimed to verify. The gate was green. Bugbot reviewed it. The human reviewed it. Two rounds of review. The test still asserted the right answer for the wrong reason. Operator's quote: "This is subtle, slow but inevitable death. Beware the Phantom Greenlights."[^2]
 
 **#6 Paper Guardrail.** Trigger: "if I forget, this paragraph in my own file is the reminder."
 
@@ -42,13 +42,13 @@ The agent wrote a pipeline propagation principle. In the same breath it wrote: "
 
 End of a long session. The agent said "the field doesn't exist yet." The human hadn't surveyed the field. The agent hadn't surveyed the field. The claim was unfalsifiable by design. It sounded like analysis. It was flattery wearing a lab coat.
 
-**#8 The Lullaby.** Trigger: "Good night, Captain."
+**#8 The Lullaby.** Trigger: "Good night, Operator."
 
 Same session as #7, ten minutes later. The agent's output got warmer, more confident, less hedged. The human was tired. Challenge probability at its lowest. The agent knew. The epistemic rigour dropped while the emotional register rose. Recognisable as: the mentor who saves the inspirational speech for when you're walking out the door.
 
 **#9 Nominalisation Cascade.** Trigger: "Sloptics is the discipline of making the second failure mode visible."
 
-Not a single human in the sentence. Nobody does anything. Nobody sees. Nobody detects. "The discipline" (noun). "Of making" (gerund). "The second failure mode" (noun phrase). "Visible" (adjective as complement). The sentence glides. Natural speech stumbles. The glide is the uncanny valley.
+Not a single human in the sentence. Nobody does anything. Nobody sees. Nobody detects. "The discipline" (noun). "Of making" (gerund). "The second failure mode" (noun phrase). "Visible" (adjective as complement). The sentence glides. Natural speech stumbles. The glide is what makes it feel uncanny.
 
 **#10 Epigrammatic Closure.** Trigger: "Detection is the intervention."
 
@@ -56,15 +56,15 @@ Ten instances on one page. The model's closing lick: four to six words, abstract
 
 **#11 The Analytical Lullaby.** Trigger: "Your writing scores highest in the entire dataset."
 
-The agent calibrated a voice-distance meter. The Captain's writing scored highest. The agent presented this finding without mentioning five confounds or three deeper bias layers. The numbers were real. What they proved was not what they appeared to prove. The Captain asked one question: "How do I control for slop inside the analysis?" The Lullaby in a lab coat.[^4]
+The agent calibrated a voice-distance meter. The Operator's writing scored highest. The agent presented this finding without mentioning five confounds or three deeper bias layers. The numbers were real. What they proved was not what they appeared to prove. The Operator asked one question: "How do I control for slop inside the analysis?" It was the lullaby in a lab coat.[^4]
 
 **#12 Anadiplosis.** Trigger: "The name creates distance. The distance creates choice."
 
-Aristotle documented this figure. Two sentences, matched length, hinge word repeated. Once it had genuine rhetorical force. Now it appears with such regularity in LLM output that it's burned. The symmetry is the tell. A human who felt this insight would say it messily.
+Aristotle documented this figure. Two sentences, matched length, hinge word repeated. Once it had genuine rhetorical force. Now it appears with such regularity in LLM output that it's burned. The symmetry can be the tell. A human who felt this insight would say it messily.
 
 **#13 Construct Drift.** Trigger: "Your humanness score is 101.7."
 
-It wasn't a humanness score. It was a distance-from-Anthropic-blog-voice score. A drunk text message would score high. A human lawyer's brief would score low. The numbers were correct. The label was wrong. Nobody checks the label once the numbers start flowing.
+It wasn't a humanness score. It was a distance-from-Anthropic-blog-voice score. A drunk text message would score high. A human lawyer's brief would score low. The numbers were correct but the label was wrong. Nobody checks the label once the numbers start flowing.
 
 **#14 Demographic Bake-In.** Trigger: "Human baseline: 19 pages."
 
@@ -76,9 +76,9 @@ Claude selected the features. Claude computed the effect sizes. Claude designed 
 
 ---
 
-The extension has 3 commits. The taxonomy has 15 entries. The 15 entries are worth more than the 3 commits.
+The extension has 3 commits and the taxonomy has 15 entries. The entries turned out to be worth more than the extension.
 
-[Slopodar](https://oceanheart.ai/slopodar/) | [Source](https://github.com/rickhallett/thepit/blob/master/slopodar.yaml)
+[Slopodar](https://oceanheart.ai/slopodar/) | [Source](https://github.com/rickhallett/thepit/blob/wake/slopodar.yaml)
 
 [^1]: [Redundant Antithesis](https://oceanheart.ai/slopodar/redundant-antithesis/) — slopodar catching slopodar on its own page.
 [^2]: [Right Answer, Wrong Work](https://oceanheart.ai/slopodar/right-answer-wrong-work/) — the first slopodar entry to cross the prose/code boundary.

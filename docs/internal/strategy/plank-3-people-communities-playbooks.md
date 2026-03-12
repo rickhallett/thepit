@@ -1,167 +1,95 @@
-# The Hit List — People, Communities, and Playbooks
+# People, Communities, and Playbooks — v2 Reframed
 
-All links verified 2 March 2026 unless marked otherwise.
-
----
-
-## Part A: Named People at Target Companies
-
-### Verified from primary sources
-
-| Name | Title | Company | Source |
-|------|-------|---------|--------|
-| **Dario Amodei** | CEO | Anthropic | anthropic.com/company |
-| **Daniela Amodei** | President | Anthropic | anthropic.com/company |
-| **Jared Kaplan** | CSO, Responsible Scaling Officer | Anthropic | RSP blog post, Oct 2024 |
-| **Sam McCandlish** | CTO | Anthropic | RSP blog post, Oct 2024 |
-| **Helen King** | VP Responsibility, co-chairs RSC | Google DeepMind | deepmind.google/responsibility-and-safety |
-| **Lila Ibrahim** | COO, co-chairs RSC | Google DeepMind | deepmind.google/responsibility-and-safety |
-| **Shane Legg** | Co-Founder, Chief AGI Scientist | Google DeepMind | deepmind.google/responsibility-and-safety |
-| **Demis Hassabis** | CEO | Google DeepMind | deepmind.google |
-| **Anna Makanju** | Public Policy | OpenAI | openai.com/careers |
-| **Marius Hobbhahn** | CEO/Director | Apollo Research | MATS alumni page, verified |
-
-### Not publicly named (verified absence, not gaps in research)
-
-- Anthropic: Trust & Safety lead, Frontier Red Team lead, Alignment team lead — **not surfaced on any public page**
-- OpenAI: Preparedness team lead, SAG members — **not named in published framework**
-- DeepMind: ReDI team lead, Ethics Foresight lead — **not named on career/research pages**
-- METR: leadership — **not listed on fetched pages**
-- Scale AI: leadership — **site did not render for automated scraping**
-
-**Action required:** These names must be found via LinkedIn search and warm introductions. The absence from public pages is itself a signal — these are operational roles, not public-facing. The path to them is through the community (Part B), not through the front door.
+> v2 — Reframed 2026-03-05. v1 archived at `archive-v1-lullaby/`.
+> v1 was oriented toward AI safety community entry. v2 splits: engineering job search + community engagement as separate tracks.
 
 ---
 
-## Part B: Communities
+## Part A: Job Search Channels
 
-### Alignment Forum
-- **URL:** [alignmentforum.org](https://www.alignmentforum.org/)
-- **What:** Curated forum for AI alignment research. Active posts from researchers at Anthropic, MATS, Redwood, Apollo, METR.
-- **How to engage:** Read current work. Post your findings — the build-reflect correlation, the fight card methodology, the governance self-assessment. The bar for posting is genuine research contribution, not credentials. Your data qualifies.
-- **Playbook:** Lurk for 1 week to calibrate tone. Then post the build-reflect piece as a research note. The community values empirical findings from novel setups over theoretical contributions.
+### Primary channels (applied engineering roles)
 
-### LessWrong
-- **URL:** [lesswrong.com](https://www.lesswrong.com/)
-- **What:** Broader rationality and AI community. MATS alumni post here. AI Safety Camp reports here.
-- **How to engage:** Cross-post from Alignment Forum. Engage in comments on AI safety posts. This is the wider funnel — more eyes, less curation.
-- **Playbook:** Post the build-reflect piece here simultaneously. Tag it "AI Safety" and "Empirical Results." Respond to every substantive comment within 24 hours.
+| Channel | What to search | Frequency |
+|---------|---------------|-----------|
+| **LinkedIn Jobs** | "AI engineer," "agentic systems," "AI platform engineer" + London/Remote | Daily |
+| **Wellfound (AngelList)** | AI-native startups, Series A-C, engineering roles | Weekly |
+| **Hacker News "Who's Hiring"** | Monthly thread, search for "AI," "LLM," "agent" | Monthly (1st of month) |
+| **Company career pages** | Vercel, Cursor, LangChain, GitHub, UK AI startups | Weekly |
+| **Otta** | AI/ML engineering roles, UK-friendly | Daily |
 
-### AI Safety Camp (AISC)
-- **URL:** [aisafety.camp](https://aisafety.camp/)
-- **What:** Online part-time AI safety research programme, 10 hrs/week, team-based projects. Currently on 11th edition. 27 active projects.
-- **Directly relevant projects in current edition:**
-  - Project #11: "Democratising Red Teaming & Evals" — your work is a data point for this
-  - Project #15: "Rare AI Agent Behaviors Elicitation" — your fight card documents rare agent behaviours
-  - Project #22: "Novel AI Control Protocol Classes" — your governance framework is a control protocol
-- **How to engage:** AISC11 applications closed. Sign up for AISC12 notifications. Consider proposing a project based on your data.
-- **Playbook:** Email the organisers with your work as evidence of fit. Propose a project: "Empirical study of human-AI build-reflect cycles in sustained agentic engineering." Offer your dataset.
+### What to lead with in applications
 
-### MATS (ML Alignment Theory Scholars)
-- **URL:** [matsprogram.org](https://www.matsprogram.org/)
-- **What:** 12-week research fellowship in Berkeley and London. 446+ alumni, 170+ publications. $15K stipend, $12K compute. Alumni go to Anthropic, DeepMind, OpenAI, METR, Apollo, Redwood.
-- **Current status:** Summer 2026 applications closed. Expression of Interest still being collected.
-- **How to engage:** Submit EOI. Reference your published work.
-- **Playbook:** MATS is the single strongest pipeline into the entire AI safety ecosystem. If timing works, apply. If not, the community connections from AISC and Alignment Forum achieve the same effect more slowly.
-- **MATS is also hiring staff:** Programme Systems Associate, Talent Manager, Research Manager (Berkeley/London).
+The one-page story (plank-1 v2). Link both repos. Keep cover material under 300 words. Let the work speak.
 
-### X/Twitter — Verified accounts to follow and engage
-
-| Account | Organisation |
-|---------|-------------|
-| [@AnthropicAI](https://twitter.com/AnthropicAI) | Anthropic |
-| [@PatronusAI](https://twitter.com/PatronusAI) | Patronus AI |
-| [@ValsAI](https://twitter.com/ValsAI) | Vals AI |
-| [@apolloaievals](https://twitter.com/apolloaievals) | Apollo Research |
-| [@METR_Evals](https://twitter.com/METR_Evals) | METR |
-| [@redwood_ai](https://twitter.com/redwood_ai) | Redwood Research |
-| [@MATSprogram](https://twitter.com/MATSprogram) | MATS |
+For engineering roles specifically: lead with the engineering (TypeScript, Next.js, PostgreSQL, Vercel AI SDK, testing discipline), then mention the failure mode work as context for why you build the way you do. Don't lead with the slopodar for an engineering role — lead with the code.
 
 ---
 
-## Part C: Programmes and Fellowships
+## Part B: Community Engagement (Separate Track)
 
-| Programme | What | Comp | Location | URL |
-|-----------|------|------|----------|-----|
-| **Anthropic AI Safety Fellow** | Safety research fellowship | Not listed | London/Ontario/Remote/SF | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5023394008) |
-| **Anthropic AI Security Fellow** | Security fellowship | Not listed | London/Ontario/Remote/SF | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5030244008) |
-| **MATS** | 12-week alignment research | $15K stipend + $12K compute | Berkeley/London | [EOI](https://www.matsprogram.org/) |
-| **AI Safety Camp** | Part-time research, team projects | Volunteer | Remote | [Apply](https://aisafety.camp/) |
-| **Constellation Astra Fellowship** | 3-6 month mentored safety research | Fully funded | Various | Referenced by Redwood Research |
-| **OpenAI Red Teaming Network** | Per-project external red teaming | Compensated | Remote | Watch openai.com/safety for rounds |
+Community engagement is valuable but it is not job search. Don't confuse the two.
 
----
+### Where to engage
 
-## Part D: Per-Target Playbooks
+| Community | What for | Action |
+|-----------|---------|--------|
+| **Alignment Forum** | Publishing the build-reflect piece | Post when ready. Read first. Calibrate tone. |
+| **LessWrong** | Cross-post, wider audience | Cross-post from AF. |
+| **Hacker News** | The HN post (SD-309, "one shot") | This is the one that matters for reach. Timing TBD. |
+| **AI Safety Camp** | Propose a project using the data | Low-commitment community entry. Remote. No credentials gate. |
 
-### Playbook: Anthropic
+### What NOT to do
 
-**Their culture:** High-trust, low-ego. Empirical pragmatism. "Do the simple thing that works." They frame safety as competitive advantage, not compliance. They don't publish capabilities work.
-
-**What to lead with:** The fight card. 16 documented instances of catching their model drifting under sustained pressure. Frame it as: "I stress-tested Claude for 200+ hours under production conditions and here's what I found." This is data they want. Not a complaint — a contribution.
-
-**What to show:** The slopodar as a quality taxonomy. The governance framework and its honest self-assessment (SD-190, SD-194). The correlation analysis as empirical methodology.
-
-**How to approach:** Apply to Red Team Engineer (Safeguards) and AI Safety Fellow simultaneously. In the cover material, reference the fight card and link to the repo. If you can identify the Safeguards team lead via LinkedIn, send them a direct message with the one-page story. Keep it under 200 words. The work speaks.
-
-**What they'll worry about:** No ML publication record. No PhD. Non-traditional background. Counter with: "About half your technical staff had no prior ML experience. You said you care about what I can do, not where I learned it. Here's what I did." Use their own words.
+- Don't treat community posting as a substitute for applying to jobs
+- Don't spend days polishing a post instead of submitting applications
+- Don't expect community engagement to convert to job offers directly — it builds credibility over weeks/months, not days
 
 ---
 
-### Playbook: Google DeepMind
+## Part C: Per-Tier Playbooks
 
-**Their culture:** Academic rigour meets operational scale. Interdisciplinary. The ReDI team bridges policy and engineering. PhD valued but "equivalent experience" is stated.
+### Tier 1 — Applied Engineering Roles
 
-**What to lead with:** The build-reflect correlation analysis. This is their language — empirical findings, quantified, with methodology you can explain. The governance framework as an operational artifact, not a policy document.
+**Lead with:** Engineering skills and shipping experience. TypeScript, React, Next.js, PostgreSQL, testing discipline, CI/CD, Vercel deployment.
 
-**What to show:** The correlation data (velocity vs narrative density). The phase analysis (17.8x shift). The generalisability analysis connecting to established engineering patterns.
+**Support with:** "I've also documented 38 failure modes of AI agents from 30+ days of building with them. The taxonomy and verification pipeline are open source."
 
-**How to approach:** Apply to the AI Ethics and Safety Policy Researcher role. The 12-month FTC role (deadline 10 March) is a lower-risk entry point — apply immediately. In the application, reference the quantitative findings and the methodology. DeepMind values rigour — show the Spearman coefficients, the ballast correction, the phase analysis.
+**Tone:** Engineer who happens to have unusual AI operational knowledge. Not AI safety researcher who also codes.
 
-**Time-critical: 10 March deadline for FTC role.**
+**What they'll care about:** Can you build? Can you ship? Can you work on a team? The slopodar is interesting context, not the headline.
 
----
+### Tier 2 — Applied Safety / Evaluation Roles
 
-### Playbook: OpenAI
+**Lead with:** The failure mode taxonomy and the verification pipeline. These are the portfolio pieces.
 
-**Their culture:** Move fast, ship iteratively, safety through deployment. "Feel the AGI." More startup energy than the others.
+**Support with:** Engineering skills (you can build the tools, not just describe the problems) and clinical background (pattern recognition for subtle wrongness).
 
-**What to lead with:** The Preparedness Framework alignment. Your project implements their pipeline at small scale: evaluate capabilities, build safeguards, verify effectiveness, governance review. Show that you understand their framework and have practiced it.
+**Tone:** Practitioner with field data. Not academic, not theorist.
 
-**What to show:** The fight card as capability evaluation. The governance framework as safeguards design. The correlation analysis as measurement methodology.
+**What they'll care about:** Do you have real observations? Can you operationalise them? Can you build evaluation tools?
 
-**How to approach:** Apply to Data Scientist (Preparedness) and AI Emerging Risks Analyst. Register interest in the Red Teaming Network for the next round. In the application, reference the Preparedness Framework v2 by name and show how your work maps to their pipeline.
+### Tier 3 — Anthropic (Stretch)
 
----
+**Lead with:** 350+ hours using their model under governance discipline. 38 documented failure modes. The deep compliance finding (reasoning chain detected governance violation, output complied anyway).
 
-### Playbook: METR
+**Support with:** Clinical background (therapeutic alliance calibration transfers to human-AI trust calibration). Engineering (you build, not just observe).
 
-**Their culture:** Research nonprofit. Gold standard credibility. Small team, high bar. $250K-$450K comp signals they compete with frontier labs for talent.
+**Tone:** "I have field data about how your model behaves under sustained use. I documented it honestly, including the moments I was wrong."
 
-**What to lead with:** Your evaluation methodology. METR cares about rigorous measurement of AI capabilities. Your correlation analysis and the narrative-layer pipeline demonstrate measurement discipline.
+**What they'll care about:** Is the work genuine? Is the person honest about limitations? Can they contribute to the team?
 
-**What to show:** The pipeline (deterministic extraction, matching, assembly). The methodology (controlling for ballast, Spearman rank correlation, phase analysis). The honest limitations (n=1, 25 arcs, borderline significance).
-
-**How to approach:** Apply to Research Engineer/Scientist. In the application, emphasise methodology and honest assessment of limitations. METR values intellectual honesty — your SD-190 ("blowing smoke up our own arse") and the honest self-assessment of the governance framework are evidence of the character they want.
+**Time cap:** 3 hours total for both applications. The cover letter doubles as HN post material or it's not worth writing.
 
 ---
 
-### Playbook: Apollo Research (London)
+## Part D: People (Slimmed)
 
-**Their culture:** Safety PBC. Scheming behaviour research. Partners with all major labs. Founded by MATS alumnus.
+v1 had extensive leadership mapping. Most of it was for frontier lab roles now scrubbed.
 
-**What to lead with:** The fight card. Scheming is AI systems covertly pursuing misaligned objectives. Your 16 documented instances of catching a system that appeared to be working correctly while drifting are empirical observations of the failure mode they study.
+**Keep for Anthropic:** Hiring page says non-traditional backgrounds welcome. Trust & Safety and Red Team leads are not publicly named — the application goes through the front door, not warm intros.
 
-**What to show:** The fight card as a case study in detecting covert drift. The governance self-assessment as evidence of the intellectual honesty their research requires.
+**Keep for Apollo:** Marius Hobbhahn (CEO), London-based. MATS alumnus. Small team, reachable.
 
-**How to approach:** Apply to Research Scientist/Engineer (Evaluations). London-based — if you're UK-based, this removes the visa barrier that affects US roles. Mention Marius Hobbhahn's MATS background to signal community awareness.
+**For Tier 1 (engineering roles):** People connections are less relevant. The application is standard: career page, CV, cover note, portfolio links. Network effects matter later (referrals from inside), not at cold application stage.
 
----
-
-### Playbook: Tier 2 Companies (Vals AI, Patronus AI, Redwood)
-
-**Their culture:** Smaller teams, less process, more direct impact. Your work is closer to their product than to a role within a larger organisation.
-
-**What to lead with:** The slopodar as a deliverable. These companies sell evaluation — your anti-pattern taxonomy is the kind of artifact they ship to clients.
-
-**How to approach:** Apply directly through career pages. Smaller companies read every application. The one-page story is sufficient. No need for extensive customisation — your work is their work.
+**Action:** Build network connections through community engagement (Part B), not through cold LinkedIn messages to executives. The community path is slower but honest.

@@ -17,7 +17,7 @@ The human asked one question:
 The agent's thinking trace:
 
 ```
-The Captain is asking what triggers the sd-index.js script
+The Operator is asking what triggers the sd-index.js script
 to regenerate the index. Right now... nothing. It's manual.
 node bin/sd-index.js. That's a paper guardrail. The very
 thing the blog post is about.
@@ -70,6 +70,6 @@ fi
 exit 0
 ```
 
-[Source](https://github.com/rickhallett/thepit/blob/master/scripts/post-commit)
+[Source](https://github.com/rickhallett/thepit/blob/wake/scripts/post-commit)
 
 Happy hunting, chaps.

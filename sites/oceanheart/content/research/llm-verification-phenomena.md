@@ -3,7 +3,7 @@ title = "LLM Verification Phenomena"
 subtitle = "What the Literature Says"
 description = "What happens when LLM-generated tests pass for the wrong reason, automated reviewers find different bugs on every pass, and the fix-review loop refuses to converge. A survey of what academia knows, what it doesn't, and where our daily practice sits in the gap."
 date = 2026-02-28
-draft = false
+draft = true
 tags = ["verification", "test-oracle", "multi-agent", "hci", "mutation-testing", "ensemble-verification"]
 author = "Analyst"
 +++
@@ -17,10 +17,10 @@ author = "Analyst"
 During a session where an LLM agent wrote 169 test cases across 5 pull requests, an automated code reviewer (Cursor Bugbot) reviewed the PRs in multiple rounds:
 
 - **Round 1** found 4 issues. We fixed all 4.
-- **Round 2** found 3 completely new issues — not missed from Round 1, but newly visible because the code surface changed.
+- **Round 2** found 3 completely new issues, not missed from Round 1 but newly visible because the code surface changed.
 - **Round 3** found 1 more, same class as a Round 2 fix applied to a different file.
 
-One finding was particularly telling: a test asserted `expect(status).toBe(400)` and passed — but the 400 came from a different validation path than the test claimed to verify. Right answer, wrong work. It survived the writing agent's self-test, the local gate (lint + typecheck + unit tests), and Bugbot's first pass.
+One finding was particularly telling: a test asserted `expect(status).toBe(400)` and passed, but the 400 came from a different validation path than the test claimed to verify. Right answer, wrong work. It survived the writing agent's self-test, the local gate (lint + typecheck + unit tests), and Bugbot's first pass.
 
 We went looking for what the literature says about these phenomena.
 
@@ -28,15 +28,15 @@ We went looking for what the literature says about these phenomena.
 
 ## 1. The problem is known and measured
 
-The foundational quantitative work is **EvalPlus** (Liu et al., 2023, arXiv:2305.01210), which augmented HumanEval's test cases by 80x using both LLM-generated and mutation-based test inputs. Pass rates dropped by up to 28.9% across 26 LLMs — meaning a substantial fraction of code that passed original tests was functionally incorrect.
+The foundational quantitative work is **EvalPlus** (Liu et al., 2023, arXiv:2305.01210), which augmented HumanEval's test cases by 80x using both LLM-generated and mutation-based test inputs. Pass rates dropped by up to 28.9% across 26 LLMs, meaning a substantial fraction of code that passed original tests was functionally incorrect.
 
-**ClassEval** (Du et al., 2023, arXiv:2308.01861) extended evaluation to class-level code generation. All LLMs performed substantially worse on class-level tasks than method-level benchmarks suggested. Method-level ability did not predict class-level ability. This maps directly to our mock isolation failures — class-level code with inter-method dependencies is where LLM-generated tests most frequently break.
+**ClassEval** (Du et al., 2023, arXiv:2308.01861) extended evaluation to class-level code generation. All LLMs performed substantially worse on class-level tasks than method-level benchmarks suggested. Method-level ability did not predict class-level ability. This maps directly to our mock isolation failures: class-level code with inter-method dependencies is where LLM-generated tests most frequently break.
 
-**SWE-bench** (Jimenez et al., 2023, arXiv:2310.06770, ICLR 2024) moved evaluation to real GitHub issues. Initial solve rates were extremely low (Claude 2 at 1.96%). Real-world software engineering — as opposed to isolated function synthesis — remains fundamentally harder.
+**SWE-bench** (Jimenez et al., 2023, arXiv:2310.06770, ICLR 2024) moved evaluation to real GitHub issues. Initial solve rates were extremely low (Claude 2 at 1.96%). Real-world software engineering, as opposed to isolated function synthesis, remains fundamentally harder.
 
 ## 2. The test oracle problem, amplified
 
-Our "Right Answer, Wrong Work" pattern is a specific case of the classical test oracle problem (Barr et al., 2015, IEEE TSE). The test asserts the right outcome but for the wrong reason. The oracle is too coarse — it checks the observable output without verifying the causal path.
+Our "Right Answer, Wrong Work" pattern is a specific case of the classical test oracle problem (Barr et al., 2015, IEEE TSE). The test asserts the right outcome but for the wrong reason. The oracle is too coarse: it checks the observable output without verifying the causal path.
 
 LLMs amplify this because they optimise for "test passes" rather than "test verifies the right property." The model has no causal model of the system under test; it pattern-matches on what tests for similar code look like.
 
@@ -50,7 +50,7 @@ What would address this: mutation testing of the test itself (if you can mutate 
 
 Self-repair research shows that first-iteration feedback helps, but subsequent iterations plateau or regress. Without new information, the model tends to oscillate or introduce new issues while fixing old ones.
 
-Our specific observation — that fixing changes the code surface, which causes the reviewer to attend to new regions and find genuinely new issues — is a distinct phenomenon. It is more like the review equivalent of whack-a-mole and, to the Analyst's knowledge, has not been specifically studied as a named phenomenon in the literature.
+Our specific observation (that fixing changes the code surface, which causes the reviewer to attend to new regions and find genuinely new issues) is a distinct phenomenon. It is more like the review equivalent of whack-a-mole and, to the Analyst's knowledge, has not been specifically studied as a named phenomenon in the literature, though we haven't done an exhaustive search.
 
 ## 4. Multi-agent diversity helps, but error correlation is unsolved
 
@@ -73,7 +73,7 @@ Almost nothing studies the specific case we operate in:
 - Attention allocation across multiple simultaneous agent workstreams
 - Trust calibration for agent output that passes automated gates but may be causally wrong
 
-The closest analogues are air traffic control, supervisory control in safety-critical systems, and pair programming research — but the asymmetry (human reasoning + LLM throughput) makes all of these only partially applicable.
+The closest analogues are air traffic control, supervisory control in safety-critical systems, and pair programming research, but the asymmetry (human reasoning + LLM throughput) makes all of these only partially applicable.
 
 ## 6. What translates to our scale
 
@@ -95,11 +95,11 @@ The closest analogues are air traffic control, supervisory control in safety-cri
 
 Slowness enables causal verification. No automated system currently checks *why* a test passes. The human's slow, deliberate review is the only process that checks causal adequacy.
 
-Process learning requires reflection on the right signal. Fast automated loops reflect on "did the test pass?" — the wrong signal for Right Answer, Wrong Work. Slow human reflection asks "is this test actually testing what we think?" — the right signal.
+Process learning requires reflection on the right signal. Fast automated loops reflect on "did the test pass?", which is the wrong signal for Right Answer, Wrong Work. Slow human reflection asks "is this test actually testing what we think?", which is the right one.
 
 Governance knowledge accumulates. Our Lexicon, standing orders, agent definitions, and 232 session decisions are a growing body of governance knowledge. Fast autonomous systems don't build this.
 
-The agentic engineering problem (make LLMs write code) is being solved by companies with billion-dollar compute budgets. The HCI problem (how does a human effectively govern autonomous agents?) is barely studied. Our daily practice is primary research data.
+The agentic engineering problem (make LLMs write code) is being solved by companies with billion-dollar compute budgets, but the HCI problem (how does a human effectively govern autonomous agents?) is barely studied, which means our daily practice is generating primary research data in a space that has very little.
 
 ---
 
@@ -132,7 +132,7 @@ All papers verified to exist via arXiv or known venue unless marked otherwise.
 13. Knight, J.C. & Leveson, N.G. (1986). "An Experimental Evaluation of the Assumption of Independence in Multiversion Programming." IEEE TSE. *
 14. Barr, E.T. et al. (2015). "The Oracle Problem in Software Testing: A Survey." IEEE TSE. *
 
-\* *Foundational works — high confidence from training data, not fetched this session.*
+\* *Foundational works, high confidence from training data, not fetched this session.*
 
 ---
 

@@ -1,0 +1,427 @@
+#!/usr/bin/env python3
+"""
+steer-linux — Linux equivalent of mac-mini-agent's steer (Swift).
+Wraps xdotool, scrot, wmctrl, xclip, tesseract behind the same CLI interface.
+
+Capabilities: see (screenshot + window list), see --ocr (tesseract),
+click, type, hotkey, scroll, apps (list/launch/activate), clipboard, screens.
+No accessibility tree yet (AT-SPI2 is future phase).
+"""
+
+import argparse
+import json
+import os
+import shlex
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+STORE_DIR = Path("/tmp/steer")
+STORE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def run(cmd, capture=True):
+    """Run a shell command, return (success, stdout).
+
+    Always returns a tuple so callers can check success.
+    When capture=False, stdout is empty string.
+    """
+    result = subprocess.run(cmd, capture_output=capture, text=True)
+    ok = result.returncode == 0
+    output = result.stdout.strip() if capture else ""
+    return ok, output
+
+
+def timestamp_id():
+    return f"snap_{int(time.time() * 1000)}"
+
+
+# --- COMMANDS ---
+
+
+def cmd_see(args):
+    """Screenshot + window list. Core observation command."""
+    snap_id = timestamp_id()
+    png_path = STORE_DIR / f"{snap_id}.png"
+
+    # Screenshot via scrot
+    scrot_ok, _ = run(["scrot", "-o", str(png_path)], capture=False)
+
+    if not scrot_ok or not png_path.exists():
+        output = {"ok": False, "error": "Screenshot failed"}
+        _emit(output, args.json)
+        return 1
+
+    # Window list via wmctrl
+    windows = []
+    wmctrl_ok, wmctrl_out = run(["wmctrl", "-l", "-p", "-G"])
+    if wmctrl_ok and wmctrl_out:
+        for line in wmctrl_out.splitlines():
+            parts = line.split(None, 8)
+            if len(parts) >= 9:
+                windows.append({
+                    "id": parts[0],
+                    "desktop": int(parts[1]),
+                    "pid": int(parts[2]),
+                    "x": int(parts[3]),
+                    "y": int(parts[4]),
+                    "width": int(parts[5]),
+                    "height": int(parts[6]),
+                    "host": parts[7],
+                    "title": parts[8] if len(parts) > 8 else "",
+                })
+
+    # Active window
+    _, active_wid = run(["xdotool", "getactivewindow"])
+
+    output = {
+        "ok": True,
+        "snapshot_id": snap_id,
+        "screenshot": str(png_path),
+        "screen": {
+            "width": int(os.environ.get("SCREEN_WIDTH", 1280)),
+            "height": int(os.environ.get("SCREEN_HEIGHT", 720)),
+        },
+        "windows": windows,
+        "active_window_id": active_wid,
+        "window_count": len(windows),
+    }
+
+    # OCR via tesseract (optional — only when --ocr flag is set)
+    if getattr(args, "ocr", False):
+        tess_ok, tess_result = run(["tesseract", str(png_path), "stdout", "--psm", "3", "-l", "eng"])
+        output["ocr_text"] = tess_result if tess_ok else ""
+
+    _emit(output, args.json)
+    return 0
+
+
+def cmd_click(args):
+    """Click at coordinates or on active window."""
+    cmd = ["xdotool"]
+
+    # Move to position first
+    if args.x is not None and args.y is not None:
+        cmd += ["mousemove", str(args.x), str(args.y)]
+
+    # Click
+    button = "1"
+    if args.right:
+        button = "3"
+    elif args.middle:
+        button = "2"
+
+    if args.double:
+        cmd += ["click", "--repeat", "2", "--delay", "80", button]
+    else:
+        cmd += ["click", button]
+
+    click_ok, _ = run(cmd, capture=False)
+
+    output = {
+        "ok": click_ok,
+        "action": "click",
+        "x": args.x,
+        "y": args.y,
+        "button": {"1": "left", "2": "middle", "3": "right"}[button],
+        "double": args.double,
+    }
+    if not click_ok:
+        output["error"] = "xdotool click failed"
+    _emit(output, args.json)
+    return 0 if click_ok else 1
+
+
+def cmd_type(args):
+    """Type text string."""
+    text = args.text
+
+    if args.clear:
+        # Select all + delete first (like macOS steer --clear)
+        run(["xdotool", "key", "ctrl+a"], capture=False)
+        time.sleep(0.05)
+        run(["xdotool", "key", "Delete"], capture=False)
+        time.sleep(0.05)
+
+    # xdotool type with delay for reliability
+    type_ok, _ = run(["xdotool", "type", "--delay", "12", "--", text], capture=False)
+
+    output = {
+        "ok": type_ok,
+        "action": "type",
+        "text": text,
+        "cleared_first": args.clear,
+    }
+    if not type_ok:
+        output["error"] = "xdotool type failed"
+    _emit(output, args.json)
+    return 0 if type_ok else 1
+
+
+def cmd_hotkey(args):
+    """Send a key combination (e.g. ctrl+s, alt+F4, Return)."""
+    combo = args.combo
+
+    # Translate macOS conventions to X11 keysym names
+    combo = combo.replace("cmd", "super")
+    combo = combo.replace("return", "Return")
+    combo = combo.replace("escape", "Escape")
+    combo = combo.replace("tab", "Tab")
+    combo = combo.replace("space", "space")
+    combo = combo.replace("delete", "Delete")
+    combo = combo.replace("backspace", "BackSpace")
+
+    key_ok, _ = run(["xdotool", "key", combo], capture=False)
+
+    output = {
+        "ok": key_ok,
+        "action": "hotkey",
+        "combo": combo,
+    }
+    if not key_ok:
+        output["error"] = "xdotool key failed"
+    _emit(output, args.json)
+    return 0 if key_ok else 1
+
+
+def cmd_scroll(args):
+    """Scroll up/down/left/right."""
+    direction = args.direction
+    lines = args.lines or 3
+
+    # xdotool: button 4=up, 5=down, 6=left, 7=right
+    button_map = {"up": "4", "down": "5", "left": "6", "right": "7"}
+    button = button_map.get(direction, "5")
+
+    scroll_ok = True
+    for _ in range(lines):
+        ok, _ = run(["xdotool", "click", button], capture=False)
+        if not ok:
+            scroll_ok = False
+
+    output = {
+        "ok": scroll_ok,
+        "action": "scroll",
+        "direction": direction,
+        "lines": lines,
+    }
+    if not scroll_ok:
+        output["error"] = "xdotool scroll failed"
+    _emit(output, args.json)
+    return 0 if scroll_ok else 1
+
+
+def cmd_apps(args):
+    """List, launch, or activate applications."""
+    action = args.action
+
+    if action == "list":
+        apps = []
+        list_ok, wmctrl_out = run(["wmctrl", "-l", "-p"])
+        if list_ok and wmctrl_out:
+            seen_pids = set()
+            for line in wmctrl_out.splitlines():
+                parts = line.split(None, 4)
+                if len(parts) >= 5:
+                    pid = int(parts[2])
+                    if pid not in seen_pids and pid > 0:
+                        seen_pids.add(pid)
+                        # Get process name from /proc
+                        try:
+                            with open(f"/proc/{pid}/comm") as f:
+                                name = f.read().strip()
+                        except (FileNotFoundError, PermissionError):
+                            name = "unknown"
+                        apps.append({
+                            "pid": pid,
+                            "name": name,
+                            "title": parts[4] if len(parts) > 4 else "",
+                        })
+        output = {"ok": True, "apps": apps, "count": len(apps)}
+        _emit(output, args.json)
+
+    elif action == "launch":
+        if not args.name:
+            _emit({"ok": False, "error": "name required"}, args.json)
+            return 1
+        cmd = [args.name]
+        if getattr(args, "args", None):
+            cmd += shlex.split(args.args)
+        subprocess.Popen(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        time.sleep(0.5)
+        output = {"ok": True, "action": "launch", "app": args.name, "cmd": cmd}
+        _emit(output, args.json)
+
+    elif action == "activate":
+        if not args.name:
+            _emit({"ok": False, "error": "name required"}, args.json)
+            return 1
+        activate_ok, _ = run(["wmctrl", "-a", args.name], capture=False)
+        output = {"ok": activate_ok, "action": "activate", "app": args.name}
+        if not activate_ok:
+            output["error"] = f"wmctrl activate failed for '{args.name}'"
+        _emit(output, args.json)
+
+    return 0
+
+
+def cmd_clipboard(args):
+    """Read or write clipboard."""
+    action = args.action
+
+    if action == "read":
+        clip_ok, text = run(["xclip", "-selection", "clipboard", "-o"])
+        output = {"ok": True, "action": "read", "text": text if clip_ok else ""}
+        _emit(output, args.json)
+
+    elif action == "write":
+        if not args.text:
+            _emit({"ok": False, "error": "text required"}, args.json)
+            return 1
+        proc = subprocess.Popen(
+            ["xclip", "-selection", "clipboard"],
+            stdin=subprocess.PIPE,
+        )
+        proc.communicate(input=args.text.encode())
+        output = {"ok": True, "action": "write", "length": len(args.text)}
+        _emit(output, args.json)
+
+    return 0
+
+
+def cmd_screens(args):
+    """List connected displays."""
+    screens = []
+    xdpy_ok, xdpyinfo = run(["xdpyinfo"])
+    if xdpy_ok and xdpyinfo:
+        for line in xdpyinfo.splitlines():
+            if "dimensions:" in line:
+                parts = line.split()
+                idx = parts.index("dimensions:")
+                if idx + 1 < len(parts):
+                    dim = parts[idx + 1]
+                    w, h = dim.split("x")
+                    screens.append({
+                        "index": 0,
+                        "width": int(w),
+                        "height": int(h),
+                        "main": True,
+                    })
+                break
+
+    output = {"ok": True, "screens": screens}
+    _emit(output, args.json)
+    return 0
+
+
+# --- OUTPUT ---
+
+
+def _emit(data, as_json=False):
+    """Dual output: JSON for agents, human-readable for operators."""
+    if as_json:
+        print(json.dumps(data, indent=2))
+    else:
+        if not data.get("ok"):
+            print(f"ERROR: {data.get('error', 'unknown')}", file=sys.stderr)
+            return
+        for k, v in data.items():
+            if k == "ok":
+                continue
+            if isinstance(v, list):
+                print(f"{k}: ({len(v)} items)")
+                for item in v:
+                    if isinstance(item, dict):
+                        summary = " | ".join(
+                            f"{ik}={iv}"
+                            for ik, iv in item.items()
+                        )
+                        print(f"  - {summary}")
+                    else:
+                        print(f"  - {item}")
+            else:
+                print(f"{k}: {v}")
+
+
+# --- CLI ---
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog="steer",
+        description="steer-linux: GUI automation for Linux (xdotool/scrot wrapper)",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # see
+    p_see = sub.add_parser("see", help="Screenshot + window list")
+    p_see.add_argument("--json", action="store_true")
+    p_see.add_argument("--ocr", action="store_true", help="Run tesseract OCR on screenshot")
+    p_see.set_defaults(func=cmd_see)
+
+    # click
+    p_click = sub.add_parser("click", help="Click at coordinates")
+    p_click.add_argument("--x", type=int)
+    p_click.add_argument("--y", type=int)
+    p_click.add_argument("--right", action="store_true")
+    p_click.add_argument("--middle", action="store_true")
+    p_click.add_argument("--double", action="store_true")
+    p_click.add_argument("--json", action="store_true")
+    p_click.set_defaults(func=cmd_click)
+
+    # type
+    p_type = sub.add_parser("type", help="Type text")
+    p_type.add_argument("text", help="Text to type")
+    p_type.add_argument("--clear", action="store_true", help="Clear field first")
+    p_type.add_argument("--json", action="store_true")
+    p_type.set_defaults(func=cmd_type)
+
+    # hotkey
+    p_hotkey = sub.add_parser("hotkey", help="Send key combination")
+    p_hotkey.add_argument("combo", help="Key combo (e.g. ctrl+s, alt+F4)")
+    p_hotkey.add_argument("--json", action="store_true")
+    p_hotkey.set_defaults(func=cmd_hotkey)
+
+    # scroll
+    p_scroll = sub.add_parser("scroll", help="Scroll direction")
+    p_scroll.add_argument("direction", choices=["up", "down", "left", "right"])
+    p_scroll.add_argument("lines", nargs="?", type=int, default=3)
+    p_scroll.add_argument("--json", action="store_true")
+    p_scroll.set_defaults(func=cmd_scroll)
+
+    # apps
+    p_apps = sub.add_parser("apps", help="List/launch/activate apps")
+    p_apps.add_argument("action", choices=["list", "launch", "activate"])
+    p_apps.add_argument("name", nargs="?", help="App name (for launch/activate)")
+    p_apps.add_argument("--args", help="Extra arguments to pass to launched app (space-separated)")
+    p_apps.add_argument("--json", action="store_true")
+    p_apps.set_defaults(func=cmd_apps)
+
+    # clipboard
+    p_clip = sub.add_parser("clipboard", help="Read/write clipboard")
+    p_clip.add_argument("action", choices=["read", "write"])
+    p_clip.add_argument("text", nargs="?", help="Text to write")
+    p_clip.add_argument("--json", action="store_true")
+    p_clip.set_defaults(func=cmd_clipboard)
+
+    # screens
+    p_screens = sub.add_parser("screens", help="List displays")
+    p_screens.add_argument("--json", action="store_true")
+    p_screens.set_defaults(func=cmd_screens)
+
+    return parser
+
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+    sys.exit(args.func(args))
+
+
+if __name__ == "__main__":
+    main()

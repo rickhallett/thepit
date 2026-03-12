@@ -1,0 +1,27 @@
+run_id: adversarial-midgetctl-2026-03-11
+date: 2026-03-11T22:50:00+00:00
+type: adversarial-review
+target: midgetctl steering module
+scope:
+  - bin/midgetctl
+  - steer/steer-watcher
+  - tests/test-steer.sh
+  - tests/test-steer-live.sh
+  - docs/diagrams/value-proposition.md
+  - README.md (midgetctl section)
+models:
+  - name: gemini-2.5-flash
+    provider: google
+    verdict: fail
+    findings: 3
+  - name: grok-3-mini-fast
+    provider: xai
+    verdict: fail
+    findings: 3
+  - name: gpt-4o
+    provider: openai
+    verdict: fail
+    findings: 4
+triangulated_verdict: FAIL
+convergent_findings: 4
+actionable_findings: 4

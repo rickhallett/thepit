@@ -1,161 +1,98 @@
-# Target Companies — Where the Work Meets the Need
+# Target Companies — v2 Reframed
 
-All role data verified from live career pages, 2 March 2026. Verification status noted per item. Links verified at time of research.
+> v2 — Reframed 2026-03-05 after Lullaby catch. v1 archived at `archive-v1-lullaby/`.
+> v1 had frontier research labs as Tier 1. That was aspirational, not honest.
+> v2 organises by fit: where does the work actually map?
 
----
+## Tier structure (v2)
 
-## Tier 1 — Frontier Labs
+**Tier 1 — Applied AI/Agentic Engineering:** Companies building products with AI agents, where operational knowledge of failure modes is directly useful in the engineering seat.
 
-### Anthropic
+**Tier 2 — AI Safety (Applied/Evaluation):** Organisations doing safety work that values practitioner experience alongside (or instead of) academic credentials.
 
-**What they are:** The company that built Claude. Mission-driven AI safety lab. "Race to the top on safety." 200+ open roles. 35+ in safety/alignment/red-teaming/trust-and-safety across 6 organisational units.
-
-**What they're looking for:** People who build and test, not just theorise. "About half our technical staff had no prior ML experience." "We care about what you can do, not where you learned to do it." Engineers who research, researchers who engineer. Non-traditional backgrounds explicitly welcome.
-
-**Where the intersection is strongest:**
-
-| Role | Why it fits | URL |
-|------|-----------|-----|
-| **Red Team Engineer, Safeguards** | Adversarial testing of safety systems. The fight card is a portfolio for this role. | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5070908008) |
-| **Research Engineer, Frontier Red Team (Autonomy)** | Red-teaming autonomous agent risks. You built and stress-tested an autonomous agent governance framework. | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5067100008) |
-| **Research Scientist, Frontier Red Team (Emerging Risks)** | Novel risk categories. Your slopodar is a taxonomy of emerging LLM output quality risks. | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5103788008) |
-| **Research Engineer, Model Evaluations (EoI)** | Building model evaluation systems. Your narrative-layer pipeline is evaluation infrastructure. | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/4990535008) |
-| **AI Safety Fellow** | Fellowship programme. Lower bar than full-time research. Entry point. | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5023394008) |
-| **Research Product Manager, Model Behaviors** | PM for model behaviour research. Systems thinking + adversarial eval + governance design. | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5097067008) |
-| **Research Engineer, AI Observability** | Monitoring/observability for AI systems. Your pitkeel, YAML HUD, and keel-state work is this. | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5125083008) |
-
-**Verified leadership:** Dario Amodei (CEO), Daniela Amodei (President), Jared Kaplan (CSO, Responsible Scaling Officer), Sam McCandlish (CTO). Trust & Safety and Frontier Red Team leads are not publicly named.
-
-**The mutual exchange:** You stress-tested their model for 200+ hours and documented how it behaves under sustained adversarial pressure. That data is material to their safety mission. The fight card, the slopodar, and the compaction event analysis are field observations they cannot generate internally because they control the test conditions. You offer ground truth from the wild.
-
-**Locations:** San Francisco (primary), New York, London, Washington DC. Several roles are remote-eligible.
+**Tier 3 — Frontier Labs (Stretch):** Research-heavy roles. Only where they explicitly state non-traditional backgrounds welcome AND the role is applied, not research. Anthropic is the only candidate here — see note below.
 
 ---
 
-### Google DeepMind
+## Tier 1 — Applied AI / Agentic Engineering
 
-**What they are:** Google's AI research lab. Responsibility and Safety Council co-chaired by Helen King (VP Responsibility) and Lila Ibrahim (COO). AGI Safety Council led by Shane Legg (co-founder).
+These are companies where someone who has shipped with AI agents and documented the failure modes is directly useful as an engineer. Not as a researcher who once built something. As an engineer who knows the territory.
 
-**What they're looking for:** Interdisciplinary bridging — translating between domains. Operational frameworks, not just papers. Emerging risk foresight. PhD or equivalent experience valued but not always required.
+### What to look for
 
-**Where the intersection is strongest:**
+Roles titled: Senior/Staff Engineer (AI), Agentic Systems Engineer, AI Platform Engineer, Developer Experience (AI tooling), AI-Native Full-Stack Engineer.
 
-| Role | Why it fits | URL |
-|------|-----------|-----|
-| **AI Ethics and Safety Policy Researcher** | Designing evaluation protocols, operational governance frameworks, model safety guidelines. Direct match on all three axes. | [Apply](https://job-boards.greenhouse.io/deepmind/jobs/7349530) |
-| **Senior Psychologist/Sociologist, AI Psychology & Safety** | Human factors in AI safety. Your mental health background + adversarial eval experience. | [Apply](https://job-boards.greenhouse.io/deepmind/jobs/7455747) |
-| **Psychologist/Sociologist, AI Psychology & Safety (FTC)** | 12-month fixed term. **Deadline: 10 March 2026.** Same fit as above, lower commitment bar. | [Apply](https://job-boards.greenhouse.io/deepmind/jobs/7597891) |
+### Where to search
 
-**Verified leadership:** Helen King (VP Responsibility), Lila Ibrahim (COO), Shane Legg (Chief AGI Scientist), Demis Hassabis (CEO). ReDI team lead not publicly named.
+| Company type | Examples | Why |
+|-------------|----------|-----|
+| **AI-native startups** | Vercel (AI SDK team), Cursor, Replit, Codeium, Sourcegraph (Cody) | Building the tools engineers use with AI. Your experience IS their product research. |
+| **AI agent platforms** | LangChain/LangSmith, CrewAI, AutoGen/Semantic Kernel (Microsoft) | Building agent orchestration frameworks. Failure mode taxonomy directly applicable. |
+| **Companies deploying agents at scale** | Stripe (AI agents for support/ops — IndyDevDan video), Intercom (Fin), Klarna (AI assistant) | Production agent deployment where operational safety matters. |
+| **AI-augmented dev tools** | GitHub (Copilot team), JetBrains (AI Assistant), Tabnine | AI coding assistants — slopodar patterns manifest here daily. |
+| **UK-based AI companies** | Wayve (autonomous driving, London), Stability AI (London), Faculty AI (London), PolyAI (London) | No visa barrier. Engineering roles. |
 
-**The mutual exchange:** DeepMind's ReDI team produces evaluation frameworks and governance artifacts. You have a working governance framework that was stress-tested and honestly assessed. Your build-reflect cycle data and the correlation analysis are the kind of empirical findings their policy researchers can cite.
+### Key roles to target (search weekly)
 
-**Locations:** Mountain View, San Francisco, London, New York. Some roles remote-eligible.
-
-**Time-critical: the 12-month FTC role closes 10 March 2026.**
-
----
-
-### OpenAI
-
-**What they are:** Largest deployed AI system. 596 open roles. Safety work organised through Preparedness team, Safety Advisory Group, Intelligence & Investigations, and the Red Teaming Network.
-
-**What they're looking for:** "Humanity first." Iterative deployment as safety methodology. Defense in depth. Methods that scale. Human control. Rigorous measurement. Domain diversity for red teaming — they explicitly seek geographic diversity, non-CS backgrounds, and lived experience.
-
-**Where the intersection is strongest:**
-
-| Role | Why it fits | URL |
-|------|-----------|-----|
-| **Data Scientist, Preparedness** | Core frontier risk evaluation. Evaluates models against tracked capability categories. | [Apply](https://jobs.ashbyhq.com/openai/efcc3430-14c8-4022-8350-8146ffb867ab) |
-| **AI Emerging Risks Analyst** | Applied threat modelling. Your slopodar and fight card are threat taxonomies. | [Apply](https://jobs.ashbyhq.com/openai/6d5d982f-d00b-49b8-b023-c596f0096d76) |
-| **Data Scientist, Integrity Measurement** | Measuring model integrity. Your correlation analysis is integrity measurement. | [Apply (SF)](https://jobs.ashbyhq.com/openai/be4e1098-f7ac-46f4-babe-44ef08f47fcb) |
-| **Red Teaming Network** | External domain experts, compensated, per-project. Entry point. | Applications periodic — watch openai.com/safety |
-
-**Verified leadership:** Anna Makanju (Public Policy). Preparedness team lead, SAG members not publicly named.
-
-**The mutual exchange:** OpenAI's Preparedness Framework v2 describes a workflow that matches your profile exactly: evaluate dangerous capabilities, build safeguards, verify effectiveness, governance review. Your project is a small-scale implementation of this pipeline.
-
-**Locations:** San Francisco (primary), London. Some remote.
+- Vercel: AI SDK team, Developer Experience Engineer
+- Cursor: Core engineering
+- LangChain: Developer Relations Engineer, Platform Engineer
+- Stripe: AI agent engineering (if they're hiring — the IndyDevDan video suggests they're building)
+- GitHub: Copilot team engineering
+- UK startups: check LinkedIn weekly for "AI engineer" + London
 
 ---
 
-## Tier 2 — AI Evaluation Companies
+## Tier 2 — AI Safety (Applied / Evaluation)
 
-### METR (Model Evaluation & Threat Research)
+These are safety-focused organisations where practitioner experience maps, the bar is not PhD-or-bust, and the roles are applied rather than pure research.
 
-**What they are:** Research nonprofit. The gold standard for frontier model evaluation. Partnered with OpenAI, Anthropic, Amazon, UK AISI. Evaluated GPT-5.1, Claude 3.7, DeepSeek. Developed the Time Horizon metric for autonomous AI capability.
-
-**Where the intersection is:** Their entire mission is adversarial evaluation of frontier models under realistic conditions. Your 200+ hours of sustained human-in-the-loop evaluation is field data in their domain.
-
-| Role | Comp | URL |
-|------|------|-----|
-| **Research Engineer/Scientist** | $250K-$450K | [Apply](https://metr.org/careers) |
-| **Research Workstream Lead** | $250K-$450K | [Apply](https://metr.org/careers) |
-
-**Location:** Berkeley, CA. Hybrid.
+| Company | Role | Location | Why it fits | Honest gap |
+|---------|------|----------|-------------|-----------|
+| **Apollo Research** | Applied Researcher (Product) | London | Scheming detection needs people who recognise subtle wrongness. London = no visa. | "Researcher" in title — may expect more academic background. |
+| **Vals AI** | MTS — Platform | San Francisco | Independent evaluation. Your taxonomy is a product artifact they'd ship. | US location. Small team = high bar. |
+| **Patronus AI** | Forward Deployed Research Engineer | San Francisco | Agent evaluation platform. Hands-on engineering + eval knowledge. | US location. "Research" in title. |
+| **MATS** | Programme staff (Systems Associate, Talent Manager) | Berkeley/London | Operational role in the AI safety pipeline. Community access. | Not an engineering role. |
+| **AI Safety Camp** | Project lead (propose) | Remote | Propose a project using your data. Community entry point. No credentials gate. | Volunteer. Not paid work. |
 
 ---
 
-### Apollo Research
+## Tier 3 — Frontier Labs (Stretch, Anthropic Only)
 
-**What they are:** AI safety PBC focused on scheming behaviours — AI systems covertly pursuing misaligned objectives. Partners with Microsoft, OpenAI, DeepMind, Amazon, Anthropic. Founded by Marius Hobbhahn (verified).
+### The Anthropic question
 
-**Where the intersection is:** Scheming detection requires adversarial evaluation of systems that appear to be working correctly. Your fight card documents exactly this: 16 instances of systems that passed every check while being wrong.
+v1 positioned Anthropic as the primary target. The Lullaby catch on 2026-03-05 raised the question: is Anthropic another lullaby, or is it an honest stretch?
 
-| Role | Location | URL |
-|------|----------|-----|
-| **Research Scientist/Engineer (Evaluations)** | London | [Apply](https://www.apolloresearch.ai/careers/) |
-| **Research Scientist/Engineer (Science of Scheming)** | London | [Apply](https://www.apolloresearch.ai/careers/) |
-| **Applied Researcher (Product)** | London | [Apply](https://www.apolloresearch.ai/careers/) |
+**Arguments for keeping Anthropic:**
+- They explicitly state: "About half our technical staff had no prior ML experience." "We care about what you can do, not where you learned to do it."
+- The application process itself is adversarial — writing a cover letter that must survive slopodar review, for a company that does sycophancy research, is a higher-layer stress test of the work.
+- Red Team Engineer (Safeguards) is an applied role, not a research scientist position.
+- The AI Safety Fellow is designed as an entry point.
 
-**Location:** London (primary), Washington DC.
+**Arguments for scrubbing Anthropic:**
+- "Non-traditional backgrounds welcome" may be marketing. The actual hiring bar may still filter for ML credentials.
+- The same Lullaby pattern that inflated DeepMind could be operating here at lower amplitude.
+- Time spent on Anthropic applications is time not spent on Tier 1 roles that are more likely to convert.
 
----
+**Decision:** Keep Anthropic, but with discipline. The application is dual-purpose: the cover letter is also the HN post draft. If the application takes more than 3 hours total, it fails the time-investment test. Apply to:
 
-### Vals AI
+| Role | URL | Priority |
+|------|-----|----------|
+| Red Team Engineer, Safeguards | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5070908008) | High |
+| AI Safety Fellow | [Apply](https://job-boards.greenhouse.io/anthropic/jobs/5023394008) | Medium |
 
-**What they are:** Independent LLM benchmarking platform. Public enterprise benchmarks across legal, coding, finance, healthcare. Featured in WSJ, Washington Post. Their "Vals Index" ranks models on industry-specific tasks, not contrived academic datasets.
-
-**Where the intersection is:** Independent, rigorous evaluation with public credibility. Your project demonstrates the same posture — public data, honest assessment, open methodology.
-
-| Role | Comp | URL |
-|------|------|-----|
-| **MTS — Research** | $150K-$250K | [Apply](https://jobs.polymer.co/vals-ai) |
-| **MTS — Platform** | $150K-$250K | [Apply](https://jobs.polymer.co/vals-ai) |
-
-**Location:** San Francisco.
+Scrubbed from shortlist: Research Scientist (Frontier Red Team), Research Product Manager, Research Engineer (Observability). These are research roles. Be honest.
 
 ---
 
-### Patronus AI
+## Scrubbed from v1
 
-**What they are:** Research lab building digital world models and LLM evaluation tools. Published Lynx (hallucination detection), GLIDER (evaluation with reasoning chains), FinanceBench. Products include agent evaluation platform.
+| Company | Role | Why scrubbed |
+|---------|------|-------------|
+| DeepMind | All roles | Lullaby catch. Globally competitive research pool. Not the right tier. |
+| OpenAI | Data Scientist (Preparedness) | Research role, PhD expected. |
+| OpenAI | AI Emerging Risks Analyst | Closer to policy than engineering. |
+| METR | Research Engineer | $250-450K comp signals PhD-level bar. |
+| Redwood Research | MTS | Pure research nonprofit. |
 
-**Where the intersection is:** Their evaluation research (hallucination detection, reasoning chain evaluation) maps directly to your slopodar taxonomy and adversarial evaluation methodology.
-
-| Role | Location | URL |
-|------|----------|-----|
-| **MTS — Research Scientist** | San Francisco | [Apply](https://ats.rippling.com/patronus-ai-jobs/jobs) |
-| **MTS — Forward Deployed Research Engineer** | San Francisco | [Apply](https://ats.rippling.com/patronus-ai-jobs/jobs) |
-
----
-
-### Redwood Research
-
-**What they are:** Nonprofit AI safety research org. Pioneered AI Control research (ICML oral). Collaborated with Anthropic on alignment faking research. Advises DeepMind and Anthropic.
-
-**Where the intersection is:** AI Control is the discipline of maintaining human oversight over AI systems even when those systems may be misaligned. Your governance framework and its honest self-assessment is a practical case study in this field.
-
-| Role | Comp | Location |
-|------|------|----------|
-| **MTS** | $180K-$207K | Berkeley, CA |
-
-Apply via Airtable form at [redwoodresearch.org](https://www.redwoodresearch.org/).
-
----
-
-## Tier 3 — Enterprise AI Governance
-
-These roles are emerging at financial services, consulting, and defence firms deploying agentic systems. They're usually titled "AI Risk," "Responsible AI," or "AI Governance." They value practical experience over academic credentials. Research these as they appear — they are not yet consolidated enough for a static target list.
-
-**Where to watch:** LinkedIn job alerts for "AI governance," "agentic systems risk," "AI evaluation lead" at companies like McKinsey, BCG, Deloitte (AI advisory), JPMorgan, Goldman Sachs (AI risk), and defence primes (Palantir, Anduril, BAE Systems AI).
+OpenAI Red Teaming Network kept as a low-commitment option (per-project, external, compensated) — watch for open rounds.

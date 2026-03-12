@@ -1,0 +1,270 @@
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.12"
+# ///
+"""Convert bootcamp docs source files to Hugo content.
+
+Reads the TOML front matter from existing Hugo stubs,
+reads the body from docs/bootcamp/ source files,
+strips the H1 and header metadata block,
+applies Hugo-specific escaping,
+and writes the assembled file.
+
+Usage:
+  uv run bin/hugo-convert-bootcamp 3
+  uv run bin/hugo-convert-bootcamp 3 --dry-run
+"""
+import argparse
+import re
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DOCS_DIR = REPO_ROOT / "docs" / "bootcamp"
+HUGO_DIR = REPO_ROOT / "sites" / "oceanheart" / "content" / "bootcamp"
+
+# Mapping: bootcamp number -> (docs glob prefix, hugo glob prefix, subtitle template)
+BOOTCAMP_META = {
+  2: {
+    "docs_prefix": "step",
+    "docs_filter": re.compile(r'^step\d{2}-'),
+    "hugo_prefix": "ii-",
+    "subtitle": "Step {step} of 11 in Bootcamp II: Agentic Engineering Practices.",
+    "total_steps": 11,
+  },
+  3: {
+    "docs_prefix": "bootcamp3-",
+    "hugo_prefix": "iii-",
+    "subtitle": "Step {step} of 10 in Bootcamp III: Operational Analytics.",
+    "total_steps": 10,
+  },
+  4: {
+    "docs_prefix": "step-iv-",
+    "hugo_prefix": "iv-",
+    "subtitle": "Step {step} of 9 in Bootcamp IV: Evaluation & Adversarial Testing.",
+    "total_steps": 9,
+  },
+  5: {
+    "docs_prefix": "bcv-",
+    "hugo_prefix": "v-",
+    "subtitle": "Step {step} of 9 in Bootcamp V: Agent Infrastructure in Practice.",
+    "total_steps": 9,
+  },
+}
+
+
+def extract_front_matter(hugo_path: Path) -> tuple[str, dict]:
+  """Extract TOML front matter and parse step number."""
+  text = hugo_path.read_text()
+  match = re.match(r'(\+\+\+\n.*?\n\+\+\+)\n', text, re.DOTALL)
+  if not match:
+    raise ValueError(f"No TOML front matter found in {hugo_path}")
+  front_matter = match.group(1)
+
+  step_match = re.search(r'step = (\d+)', front_matter)
+  step = int(step_match.group(1)) if step_match else 0
+
+  return front_matter, {"step": step}
+
+
+def strip_header(body: str) -> str:
+  """Strip H1 title and header metadata block from docs source."""
+  lines = body.split('\n')
+
+  # Strip H1 (first line starting with '# ')
+  start = 0
+  if lines and lines[0].startswith('# '):
+    start = 1
+
+  # Skip blank lines after H1
+  while start < len(lines) and lines[start].strip() == '':
+    start += 1
+
+  # Skip header metadata lines (bold key-value pairs) until first ---
+  while start < len(lines):
+    line = lines[start].strip()
+    if line == '---':
+      # Skip this --- and the blank line after it
+      start += 1
+      while start < len(lines) and lines[start].strip() == '':
+        start += 1
+      break
+    if line.startswith('**') or line == '' or re.match(r'^Step \d+ of \d+', line):
+      start += 1
+    else:
+      break
+
+  return '\n'.join(lines[start:])
+
+
+def escape_tables(body: str) -> str:
+  """Escape pipe and backslash characters inside markdown table cells for Hugo."""
+  lines = body.split('\n')
+  result = []
+  in_code_block = False
+
+  for line in lines:
+    # Track fenced code blocks - don't escape inside them
+    if line.strip().startswith('```'):
+      in_code_block = not in_code_block
+      result.append(line)
+      continue
+
+    if in_code_block:
+      result.append(line)
+      continue
+
+    # Only process table lines (start with |)
+    if line.strip().startswith('|') and '|' in line.strip()[1:]:
+      # Split into cells, escape pipes inside code spans within cells
+      # Strategy: split on | that are column separators, then escape
+      # remaining | inside cells
+      #
+      # A column separator | is one that is NOT inside backticks.
+      # Rather than complex parsing, we handle the common case:
+      # escape | that appears inside backtick spans within table cells.
+
+      # Find all backtick-delimited spans and escape | within them
+      def escape_pipes_in_backticks(m):
+        return m.group(0).replace('|', '\\|')
+
+      escaped = re.sub(r'`[^`]+`', escape_pipes_in_backticks, line)
+
+      # Escape backslashes that aren't already escaped (in table lines only)
+      # Only target single backslash followed by non-backslash
+      # Actually, Hugo/goldmark handles most backslash cases fine.
+      # The main issue from Bootcamp I was Ctrl-\ in a table cell.
+      # Let's be conservative and only escape \ before ) or ] or in specific patterns.
+
+      result.append(escaped)
+    else:
+      result.append(line)
+
+  return '\n'.join(result)
+
+
+def convert_file(
+  docs_path: Path,
+  hugo_path: Path,
+  subtitle: str,
+  dry_run: bool = False,
+) -> dict:
+  """Convert a single docs file to Hugo format."""
+  front_matter, meta = extract_front_matter(hugo_path)
+  body = docs_path.read_text()
+
+  # Strip H1 and header block
+  stripped = strip_header(body)
+
+  # Apply Hugo escaping
+  escaped = escape_tables(stripped)
+
+  # Assemble
+  assembled = f"""{front_matter}
+
+{subtitle}
+
+---
+
+{escaped}
+"""
+
+  if dry_run:
+    return {
+      "source": str(docs_path),
+      "target": str(hugo_path),
+      "source_lines": body.count('\n'),
+      "output_lines": assembled.count('\n'),
+      "action": "DRY RUN",
+    }
+
+  hugo_path.write_text(assembled)
+  return {
+    "source": str(docs_path),
+    "target": str(hugo_path),
+    "source_lines": body.count('\n'),
+    "output_lines": assembled.count('\n'),
+    "action": "WRITTEN",
+  }
+
+
+def build_file_mapping(bootcamp_num: int) -> list[tuple[Path, Path, str]]:
+  """Build the mapping between docs source files and Hugo targets.
+
+  Matches docs to Hugo stubs by step number extracted from front matter.
+  Hugo stubs without a matching doc are skipped (left as stubs).
+  """
+  meta = BOOTCAMP_META[bootcamp_num]
+  docs_prefix = meta["docs_prefix"]
+  hugo_prefix = meta["hugo_prefix"]
+  subtitle_tpl = meta["subtitle"]
+
+  docs_files = sorted(DOCS_DIR.glob(f"{docs_prefix}*.md"))
+  # Apply regex filter if present (for prefixes that overlap with other bootcamps)
+  docs_filter = meta.get("docs_filter")
+  if docs_filter:
+    docs_files = [f for f in docs_files if docs_filter.match(f.name)]
+  hugo_files = sorted(HUGO_DIR.glob(f"{hugo_prefix}*.md"))
+
+  if len(docs_files) == 0:
+    printf_err(f"No docs files found with prefix '{docs_prefix}'")
+    sys.exit(1)
+
+  if len(docs_files) != meta["total_steps"]:
+    printf_err(
+      f"Expected {meta['total_steps']} docs files, found {len(docs_files)}"
+    )
+    sys.exit(1)
+
+  # Index Hugo stubs by step number
+  hugo_by_step: dict[int, Path] = {}
+  for hp in hugo_files:
+    _, info = extract_front_matter(hp)
+    hugo_by_step[info["step"]] = hp
+
+  # Match docs to stubs positionally (docs are step 1..N in sorted order)
+  mappings = []
+  for i, docs_path in enumerate(docs_files, start=1):
+    if i not in hugo_by_step:
+      printf_err(f"No Hugo stub with step={i} for {docs_path.name}")
+      sys.exit(1)
+    hugo_path = hugo_by_step[i]
+    subtitle = subtitle_tpl.format(step=i)
+    mappings.append((docs_path, hugo_path, subtitle))
+
+  return mappings
+
+
+def printf_err(msg: str):
+  sys.stderr.write(f"{msg}\n")
+
+
+def main():
+  parser = argparse.ArgumentParser(description="Convert bootcamp docs to Hugo")
+  parser.add_argument("bootcamp", type=int, help="Bootcamp number (e.g., 3)")
+  parser.add_argument("--dry-run", action="store_true", help="Show what would be done")
+  args = parser.parse_args()
+
+  if args.bootcamp not in BOOTCAMP_META:
+    printf_err(f"Bootcamp {args.bootcamp} not configured. Available: {list(BOOTCAMP_META.keys())}")
+    sys.exit(1)
+
+  mappings = build_file_mapping(args.bootcamp)
+
+  printf_err(f"Converting {len(mappings)} files for Bootcamp {args.bootcamp}")
+  if args.dry_run:
+    printf_err("DRY RUN - no files will be modified")
+
+  for docs_path, hugo_path, subtitle in mappings:
+    result = convert_file(docs_path, hugo_path, subtitle, dry_run=args.dry_run)
+    printf_err(
+      f"  {result['action']}: {Path(result['source']).name} -> "
+      f"{Path(result['target']).name} "
+      f"({result['source_lines']} -> {result['output_lines']} lines)"
+    )
+
+  printf_err("Done.")
+
+
+if __name__ == "__main__":
+  main()

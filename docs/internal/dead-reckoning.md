@@ -1,10 +1,10 @@
-# Dead Reckoning Protocol
+# Dead Reckoning Protocol - noopit (thepit-v2)
 
-> When the instruments fail, navigate from last known fixed position.
+**What this is:** Blowout recovery sequence. If the context window died, the session crashed, or you are a fresh instance with no memory of prior sessions, this document tells you where you are and how to get your bearings.
 
-**What this is:** Harness blowout recovery sequence. If the context window died, the opencode session crashed, or you are a fresh instance with no memory of prior sessions, this document tells you where you are and how to get your bearings.
+**When to activate:** If you have no memory of the current project state, you have had a blowout. Defer to your notes.
 
-**When to activate:** If `docs/internal/` appears empty or you have no memory of the current project state, you have had a blowout. You are in concussion. Defer to your notes.
+**First:** Read `docs/internal/boot-sequence.md` — that is the normal wake sequence. This file is for when things went wrong.
 
 ---
 
@@ -15,7 +15,7 @@ ls docs/internal/session-decisions.md 2>/dev/null && echo "NOTES INTACT" || echo
 ```
 
 If NOTES INTACT: you have durable state. Proceed to Step 2.
-If BLOWOUT CONFIRMED: the go-dark exclusion layer may have been disturbed. Check `.git/info/exclude` and `.gitignore` for `docs/internal/` entries. If files were truly lost, check git reflog or opencode session logs at `~/.local/share/opencode/storage/`.
+If BLOWOUT CONFIRMED: check git reflog. The chain (SD-266) means everything committed is recoverable.
 
 ---
 
@@ -25,23 +25,17 @@ If BLOWOUT CONFIRMED: the go-dark exclusion layer may have been disturbed. Check
 docs/internal/session-decisions-index.yaml
 ```
 
-This is your primary instrument. It contains the last 20 session decisions, total count, and date range — everything you need to reconstruct current heading. **Read the index, not the full log.** The full log (`session-decisions.md`) is 270+ entries and 33k+ tokens. Loading it all on boot is the single largest token cost in the system. The historical record exists for provenance (SD-266), not for navigation.
+This is your primary instrument. It contains the last 10 session decisions + standing orders — everything you need to reconstruct current heading. **Read the index, not the full log.** The full log (`session-decisions.md`) is 314+ entries. Loading it all on boot is the single largest token cost in the system (SD-275). The historical record exists for provenance (SD-266), not for navigation.
 
-If the index is missing or stale, regenerate it: `node bin/sd-index.js`. If you need to trace a specific historical decision, read the full file then. Not on boot.
+**SD number collisions (SD-297):** When an SD number appears twice (historical accident, parallel sessions), the later entry gets a forward-ref annotation. Historical entries are never renumbered — the chain (SD-266) is immutable.
 
 Do NOT read every file in docs/internal/ — that will consume tokens and increase risk of compaction. **Lazy Loading:** know what exists, read only when needed.
 
-**Search strategy (SD-195):** BFS by default. Scan depth-1 files first (there are only 7). Go deeper only when investigating a specific question (DFS). File hierarchy depth signals read frequency: depth 1 = every session, depth 2 = when topic is relevant, depth 3+ = deliberate research only.
+**Search strategy (SD-195):** BFS by default. Scan depth-1 files first. Go deeper only when investigating a specific question (DFS).
 
 ---
 
-## Step 2b: Read operational state and the Lexicon
-
-```bash
-cat .keel-state
-```
-
-This file contains the last-written operational state: officer on watch, conn holder, weave mode, register, tempo, bearing, gate status, and test count. Use these fields to populate your YAML HUD header. If the file is missing or empty, set all HUD fields to `unknown` and flag to the Captain.
+## Step 2b: Read the Lexicon
 
 **Read the Lexicon immediately (SO-PERM-002):**
 
@@ -51,22 +45,6 @@ docs/internal/lexicon.md
 
 The Lexicon defines all adopted terms, YAML HUD fields, and their meanings. If the Lexicon is not in your context window, you are not on this ship. This is a standing order, not a suggestion.
 
-Then check for the most recent session state file:
-
-```bash
-ls -t docs/internal/weaver/session-state-*.md | head -1
-```
-
-If one exists, read it. It contains ephemeral state from the last session: active worktrees, open PRs, merge sequences in progress, parked items. This file bridges the gap between durable decisions (session-decisions.md) and operational context that would otherwise be lost at compaction.
-
-Also check for active git worktrees:
-
-```bash
-git worktree list
-```
-
-If worktrees exist beyond the main repo, there is a parallel operation in progress. The session state file will explain what each worktree is for.
-
 ---
 
 ## Step 3: Verify integration state
@@ -74,107 +52,74 @@ If worktrees exist beyond the main repo, there is a parallel operation in progre
 ```bash
 git status
 git log --oneline -10
-gh pr list --state open
 ```
-
-Cross-reference against the post-merge queue in session-decisions.md and the session state file from Step 2b.
 
 ---
 
 ## Step 4: Know your crew (Lazy Loading — do NOT read until needed)
 
-### Active Crew (SD-126, updated SD-196)
+### Active Crew (SD-299, minnowed for thepit-v2)
 
 | Role | File | When to read |
 |------|------|-------------|
-| Weaver (you) | `.opencode/agents/weaver.md` | Your own governing principles |
-| Keel | `.opencode/agents/keel.md` | Human-factor, operational stability |
-| Architect | `.opencode/agents/architect.md` | Backend engineering, system design |
-| Sentinel | `.opencode/agents/sentinel.md` | Security engineering |
-| Watchdog | `.opencode/agents/watchdog.md` | QA, test engineering |
-| Quartermaster | `.opencode/agents/quartermaster.md` | Tooling strategy |
-| Analyst | `.opencode/agents/analyst.md` | Research evaluation, audience modelling |
-| Scribe | `.opencode/agents/scribe.md` | Documentation |
-| Janitor | `.opencode/agents/janitor.md` | Code hygiene, refactoring |
-| Maturin | `.opencode/agents/maturin.md` | Naturalist, field observation, pattern taxonomy |
-| AnotherPair | `.opencode/agents/anotherpair.md` | Subtle process observer, joint cognitive system monitoring |
+| Weaver | `.claude/agents/weaver.md` | Integration discipline, verification governance |
+| Architect | `.claude/agents/architect.md` | Backend engineering, system design |
+| Watchdog | `.claude/agents/watchdog.md` | QA, test engineering |
+| Sentinel | `.claude/agents/sentinel.md` | Security engineering |
+| Keel | `.claude/agents/keel.md` | Human-factor, operational stability |
+| Janitor | `.claude/agents/janitor.md` | Code hygiene, refactoring |
 
-Also on disk: `captainslog.md`, `postcaptain.md`, `weave-quick-ref.md` (Captain-facing, not crew).
+Also on disk: `analyst.md`, `scribe.md`, `maturin.md`, `anotherpair.md`, `operatorslog.md`, `weave-quick-ref.md`.
 
 ---
 
 ## Step 5: Know your durable state (Lazy Loading)
 
-### Depth 1 — Operational (read on BFS scan)
+### Depth 1 — Operational (boot surface)
 
 | Document | Path | Purpose |
 |----------|------|---------|
-| Session decisions index | `docs/internal/session-decisions-index.yaml` | Last 20 SDs, total count — **ALWAYS read in Step 2** |
-| Session decisions (full) | `docs/internal/session-decisions.md` | Full historical log — read only when tracing specific SDs |
+| Boot sequence | `docs/internal/boot-sequence.md` | Normal wake manifest |
+| Session decisions index | `docs/internal/session-decisions-index.yaml` | Last 10 SDs + standing orders |
+| Lexicon | `docs/internal/lexicon.md` | Vocabulary v0.20 |
+| Slopodar | `docs/internal/slopodar.yaml` | Anti-pattern taxonomy, 18 entries |
+| Layer model | `docs/internal/layer-model.md` | L0-L12 v0.3 |
+| Session decisions (full) | `docs/internal/session-decisions.md` | Full chain — archaeology only |
 | Dead reckoning | `docs/internal/dead-reckoning.md` | This file |
-| Lexicon | `docs/internal/lexicon.md` | Current terminology, YAML header spec (version tracked inside file) |
-| Pearls | `docs/internal/pearls.md` | Sweet Spot collection, Strays queue |
-| Principles | `docs/internal/v0.1-principles-distilled.md` | Phase 1 distilled: what held, what broke |
-| Product spec | `docs/internal/v0.1-product-spec.md` | v0.1 core journey, architecture, data model |
-| Layer model index | `docs/internal/weaver-layer-model-index.md` | Where the layer model has been load-bearing |
 
-### Operational Models (depth 2, but high-signal reference)
-
-These are the cognitive instruments. Read when making process decisions or calibrating human-agent interaction.
-
-| Document | Path | Key concept |
-|----------|------|-------------|
-| Big O for Humans | `human-hud/human-hud-big-o.md` | O(1) approve/reject through O(2^n) combinatorial. Maps cognitive load to complexity classes. SD-180. |
-| Amdahl's Law | `human-hud/human-hud-amdahls-law.md` | Parallel harnesses increase sequential fraction via discovery overhead. SD-179. |
-| L12 Fault | `human-hud/human-hud-l12-fault.md` | Oracle contamination: when L12 introduces error, no gate catches it. SD-178. |
-| Layer Model Index | `weaver-layer-model-index.md` | Where the 12-layer model has been load-bearing. 14 entries, 4 tiers. SD-165. |
-
-### Depth 2 — Reference (read when topic is relevant)
+### Depth 2 — Reference
 
 | Directory | Contents | Read when |
 |-----------|----------|-----------|
-| `audits/` | Branch audit, SD audit, parallax roster, QA review, procedural records, zeitgeist, h8 report | Investigating history |
-| `hn-prep/` | Attack analysis, optimisation plan, expert briefing, copy advice, option-b analysis | HN launch prep |
-| `human-hud/` | Amdahl's Law, Big O cognitive load, L12 fault | HumanHUD research |
-| `lexicon-archive/` | v0.7, v0.8 | Back-tracing specific SD terms |
-| `qa/` | QA deltas v1.2/v2, manual QA v1 | QA work |
-| `main-thread/` | Recent verbatim records (dismissed, compaction, Maturin's symbol) | Process archaeology |
-| `field-notes/` | Maturin's template specimen | Pattern taxonomy |
-| `janitor/` | Deferred cleanup tickets | Janitor passes |
-| `research/` | mobprogrammingrpg XP concept, other research material | Research reference |
+| `docs/weaver/` | Signal protocol PoC, decode tests, reasoning tests | Signal work |
+| `docs/decisions/` | Session-scoped SD files | Current session decisions |
+| `docs/strategy/` | Landscape scans, convergence analysis | Strategy work |
+| `docs/research/` | Cross-model prompt | Research work |
+| `docs/field-notes/` | Field observations | Pattern taxonomy |
 
-### Depth 3+ — Archive (deliberate DFS only)
+### Depth 3+ — Archive
 
-| Directory | Contents | Read when |
-|-----------|----------|-----------|
-| `archive/hn/` | Hurt locker, pre-HN strategy, Show HN drafts | Historical HN prep |
-| `archive/research/` | All research reviews, analyst audits, citations audit | Research page archaeology |
-| `archive/round-tables/` | RT L1-L5 syntheses and individual agent reports | RT process history |
-| `archive/main-thread/` | Old verbatim main thread entries (02-24, early 02-25) | Deep process archaeology |
-| `captain/captainslog/` | Captain's personal log entries | Captain's reference only |
-| `postcaptain/` | Personal debrief | Captain's reference only |
+tspit-ARCHIVED lives at `/home/mrkai/code/repo/tspit-ARCHIVED/`. Historical artifacts from the pilot study (SD-001 through SD-278) can be recovered from there. Do not copy wholesale — rescue specific files when needed.
 
 ---
 
 ## Step 6: Know the standing orders
 
-These are embedded in session-decisions.md but critical enough to list here:
+These are in AGENTS.md (auto-loaded) and the session-decisions index. Critical ones:
 
-1. **The Sweet Spot** — All public-facing content reads like lightly edited lab notes. No persuasion, no selling. The voice of an honest, introverted data scientist.
-2. **Em-dash convention** — Em-dashes are agentic tells. Avoid in all user-facing copy.
-3. **Hero DNA** — The hero banner subheadline is the Captain's exact keystrokes. No edits. Ever.
-4. **Entity voice for legal pages** — Security, privacy, terms use entity voice, not first-person "I".
-5. **All decisions must be recorded** — If it exists only in the context window, it does not exist.
-6. **The local gate is the authority** — `pnpm run typecheck && pnpm run lint && pnpm run test:unit`
-7. **Logging granularity is load-bearing** — The `withLogging` wrapper, structured `log.*` calls, and detailed API logging are not overhead. They are the reason the crew can verify production behaviour from server stdout without guessing. Captain's salute to past selves. Do not reduce, do not spam, do not remove.
+1. **All decisions must be recorded** — If it exists only in the context window, it does not exist (SD-266).
+2. **The local gate is the authority** — `pnpm run typecheck && pnpm run lint && pnpm run test`
+3. **Truth first** — Telling the truth takes priority over getting hired (SD-134).
+4. **Agentic estimation** — All estimates assume agentic execution speed (SD-268).
+5. **Slopodar on boot** — Read the anti-pattern taxonomy on load (SD-286).
 
 ---
 
 ## Step 7: Resume operations
 
-You now have bearings. Read the specific files needed for the current task. Ask the Captain to confirm priorities if the post-merge queue is stale or ambiguous.
+You now have bearings. Follow the boot sequence (`docs/internal/boot-sequence.md`) for normal operations. Ask the Operator to confirm priorities if bearing is unclear.
 
-The Captain is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is The Pit (www.thepit.cloud). You are part of the crew. Welcome back.
+The Operator is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is The Pit (www.thepit.cloud). noopit is thepit-v2 — the calibration run (SD-294). You are part of the crew. Welcome back.
 
 ---
 

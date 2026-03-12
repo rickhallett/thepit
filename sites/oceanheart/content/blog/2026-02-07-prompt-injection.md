@@ -26,7 +26,7 @@ Claude had read the task file. It saw `bosun swarm --from-gastown`. It executed 
 
 I had prompt injected myself. With my own documentation.
 
-The distinction between documentation and command exists in your head. Not in the model's. To an LLM, everything in the context window is text that could be an instruction.
+The distinction between documentation and command exists in your head, not in the model's. To an LLM, everything in the context window is text that could be an instruction.
 
 Task files now use explicit non-executable framing:
 

@@ -2,7 +2,7 @@
 
 > Prepared: 2 March 2026
 > Purpose: How to use Google NotebookLM to digest, internalise, and present the magnum materials
-> Audience: Captain only
+> Audience: Operator only
 
 ---
 
@@ -69,7 +69,7 @@ NLM makes a static copy of uploaded documents. It does not track changes to your
 
 ## 3. Notebook Architecture — How to Organise the Magnum Materials
 
-Do not put everything in one notebook. NLM's reasoning quality degrades when it has to search across too many unrelated sources. Cluster by theme. Each notebook should answer one question the Captain might face in an interview or community interaction.
+Do not put everything in one notebook. NLM's reasoning quality degrades when it has to search across too many unrelated sources. Cluster by theme. Each notebook should answer one question the Operator might face in an interview or community interaction.
 
 ### Notebook 1: "The Story" — What I Built and Why It Matters
 
@@ -79,9 +79,9 @@ Do not put everything in one notebook. NLM's reasoning quality degrades when it 
 1. `plank-1-the-one-page-story.md`
 2. `narrative-shape.md`
 3. `narrative-layer.yaml` (NLM will read the YAML as text — the quotes, speakers, and arc structure will come through)
-4. The Captain's log entry: `docs/internal/captain/captainslog/2026/02/23-fair-winds.md`
+4. The Operator's log entry: `docs/internal/operator/operatorslog/2026/02/23-fair-winds.md`
 
-**Why this grouping:** These four documents together tell the full story from compressed pitch (plank 1) through narrative density by arc (narrative shape) to the raw material (narrative layer). The Captain's log provides the emotional anchor.
+**Why this grouping:** These four documents together tell the full story from compressed pitch (plank 1) through narrative density by arc (narrative shape) to the raw material (narrative layer). The Operator's log provides the emotional anchor.
 
 **Suggested NLM interactions:**
 - Chat: "What are the three most dramatic turning points in this project?"
@@ -176,7 +176,7 @@ Do not put everything in one notebook. NLM's reasoning quality degrades when it 
 1. Fight card rounds where you caught yourself (not just the system)
 2. Main-thread exchange: `2026-02-25-003-dismissed.md`
 3. Any entries from the session decisions where you made mistakes or reversed course
-4. The Captain's confession quotes from arc-17 (extract from narrative-layer.yaml or narrative-shape.md)
+4. The Operator's confession quotes from arc-17 (extract from narrative-layer.yaml or narrative-shape.md)
 
 **Why this grouping:** This notebook is for practising intellectual honesty under pressure. "What went wrong? What would you do differently? Where did the framework fail?"
 
@@ -288,7 +288,7 @@ In Notebook 2 (The Fight Card):
 ### Exercise 5: Quote Retrieval
 
 In Notebook 1 (The Story):
-1. Chat: "Find the most powerful quote from the Captain in each of the five densest arcs."
+1. Chat: "Find the most powerful quote from the Operator in each of the five densest arcs."
 2. Read them. Can you place each quote in context? Do you remember what was happening when you said it?
 3. For any quote you cannot place: Chat "What was happening in the project when this was said?"
 
@@ -317,7 +317,7 @@ In Notebook 1 (The Story):
 | AGENTS.md | Markdown | No | Upload as-is |
 | lexicon.md | Markdown | No | Upload as-is |
 | Main thread exchanges | Markdown | No | Upload selected files, not all |
-| Captain's log (23-fair-winds) | Markdown | No | Upload as-is |
+| Operator's log (23-fair-winds) | Markdown | No | Upload as-is |
 
 ### Setup sequence
 
@@ -376,7 +376,7 @@ In Notebook 1 (The Story):
 2. Ask it: "What is this project about?"
 3. Read the response. Is it accurate? Does it capture what matters?
 4. If yes: proceed with the full notebook architecture in Section 3.
-5. If no: the source material may need a brief contextual preamble. Add a Note (NLM's scratchpad feature) at the top of the notebook explaining: "This is documentation from a solo agentic engineering pilot study. The Captain is the human engineer. Weaver is the lead AI agent. The project ran for 24 days, 847 commits, 13 AI agents under a governance framework."
+5. If no: the source material may need a brief contextual preamble. Add a Note (NLM's scratchpad feature) at the top of the notebook explaining: "This is documentation from a solo agentic engineering pilot study. The Operator is the human engineer. Weaver is the lead AI agent. The project ran for 24 days, 847 commits, 13 AI agents under a governance framework."
 
 That preamble gives NLM the framing it needs to interpret the nautical metaphors and project-specific terminology correctly.
 

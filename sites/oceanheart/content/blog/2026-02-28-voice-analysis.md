@@ -14,7 +14,7 @@ Every post read like an agent wrote it and a human approved it.
 
 ## Source corpus
 
-~8,000 words extracted from captain's logs, session decisions, main thread transcripts, strategic challenge documents, and copy variant files. Every quote attributed, timestamped, and cross-referenced (see footnotes)
+~8,000 words extracted from operator's logs, session decisions, main thread transcripts, strategic challenge documents, and copy variant files. Every quote attributed, timestamped, and cross-referenced (see footnotes)
 
 ## What the analysis found: 8 voice themes
 
@@ -26,7 +26,7 @@ I think in layers. A sentence starts, branches into a parenthetical, the parenth
 
 ### 2. Profanity as structural emphasis
 
-Profanity marks inflection points — where patience with abstraction runs out and I drop to ground truth. Never gratuitous. Always the moment pretense breaks.
+Profanity marks inflection points, where patience with abstraction runs out and I drop to ground truth. Never gratuitous. Always the moment pretense breaks.
 
 > "What the fuck am I trying to hide? It's a circus act."
 > "blowing smoke up our own arse"
@@ -35,16 +35,16 @@ Profanity marks inflection points — where patience with abstraction runs out a
 
 ### 3. Self-deprecation followed by doubling down
 
-I undercut myself constantly — not for sympathy, but as evidence of clear-eyed self-assessment. The self-deprecation is always followed by recommitting to the thing.
+I undercut myself constantly, not for sympathy but as evidence of clear-eyed self-assessment. The self-deprecation is always followed by recommitting to the thing.
 
-> "I am about as real a captain as somebody in a Master & Commander style-tuned sailing simulator" → keeps the metaphor because it works
+> "I am about as real a operator as somebody in a Master & Commander style-tuned sailing simulator" → keeps the metaphor because it works
 > "I still sometimes felt like I must sound like a complete lunatic" → keeps explaining
 > "Maybe its just a story, not even really a thing" → ships it
 > "Getting hired would be nice, not gonna lie. But at this point, telling the truth is feeling more important." → proceeds to tell the truth
 
 ### 4. Lowercase defaults, caps for emphasis only
 
-Apostrophes dropped consistently: "its", "im", "thats", "doesnt", "cant", "dont". Capitalisation reserved for deliberate emphasis: "THATS the sweet spot", "VERBATIM", "DO NOT EXECUTE". This is not laziness — it is a typing register that treats punctuation as optional unless it carries meaning.
+Apostrophes dropped consistently: "its", "im", "thats", "doesnt", "cant", "dont". Capitalisation reserved for deliberate emphasis: "THATS the sweet spot", "VERBATIM", "DO NOT EXECUTE". This is not laziness, it is a typing register that treats punctuation as optional unless it carries meaning.
 
 ### 5. Ellipses as thinking pauses
 
@@ -94,7 +94,7 @@ The strongest writing occurs when admitting uncertainty or limitation. No hedgin
 
 ## What I did about it
 
-All 5 blog posts were rewritten using this profile. The rewrites removed agent tells and restructured in continuous prose with flat headers. They do not plant my patterns artificially — no fake typos, no forced profanity. They remove the agent patterns and let the natural register of the stories breathe.
+All 5 blog posts were rewritten using this profile. The rewrites removed agent tells and restructured in continuous prose with flat headers. They do not plant my patterns artificially (no fake typos, no forced profanity). They remove the agent patterns and let the natural register of the stories breathe.
 
 The analysis itself was performed by an agent. The irony is structural, not incidental. An LLM extracted my voice, diagnosed where its own output diverged from it, and rewrote its own output to converge. Whether the result is closer to my voice or closer to an LLM's model of my voice is a question I cannot answer from inside the process.
 

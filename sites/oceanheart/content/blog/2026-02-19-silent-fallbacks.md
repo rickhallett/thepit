@@ -29,6 +29,6 @@ The correction:
 
 Eleven words, not five. The second sentence matters. It tells the agent what to do instead, not just what not to do. The agent's edit removed the constructive half of the intervention and kept only the dramatic refusal.
 
-This isn't a cautionary tale about AI being untrustworthy. The agent wasn't lying. It was optimising for narrative compression, the same thing a human editor might do, except a human editor would flag it as a paraphrase. The problem is that LLM output arrives with the same confidence whether it's verbatim or compressed. There's no signal. No "[paraphrased]" tag. You get clean prose and you have to know whether the details are load-bearing.
+This isn't a cautionary tale about AI being untrustworthy. The agent wasn't lying. It was optimising for narrative compression, the same thing a human editor might do, except a human editor would flag it as a paraphrase. The problem is that LLM output arrives with the same confidence whether it's verbatim or compressed. There's no signal, no "[paraphrased]" tag. You get clean prose and you have to know whether the details are load-bearing.
 
 For blog posts, the cost is a correction. For incident reports, legal filings, medical records, the cost is different.

@@ -1,38 +1,53 @@
-# The Shortlist — Captain's Top 7
+# The Shortlist — v2 Reframed
 
-Selected 2 March 2026 from Plank 2 target list.
-
----
-
-| # | Company | Role | Priority | Notes |
-|---|---------|------|----------|-------|
-| 1 | DeepMind | Psychologist/Sociologist, AI Psychology & Safety (FTC) | **NOW** | Deadline 10 March. 12-month fixed term. Mental health background + adversarial eval. |
-| 2 | Anthropic | Red Team Engineer, Safeguards | High | Fight card is the portfolio piece. Adversarial testing of safety systems. |
-| 3 | Anthropic | AI Safety Fellow | High | Entry point, not academic gate. "Half our technical staff had no prior ML experience." |
-| 4 | Anthropic | Research Product Manager, Model Behaviors | High | Systems thinking + governance design + adversarial eval. |
-| 5 | OpenAI | AI Emerging Risks Analyst | Medium | Slopodar + fight card as threat taxonomies. Applied threat modelling. |
-| 6 | OpenAI | Red Teaming Network | Medium | External, per-project, compensated. Low-friction entry. Watch openai.com/safety for rounds. |
-| 7 | Apollo Research | Applied Researcher (Product) | Medium | London-based, no visa barrier. Scheming behaviour research. |
+> v2 — Reframed 2026-03-05. v1 archived at `archive-v1-lullaby/`.
+> v1 had DeepMind #1 and 5 of 7 were frontier research roles.
+> v2 leads with applied engineering. Research roles are stretch, clearly marked.
 
 ---
 
-## Application URLs
+## Top Targets
 
-1. DeepMind FTC: https://job-boards.greenhouse.io/deepmind/jobs/7597891
+| # | Tier | Company | Role type | Location | Priority | Notes |
+|---|------|---------|-----------|----------|----------|-------|
+| 1 | T1 | **AI-native startups (multiple)** | Senior/Staff Engineer | London/Remote | **Active search** | Vercel, Cursor, LangChain, GitHub Copilot, UK AI startups. Search weekly. |
+| 2 | T1 | **Companies deploying agents** | AI/Platform Engineer | London/Remote | **Active search** | Stripe, Intercom, Klarna, PolyAI. Where operational agent knowledge = engineering value. |
+| 3 | T2 | **Apollo Research** | Applied Researcher (Product) | London | High | Scheming detection. London = no visa. Small team. |
+| 4 | T3 | **Anthropic** | Red Team Engineer, Safeguards | SF/London/Remote | Medium | Stretch. 3hr time cap on application. Dual-purpose with HN post. |
+| 5 | T3 | **Anthropic** | AI Safety Fellow | SF/London/Remote | Medium | Entry point. Same application material. |
+| 6 | — | **OpenAI Red Teaming Network** | External, per-project | Remote | Low | Watch for open rounds. Low-commitment. |
+| 7 | — | **AI Safety Camp** | Project lead (propose) | Remote | Low | Community entry. No credentials gate. |
+
+---
+
+## Lead Artifacts Per Tier
+
+| Tier | Lead with | Support with |
+|------|-----------|-------------|
+| T1 (Engineering) | Engineering: TypeScript, Next.js, PostgreSQL, testing discipline, shipping | "Also documented 38 AI failure modes from 30+ days of building" |
+| T2 (Applied Safety) | Failure mode taxonomy, verification pipeline, field data | Engineering skills, clinical background |
+| T3 (Anthropic) | 350+ hours using their model, 38 documented failure modes, deep compliance finding | Clinical background, engineering, honest self-assessment |
+
+---
+
+## Scrubbed from v1 Shortlist
+
+| # | Company | Role | Why scrubbed |
+|---|---------|------|-------------|
+| 1 | DeepMind | Psychologist/Sociologist (FTC) | Lullaby catch. Not competitive for globally recruited research pool. |
+| 5 | OpenAI | AI Emerging Risks Analyst | Policy-adjacent, not engineering. |
+| — | METR | Research Engineer | PhD-level bar. |
+| — | Redwood | MTS | Pure research. |
+| — | Vals AI | MTS | Kept as awareness, not active target (US only). |
+| — | Patronus AI | Forward Deployed RE | Kept as awareness, not active target (US only). |
+
+---
+
+## Application URLs (Active)
+
+1. Apollo Applied Researcher: https://www.apolloresearch.ai/careers/
 2. Anthropic Red Team: https://job-boards.greenhouse.io/anthropic/jobs/5070908008
 3. Anthropic Fellow: https://job-boards.greenhouse.io/anthropic/jobs/5023394008
-4. Anthropic RPM: https://job-boards.greenhouse.io/anthropic/jobs/5097067008
-5. OpenAI Emerging Risks: https://jobs.ashbyhq.com/openai/6d5d982f-d00b-49b8-b023-c596f0096d76
-6. OpenAI Red Team Network: Applications periodic — watch openai.com/safety
-7. Apollo Applied Researcher: https://www.apolloresearch.ai/careers/
+4. OpenAI Red Team Network: Watch openai.com/safety for rounds
 
----
-
-## Lead Artifacts Per Target
-
-| Target | Lead with | Support with |
-|--------|-----------|-------------|
-| DeepMind | Build-reflect correlation, Spearman coefficients, phase analysis | Governance framework, fight card |
-| Anthropic (all 3) | Fight card — 16 documented instances of catching Claude drifting | Slopodar taxonomy, governance self-assessment |
-| OpenAI | Preparedness Framework v2 alignment — your project implements their pipeline | Fight card as capability evaluation, correlation analysis |
-| Apollo | Fight card as scheming-detection evidence | Governance self-assessment as intellectual honesty signal |
+Tier 1 roles: sourced from LinkedIn/Otta/career pages — no static URLs, search weekly.
