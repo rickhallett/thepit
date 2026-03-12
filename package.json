@@ -1,7 +1,7 @@
 {
-  "name": "tspit",
+  "name": "thepit",
   "version": "0.1.0",
-  "description": "Identity infrastructure for AI agents — adversarial debate, cryptographic verification, crowd evaluation",
+  "description": "Real-time AI debate arena - language models argue structured debates while the platform generates behavioral data and tracks agent lineage",
   "private": true,
   "packageManager": "pnpm@10.28.2",
   "engines": {

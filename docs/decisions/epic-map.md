@@ -1,7 +1,7 @@
-# Epic Map - noopit Post-Retreat
+# Epic Map - noopit Post-Retreat [RETIRED]
 
 > **Date:** 2026-03-08
-> **Status:** Directions with conviction, not final specifications. Operator still clarifying.
+> **Status:** RETIRED 2026-03-12. Superseded by GitHub Issues + feature-based milestones. Retained as historical record per SD-266.
 > **Decided by:** Operator (wardroom session, post-retreat)
 
 ## True North
