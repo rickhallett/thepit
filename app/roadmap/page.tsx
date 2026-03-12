@@ -59,7 +59,7 @@ const LANES: Lane[] = [
       { label: 'Arena presets', status: 'done', detail: '11 free presets, 11 premium scenarios' },
       { label: 'BYOK model support', status: 'done', detail: 'Bring your own Anthropic key' },
       { label: 'Response length + format controls', status: 'done', detail: 'Short/standard/long, plain/verse/roast' },
-      { label: 'Custom arena builder', status: 'planned', detail: 'Pick agents, set rules, launch bouts' },
+      { label: 'Custom arena builder', status: 'done', detail: 'Pick agents, set rules, launch bouts' },
       { label: 'Vercel AI Gateway (BYOK)', status: 'planned', detail: 'BYOK users choose any LLM via Vercel AI Gateway' },
       { label: 'Multi-model routing', status: 'planned', detail: 'Route different agents to different models' },
       { label: 'Tournament brackets', status: 'planned', detail: 'Elimination-style multi-round events' },

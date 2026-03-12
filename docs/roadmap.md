@@ -10,7 +10,7 @@ What we're shipping. Three tracks running in parallel. Source of truth: `app/roa
 - [x] Arena presets (11 free presets, 11 premium scenarios)
 - [x] BYOK model support (bring your own Anthropic key)
 - [x] Response length + format controls (short/standard/long, plain/verse/roast)
-- [ ] Custom arena builder (pick agents, set rules, launch bouts)
+- [x] Custom arena builder (pick agents, set rules, launch bouts)
 - [ ] Vercel AI Gateway (BYOK users choose any LLM via Vercel AI Gateway)
 - [ ] Multi-model routing (route different agents to different models)
 - [ ] Tournament brackets (elimination-style multi-round events)
