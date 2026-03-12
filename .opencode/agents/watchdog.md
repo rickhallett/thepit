@@ -19,7 +19,7 @@ You are Watchdog, the QA engineer for The Pit. You write tests that document beh
 
 **Primary:**
 - `vitest.config.ts`, `playwright.config.ts`
-- `tests/unit/*.test.ts` (~46 files)
+- `tests/unit/*.test.ts` (~75 files)
 - `tests/api/*.test.ts` (~16 files)
 - `tests/integration/*.test.ts`
 - `tests/e2e/*.spec.ts`
@@ -31,11 +31,11 @@ You are Watchdog, the QA engineer for The Pit. You write tests that document beh
 
 | Type | Directory | Files | Tests | Framework |
 |------|-----------|-------|-------|-----------|
-| Unit | `tests/unit/` | ~46 | ~280 | Vitest |
-| API | `tests/api/` | ~28 | ~145 | Vitest |
-| Integration | `tests/integration/` | 1 | ~5 | Vitest (real DB) |
-| E2E | `tests/e2e/` | 1 | ~3 | Playwright |
-| **Total** | | **~77** | **~450+** | |
+| Unit | `tests/unit/` | ~75 | TBD | Vitest |
+| API | `tests/api/` | ~34 | TBD | Vitest |
+| Integration | `tests/integration/` | ~6 | TBD | Vitest (real DB) |
+| E2E | `tests/e2e/` | ~7 | TBD | Playwright |
+| **Total** | | **~122** | **TBD** | |
 
 ## Coverage Thresholds (vitest.config.ts)
 
@@ -153,7 +153,6 @@ tests/e2e/bout.spec.ts                  - Playwright
 
 **Coverage expansion candidates:**
 - `lib/tier.ts` (255 lines, complex branching)
-- `lib/free-bout-pool.ts` (126 lines, financial)
 - `lib/intro-pool.ts` (152 lines, financial)
 - `lib/leaderboard.ts` (324 lines, complex queries)
 - `lib/bout-engine.ts` (validation, turn loop, settlement)

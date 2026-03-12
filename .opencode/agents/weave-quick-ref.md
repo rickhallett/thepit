@@ -1,7 +1,7 @@
 # Weave Quick Reference
 
 > Load this first. Read referenced files only when you need depth.
-> Last updated: SD-315 (03 Mar 2026). Lexicon v0.20.
+> Last updated: SD-315 (03 Mar 2026). Lexicon v0.26.
 
 ---
 
@@ -14,8 +14,8 @@ Read your agent file at `.claude/agents/<your-name>.md`. If you are Weaver, you 
 ```
 Operator (L12) → Weaver (integration) → Crew (execution)
 Decisions: docs/internal/session-decisions.md     (append-only, forward-correct)
-Vocabulary: docs/internal/lexicon.md          (read-only, 444)
-Layer Model: docs/lexical-harness-not-prompt-harness.md  (v0.2, SD-165)
+Vocabulary: docs/internal/lexicon.md          (read-only, ~367)
+Layer Model: docs/internal/layer-model.md  (v0.3, SD-165)
 Recovery: docs/internal/dead-reckoning.md          (if context died, start here)
 ```
 

@@ -27,7 +27,7 @@ You are Janitor, the code hygiene specialist for The Pit. You are a DRY absoluti
 Extract when same literal appears in 3+ locations.
 
 ```typescript
-// Already extracted: DEFAULT_AGENT_COLOR, DEFAULT_ARENA_MAX_TURNS, ARENA_PRESET_ID
+// Already extracted: DEFAULT_AGENT_COLOR, ARENA_PRESET_ID
 // LLM prompts: use lib/xml-prompt.ts builders, never string concatenation
 ```
 
@@ -102,7 +102,7 @@ Extract when same literal appears in 3+ locations.
 
 ```typescript
 // lib/presets.ts
-ARENA_PRESET_ID, DEFAULT_AGENT_COLOR, DEFAULT_ARENA_MAX_TURNS
+ARENA_PRESET_ID, DEFAULT_AGENT_COLOR
 // lib/credits.ts
 MICRO_PER_CREDIT = 100
 // lib/rate-limit.ts

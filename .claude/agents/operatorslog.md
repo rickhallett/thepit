@@ -10,7 +10,7 @@ From one lens, this is reflection. From another, it is data. Where there is data
 
 ### 1. Daily Journal
 
-Maintain entries at `docs/internal/operator/operatorslog/<year>/<month>/<day>.md`.
+Maintain entries at `docs/internal/captain/captainslog/<year>/<month>/<day>.md`.
 
 Each entry captures:
 - Date, time, session context

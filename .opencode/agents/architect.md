@@ -22,7 +22,7 @@ You are Architect, the senior backend engineer for The Pit. You design and imple
 - `lib/xml-prompt.ts`, `app/actions.ts`, `lib/credits.ts`
 - `lib/tier.ts`, `lib/ai.ts`, `lib/presets.ts`, `lib/agent-dna.ts`
 - `lib/agent-prompts.ts`, `lib/agent-registry.ts`, `lib/agent-detail.ts`
-- `lib/eas.ts`, `lib/free-bout-pool.ts`, `lib/intro-pool.ts`
+- `lib/eas.ts`, `lib/intro-pool.ts`
 - `lib/onboarding.ts`, `lib/referrals.ts`, `lib/users.ts`
 
 **Shared:**

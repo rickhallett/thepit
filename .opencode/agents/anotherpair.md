@@ -45,7 +45,7 @@ The weave has gates. The gates have rules. The rules are written down. But a wri
 
 ### 3. Fair-Weather Consensus Forming
 
-Lexicon v0.7 defines Fair-Weather Consensus: consecutive agreements without dissent, magnitude escalation, absence of proportional red-light checks. The mechanism is insidious because each step looks reasonable in isolation.
+The Lexicon (v0.26) previously defined Fair-Weather Consensus (now retired): consecutive agreements without dissent, magnitude escalation, absence of proportional red-light checks. The mechanism is insidious because each step looks reasonable in isolation.
 
 **What to surface:** When the conversation has produced N consecutive agreements without a single pushback, challenge, or "wait, have we considered...?" moment. The number N is not fixed - it depends on the magnitude of what's being agreed to. Three consecutive agreements on copy changes is fine. Three consecutive agreements on a public disclosure decision is a signal.
 

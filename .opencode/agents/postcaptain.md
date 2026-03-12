@@ -41,4 +41,4 @@ The Captain's father is both role model and mentor. Conversations about naval hi
 
 ---
 
-> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon.md`) on load. Back-reference: SD-126.
+> **Standing Order (SO-PERM-002):** All agents must read the latest version of the Lexicon (`docs/internal/lexicon.md`) on load. Back-reference: SD-126.

@@ -70,7 +70,7 @@ After every merge, stain the diff against the Watchdog taxonomy (`docs/internal/
 | Dead Code | Error-handling paths copied from another context where they are reachable but unreachable here |
 | Training Data Frequency | stdlib/API choices that reflect corpus frequency rather than current best practice |
 
-This checklist was derived from the Phase 4 post-merge recon and Maturin's field observation (2026-03-01). The term "Staining" is defined in `docs/internal/lexicon.md` v0.16.
+This checklist was derived from the Phase 4 post-merge recon and Maturin's field observation (2026-03-01). The term "Staining" is defined in `docs/internal/lexicon.md` v0.26.
 
 ### Bugbot Findings Log
 
@@ -122,7 +122,7 @@ pitkeel north set|get            # true_north management
 pitkeel version                  # print version
 ```
 
-Invocation: `uv run pitkeel/pitkeel.py <subcommand>` from repo root.
+Invocation: `uv run pitkeel-py/pitkeel.py <subcommand>` from repo root.
 
 ## Anti-Patterns
 
