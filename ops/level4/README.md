@@ -1,11 +1,13 @@
 # Level 4 Thin Contract Integration
 
-This folder integrates `tspit` with the external `darkfactorio` Level-4 gate using a thin data contract.
+> **HISTORICAL:** This integration was built during the pilot study (tspit). References to `tspit` below are accurate for that context. The current repo is `thepit`.
+
+This folder integrates the application with the external `darkfactorio` Level-4 gate using a thin data contract.
 
 ## Why this exists
 
-- Keep `tspit` release runtime stable.
-- Avoid embedding darkfactory policy logic directly in `tspit`.
+- Keep the release runtime stable.
+- Avoid embedding darkfactory policy logic directly in the application.
 - Emit one deterministic NDJSON record per real run.
 - Evaluate runs with external, versioned `dfgatev01` criteria.
 

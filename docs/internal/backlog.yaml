@@ -42,14 +42,14 @@
   title: Check Signal compression claim against compressed natural language control
     (shorthand). Signal may hold up as style guidance with implicit syntax meaning,
     but hasn't faced adversarial pressure on the 4.5:1 compression ratio claim
-  status: open
+  status: closed
   priority: medium
   tags:
   - signal-research
   epic: null
   created: '2026-03-09T09:53:25.454394+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-12T14:00:00+00:00'
+  reason: 'Signal killed SD-321. Adversarial test completed SD-320: shorthand >= signal with 14% smaller size.'
 - id: BL-007
   title: 'Blog publish scheduler: script to flip draft=false on posts by date. Hugo
     renders future-dated draft=false pages only with buildFuture=true. Need either
@@ -114,14 +114,14 @@
   reason: 'Parked: complexity vs marginal gain. See docs/field-notes/2026-03-10-slopmop-pipe-filter-exploration.md'
 - id: BL-010
   title: Evaluate debian:bookworm-slim or wolfi as midget base image
-  status: open
+  status: closed
   priority: medium
   tags:
   - infra
   epic: null
   created: '2026-03-10T11:55:31.653612+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-12T14:00:00+00:00'
+  reason: 'Decided: using debian:bookworm-slim. Evaluation complete.'
 - id: BL-011
   title: capture and pipe used tokens for midgets back for observation
   status: open
