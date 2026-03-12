@@ -1,3 +1,7 @@
+> **SUPERSEDED:** This file is a legacy copy of the Layer Model. The canonical
+> version lives at `docs/internal/layer-model.md` (v0.3). This file is retained
+> for link stability but should not be referenced by new code or docs.
+
 # Agentic System Layer Model — Compressed Reference
 
 > The Map Is Not The Territory (SD-162, Lexicon v0.7 line 67).
