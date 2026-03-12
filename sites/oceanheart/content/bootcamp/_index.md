@@ -23,4 +23,4 @@ Total: 51 steps, ~208-259 hours. Not a weekend project - a practitioner's field 
 2. **Return per hour** - how much capability per unit of learning time?
 3. **Irreplaceability** - can an agent compensate for your ignorance, or must you understand it?
 
-Step I.1 is available now as a sample. The rest is in development.
+All 51 steps are written and published.

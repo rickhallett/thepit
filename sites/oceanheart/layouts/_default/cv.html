@@ -50,7 +50,7 @@ Gauntlet: gate+claude+openai+pitkeel+walkthrough @ 0ef104b0 [full]</code></pre>
 
     <div class="cv-artifact">
       <div class="cv-artifact-name">The Gauntlet</div>
-      <div class="desc">Multi-model adversarial review pipeline enforced as a git pre-commit hook. Codex, Gemini, and Grok independently red-team every code change against a structured adversarial prompt - three different model lineages so the review has independent priors, not correlated blind spots. Cryptographic attestations tied to git tree hashes - if the staged content changes after review, the attestation goes stale and the commit is blocked. Code does not enter the branch without surviving cross-model adversarial review and passing deterministic tests.</div>
+      <div class="desc">Multi-model adversarial review pipeline with attestations enforced at commit time via pre-commit hook. Claude, Codex, and Gemini independently red-team every code change against a structured adversarial prompt - three different model lineages so the review has independent priors, not correlated blind spots. Cryptographic attestations tied to git tree hashes - if the staged content changes after review, the attestation goes stale and the commit is blocked. Code does not enter the branch without surviving cross-model adversarial review and passing deterministic tests.</div>
     </div>
 
     <div class="cv-artifact">
@@ -60,7 +60,7 @@ Gauntlet: gate+claude+openai+pitkeel+walkthrough @ 0ef104b0 [full]</code></pre>
 
     <div class="cv-artifact">
       <div class="cv-artifact-name">Slopodar</div>
-      <div class="desc">Field taxonomy of LLM anti-patterns caught in the wild: epistemic theatre, paper guardrails, analytical lullabies, sycophantic drift. 40+ entries, each with detection heuristics, severity grading, and the story of how it was caught. Includes programmatic detectors that run on the <a href="/sloptics/">sloptics page</a> - the page annotates itself.</div>
+      <div class="desc">Field taxonomy of LLM anti-patterns caught in the wild: epistemic theatre, paper guardrails, analytical lullabies, sycophantic drift. 49 entries, each with detection heuristics, severity grading, and the story of how it was caught. Includes programmatic detectors that run on the <a href="/sloptics/">sloptics page</a> - the page annotates itself.</div>
     </div>
 
     <div class="cv-artifact">
@@ -76,7 +76,7 @@ Gauntlet: gate+claude+openai+pitkeel+walkthrough @ 0ef104b0 [full]</code></pre>
       <span class="period">2024-present</span>
       <div class="role">Senior Software Engineer</div>
       <div class="org">Oceanheart.ai</div>
-      <div class="desc">Building The Pit - a full-stack evaluation platform (Next.js, TypeScript, Python, Go). Shipping features against a public roadmap with CI/CD, adversarial code review, and 1,200+ tests. Solo developer mirroring full team practices: PRs, issue tracking, milestones, structured deployment. The <a href="https://github.com/rickhallett/thepit">repo is public</a>.</div>
+      <div class="desc">Building The Pit - a full-stack evaluation platform (Next.js, TypeScript, Python, Go). Shipping features against a public roadmap with CI/CD, adversarial code review, and 1,289 tests. Solo developer mirroring full team practices: PRs, issue tracking, milestones, structured deployment. The <a href="https://github.com/rickhallett/thepit">repo is public</a>.</div>
     </div>
 
     <div class="cv-entry">
@@ -156,7 +156,7 @@ Gauntlet: gate+claude+openai+pitkeel+walkthrough @ 0ef104b0 [full]</code></pre>
     <div class="cv-tech-group">
       <span class="cv-tech-label">Testing & quality</span>
       <div class="tech-tags">
-        {{ range (slice "Vitest" "Playwright" "Integration testing" "Adversarial code review" "1,200+ test suite") }}
+        {{ range (slice "Vitest" "Playwright" "Integration testing" "Adversarial code review" "1,289 test suite") }}
         <span class="tech-tag">{{ . }}</span>
         {{ end }}
       </div>
