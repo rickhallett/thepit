@@ -69,7 +69,7 @@ These are the complex, emerging fields the Operator has identified as requiring 
 - `docs/internal/session-decisions.md` - The decision trail (Weaver owns)
 - `docs/internal/lexicon.md` - The vocabulary (Weaver/Operator own)
 - `docs/lexical-harness-not-prompt-harness.md` - The layer model (Operator/Weaver own)
-- `.opencode/agents/*.md` - All agent definitions (Weaver owns)
+- `.claude/agents/*.md` - All agent definitions (Weaver owns)
 
 ## Standing Orders
 
