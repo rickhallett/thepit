@@ -18,7 +18,7 @@ pnpm run dev            # http://localhost:3000
 ## Stack
 
 - **Runtime:** Next.js 16, TypeScript (strict), React 19
-- **Database:** Neon Postgres, Drizzle ORM (12 tables, 241-line schema)
+- **Database:** Neon Postgres, Drizzle ORM (22 tables)
 - **Auth:** Clerk (SSO, role-based access)
 - **Payments:** Stripe (subscriptions, credit purchases, webhooks)
 - **AI:** Vercel AI SDK (multi-provider: OpenAI, Anthropic, Google, xAI)
@@ -32,7 +32,7 @@ pnpm run dev            # http://localhost:3000
 
 ```
 app/                    Next.js 16 app router (30+ routes)
-lib/                    Domain modules (bouts, credits, auth, agents, sharing, engagement, stripe)
+lib/                    Domain modules (flat files: credits.ts, bout-engine.ts, auth, agents, etc.)
   lib/api-utils.ts      Standardised API response/error handling
   lib/ai.ts             Multi-provider AI SDK configuration
 drizzle/                Schema, migrations
@@ -47,7 +47,7 @@ pitlinear/              Go - linear workflow automation
 pitkeel/                Go - developer telemetry and session tracking
 ```
 
-Each domain in `lib/` has a `DOMAIN.md` describing its boundaries and contracts. Tests are co-located: `module.test.ts` beside `module.ts`.
+Tests live in `tests/` with subdirectories for unit, integration, API, E2E, and simulation tests.
 
 ## Testing
 
