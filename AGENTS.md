@@ -75,6 +75,64 @@ pnpm run typecheck && pnpm run lint && pnpm run test
 
 If the gate fails, the change is not ready. The hull is survival; everything else is optimisation.
 
+### Pitcommit (Gauntlet Attestation)
+
+Manages verification attestations. The pre-commit hook calls `verify`; Makefile targets call `attest`. Tree hash (`git write-tree`) is the identity - it hashes staged content before the commit exists.
+
+Invocation: `python3 scripts/pitcommit.py <command>`
+
+```
+pitcommit status                                    # show all attestation state
+pitcommit tier --set <full|docs|wip|sudo>           # set tier for next commit
+pitcommit attest <step> [--tree H] [--verdict V] [--log P]  # write attestation
+pitcommit verify                                    # check attestations (called by pre-commit hook)
+pitcommit invalidate                                # clear all attestations
+pitcommit trailer                                   # generate commit message trailer
+sudo pitcommit walkthrough                          # Operator attestation (requires sudo)
+```
+
+**Steps:** gate, dc-claude, dc-openai, dc-gemini, synth, pitkeel, walkthrough
+
+**Tiers and what they require:**
+
+| Tier | Required steps | When to use |
+|------|---------------|-------------|
+| full | gate, dc-claude, dc-openai, pitkeel, walkthrough | Code changes (default) |
+| docs | gate, pitkeel | Docs/content only |
+| wip | gate, pitkeel | Work in progress |
+| sudo | gate | Emergency bypass |
+
+**Typical flow:**
+
+1. Stage changes: `git add <files>`
+2. Set tier if not code: `pitcommit tier --set docs`
+3. Run pipeline: `make gauntlet` (or `make darkcat-all` for just adversarial review)
+4. Walkthrough: `sudo python3 scripts/pitcommit.py walkthrough`
+5. Commit: `git commit -m "..."` - pre-commit hook calls `pitcommit verify`
+
+**Key behaviours:**
+- Attestations are tied to tree hash. If staged content changes after review, attestations go stale and the commit is blocked.
+- `--verdict` accepts: pass, fail, pass_with_findings, unknown
+- `--log` auto-parses verdict from darkcat log output
+- Tier auto-detects from staged file types if not set explicitly (all .md files = docs tier)
+- `.gauntlet/` directory is gitignored - attestations are ephemeral, per-machine state
+- `--no-verify` on git commit bypasses the hook (emergency only, logged)
+
+**Makefile integration:**
+
+```
+make gate              # run tests (Docker container suite)
+make darkcat           # DC-1 adversarial review (Claude)
+make darkcat-openai    # DC-2 (Codex)
+make darkcat-gemini    # DC-3 (Gemini)
+make darkcat-all       # DC pair in parallel (Claude + Codex)
+make darkcat-synth     # convergence synthesis (requires all 3 DC logs)
+make darkcat-ref REF=<commit>  # ad-hoc review of specific commit
+make gauntlet          # full pipeline: gate -> darkcat-all -> pitkeel
+make gauntlet TIER=docs  # docs tier: gate -> pitkeel only
+make install-hooks     # symlink pre-commit + prepare-commit-msg
+```
+
 ---
 
 ## The Engineering Loop
