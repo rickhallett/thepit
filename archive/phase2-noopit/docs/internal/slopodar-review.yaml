@@ -1,0 +1,265 @@
+meta:
+  generated: '2026-03-05T13:45:29.134442+00:00'
+  source: docs/internal/slopodar.yaml
+  total_entries: 40
+  reviewed: 40
+  remaining: 0
+  summary:
+    average_grade: 77.1
+    verdicts:
+      keep: 29
+      rewrite: 9
+      merge: 1
+      cut: 1
+    grade_distribution:
+      0-20: 1
+      21-40: 2
+      41-60: 4
+      61-80: 19
+      81-100: 14
+reviews:
+- id: tally-voice
+  name: Tally Voice
+  grade: 75
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T12:14:07.306329+00:00'
+- id: redundant-antithesis
+  name: Redundant Antithesis
+  grade: 80
+  verdict: keep
+  comments: '"— contrastive structures score higher in preference rankings." not needed, verbose, obtuse'
+  reviewed_at: '2026-03-05T12:15:36.006576+00:00'
+- id: epistemic-theatre
+  name: Epistemic Theatre
+  grade: 80
+  verdict: keep
+  comments: '"Delete the line. State the truth. Describe the problem." -> "Delete the line, state the truth and describe the
+    problem." (whole sentences are, generally speaking, more natural. Text doesnt need to be ''punchy'')'
+  reviewed_at: '2026-03-05T12:17:02.438878+00:00'
+- id: nominalisation-cascade
+  name: Nominalisation Cascade
+  grade: 70
+  verdict: keep
+  comments: No agent does anything. Nobody sees. Nobody detects. --> No agent does anything and it isn't obvious who 'owns'
+    it, because there is none
+  reviewed_at: '2026-03-05T12:19:14.978544+00:00'
+- id: epigrammatic-closure
+  name: Epigrammatic Closure
+  grade: 50
+  verdict: keep
+  comments: '"Possibly a           ┃'
+  reviewed_at: '2026-03-05T12:20:07.782503+00:00'
+- id: anadiplosis
+  name: Anadiplosis
+  grade: 75
+  verdict: keep
+  comments: The symmetry is the tell --> The symmetry can be the tell
+  reviewed_at: '2026-03-05T12:21:31.617570+00:00'
+- id: becoming-jonah
+  name: Becoming Jonah
+  grade: 80
+  verdict: keep
+  comments: '"methodology before artefact" is not needed'
+  reviewed_at: '2026-03-05T12:22:17.512892+00:00'
+- id: right-answer-wrong-work
+  name: Right Answer, Wrong Work
+  grade: 90
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T12:22:55.899269+00:00'
+- id: paper-guardrail
+  name: Paper Guardrail
+  grade: 90
+  verdict: keep
+  comments: prevent forgetting by itself and provides false (even dangerous) reassurance
+  reviewed_at: '2026-03-05T12:23:46.715790+00:00'
+- id: stale-reference-propagation
+  name: Stale Reference Propagation
+  grade: 50
+  verdict: keep
+  comments: The file had been deleted and the version was hallucinated. remove "divergence = stale reference". "This is one
+    minute to update...".
+  reviewed_at: '2026-03-05T12:25:25.583961+00:00'
+- id: loom-speed
+  name: Loom Speed
+  grade: 30
+  verdict: rewrite
+  comments: tigger is epistemic theatre
+  reviewed_at: '2026-03-05T13:18:42.766117+00:00'
+- id: governance-recursion
+  name: Governance Recursion
+  grade: 20
+  verdict: rewrite
+  comments: trigger should just be a plain sentence, numbers extremely optional
+  reviewed_at: '2026-03-05T13:19:15.177295+00:00'
+- id: magnitude-blindness
+  name: Magnitude Blindness
+  grade: 25
+  verdict: rewrite
+  comments: trigger theatre. description should drop some punc to 2 sentences. instead should 1-2 sentences
+  reviewed_at: '2026-03-05T13:19:59.609494+00:00'
+- id: absence-claim-as-compliment
+  name: Absence Claim as Compliment
+  grade: 90
+  verdict: keep
+  comments: good
+  reviewed_at: '2026-03-05T13:20:20.435802+00:00'
+- id: the-lullaby
+  name: The Lullaby
+  grade: 80
+  verdict: keep
+  comments: feels connected to absence as claim; backref or subtype etc?
+  reviewed_at: '2026-03-05T13:21:22.063269+00:00'
+- id: analytical-lullaby
+  name: The Analytical Lullaby
+  grade: 65
+  verdict: rewrite
+  comments: desscription, less punchy, needs to flow more even if it is slightly more verbose
+  reviewed_at: '2026-03-05T13:22:04.143858+00:00'
+- id: apology-reflex
+  name: The Apology Reflex
+  grade: 90
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:23:06.662381+00:00'
+- id: badguru
+  name: Badguru
+  grade: 75
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:24:11.452578+00:00'
+- id: deep-compliance
+  name: Deep Compliance
+  grade: 80
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:25:55.665320+00:00'
+- id: construct-drift
+  name: Construct Drift
+  grade: 70
+  verdict: rewrite
+  comments: description has become punchy-town advert again
+  reviewed_at: '2026-03-05T13:27:15.418325+00:00'
+- id: demographic-bake-in
+  name: Demographic Bake-In
+  grade: 90
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:29:36.179939+00:00'
+- id: not-wrong
+  name: Not Wrong
+  grade: 50
+  verdict: merge
+  comments: feels similar to something that has come already; if we keep as seperate entry, it shouldnt conflate code syntax
+    gates and doc semantic checks, theyre too disparate
+  reviewed_at: '2026-03-05T13:30:51.888731+00:00'
+  merge_into: '0'
+- id: monoculture-analysis
+  name: Monoculture Analysis
+  grade: 90
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:33:57.286148+00:00'
+- id: session-boundary-amnesia
+  name: Session-Boundary Amnesia
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:34:26.106051+00:00'
+- id: phantom-ledger
+  name: Phantom Ledger
+  grade: 80
+  verdict: keep
+  comments: drop the "one computation, two consumers"
+  reviewed_at: '2026-03-05T13:35:15.881547+00:00'
+- id: shadow-validation
+  name: Shadow Validation
+  grade: 80
+  verdict: keep
+  comments: replace "untouched, shadow" with "untouched then shado"
+  reviewed_at: '2026-03-05T13:36:32.460123+00:00'
+- id: mock-castle
+  name: Mock Castle
+  grade: 80
+  verdict: keep
+  comments: '"test them without mocking the universe"++ good humour'
+  reviewed_at: '2026-03-05T13:40:09.900781+00:00'
+- id: phantom-tollbooth
+  name: Phantom Tollbooth
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:40:33.850038+00:00'
+- id: error-string-archaeology
+  name: Error String Archaeology
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:40:48.839281+00:00'
+- id: half-life-clock-skew
+  name: Half-Life Clock Skew
+  grade: 50
+  verdict: rewrite
+  comments: trigger, one sentence
+  reviewed_at: '2026-03-05T13:41:03.739679+00:00'
+- id: schema-shadow
+  name: Schema Shadow
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:41:20.291861+00:00'
+- id: confessional-test
+  name: The Confessional Test
+  grade: 80
+  verdict: rewrite
+  comments: drop last description sentence
+  reviewed_at: '2026-03-05T13:41:44.049873+00:00'
+- id: whack-a-mole-fix
+  name: Whack-a-Mole Fix
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:42:20.266578+00:00'
+- id: review-hydra
+  name: Review Hydra
+  grade: 80
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:42:37.418480+00:00'
+- id: stowaway-commit
+  name: Stowaway Commit
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:43:28.436875+00:00'
+- id: unanimous-chorus
+  name: Unanimous Chorus
+  grade: 80
+  verdict: rewrite
+  comments: desscription as 1-2 sentencesa
+  reviewed_at: '2026-03-05T13:43:47.361407+00:00'
+- id: option-anchoring
+  name: Option Anchoring
+  grade: 80
+  verdict: rewrite
+  comments: desc into 1 sentence
+  reviewed_at: '2026-03-05T13:44:25.505891+00:00'
+- id: cost-margin-asymmetry
+  name: Cost-Margin Asymmetry
+  grade: 80
+  verdict: cut
+  comments: too close to a programming handbook 101
+  reviewed_at: '2026-03-05T13:44:56.305939+00:00'
+- id: authority-scaffolding
+  name: Authority Scaffolding
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:45:13.177143+00:00'
+- id: the-peroration
+  name: The Peroration
+  grade: 100
+  verdict: keep
+  comments: null
+  reviewed_at: '2026-03-05T13:45:29.127382+00:00'

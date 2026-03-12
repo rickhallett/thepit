@@ -1,0 +1,52 @@
+- id: BL-001
+  title: Migrate Makefile to justfile
+  status: open
+  priority: medium
+  tags:
+  - housekeeping
+  epic: null
+  created: '2026-03-08T15:41:52.485496+00:00'
+  closed: null
+  reason: null
+- id: BL-002
+  title: Daemon integration tests for two-phase shutdown
+  status: open
+  priority: low
+  tags:
+  - testing
+  epic: E1
+  created: '2026-03-08T15:41:52.544237+00:00'
+  closed: null
+  reason: null
+- id: BL-003
+  title: 'Darkcat finding: daemon exits even when shutdown command fails'
+  status: open
+  priority: medium
+  tags:
+  - bugfix
+  epic: E1
+  created: '2026-03-08T15:41:52.605071+00:00'
+  closed: null
+  reason: null
+- id: BL-004
+  title: Migrate pnpm to bun (pair with Just migration)
+  status: open
+  priority: medium
+  tags:
+  - housekeeping
+  epic: null
+  created: '2026-03-08T15:52:48.640667+00:00'
+  closed: null
+  reason: null
+- id: BL-005
+  title: Check Signal compression claim against compressed natural language control
+    (shorthand). Signal may hold up as style guidance with implicit syntax meaning,
+    but hasn't faced adversarial pressure on the 4.5:1 compression ratio claim
+  status: open
+  priority: medium
+  tags:
+  - signal-research
+  epic: null
+  created: '2026-03-09T09:53:25.454394+00:00'
+  closed: null
+  reason: null

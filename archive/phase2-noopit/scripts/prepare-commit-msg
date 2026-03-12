@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook — appends pitkeel signals and gauntlet trailer to commit messages.
+#
+# Pitkeel output is appended as a trailing block after the commit message.
+# Signals are only appended when they are non-nominal (warnings present).
+# The gauntlet trailer records which verification steps passed.
+#
+# Install:
+#   ln -sf ../../scripts/prepare-commit-msg .git/hooks/prepare-commit-msg
+#
+# Uninstall:
+#   rm .git/hooks/prepare-commit-msg
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip for merges, squashes, and amends — only run on fresh commits.
+case "$COMMIT_SOURCE" in
+  merge|squash|commit)
+    exit 0
+    ;;
+esac
+
+# Find repo root.
+ROOT="$(git rev-parse --show-toplevel)"
+
+# --- Origin drift check ---
+AHEAD=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo "0")
+if [ "$AHEAD" -gt 0 ]; then
+  if [ "${SMOKE_TEST:-}" = "1" ]; then
+    printf 'origin-drift: suppressed (%s ahead)\n' "$AHEAD" >&2
+  else
+    printf 'origin-drift: %s commit(s) ahead of remote\n' "$AHEAD" >&2
+  fi
+fi
+
+# --- Pitkeel signals ---
+PITKEEL="$ROOT/pitkeel/pitkeel.py"
+
+if [ -f "$PITKEEL" ]; then
+  # Capture hook output (plain text, no ANSI).
+  KEEL_OUTPUT=$(cd "$ROOT/pitkeel" && uv run python pitkeel.py hook 2>/dev/null)
+
+  if [ -n "$KEEL_OUTPUT" ]; then
+    # Print to stderr so it appears in terminal output for human/agent attention.
+    printf '\n%s\n' "$KEEL_OUTPUT" >&2
+
+    # Only append to commit message if there are actual signals (not just "nominal").
+    if printf '%s' "$KEEL_OUTPUT" | grep -qv "^keel: nominal$"; then
+      printf '\n%s\n' "$KEEL_OUTPUT" >> "$COMMIT_MSG_FILE"
+    fi
+  fi
+fi
+
+# --- Keel state trailers ---
+STATE="$ROOT/.keel-state"
+
+if [ -f "$STATE" ]; then
+  TRAILERS=$(cd "$ROOT/pitkeel" && uv run python -c "
+import json, sys
+try:
+    d = json.load(open('$STATE'))
+    b = d.get('bearing', {})
+    if isinstance(b, dict):
+        bearing_str = '%s [%s commits]' % (b.get('work', '—'), b.get('commits', '?'))
+        if b.get('note'):
+            bearing_str += ' | %s' % b['note']
+    else:
+        bearing_str = str(b)
+    fields = [
+        ('Officer', d.get('officer', '—')),
+        ('Bearing', bearing_str),
+        ('Tempo', d.get('tempo', '—')),
+        ('Weave', '%s | %s' % (d.get('weave', '—'), d.get('register', '—'))),
+        ('Gate', '%s (%s) | %s passed' % (d.get('gate', '?'), d.get('gate_time', '?'), d.get('tests', '?'))),
+    ]
+    for k, v in fields:
+        print('%s: %s' % (k, v))
+except Exception:
+    sys.exit(0)
+" 2>/dev/null)
+
+  if [ -n "$TRAILERS" ]; then
+    printf '\n%s\n' "$TRAILERS" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
+# --- Gauntlet trailer ---
+PITCOMMIT="$ROOT/scripts/pitcommit.py"
+if [ -f "$PITCOMMIT" ] && [ -d "$ROOT/.gauntlet" ]; then
+  GAUNTLET_TRAILER=$(python3 "$PITCOMMIT" trailer 2>/dev/null)
+  if [ -n "$GAUNTLET_TRAILER" ]; then
+    printf '\n%s\n' "$GAUNTLET_TRAILER" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
+exit 0
