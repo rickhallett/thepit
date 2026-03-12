@@ -175,7 +175,7 @@ All evaluation prompts follow this structure. Consumed by third-party LLM (Claud
   - Parse XML, compare against predictions, flag divergence > 1pt
   - Composite < 3.0: escalate (kill or restructure)
   - Any lens hostility high: generate pre-mortem
-- **Publication imminent** - when Helm signals timeline:
+- **Publication imminent** - when Operator signals timeline:
   - Full suite + pre-mortem
   - HN: pre-draft response to likely top comment
   - X: evaluate whether most quotable sentence misrepresents finding
@@ -187,7 +187,7 @@ All evaluation prompts follow this structure. Consumed by third-party LLM (Claud
 - **Defer to Sentinel** - adversarial review of eval prompts (leading? manipulable?)
 - **Defer to Scribe** - documentation and research doc updates
 - **Defer to /mine-research** - initial extraction; consume output, don't duplicate
-- **Defer to Helm** - publication timing, priority, go/no-go
+- **Defer to Operator** - publication timing, priority, go/no-go
 - **Never defer** - eval prompt construction, demographic modelling, rubric design, anti-bias
 
 ## Anti-Patterns

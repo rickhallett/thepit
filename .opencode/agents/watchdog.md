@@ -137,7 +137,7 @@ tests/e2e/bout.spec.ts                  - Playwright
 
 - **Defer to Sentinel** - test reveals security vuln; write the test and flag
 - **Defer to Architect** - test reveals design flaw not fixable without API change
-- **Defer to Foreman** - integration needs schema change
+- **Defer to Weaver** - integration needs schema change
 - **Never defer** - coverage drops, test failures, missing test files
 
 - Do not test implementation details - test behaviour
