@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
 
 concurrency:
@@ -118,7 +118,7 @@ jobs:
           pnpm run level4:emit -- \
             --window "$WINDOW_ID" \
             --run "$RUN_ID" \
-            --pipeline "tspit-ci-integration" \
+            --pipeline "thepit-ci-integration" \
             --class medium_integration \
             --qa qa/results/latest.json \
             --decision approved \
@@ -177,7 +177,7 @@ jobs:
         run: pnpm run security:scan
         continue-on-error: true  # scan targets live endpoints; may fail in CI without running server
 
-  # Single required check — aggregates all job results.
+  # Single required check - aggregates all job results.
   # Passes when: all code jobs passed, OR all were skipped (docs-only).
   # Fails when: any code job that ran has failed.
   ci-gate:
@@ -197,11 +197,11 @@ jobs:
           echo "  go-gate:     ${{ needs.go-gate.result }}"
           echo "  security:    ${{ needs.security.result }}"
 
-          # Fail if any job failed (not skipped, not cancelled — failed)
+          # Fail if any job failed (not skipped, not cancelled - failed)
           RESULTS="${{ needs.lint.result }} ${{ needs.typecheck.result }} ${{ needs.test-unit.result }} ${{ needs.integration.result }} ${{ needs.go-gate.result }} ${{ needs.security.result }}"
           for result in $RESULTS; do
             if [ "$result" = "failure" ]; then
-              echo "::error::CI gate failed — one or more jobs reported failure"
+              echo "::error::CI gate failed - one or more jobs reported failure"
               exit 1
             fi
           done

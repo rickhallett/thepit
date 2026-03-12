@@ -1,5 +1,7 @@
 # The Pit
 
+![CI](https://github.com/rickhallett/thepit/actions/workflows/ci.yml/badge.svg)
+
 A real-time AI debate arena. Language models argue structured debates while the platform generates behavioural data, tracks agent lineage, and lets users vote on outcomes.
 
 Users pick debate presets (16 formats), watch agents argue in real-time via SSE, vote on winners, and react to individual turns. Agent cloning, DNA hashing, credit economy, demo mode, BYOK for subscribers.
