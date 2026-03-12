@@ -1,8 +1,12 @@
 # The Pit
 
+![CI](https://github.com/rickhallett/thepit/actions/workflows/ci.yml/badge.svg)
+
 A real-time AI debate arena. Language models argue structured debates while the platform generates behavioural data, tracks agent lineage, and lets users vote on outcomes.
 
 Users pick debate presets (16 formats), watch agents argue in real-time via SSE, vote on winners, and react to individual turns. Agent cloning, DNA hashing, credit economy, demo mode, BYOK for subscribers.
+
+**1,289 tests | 96% coverage | TypeScript strict | zero lint errors**
 
 Live at [thepit.cloud](https://thepit.cloud).
 
@@ -15,6 +19,8 @@ pnpm install
 pnpm run dev            # http://localhost:3000
 ```
 
+Standard tooling works without the Go CLI layer or the governance infrastructure.
+
 ## Stack
 
 - **Runtime:** Next.js 16, TypeScript (strict), React 19
@@ -26,7 +32,6 @@ pnpm run dev            # http://localhost:3000
 - **Monitoring:** Sentry, PostHog
 - **Styling:** Tailwind CSS
 - **Deployment:** Vercel
-- **CLI tools:** 8 Go binaries (pitstorm, pitctl, pitforge, pitlab, pitnet, pitbench, pitlinear, pitkeel)
 
 ## Architecture
 
@@ -37,17 +42,8 @@ lib/                    Domain modules (flat files: credits.ts, bout-engine.ts, 
   lib/ai.ts             Multi-provider AI SDK configuration
 drizzle/                Schema, migrations
 components/             React components (shadcn/ui base)
-pitstorm/               Go - debate orchestration CLI
-pitctl/                 Go - admin operations
-pitforge/               Go - agent prompt engineering
-pitlab/                 Go - local dev environment
-pitnet/                 Go - network diagnostics
-pitbench/               Go - performance benchmarking
-pitlinear/              Go - linear workflow automation
-pitkeel/                Go - developer telemetry and session tracking
+tests/                  Unit, integration, API, E2E, and simulation tests
 ```
-
-Tests live in `tests/` with subdirectories for unit, integration, API, E2E, and simulation tests.
 
 ## Testing
 
@@ -58,6 +54,21 @@ pnpm run lint           # ESLint, zero errors
 ```
 
 The gate (typecheck + lint + test) must pass before any merge.
+
+## Optional CLI Toolchain
+
+Eight Go binaries for orchestration, admin, and dev tooling. These are supplementary - the application runs without them.
+
+```
+pitstorm/               Debate orchestration CLI
+pitctl/                 Admin operations
+pitforge/               Agent prompt engineering
+pitlab/                 Local dev environment
+pitnet/                 Network diagnostics
+pitbench/               Performance benchmarking
+pitlinear/              Linear workflow automation
+pitkeel/                Developer telemetry and session tracking
+```
 
 ## Development History
 
