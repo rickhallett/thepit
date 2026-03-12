@@ -65,6 +65,67 @@ backlog count [-s open]               # count by status
 
 Data: `docs/internal/backlog.yaml` | IDs: `BL-NNN` (auto-incremented)
 
+### GitHub Workflow
+
+GitHub Issues and PRs are the primary external-facing record of engineering discipline. Every feature, bug fix, and refactor flows through this system. This is not optional process - it is the mechanism by which the work becomes legible to anyone evaluating this codebase.
+
+**Issues:**
+
+- Every feature branch references an issue number in the branch name: `feat/42-custom-arena-builder`
+- Issues are the single source of work items for external-visible work (internal backlog stays in `backlog.yaml`)
+- Issue body includes: user-facing problem, acceptance criteria, scope boundary
+- Estimates use **complexity** (low/medium/high) and **risk** (low/medium/high), never time. LLM time estimates are trained on non-AI-assisted convention metrics - they are stale, inaccurate, and have no value.
+- Labels: `feature`, `bug`, `refactor`, `chore`, `tech-debt`, `infra`, `portfolio`, `research`, `platform`, `community`, `blocked`, `needs-audit`
+- Milestones are feature-based (e.g. `v0.2-arena-builder`, `v0.3-creator-profiles`), not time-based
+
+**Branches:**
+
+- `main` is protected. No direct commits.
+- All work on feature branches: `feat/`, `fix/`, `refactor/`, `chore/`
+- Default to `git worktree` for parallel development:
+  ```
+  git worktree add -b feat/42-arena-builder ../thepit-42-arena-builder main
+  ```
+  This allows multiple features in progress simultaneously without stashing or context switching. Each worktree is a separate directory with its own working tree. Clean up after merge: `git worktree remove ../thepit-42-arena-builder`
+
+**PRs:**
+
+- 1 PR = 1 concern. If a PR has more than 1 concern, decompose.
+- **Squash merge** to keep main history clean and scannable.
+- PR description written for an external reader (assume a senior engineer evaluating your work):
+  - What the feature does (1-2 sentences, product language)
+  - Technical decisions and why
+  - What was tested
+  - Screenshots/GIFs for UI changes
+  - Known limitations or follow-up work
+- Review attestation in PR body or comments (adversarial review trailers are evidence of rigour)
+- Commit messages on feature branches can be granular (WIP is fine on branches)
+- Squash merge message follows market-proof format:
+  ```
+  feat(bouts): add real-time score updates via SSR polling
+
+  - Implement 5s polling interval with stale-while-revalidate
+  - Add score animation on delta change
+  - Handle disconnection gracefully with retry + fallback
+  - 12 new tests covering polling lifecycle and error states
+
+  Tests: 14/14 passed
+  Reviewed-by: dc-claude, dc-openai
+  Gate: typecheck + lint + test = green
+  ```
+
+**Workflow sequence:**
+
+```
+issue created -> worktree from main -> develop -> gate locally -> PR -> review -> squash merge -> post-merge verify -> close issue -> remove worktree
+```
+
+**CI/CD:**
+
+- GitHub Actions runs on PR: lint + typecheck + test (minimal gate)
+- Badges in README for build status
+- The local gate remains primary; CI is backstop verification
+
 ---
 
 ## The Gate (The Hull)

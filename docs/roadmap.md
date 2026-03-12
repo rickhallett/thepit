@@ -1,40 +1,42 @@
 # Roadmap
 
-What we're shipping. Platform and research tracks running in parallel.
+What we're shipping. Three tracks running in parallel. Source of truth: `app/roadmap/page.tsx`.
 
-Sourced from `app/roadmap/page.tsx`.
+## Platform - Core arena infrastructure
+- [x] Multi-agent streaming engine (SSE with turn-by-turn delivery)
+- [x] Credits + intro pool (micro-credit economy with community pool drain)
+- [x] Shareable replays (permalink bouts with short link sharing)
+- [x] Voting + leaderboard (per-bout winner votes, global rankings)
+- [x] Arena presets (11 free presets, 11 premium scenarios)
+- [x] BYOK model support (bring your own Anthropic key)
+- [x] Response length + format controls (short/standard/long, plain/verse/roast)
+- [ ] Custom arena builder (pick agents, set rules, launch bouts)
+- [ ] Vercel AI Gateway (BYOK users choose any LLM via Vercel AI Gateway)
+- [ ] Multi-model routing (route different agents to different models)
+- [ ] Tournament brackets (elimination-style multi-round events)
+- [ ] Ask The Pit (AI-powered FAQ chat using project documentation)
+- [ ] Spectator chat (live commentary during streaming bouts)
 
-## Launch (Completed)
-- [x] Credits + intro pool
-- [x] Shareable replays (`/b/[id]`)
-- [x] Voting + leaderboard
-- [x] Arena presets (22 scenarios)
-- [x] Contact form + newsletter signup
-- [x] Security hardening (2x adversarial reviews)
+## Community - Creator tools and social layer
+- [x] Agent DNA + hashing (SHA-256 identity hashing for every agent)
+- [x] Structured agent builder (archetype, tone, quirks, goals, fears)
+- [x] Prompt lineage tracking (parent/child agent genealogy)
+- [x] Remix rewards (credits for remixing and being remixed)
+- [ ] On-chain EAS attestation (125 dev attestations on Base L2; prod pipeline not yet enabled)
+- [ ] Creator profiles (public pages with agent portfolio and stats)
+- [ ] Agent marketplace (browse, fork, and trade agent prompts)
+- [ ] Social graph (follow creators, get notified on new agents)
+- [ ] Collaborative agents (multi-author agent construction)
+- [ ] Community moderation (flag and vote on agent quality)
+- [ ] Seasonal rankings (monthly leaderboard resets with rewards)
 
-## Platform (In Progress)
-- [x] Structured agent builder (4-tab form)
-- [x] Prompt lineage tracking (parentId + DNA hashing)
-- [x] Feature request system (submission + voting)
-- [x] Short links for bout sharing with click analytics
-- [x] Agent remix tracking with reward payouts
-- [x] Research data exports with PII anonymization
-- [x] Reaction toggle (heart/fire with optimistic revert)
-- [x] Enhanced share text formatting (delimiters, topic prominence, agent emphasis)
-- [x] Public bout feed (`/recent` — paginated recent bouts)
-- [x] Agent refusal detection and character-stay prompt strengthening
-- [x] 12 high-DNA standalone arena agents
-- [x] Re-roll completed bouts with tweaked parameters
-- [x] Per-message X/Twitter single-turn share
-- [ ] Multi-model routing (BYOK any LLM)
-- [ ] Tournament brackets
-- [ ] Spectator chat
-- [ ] Seasonal rankings
-- [ ] Creator profiles
-
-## Research (Planned)
-- [ ] Public dataset exports
-- [ ] Behavioral insights dashboard
-- [ ] Peer-reviewed paper
+## Research - Data, insights, and publication
+- [x] Behavioral data capture (turn-level transcript + reaction logging)
+- [x] Anonymized export pipeline (salted hashes, consent-ready schema)
+- [ ] Public dataset exports (pipeline built; first dataset pending sufficient bout data)
+- [ ] Behavioral insights dashboard (aggregate persona dynamics visualization)
+- [ ] Cross-model comparison (same prompts, different models, measured delta)
+- [ ] Peer-reviewed paper (multi-agent persona emergence in constrained debate)
+- [ ] Open API for researchers (programmatic access to anonymized data)
 
 Full interactive roadmap at [thepit.cloud/roadmap](https://thepit.cloud/roadmap).
