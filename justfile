@@ -245,7 +245,7 @@ darkcat-synth harness="claude": setup
     if [ ! -f {{ logs_dir }}/dc-{{ tree }}-claude.log ] || \
        [ ! -f {{ logs_dir }}/dc-{{ tree }}-openai.log ] || \
        [ ! -f {{ logs_dir }}/dc-{{ tree }}-gemini.log ]; then
-        echo "ERROR: missing DC logs for {{ tree }}. Run 'just darkcat-all' first."; exit 1
+        echo "ERROR: missing DC logs for {{ tree }}. Run 'just darkcat', 'just darkcat-openai', and 'just darkcat-gemini' first."; exit 1
     fi
     case "{{ harness }}" in
         claude)
@@ -332,9 +332,15 @@ gauntlet-crew:
 
 [private]
 gauntlet-pitkeel:
-    @echo ">> Pitkeel signals"
-    cd pitkeel && uv run python pitkeel.py
-    {{ pitcommit }} attest pitkeel --tree {{ tree_full }} --verdict pass
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo ">> Pitkeel signals"
+    if (cd pitkeel && uv run python pitkeel.py); then
+        {{ pitcommit }} attest pitkeel --tree {{ tree_full }} --verdict pass
+    else
+        {{ pitcommit }} attest pitkeel --tree {{ tree_full }} --verdict fail
+        exit 1
+    fi
 
 gauntlet tier="full":
     #!/usr/bin/env bash
