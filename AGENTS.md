@@ -131,7 +131,7 @@ issue created -> worktree from main -> develop -> gate locally -> PR -> review -
 ## The Gate (The Hull)
 
 ```bash
-pnpm run typecheck && pnpm run lint && pnpm run test
+pnpm run test:ci
 ```
 
 If the gate fails, the change is not ready. The hull is survival; everything else is optimisation.
@@ -288,9 +288,9 @@ last_known_position: <last completed task>
 | Analyst | research, prior art, landscape analysis |
 | AnotherPair | subtle process observation, slop detection |
 
-Agent files: `.claude/agents/{role}.md`
+Agent files: `.opencode/agents/{role}.md` (canonical). `.claude/agents/` contains symlinks for harness compat.
 
-Also on disk (not active crew): `scribe.md`, `maturin.md`, `operatorslog.md`, `weave-quick-ref.md`.
+Also on disk (not active crew): `scribe.md`, `maturin.md`, `operatorslog.md`, `weave-quick-ref.md`, `quartermaster.md`, `postcaptain.md`, `captainslog.md`.
 
 ---
 
@@ -622,32 +622,64 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 
 ```
 / (repo root)
-├── AGENTS.md                       -- THIS FILE (auto-loaded, canonical)
-├── CLAUDE.md                       -- Symlink -> AGENTS.md (harness compat)
-├── justfile                        -- build orchestration (just)
-├── .claude/agents/*.md             -- Symlinks -> .opencode/agents/ (harness compat)
-├── .opencode/agents/*.md           -- Agent identity files (canonical copies)
-├── lib/                            -- Source code (flat files, no subdirectories)
-├── tests/                          -- Unit, integration, API tests
-├── docs/                           -- D1-D3 documentation
-│   ├── decisions/SD-*.md           -- Session-scoped decisions
-│   ├── weaver/                     -- Signal PoC, decode tests, reasoning tests
-│   ├── strategy/                   -- Landscape scans, convergence analysis
-│   ├── research/                   -- Cross-model prompt (D3+ Operator only)
-│   ├── field-notes/                -- Field observations
-│   ├── operator/voice/              -- Voice logs, transcripts, digests
-│   └── internal/                   -- Operational (verbose versions, full chain)
-│       ├── lexicon.md              -- Full verbose lexicon v0.20
-│       ├── layer-model.md          -- Full verbose layer model v0.3
-│       ├── slopodar.yaml           -- Full anti-pattern taxonomy (49 entries)
-│       ├── session-decisions.md    -- Chain SD-031-SD-036 (this repo; pilot chain in thepit-pilot)
-│       ├── session-decisions-index.yaml  -- Last 10 SDs + standing orders
-│       ├── boot-sequence.md        -- Legacy boot manifest (superseded by this file)
-│       ├── dead-reckoning.md       -- Blowout recovery protocol
-│       ├── events.yaml            -- Event log spine (SD-316, migrated from TSV)
-│       └── weaver/catch-log.tsv   -- Control firing events (date, control, what, outcome)
-├── sites/oceanheart/               -- Hugo site (oceanheart.ai CV, about, research)
-├── .gauntlet/                      -- Attestation files (gitignored, per-step verification state)
+|-- AGENTS.md                       -- THIS FILE (auto-loaded, canonical)
+|-- CLAUDE.md                       -- Symlink -> AGENTS.md (harness compat)
+|-- justfile                        -- build orchestration (just)
+|-- package.json                    -- Node deps, scripts (test:ci, test:unit, etc.)
+|-- app/                            -- Next.js app router (pages, API routes)
+|-- lib/                            -- Source code (lib/eval/ is the one subdirectory)
+|-- components/                     -- React components
+|-- shared/                         -- Shared types and utilities
+|-- db/                             -- Drizzle schema and database config
+|-- drizzle/                        -- Drizzle migrations
+|-- presets/                        -- Arena format preset JSON files
+|-- tests/                          -- Unit, integration, API, e2e, simulation tests
+|-- scripts/                        -- pitcommit.py, pre-commit hook, darkcat.md
+|-- bin/                            -- CLI tools (triangulate parser)
+|-- pitkeel-py/                     -- Pitkeel Python CLI (pitkeel.py, daemon.py, analysis.py)
+|-- pitkeel/                        -- Pitkeel Go CLI (legacy, main.go)
+|-- pitctl/                         -- Go CLI: project control
+|-- pitforge/                       -- Go CLI: arena builder
+|-- pitlab/                         -- Go CLI: lab runner
+|-- pitbench/                       -- Go CLI: benchmarking
+|-- pitnet/                         -- Go CLI: networking
+|-- pitstorm/                       -- Go CLI: load testing
+|-- piteval/                        -- Go CLI: evaluation
+|-- pitlinear/                      -- Go CLI: linear integration
+|-- midgets/                        -- Container orchestration (C1-C4 specs, Dockerfiles)
+|-- qa/                             -- QA checklists and test specs
+|-- ops/                            -- Operational configs
+|-- data/                           -- Pipeline data output (alley/ runs, signal-test/)
+|-- slopodar-ext/                   -- Slopodar extensions
+|-- notebooks/                      -- Analysis notebooks
+|-- public/                         -- Next.js static assets
+|-- copy/                           -- Marketing and content copy
+|-- sites/oceanheart/               -- Hugo site (oceanheart.ai CV, about, research)
+|-- .opencode/agents/*.md           -- Agent identity files (canonical copies)
+|-- .claude/agents/*.md             -- Symlinks -> .opencode/agents/ (harness compat)
+|-- .github/workflows/              -- CI workflow (ci.yml)
+|-- .gauntlet/                      -- Attestation files (gitignored, ephemeral)
+|-- docs/                           -- Documentation
+|   |-- decisions/SD-*.md           -- Session-scoped decision files
+|   |-- field-notes/                -- Field observations
+|   |-- bootcamp/                   -- Bootcamp content
+|   |-- diagrams/                   -- Architecture and flow diagrams
+|   |-- spec/                       -- Current-era specs (midgets)
+|   |-- archive/                    -- Pilot-era archived material
+|   +-- internal/                   -- Operational (verbose versions, full chain)
+|       |-- lexicon.md              -- Full verbose lexicon v0.26
+|       |-- layer-model.md          -- Full verbose layer model v0.3
+|       |-- slopodar.yaml           -- Full anti-pattern taxonomy (49 entries)
+|       |-- session-decisions.md    -- Full SD chain (SD-001 through SD-322+, append-only)
+|       |-- session-decisions-index.yaml  -- Recent SDs + standing orders (quick reference)
+|       |-- backlog.yaml            -- Task backlog (use backlog CLI)
+|       |-- events.yaml             -- Event log spine (SD-316)
+|       |-- boot-sequence.md        -- Legacy boot manifest (superseded by AGENTS.md)
+|       |-- dead-reckoning.md       -- Blowout recovery protocol
+|       |-- weaver/                 -- Weaver operational (darkcat findings, catch log, reviews)
+|       |-- watchdog/               -- Watchdog operational (lessons learned, blindspots)
+|       |-- strategy/               -- Landscape scans, convergence analysis
+|       +-- research/               -- Cross-model prompt (D3+ Operator only)
 ```
 
 **BFS rule (SD-195):** Depth 1 = every session. Depth 2 = when topic is relevant. Depth 3+ = deliberate research only. `docs/internal/session-decisions.md` is depth 3 (archaeology) - read the index, not the full log.
@@ -681,6 +713,7 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 - SD-319 [no-em-dash-no-emoji] - no em-dashes, no emojis, ever, PERMANENT
 - SD-320 [signal-adversarial-test] - shorthand >= signal, 3-model test, COMPLETE
 - SD-321 [signal-killed] - "Signal has no signal", notation abandoned, PERMANENT
+- SD-322 [midget-castle] - build trajectory for container orchestration, ACTIVE
 
 Full chain: `docs/internal/session-decisions.md` | Index: `docs/internal/session-decisions-index.yaml`
 
@@ -700,15 +733,15 @@ This is not a research project studying AI failure modes. It is an engineering p
 
 ## Bootsequence Weight
 
-**41,313 words total** - AGENTS.md: 5,596 | slopodar.yaml: 10,327 | lexicon.md: 4,653 | layer-model.md: 3,034 | session-decisions-index.yaml: 690 | agent files (15): 17,013 (range 404-2,610)
+**42,419 words total** - AGENTS.md: 6,694 | slopodar.yaml: 10,327 | lexicon.md: 4,764 | layer-model.md: 3,034 | session-decisions-index.yaml: 690 | agent files (15): 16,910 (range 404-2,581)
 
 ---
 
 ## Context Weight
 
-**Auto-loaded** (harness-injected, guaranteed): **22,638** - AGENTS.md: 5,625 | agent files (15): 17,013 (range 404-2,610)
-**Instructed** (standing orders, compliance varies): **18,704** - slopodar.yaml: 10,327 | lexicon.md: 4,653 | layer-model.md: 3,034 | session-decisions-index.yaml: 690
-**Ceiling** (if everything gets read): **41,342**
+**Auto-loaded** (harness-injected, guaranteed): **23,604** - AGENTS.md: 6,694 | agent files (15): 16,910 (range 404-2,581)
+**Instructed** (standing orders, compliance varies): **18,815** - slopodar.yaml: 10,327 | lexicon.md: 4,764 | layer-model.md: 3,034 | session-decisions-index.yaml: 690
+**Ceiling** (if everything gets read): **42,419**
 
 ---
 
@@ -727,7 +760,6 @@ From commit 0:
 - **Commit tags**: `[H:steer]`, `[H:correct]`, `[H:reset]`, `[H:obstacle]`, `[H:scope]`
 - **slopodar-v2.yaml**: Append-only anti-pattern taxonomy
 - **catch-log.tsv**: Control firing events - when a control catches something, log it (`docs/internal/weaver/catch-log.tsv`)
-- **metrics/**: Notebooks on analysis day only
 
 ---
 
