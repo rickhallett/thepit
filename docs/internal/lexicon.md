@@ -124,7 +124,7 @@ Format: **Term** — definition. *Established parallel.* `Origin.`
 
 ### Communication & Record
 
-**Readback** — Default agentic behaviour: compress understanding of an order into Signal notation before acting. The readback surfaces the agent's interpretation in a compressed, inspectable form. Operator verifies or corrects. Formerly "echo / check fire."
+**Readback** — Default agentic behaviour: compress understanding of an order before acting. The readback surfaces the agent's interpretation in a compressed, inspectable form. Operator verifies or corrects. Formerly "echo / check fire."
 *Established: Readback (CRM — Crew Resource Management, Helmreich 1999). Extensively studied in aviation and medicine. The practice is identical: instruction → readback → verify → act. CRM provides 40+ years of empirical validation for why this works.*
 `Origin: SD-315 (echo/check fire as standing order). Renamed v0.26.`
 

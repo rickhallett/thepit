@@ -1,5 +1,7 @@
 # Boot Sequence - noopit (thepit-v2)
 
+> **SUPERSEDED:** This file is a legacy boot manifest. The canonical boot sequence is now `AGENTS.md` (auto-loaded by the harness). Retained for reference only.
+
 > What every agent must load on cold wake. If you don't have this context, you're in the dumb zone.
 > Back-ref: SD-311 (prime context), SD-299 (governance refined), SD-275 (token elephant).
 
