@@ -33,7 +33,7 @@ The disciplined response: **acknowledge, isolate, defer.** Capture the knowledge
 
 This applies beyond dependencies. It applies to any category of finding where the fix generates more findings of the same category. The test is: does fixing this now move the product forward, or does it move the goalposts?
 
-*This principle was learned during the type safety triage (PRs [#319](https://github.com/rickhallett/thepit/pull/319)–[#327](https://github.com/rickhallett/thepit/pull/327)), where 8 fixes across 9 PRs generated 6 rounds of automated review findings. The acknowledge-isolate-defer pattern was applied to pre-existing CI failures ([#330](https://github.com/rickhallett/thepit/issues/330)) and the remaining dependency vulnerabilities — the decision recorded in the issue, not re-debated on each red build.*
+*This principle was learned during the type safety triage (PRs [#319](https://github.com/rickhallett/thepit-pilot/pull/319)-[#327](https://github.com/rickhallett/thepit-pilot/pull/327)), where 8 fixes across 9 PRs generated 6 rounds of automated review findings. The acknowledge-isolate-defer pattern was applied to pre-existing CI failures ([#330](https://github.com/rickhallett/thepit-pilot/issues/330)) and the remaining dependency vulnerabilities - the decision recorded in the issue, not re-debated on each red build.*
 
 ## The human in the loop
 
@@ -56,7 +56,7 @@ We have not seen it proven at the level of enduring product that interfaces with
 If you contribute to this codebase:
 
 - **Run the local gate before you declare anything done.** The gate is not a suggestion. It is the minimum bar.
-- **Fix before merge if you can. Fix after merge if you must.** The first preserves atomicity. The second preserves forward progress. *(Derived from PRs [#325](https://github.com/rickhallett/thepit/pull/325)–[#328](https://github.com/rickhallett/thepit/pull/328); codified in [Weaver agent instructions](https://github.com/rickhallett/thepit/pull/328).)*
+- **Fix before merge if you can. Fix after merge if you must.** The first preserves atomicity. The second preserves forward progress. *(Derived from PRs [#325](https://github.com/rickhallett/thepit-pilot/pull/325)-[#328](https://github.com/rickhallett/thepit-pilot/pull/328); codified in [Weaver agent instructions](https://github.com/rickhallett/thepit-pilot/pull/328).)*
 - **Name what you find.** If a pattern has a name, the next person who encounters it will recognise it faster. If it doesn't have a name yet, give it one and document where you found it.
-- **Don't optimise for everything simultaneously.** A longer list of truths does not mean they can all be caught and actioned every time. Truths often exist in creative tension. The skill is knowing which one to prioritise right now, and recording why, so the next person can make a different choice with full context rather than no context. *(See [#330](https://github.com/rickhallett/thepit/issues/330) for a worked example of this trade-off.)*
+- **Don't optimise for everything simultaneously.** A longer list of truths does not mean they can all be caught and actioned every time. Truths often exist in creative tension. The skill is knowing which one to prioritise right now, and recording why, so the next person can make a different choice with full context rather than no context. *(See [#330](https://github.com/rickhallett/thepit-pilot/issues/330) for a worked example of this trade-off.)*
 - **Trust is the product.** The code is the output. The tests are the evidence. The verification discipline is the craft. The trust is what remains.

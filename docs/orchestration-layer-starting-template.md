@@ -1,6 +1,9 @@
 <!-- HISTORICAL: Orphaned template from the pilot study (tspit). Retained for reference.
      Current orchestration patterns live in AGENTS.md. -->
 
+> **Note:** References to `tasks/todo.md` and `tasks/lessons.md` below are from the pilot study.
+> The `tasks/` directory does not exist in this repo. Current task tracking uses `docs/internal/backlog.yaml`.
+
 ```markdown
 ## Workflow Orchestration
 
