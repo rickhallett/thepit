@@ -1,0 +1,83 @@
+{{ define "main" }}
+<div class="hero">
+  <h1>sloptics</h1>
+  <p class="tagline">/slop.tiks/ - the science of seeing slop</p>
+  <p class="subtitle">
+    LLM output has two failure modes. The obvious one - emoji headers, numbered lists,
+    "let's dive in" - is culturally detectable. The other passes verification, survives
+    editing, survives expert review, and is structurally indifferent to whether it is true.
+  </p>
+  <p class="subtitle">
+    This site documents the second failure mode. 49+ named patterns with detection
+    heuristics, built from 321+ session decisions and 1,250+ commits of field observation.
+    Nothing was theorised in advance. Everything was caught in the wild.
+  </p>
+  <div class="hero-links">
+    <a href="/slopodar/">taxonomy</a>
+    <span>/</span>
+    <a href="/detectors/">detectors</a>
+    <span>/</span>
+    <a href="/about/">about</a>
+  </div>
+</div>
+
+<hr>
+
+<div class="section-header">
+  <h2>the apparatus</h2>
+</div>
+
+<div class="sloptics-term">
+  <h3>sloptics <span class="sloptics-pos">/slop.tiks/ n.</span></h3>
+  <p>
+    The discipline. From <em>slop</em> + <em>optics</em> (Greek optike, the science of seeing). The systematic study of how LLM-generated language creates the appearance of authenticity, rigour, or insight without the substance. Sloptics is to LLM output what cognitive distortion taxonomy is to human thought: a naming system that converts invisible patterns into detectable ones.
+  </p>
+</div>
+
+<div class="sloptics-term">
+  <h3>slopticon <span class="sloptics-pos">/slop.ti.kon/ n.</span></h3>
+  <p>
+    The apparatus. From <em>slop</em> + <em>-opticon</em> (Greek optikon; cf. <em>panopticon</em>). A taxonomy of named patterns, designed to make invisible output characteristics visible through the act of naming. Where the panopticon controls behaviour through visibility, the slopticon liberates perception through it.
+  </p>
+</div>
+
+<div class="sloptics-term">
+  <h3>slopodar <span class="sloptics-pos">/slop.a.dar/ n., v.</span></h3>
+  <p>
+    The detection instinct. From <em>slop</em> + <em>radar</em>. The trained attention that fires before conscious analysis - the felt wrongness, the "something is off" that precedes identification. <a href="/slopodar/">Browse the full taxonomy.</a>
+  </p>
+</div>
+
+<hr>
+
+<div class="section-header">
+  <h2>the line</h2>
+</div>
+
+<div class="sloptics-term">
+  <h3>surface slop</h3>
+  <p>
+    Patterns above the visibility threshold. Detectable by untrained readers through cultural exposure. Emoji section headers, "here are 5 key takeaways," confident symmetrical conclusions that resolve all tension. Surface slop is a solved problem. The cultural immune system adapted.
+  </p>
+</div>
+
+<div class="sloptics-term">
+  <h3>clear slop</h3>
+  <p>
+    Patterns below the visibility threshold. Resistant to casual expert review. Clear slop passes through verification the way clear water passes through a net. Logic that follows from unstated premises. Evidence cited but mischaracterised. Confidence that correlates with fluency rather than accuracy.
+  </p>
+</div>
+
+<div class="sloptics-term">
+  <h3>the visibility threshold</h3>
+  <p>
+    The line between detectable and undetectable, for a given reader at a given moment. It moves with training - sloptic literacy shifts it down. It degrades with fatigue - cognitive load shifts it up. The threshold is lowest at the end of a long session, when the model's output is warmest and the human's capacity to challenge is at its weakest.
+  </p>
+</div>
+
+<hr>
+
+<p style="color: var(--muted); font-size: 0.8rem;">
+  Built from <a href="https://github.com/rickhallett/thepit">The Pit</a> - an open-source evaluation platform for AI-human collaboration. The taxonomy, the detectors, and the field observations all originate there. <a href="https://www.oceanheart.ai">oceanheart.ai</a> is where the rest of the story lives.
+</p>
+{{ end }}

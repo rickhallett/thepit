@@ -1,0 +1,47 @@
+baseURL = 'https://sloptics.dev/'
+languageCode = 'en-gb'
+title = 'sloptics.dev'
+
+[params]
+  description = "The science of seeing slop. Field taxonomy of LLM output failure modes with detection heuristics."
+  author = "Richard Hallett"
+  email = "kai@oceanheart.ai"
+  github = "https://github.com/rickhallett/thepit"
+  oceanheart = "https://www.oceanheart.ai"
+
+[menus]
+  [[menus.main]]
+    name = 'taxonomy'
+    url = '/slopodar/'
+    weight = 10
+  [[menus.main]]
+    name = 'detectors'
+    url = '/detectors/'
+    weight = 20
+  [[menus.main]]
+    name = 'about'
+    url = '/about/'
+    weight = 30
+  [[menus.main]]
+    name = 'oceanheart'
+    url = 'https://www.oceanheart.ai/'
+    weight = 40
+
+[markup]
+  [markup.highlight]
+    style = 'tokyonight-night'
+    lineNos = false
+    noClasses = true
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[outputs]
+  home = ['HTML', 'RSS']
+  section = ['HTML', 'RSS']
+
+[taxonomies]
+  tag = 'tags'
+
+[pagination]
+  pagerSize = 50

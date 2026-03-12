@@ -24,7 +24,7 @@ title = 'oceanheart.ai'
     weight = 25
   [[menus.main]]
     name = 'sloptics'
-    url = '/sloptics/'
+    url = 'https://sloptics.dev/'
     weight = 26
   [[menus.main]]
     name = 'decisions'

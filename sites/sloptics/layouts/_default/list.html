@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="section-header">
+  <h1>{{ .Title }}</h1>
+  {{ with .Description }}<p>{{ . }}</p>{{ end }}
+</div>
+{{ .Content }}
+{{ range .Pages }}
+<div class="sloptics-term">
+  <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+  {{ with .Description }}<p>{{ . }}</p>{{ end }}
+</div>
+{{ end }}
+{{ end }}

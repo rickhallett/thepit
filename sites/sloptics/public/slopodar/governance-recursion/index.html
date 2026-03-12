@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Governance Recursion - sloptics.dev</title>
+<meta name="description" content="The science of seeing slop. Field taxonomy of LLM output failure modes with detection heuristics.">
+<link rel="stylesheet" href="/css/terminal.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+
+</head>
+<body>
+  <nav>
+  <div class="container">
+    <a href="/" class="nav-brand">s.dev</a>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+    <label for="nav-toggle" class="nav-toggle-label">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
+    <ul class="nav-links">
+      
+      <li><a href="/slopodar/">taxonomy</a></li>
+      
+      <li><a href="/detectors/">detectors</a></li>
+      
+      <li><a href="/about/">about</a></li>
+      
+      <li><a href="https://www.oceanheart.ai/">oceanheart</a></li>
+      
+      <li><a href="https://github.com/rickhallett/thepit" rel="noopener">github</a></li>
+    </ul>
+  </div>
+</nav>
+
+  <main>
+    <div class="container">
+      
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+<article>
+  <header>
+    <h1>Governance Recursion</h1>
+    <p style="color: var(--muted); margin-bottom: 2rem;">detected 2026-03-02</p>
+  </header>
+
+  <div style="margin-bottom: 1.5rem;">
+    <h3>trigger</h3>
+    <p style="color: var(--red);">"The core product had no tests, but there were 189 session decisions and 13 agent files."</p>
+  </div>
+
+  <div style="margin-bottom: 1.5rem;">
+    <h3>what it is</h3>
+    <p>When something goes wrong, the model&#39;s instinct is to generate more governance: a new standing order, a new protocol, a new audit document. Each one feels like progress because it&#39;s structured and coherent. But it&#39;s the model doing what it&#39;s optimised for (generating structured text) instead of what would actually help (writing a test, fixing the bug). There&#39;s no natural stopping point because each layer of governance can always spawn another.
+</p>
+  </div>
+
+  <div style="margin-bottom: 1.5rem;">
+    <h3>what it signals</h3>
+    <p></p>
+  </div>
+
+  <div style="margin-bottom: 1.5rem;">
+    <h3>instead</h3>
+    <p>Every governance artifact should be able to answer: &#34;What does this prevent, and how would I know if it failed?&#34; If the answer points to another governance artifact, you&#39;re recursing.
+</p>
+  </div>
+
+  
+  <div style="margin-bottom: 1.5rem;">
+    <h3>refs</h3>
+    <ul>
+      
+      <li style="font-size: 0.75rem; color: var(--muted);">SD-189, SD-190, SD-191 (the recursion chain)</li>
+      
+      <li style="font-size: 0.75rem; color: var(--muted);">SD-190: Operator, &#39;we are blowing smoke up our own arse&#39;</li>
+      
+      <li style="font-size: 0.75rem; color: var(--muted);">SD-270: Operator kills SO-PERM-001, caught nothing, added friction</li>
+      
+    </ul>
+  </div>
+  
+
+  <hr>
+  <a href="/slopodar/" class="see-all">&larr; all patterns</a>
+</article>
+
+
+    </div>
+  </main>
+  <footer>
+  <div class="container">
+    <a href="https://www.oceanheart.ai">oceanheart.ai</a> · <a href="https://github.com/rickhallett/thepit">github</a> · 2026
+  </div>
+</footer>
+
+</body>
+</html>
