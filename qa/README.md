@@ -4,7 +4,7 @@ Automated QA testing for The Pit, enabling LLM-driven test execution.
 
 ## Overview
 
-This framework parses user stories from `docs/qa-report.md` and provides infrastructure for automated testing using:
+This framework parses user stories from `docs/archive/qa-report.md` and provides infrastructure for automated testing using:
 
 - **Playwright MCP** for browser-based UI testing
 - **API calls** (fetch/curl) for endpoint testing
@@ -122,14 +122,14 @@ qa/
 ├── scripts/
 │   ├── setup-accounts.ts   # Creates test accounts in Clerk + DB
 │   └── teardown-accounts.ts # Removes test accounts
-├── tests/                  # Test implementations (to be added)
+├── tests/                  # Test implementations (credits, payments, rate-limiting, security)
 ├── utils/                  # Shared utilities (to be added)
 └── results/                # Test run artifacts
 ```
 
 ## Test Report Format
 
-Tests are defined in `docs/qa-report.md` using this format:
+Tests are defined in `docs/archive/qa-report.md` using this format:
 
 ```markdown
 - [ ] `[qa:_][func:_][broken:_]` **NAV-001**: As a user, I can see the logo
@@ -150,7 +150,7 @@ Each test is classified by automation feasibility:
 | `api` | HTTP/curl/database tests | 30 |
 | `browser` | Playwright UI tests | 125 |
 | `partial` | Needs specific setup | 21 |
-| `human` | Cannot automate | 6 |
+| `human` | Cannot automate | 7 |
 
 Human-required tests (payment flows, OAuth) are skipped automatically.
 
@@ -187,7 +187,7 @@ registerTest(NAV_001)
 ## Results
 
 After running tests:
-- `docs/qa-report.md` is updated with test results
+- `docs/archive/qa-report.md` is updated with test results
 - Console shows pass/fail summary
 - `qa/results/` contains run artifacts
 

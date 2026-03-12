@@ -11,7 +11,7 @@
 | File | Purpose |
 |------|---------|
 | `ai.ts` | Anthropic provider setup. Exports `FREE_MODEL_ID`, `PREMIUM_MODEL_OPTIONS`, `getModel()`. Three tiers: free (Haiku), premium (Sonnet/Opus), BYOK (user key). |
-| `xml-prompt.ts` | XML prompt builder for all LLM-facing prompts. Safety boundaries (`<safety>`), system/user/share message builders, `xmlEscape()`, legacy `wrapPersona()` for backwards compatibility. ~300 lines. |
+| `xml-prompt.ts` | XML prompt builder for all LLM-facing prompts. Safety boundaries (`<safety>`), system/user/share message builders, `xmlEscape()`, legacy `wrapPersona()` for backwards compatibility. ~364 lines. |
 | `presets.ts` | Loads 11 free + 11 premium presets from JSON, normalizes snake_case to camelCase. Exports `ALL_PRESETS`, `PRESET_BY_ID` (O(1) Map), `getPresetById()`. Core `Preset` and `Agent` types. |
 | `response-lengths.ts` | Three length options (short/standard/long) with `maxOutputTokens` caps. |
 | `response-formats.ts` | Four format options (plain/spaced/markdown/json) with system prompt instructions. |
@@ -20,7 +20,7 @@
 
 | File | Purpose |
 |------|---------|
-| `bout-engine.ts` | Core bout execution engine (~640 lines). Two phases: `validateBoutRequest()` (parse, auth, tier, credits, idempotency) and `executeBout()` (turn loop, transcript, share line, DB persist, credit settlement). Emits `TurnEvent` union for SSE. |
+| `bout-engine.ts` | Core bout execution engine (~1,225 lines). Two phases: `validateBoutRequest()` (parse, auth, tier, credits, idempotency) and `executeBout()` (turn loop, transcript, share line, DB persist, credit settlement). Emits `TurnEvent` union for SSE. |
 | `bout-lineup.ts` | Arena lineup reconstruction from bout JSONB data. `buildArenaPresetFromLineup()` for replay pages and bout engine. |
 | `recent-bouts.ts` | Paginated listing of recently completed bouts for the `/recent` public feed. LEFT JOIN aggregation for reaction counts. |
 | `refusal-detection.ts` | Lightweight refusal detection for agent bout responses. Normalizes Unicode quotes and matches against scoped marker phrases. Logs refusal events for data collection. |

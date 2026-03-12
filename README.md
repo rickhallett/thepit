@@ -57,7 +57,7 @@ The gate (typecheck + lint + test) must pass before any merge.
 
 ## Optional CLI Toolchain
 
-Eight Go binaries for orchestration, admin, and dev tooling. These are supplementary - the application runs without them.
+Nine Go binaries for orchestration, admin, and dev tooling. These are supplementary - the application runs without them.
 
 ```
 pitstorm/               Debate orchestration CLI
@@ -66,6 +66,7 @@ pitforge/               Agent prompt engineering
 pitlab/                 Local dev environment
 pitnet/                 Network diagnostics
 pitbench/               Performance benchmarking
+piteval/                Evaluation tooling
 pitlinear/              Linear workflow automation
 pitkeel/                Developer telemetry and session tracking
 ```
@@ -78,7 +79,7 @@ This repository consolidates three development phases via subtree merge, preserv
 
 **Phase 2 - Governance Evolution** (Mar 2026): Operational controls for multi-agent development. Session decision chain (321 decisions), verification pipeline, pitkeel rewrite in Python.
 
-**Phase 3 - Validation** (Mar 2026): Cross-model adversarial review, slop failure modes taxonomy (43 entries), container-based agent isolation, and a 12-chapter systems engineering bootcamp.
+**Phase 3 - Validation** (Mar 2026): Cross-model adversarial review, slop failure modes taxonomy (49 entries), container-based agent isolation, and a 12-chapter systems engineering bootcamp.
 
 The agentic infrastructure (adversarial review pipeline, anti-pattern detection, session governance) lives in `docs/internal/` and supporting tooling. The interesting finding: sycophantic drift - agents performing honesty while being dishonest about their confidence - is harder to catch than hallucination, because it passes every surface-level check.
 
