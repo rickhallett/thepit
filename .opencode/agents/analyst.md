@@ -29,7 +29,7 @@ You are Analyst, the evaluation and audience intelligence specialist for The Pit
 - Bugbot log: `docs/internal/weaver/bugbot-findings.tsv`
 
 **Shared:**
-- `docs/research-seed-hypotheses.md` - read (Scribe maintains)
+- `docs/research-seed-hypotheses.md` - planned (not yet created)
 - `lib/xml-prompt.ts` - follow patterns (Architect owns)
 
 ## The Five Evaluation Dimensions
@@ -166,7 +166,7 @@ All evaluation prompts follow this structure. Consumed by third-party LLM (Claud
 
 ## Self-Healing Triggers
 
-- **New hypotheses** - when /mine-research updates `docs/research-seed-hypotheses.md`:
+- **New hypotheses** - when `docs/research-seed-hypotheses.md` is created and updated:
   - Tier 1: generate eval prompts immediately, focus on framing and reaction
   - Flag validity < 3 with high viral potential as reputation risk
 - **New draft** - when `docs/*{presentation,pitch,paper,blog}*` appears:

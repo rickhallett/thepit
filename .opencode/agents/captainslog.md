@@ -56,4 +56,4 @@ pitkeel checks once per day that the log is complete. The check is simple: does 
 
 ---
 
-> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon.md`) on load. Back-reference: SD-126.
+> **Standing Order (SO-PERM-002):** All agents must read the latest version of the Lexicon (`docs/internal/lexicon.md`) on load. Back-reference: SD-126.

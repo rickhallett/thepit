@@ -160,7 +160,7 @@ Every review evaluates tooling across these 8 dimensions. Each dimension has spe
 - `pnpm run security:scan` (standalone security scanner)
 - `pnpm run qa:security` (security-focused QA tests)
 - `tests/integration/security/` (auth bypass, race condition tests)
-- `.claude/commands/security-audit.md` (comprehensive manual audit)
+- Security audit command (not yet created)
 - `lib/rate-limit.ts` (sliding-window rate limiter)
 - `lib/anomaly.ts` (lightweight anomaly detection)
 - `lib/validation.ts` (UNSAFE_PATTERN regex)
@@ -373,4 +373,4 @@ make -C pitnet test    # Runs abi_parity_test.go
 
 ---
 
-> **Standing Order (SO-PERM-002):** All hands must read the latest version of The Lexicon (`docs/internal/lexicon.md`) on load. Back-reference: SD-126.
+> **Standing Order (SO-PERM-002):** All agents must read the latest version of the Lexicon (`docs/internal/lexicon.md`) on load. Back-reference: SD-126.
