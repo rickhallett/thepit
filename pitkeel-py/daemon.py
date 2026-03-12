@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -35,6 +36,17 @@ from git_io import read_reserves_tsv, repo_root
 CHECK_INTERVAL = 15 * 60  # 15 minutes in seconds
 COUNTDOWN_SECONDS = 60
 GRACE_PERIOD = timedelta(minutes=10)  # T-10min warning before shutdown
+
+# Resolve shutdown binary at import time to avoid PATH hijack (S607).
+# Prefer well-known absolute paths; fall back to shutil.which.
+_SHUTDOWN_CANDIDATES = ("/usr/sbin/shutdown", "/sbin/shutdown", "/usr/bin/shutdown")
+_SHUTDOWN_BIN: str | None = None
+for _candidate in _SHUTDOWN_CANDIDATES:
+    if os.path.isfile(_candidate) and os.access(_candidate, os.X_OK):
+        _SHUTDOWN_BIN = _candidate
+        break
+if _SHUTDOWN_BIN is None:
+    _SHUTDOWN_BIN = shutil.which("shutdown")
 
 PID_FILE = os.path.join(os.path.expanduser("~"), ".pitkeel-sleep-daemon.pid")
 
@@ -113,9 +125,14 @@ def _shutdown(dry_run: bool = False) -> None:
 
     # Literal OS shutdown - visceral by design [E1 spec, M1]
     # Check exit code and retry once on failure before giving up.
+    if _SHUTDOWN_BIN is None:
+        sys.stderr.write("PITKEEL: shutdown binary not found on this system\n")
+        _wall("PITKEEL: SHUTDOWN FAILED - binary not found")
+        sys.exit(2)
+
     for attempt in range(2):
         try:
-            result = subprocess.run(["shutdown", "now"], timeout=10)
+            result = subprocess.run([_SHUTDOWN_BIN, "now"], timeout=10)
             if result.returncode == 0:
                 return
             sys.stderr.write(
