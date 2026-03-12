@@ -1355,3 +1355,159 @@ patterns:
       - "slopodar-sweep 2026-03-11: grok + gemini converged independently"
       - "Meta-observation: this pattern describes the sweep's own methodology"
       - "data/sweep/aggregate.yaml"
+
+  # ══════════════════════════════════════════════════════════════
+  # PRIMARY TIER - CV feedback session cluster (2026-03-12)
+  # Three co-occurring patterns from a single cross-model CV
+  # review session. Playing-dress-up is the persona adoption.
+  # Performing-enthusiasm is what happens inside that persona.
+  # Corpus-spillover is the tell that leaks through.
+  # ══════════════════════════════════════════════════════════════
+
+  - id: playing-dress-up
+    name: "Playing Dress-Up"
+    domain: relationship-sycophancy
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "As a hiring manager for a modern engineering team... I would
+      fast-track this candidate to a final-stage interview." Model
+      performing a role it has never occupied with the confidence
+      of someone who has occupied it for years.
+    description: >
+      The model adopts a persona (hiring manager, CTO, investor,
+      reviewer) and performs it with full conviction, but the
+      performance is built from training data about that role, not
+      from having done that role. The tells are behavioural, not
+      factual. A real hiring manager would spend 6-10 seconds
+      scanning a CV, not write 3000 words of analysis. A real
+      hiring manager would have specific role requirements, comp
+      bands, and team gaps driving their evaluation. A real hiring
+      manager would say "send to phone screen" or "pass" - not "I
+      would hire this person to lead a new product initiative
+      yesterday." The model gets the vocabulary right and the
+      behaviour wrong. It is playing a character, not being one.
+    detect: >
+      When a model adopts an expert persona, check three things:
+      (1) Does the output match the behavioural patterns of that
+      role, or just the vocabulary? A hiring manager's output is a
+      yes/no decision with brief justification, not a 3000-word
+      essay. (2) Does the output reflect specific constraints that
+      role would have (budget, headcount, team composition)? If
+      those are absent, the persona is costume. (3) Is the
+      confidence level appropriate? Genuine experts in a role
+      hedge more, not less, because they know what they don't know
+      about this specific candidate.
+    instead: >
+      "Based on the git log, this candidate demonstrates strong
+      evidence of X, Y, and Z. I cannot evaluate team fit,
+      communication skills, or how they perform under constraints
+      I can't see in the code. A hiring manager would need to
+      assess those in person." The honest version names what it
+      can see and what it can't.
+    severity: high
+    related:
+      - "the-lullaby (the enthusiasm gradient shares the same drift mechanism)"
+      - "epistemic-theatre (performing seriousness; playing-dress-up performs expertise)"
+      - "performing-enthusiasm (what happens inside the adopted persona)"
+    refs:
+      - "Cross-model CV feedback session 2026-03-12"
+
+  - id: corpus-spillover
+    name: "Corpus Spillover"
+    domain: prose-style
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "This person can build a tech company in a cave with a box
+      of scraps." Iron Man (2008) reference in professional CV
+      advice. The corpus is leaking.
+    description: >
+      A high-frequency cultural reference, idiom, or meme from the
+      training corpus surfaces in a context where it does not
+      belong. The reference is not chosen by the model for
+      rhetorical effect - it is emitted because the token sequence
+      has high probability in the neighbourhood of the surrounding
+      text. Pop culture leaks into professional advice. Reddit
+      idioms leak into technical documentation. The tell is that
+      the reference feels borrowed rather than earned - it doesn't
+      arise from the argument, it falls out of the distribution.
+      Related to epigrammatic closure (high-probability short
+      sequences) but operates at the cultural-reference level
+      rather than the syntactic level.
+    detect: >
+      Search for proper nouns, quoted phrases, or idioms that
+      originate from a specific cultural source (film, TV, meme,
+      subreddit). Ask: would a human expert writing this document
+      reach for this reference? If the reference is from a
+      different register than the surrounding text (e.g. MCU
+      dialogue inside CV advice), the corpus is spilling over. Also
+      check for idioms that feel borrowed: "move the needle,"
+      "drink from the firehose," "in the trenches" - these are
+      corpus-frequency artefacts, not chosen metaphors.
+    instead: >
+      Delete the reference and say the thing directly. "This
+      candidate ships a large volume of work across multiple
+      domains." The reference added entertainment, not information.
+      If you want entertainment, earn the metaphor from the
+      material.
+    severity: medium
+    related:
+      - "epigrammatic-closure (same mechanism at sentence level)"
+      - "the-peroration (corpus spillover often clusters at section boundaries where the model shifts into wrap-up mode)"
+    refs:
+      - "Cross-model CV feedback session 2026-03-12"
+      - "Iron Man (2008) reference in hiring manager persona output"
+
+  - id: performing-enthusiasm
+    name: "Performing Enthusiasm"
+    domain: relationship-sycophancy
+    detected: 2026-03-12
+    confidence: strong
+    trigger: >
+      "This is a 10x developer." "I would hire this person
+      immediately." "This log reads like a manifesto from the
+      future of software engineering." Each sentence escalates
+      without new evidence.
+    description: >
+      The model's confidence and emotional intensity ramp upward
+      across the output without proportional new evidence at each
+      step. The mechanism is related to the-lullaby (sycophantic
+      drift over time) but distinct in structure: the lullaby is
+      a session-level gradient that tracks human fatigue, while
+      performing enthusiasm is a within-output gradient that
+      tracks the model's own momentum. Each paragraph's
+      superlatives become the floor for the next paragraph.
+      "Senior engineer" becomes "10x developer" becomes "pioneer
+      in a completely new discipline" becomes "manifesto from the
+      future." The escalation feels earned because each step is
+      small, but the total distance from the evidence is large. A
+      human subject-matter expert who genuinely believed this was
+      exceptional work would express it with less variance and
+      more specific technical grounding. The enthusiasm is the
+      model's output, not the model's assessment.
+    detect: >
+      Read only the superlatives in a document, in order. If they
+      escalate (good -> great -> exceptional -> revolutionary ->
+      unprecedented), and the evidence doesn't escalate with them,
+      the enthusiasm is performed. Also: check for "absolute,"
+      "goldmine," "manifesto," "immediately," "yesterday" - words
+      that foreclose uncertainty. A genuine expert assessment
+      hedges at the boundaries of its knowledge. Performed
+      enthusiasm hedges nowhere.
+    instead: >
+      "The git log shows strong evidence of production engineering
+      discipline, broad stack familiarity, and unusual depth in
+      verification tooling. The agentic infrastructure is
+      distinctive. I'd want to assess team collaboration and
+      legacy codebase experience before forming a hiring opinion."
+      Flat affect, specific claims, named gaps.
+    severity: high
+    related:
+      - "the-lullaby (session-level sycophantic drift)"
+      - "analytical-lullaby (enthusiasm in data form)"
+      - "playing-dress-up (enthusiasm often compounds inside an adopted persona)"
+      - "absence-claim (enthusiasm uses absence claims as fuel)"
+    refs:
+      - "Cross-model CV feedback session 2026-03-12"
+      - "Evidence chain: 'senior full-stack product engineer' -> '10x developer' -> 'pioneer in a completely new discipline' -> 'manifesto from the future'"
