@@ -71,6 +71,8 @@ This repository consolidates three development phases via subtree merge, preserv
 
 The agentic infrastructure (adversarial review pipeline, anti-pattern detection, session governance) lives in `docs/internal/` and supporting tooling. The interesting finding: sycophantic drift - agents performing honesty while being dishonest about their confidence - is harder to catch than hallucination, because it passes every surface-level check.
 
+The pilot study (Phase 1-2) has its own repo with [420 PRs of engineering history](https://github.com/rickhallett/thepit-pilot/pulls?q=is%3Apr+is%3Amerged) - review descriptions, adversarial review findings, and the full decision chain.
+
 ## License
 
 Private. All rights reserved.
