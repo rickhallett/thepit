@@ -157,3 +157,8 @@ sites/oceanheart/data/slopodar.yaml
 /public/index.xml
 /public/sitemap.xml
 /public/tags/
+
+# Gas Town (added by gt)
+.runtime/
+.claude/
+state.json
