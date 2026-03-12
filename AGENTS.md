@@ -214,11 +214,10 @@ A repeatable governance unit. Calibrate instruments before changing heading.
 
 **Checks:**
 
-- **spec drift:** search SPEC.md against implementation, note divergence
-- **eval validity:** read EVAL.md - criteria still reachable? amendments needed?
-- **plan accuracy:** read PLAN.md - completed table current? dependencies still valid?
 - **gate health:** run the gate - all tests pass? no regressions?
 - **backlog sync:** read backlog.yaml - items still relevant? priorities correct?
+- **issue sync:** check open GitHub issues against milestones - priorities current?
+- **doc accuracy:** spot-check AGENTS.md filesystem map and conventions against reality
 
 **Output:** findings per check - note drift, fix if small, backlog if large.
 
@@ -230,11 +229,11 @@ Cost is roughly 15 agent-minutes. Drift cost is always higher than check cost. C
 
 How work flows through the system at the Operator's level. Each phase boundary triggers a bearing check.
 
-1. **BEARING CHECK** - spec inline? plan current? eval valid? gate green? Fix drift or note findings.
-2. **SCOPE** - identify next phase from PLAN.md, decompose into PRs (1 PR = 1 concern), write spec/plan to docs/decisions/.
+1. **BEARING CHECK** - gate green? backlog current? issues aligned? Fix drift or note findings.
+2. **SCOPE** - identify next milestone from GitHub issues, decompose into PRs (1 PR = 1 concern), write decisions to docs/decisions/.
 3. **DISPATCH** - prime context (plan file + deps) to agent. Agent implements, gate verifies. Use polecats (fresh context, no interactive steering).
 4. **REVIEW** - Weaver reviews PR (reviewer != author). Darkcat adversarial review. Findings resolved before merge.
-5. **MERGE + POST-VERIFY** - run gate on merge target; failure means investigate immediately. Stain diff against watchdog taxonomy. Update PLAN.md completed table.
+5. **MERGE + POST-VERIFY** - run gate on merge target; failure means investigate immediately. Stain diff against watchdog taxonomy. Close issue if scope complete.
 6. **ADVANCE or LOOP** - phase complete? bearing check then next phase. Phase incomplete? next PR in same phase.
 
 **Cadence:** bearing check -> scope -> (dispatch -> review -> merge)* -> advance
@@ -424,7 +423,7 @@ Full verbose model: `docs/internal/layer-model.md`
 
 ## Slopodar - Anti-Pattern Taxonomy (Compressed)
 
-Full taxonomy: `docs/internal/slopodar.yaml` (21 entries, mandatory reading [SD-286]).
+Full taxonomy: `docs/internal/slopodar.yaml` (49 entries, mandatory reading [SD-286]).
 These are the named patterns caught in the wild. If you recognise them in your output, stop.
 
 **Prose patterns** (detectable by discerning reader):
@@ -625,14 +624,11 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 / (repo root)
 ├── AGENTS.md                       -- THIS FILE (auto-loaded, canonical)
 ├── CLAUDE.md                       -- Symlink -> AGENTS.md (harness compat)
-├── SPEC.md                         -- Product spec, 12 tables, API contracts
-├── EVAL.md                         -- Success/failure criteria, confounds
 ├── Makefile                        -- 26 polecat tasks (deterministic build)
-├── .claude/agents/*.md             -- Agent identity files (auto-loaded per agent)
-├── .opencode/agents/*.md           -- Symlinks -> .claude/agents/ (prevent drift)
-├── lib/                            -- Source code
-│   ├── {bouts,credits,auth,engagement,stripe,sharing,agents,common}/
-│   │   └── DOMAIN.md              -- Architectural boundaries per domain
+├── .claude/agents/*.md             -- Symlinks -> .opencode/agents/ (harness compat)
+├── .opencode/agents/*.md           -- Agent identity files (canonical copies)
+├── lib/                            -- Source code (flat files, no subdirectories)
+├── tests/                          -- Unit, integration, API tests
 ├── docs/                           -- D1-D3 documentation
 │   ├── decisions/SD-*.md           -- Session-scoped decisions
 │   ├── weaver/                     -- Signal PoC, decode tests, reasoning tests
@@ -643,8 +639,8 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 │   └── internal/                   -- Operational (verbose versions, full chain)
 │       ├── lexicon.md              -- Full verbose lexicon v0.20
 │       ├── layer-model.md          -- Full verbose layer model v0.3
-│       ├── slopodar.yaml           -- Full anti-pattern taxonomy (18 entries)
-│       ├── session-decisions.md    -- FULL chain SD-001–SD-314 (archaeology only)
+│       ├── slopodar.yaml           -- Full anti-pattern taxonomy (49 entries)
+│       ├── session-decisions.md    -- Chain SD-031-SD-036 (this repo; pilot chain in thepit-pilot)
 │       ├── session-decisions-index.yaml  -- Last 10 SDs + standing orders
 │       ├── boot-sequence.md        -- Legacy boot manifest (superseded by this file)
 │       ├── dead-reckoning.md       -- Blowout recovery protocol
@@ -737,10 +733,9 @@ From commit 0:
 
 ## Conventions
 
-- TypeScript, Next.js 15, Tailwind, Drizzle ORM, Neon Postgres (prod: `snowy-river-644*****`, branch `noopit-dev` for local dev)
-- Co-located tests: `*.test.ts` beside the module they test
-- One domain = one directory = one agent context boundary [SD-304]
-- DOMAIN.md for architectural boundaries, JSDoc for behaviour, header comment for purpose
+- TypeScript, Next.js 16, Tailwind, Drizzle ORM, Neon Postgres (prod: `snowy-river-644*****`, branch `noopit-dev` for local dev)
+- Tests in `tests/` directory (unit, integration, API subdirs)
+- JSDoc for behaviour, header comment for purpose
 - YAML for structured data [SD-258]
 - `uv` for all Python, no exceptions [SD-310]
 - 2 spaces indentation
