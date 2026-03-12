@@ -111,11 +111,10 @@ piteval/results/_*
 piteval/results/*.png
 pitkeel/pitkeel
 
-# harness state (not agent definitions — those are public)
+# harness state (not agent definitions - those are public)
 .claude/state/
 .claude/commands/
 .claude/CLAUDE.md
-CLAUDE.md
 
 # personal files (welfare, domestic, health — not public)
 docs/internal/postcaptain/
@@ -126,12 +125,26 @@ docs/internal/option-b-analysis.md
 
 .keel-state
 
+# operational state (ephemeral)
+.done/
+.logs/
+.gauntlet/
+
 # personal working files (not for commit)
 *.nope.md
 *.nope.*
+*.todo.*
+
+# audio
+*.wav
+
+# slopodar sweep (generated corpus and raw API responses)
+data/sweep/corpus/
+data/sweep/responses/
 
 # Hugo (oceanheart.ai) build artifacts
 sites/oceanheart/public/
+sites/oceanheart/resources/
 sites/oceanheart/.hugo_build.lock
 sites/oceanheart/data/slopodar.yaml
 
