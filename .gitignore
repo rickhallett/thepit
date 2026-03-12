@@ -36,5 +36,5 @@ sites/oceanheart/resources/
 data/sweep/corpus/
 data/sweep/responses/
 
-# Directives (PR sensitive)
+# Local working notes
 *.todo.*
