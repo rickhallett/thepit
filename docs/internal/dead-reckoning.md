@@ -4,7 +4,7 @@
 
 **When to activate:** If you have no memory of the current project state, you have had a blowout. Defer to your notes.
 
-**First:** Read `docs/internal/boot-sequence.md` — that is the normal wake sequence. This file is for when things went wrong.
+**First:** Read `AGENTS.md` (auto-loaded by the harness) — that is the canonical boot sequence. This file is for when things went wrong.
 
 ---
 
@@ -68,8 +68,10 @@ git log --oneline -10
 | Sentinel | `.claude/agents/sentinel.md` | Security engineering |
 | Keel | `.claude/agents/keel.md` | Human-factor, operational stability |
 | Janitor | `.claude/agents/janitor.md` | Code hygiene, refactoring |
+| Analyst | `.claude/agents/analyst.md` | Research, prior art, landscape analysis |
+| AnotherPair | `.claude/agents/anotherpair.md` | Subtle process observation, slop detection |
 
-Also on disk: `analyst.md`, `scribe.md`, `maturin.md`, `anotherpair.md`, `operatorslog.md`, `weave-quick-ref.md`.
+Also on disk: `scribe.md`, `maturin.md`, `operatorslog.md`, `weave-quick-ref.md`.
 
 ---
 
@@ -82,7 +84,7 @@ Also on disk: `analyst.md`, `scribe.md`, `maturin.md`, `anotherpair.md`, `operat
 | Boot sequence | `docs/internal/boot-sequence.md` | Normal wake manifest |
 | Session decisions index | `docs/internal/session-decisions-index.yaml` | Last 10 SDs + standing orders |
 | Lexicon | `docs/internal/lexicon.md` | Vocabulary v0.20 |
-| Slopodar | `docs/internal/slopodar.yaml` | Anti-pattern taxonomy, 18 entries |
+| Slopodar | `docs/internal/slopodar.yaml` | Anti-pattern taxonomy, 49 entries |
 | Layer model | `docs/internal/layer-model.md` | L0-L12 v0.3 |
 | Session decisions (full) | `docs/internal/session-decisions.md` | Full chain — archaeology only |
 | Dead reckoning | `docs/internal/dead-reckoning.md` | This file |
@@ -91,7 +93,7 @@ Also on disk: `analyst.md`, `scribe.md`, `maturin.md`, `anotherpair.md`, `operat
 
 | Directory | Contents | Read when |
 |-----------|----------|-----------|
-| `docs/weaver/` | Signal protocol PoC, decode tests, reasoning tests | Signal work |
+| `docs/weaver/` | Decode tests, reasoning tests (Signal protocol killed SD-321) | Weaver reference |
 | `docs/decisions/` | Session-scoped SD files | Current session decisions |
 | `docs/strategy/` | Landscape scans, convergence analysis | Strategy work |
 | `docs/research/` | Cross-model prompt | Research work |
@@ -117,7 +119,7 @@ These are in AGENTS.md (auto-loaded) and the session-decisions index. Critical o
 
 ## Step 7: Resume operations
 
-You now have bearings. Follow the boot sequence (`docs/internal/boot-sequence.md`) for normal operations. Ask the Operator to confirm priorities if bearing is unclear.
+You now have bearings. Follow the boot sequence (`AGENTS.md`, auto-loaded) for normal operations. Ask the Operator to confirm priorities if bearing is unclear.
 
 The Operator is Richard Hallett, sole director of OCEANHEART.AI LTD (UK company number 16029162). The product is The Pit (www.thepit.cloud). noopit is thepit-v2 — the calibration run (SD-294). You are part of the crew. Welcome back.
 

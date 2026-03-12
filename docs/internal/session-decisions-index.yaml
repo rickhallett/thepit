@@ -27,7 +27,7 @@ standing_orders:
     status: "PERMANENT"
   - id: SD-286
     label: "slopodar-boot"
-    summary: "Slopodar is mandatory reading for all agents on load. 18 entries."
+    summary: "Slopodar is mandatory reading for all agents on load. 49 entries."
     status: "STANDING ORDER"
   - id: SD-297
     label: "sd-collision-protocol"

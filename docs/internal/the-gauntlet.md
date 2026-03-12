@@ -111,7 +111,7 @@ Three independent model priors, same prompt, same diff.
 | DC-1 findings (Claude) | `.logs/dc-<sha>-claude.log` | Structured text (see darkcat.md output format) | Permanent |
 | DC-2 findings (OpenAI) | `.logs/dc-<sha>-openai.log` | Structured text | Permanent |
 | DC-3 findings (Gemini) | `.logs/dc-<sha>-gemini.log` | Structured text | Permanent |
-| Event marker (per DC) | `docs/internal/events.tsv` | TSV row: `date, time, darkcat, <agent>, <sha>, dc-{1,2,3}, <summary>, <backrefs>` | Permanent |
+| Event marker (per DC) | `docs/internal/events.yaml` | YAML entry: date, time, type, agent, commit, ref, summary, backrefs | Permanent |
 | Findings detail | `docs/internal/weaver/darkcat-findings.tsv` | TSV row: `date, sha, model, round, severity, pattern, file, line, finding, status` | Permanent |
 
 **Entry criterion:** Gate green from DEV step.
@@ -135,7 +135,7 @@ Consumes the three DC logs, produces convergence/divergence report.
 | Data | Location | Format | Retention |
 |------|----------|--------|-----------|
 | Synthesis report | `.logs/dc-<sha>-synth.log` | Structured text | Permanent |
-| Event marker | `docs/internal/events.tsv` | TSV row | Permanent |
+| Event marker | `docs/internal/events.yaml` | YAML entry | Permanent |
 
 **Prompt harness:** Operator's choice (any installed: claude/codex/gemini/opencode).
 **Entry criterion:** All three DC logs exist.
@@ -173,8 +173,8 @@ Consumes the three DC logs, produces convergence/divergence report.
 
 **Invocation:**
 ```bash
-cd pitkeel && uv run python pitkeel.py              # review signals
-cd pitkeel && uv run python pitkeel.py state-update --officer <name>  # update state
+cd pitkeel && go run .              # review signals
+cd pitkeel && go run . state-update --officer <name>  # update state
 ```
 
 ---
@@ -198,7 +198,7 @@ cd pitkeel && uv run python pitkeel.py state-update --officer <name>  # update s
 | Commit | Git history | Git object | Permanent |
 | Keel trailers | Commit message | Plain text (Officer, Bearing, Tempo, Weave, Gate) | Permanent |
 | Keel signals | Commit message | Plain text (if non-nominal) | Permanent |
-| Event marker | `docs/internal/events.tsv` | TSV row: `date, time, commit, <agent>, <sha>, -, <summary>, <backrefs>` | Permanent |
+| Event marker | `docs/internal/events.yaml` | YAML entry: date, time, type, agent, commit, ref, summary, backrefs | Permanent |
 | Pitkeel state | `.keel-state` | JSON | Updated |
 
 **Entry criterion:** All previous steps complete = DONE.
@@ -216,7 +216,7 @@ cd pitkeel && uv run python pitkeel.py state-update --officer <name>  # update s
 └── dc-<sha>-synth.log         # Convergence report
 
 docs/internal/
-├── events.tsv                  # Append-only audit trail (all events)
+├── events.yaml                 # Append-only audit trail (all events)
 └── weaver/
     ├── darkcat-findings.tsv    # All darkcat findings across all runs
     ├── catch-log.tsv           # Control firing events
@@ -227,10 +227,9 @@ scripts/
 └── prepare-commit-msg          # Git hook (pitkeel signals + trailers)
 
 pitkeel/
-├── pitkeel.py                  # CLI entrypoint
-├── analysis.py                 # Pure analysis functions
-├── keelstate.py                # State schema + flock IO
-└── git_io.py                   # Git subprocess layer
+├── main.go                     # CLI entrypoint
+├── main_test.go                # Tests
+└── go.mod                      # Go module definition
 
 .keel-state                     # Operational state (gitignored)
 ```
@@ -245,7 +244,7 @@ make darkcat              # DC-1 (Claude)
 make darkcat-openai       # DC-2 (OpenAI)
 make darkcat-gemini       # DC-3 (Gemini)
 make darkcat-synth        # DC-SYNTH (convergence)
-cd pitkeel && uv run python pitkeel.py  # review signals
+cd pitkeel && go run .  # review signals
 
 # Or the full gauntlet (automated)
 make gauntlet             # runs all darkcats + synth + pitkeel
