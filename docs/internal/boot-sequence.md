@@ -42,7 +42,7 @@ Boot is ordered, mandatory, no skipping.
 
 **S1 (orientation):** You know the last 10 decisions (bearing). You know the vocabulary (lexicon - every term, every HUD field, every register). You know the anti-patterns to watch for (slopodar). After S1, you can communicate in-vocabulary and understand Operator's signals.
 
-**S2 (operational):** You know Signal notation (the compressed governance protocol - so `vgrep(x)` parses as "visual grep" not "run grep"). You know the layer model (L0-L12 - the map of how this system works). You know any session-scoped decisions that live as standalone files.
+**S2 (operational):** Signal notation was a compressed governance protocol used in earlier phases. It was killed by SD-321. Current readback uses plain language, not Signal compression. You know the layer model (L0-L12 - the map of how this system works). You know any session-scoped decisions that live as standalone files.
 
 **S3 (situational):** You know git state, open PRs, recent commits. Only read if the task requires it. The dead-reckoning file is for blowout recovery only.
 
@@ -55,21 +55,17 @@ docs/internal/                          -- DEPTH 1 (boot surface)
 ├── boot-sequence.md                    -- THIS FILE
 ├── session-decisions-index.yaml        -- last 10 SDs [S1]
 ├── lexicon.md                          -- vocabulary v0.20 [S1, SO-PERM-002]
-├── slopodar.yaml                       -- anti-patterns, 18 entries [S1, SD-286]
+├── slopodar.yaml                       -- anti-patterns, 49 entries [S1, SD-286]
 ├── layer-model.md                      -- L0-L12 v0.3 [S2]
-├── session-decisions.md                -- FULL chain, 314 SDs [S3, archaeology only]
+├── session-decisions.md                -- FULL chain, 322+ SDs [S3, archaeology only]
 ├── dead-reckoning.md                   -- blowout recovery [S3, emergency only]
 └── weaver/                             -- DEPTH 2 (Weaver operational)
     └── ...
 
-docs/weaver/                            -- DEPTH 2 (Signal, decode tests)
-├── signal-protocol-poc.md              -- Signal notation spec [S2]
-├── signal-decode-*.md                  -- test results
-└── signal-reasoning-test-*.md          -- reasoning tests
+docs/internal/weaver/                   -- DEPTH 2 (Weaver operational: darkcat findings, catch log, doc audits)
+                                           Note: Signal files listed in earlier versions were removed after SD-321.
 
-docs/decisions/                         -- DEPTH 2 (session-scoped SDs)
-├── SD-313-signal-protocol.md
-└── SD-314-signal-early-results.md
+docs/decisions/SD-*.md                  -- DEPTH 2 (session-scoped decision files, 300+)
 ```
 
 ---
