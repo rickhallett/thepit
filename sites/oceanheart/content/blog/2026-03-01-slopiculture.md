@@ -78,7 +78,7 @@ Claude selected the features. Claude computed the effect sizes. Claude designed 
 
 The extension has 3 commits and the taxonomy has 15 entries. The entries turned out to be worth more than the extension.
 
-[Slopodar](https://oceanheart.ai/slopodar/) | [Source](https://github.com/rickhallett/thepit/blob/wake/slopodar.yaml)
+[Slopodar](https://oceanheart.ai/slopodar/) | [Source](https://github.com/rickhallett/thepit-pilot/blob/wake/slopodar.yaml)
 
 [^1]: [Redundant Antithesis](https://oceanheart.ai/slopodar/redundant-antithesis/) — slopodar catching slopodar on its own page.
 [^2]: [Right Answer, Wrong Work](https://oceanheart.ai/slopodar/right-answer-wrong-work/) — the first slopodar entry to cross the prose/code boundary.
