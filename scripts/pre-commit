@@ -29,7 +29,7 @@ fi
 
 # Bootstrap: if .gauntlet/ doesn't exist, warn but don't block
 if [ ! -d "$ROOT/.gauntlet" ]; then
-  echo "⚠ No .gauntlet/ directory. Run 'make gauntlet' to verify changes." >&2
+  echo "⚠ No .gauntlet/ directory. Run 'just gauntlet' to verify changes." >&2
   echo "  Allowing commit (bootstrap mode)." >&2
   exit 0
 fi
@@ -39,7 +39,7 @@ if ! python3 "$PITCOMMIT" verify; then
   echo "" >&2
   echo "Commit blocked by gauntlet." >&2
   echo "Run 'python3 scripts/pitcommit.py status' for details." >&2
-  echo "Run 'make gauntlet' to verify staged changes." >&2
+  echo "Run 'just gauntlet' to verify staged changes." >&2
   echo "Use 'git commit --no-verify' for emergency bypass (sudo)." >&2
   exit 1
 fi
