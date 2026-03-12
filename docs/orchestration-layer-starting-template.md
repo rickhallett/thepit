@@ -1,3 +1,6 @@
+<!-- HISTORICAL: Orphaned template from the pilot study (tspit). Retained for reference.
+     Current orchestration patterns live in AGENTS.md. -->
+
 ```markdown
 ## Workflow Orchestration
 

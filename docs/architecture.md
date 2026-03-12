@@ -136,7 +136,7 @@ Consent-gated (see Privacy above). SPA page view tracking, Clerk identity sync, 
 LLM cost and token analytics are captured via PostHog `$ai_generation` events emitted by the bout engine after each turn completes. This provides per-model cost tracking, token usage trends, and latency monitoring in the PostHog LLM analytics dashboard. Both platform-funded and BYOK turns are tracked (BYOK with the user's resolved model ID for accurate attribution).
 
 ### Structured Logger
-`lib/logger.ts` — zero-dep structured logging. JSON lines in production (`level`, `msg`, `ts`, `service: 'tspit'`), human-readable in dev. Configurable level via `LOG_LEVEL`. Auto-sanitizes API keys (`sk-ant-*`, `sk_live_*`, `sk_test_*`).
+`lib/logger.ts` - zero-dep structured logging. JSON lines in production (`level`, `msg`, `ts`, `service: 'thepit'`), human-readable in dev. Configurable level via `LOG_LEVEL`. Auto-sanitizes API keys (`sk-ant-*`, `sk_live_*`, `sk_test_*`).
 
 ### Anomaly Detection
 `lib/anomaly.ts` — in-memory sliding window analysis (per serverless instance). Detects burst traffic (>100 req/min/IP), credential probing (>20 auth failures/5min), error rate spikes (>50% per route), and suspicious user-agents. Best-effort logging only; enforcement handled by `lib/rate-limit.ts` and DB constraints.
@@ -145,7 +145,7 @@ LLM cost and token analytics are captured via PostHog `$ai_generation` events em
 Web Vitals reporting via `vitals.vercel-insights.com`.
 
 ## Go CLI Toolchain
-Eight CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). These are internal tools built for our own workflow — not yet polished for external use.
+Nine CLI tools and a shared library, organized as a Go workspace under `github.com/rickhallett/thepit/`. Go 1.25.7. Each tool has `make gate` (vet + build + test). These are internal tools built for our own workflow — not yet polished for external use.
 
 ### shared/ (Library)
 Consumed by all tools. Modules: `config/` (.env parsing, env var schema), `db/` (PostgreSQL via `lib/pq`), `license/` (Ed25519 JWT-like token create/verify, 7-day expiry), `format/` (number/time/credit formatting), `theme/` (Tokyo Night palette via `charmbracelet/lipgloss`).

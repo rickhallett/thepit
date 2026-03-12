@@ -1,7 +1,9 @@
-# Example: Echo→Signal Protocol — Bearing Check into Bout Dispatch
+# Example: Echo Protocol - Bearing Check into Bout Dispatch
+
+> **HISTORICAL:** This example uses Signal notation, which was killed in SD-321 after adversarial testing showed conventional shorthand achieves equal decode accuracy. The echo/readback protocol [SD-315] remains active; only the Signal notation format is obsolete.
 
 > Portfolio material. Captured 2026-03-08.
-> Demonstrates: echo protocol [SD-315], bearing check governance unit, PLAN.md provenance practice.
+> Demonstrates: readback protocol [SD-315], bearing check governance unit.
 
 ## What this shows
 
