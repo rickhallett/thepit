@@ -6,9 +6,9 @@
 # The full log is for provenance and archaeology.
 # Recent SDs shown here - read full file for deeper history.
 
-generated: "2026-03-12T16:00:00.000Z"
-total_decisions: 324
-range: "SD-001 to SD-324"
+generated: "2026-03-12T18:45:00.000Z"
+total_decisions: 325
+range: "SD-001 to SD-325"
 note: "Chain carries forward from tspit (pilot study). noopit is thepit-v2 - diverged at SD-278."
 
 # Standing orders that carry forward (always active)
@@ -108,3 +108,7 @@ recent:
     label: "c2-intercontainer"
     summary: "Inter-container communication via Docker named volumes. Two midgets share volume at /opt/jobs. File-based job protocol from C1 is the transport. Proven by convergence check. New target: make interop."
     status: "COMPLETE"
+  - id: SD-325
+    label: "no-stash"
+    summary: "git stash is forbidden, no exceptions. All code changes belong on numbered feature branches associated with GitHub issues. Stashing creates invisible state outside the branch model, survives context window death without trace, and conflicts on pop. Use git worktree instead. Triggered by stash incident during v0.2-repo-hygiene merge sequence."
+    status: "PERMANENT"
