@@ -111,12 +111,32 @@ def _shutdown(dry_run: bool = False) -> None:
         _wall("PITKEEL: [DRY RUN] Would execute: shutdown now")
         return
 
-    # Literal OS shutdown — visceral by design [E1 spec, M1]
-    try:
-        subprocess.run(["shutdown", "now"], timeout=10)
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        sys.stderr.write("PITKEEL: shutdown command failed\n")
-        sys.exit(1)
+    # Literal OS shutdown - visceral by design [E1 spec, M1]
+    # Check exit code and retry once on failure before giving up.
+    for attempt in range(2):
+        try:
+            result = subprocess.run(["shutdown", "now"], timeout=10)
+            if result.returncode == 0:
+                return
+            sys.stderr.write(
+                f"PITKEEL: shutdown command failed (exit {result.returncode})"
+                f"{', retrying...' if attempt == 0 else ''}\n"
+            )
+            if attempt == 0:
+                _wall("PITKEEL: shutdown failed, retrying in 5 seconds...")
+                time.sleep(5)
+        except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+            sys.stderr.write(
+                f"PITKEEL: shutdown command error: {exc}"
+                f"{', retrying...' if attempt == 0 else ''}\n"
+            )
+            if attempt == 0:
+                _wall("PITKEEL: shutdown failed, retrying in 5 seconds...")
+                time.sleep(5)
+
+    sys.stderr.write("PITKEEL: shutdown failed after 2 attempts, exiting with error\n")
+    _wall("PITKEEL: SHUTDOWN FAILED - manual intervention required")
+    sys.exit(2)
 
 
 def _check_reserves(
