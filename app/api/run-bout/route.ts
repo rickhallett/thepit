@@ -40,9 +40,19 @@ async function rawPOST(req: Request) {
     onError(error) {
       const message =
         error instanceof Error ? error.message : String(error);
+      const name = error instanceof Error ? error.name : '';
       log.error('Bout stream error', error instanceof Error ? error : new Error(message), { boutId: context.boutId });
 
-      if (message.includes('timeout') || message.includes('DEADLINE')) {
+      // AI SDK timeout/abort errors - check error name and message patterns
+      if (
+        name === 'AbortError' ||
+        name === 'TimeoutError' ||
+        message.includes('timeout') ||
+        message.includes('DEADLINE') ||
+        message.includes('AbortError') ||
+        message.includes('TimeoutError') ||
+        message.includes('aborted')
+      ) {
         return 'The bout timed out. Try a shorter length or fewer turns.';
       }
       if (message.includes('rate') || message.includes('429')) {

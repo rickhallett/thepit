@@ -515,7 +515,146 @@ describe('run-bout streaming error handling', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 8. onError: unknown error → generic message
+  // 8. onError: AbortError by name → timeout message
+  // -------------------------------------------------------------------------
+  it('returns timeout message for AbortError by name', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-abort', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const abortError = new Error('The operation was aborted');
+    abortError.name = 'AbortError';
+    const result = capturedOnError!(abortError);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 9. onError: TimeoutError by name → timeout message
+  // -------------------------------------------------------------------------
+  it('returns timeout message for TimeoutError by name', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-timeout-name', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const timeoutError = new Error('Request timed out');
+    timeoutError.name = 'TimeoutError';
+    const result = capturedOnError!(timeoutError);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 10. onError: 'aborted' in message → timeout message
+  // -------------------------------------------------------------------------
+  it('returns timeout message for errors containing "aborted"', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-aborted', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const result = capturedOnError!(new Error('Request was aborted by the client'));
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 11. onError: 'AbortError' in message → timeout message
+  // -------------------------------------------------------------------------
+  it('returns timeout message for errors containing "AbortError"', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-aborterror-msg', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const result = capturedOnError!(new Error('AbortError: signal timed out'));
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 12. onError: 'TimeoutError' in message → timeout message
+  // -------------------------------------------------------------------------
+  it('returns timeout message for errors containing "TimeoutError"', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-timeouterror-msg', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const result = capturedOnError!(new Error('TimeoutError: connection timed out'));
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 13. onError: unknown error → generic message
   // -------------------------------------------------------------------------
   it('returns generic message for unclassified errors', async () => {
     let capturedOnError: ((error: unknown) => string) | undefined;
@@ -540,7 +679,7 @@ describe('run-bout streaming error handling', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 9. onError: non-Error value → generic message
+  // 14. onError: non-Error value → generic message
   // -------------------------------------------------------------------------
   it('handles non-Error values in onError', async () => {
     let capturedOnError: ((error: unknown) => string) | undefined;
@@ -565,7 +704,7 @@ describe('run-bout streaming error handling', () => {
   });
 
   // -------------------------------------------------------------------------
-  // 10. onError: rate keyword in message → rate limited
+  // 15. onError: rate keyword in message → rate limited
   // -------------------------------------------------------------------------
   it('returns rate limit message for errors containing "rate"', async () => {
     let capturedOnError: ((error: unknown) => string) | undefined;
