@@ -12,6 +12,7 @@
 //   - winnerVotes has a unique index on (boutId, userId) to enforce one vote per
 //     user per bout at the database level.
 
+import { sql } from 'drizzle-orm';
 import {
   jsonb,
   pgEnum,
@@ -141,6 +142,11 @@ export const creditTransactions = pgTable('credit_transactions', {
     table.createdAt,
   ),
   referenceIdIdx: index('credit_txn_reference_id_idx').on(table.referenceId),
+  // Unique partial index prevents duplicate credit grants from webhook retries.
+  // Enforces uniqueness only for non-null reference_id values.
+  referenceIdUnique: uniqueIndex('credit_txn_reference_id_unique')
+    .on(table.referenceId)
+    .where(sql`${table.referenceId} IS NOT NULL`),
 }));
 
 export const introPool = pgTable('intro_pool', {

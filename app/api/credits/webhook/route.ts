@@ -87,7 +87,7 @@ export const POST = withLogging(async function POST(req: Request) {
   const headerList = await headers();
   const signature = headerList.get('stripe-signature');
   if (!signature) {
-    return errorResponse('Missing signature.', 400);
+    return errorResponse(API_ERRORS.MISSING_SIGNATURE, 400);
   }
 
   let event;
@@ -95,7 +95,7 @@ export const POST = withLogging(async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
     log.warn('Stripe webhook signature failed', toError(error));
-    return errorResponse('Invalid signature.', 400);
+    return errorResponse(API_ERRORS.INVALID_SIGNATURE, 400);
   }
 
   // --- Credit pack purchase (one-time checkout) ---
