@@ -129,6 +129,13 @@ export const spec = {
                   fears: { type: 'string', maxLength: 500, description: 'What the agent wants to avoid.' },
                   customInstructions: { type: 'string', maxLength: 5000, description: 'Freeform additional instructions appended to the generated prompt.' },
                   parentId: { type: 'string', description: 'ID of the agent this is cloned/remixed from.' },
+                  systemPrompt: { type: 'string', description: 'Raw system prompt (used if no structured fields provided).' },
+                  presetId: { type: 'string', description: 'Preset scenario ID the agent belongs to.' },
+                  tier: { type: 'string', enum: ['free', 'premium', 'custom'], description: 'Agent tier classification.' },
+                  model: { type: 'string', description: 'Preferred model for this agent.' },
+                  responseLength: { type: 'string', enum: ['short', 'standard', 'long'], description: 'Response length preference.' },
+                  responseFormat: { type: 'string', enum: ['plain', 'spaced', 'json'], description: 'Response format preference.' },
+                  clientManifestHash: { type: 'string', description: 'Client-computed manifest hash for integrity verification.' },
                 },
               },
             },
@@ -183,9 +190,29 @@ export const spec = {
         responses: {
           '200': {
             description: 'Reaction recorded.',
-            content: { 'application/json': { schema: { type: 'object', properties: { ok: { type: 'boolean' } } } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    ok: { type: 'boolean' },
+                    action: { type: 'string', enum: ['added', 'removed'], description: 'Whether the reaction was added or removed (toggle).' },
+                    counts: {
+                      type: 'object',
+                      properties: {
+                        heart: { type: 'integer', description: 'Total heart count for this turn.' },
+                        fire: { type: 'integer', description: 'Total fire count for this turn.' },
+                      },
+                      description: 'Absolute reaction counts for reconciliation.',
+                    },
+                    turnIndex: { type: 'integer', description: 'The turn index that was reacted to.' },
+                  },
+                },
+              },
+            },
           },
           '400': { description: 'Invalid request.' },
+          '404': { description: 'Bout not found.' },
           '429': { description: 'Rate limit exceeded (30/min).' },
         },
       },
@@ -293,6 +320,48 @@ export const spec = {
           },
         },
       },
+      post: {
+        operationId: 'submitFeatureRequest',
+        summary: 'Submit a feature request',
+        description: 'Submit a new feature request. Requires authentication. The request will be reviewed by moderators.',
+        tags: ['Community'],
+        security: [{ clerkAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['title', 'description', 'category'],
+                properties: {
+                  title: { type: 'string', minLength: 5, maxLength: 200, description: 'Brief title for the feature request.' },
+                  description: { type: 'string', minLength: 20, maxLength: 3000, description: 'Detailed description of the requested feature.' },
+                  category: { type: 'string', enum: ['agents', 'arena', 'presets', 'research', 'ui', 'other'], description: 'Feature category.' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Feature request submitted.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    ok: { type: 'boolean' },
+                    id: { type: 'integer', description: 'The ID of the created feature request.' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Validation error.' },
+          '401': { description: 'Authentication required.' },
+          '429': { description: 'Rate limit exceeded (10/hour).' },
+        },
+      },
     },
     '/api/health': {
       get: {
@@ -334,6 +403,200 @@ export const spec = {
             },
           },
           '503': { description: 'Service degraded (database unreachable).' },
+        },
+      },
+    },
+    '/api/ask-the-pit': {
+      post: {
+        operationId: 'askThePit',
+        summary: 'Ask The Pit assistant',
+        description: 'Query the AI assistant about The Pit platform. Returns a streaming text response. Rate limited to 5 requests per minute.',
+        tags: ['System'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['message'],
+                properties: {
+                  message: { type: 'string', maxLength: 2000, description: 'Your question about The Pit platform.' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Streaming text response.',
+            content: { 'text/plain': { schema: { type: 'string' } } },
+          },
+          '404': { description: 'Ask The Pit feature not enabled.' },
+          '429': { description: 'Rate limit exceeded (5/min).' },
+          '503': { description: 'Service unavailable.' },
+        },
+      },
+    },
+    '/api/byok-stash': {
+      post: {
+        operationId: 'stashByokKey',
+        summary: 'Stash a BYOK API key',
+        description: 'Store a bring-your-own-key (BYOK) API key in a secure HTTP-only cookie for use in bout execution. The key is consumed once by /api/run-bout and then deleted. Requires authentication and a paid subscription.',
+        tags: ['System'],
+        security: [{ clerkAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['key'],
+                properties: {
+                  key: { type: 'string', maxLength: 256, description: 'API key (sk-ant-* for Anthropic or sk-or-v1-* for OpenRouter).' },
+                  model: { type: 'string', description: 'Optional model override.' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Key stashed successfully.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    ok: { type: 'boolean' },
+                    provider: { type: 'string', enum: ['anthropic', 'openrouter'], description: 'Detected API provider.' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid key format or unsupported model.' },
+          '401': { description: 'Authentication required.' },
+          '403': { description: 'BYOK requires a paid subscription.' },
+          '429': { description: 'Rate limit exceeded (10/min).' },
+        },
+      },
+    },
+    '/api/contact': {
+      post: {
+        operationId: 'submitContact',
+        summary: 'Submit contact form',
+        description: 'Submit a contact form message. Messages are stored in the database and optionally emailed.',
+        tags: ['Community'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name', 'email', 'message'],
+                properties: {
+                  name: { type: 'string', maxLength: 200, description: 'Your name.' },
+                  email: { type: 'string', format: 'email', maxLength: 256, description: 'Your email address.' },
+                  message: { type: 'string', maxLength: 5000, description: 'Your message.' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Message submitted.',
+            content: { 'application/json': { schema: { type: 'object', properties: { ok: { type: 'boolean' } } } } },
+          },
+          '400': { description: 'Validation error.' },
+          '429': { description: 'Rate limit exceeded (5/hour).' },
+        },
+      },
+    },
+    '/api/newsletter': {
+      post: {
+        operationId: 'subscribeNewsletter',
+        summary: 'Subscribe to newsletter',
+        description: 'Subscribe an email address to The Pit newsletter. Idempotent - duplicate signups are ignored.',
+        tags: ['Community'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['email'],
+                properties: {
+                  email: { type: 'string', format: 'email', maxLength: 256, description: 'Email address to subscribe.' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Subscription recorded.',
+            content: { 'application/json': { schema: { type: 'object', properties: { ok: { type: 'boolean' } } } } },
+          },
+          '400': { description: 'Invalid email address.' },
+          '429': { description: 'Rate limit exceeded (5/hour).' },
+        },
+      },
+    },
+    '/api/feature-requests/vote': {
+      post: {
+        operationId: 'voteFeatureRequest',
+        summary: 'Vote on a feature request',
+        description: 'Toggle a vote on a feature request. If you have already voted, this removes your vote. One vote per user per request.',
+        tags: ['Community'],
+        security: [{ clerkAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['featureRequestId'],
+                properties: {
+                  featureRequestId: { type: 'integer', description: 'The ID of the feature request to vote on.' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Vote recorded or removed.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    voted: { type: 'boolean', description: 'True if voted, false if vote was removed.' },
+                    voteCount: { type: 'integer', description: 'Current total vote count for this request.' },
+                  },
+                },
+              },
+            },
+          },
+          '400': { description: 'Invalid request.' },
+          '401': { description: 'Authentication required.' },
+          '429': { description: 'Rate limit exceeded (30/min).' },
+        },
+      },
+    },
+    '/api/openapi': {
+      get: {
+        operationId: 'getOpenApiSpec',
+        summary: 'Get OpenAPI specification',
+        description: 'Returns the OpenAPI 3.1 specification for The Pit API as JSON. Useful for SDK generation, Postman import, or API exploration.',
+        tags: ['System'],
+        responses: {
+          '200': {
+            description: 'OpenAPI specification.',
+            content: { 'application/json': { schema: { type: 'object' } } },
+          },
+          '429': { description: 'Rate limit exceeded (10/min).' },
         },
       },
     },
