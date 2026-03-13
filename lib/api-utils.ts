@@ -39,6 +39,8 @@ export const API_ERRORS = {
   INTERNAL: 'Internal server error.',
   SERVICE_UNAVAILABLE: 'Service unavailable.',
   UNSAFE_CONTENT: 'Input contains disallowed content.',
+  MISSING_SIGNATURE: 'Missing signature.',
+  INVALID_SIGNATURE: 'Invalid signature.',
 } as const;
 
 // ─── Error response factory ─────────────────────────────────────────────────

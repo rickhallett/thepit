@@ -701,6 +701,40 @@ describe('POST /api/credits/webhook', () => {
   });
 
   // ------------------------------------------------------------------
+  // 19b. subscription.updated (downgrade): does NOT grant credits
+  // ------------------------------------------------------------------
+  it('customer.subscription.updated: does NOT grant credits on lab-to-pass downgrade', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: 'sub_downgrade',
+          status: 'active',
+          customer: 'cus_downgrade',
+          metadata: { userId: 'user_downgrade' },
+          items: { data: [{ price: { id: 'price_pass' } }] },
+          current_period_end: 1800000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('pass');
+    // User was on lab tier, now downgrading to pass
+    setupSelect([[{ tier: 'lab' }], []]);
+    setupUpdate();
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // Tier update happens, but NO credit grant (downgrade)
+    expect(mockDb.update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'id' }),
+    );
+    expect(mockApplyCreditDelta).not.toHaveBeenCalled();
+    expect(mockEnsureCreditAccount).not.toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
   // 20. invoice.payment_succeeded: grants monthly credits on renewal
   // ------------------------------------------------------------------
   it('invoice.payment_succeeded: grants monthly 300 credits for pass tier on renewal', async () => {
