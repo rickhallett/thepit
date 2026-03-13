@@ -5,7 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import { dark } from '@clerk/themes';
 
-import { Analytics } from '@vercel/analytics/react';
+import { VercelAnalytics } from '@/components/vercel-analytics';
 
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -100,7 +100,7 @@ export default async function RootLayout({
                 <AskThePitLazy enabled={ASK_THE_PIT_ENABLED} />
                 <CookieConsent />
               </div>
-              <Analytics />
+              <VercelAnalytics />
             </CopyProvider>
           </PostHogProvider>
         </body>
