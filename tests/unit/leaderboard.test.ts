@@ -100,38 +100,6 @@ const referralRows = [
   { id: 1, referrerId: 'user1', referredId: 'user3', code: 'abc', credited: false, createdAt: now },
 ];
 
-/**
- * Set up the mock DB select chain. Each call to db.select() returns the
- * next result set from the provided arrays (cycled per range).
- */
-const _setupSelectForRange = () => {
-  let callIndex = 0;
-  // The leaderboard queries 5 tables per range (bouts, votes, referrals, agents, users)
-  // and iterates over 3 ranges = 15 calls total.
-  const results = [
-    // Range: all
-    boutRows, voteRows, referralRows, agentRows, userRows,
-    // Range: week
-    boutRows, voteRows, referralRows, agentRows, userRows,
-    // Range: day
-    boutRows, voteRows, referralRows, agentRows, userRows,
-  ];
-
-  mockDb.select.mockImplementation(() => ({
-    from: () => {
-      const idx = callIndex;
-      callIndex++;
-      const data = results[idx] ?? [];
-      return {
-        where: () => data,
-        then: (resolve: (v: unknown) => void) => resolve(data),
-        [Symbol.toStringTag]: 'Promise',
-        // Support direct await (no .where())
-      };
-    },
-  }));
-};
-
 // Helper: make the mock return an awaitable from().where() chain
 const setupDbMock = () => {
   let callIndex = 0;
