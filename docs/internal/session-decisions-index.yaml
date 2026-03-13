@@ -6,9 +6,9 @@
 # The full log is for provenance and archaeology.
 # Recent SDs shown here - read full file for deeper history.
 
-generated: "2026-03-12T18:45:00.000Z"
-total_decisions: 325
-range: "SD-001 to SD-325"
+generated: "2026-03-13T22:00:00.000Z"
+total_decisions: 327
+range: "SD-001 to SD-327"
 note: "Chain carries forward from tspit (pilot study). noopit is thepit-v2 - diverged at SD-278."
 
 # Standing orders that carry forward (always active)
@@ -112,3 +112,11 @@ recent:
     label: "no-stash"
     summary: "git stash is forbidden, no exceptions. All code changes belong on numbered feature branches associated with GitHub issues. Stashing creates invisible state outside the branch model, survives context window death without trace, and conflicts on pop. Use git worktree instead. Triggered by stash incident during v0.2-repo-hygiene merge sequence."
     status: "PERMANENT"
+  - id: SD-326
+    label: "no-gastown"
+    summary: "Multi-agent orchestration (gastown) not adopted for this workflow. Two-day eval: manual single-agent with verification pipeline = 40 PRs/day. Autonomous swarm = 3 PRs + 8 unauthorized direct-to-main commits + 28 death loops + cleanup. Parallelism is not velocity. Discipline beats swarm."
+    status: "STANDING"
+  - id: SD-327
+    label: "interview-prep-pause"
+    summary: "The Pit paused for 6 weeks. Full-time interview prep from 14 March 2026. Manual coding and system design fluency have atrophied after 2 months of AI-assisted development. NeetCode + Codecrafters, no AI during practice blocks. Identity needs distance from the work before interviews."
+    status: "ACTIVE"

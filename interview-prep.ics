@@ -1,0 +1,1497 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Weaver//Interview Prep//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Interview Prep (6 weeks)
+X-WR-TIMEZONE:Europe/London
+
+BEGIN:VTIMEZONE
+TZID:Europe/London
+BEGIN:STANDARD
+DTSTART:19701025T020000
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0000
+TZNAME:GMT
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19700329T010000
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3
+TZOFFSETFROM:+0000
+TZOFFSETTO:+0100
+TZNAME:BST
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:98dace53-cf32-412e-b50a-61a2d2697e39
+DTSTART;TZID=Europe/London:20260314T060000
+DTEND;TZID=Europe/London:20260314T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Settle in. This is day one of six weeks.\nYou know how to do this.
+END:VEVENT
+BEGIN:VEVENT
+UID:0738face-d7fd-4fde-8750-f068d17a5f2a
+DTSTART;TZID=Europe/London:20260314T063000
+DTEND;TZID=Europe/London:20260314T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, walk\, whatever moves. Start the routine.
+END:VEVENT
+BEGIN:VEVENT
+UID:246c2752-f7c9-43e5-8fcc-a26df9c154dc
+DTSTART;TZID=Europe/London:20260314T080000
+DTEND;TZID=Europe/London:20260314T100000
+SUMMARY:SETUP: Accounts + Tools
+DESCRIPTION:Get everything set up so Monday is pure execution.\n\n1. NeetCode account - start the NeetCode 150 roadmap\n2. NeetCode system design course - bookmark\, review syllabus\n3. Codecrafters account - select Build-your-own Redis (TypeScript or Go)\n4. Set up a clean coding environment: NO copilot\, NO autocomplete\, NO AI\n   - VS Code: disable GitHub Copilot extension\n   - Terminal: no claude\, no codex\, no gemini\n5. Get a physical notebook for system design sketches\n6. Test run: solve 1 easy NeetCode problem to verify the flow works\n\nRule for the next 6 weeks: NO AI. The discomfort is the signal.
+END:VEVENT
+BEGIN:VEVENT
+UID:a336819c-58d3-42a3-b7c9-c8e622d702b9
+DTSTART;TZID=Europe/London:20260314T103000
+DTEND;TZID=Europe/London:20260314T113000
+SUMMARY:SETUP: Plan Review
+DESCRIPTION:Review the 6-week plan.\n\nPhase 1 (Foundation\, weeks 1-2): Easy NeetCode + Redis + System Design basics\nPhase 2 (Ramp\, weeks 3-4): Medium NeetCode + HTTP Server + Design classics\nPhase 3 (Integration\, weeks 5-6): Timed medium + Docker + Mock interviews\n\nTwo resources: NeetCode and Codecrafters. Nothing else.\n6 hours of focused work per day. 4 blocks of 90 min.\nGaps between blocks are breaks. Use them.\n\nPrint or write down the weekly schedule. Put it on the wall.
+END:VEVENT
+BEGIN:VEVENT
+UID:2f86bcd4-928c-411a-a570-862431c437d1
+DTSTART;TZID=Europe/London:20260315T080000
+DTEND;TZID=Europe/London:20260315T083000
+SUMMARY:DAY OFF
+DESCRIPTION:No code. No study. Rest before the work begins.
+END:VEVENT
+BEGIN:VEVENT
+UID:1538a6a8-a08d-47e5-8594-81faf383c9ea
+DTSTART;TZID=Europe/London:20260316T060000
+DTEND;TZID=Europe/London:20260316T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:67c615ad-d901-450d-8b39-3aa465b22dad
+DTSTART;TZID=Europe/London:20260316T063000
+DTEND;TZID=Europe/London:20260316T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:3bdb4173-e0c4-4eb1-bb9d-8727daea15bd
+DTSTART;TZID=Europe/London:20260316T080000
+DTEND;TZID=Europe/London:20260316T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 1]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:91a69105-b2c5-4fc0-bdaa-6aab81e66a76
+DTSTART;TZID=Europe/London:20260316T100000
+DTEND;TZID=Europe/London:20260316T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 1]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:07b55db3-ba30-4582-850e-a8b933a58eb2
+DTSTART;TZID=Europe/London:20260316T120000
+DTEND;TZID=Europe/London:20260316T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 1]\n\nNeetCode System Design: intro\, client-server\, networking basics\, proxies\, load balancers\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:7b9f6285-3bcc-4684-ab61-be3c51013a87
+DTSTART;TZID=Europe/London:20260316T143000
+DTEND;TZID=Europe/London:20260316T160000
+SUMMARY:Block 4: Review + Reinforce
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 1]\n\nReview any NeetCode problems you struggled with last session.\nSolve them again from scratch without looking at the solution.\nIf you solve them cleanly\, the pattern has landed.\nIf you struggle again\, add that pattern to tomorrow's focus.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:c7ed4899-e4de-49e9-9dac-ff79cc2ae3fb
+DTSTART;TZID=Europe/London:20260317T060000
+DTEND;TZID=Europe/London:20260317T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:61eff747-46e1-4f06-8f0e-f41da15c9dbf
+DTSTART;TZID=Europe/London:20260317T063000
+DTEND;TZID=Europe/London:20260317T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:ac4f6999-396f-4099-a457-e0d73af45830
+DTSTART;TZID=Europe/London:20260317T080000
+DTEND;TZID=Europe/London:20260317T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 2]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:14041b20-3e20-4301-b29b-3a138d64c69c
+DTSTART;TZID=Europe/London:20260317T100000
+DTEND;TZID=Europe/London:20260317T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 2]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:e9ca3921-c751-4a10-820c-f607b34c8c17
+DTSTART;TZID=Europe/London:20260317T120000
+DTEND;TZID=Europe/London:20260317T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 2]\n\nNeetCode System Design: intro\, client-server\, networking basics\, proxies\, load balancers\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:d7b8e32b-d058-487e-83c1-9ffc910efd33
+DTSTART;TZID=Europe/London:20260317T143000
+DTEND;TZID=Europe/London:20260317T160000
+SUMMARY:Block 4: Explain Codecrafters Out Loud
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 2]\n\nTake the Codecrafters stages you completed this week.\nStand up. Draw the architecture on paper or whiteboard.\nExplain what each component does and why\, as if to an interviewer.\nTime yourself - aim for 10 min per subsystem.\nPractice the phrase: 'I chose X because Y\, the trade-off is Z.'\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:877aa7bc-7331-4e5b-a71c-027a6df46fd9
+DTSTART;TZID=Europe/London:20260318T060000
+DTEND;TZID=Europe/London:20260318T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:564e77be-6691-4eb5-a589-6b176d5cd629
+DTSTART;TZID=Europe/London:20260318T063000
+DTEND;TZID=Europe/London:20260318T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:0329e13b-c03b-4ec3-9e19-6e8a1e5141e0
+DTSTART;TZID=Europe/London:20260318T080000
+DTEND;TZID=Europe/London:20260318T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 3]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:6865f674-77c0-4ace-ac99-f404d6cf4bcd
+DTSTART;TZID=Europe/London:20260318T100000
+DTEND;TZID=Europe/London:20260318T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 3]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:58b96e41-caeb-4712-b2b1-078cf6e989e1
+DTSTART;TZID=Europe/London:20260318T120000
+DTEND;TZID=Europe/London:20260318T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 3]\n\nNeetCode System Design: intro\, client-server\, networking basics\, proxies\, load balancers\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:fb369968-5adb-4331-a575-9481349935a1
+DTSTART;TZID=Europe/London:20260318T143000
+DTEND;TZID=Europe/London:20260318T160000
+SUMMARY:Block 4: Design The Pit on Paper
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 3]\n\nPick a subsystem of The Pit you built. Draw it from memory.\nNo code\, no repo\, no AI. Paper and pen only.\n\nWeek 1: SSE streaming + bout engine\nWeek 2: Credit system + Stripe integration\nWeek 3: BYOK key lifecycle + model routing\nWeek 4: Agent creation + DNA fingerprinting + attestation\nWeek 5: Rate limiting + API design\nWeek 6: Full system - draw the whole thing\, 35 min\n\nTalk through trade-offs out loud as you draw.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:0865caa3-fcb8-40a7-8845-40090a39b53b
+DTSTART;TZID=Europe/London:20260319T060000
+DTEND;TZID=Europe/London:20260319T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:8c942888-f0fc-4d28-b49c-9cc0d3955038
+DTSTART;TZID=Europe/London:20260319T063000
+DTEND;TZID=Europe/London:20260319T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:812bbfe2-bd92-4ba4-bccf-e7ec0f0c1a3b
+DTSTART;TZID=Europe/London:20260319T080000
+DTEND;TZID=Europe/London:20260319T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 4]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:cdc04375-03a8-4bfb-b251-bf90364340e3
+DTSTART;TZID=Europe/London:20260319T100000
+DTEND;TZID=Europe/London:20260319T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 4]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:501c4fa5-bf7c-47ea-9c58-162e48a438b1
+DTSTART;TZID=Europe/London:20260319T120000
+DTEND;TZID=Europe/London:20260319T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 4]\n\nNeetCode System Design: intro\, client-server\, networking basics\, proxies\, load balancers\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:f645b43d-ec00-4b18-be28-8d8d7ab13836
+DTSTART;TZID=Europe/London:20260319T143000
+DTEND;TZID=Europe/London:20260319T160000
+SUMMARY:Block 4: Mock Interview Simulation
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 4]\n\nFull simulation. Set a timer.\n\nWeeks 1-2: Pick 1 medium NeetCode problem. 25 min. Talk out loud as if someone is watching. Then pick 1 easy system design question and talk through it for 15 min.\n\nWeeks 3-4: 1 medium problem (20 min cap) + 1 system design (20 min). Record yourself if possible. Watch it back.\n\nWeeks 5-6: Use Interviewing.io or Pramp for a real mock with a stranger. If unavailable\, full 45 min simulation: 5 min clarify\, 25 min code\, 15 min system design.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:5199cf68-1cd9-4c29-b83c-e033edfa5921
+DTSTART;TZID=Europe/London:20260320T060000
+DTEND;TZID=Europe/London:20260320T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:2096a5ce-1e27-40d4-a4be-b568a4778908
+DTSTART;TZID=Europe/London:20260320T063000
+DTEND;TZID=Europe/London:20260320T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:e65ab3a7-999c-474d-9c3e-2435b289679c
+DTSTART;TZID=Europe/London:20260320T080000
+DTEND;TZID=Europe/London:20260320T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 5]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:fbbfb2ea-3c12-4932-8026-f7f0e1bdd570
+DTSTART;TZID=Europe/London:20260320T100000
+DTEND;TZID=Europe/London:20260320T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 5]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:2624b6eb-c3a0-49ed-a2df-d25a0ab76154
+DTSTART;TZID=Europe/London:20260320T120000
+DTEND;TZID=Europe/London:20260320T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 5]\n\nNeetCode System Design: intro\, client-server\, networking basics\, proxies\, load balancers\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:95437386-bd61-4733-b451-1ff86a03b7fb
+DTSTART;TZID=Europe/London:20260320T143000
+DTEND;TZID=Europe/London:20260320T160000
+SUMMARY:Block 4: Week Review + Plan
+DESCRIPTION:[Phase: Foundation | Week 1 | Day 5]\n\nReview the week honestly.\n\n- How many NeetCode problems solved? Which patterns are strong/weak?\n- Codecrafters: how many stages completed? Anything blocked?\n- System design: can you draw and explain this week's topics cold?\n- What was the hardest moment this week? What would you do differently?\n\nWrite 3-5 bullet points in a notebook. Not for anyone else - for you.\nPlan next week: which NeetCode patterns to focus on\, which Codecrafters stages to target.\n\nThen stop. You are done for the week.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:56ab285a-1574-4d2d-b2aa-bb10b6debc4e
+DTSTART;TZID=Europe/London:20260321T060000
+DTEND;TZID=Europe/London:20260321T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min.
+END:VEVENT
+BEGIN:VEVENT
+UID:bcfd054c-cb3d-459e-a12f-ac5dd38e9a34
+DTSTART;TZID=Europe/London:20260321T063000
+DTEND;TZID=Europe/London:20260321T073000
+SUMMARY:Exercise
+DESCRIPTION:Move. Lighter session if you need it.
+END:VEVENT
+BEGIN:VEVENT
+UID:a77a3e50-a150-41a3-9c5a-1d1b2bafe4e7
+DTSTART;TZID=Europe/London:20260321T090000
+DTEND;TZID=Europe/London:20260321T110000
+SUMMARY:Light Review (Week 1 - Foundation)
+DESCRIPTION:Week 1 (Foundation) - optional light review.\n\nReview any problems you struggled with this week.\nSolve 1-2 from memory if you feel like it.\nSketch one system design on paper.\n\nIf you feel rested and sharp\, do the work.\nIf you feel drained\, rest. Recovery is not optional.\nYou know this from the clinical side.\n\nNo new material on Saturdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:aec068a4-f542-48b5-a16c-4e37e69bca37
+DTSTART;TZID=Europe/London:20260322T080000
+DTEND;TZID=Europe/London:20260322T083000
+SUMMARY:DAY OFF
+DESCRIPTION:Week 1 complete. No code. No study.\nDo something that has nothing to do with engineering.
+END:VEVENT
+BEGIN:VEVENT
+UID:990a8414-9fb8-4ade-bde7-287dc8c2cb6c
+DTSTART;TZID=Europe/London:20260323T060000
+DTEND;TZID=Europe/London:20260323T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:b994a2ed-743a-4ac6-a4f2-ee430368cf5f
+DTSTART;TZID=Europe/London:20260323T063000
+DTEND;TZID=Europe/London:20260323T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:a1ca85ac-0061-4b18-97bf-3116096fd692
+DTSTART;TZID=Europe/London:20260323T080000
+DTEND;TZID=Europe/London:20260323T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 1]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:539fe853-0190-416d-99df-16208da53578
+DTSTART;TZID=Europe/London:20260323T100000
+DTEND;TZID=Europe/London:20260323T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 1]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:3db357b9-26e2-45bb-af17-44556828bf2e
+DTSTART;TZID=Europe/London:20260323T120000
+DTEND;TZID=Europe/London:20260323T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 1]\n\nNeetCode System Design: caching\, CDNs\, hashing\, databases (SQL vs NoSQL)\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:34b602d8-7c87-487d-8c4b-9de138c43f2a
+DTSTART;TZID=Europe/London:20260323T143000
+DTEND;TZID=Europe/London:20260323T160000
+SUMMARY:Block 4: Review + Reinforce
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 1]\n\nReview any NeetCode problems you struggled with last session.\nSolve them again from scratch without looking at the solution.\nIf you solve them cleanly\, the pattern has landed.\nIf you struggle again\, add that pattern to tomorrow's focus.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:86c4a19b-1693-49a0-9e6a-ae4ddd23ad49
+DTSTART;TZID=Europe/London:20260324T060000
+DTEND;TZID=Europe/London:20260324T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:e1d0a6af-4773-47d3-a62b-422467cc066c
+DTSTART;TZID=Europe/London:20260324T063000
+DTEND;TZID=Europe/London:20260324T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:ad28f885-58cf-4441-b8e1-39ad5e172585
+DTSTART;TZID=Europe/London:20260324T080000
+DTEND;TZID=Europe/London:20260324T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 2]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:cbb70e23-1ef2-41fb-aacf-b3cb48e57eb4
+DTSTART;TZID=Europe/London:20260324T100000
+DTEND;TZID=Europe/London:20260324T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 2]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:3be6cf14-00e3-40f6-b73c-e0234c6d4e0b
+DTSTART;TZID=Europe/London:20260324T120000
+DTEND;TZID=Europe/London:20260324T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 2]\n\nNeetCode System Design: caching\, CDNs\, hashing\, databases (SQL vs NoSQL)\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:9b4af6c1-6a74-419f-99d6-6a62809fe3df
+DTSTART;TZID=Europe/London:20260324T143000
+DTEND;TZID=Europe/London:20260324T160000
+SUMMARY:Block 4: Explain Codecrafters Out Loud
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 2]\n\nTake the Codecrafters stages you completed this week.\nStand up. Draw the architecture on paper or whiteboard.\nExplain what each component does and why\, as if to an interviewer.\nTime yourself - aim for 10 min per subsystem.\nPractice the phrase: 'I chose X because Y\, the trade-off is Z.'\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:9231ac57-1ac4-4bfb-8dba-947d7f948b5b
+DTSTART;TZID=Europe/London:20260325T060000
+DTEND;TZID=Europe/London:20260325T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:3024d96f-d48e-4056-a50f-bbc5787068e2
+DTSTART;TZID=Europe/London:20260325T063000
+DTEND;TZID=Europe/London:20260325T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:18c09b95-deab-4eea-80b7-cb830986693d
+DTSTART;TZID=Europe/London:20260325T080000
+DTEND;TZID=Europe/London:20260325T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 3]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:aec9a378-ea89-4637-a8e8-9d8e1467bcb1
+DTSTART;TZID=Europe/London:20260325T100000
+DTEND;TZID=Europe/London:20260325T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 3]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:e852ea9d-b940-4d90-9fe7-6d70db53b97b
+DTSTART;TZID=Europe/London:20260325T120000
+DTEND;TZID=Europe/London:20260325T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 3]\n\nNeetCode System Design: caching\, CDNs\, hashing\, databases (SQL vs NoSQL)\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:c49e693d-9bea-426e-ac71-6736cb5fbe0f
+DTSTART;TZID=Europe/London:20260325T143000
+DTEND;TZID=Europe/London:20260325T160000
+SUMMARY:Block 4: Design The Pit on Paper
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 3]\n\nPick a subsystem of The Pit you built. Draw it from memory.\nNo code\, no repo\, no AI. Paper and pen only.\n\nWeek 1: SSE streaming + bout engine\nWeek 2: Credit system + Stripe integration\nWeek 3: BYOK key lifecycle + model routing\nWeek 4: Agent creation + DNA fingerprinting + attestation\nWeek 5: Rate limiting + API design\nWeek 6: Full system - draw the whole thing\, 35 min\n\nTalk through trade-offs out loud as you draw.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:7b97e4b4-8645-4852-a132-e6426d655a68
+DTSTART;TZID=Europe/London:20260326T060000
+DTEND;TZID=Europe/London:20260326T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:4c5f8f60-2359-49fc-98f6-37324492f2e9
+DTSTART;TZID=Europe/London:20260326T063000
+DTEND;TZID=Europe/London:20260326T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:a456be11-1538-4e7d-88e1-7c8b3726711c
+DTSTART;TZID=Europe/London:20260326T080000
+DTEND;TZID=Europe/London:20260326T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 4]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:de02500f-2cd0-400b-aaca-a530cf5da7e0
+DTSTART;TZID=Europe/London:20260326T100000
+DTEND;TZID=Europe/London:20260326T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 4]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:070cc7fb-5bc7-4435-812f-d40b8f1c48eb
+DTSTART;TZID=Europe/London:20260326T120000
+DTEND;TZID=Europe/London:20260326T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 4]\n\nNeetCode System Design: caching\, CDNs\, hashing\, databases (SQL vs NoSQL)\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:84613114-2e53-4add-b684-87057e973bd8
+DTSTART;TZID=Europe/London:20260326T143000
+DTEND;TZID=Europe/London:20260326T160000
+SUMMARY:Block 4: Mock Interview Simulation
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 4]\n\nFull simulation. Set a timer.\n\nWeeks 1-2: Pick 1 medium NeetCode problem. 25 min. Talk out loud as if someone is watching. Then pick 1 easy system design question and talk through it for 15 min.\n\nWeeks 3-4: 1 medium problem (20 min cap) + 1 system design (20 min). Record yourself if possible. Watch it back.\n\nWeeks 5-6: Use Interviewing.io or Pramp for a real mock with a stranger. If unavailable\, full 45 min simulation: 5 min clarify\, 25 min code\, 15 min system design.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:4d238991-3369-4cc5-8859-3f0488ede12b
+DTSTART;TZID=Europe/London:20260327T060000
+DTEND;TZID=Europe/London:20260327T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:081e30d9-f3cb-4d6c-b69d-ebac81da1c78
+DTSTART;TZID=Europe/London:20260327T063000
+DTEND;TZID=Europe/London:20260327T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:6aa9f84f-0e54-4f38-a562-a6510d73a3e1
+DTSTART;TZID=Europe/London:20260327T080000
+DTEND;TZID=Europe/London:20260327T093000
+SUMMARY:Block 1: NeetCode Algorithms (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 5]\n\nEasy tier. 2-3 problems. No AI\, no autocomplete\, no copilot.\n\nTalk through your approach out loud as you solve.\nTarget: 10-15 min per problem.\nIf finished early\, do one more.\nIf stuck after 15 min\, read the NeetCode video solution\, understand it\, then solve it again from scratch tomorrow.\n\nFocus areas: arrays\, hash maps\, two pointers\, stacks.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:3476f50f-e154-4990-9dba-e02e654e4a1a
+DTSTART;TZID=Europe/London:20260327T100000
+DTEND;TZID=Europe/London:20260327T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Redis
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 5]\n\nCodecrafters: Build-your-own Redis.\n\nWork through stages sequentially. No AI. No copilot.\nFocus on understanding the protocol\, data structures\, persistence.\nThis rebuilds manual coding stamina and gives you a real system to discuss in design interviews.\n\nKey concepts: TCP server\, RESP protocol parsing\, hash maps\, key expiry/TTL\, persistence (RDB snapshots).\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:328ab1d7-44d5-448f-98f1-7d466558abcf
+DTSTART;TZID=Europe/London:20260327T120000
+DTEND;TZID=Europe/London:20260327T133000
+SUMMARY:Block 3: System Design (Foundation)
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 5]\n\nNeetCode System Design: caching\, CDNs\, hashing\, databases (SQL vs NoSQL)\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:4587bcb9-29b1-49fc-8eab-810a13e36913
+DTSTART;TZID=Europe/London:20260327T143000
+DTEND;TZID=Europe/London:20260327T160000
+SUMMARY:Block 4: Week Review + Plan
+DESCRIPTION:[Phase: Foundation | Week 2 | Day 5]\n\nReview the week honestly.\n\n- How many NeetCode problems solved? Which patterns are strong/weak?\n- Codecrafters: how many stages completed? Anything blocked?\n- System design: can you draw and explain this week's topics cold?\n- What was the hardest moment this week? What would you do differently?\n\nWrite 3-5 bullet points in a notebook. Not for anyone else - for you.\nPlan next week: which NeetCode patterns to focus on\, which Codecrafters stages to target.\n\nThen stop. You are done for the week.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:d67c3f81-378f-4456-a5cb-8b2b745ed811
+DTSTART;TZID=Europe/London:20260328T060000
+DTEND;TZID=Europe/London:20260328T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min.
+END:VEVENT
+BEGIN:VEVENT
+UID:e0de1d55-7367-4408-ad95-4fec2130b847
+DTSTART;TZID=Europe/London:20260328T063000
+DTEND;TZID=Europe/London:20260328T073000
+SUMMARY:Exercise
+DESCRIPTION:Move. Lighter session if you need it.
+END:VEVENT
+BEGIN:VEVENT
+UID:b961f582-7bd1-41d2-aeed-b7a3da275441
+DTSTART;TZID=Europe/London:20260328T090000
+DTEND;TZID=Europe/London:20260328T110000
+SUMMARY:Light Review (Week 2 - Foundation)
+DESCRIPTION:Week 2 (Foundation) - optional light review.\n\nReview any problems you struggled with this week.\nSolve 1-2 from memory if you feel like it.\nSketch one system design on paper.\n\nIf you feel rested and sharp\, do the work.\nIf you feel drained\, rest. Recovery is not optional.\nYou know this from the clinical side.\n\nNo new material on Saturdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:ab15fd4c-8a62-40f4-be3b-f51aa8024454
+DTSTART;TZID=Europe/London:20260329T080000
+DTEND;TZID=Europe/London:20260329T083000
+SUMMARY:DAY OFF
+DESCRIPTION:Week 2 complete. No code. No study.\nDo something that has nothing to do with engineering.
+END:VEVENT
+BEGIN:VEVENT
+UID:40a948af-53a9-4783-a24d-2b3f0eb06b49
+DTSTART;TZID=Europe/London:20260330T060000
+DTEND;TZID=Europe/London:20260330T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:21b5320f-51a9-4e12-abed-deb53bc8cef9
+DTSTART;TZID=Europe/London:20260330T063000
+DTEND;TZID=Europe/London:20260330T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:c13cef14-657a-49fe-9d2a-94d0e2a59d41
+DTSTART;TZID=Europe/London:20260330T080000
+DTEND;TZID=Europe/London:20260330T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 1]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:cb5fd705-cbb4-4ce1-9475-d58f24705034
+DTSTART;TZID=Europe/London:20260330T100000
+DTEND;TZID=Europe/London:20260330T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 1]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:d8c24124-1fb3-4864-8ea9-ddd1368f72df
+DTSTART;TZID=Europe/London:20260330T120000
+DTEND;TZID=Europe/London:20260330T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 1]\n\nNeetCode System Design: replication\, sharding\, CAP theorem\, message queues\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:141896e4-1f84-40f3-9092-2a0ba805e655
+DTSTART;TZID=Europe/London:20260330T143000
+DTEND;TZID=Europe/London:20260330T160000
+SUMMARY:Block 4: Review + Reinforce
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 1]\n\nReview any NeetCode problems you struggled with last session.\nSolve them again from scratch without looking at the solution.\nIf you solve them cleanly\, the pattern has landed.\nIf you struggle again\, add that pattern to tomorrow's focus.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:52732cbd-d28e-4fa3-8ef8-ea187060108d
+DTSTART;TZID=Europe/London:20260331T060000
+DTEND;TZID=Europe/London:20260331T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:9d45fc9b-986b-4935-b1b5-43e356d57021
+DTSTART;TZID=Europe/London:20260331T063000
+DTEND;TZID=Europe/London:20260331T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:22d2882b-2849-4491-889a-c5efe8c6816d
+DTSTART;TZID=Europe/London:20260331T080000
+DTEND;TZID=Europe/London:20260331T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 2]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:011b911d-e10d-451d-9a8b-f1e69e61650e
+DTSTART;TZID=Europe/London:20260331T100000
+DTEND;TZID=Europe/London:20260331T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 2]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:bc1914fa-7518-46a6-9b6c-c32f33d03bf6
+DTSTART;TZID=Europe/London:20260331T120000
+DTEND;TZID=Europe/London:20260331T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 2]\n\nNeetCode System Design: replication\, sharding\, CAP theorem\, message queues\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:bb5d5df7-7c23-47a5-a1ae-33b60feb987a
+DTSTART;TZID=Europe/London:20260331T143000
+DTEND;TZID=Europe/London:20260331T160000
+SUMMARY:Block 4: Explain Codecrafters Out Loud
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 2]\n\nTake the Codecrafters stages you completed this week.\nStand up. Draw the architecture on paper or whiteboard.\nExplain what each component does and why\, as if to an interviewer.\nTime yourself - aim for 10 min per subsystem.\nPractice the phrase: 'I chose X because Y\, the trade-off is Z.'\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:91d6ab44-38ca-4a66-83f0-f31112017de8
+DTSTART;TZID=Europe/London:20260401T060000
+DTEND;TZID=Europe/London:20260401T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:a9d5543e-aa4b-4712-8f4e-d4cc036a74ba
+DTSTART;TZID=Europe/London:20260401T063000
+DTEND;TZID=Europe/London:20260401T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:745e162d-982c-4c49-9030-634b76373b87
+DTSTART;TZID=Europe/London:20260401T080000
+DTEND;TZID=Europe/London:20260401T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 3]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:285e0598-1992-4d55-92b4-1a19da706e0f
+DTSTART;TZID=Europe/London:20260401T100000
+DTEND;TZID=Europe/London:20260401T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 3]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:9901c384-e869-44d4-9faf-b62f4be9393c
+DTSTART;TZID=Europe/London:20260401T120000
+DTEND;TZID=Europe/London:20260401T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 3]\n\nNeetCode System Design: replication\, sharding\, CAP theorem\, message queues\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:5a586077-4f25-41f6-b221-49c00d0d7c8a
+DTSTART;TZID=Europe/London:20260401T143000
+DTEND;TZID=Europe/London:20260401T160000
+SUMMARY:Block 4: Design The Pit on Paper
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 3]\n\nPick a subsystem of The Pit you built. Draw it from memory.\nNo code\, no repo\, no AI. Paper and pen only.\n\nWeek 1: SSE streaming + bout engine\nWeek 2: Credit system + Stripe integration\nWeek 3: BYOK key lifecycle + model routing\nWeek 4: Agent creation + DNA fingerprinting + attestation\nWeek 5: Rate limiting + API design\nWeek 6: Full system - draw the whole thing\, 35 min\n\nTalk through trade-offs out loud as you draw.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:fb813b2a-475f-418d-b318-58b0f04e04a5
+DTSTART;TZID=Europe/London:20260402T060000
+DTEND;TZID=Europe/London:20260402T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:20610bb9-4e20-4ec8-9bf1-7557584fabc1
+DTSTART;TZID=Europe/London:20260402T063000
+DTEND;TZID=Europe/London:20260402T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:8a58c7d5-491e-49c1-b8ef-e994288433d5
+DTSTART;TZID=Europe/London:20260402T080000
+DTEND;TZID=Europe/London:20260402T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 4]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:98259404-51e4-49ab-b23f-0a40b0bc64d7
+DTSTART;TZID=Europe/London:20260402T100000
+DTEND;TZID=Europe/London:20260402T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 4]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:02eee2da-9803-4f9e-978c-c9837d71f922
+DTSTART;TZID=Europe/London:20260402T120000
+DTEND;TZID=Europe/London:20260402T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 4]\n\nNeetCode System Design: replication\, sharding\, CAP theorem\, message queues\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:b98ca47c-2da1-4483-a069-b1735c53caf7
+DTSTART;TZID=Europe/London:20260402T143000
+DTEND;TZID=Europe/London:20260402T160000
+SUMMARY:Block 4: Mock Interview Simulation
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 4]\n\nFull simulation. Set a timer.\n\nWeeks 1-2: Pick 1 medium NeetCode problem. 25 min. Talk out loud as if someone is watching. Then pick 1 easy system design question and talk through it for 15 min.\n\nWeeks 3-4: 1 medium problem (20 min cap) + 1 system design (20 min). Record yourself if possible. Watch it back.\n\nWeeks 5-6: Use Interviewing.io or Pramp for a real mock with a stranger. If unavailable\, full 45 min simulation: 5 min clarify\, 25 min code\, 15 min system design.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:98b030a6-c922-4f2c-9e8b-5145e22209d4
+DTSTART;TZID=Europe/London:20260403T060000
+DTEND;TZID=Europe/London:20260403T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:8ac2592c-73b9-465f-bb15-aed051b06962
+DTSTART;TZID=Europe/London:20260403T063000
+DTEND;TZID=Europe/London:20260403T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:4c916885-8694-49d0-b01b-cb2839e079f5
+DTSTART;TZID=Europe/London:20260403T080000
+DTEND;TZID=Europe/London:20260403T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 5]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:c18cda9e-a1a9-4107-8d3f-4efe3de687e0
+DTSTART;TZID=Europe/London:20260403T100000
+DTEND;TZID=Europe/London:20260403T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 5]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:11d7df38-8f9e-4a63-a2fe-cfc6a44cbd51
+DTSTART;TZID=Europe/London:20260403T120000
+DTEND;TZID=Europe/London:20260403T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 5]\n\nNeetCode System Design: replication\, sharding\, CAP theorem\, message queues\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:718ba27f-2016-4318-b35d-fc29be729a93
+DTSTART;TZID=Europe/London:20260403T143000
+DTEND;TZID=Europe/London:20260403T160000
+SUMMARY:Block 4: Week Review + Plan
+DESCRIPTION:[Phase: Ramp | Week 3 | Day 5]\n\nReview the week honestly.\n\n- How many NeetCode problems solved? Which patterns are strong/weak?\n- Codecrafters: how many stages completed? Anything blocked?\n- System design: can you draw and explain this week's topics cold?\n- What was the hardest moment this week? What would you do differently?\n\nWrite 3-5 bullet points in a notebook. Not for anyone else - for you.\nPlan next week: which NeetCode patterns to focus on\, which Codecrafters stages to target.\n\nThen stop. You are done for the week.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:f2319c55-257c-42af-aa7a-08c76eb4c0fa
+DTSTART;TZID=Europe/London:20260404T060000
+DTEND;TZID=Europe/London:20260404T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min.
+END:VEVENT
+BEGIN:VEVENT
+UID:27630de5-e87a-48e8-83c6-313f485059d0
+DTSTART;TZID=Europe/London:20260404T063000
+DTEND;TZID=Europe/London:20260404T073000
+SUMMARY:Exercise
+DESCRIPTION:Move. Lighter session if you need it.
+END:VEVENT
+BEGIN:VEVENT
+UID:2ecf1ccb-c358-446c-b60e-5e865f4fe2ac
+DTSTART;TZID=Europe/London:20260404T090000
+DTEND;TZID=Europe/London:20260404T110000
+SUMMARY:Light Review (Week 3 - Ramp)
+DESCRIPTION:Week 3 (Ramp) - optional light review.\n\nReview any problems you struggled with this week.\nSolve 1-2 from memory if you feel like it.\nSketch one system design on paper.\n\nIf you feel rested and sharp\, do the work.\nIf you feel drained\, rest. Recovery is not optional.\nYou know this from the clinical side.\n\nNo new material on Saturdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:1dd50360-4332-445c-9bae-f3e8e65a32ba
+DTSTART;TZID=Europe/London:20260405T080000
+DTEND;TZID=Europe/London:20260405T083000
+SUMMARY:DAY OFF
+DESCRIPTION:Week 3 complete. No code. No study.\nDo something that has nothing to do with engineering.
+END:VEVENT
+BEGIN:VEVENT
+UID:82681565-15b6-4d45-8cde-562de7c7d0ae
+DTSTART;TZID=Europe/London:20260406T060000
+DTEND;TZID=Europe/London:20260406T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:2e41b78c-9daf-4b1f-96ea-5f96c8e4ea27
+DTSTART;TZID=Europe/London:20260406T063000
+DTEND;TZID=Europe/London:20260406T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:c804dc25-d3fe-4b3d-8e23-c8b780379d3e
+DTSTART;TZID=Europe/London:20260406T080000
+DTEND;TZID=Europe/London:20260406T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 1]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:032b2307-714b-496b-aeb0-a7feb0099201
+DTSTART;TZID=Europe/London:20260406T100000
+DTEND;TZID=Europe/London:20260406T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 1]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:6ba4886a-b592-40fe-b477-3670a253ddac
+DTSTART;TZID=Europe/London:20260406T120000
+DTEND;TZID=Europe/London:20260406T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 1]\n\nNeetCode System Design: design URL shortener\, design pastebin\, design Twitter feed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:de991d4c-d38d-4e4c-bce8-f1efc7a175c6
+DTSTART;TZID=Europe/London:20260406T143000
+DTEND;TZID=Europe/London:20260406T160000
+SUMMARY:Block 4: Review + Reinforce
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 1]\n\nReview any NeetCode problems you struggled with last session.\nSolve them again from scratch without looking at the solution.\nIf you solve them cleanly\, the pattern has landed.\nIf you struggle again\, add that pattern to tomorrow's focus.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:6c1e86a9-c50f-44df-9356-0cf06b858af7
+DTSTART;TZID=Europe/London:20260407T060000
+DTEND;TZID=Europe/London:20260407T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:f01169f6-7dde-4faf-ac1d-83f10723f269
+DTSTART;TZID=Europe/London:20260407T063000
+DTEND;TZID=Europe/London:20260407T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:225ca63d-2086-4956-b96b-3d4bf5543817
+DTSTART;TZID=Europe/London:20260407T080000
+DTEND;TZID=Europe/London:20260407T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 2]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:7b8e4342-47b8-4de1-8e69-0bc45036e0c4
+DTSTART;TZID=Europe/London:20260407T100000
+DTEND;TZID=Europe/London:20260407T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 2]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:bfdcabd0-3184-4908-98fe-311b154bdd38
+DTSTART;TZID=Europe/London:20260407T120000
+DTEND;TZID=Europe/London:20260407T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 2]\n\nNeetCode System Design: design URL shortener\, design pastebin\, design Twitter feed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:075032c5-8aa4-4671-a875-9cc416543b7b
+DTSTART;TZID=Europe/London:20260407T143000
+DTEND;TZID=Europe/London:20260407T160000
+SUMMARY:Block 4: Explain Codecrafters Out Loud
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 2]\n\nTake the Codecrafters stages you completed this week.\nStand up. Draw the architecture on paper or whiteboard.\nExplain what each component does and why\, as if to an interviewer.\nTime yourself - aim for 10 min per subsystem.\nPractice the phrase: 'I chose X because Y\, the trade-off is Z.'\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:67ef964e-d38d-467b-af09-a154f0cba50b
+DTSTART;TZID=Europe/London:20260408T060000
+DTEND;TZID=Europe/London:20260408T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:d824c034-0cc4-4932-90d9-1dd821f8823c
+DTSTART;TZID=Europe/London:20260408T063000
+DTEND;TZID=Europe/London:20260408T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:350e39a7-b478-4eb5-b72a-6e02d71f8e5d
+DTSTART;TZID=Europe/London:20260408T080000
+DTEND;TZID=Europe/London:20260408T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 3]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:aa51ac62-c431-4476-ac3b-6346e479b65f
+DTSTART;TZID=Europe/London:20260408T100000
+DTEND;TZID=Europe/London:20260408T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 3]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:fc7abc14-e7d5-49b8-897b-41acb398534d
+DTSTART;TZID=Europe/London:20260408T120000
+DTEND;TZID=Europe/London:20260408T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 3]\n\nNeetCode System Design: design URL shortener\, design pastebin\, design Twitter feed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:85440a6f-43ba-4561-926b-7b3e1adba1a1
+DTSTART;TZID=Europe/London:20260408T143000
+DTEND;TZID=Europe/London:20260408T160000
+SUMMARY:Block 4: Design The Pit on Paper
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 3]\n\nPick a subsystem of The Pit you built. Draw it from memory.\nNo code\, no repo\, no AI. Paper and pen only.\n\nWeek 1: SSE streaming + bout engine\nWeek 2: Credit system + Stripe integration\nWeek 3: BYOK key lifecycle + model routing\nWeek 4: Agent creation + DNA fingerprinting + attestation\nWeek 5: Rate limiting + API design\nWeek 6: Full system - draw the whole thing\, 35 min\n\nTalk through trade-offs out loud as you draw.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:be4a107e-1e8e-45e8-b06b-60f330c396ff
+DTSTART;TZID=Europe/London:20260409T060000
+DTEND;TZID=Europe/London:20260409T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:e89ae56e-fa92-46a8-aece-529f6f1c3df2
+DTSTART;TZID=Europe/London:20260409T063000
+DTEND;TZID=Europe/London:20260409T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:01168f7e-3ca4-4e47-985e-507e0d4917e7
+DTSTART;TZID=Europe/London:20260409T080000
+DTEND;TZID=Europe/London:20260409T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 4]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:b976e038-7286-46ca-94e3-1e5ec996ffed
+DTSTART;TZID=Europe/London:20260409T100000
+DTEND;TZID=Europe/London:20260409T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 4]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:ae439f85-5081-4519-a683-6a200d7f6567
+DTSTART;TZID=Europe/London:20260409T120000
+DTEND;TZID=Europe/London:20260409T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 4]\n\nNeetCode System Design: design URL shortener\, design pastebin\, design Twitter feed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:6cf71cfd-543d-42ec-8b1c-6d4fb74ffa39
+DTSTART;TZID=Europe/London:20260409T143000
+DTEND;TZID=Europe/London:20260409T160000
+SUMMARY:Block 4: Mock Interview Simulation
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 4]\n\nFull simulation. Set a timer.\n\nWeeks 1-2: Pick 1 medium NeetCode problem. 25 min. Talk out loud as if someone is watching. Then pick 1 easy system design question and talk through it for 15 min.\n\nWeeks 3-4: 1 medium problem (20 min cap) + 1 system design (20 min). Record yourself if possible. Watch it back.\n\nWeeks 5-6: Use Interviewing.io or Pramp for a real mock with a stranger. If unavailable\, full 45 min simulation: 5 min clarify\, 25 min code\, 15 min system design.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:aae5a433-f374-4a74-acd6-01b42d43590d
+DTSTART;TZID=Europe/London:20260410T060000
+DTEND;TZID=Europe/London:20260410T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:a5151b01-893c-44e8-8bef-281e53249566
+DTSTART;TZID=Europe/London:20260410T063000
+DTEND;TZID=Europe/London:20260410T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:1985b284-1d05-4b6f-8ecf-6a7ef8e9e123
+DTSTART;TZID=Europe/London:20260410T080000
+DTEND;TZID=Europe/London:20260410T093000
+SUMMARY:Block 1: NeetCode Algorithms (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 5]\n\nMedium tier. 2-3 problems. No AI\, no autocomplete.\n\nTarget: 20-25 min per problem.\nTalk out loud - narrate your thinking.\nFocus areas: sliding window\, linked lists\, trees\, binary search\, heap/priority queue.\n\nIf a pattern is unfamiliar\, watch the NeetCode explanation first\, then solve 2 problems of that pattern before moving on.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:41a13bfe-718b-497b-b2c6-639218ceaa83
+DTSTART;TZID=Europe/London:20260410T100000
+DTEND;TZID=Europe/London:20260410T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own HTTP Server
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 5]\n\nCodecrafters: Build-your-own HTTP Server.\n\nRequest parsing\, routing\, concurrent connections\, compression.\nNo AI. No copilot.\nThis is foundational for any web engineering role.\n\nKey concepts: TCP sockets\, HTTP/1.1 parsing\, content negotiation\, gzip compression\, concurrent request handling.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:6eb7a9aa-0f7f-4e49-9813-924bf5a7b327
+DTSTART;TZID=Europe/London:20260410T120000
+DTEND;TZID=Europe/London:20260410T133000
+SUMMARY:Block 3: System Design (Ramp)
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 5]\n\nNeetCode System Design: design URL shortener\, design pastebin\, design Twitter feed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:3dc6b05b-728f-499a-8a86-2c82c93a96b6
+DTSTART;TZID=Europe/London:20260410T143000
+DTEND;TZID=Europe/London:20260410T160000
+SUMMARY:Block 4: Week Review + Plan
+DESCRIPTION:[Phase: Ramp | Week 4 | Day 5]\n\nReview the week honestly.\n\n- How many NeetCode problems solved? Which patterns are strong/weak?\n- Codecrafters: how many stages completed? Anything blocked?\n- System design: can you draw and explain this week's topics cold?\n- What was the hardest moment this week? What would you do differently?\n\nWrite 3-5 bullet points in a notebook. Not for anyone else - for you.\nPlan next week: which NeetCode patterns to focus on\, which Codecrafters stages to target.\n\nThen stop. You are done for the week.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:726864ee-8e6b-45bf-aaa3-d8db6fa727b5
+DTSTART;TZID=Europe/London:20260411T060000
+DTEND;TZID=Europe/London:20260411T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min.
+END:VEVENT
+BEGIN:VEVENT
+UID:b2221242-714b-44b7-9232-ff3b60cf62bd
+DTSTART;TZID=Europe/London:20260411T063000
+DTEND;TZID=Europe/London:20260411T073000
+SUMMARY:Exercise
+DESCRIPTION:Move. Lighter session if you need it.
+END:VEVENT
+BEGIN:VEVENT
+UID:10ef4b57-ba55-42a5-ab9a-5391448a9610
+DTSTART;TZID=Europe/London:20260411T090000
+DTEND;TZID=Europe/London:20260411T110000
+SUMMARY:Light Review (Week 4 - Ramp)
+DESCRIPTION:Week 4 (Ramp) - optional light review.\n\nReview any problems you struggled with this week.\nSolve 1-2 from memory if you feel like it.\nSketch one system design on paper.\n\nIf you feel rested and sharp\, do the work.\nIf you feel drained\, rest. Recovery is not optional.\nYou know this from the clinical side.\n\nNo new material on Saturdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:71bed5a3-b310-4d2b-99c6-507f70797d56
+DTSTART;TZID=Europe/London:20260412T080000
+DTEND;TZID=Europe/London:20260412T083000
+SUMMARY:DAY OFF
+DESCRIPTION:Week 4 complete. No code. No study.\nDo something that has nothing to do with engineering.
+END:VEVENT
+BEGIN:VEVENT
+UID:bda8ecff-8a01-4ecd-b5b1-f70e94d20e3f
+DTSTART;TZID=Europe/London:20260413T060000
+DTEND;TZID=Europe/London:20260413T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:63a76ff3-3bcf-437b-b701-37f77cd268fc
+DTSTART;TZID=Europe/London:20260413T063000
+DTEND;TZID=Europe/London:20260413T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:467b8d31-8054-4990-98f1-41d800677278
+DTSTART;TZID=Europe/London:20260413T080000
+DTEND;TZID=Europe/London:20260413T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 1]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:d34f820c-b105-4a7f-b694-04f038ef7f09
+DTSTART;TZID=Europe/London:20260413T100000
+DTEND;TZID=Europe/London:20260413T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 5 | Day 1]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:6267da90-dfe6-41fb-9aa4-eadc42b524b8
+DTSTART;TZID=Europe/London:20260413T120000
+DTEND;TZID=Europe/London:20260413T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 1]\n\nPractice: design a chat system from scratch on paper\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:46cbb11a-533f-4914-86df-9818325adeaf
+DTSTART;TZID=Europe/London:20260413T143000
+DTEND;TZID=Europe/London:20260413T160000
+SUMMARY:Block 4: Review + Reinforce
+DESCRIPTION:[Phase: Integration | Week 5 | Day 1]\n\nReview any NeetCode problems you struggled with last session.\nSolve them again from scratch without looking at the solution.\nIf you solve them cleanly\, the pattern has landed.\nIf you struggle again\, add that pattern to tomorrow's focus.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:05cf3d42-75ed-4207-975e-d5b51cccb945
+DTSTART;TZID=Europe/London:20260414T060000
+DTEND;TZID=Europe/London:20260414T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:56b043d8-32c5-4303-a626-f8f6ad634d9d
+DTSTART;TZID=Europe/London:20260414T063000
+DTEND;TZID=Europe/London:20260414T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:85bb96f3-4faf-4288-9109-3b4f58ebf47c
+DTSTART;TZID=Europe/London:20260414T080000
+DTEND;TZID=Europe/London:20260414T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 2]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:4fe208b9-6ac2-4a4b-b7a0-89e15c39f0ca
+DTSTART;TZID=Europe/London:20260414T100000
+DTEND;TZID=Europe/London:20260414T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 5 | Day 2]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:61c74fe5-4b6a-41d5-abfe-95366137c03e
+DTSTART;TZID=Europe/London:20260414T120000
+DTEND;TZID=Europe/London:20260414T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 2]\n\nPractice: design a chat system from scratch on paper\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:041f3885-b89e-4be7-8805-a510488dbe52
+DTSTART;TZID=Europe/London:20260414T143000
+DTEND;TZID=Europe/London:20260414T160000
+SUMMARY:Block 4: Explain Codecrafters Out Loud
+DESCRIPTION:[Phase: Integration | Week 5 | Day 2]\n\nTake the Codecrafters stages you completed this week.\nStand up. Draw the architecture on paper or whiteboard.\nExplain what each component does and why\, as if to an interviewer.\nTime yourself - aim for 10 min per subsystem.\nPractice the phrase: 'I chose X because Y\, the trade-off is Z.'\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:b4bfe743-d1eb-4aa6-a581-669cd95efd0d
+DTSTART;TZID=Europe/London:20260415T060000
+DTEND;TZID=Europe/London:20260415T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:3d233997-8112-4a2a-9c7b-b4b8ba64d8bd
+DTSTART;TZID=Europe/London:20260415T063000
+DTEND;TZID=Europe/London:20260415T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:42175b03-4c14-4ab0-8cbf-d695f036e335
+DTSTART;TZID=Europe/London:20260415T080000
+DTEND;TZID=Europe/London:20260415T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 3]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:f09b932f-37d0-4913-8822-27c58a37229b
+DTSTART;TZID=Europe/London:20260415T100000
+DTEND;TZID=Europe/London:20260415T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 5 | Day 3]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:bb17ff89-4fbe-4372-bb7a-9e89758b88dc
+DTSTART;TZID=Europe/London:20260415T120000
+DTEND;TZID=Europe/London:20260415T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 3]\n\nPractice: design a chat system from scratch on paper\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:95720304-751b-4544-8156-ec6388981e5c
+DTSTART;TZID=Europe/London:20260415T143000
+DTEND;TZID=Europe/London:20260415T160000
+SUMMARY:Block 4: Design The Pit on Paper
+DESCRIPTION:[Phase: Integration | Week 5 | Day 3]\n\nPick a subsystem of The Pit you built. Draw it from memory.\nNo code\, no repo\, no AI. Paper and pen only.\n\nWeek 1: SSE streaming + bout engine\nWeek 2: Credit system + Stripe integration\nWeek 3: BYOK key lifecycle + model routing\nWeek 4: Agent creation + DNA fingerprinting + attestation\nWeek 5: Rate limiting + API design\nWeek 6: Full system - draw the whole thing\, 35 min\n\nTalk through trade-offs out loud as you draw.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:60cb83bc-58c8-4d4b-ba09-7c482db85252
+DTSTART;TZID=Europe/London:20260416T060000
+DTEND;TZID=Europe/London:20260416T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:e01a2094-fb3e-4385-adeb-6cbb2cae686d
+DTSTART;TZID=Europe/London:20260416T063000
+DTEND;TZID=Europe/London:20260416T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:2df4962a-54d1-4f2a-b7ea-01d51e73ff8d
+DTSTART;TZID=Europe/London:20260416T080000
+DTEND;TZID=Europe/London:20260416T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 4]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:907b6728-ebfe-4c73-9031-ca7ba8b10681
+DTSTART;TZID=Europe/London:20260416T100000
+DTEND;TZID=Europe/London:20260416T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 5 | Day 4]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:3453cdc7-3efc-4966-b232-bcb9626bf93f
+DTSTART;TZID=Europe/London:20260416T120000
+DTEND;TZID=Europe/London:20260416T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 4]\n\nPractice: design a chat system from scratch on paper\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:c55ffa0e-e789-4769-b08f-0678fa4a360f
+DTSTART;TZID=Europe/London:20260416T143000
+DTEND;TZID=Europe/London:20260416T160000
+SUMMARY:Block 4: Mock Interview Simulation
+DESCRIPTION:[Phase: Integration | Week 5 | Day 4]\n\nFull simulation. Set a timer.\n\nWeeks 1-2: Pick 1 medium NeetCode problem. 25 min. Talk out loud as if someone is watching. Then pick 1 easy system design question and talk through it for 15 min.\n\nWeeks 3-4: 1 medium problem (20 min cap) + 1 system design (20 min). Record yourself if possible. Watch it back.\n\nWeeks 5-6: Use Interviewing.io or Pramp for a real mock with a stranger. If unavailable\, full 45 min simulation: 5 min clarify\, 25 min code\, 15 min system design.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:8cf17876-9c05-4d0a-87f7-5921f8e56a6d
+DTSTART;TZID=Europe/London:20260417T060000
+DTEND;TZID=Europe/London:20260417T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:40a38d80-de01-4027-87be-411731627579
+DTSTART;TZID=Europe/London:20260417T063000
+DTEND;TZID=Europe/London:20260417T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:75e37707-1139-4033-8c3f-515188cf4b0d
+DTSTART;TZID=Europe/London:20260417T080000
+DTEND;TZID=Europe/London:20260417T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 5]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:fc029d82-1308-4dc9-99f0-7f8e0bee9598
+DTSTART;TZID=Europe/London:20260417T100000
+DTEND;TZID=Europe/London:20260417T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 5 | Day 5]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:bc5ddca7-2824-426a-bbec-015159ea5f8a
+DTSTART;TZID=Europe/London:20260417T120000
+DTEND;TZID=Europe/London:20260417T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 5 | Day 5]\n\nPractice: design a chat system from scratch on paper\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:9a1e79cf-892f-4d36-8792-97c603da50cb
+DTSTART;TZID=Europe/London:20260417T143000
+DTEND;TZID=Europe/London:20260417T160000
+SUMMARY:Block 4: Week Review + Plan
+DESCRIPTION:[Phase: Integration | Week 5 | Day 5]\n\nReview the week honestly.\n\n- How many NeetCode problems solved? Which patterns are strong/weak?\n- Codecrafters: how many stages completed? Anything blocked?\n- System design: can you draw and explain this week's topics cold?\n- What was the hardest moment this week? What would you do differently?\n\nWrite 3-5 bullet points in a notebook. Not for anyone else - for you.\nPlan next week: which NeetCode patterns to focus on\, which Codecrafters stages to target.\n\nThen stop. You are done for the week.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:3bc24550-3394-4742-84dd-4cdf5f78ccae
+DTSTART;TZID=Europe/London:20260418T060000
+DTEND;TZID=Europe/London:20260418T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min.
+END:VEVENT
+BEGIN:VEVENT
+UID:f113044b-ec0b-4b0e-9175-a780a3d0f93c
+DTSTART;TZID=Europe/London:20260418T063000
+DTEND;TZID=Europe/London:20260418T073000
+SUMMARY:Exercise
+DESCRIPTION:Move. Lighter session if you need it.
+END:VEVENT
+BEGIN:VEVENT
+UID:658e8b6c-ae2c-4d7a-b7a7-afa2aa5e1cb0
+DTSTART;TZID=Europe/London:20260418T090000
+DTEND;TZID=Europe/London:20260418T110000
+SUMMARY:Light Review (Week 5 - Integration)
+DESCRIPTION:Week 5 (Integration) - optional light review.\n\nReview any problems you struggled with this week.\nSolve 1-2 from memory if you feel like it.\nSketch one system design on paper.\n\nIf you feel rested and sharp\, do the work.\nIf you feel drained\, rest. Recovery is not optional.\nYou know this from the clinical side.\n\nNo new material on Saturdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:8234b39a-3fbd-4f3c-b2fc-334c923fff6b
+DTSTART;TZID=Europe/London:20260419T080000
+DTEND;TZID=Europe/London:20260419T083000
+SUMMARY:DAY OFF
+DESCRIPTION:Week 5 complete. No code. No study.\nDo something that has nothing to do with engineering.
+END:VEVENT
+BEGIN:VEVENT
+UID:9412ac13-18c5-42f0-8ea7-d797241654df
+DTSTART;TZID=Europe/London:20260420T060000
+DTEND;TZID=Europe/London:20260420T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:ae0ebed1-6662-4d45-b394-becf4facea06
+DTSTART;TZID=Europe/London:20260420T063000
+DTEND;TZID=Europe/London:20260420T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:afedaad3-e108-45ce-b015-dd5d9b83620b
+DTSTART;TZID=Europe/London:20260420T080000
+DTEND;TZID=Europe/London:20260420T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 1]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:a9c8f80e-05a1-4a25-bb4e-57d1db650e26
+DTSTART;TZID=Europe/London:20260420T100000
+DTEND;TZID=Europe/London:20260420T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 6 | Day 1]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:f7a5114e-0825-435f-bda2-63e5422c1d44
+DTSTART;TZID=Europe/London:20260420T120000
+DTEND;TZID=Europe/London:20260420T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 1]\n\nPractice: design a rate limiter + notification system\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:fc61415d-ec31-47f9-b10a-80cad2fab8b0
+DTSTART;TZID=Europe/London:20260420T143000
+DTEND;TZID=Europe/London:20260420T160000
+SUMMARY:Block 4: Review + Reinforce
+DESCRIPTION:[Phase: Integration | Week 6 | Day 1]\n\nReview any NeetCode problems you struggled with last session.\nSolve them again from scratch without looking at the solution.\nIf you solve them cleanly\, the pattern has landed.\nIf you struggle again\, add that pattern to tomorrow's focus.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:386fabfd-231b-40af-bd37-c0ad2e91b3a7
+DTSTART;TZID=Europe/London:20260421T060000
+DTEND;TZID=Europe/London:20260421T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:738b8290-2116-4d59-a571-7db828bd205f
+DTSTART;TZID=Europe/London:20260421T063000
+DTEND;TZID=Europe/London:20260421T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:44fb3861-b407-4de2-9f1e-852fe6ab7fe5
+DTSTART;TZID=Europe/London:20260421T080000
+DTEND;TZID=Europe/London:20260421T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 2]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:45e56d32-c671-4d37-a186-8e85cfb717fa
+DTSTART;TZID=Europe/London:20260421T100000
+DTEND;TZID=Europe/London:20260421T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 6 | Day 2]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:8f42f2cc-1328-46b7-a85c-1c8656884609
+DTSTART;TZID=Europe/London:20260421T120000
+DTEND;TZID=Europe/London:20260421T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 2]\n\nPractice: design a rate limiter + notification system\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:e6837346-f926-4f88-b80a-dee088d4d33e
+DTSTART;TZID=Europe/London:20260421T143000
+DTEND;TZID=Europe/London:20260421T160000
+SUMMARY:Block 4: Explain Codecrafters Out Loud
+DESCRIPTION:[Phase: Integration | Week 6 | Day 2]\n\nTake the Codecrafters stages you completed this week.\nStand up. Draw the architecture on paper or whiteboard.\nExplain what each component does and why\, as if to an interviewer.\nTime yourself - aim for 10 min per subsystem.\nPractice the phrase: 'I chose X because Y\, the trade-off is Z.'\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:6a23260f-283e-4b82-ac31-8aac75150c8d
+DTSTART;TZID=Europe/London:20260422T060000
+DTEND;TZID=Europe/London:20260422T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:9ac5f848-78bf-49e5-8204-2f53ead142e4
+DTSTART;TZID=Europe/London:20260422T063000
+DTEND;TZID=Europe/London:20260422T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:2e2eefbc-157c-4e8d-97d9-f60c56a42d31
+DTSTART;TZID=Europe/London:20260422T080000
+DTEND;TZID=Europe/London:20260422T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 3]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:38c09001-8076-4bd2-a739-606db4e18441
+DTSTART;TZID=Europe/London:20260422T100000
+DTEND;TZID=Europe/London:20260422T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 6 | Day 3]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:b5d44d69-8c17-4dc8-8d8d-081cc8a9a124
+DTSTART;TZID=Europe/London:20260422T120000
+DTEND;TZID=Europe/London:20260422T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 3]\n\nPractice: design a rate limiter + notification system\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:d06620e5-54df-498c-ad5d-5102442e1dad
+DTSTART;TZID=Europe/London:20260422T143000
+DTEND;TZID=Europe/London:20260422T160000
+SUMMARY:Block 4: Design The Pit on Paper
+DESCRIPTION:[Phase: Integration | Week 6 | Day 3]\n\nPick a subsystem of The Pit you built. Draw it from memory.\nNo code\, no repo\, no AI. Paper and pen only.\n\nWeek 1: SSE streaming + bout engine\nWeek 2: Credit system + Stripe integration\nWeek 3: BYOK key lifecycle + model routing\nWeek 4: Agent creation + DNA fingerprinting + attestation\nWeek 5: Rate limiting + API design\nWeek 6: Full system - draw the whole thing\, 35 min\n\nTalk through trade-offs out loud as you draw.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:ae2e3ea4-d3c4-47f0-8ea8-bb845487b40f
+DTSTART;TZID=Europe/London:20260423T060000
+DTEND;TZID=Europe/London:20260423T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:11761390-620c-4a8c-946f-cb0a356ba2cb
+DTSTART;TZID=Europe/London:20260423T063000
+DTEND;TZID=Europe/London:20260423T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:f6332b45-c24c-461f-b53a-5810d9681be4
+DTSTART;TZID=Europe/London:20260423T080000
+DTEND;TZID=Europe/London:20260423T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 4]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:1704c305-6454-42b2-8b9d-881f2dc4f8bb
+DTSTART;TZID=Europe/London:20260423T100000
+DTEND;TZID=Europe/London:20260423T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 6 | Day 4]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:4c9045a3-d46c-46d8-b0ba-c4c41b465c4a
+DTSTART;TZID=Europe/London:20260423T120000
+DTEND;TZID=Europe/London:20260423T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 4]\n\nPractice: design a rate limiter + notification system\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:378e844a-99dd-4d05-956b-31b9d1307334
+DTSTART;TZID=Europe/London:20260423T143000
+DTEND;TZID=Europe/London:20260423T160000
+SUMMARY:Block 4: Mock Interview Simulation
+DESCRIPTION:[Phase: Integration | Week 6 | Day 4]\n\nFull simulation. Set a timer.\n\nWeeks 1-2: Pick 1 medium NeetCode problem. 25 min. Talk out loud as if someone is watching. Then pick 1 easy system design question and talk through it for 15 min.\n\nWeeks 3-4: 1 medium problem (20 min cap) + 1 system design (20 min). Record yourself if possible. Watch it back.\n\nWeeks 5-6: Use Interviewing.io or Pramp for a real mock with a stranger. If unavailable\, full 45 min simulation: 5 min clarify\, 25 min code\, 15 min system design.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:e0bab320-466c-4456-8852-cfcf6a9303af
+DTSTART;TZID=Europe/London:20260424T060000
+DTEND;TZID=Europe/London:20260424T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min. Non-negotiable.\nThis is not leisure - it is cognitive maintenance.
+END:VEVENT
+BEGIN:VEVENT
+UID:e35f732e-60a6-4ffd-8203-374ac3b9df35
+DTSTART;TZID=Europe/London:20260424T063000
+DTEND;TZID=Europe/London:20260424T073000
+SUMMARY:Exercise
+DESCRIPTION:Kettlebells\, bodyweight\, walk - whatever moves.\nGet blood flowing before the first focus block.
+END:VEVENT
+BEGIN:VEVENT
+UID:2ee848cb-1764-4aa4-80df-2acf38b06e95
+DTSTART;TZID=Europe/London:20260424T080000
+DTEND;TZID=Europe/London:20260424T093000
+SUMMARY:Block 1: NeetCode Algorithms (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 5]\n\nMedium tier. TIMED - 20 min hard cap per problem.\n\nIf you don't solve it in 20 min\, stop\, read solution\, move on. This simulates interview pressure.\nTalk out loud throughout - this is interview simulation.\nFocus areas: graphs\, dynamic programming\, backtracking\, intervals.\n\nAfter solving\, ask: could I explain this solution clearly to an interviewer? If not\, practice the explanation.\n\nRULE: No AI. No autocomplete. No copilot.\nIf you reach for a tool\, that is the muscle atrophying. Stay with it.
+END:VEVENT
+BEGIN:VEVENT
+UID:85074643-4c83-4590-b2c1-c39cf8332fc5
+DTSTART;TZID=Europe/London:20260424T100000
+DTEND;TZID=Europe/London:20260424T113000
+SUMMARY:Block 2: Codecrafters - Build-your-own Docker
+DESCRIPTION:[Phase: Integration | Week 6 | Day 5]\n\nCodecrafters: Build-your-own Docker.\n\nLinux namespaces\, chroot\, process isolation.\nNo AI. No copilot.\nStrong differentiator in interviews - connects to your container/midgets work.\n\nKey concepts: chroot\, PID namespaces\, filesystem isolation\, image layers\, registry interaction.\n\nRULE: No AI. No copilot. Read the docs. Read the error messages.\nEvery stage you complete by hand rebuilds the muscle.
+END:VEVENT
+BEGIN:VEVENT
+UID:3ace6f03-dd0c-4c72-b6fc-d10b842fae76
+DTSTART;TZID=Europe/London:20260424T120000
+DTEND;TZID=Europe/London:20260424T133000
+SUMMARY:Block 3: System Design (Integration)
+DESCRIPTION:[Phase: Integration | Week 6 | Day 5]\n\nPractice: design a rate limiter + notification system\, out loud\, 35 min timed\n\nMon-Wed: Watch NeetCode videos\, take notes BY HAND in notebook.\nThu-Fri: Practice designing systems out loud\, draw on paper.\n\nKey skill: drive the conversation. Ask clarifying questions.\nMake trade-offs explicit. Draw while talking.\n\nRULE: No AI. Paper and pen for diagrams.
+END:VEVENT
+BEGIN:VEVENT
+UID:18bd8fbd-a4f6-4c24-b4ec-f361c607d64d
+DTSTART;TZID=Europe/London:20260424T143000
+DTEND;TZID=Europe/London:20260424T160000
+SUMMARY:Block 4: Week Review + Plan
+DESCRIPTION:[Phase: Integration | Week 6 | Day 5]\n\nReview the week honestly.\n\n- How many NeetCode problems solved? Which patterns are strong/weak?\n- Codecrafters: how many stages completed? Anything blocked?\n- System design: can you draw and explain this week's topics cold?\n- What was the hardest moment this week? What would you do differently?\n\nWrite 3-5 bullet points in a notebook. Not for anyone else - for you.\nPlan next week: which NeetCode patterns to focus on\, which Codecrafters stages to target.\n\nThen stop. You are done for the week.\n\nAfter this block\, you are DONE for the day.\n16:00-18:00 is leisure. No code. No study.
+END:VEVENT
+BEGIN:VEVENT
+UID:73a3f3fd-2d8c-4e0e-8fa7-433f10b93c8e
+DTSTART;TZID=Europe/London:20260425T060000
+DTEND;TZID=Europe/London:20260425T063000
+SUMMARY:Meditation
+DESCRIPTION:20-30 min.
+END:VEVENT
+BEGIN:VEVENT
+UID:e2c578da-4cc3-4ff7-bdc7-8cc59ed76571
+DTSTART;TZID=Europe/London:20260425T063000
+DTEND;TZID=Europe/London:20260425T073000
+SUMMARY:Exercise
+DESCRIPTION:Move. Lighter session if you need it.
+END:VEVENT
+BEGIN:VEVENT
+UID:420fe613-bb86-419c-a46d-185aba80ce96
+DTSTART;TZID=Europe/London:20260425T090000
+DTEND;TZID=Europe/London:20260425T110000
+SUMMARY:Light Review (Week 6 - Integration)
+DESCRIPTION:Week 6 (Integration) - optional light review.\n\nReview any problems you struggled with this week.\nSolve 1-2 from memory if you feel like it.\nSketch one system design on paper.\n\nIf you feel rested and sharp\, do the work.\nIf you feel drained\, rest. Recovery is not optional.\nYou know this from the clinical side.\n\nNo new material on Saturdays.
+END:VEVENT
+BEGIN:VEVENT
+UID:01954991-5205-4ea5-b257-4b93c82f5602
+DTSTART;TZID=Europe/London:20260426T080000
+DTEND;TZID=Europe/London:20260426T083000
+SUMMARY:DAY OFF
+DESCRIPTION:Week 6 complete. No code. No study.\nDo something that has nothing to do with engineering.
+END:VEVENT
+BEGIN:VEVENT
+UID:e2f14122-93c3-4324-b220-d2d3ce79b60c
+DTSTART;TZID=Europe/London:20260427T080000
+DTEND;TZID=Europe/London:20260427T090000
+SUMMARY:INTERVIEW PREP COMPLETE - Go Time
+DESCRIPTION:Six weeks done.\n\nYou have solved 60-90 algorithm problems by hand.\nYou have built 3 real systems from scratch.\nYou have studied and practised system design weekly.\nYou have done mock interviews.\n\nThe manual coding muscle is back.\nThe system design vocabulary is loaded.\nThe portfolio (The Pit\, oceanheart.ai) was already strong.\n\nNow go interview. Top-choice companies from here.\nLead with what you built. Let the prep show in the room.
+END:VEVENT
+
+END:VCALENDAR
