@@ -81,6 +81,11 @@ export const bouts = pgTable('bouts', {
     table.status,
     table.createdAt,
   ),
+  // Supports countUserCompletedBouts() filtering by ownerId + status.
+  ownerStatusIdx: index('bouts_owner_status_idx').on(
+    table.ownerId,
+    table.status,
+  ),
   // FK added via foreignKey() because users is defined after bouts.
   ownerFk: foreignKey({
     columns: [table.ownerId],
@@ -112,6 +117,10 @@ export const users = pgTable('users', {
 }, (table) => ({
   referralCodeIdx: uniqueIndex('users_referral_code_idx').on(
     table.referralCode,
+  ),
+  // Supports webhook handler lookups by Stripe customer ID.
+  stripeCustomerIdx: index('users_stripe_customer_idx').on(
+    table.stripeCustomerId,
   ),
 }));
 
@@ -173,7 +182,10 @@ export const referrals = pgTable('referrals', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (table) => ({
+  // Supports applyReferralCode() check for existing referral.
+  referredIdIdx: index('referrals_referred_id_idx').on(table.referredId),
+}));
 
 export const reactions = pgTable('reactions', {
   id: serial('id').primaryKey(),
@@ -269,6 +281,11 @@ export const agents = pgTable('agents', {
   archivedCreatedIdx: index('agents_archived_created_idx').on(
     table.archived,
     table.createdAt,
+  ),
+  // Supports listing user's custom agents with ownerId + archived filter.
+  ownerArchivedIdx: index('agents_owner_archived_idx').on(
+    table.ownerId,
+    table.archived,
   ),
   parentFk: foreignKey({
     columns: [table.parentId],
@@ -478,7 +495,10 @@ export const remixEvents = pgTable('remix_events', {
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
-});
+}, (table) => ({
+  // Supports getRemixCountForAgent() counting remixes by source agent.
+  sourceAgentIdx: index('remix_events_source_agent_idx').on(table.sourceAgentId),
+}));
 
 // ---------------------------------------------------------------------------
 // Research exports – snapshot payloads for research dataset downloads
