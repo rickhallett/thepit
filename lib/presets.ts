@@ -8,6 +8,7 @@
 // Raw JSON uses snake_case (preset_id, system_prompt). The normalizePreset()
 // function converts to camelCase for internal use.
 
+import { z } from 'zod/v4';
 import darwinSpecial from '@/presets/darwin-special.json';
 import firstContact from '@/presets/first-contact.json';
 import flatshare from '@/presets/flatshare.json';
@@ -93,6 +94,84 @@ type RawPreset = {
   input_label?: string;
   input_examples?: string[];
 };
+
+// ---------------------------------------------------------------------------
+// Zod validation schemas for preset JSON files
+// ---------------------------------------------------------------------------
+
+/** Schema for research metadata in research presets. */
+export const researchMetaSchema = z.object({
+  experiment: z.string(),
+  hypothesis: z.array(z.string()),
+  belief_statement: z.string(),
+  condition: z.string(),
+  notes: z.string(),
+});
+
+/** Schema for raw agent definition in preset JSON. */
+export const rawAgentSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  system_prompt: z.string().min(1),
+  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'color must be a valid hex color'),
+  avatar: z.string().optional(),
+});
+
+/** Schema for raw preset JSON files (free presets). */
+export const rawPresetSchema = z.object({
+  preset_id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  agents: z.array(rawAgentSchema).min(1),
+  max_turns: z.object({
+    standard: z.number().int().positive().optional(),
+    juiced: z.number().int().positive().optional(),
+    unleashed: z.number().int().positive().optional(),
+  }).optional(),
+  requires_input: z.boolean().optional(),
+  input_label: z.string().optional(),
+  input_examples: z.array(z.string()).optional(),
+  turn_order: z.string().optional(),
+  launch_day_hero: z.boolean().optional(),
+  featured: z.boolean().optional(),
+  special_event: z.boolean().optional(),
+  research: researchMetaSchema.optional(),
+  note: z.string().optional(),
+});
+
+/** Schema for alternate agent definition in premium preset packs. */
+export const alternatePresetAgentSchema = z.object({
+  name: z.string().min(1),
+  role: z.string().min(1),
+  systemPrompt: z.string().min(1),
+});
+
+/** Schema for alternate preset format (premium preset packs). */
+export const alternatePresetSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  premise: z.string().min(1),
+  tone: z.string().min(1),
+  botCount: z.number().int().positive(),
+  maxMessages: z.number().int().positive(),
+  msgMaxLength: z.number().int().positive(),
+  agents: z.array(alternatePresetAgentSchema).min(1),
+});
+
+/** Schema for preset index entry. */
+export const presetIndexEntrySchema = z.object({
+  id: z.string().min(1),
+  file: z.string().min(1),
+  hero: z.boolean(),
+  agents: z.number().int().positive(),
+  requires_input: z.boolean().optional(),
+});
+
+/** Schema for presets/index.json. */
+export const presetIndexSchema = z.object({
+  version: z.string().min(1),
+  presets: z.array(presetIndexEntrySchema).min(1),
+});
 
 const RAW_PRESETS: RawPreset[] = [
   darwinSpecial,
