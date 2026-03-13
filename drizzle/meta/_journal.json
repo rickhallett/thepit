@@ -8,6 +8,13 @@
       "when": 1771641229060,
       "tag": "0000_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773390015496,
+      "tag": "0001_wild_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }
