@@ -26,7 +26,7 @@ import { log } from '@/lib/logger';
 import { serverTrack, serverCaptureAIGeneration, flushServerAnalytics } from '@/lib/posthog-server';
 import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { getRequestId } from '@/lib/request-context';
-import { bouts, type TranscriptEntry } from '@/db/schema';
+import { bouts, users, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/lib/byok';
 import {
   FREE_MODEL_ID,
@@ -1202,24 +1202,19 @@ async function _executeBoutInner(
       has_share_line: !!shareLine,
     });
 
-    // --- Analytics: user_activated (OCE-253) ---
-    // Fire once when a user completes their very first bout. We check the DB
-    // for any OTHER completed bouts by this user. If this is the only one,
-    // this is their activation moment.
-    //
-    // KNOWN RACE: Two concurrent bout completions can both see count(*) === 1
-    // and fire duplicate user_activated events. An atomic UPDATE ... WHERE
-    // activated_at IS NULL RETURNING pattern would fix this, but requires a
-    // schema migration (no activated_at column exists). The minor analytics
-    // duplication is acceptable — PostHog deduplicates on distinct_id+timestamp
-    // and the funnel metric tolerates it.
+    // --- Analytics: user_activated (RD-004) ---
+    // Fire once when a user completes their very first bout. Uses an atomic
+    // UPDATE ... WHERE activated_at IS NULL RETURNING to guarantee exactly one
+    // event even under concurrent bout completions. Only the first UPDATE gets
+    // a RETURNING row; the second sees an empty result and skips.
     if (userId) {
       try {
-        const [boutCount] = await db
-          .select({ value: sql<number>`count(*)::int` })
-          .from(bouts)
-          .where(and(eq(bouts.ownerId, userId), eq(bouts.status, 'completed')));
-        if (boutCount && boutCount.value === 1) {
+        const [activated] = await db
+          .update(users)
+          .set({ activatedAt: sql`NOW()` })
+          .where(and(eq(users.id, userId), sql`${users.activatedAt} IS NULL`))
+          .returning({ id: users.id });
+        if (activated) {
           await serverTrack(userId, 'user_activated', {
             preset_id: presetId,
             model_id: modelId,
@@ -1227,7 +1222,7 @@ async function _executeBoutInner(
           });
         }
       } catch {
-        // Non-critical — don't break bout completion for analytics
+        // Non-critical - don't break bout completion for analytics
       }
     }
 
