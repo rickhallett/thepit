@@ -1,4 +1,4 @@
-import type { TranscriptEntry } from '@/db/schema';
+import type { TranscriptEntry } from '@/lib/bout-validation';
 
 // ---------------------------------------------------------------------------
 // Types

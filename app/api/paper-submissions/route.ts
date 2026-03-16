@@ -1,13 +1,12 @@
 import { auth } from '@clerk/nextjs/server';
 
-import { requireDb } from '@/db';
-import { paperSubmissions } from '@/db/schema';
 import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { parseArxivId, fetchArxivMetadata } from '@/lib/arxiv';
 import { ensureUserRecord } from '@/lib/users';
 import { paperSubmissionSchema } from '@/lib/api-schemas';
+import { submitPaper } from '@/lib/submissions';
 
 export const runtime = 'nodejs';
 
@@ -41,20 +40,16 @@ export const POST = withLogging(async function POST(req: Request) {
 
   await ensureUserRecord(userId);
 
-  const db = requireDb();
-  await db
-    .insert(paperSubmissions)
-    .values({
-      userId,
-      arxivId,
-      arxivUrl: `https://arxiv.org/abs/${arxivId}`,
-      title: metadata.title.slice(0, 500),
-      authors: metadata.authors.slice(0, 1000),
-      abstract: metadata.abstract || null,
-      justification,
-      relevanceArea,
-    })
-    .onConflictDoNothing();
+  await submitPaper({
+    userId,
+    arxivId,
+    arxivUrl: `https://arxiv.org/abs/${arxivId}`,
+    title: metadata.title.slice(0, 500),
+    authors: metadata.authors.slice(0, 1000),
+    abstract: metadata.abstract || null,
+    justification,
+    relevanceArea,
+  });
 
   return Response.json({
     ok: true,

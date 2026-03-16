@@ -1,9 +1,8 @@
-import { requireDb } from '@/db';
-import { newsletterSignups } from '@/db/schema';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { parseValidBody, rateLimitResponse } from '@/lib/api-utils';
 import { newsletterSchema } from '@/lib/api-schemas';
+import { subscribeNewsletter } from '@/lib/submissions';
 
 export const runtime = 'nodejs';
 
@@ -21,11 +20,7 @@ export const POST = withLogging(async function POST(req: Request) {
   if (parsed.error) return parsed.error;
   const { email } = parsed.data;
 
-  const db = requireDb();
-  await db
-    .insert(newsletterSignups)
-    .values({ email })
-    .onConflictDoNothing();
+  await subscribeNewsletter(email);
 
   return Response.json({ ok: true });
 }, 'newsletter');
