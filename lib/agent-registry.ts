@@ -16,9 +16,9 @@ import { requireDb } from '@/db';
 import { agents } from '@/db/schema';
 import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
 import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
-import { ALL_PRESETS, getPresetById } from '@/lib/presets';
+import { ALL_PRESETS } from '@/lib/presets';
 import { buildAgentManifest, hashAgentManifest, hashAgentPrompt } from '@/lib/agent-dna';
-import { rowToSnapshot } from '@/lib/agent-mapper';
+import { findPresetAgent, presetToSnapshot, rowToSnapshot } from '@/lib/agent-mapper';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 
@@ -69,25 +69,13 @@ export const parsePresetAgentId = (agentId: string) => {
   return { presetId, agentId: innerId };
 };
 
-const findPresetAgent = (presetId: string, agentId: string) => {
-  const preset = getPresetById(presetId);
-  if (!preset) return null;
-  const agent = preset.agents.find((item) => item.id === agentId);
-  if (!agent) return null;
-  return { preset, agent };
-};
-
 export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
   try {
     const db = requireDb();
     const rows = await db.select().from(agents).where(eq(agents.archived, false));
     if (rows.length) {
       return rows.map((row) => {
-        const parsed = parsePresetAgentId(row.id);
-        const presetMatch =
-          parsed && row.presetId
-            ? findPresetAgent(parsed.presetId, parsed.agentId)
-            : null;
+        const presetMatch = findPresetAgent(row.id);
         return rowToSnapshot(row, presetMatch);
       });
     }
@@ -97,36 +85,14 @@ export const getAgentSnapshots = async (): Promise<AgentSnapshot[]> => {
 
   const fallback = await Promise.all(
     ALL_PRESETS.flatMap((preset) =>
-      preset.agents.map(async (agent) => ({
-        id: buildPresetAgentId(preset.id, agent.id),
-        name: agent.name,
-        presetId: preset.id,
-        presetName: preset.name,
-        tier: preset.tier,
-        color: agent.color,
-        avatar: agent.avatar,
-        systemPrompt: agent.systemPrompt,
-        responseLength: DEFAULT_RESPONSE_LENGTH,
-        responseFormat: DEFAULT_RESPONSE_FORMAT,
-        archetype: null,
-        tone: null,
-        quirks: null,
-        speechPattern: null,
-        openingMove: null,
-        signatureMove: null,
-        weakness: null,
-        goal: null,
-        fears: null,
-        customInstructions: null,
-        createdAt: null,
-        ownerId: null,
-        parentId: null,
-        promptHash: await hashAgentPrompt(agent.systemPrompt),
-        manifestHash: null,
-        attestationUid: null,
-        attestationTxHash: null,
-        archived: false,
-      })),
+      preset.agents.map(async (agent) => {
+        const agentId = buildPresetAgentId(preset.id, agent.id);
+        const snapshot = presetToSnapshot(agentId, { preset, agent });
+        return {
+          ...snapshot,
+          promptHash: await hashAgentPrompt(agent.systemPrompt),
+        };
+      }),
     ),
   );
 

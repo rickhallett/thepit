@@ -1,14 +1,39 @@
-// Shared agent row-to-snapshot mapping, used by agent-registry and agent-detail.
+// Shared agent snapshot resolution, used by agent-registry, agent-detail,
+// and leaderboard. Two entry points:
+//
+//   rowToSnapshot    - DB row + optional preset enrichment -> AgentSnapshot
+//   presetToSnapshot - pure preset definition -> AgentSnapshot (no DB)
+//
+// Both produce the same AgentSnapshot shape. Consumers should not build
+// snapshots inline.
 
 import type { AgentSnapshot } from '@/lib/agent-registry';
+import { parsePresetAgentId } from '@/lib/agent-registry';
 import type { agents } from '@/db/schema';
+import { getPresetById } from '@/lib/presets';
+import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
+import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
 
 type AgentRow = typeof agents.$inferSelect;
 
-type PresetMatch = {
-  preset: { name: string };
-  agent: { color?: string; avatar?: string };
+export type PresetMatch = {
+  preset: { name: string; id: string; tier: 'free' | 'premium' };
+  agent: { id: string; name: string; systemPrompt: string; color?: string; avatar?: string };
 } | null;
+
+/**
+ * Resolve a preset agent by its composite ID (e.g. "preset:roast-battle:judge").
+ * Returns the matched preset and agent, or null if not found.
+ */
+export function findPresetAgent(agentId: string): PresetMatch {
+  const parsed = parsePresetAgentId(agentId);
+  if (!parsed) return null;
+  const preset = getPresetById(parsed.presetId);
+  if (!preset) return null;
+  const agent = preset.agents.find((item) => item.id === parsed.agentId);
+  if (!agent) return null;
+  return { preset, agent };
+}
 
 /**
  * Map a Drizzle agent row + optional preset match to an AgentSnapshot.
@@ -47,5 +72,45 @@ export function rowToSnapshot(
     attestationUid: row.attestationUid ?? null,
     attestationTxHash: row.attestationTxHash ?? null,
     archived: row.archived ?? false,
+  } satisfies AgentSnapshot;
+}
+
+/**
+ * Build an AgentSnapshot from a preset definition (no DB row).
+ * Used as fallback when the agent is not yet persisted.
+ */
+export function presetToSnapshot(
+  agentId: string,
+  match: NonNullable<PresetMatch>,
+): AgentSnapshot {
+  return {
+    id: agentId,
+    name: match.agent.name,
+    presetId: match.preset.id,
+    presetName: match.preset.name,
+    tier: match.preset.tier,
+    color: match.agent.color,
+    avatar: match.agent.avatar,
+    systemPrompt: match.agent.systemPrompt,
+    responseLength: DEFAULT_RESPONSE_LENGTH,
+    responseFormat: DEFAULT_RESPONSE_FORMAT,
+    archetype: null,
+    tone: null,
+    quirks: null,
+    speechPattern: null,
+    openingMove: null,
+    signatureMove: null,
+    weakness: null,
+    goal: null,
+    fears: null,
+    customInstructions: null,
+    createdAt: null,
+    ownerId: null,
+    parentId: null,
+    promptHash: null,
+    manifestHash: null,
+    attestationUid: null,
+    attestationTxHash: null,
+    archived: false,
   } satisfies AgentSnapshot;
 }
