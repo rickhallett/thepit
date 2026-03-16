@@ -1,10 +1,9 @@
-import { requireDb } from '@/db';
-import { contactSubmissions } from '@/db/schema';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { log } from '@/lib/logger';
 import { withLogging } from '@/lib/api-logging';
 import { parseValidBody, rateLimitResponse } from '@/lib/api-utils';
 import { contactSchema } from '@/lib/api-schemas';
+import { submitContact } from '@/lib/submissions';
 
 export const runtime = 'nodejs';
 
@@ -31,11 +30,10 @@ export const POST = withLogging(async function POST(req: Request) {
   if (parsed.error) return parsed.error;
   const { name, email, message } = parsed.data;
 
-  /* Always capture to DB first — this is the durable record */
-  const db = requireDb();
-  await db.insert(contactSubmissions).values({ name, email, message });
+  /* Always capture to DB first - this is the durable record */
+  await submitContact({ name, email, message });
 
-  /* Best-effort email delivery — log failure but do not fail the request */
+  /* Best-effort email delivery - log failure but do not fail the request */
   const apiKey = process.env.RESEND_API_KEY;
   const toEmail = process.env.CONTACT_TO_EMAIL;
   const fromEmail = process.env.CONTACT_FROM_EMAIL ?? 'The Pit <contact@thepit.ai>';
@@ -52,7 +50,7 @@ export const POST = withLogging(async function POST(req: Request) {
         body: JSON.stringify({
           from: fromEmail,
           to: [toEmail],
-          subject: `The Pit contact — ${name.replace(/[\r\n]+/g, ' ').trim()}`,
+          subject: `The Pit contact - ${name.replace(/[\r\n]+/g, ' ').trim()}`,
           html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`,
         }),
       });

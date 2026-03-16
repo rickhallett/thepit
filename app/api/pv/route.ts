@@ -6,14 +6,13 @@
 
 import crypto from 'crypto';
 
-import { requireDb } from '@/db';
-import { pageViews } from '@/db/schema';
 import { sha256Hex } from '@/lib/hash';
 import { log } from '@/lib/logger';
 import { errorResponse, parseValidBody, API_ERRORS } from '@/lib/api-utils';
 import { pageViewSchema } from '@/lib/api-schemas';
 import { withLogging } from '@/lib/api-logging';
 import { serverTrack } from '@/lib/posthog-server';
+import { recordPageView } from '@/lib/submissions';
 
 export const runtime = 'nodejs';
 
@@ -25,7 +24,7 @@ function timingSafeCompare(a: string, b: string): boolean {
 }
 
 async function rawPOST(req: Request) {
-  // Verify internal secret — reject external callers
+  // Verify internal secret - reject external callers
   const secret = req.headers.get('x-pv-secret');
   const expected = process.env.PV_INTERNAL_SECRET ?? '';
   if (!secret || !expected || !timingSafeCompare(secret, expected)) {
@@ -38,7 +37,7 @@ async function rawPOST(req: Request) {
 
   const { path, sessionId } = payload;
 
-  // Parse UTM from cookie JSON — extract all 5 standard UTM params
+  // Parse UTM from cookie JSON - extract all 5 standard UTM params
   let utmSource: string | null = null;
   let utmMedium: string | null = null;
   let utmCampaign: string | null = null;
@@ -53,7 +52,7 @@ async function rawPOST(req: Request) {
       utmTerm = typeof utm.utm_term === 'string' ? utm.utm_term.slice(0, 128) : null;
       utmContent = typeof utm.utm_content === 'string' ? utm.utm_content.slice(0, 128) : null;
     } catch {
-      // Malformed cookie — ignore
+      // Malformed cookie - ignore
     }
   }
 
@@ -63,8 +62,7 @@ async function rawPOST(req: Request) {
   const ipHash = payload.clientIp ? await sha256Hex(payload.clientIp) : null;
 
   try {
-    const db = requireDb();
-    await db.insert(pageViews).values({
+    await recordPageView({
       path: path.slice(0, 512),
       userId,
       sessionId: sessionId.slice(0, 32),
@@ -81,7 +79,7 @@ async function rawPOST(req: Request) {
     });
     // --- Analytics: session_started (OCE-254) ---
     // Fire on the first page view of a new session to enable retention cohorts.
-    // serverTrack uses captureImmediate — completes HTTP request before returning.
+    // serverTrack uses captureImmediate - completes HTTP request before returning.
     if (payload.isNewSession) {
       const distinctId = userId ?? `anon_${sessionId}`;
       await serverTrack(distinctId, 'session_started', {
@@ -110,7 +108,7 @@ async function rawPOST(req: Request) {
       }
     }
   } catch (error) {
-    // Best-effort — don't fail the page load
+    // Best-effort - don't fail the page load
     log.error('page view insert failed', { error: error instanceof Error ? error.message : String(error), path, sessionId });
     return errorResponse(API_ERRORS.INTERNAL, 500);
   }

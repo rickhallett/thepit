@@ -18,7 +18,7 @@ import { useBoutVoting } from '@/lib/use-bout-voting';
 import { useBoutSharing } from '@/lib/use-bout-sharing';
 import { useCopy } from '@/lib/copy-client';
 import { SharePanel } from '@/components/share-panel';
-import type { TranscriptEntry } from '@/db/schema';
+import type { TranscriptEntry } from '@/lib/bout-validation';
 import type { ReactionCountMap } from '@/lib/reactions';
 import type { WinnerVoteCounts } from '@/lib/winner-votes';
 import { PitButton } from '@/components/ui/button';

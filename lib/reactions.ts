@@ -4,7 +4,7 @@
 import { and, eq, sql, desc } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
-import { reactions } from '@/db/schema';
+import { bouts, reactions, type TranscriptEntry } from '@/db/schema';
 import { assertNever } from '@/lib/api-utils';
 
 /** Single source of truth for valid reaction types. Derive all other
@@ -91,4 +91,94 @@ export async function getMostReactedTurnIndex(boutId: string) {
     .limit(1);
 
   return top && top.totalCount > 0 ? top : null;
+}
+
+/** Result of a toggle operation returned to the route handler. */
+export type ToggleReactionResult =
+  | { ok: true; action: 'added' | 'removed'; counts: { heart: number; fire: number } }
+  | { ok: false; error: string; status: number };
+
+/**
+ * Toggle a reaction on a bout turn. Validates the bout and turn index,
+ * checks for an existing reaction, and inserts or deletes accordingly.
+ * Returns absolute counts so the client can reconcile without delta arithmetic.
+ */
+export async function toggleReaction(params: {
+  boutId: string;
+  turnIndex: number;
+  reactionType: ReactionType;
+  userId: string | null;
+  clientFingerprint: string;
+}): Promise<ToggleReactionResult> {
+  const { boutId, turnIndex, reactionType, userId, clientFingerprint } = params;
+  const db = requireDb();
+
+  // Verify bout exists and turnIndex is valid
+  const [bout] = await db
+    .select({ id: bouts.id, transcript: bouts.transcript })
+    .from(bouts)
+    .where(eq(bouts.id, boutId))
+    .limit(1);
+
+  if (!bout) {
+    return { ok: false, error: 'Bout not found.', status: 404 };
+  }
+
+  const maxTurn = (bout.transcript as TranscriptEntry[])?.length ?? 0;
+  if (turnIndex < 0 || turnIndex >= maxTurn) {
+    return { ok: false, error: 'Invalid turn index.', status: 400 };
+  }
+
+  // Toggle: check if reaction exists, then insert or delete
+  const [existing] = await db
+    .select({ id: reactions.id })
+    .from(reactions)
+    .where(
+      and(
+        eq(reactions.boutId, boutId),
+        eq(reactions.turnIndex, turnIndex),
+        eq(reactions.reactionType, reactionType),
+        eq(reactions.clientFingerprint, clientFingerprint),
+      ),
+    )
+    .limit(1);
+
+  let action: 'added' | 'removed';
+
+  if (existing) {
+    await db.delete(reactions).where(eq(reactions.id, existing.id));
+    action = 'removed';
+  } else {
+    await db
+      .insert(reactions)
+      .values({
+        boutId,
+        turnIndex,
+        reactionType,
+        userId,
+        clientFingerprint,
+      })
+      .onConflictDoNothing();
+    action = 'added';
+  }
+
+  // Return absolute counts for this turn
+  const [counts] = await db
+    .select({
+      heart: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'heart') as int)`,
+      fire: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'fire') as int)`,
+    })
+    .from(reactions)
+    .where(
+      and(
+        eq(reactions.boutId, boutId),
+        eq(reactions.turnIndex, turnIndex),
+      ),
+    );
+
+  return {
+    ok: true,
+    action,
+    counts: counts ?? { heart: 0, fire: 0 },
+  };
 }

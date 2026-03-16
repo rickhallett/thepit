@@ -5,7 +5,7 @@
 import { and, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
-import { winnerVotes } from '@/db/schema';
+import { bouts, winnerVotes } from '@/db/schema';
 
 export type WinnerVoteCounts = Record<string, number>;
 
@@ -39,4 +39,48 @@ export async function getUserWinnerVote(boutId: string, userId: string) {
     .limit(1);
 
   return existing?.agentId ?? null;
+}
+
+/**
+ * Cast a winner vote after validating the bout exists and the agent
+ * participated. Uses onConflictDoNothing for idempotent duplicate handling.
+ */
+export async function castWinnerVote(params: {
+  boutId: string;
+  agentId: string;
+  userId: string;
+}): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const { boutId, agentId, userId } = params;
+  const db = requireDb();
+
+  const [bout] = await db
+    .select({
+      id: bouts.id,
+      transcript: bouts.transcript,
+      agentLineup: bouts.agentLineup,
+    })
+    .from(bouts)
+    .where(eq(bouts.id, boutId))
+    .limit(1);
+
+  if (!bout) {
+    return { ok: false, error: 'Bout not found.', status: 404 };
+  }
+
+  // Verify the agent actually participated in this bout
+  const inTranscript = Array.isArray(bout.transcript)
+    && bout.transcript.some((t: { agentId?: string }) => t.agentId === agentId);
+  const inLineup = Array.isArray(bout.agentLineup)
+    && bout.agentLineup.some((a: { id?: string }) => a.id === agentId);
+
+  if (!inTranscript && !inLineup) {
+    return { ok: false, error: 'Agent was not a participant in this bout.', status: 403 };
+  }
+
+  await db
+    .insert(winnerVotes)
+    .values({ boutId, agentId, userId })
+    .onConflictDoNothing();
+
+  return { ok: true };
 }

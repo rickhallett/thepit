@@ -1,8 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { and, eq, sql } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
-import { bouts, reactions, type TranscriptEntry } from '@/db/schema';
 import { errorResponse, parseValidBody, rateLimitResponse } from '@/lib/api-utils';
 import { sha256Hex } from '@/lib/hash';
 import {
@@ -12,6 +9,7 @@ import {
 } from '@/lib/rate-limit';
 import { withLogging } from '@/lib/api-logging';
 import { reactionSchema } from '@/lib/api-schemas';
+import { toggleReaction } from '@/lib/reactions';
 
 export const runtime = 'nodejs';
 
@@ -36,23 +34,6 @@ export const POST = withLogging(async function POST(req: Request) {
 
   const { userId } = await auth();
   const ip = getClientIdentifier(req);
-  const db = requireDb();
-
-  // Verify bout exists and turnIndex is valid
-  const [bout] = await db
-    .select({ id: bouts.id, transcript: bouts.transcript })
-    .from(bouts)
-    .where(eq(bouts.id, boutId))
-    .limit(1);
-
-  if (!bout) {
-    return errorResponse('Bout not found.', 404);
-  }
-
-  const maxTurn = (bout.transcript as TranscriptEntry[])?.length ?? 0;
-  if (turnIndex < 0 || turnIndex >= maxTurn) {
-    return errorResponse('Invalid turn index.', 400);
-  }
 
   /*
    * Anonymous users: store userId as null (FK-safe) and use clientFingerprint
@@ -63,60 +44,22 @@ export const POST = withLogging(async function POST(req: Request) {
   const ipHash = await sha256Hex(ip);
   const fingerprint = userId ?? `anon:${ipHash}`;
 
-  // Toggle: check if reaction exists, then insert or delete
-  const [existing] = await db
-    .select({ id: reactions.id })
-    .from(reactions)
-    .where(
-      and(
-        eq(reactions.boutId, boutId),
-        eq(reactions.turnIndex, turnIndex),
-        eq(reactions.reactionType, reactionType),
-        eq(reactions.clientFingerprint, fingerprint),
-      ),
-    )
-    .limit(1);
+  const result = await toggleReaction({
+    boutId,
+    turnIndex,
+    reactionType,
+    userId: dbUserId,
+    clientFingerprint: fingerprint,
+  });
 
-  let action: 'added' | 'removed';
-
-  if (existing) {
-    // Remove existing reaction (toggle off)
-    await db.delete(reactions).where(eq(reactions.id, existing.id));
-    action = 'removed';
-  } else {
-    // Add new reaction (toggle on)
-    await db
-      .insert(reactions)
-      .values({
-        boutId,
-        turnIndex,
-        reactionType,
-        userId: dbUserId,
-        clientFingerprint: fingerprint,
-      })
-      .onConflictDoNothing();
-    action = 'added';
+  if (!result.ok) {
+    return errorResponse(result.error, result.status);
   }
-
-  // Return absolute counts for this turn so the client can reconcile
-  // without delta arithmetic. This eliminates optimistic update drift.
-  const [counts] = await db
-    .select({
-      heart: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'heart') as int)`,
-      fire: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'fire') as int)`,
-    })
-    .from(reactions)
-    .where(
-      and(
-        eq(reactions.boutId, boutId),
-        eq(reactions.turnIndex, turnIndex),
-      ),
-    );
 
   return Response.json({
     ok: true,
-    action,
-    counts: counts ?? { heart: 0, fire: 0 },
+    action: result.action,
+    counts: result.counts,
     turnIndex,
   }, {
     headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) },
