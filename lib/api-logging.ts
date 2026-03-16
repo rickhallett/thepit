@@ -108,7 +108,9 @@ export function withLogging(
         console.error('[DOUBLE-FAULT] Logger failed while handling error. Original error:', error);
         console.error('[DOUBLE-FAULT] Logger error:', loggingError);
       }
-      checkAnomaly({ clientIp, userAgent, route: routeName, status: 500 });
+      try { checkAnomaly({ clientIp, userAgent, route: routeName, status: 500 }); } catch {
+        // Prevent checkAnomaly failure from masking the original error
+      }
       throw error;
     }
   };
