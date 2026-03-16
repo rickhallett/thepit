@@ -1050,17 +1050,115 @@ async function _executeBoutInner(
       log.warn('Failed to generate share line', toError(error), { boutId });
     }
 
-    // Persist completed bout
-    await db
-      .update(bouts)
-      .set({
-        status: 'completed',
-        transcript,
-        shareLine,
-        shareGeneratedAt: shareLine ? new Date() : null,
-        updatedAt: new Date(),
-      })
-      .where(eq(bouts.id, boutId));
+    // Persist completed bout - with retry for transient DB failures.
+    // If this UPDATE fails, the transcript (already streamed to the user) would
+    // be lost and the bout stuck in 'running' status. Credits are already
+    // deducted via preauthorization, so this is a data-loss scenario with
+    // financial implications.
+
+    // Build the completion payload as a function so each attempt gets a fresh
+    // timestamp (updatedAt/shareGeneratedAt should reflect actual persist time).
+    const buildCompletionPayload = () => ({
+      status: 'completed' as const,
+      transcript,
+      shareLine,
+      shareGeneratedAt: shareLine ? new Date() : null,
+      updatedAt: new Date(),
+    });
+
+    // Truncate transcript at array-element level for Sentry logging.
+    // Sentry caps event payloads at ~200KB. Slicing a serialized string
+    // at an arbitrary byte boundary produces invalid JSON, defeating
+    // transcript recovery. Instead, drop trailing turns until the
+    // serialized form fits within budget.
+    const MAX_SENTRY_TRANSCRIPT_BYTES = 100_000;
+    let transcriptForLog = transcript;
+    let transcriptTruncated = false;
+
+    let transcriptData = JSON.stringify(transcript);
+    while (transcriptData.length > MAX_SENTRY_TRANSCRIPT_BYTES && transcriptForLog.length > 1) {
+      transcriptForLog = transcriptForLog.slice(0, -1);
+      transcriptData = JSON.stringify(transcriptForLog);
+      transcriptTruncated = true;
+    }
+
+    try {
+      await db
+        .update(bouts)
+        .set(buildCompletionPayload())
+        .where(eq(bouts.id, boutId));
+    } catch (completionError) {
+      // Preserve transcript in Sentry structured logging - even if DB is down,
+      // the transcript data survives in the logging pipeline for recovery.
+      Sentry.logger.error('bout_completion_write_failed', {
+        bout_id: boutId,
+        preset_id: presetId,
+        model_id: modelId,
+        user_id: userId ? hashUserId(userId) : 'anonymous',
+        transcript_length: transcript.length,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        has_share_line: !!shareLine,
+        transcript_data: transcriptData,
+        transcript_truncated: transcriptTruncated,
+        error_message: completionError instanceof Error ? completionError.message : String(completionError),
+        attempt: 1,
+      });
+
+      log.error('Bout completion DB write failed, retrying', toError(completionError), {
+        requestId,
+        boutId,
+        presetId,
+        modelId,
+        transcriptLength: transcript.length,
+        inputTokens,
+        outputTokens,
+      });
+
+      // Retry once after a short delay - avoids triggering the full error path
+      // (status='error' + credit refund) for a transient DB hiccup.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      try {
+        await db
+          .update(bouts)
+          .set(buildCompletionPayload())
+          .where(eq(bouts.id, boutId));
+
+        log.info('Bout completion DB write succeeded on retry', {
+          requestId,
+          boutId,
+        });
+      } catch (retryError) {
+        Sentry.logger.error('bout_completion_write_failed_final', {
+          bout_id: boutId,
+          preset_id: presetId,
+          model_id: modelId,
+          user_id: userId ? hashUserId(userId) : 'anonymous',
+          transcript_length: transcript.length,
+          input_tokens: inputTokens,
+          output_tokens: outputTokens,
+          has_share_line: !!shareLine,
+          transcript_data: transcriptData,
+          transcript_truncated: transcriptTruncated,
+          error_message: retryError instanceof Error ? retryError.message : String(retryError),
+          attempt: 2,
+        });
+
+        log.error('Bout completion DB write failed on retry, propagating', toError(retryError), {
+          requestId,
+          boutId,
+          presetId,
+          modelId,
+          transcriptLength: transcript.length,
+          inputTokens,
+          outputTokens,
+        });
+
+        // Propagate to outer catch which handles status='error' + credit refund
+        throw retryError;
+      }
+    }
 
     const boutDurationMs = Date.now() - boutStartTime;
     log.info('Bout completed', {
