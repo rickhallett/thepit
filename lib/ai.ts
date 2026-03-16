@@ -25,7 +25,6 @@ import {
   OPENROUTER_MODELS,
   ALL_OPENROUTER_MODEL_IDS,
   DEFAULT_FREE_MODEL,
-  DEFAULT_PREMIUM_MODELS,
   DEFAULT_PREMIUM_MODEL,
   detectProvider,
 } from '@/lib/models';
@@ -45,16 +44,18 @@ export const FREE_MODEL_ID =
   process.env.ANTHROPIC_MODEL ??
   DEFAULT_FREE_MODEL;
 
-const premiumModelEnv =
-  env.ANTHROPIC_PREMIUM_MODELS ?? DEFAULT_PREMIUM_MODELS;
+const premiumModelEnv = env.ANTHROPIC_PREMIUM_MODELS;
 
 const parsedPremiumModels = premiumModelEnv
   .split(',')
   .map((model) => model.trim())
   .filter(Boolean);
 
+// Raw process.env check: warn only when the user explicitly set the var
+// to something unparseable. env.ANTHROPIC_PREMIUM_MODELS always has a
+// value (Zod default), so it cannot distinguish "unset" from "defaulted".
 if (
-  env.ANTHROPIC_PREMIUM_MODELS &&
+  process.env.ANTHROPIC_PREMIUM_MODELS &&
   parsedPremiumModels.length === 0
 ) {
   console.warn(
@@ -68,10 +69,7 @@ export const PREMIUM_MODEL_OPTIONS =
     ? parsedPremiumModels
     : [DEFAULT_PREMIUM_MODEL];
 
-export const DEFAULT_PREMIUM_MODEL_ID =
-  env.ANTHROPIC_PREMIUM_MODEL ??
-  PREMIUM_MODEL_OPTIONS[0] ??
-  DEFAULT_PREMIUM_MODEL;
+export const DEFAULT_PREMIUM_MODEL_ID = env.ANTHROPIC_PREMIUM_MODEL;
 
 export const BYOK_MODEL_ID =
   env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID;
