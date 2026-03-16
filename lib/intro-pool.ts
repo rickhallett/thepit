@@ -128,6 +128,18 @@ export async function claimIntroCredits(params: {
   // Wrap pool deduction + user credit in a single transaction.
   // If the user credit fails, the pool deduction rolls back - no leaked credits.
   return db.transaction(async (tx) => {
+    // Read a fresh claimedMicro inside the transaction so the baseline for
+    // delta calculation matches the isolation level. The outer ensureIntroPool
+    // call guarantees the row exists, but its claimedMicro may be stale if a
+    // concurrent claim committed between the outer read and this transaction.
+    const [baseline] = await tx
+      .select({ claimedMicro: introPool.claimedMicro })
+      .from(introPool)
+      .where(eq(introPool.id, pool.id))
+      .limit(1);
+
+    const baselineClaimedMicro = baseline?.claimedMicro ?? 0;
+
     // Atomic claim: Calculate remaining in SQL and only increment if sufficient
     // remaining = FLOOR(initial * 0.5^(elapsed_s / half_life_s)) - claimed
     // We use LEAST to cap the claim at what's actually available
@@ -156,8 +168,8 @@ export async function claimIntroCredits(params: {
       return { claimedMicro: 0, remainingMicro: 0, exhausted: true };
     }
 
-    // Calculate what was actually claimed (new claimed - old claimed)
-    const actualClaimed = result.claimedMicro - pool.claimedMicro;
+    // Calculate what was actually claimed using the in-transaction baseline
+    const actualClaimed = result.claimedMicro - baselineClaimedMicro;
     const newRemaining = computeRemainingMicro(result);
 
     if (actualClaimed <= 0) {

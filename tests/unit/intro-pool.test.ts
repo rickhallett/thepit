@@ -183,6 +183,18 @@ describe('intro-pool', () => {
   });
 
   describe('claimIntroCredits', () => {
+    /** Build a select mock that handles both ensureIntroPool (no where) and
+     *  the in-transaction baseline read (with where). Both return the pool row. */
+    const makeSelectMock = (poolRow: ReturnType<typeof makePoolRow>) => {
+      const limitFn = vi.fn().mockResolvedValue([poolRow]);
+      return () => ({
+        from: () => ({
+          limit: limitFn,
+          where: () => ({ limit: vi.fn().mockResolvedValue([poolRow]) }),
+        }),
+      });
+    };
+
     it('H3: successfully claims and credits user', async () => {
       const poolRow = makePoolRow({
         initialMicro: 1_000_000,
@@ -191,12 +203,8 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 100,
       });
 
-      // ensureIntroPool select
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      // ensureIntroPool select + in-transaction baseline read
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       // Atomic update returning updated pool state
       const updatedClaimedMicro = 10_000; // 100 credits * 100 micro
@@ -254,11 +262,7 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 0,
       });
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       // SQL LEAST caps the claim: actual claimed = old + LEAST(requested, available)
       // Simulating: only 3000 actually claimed (partial)
@@ -312,11 +316,7 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 100,
       });
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       const { claimIntroCredits } = await loadIntroPool();
       const result = await claimIntroCredits({
@@ -340,11 +340,7 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 0,
       });
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       // Update returns empty (pool row not found)
       mockDb.update.mockImplementation(() => ({
@@ -374,11 +370,7 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 0,
       });
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       // Update returns but claimed didn't change (actualClaimed = 0)
       mockDb.update.mockImplementation(() => ({
@@ -414,11 +406,7 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 100,
       });
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       const updatedClaimedMicro = 10_000;
       mockDb.update.mockImplementation(() => ({
@@ -453,7 +441,7 @@ describe('intro-pool', () => {
       expect(mockDb.transaction).toHaveBeenCalledWith(expect.any(Function));
     });
 
-    it('rolls back pool deduction when applyCreditDelta throws', async () => {
+    it('propagates applyCreditDelta errors out of transaction callback', async () => {
       const poolRow = makePoolRow({
         initialMicro: 1_000_000,
         claimedMicro: 0,
@@ -461,11 +449,7 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 100,
       });
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       const updatedClaimedMicro = 10_000;
       mockDb.update.mockImplementation(() => ({
@@ -513,11 +497,7 @@ describe('intro-pool', () => {
         drainRateMicroPerMinute: 100,
       });
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          limit: vi.fn().mockResolvedValue([poolRow]),
-        }),
-      }));
+      mockDb.select.mockImplementation(makeSelectMock(poolRow));
 
       const updatedClaimedMicro = 10_000;
       mockDb.update.mockImplementation(() => ({

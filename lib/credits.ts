@@ -189,11 +189,12 @@ export const computeCostUsd = (
   };
 };
 
-/** Database-like object with the query methods needed by credit operations.
- *  Accepts both the root db instance and a transaction handle from db.transaction(). */
-type DbLike = Pick<ReturnType<typeof requireDb>, 'select' | 'insert' | 'update'>;
+/** Database or transaction handle for credit operations.
+ *  When a caller provides a DbOrTx, the caller owns the transaction boundary -
+ *  credit operations run within the caller's transaction instead of creating their own. */
+type DbOrTx = Pick<ReturnType<typeof requireDb>, 'select' | 'insert' | 'update'>;
 
-export async function ensureCreditAccount(userId: string, tx?: DbLike) {
+export async function ensureCreditAccount(userId: string, tx?: DbOrTx) {
   const conn = tx ?? requireDb();
   const [existing] = await conn
     .select()
@@ -245,10 +246,10 @@ export async function applyCreditDelta(
   deltaMicro: number,
   reason: string,
   metadata: Record<string, unknown>,
-  tx?: DbLike,
+  tx?: DbOrTx,
 ) {
   // Core logic: ledger insert + balance update must be atomic.
-  const applyWithin = async (conn: DbLike) => {
+  const applyWithin = async (conn: DbOrTx) => {
     await conn.insert(creditTransactions).values({
       userId,
       deltaMicro,
