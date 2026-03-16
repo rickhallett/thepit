@@ -65,6 +65,13 @@ export function FeatureRequestList() {
     fetchRequests();
   }, [fetchRequests]);
 
+  // Clean up vote error dismiss timer on unmount
+  useEffect(() => {
+    return () => {
+      if (voteErrorTimerRef.current) clearTimeout(voteErrorTimerRef.current);
+    };
+  }, []);
+
   const handleVote = async (requestId: number) => {
     // Optimistic update
     setRequests((prev) =>

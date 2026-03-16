@@ -46,6 +46,8 @@ export function useBoutVoting(
         [agentId]: (prev[agentId] ?? 0) + 1,
       }));
       trackEvent('winner_voted', { bout_id: boutId, agent_id: agentId });
+    } catch {
+      setVoteError('Vote failed. Try again.');
     } finally {
       setVotePending(null);
     }

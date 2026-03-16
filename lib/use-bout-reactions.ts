@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { trackEvent } from '@/lib/analytics';
 import type { ReactionCountMap } from '@/lib/reactions';
 
@@ -138,6 +138,13 @@ export function useBoutReactions(
       pendingRef.current.delete(key);
     }
   }, [boutId]);
+
+  // Clean up error dismiss timer on unmount
+  useEffect(() => {
+    return () => {
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+    };
+  }, []);
 
   return { reactions, sendReaction, reactionsGivenRef, hasReacted, reactionError };
 }

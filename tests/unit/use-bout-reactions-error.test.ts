@@ -45,6 +45,9 @@ vi.mock('react', () => {
       capturedCallbacks.push(fn);
       return fn;
     },
+    useEffect: (_fn: () => void) => {
+      // No-op in unit tests - cleanup timer tested via timer assertions
+    },
   };
 });
 
