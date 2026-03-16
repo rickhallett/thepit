@@ -86,16 +86,21 @@ export async function createBout(presetId: string, formData?: FormData) {
     await ensureUserRecord(userId);
   }
 
-  await db.insert(bouts).values({
-    id,
-    presetId,
-    status: 'running',
-    transcript: [],
-    ownerId: userId ?? null,
-    topic: topic ?? null,
-    responseLength: lengthConfig.id,
-    responseFormat: formatConfig.id,
-  });
+  try {
+    await db.insert(bouts).values({
+      id,
+      presetId,
+      status: 'running',
+      transcript: [],
+      ownerId: userId ?? null,
+      topic: topic ?? null,
+      responseLength: lengthConfig.id,
+      responseFormat: formatConfig.id,
+    });
+  } catch (error) {
+    console.error('Failed to create bout:', error);
+    redirect('/arena?error=service-unavailable');
+  }
 
   const params = new URLSearchParams({ presetId });
   if (topic) {
@@ -158,18 +163,23 @@ export async function createArenaBout(formData: FormData) {
 
   const db = requireDb();
   const id = nanoid();
-  await db.insert(bouts).values({
-    id,
-    presetId: ARENA_PRESET_ID,
-    status: 'running',
-    transcript: [],
-    ownerId: userId ?? null,
-    topic: topic || null,
-    responseLength: lengthConfig.id,
-    responseFormat: formatConfig.id,
-    maxTurns,
-    agentLineup: lineup,
-  });
+  try {
+    await db.insert(bouts).values({
+      id,
+      presetId: ARENA_PRESET_ID,
+      status: 'running',
+      transcript: [],
+      ownerId: userId ?? null,
+      topic: topic || null,
+      responseLength: lengthConfig.id,
+      responseFormat: formatConfig.id,
+      maxTurns,
+      agentLineup: lineup,
+    });
+  } catch (error) {
+    console.error('Failed to create arena bout:', error);
+    redirect('/arena?error=service-unavailable');
+  }
 
   const params = new URLSearchParams();
   if (model) {
