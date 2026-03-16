@@ -79,6 +79,10 @@ vi.mock('@/db/schema', () => ({
     shareGeneratedAt: 'share_generated_at',
     createdAt: 'created_at',
   },
+  users: {
+    id: 'id',
+    activatedAt: 'activated_at',
+  },
 }));
 
 vi.mock('@clerk/nextjs/server', () => ({ auth: vi.fn() }));
@@ -285,10 +289,16 @@ describe('executeBout', () => {
       createStreamResult('Hello from BYOK!', { inputTokens: 80, outputTokens: 40 }),
     );
 
-    // Default DB mocks
+    // Default DB mocks — supports both direct await (bout completion)
+    // and .returning() chain (user activation atomic check).
     mockDb.update.mockImplementation(() => ({
       set: () => ({
-        where: async () => ({}),
+        where: vi.fn().mockImplementation(() => {
+          const result = Object.assign(Promise.resolve({}), {
+            returning: () => Promise.resolve([]),
+          });
+          return result;
+        }),
       }),
     }));
 
@@ -310,10 +320,10 @@ describe('executeBout', () => {
     // Default refusal detection
     detectRefusalMock.mockReturnValue(null);
 
-    // Default DB select for user_activated check
+    // Default DB select (used by validateBoutRequest, not executeBout)
     mockDb.select.mockImplementation(() => ({
       from: () => ({
-        where: () => [{ value: 5 }], // Not first bout
+        where: () => [{ value: 5 }],
       }),
     }));
   });
@@ -1030,10 +1040,16 @@ describe('executeBout', () => {
       );
     });
 
-    it('E-55: user_activated tracked on first completed bout', async () => {
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          where: () => [{ value: 1 }], // This is the ONLY completed bout
+    it('E-55: user_activated tracked on first activation (atomic UPDATE returns row)', async () => {
+      // Override update mock so the activation UPDATE ... RETURNING yields a row
+      mockDb.update.mockImplementation(() => ({
+        set: () => ({
+          where: vi.fn().mockImplementation(() => {
+            const result = Object.assign(Promise.resolve({}), {
+              returning: () => Promise.resolve([{ id: 'user-1' }]),
+            });
+            return result;
+          }),
         }),
       }));
 
@@ -1047,13 +1063,8 @@ describe('executeBout', () => {
       );
     });
 
-    it('E-56: user_activated NOT tracked on subsequent bouts', async () => {
-      mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          where: () => [{ value: 5 }], // 5 completed bouts — not first
-        }),
-      }));
-
+    it('E-56: user_activated NOT tracked when already activated (atomic UPDATE returns empty)', async () => {
+      // Default mock already returns empty array from .returning() - no activation
       const ctx = makeContext({ preset: SINGLE_AGENT_PRESET });
       await executeBout(ctx);
 

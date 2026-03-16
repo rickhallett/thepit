@@ -108,6 +108,7 @@ export const users = pgTable('users', {
   }),
   stripeCustomerId: varchar('stripe_customer_id', { length: 128 }),
   freeBoutsUsed: integer('free_bouts_used').notNull().default(0),
+  activatedAt: timestamp('activated_at'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
