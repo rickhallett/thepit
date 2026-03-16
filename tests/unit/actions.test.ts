@@ -472,6 +472,19 @@ describe('server actions', () => {
   });
 
   // ================================================================
+  // createBout - DB error handling
+  // ================================================================
+  describe('createBout - DB error handling', () => {
+    it('redirects to /arena?error=service-unavailable when DB insert throws', async () => {
+      const mockValues = vi.fn().mockRejectedValue(new Error('connection refused'));
+      mockDb.insert.mockReturnValue({ values: mockValues });
+
+      const url = await catchRedirect(() => createBout('darwin-special'));
+      expect(url).toBe('/arena?error=service-unavailable');
+    });
+  });
+
+  // ================================================================
   // archiveAgent / restoreAgent
   // ================================================================
   describe('archiveAgent', () => {
