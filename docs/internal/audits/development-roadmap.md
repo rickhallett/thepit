@@ -49,7 +49,7 @@ Financial safety and data integrity. These items prevent money loss, data loss, 
 - **Target:** Implement a sweep job that marks bouts older than N minutes in `running` status as `error`, refunds preauthorized credits, and logs the incident. Trigger via cron or admin endpoint.
 - **What breaks if unfixed:** Every serverless timeout or crash creates an orphaned bout. Credits stuck in preauth limbo. Accumulates silently.
 
-### RD-004: Fix duplicate user_activated PostHog events
+### RD-004: Fix duplicate user_activated PostHog events [DONE - PR#78]
 
 - **Source:** Codex R2 (unique finding) | Convergence: 1/3
 - **Priority:** P1
@@ -65,7 +65,7 @@ Financial safety and data integrity. These items prevent money loss, data loss, 
 
 Missing error handling that produces bad UX or hides failures. Each item is a small, isolated change.
 
-### RD-005: Wrap PostHog calls in Stripe webhook with try/catch
+### RD-005: Wrap PostHog calls in Stripe webhook with try/catch [DONE - PR#79]
 
 - **Source:** Anthropic SMELL-03b + R1, Gemini trace implicit | Convergence: 2/3
 - **Priority:** P1
@@ -75,7 +75,7 @@ Missing error handling that produces bad UX or hides failures. Each item is a sm
 - **Target:** Wrap the two await calls in try/catch. Log warning. Continue. Analytics loss is acceptable; webhook failure is not.
 - **What breaks if unfixed:** PostHog API outage during a subscription event causes Stripe retry cascade. No financial harm (idempotent DB writes) but operational noise and duplicate analytics.
 
-### RD-006: Add try/catch to createBout server action DB insert
+### RD-006: Add try/catch to createBout server action DB insert [DONE - PR#80]
 
 - **Source:** Anthropic SMELL-03a + R2, Gemini trace 1 | Convergence: 2/3
 - **Priority:** P1
@@ -85,7 +85,7 @@ Missing error handling that produces bad UX or hides failures. Each item is a sm
 - **Target:** Catch DB errors, redirect to `/arena?error=service-unavailable`. Display error in arena page.
 - **What breaks if unfixed:** Transient Neon cold start or connection pool exhaustion produces a raw 500 error page. User has no idea what happened or how to recover.
 
-### RD-007: Fix double-fault chain in api-logging.ts
+### RD-007: Fix double-fault chain in api-logging.ts [DONE - PR#81]
 
 - **Source:** L3 error path review | Convergence: L only
 - **Priority:** P1
@@ -95,7 +95,7 @@ Missing error handling that produces bad UX or hides failures. Each item is a sm
 - **Target:** Wrap the logging call in its own try/catch that falls back to console.error with the original error.
 - **What breaks if unfixed:** A logger bug during an API error silently swallows the original error. You see nothing in telemetry. The error might as well not have happened.
 
-### RD-008: Surface error feedback for reaction and vote failures
+### RD-008: Surface error feedback for reaction and vote failures [DONE - PR#82]
 
 - **Source:** Codex R1 (unique finding) | Convergence: 1/3
 - **Priority:** P2
