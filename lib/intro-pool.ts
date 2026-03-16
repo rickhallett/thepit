@@ -136,6 +136,7 @@ export async function claimIntroCredits(params: {
       .select({ claimedMicro: introPool.claimedMicro })
       .from(introPool)
       .where(eq(introPool.id, pool.id))
+      .for('update')
       .limit(1);
 
     const baselineClaimedMicro = baseline?.claimedMicro ?? 0;
