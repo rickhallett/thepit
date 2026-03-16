@@ -349,7 +349,7 @@ describe('sweepStuckBouts', () => {
     expect(result.failed).toBe(1);
     expect(result.refunded).toBe(1);
     expect(result.details).toHaveLength(2);
-    expect(result.details[0]!.error).toBe('db connection lost');
+    expect(result.details[0]!.error).toBe('refund failed: db connection lost');
     expect(result.details[0]!.boutId).toBe('bout-fail');
     expect(result.details[1]!.boutId).toBe('bout-ok');
     expect(result.details[1]!.refundedMicro).toBe(100);

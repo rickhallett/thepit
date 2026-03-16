@@ -94,14 +94,53 @@ export async function sweepStuckBouts(
           .limit(1);
 
         if (preauth) {
-          const amount = Math.abs(preauth.deltaMicro);
-          await applyCreditDelta(bout.ownerId, amount, 'sweep-refund', {
-            referenceId: `sweep-refund:${bout.id}`,
-            boutId: bout.id,
-            reason: 'stuck-bout-sweep',
-          });
-          refundedMicro = amount;
-          refundedCount++;
+          if (preauth.deltaMicro >= 0) {
+            log.warn('bout_sweep_unexpected_positive_delta', {
+              boutId: bout.id,
+              deltaMicro: preauth.deltaMicro,
+            });
+            // Skip refund - preauth should be a debit (negative delta).
+            // Mark as error without refund so it surfaces for manual review.
+          } else {
+            const amount = Math.abs(preauth.deltaMicro);
+            try {
+              await applyCreditDelta(bout.ownerId, amount, 'sweep-refund', {
+                referenceId: `sweep-refund:${bout.id}`,
+                boutId: bout.id,
+                reason: 'stuck-bout-sweep',
+              });
+              refundedMicro = amount;
+              refundedCount++;
+            } catch (refundErr) {
+              // Refund failed - reset bout to 'running' so the next sweep
+              // picks it up again. The atomic claim prevents double-refund
+              // because we only reach here after successfully claiming.
+              const refundMsg = refundErr instanceof Error
+                ? refundErr.message
+                : String(refundErr);
+              log.error('bout_sweep_refund_failed', {
+                boutId: bout.id,
+                ownerId: bout.ownerId,
+                error: refundMsg,
+              });
+              await db
+                .update(bouts)
+                .set({
+                  status: 'running',
+                  updatedAt: sql`NOW()`,
+                })
+                .where(eq(bouts.id, bout.id));
+              failedCount++;
+              details.push({
+                boutId: bout.id,
+                ownerId: bout.ownerId,
+                createdAt: bout.createdAt,
+                refundedMicro: 0,
+                error: `refund failed: ${refundMsg}`,
+              });
+              continue;
+            }
+          }
         }
       }
 

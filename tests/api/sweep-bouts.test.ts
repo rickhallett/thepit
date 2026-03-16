@@ -48,6 +48,7 @@ describe('POST /api/admin/sweep-bouts', () => {
     mockSweepStuckBouts.mockResolvedValue({
       swept: 0,
       refunded: 0,
+      failed: 0,
       details: [],
     });
   });
@@ -71,6 +72,7 @@ describe('POST /api/admin/sweep-bouts', () => {
     mockSweepStuckBouts.mockResolvedValue({
       swept: 2,
       refunded: 1,
+      failed: 0,
       details: [
         { boutId: 'bout-1', ownerId: 'user-1', createdAt: sweepDate, refundedMicro: 300 },
         { boutId: 'bout-2', ownerId: null, createdAt: sweepDate, refundedMicro: 0 },
@@ -82,6 +84,7 @@ describe('POST /api/admin/sweep-bouts', () => {
     const body = await res.json();
     expect(body.swept).toBe(2);
     expect(body.refunded).toBe(1);
+    expect(body.failed).toBe(0);
     expect(body.details).toHaveLength(2);
     expect(body.details[0].boutId).toBe('bout-1');
     expect(body.details[0].refundedMicro).toBe(300);
