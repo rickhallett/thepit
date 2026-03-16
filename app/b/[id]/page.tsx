@@ -10,6 +10,7 @@ import { BoutHero } from '@/components/bout-hero';
 import { TrackPageEvent } from '@/components/track-page-event';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry } from '@/db/schema';
+import { getBoutById } from '@/lib/bouts';
 import { getCopy } from '@/lib/copy';
 import { getPresetById, ARENA_PRESET_ID } from '@/lib/presets';
 import { buildArenaPresetFromLineup } from '@/lib/bout-lineup';
@@ -72,13 +73,8 @@ export default async function ReplayPage({
 }: {
   params: Promise<{ id: string }> | { id: string };
 }) {
-  const db = requireDb();
   const [resolved, { userId }] = await Promise.all([params, auth()]);
-  const [bout] = await db
-    .select()
-    .from(bouts)
-    .where(eq(bouts.id, resolved.id))
-    .limit(1);
+  const bout = await getBoutById(resolved.id);
 
   if (!bout) {
     notFound();
