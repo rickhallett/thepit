@@ -135,7 +135,7 @@ Breaking apart god modules and consolidating duplicated logic. Each item is a re
   - `lib/bout-engine.ts` - re-exports from all three, maintains backward compatibility
 - **What breaks if unfixed:** Every change to the bout flow risks touching a 1274-line file with 22 dependencies. The blast radius of any change is the entire file. Primary velocity constraint for bout-related features.
 
-### RD-011: Extract bout loading into lib/bouts.ts
+### RD-011: Extract bout loading into lib/bouts.ts [DONE - PR#86]
 
 - **Source:** Anthropic R3 | Convergence: 1/3 + L
 - **Priority:** P2
@@ -155,7 +155,7 @@ Breaking apart god modules and consolidating duplicated logic. Each item is a re
 - **Target:** Move business logic into `lib/billing.ts`. Webhook handler becomes a thin transport layer: verify signature, parse event, delegate to billing service, return 200.
 - **What breaks if unfixed:** Adding a new billing tier (e.g., enterprise) requires modifying an HTTP transport handler. The domain rule and the routing concern are entangled.
 
-### RD-013: Consolidate agent snapshot resolution
+### RD-013: Consolidate agent snapshot resolution [DONE - PR#87]
 
 - **Source:** Anthropic SMELL-05b | Convergence: 1/3
 - **Priority:** P3
@@ -165,7 +165,7 @@ Breaking apart god modules and consolidating duplicated logic. Each item is a re
 - **Target:** Single `resolveAgentSnapshot()` function used by all consumers. Optional caching layer.
 - **What breaks if unfixed:** A change to agent resolution logic (e.g., new field, new merge rule) must be updated in 4 places. Divergence risk.
 
-### RD-014: Consolidate environment variable access
+### RD-014: Consolidate environment variable access [DONE - PR#88, 11/24 files]
 
 - **Source:** Anthropic R8 | Convergence: 1/3
 - **Priority:** P3
