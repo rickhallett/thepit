@@ -96,12 +96,18 @@ export function withLogging(
       return response;
     } catch (error) {
       const durationMs = Date.now() - start;
-      log.error(`${method} ${path} unhandled error`, toError(error), {
-        requestId,
-        route: routeName,
-        durationMs,
-        clientIp,
-      });
+      try {
+        log.error(`${method} ${path} unhandled error`, toError(error), {
+          requestId,
+          route: routeName,
+          durationMs,
+          clientIp,
+        });
+      } catch (loggingError) {
+        // Double-fault: logger itself failed. Fall back to console to preserve the original error.
+        console.error('[DOUBLE-FAULT] Logger failed while handling error. Original error:', error);
+        console.error('[DOUBLE-FAULT] Logger error:', loggingError);
+      }
       checkAnomaly({ clientIp, userAgent, route: routeName, status: 500 });
       throw error;
     }
