@@ -1,0 +1,118 @@
+{
+  "name": "pitreview",
+  "displayName": "PitReview - Codebase Annotation Navigator",
+  "description": "Navigate structured @review and @slop annotations across your codebase. Walk findings by severity, domain, layer, or connection graph.",
+  "version": "0.1.0",
+  "publisher": "oceanheart-ai",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rickhallett/thepit"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Linters"
+  ],
+  "keywords": [
+    "code review",
+    "annotations",
+    "architecture",
+    "AI-augmented development",
+    "codebase audit"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/*.ts",
+    "workspaceContains:**/*.tsx"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pitreview.walkRisk",
+        "title": "PitReview: Walk Risk Findings"
+      },
+      {
+        "command": "pitreview.walkDomain",
+        "title": "PitReview: Walk by Domain..."
+      },
+      {
+        "command": "pitreview.walkLayer",
+        "title": "PitReview: Walk by Layer..."
+      },
+      {
+        "command": "pitreview.walkConnections",
+        "title": "PitReview: Walk Connection Graph from Here"
+      },
+      {
+        "command": "pitreview.listAll",
+        "title": "PitReview: List All Annotations"
+      },
+      {
+        "command": "pitreview.jumpToAnnotation",
+        "title": "PitReview: Jump to Annotation..."
+      },
+      {
+        "command": "pitreview.refresh",
+        "title": "PitReview: Refresh Index"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pitreview",
+          "title": "PitReview",
+          "icon": "$(search-fuzzy)"
+        }
+      ]
+    },
+    "views": {
+      "pitreview": [
+        {
+          "id": "pitreview.byFile",
+          "name": "By File"
+        },
+        {
+          "id": "pitreview.bySeverity",
+          "name": "By Severity"
+        },
+        {
+          "id": "pitreview.byDomain",
+          "name": "By Domain"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "PitReview",
+      "properties": {
+        "pitreview.prefixes": {
+          "type": "array",
+          "default": ["review", "slop"],
+          "description": "Annotation prefixes to scan for (e.g. @review, @slop)"
+        },
+        "pitreview.scanDirs": {
+          "type": "array",
+          "default": ["lib", "app", "components", "db", "src"],
+          "description": "Directories to scan for annotations"
+        },
+        "pitreview.extensions": {
+          "type": "array",
+          "default": [".ts", ".tsx", ".js", ".jsx"],
+          "description": "File extensions to scan"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
