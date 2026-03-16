@@ -61,7 +61,7 @@ export async function initializeUserSession(params: {
 }) {
   const cacheKey = `onboarding:init:${params.userId}`;
   const cached = await cacheGet<number>(cacheKey);
-  if (cached) return;
+  if (cached !== null) return;
 
   // Check DB for existing user BEFORE ensureUserRecord creates one.
   // This provides a durable new-user signal that survives deploys/restarts,

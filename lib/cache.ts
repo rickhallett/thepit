@@ -45,19 +45,19 @@ function localGet(key: string): string | null {
 
 /**
  * Retrieve a cached value by key. Returns null on cache miss or error.
- * Deserializes JSON automatically.
+ *
+ * Redis path: Upstash auto-deserializes JSON, so we use get<T> directly.
+ * Local path: values are stored as JSON strings and parsed on retrieval.
  */
 export async function cacheGet<T>(key: string): Promise<T | null> {
   const client = getRedis();
   if (client) {
     try {
-      const raw = await client.get<string>(key);
-      if (raw === null || raw === undefined) return null;
-      // Upstash auto-deserializes JSON, so raw may already be an object
-      if (typeof raw === 'string') {
-        return JSON.parse(raw) as T;
-      }
-      return raw as T;
+      // Upstash auto-deserializes JSON stored via set(). Using get<T>()
+      // lets Upstash return the deserialized value directly, avoiding
+      // double-parse bugs with string values.
+      const result = await client.get<T>(key);
+      return result ?? null;
     } catch (err) {
       logRedisWarning(err);
     }
@@ -69,21 +69,25 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
 
 /**
  * Store a value in cache with a TTL in seconds.
- * Serializes to JSON automatically.
+ *
+ * Redis path: Upstash handles serialization natively.
+ * Local path: values are JSON-stringified for storage.
  */
 export async function cacheSet<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
-  const json = JSON.stringify(value);
   const client = getRedis();
   if (client) {
     try {
-      await client.set(key, json, { ex: ttlSeconds });
+      // Let Upstash handle serialization. Passing the value directly
+      // avoids double-serialization (JSON.stringify then Upstash's
+      // internal serialize) which causes parse failures for string values.
+      await client.set(key, value, { ex: ttlSeconds });
       return;
     } catch (err) {
       logRedisWarning(err);
     }
   }
   localCache.set(key, {
-    value: json,
+    value: JSON.stringify(value),
     expiresAt: Date.now() + ttlSeconds * 1000,
   });
 }
