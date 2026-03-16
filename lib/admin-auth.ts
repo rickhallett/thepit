@@ -1,4 +1,8 @@
 // Shared admin authentication for admin API routes.
+//
+// NOTE: Reads process.env.ADMIN_SEED_TOKEN at call time (not module load)
+// so the check reflects the current runtime value. This is intentional -
+// admin token validation must read the live value, not a cached snapshot.
 
 import { timingSafeEqual } from 'crypto';
 

@@ -14,21 +14,14 @@ import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { introPool } from '@/db/schema';
+import { env } from '@/lib/env';
 import { MICRO_PER_CREDIT, ensureCreditAccount, applyCreditDelta } from '@/lib/credits';
 
-export const INTRO_POOL_TOTAL_CREDITS = Number(
-  process.env.INTRO_POOL_TOTAL_CREDITS ?? '10000',
-);
+export const INTRO_POOL_TOTAL_CREDITS = env.INTRO_POOL_TOTAL_CREDITS;
 /** Half-life in days. Pool halves every N days via exponential decay. */
-export const INTRO_POOL_HALF_LIFE_DAYS = Number(
-  process.env.INTRO_POOL_HALF_LIFE_DAYS ?? '3',
-);
-export const INTRO_SIGNUP_CREDITS = Number(
-  process.env.INTRO_SIGNUP_CREDITS ?? '0',
-);
-export const INTRO_REFERRAL_CREDITS = Number(
-  process.env.INTRO_REFERRAL_CREDITS ?? '50',
-);
+export const INTRO_POOL_HALF_LIFE_DAYS = env.INTRO_POOL_HALF_LIFE_DAYS;
+export const INTRO_SIGNUP_CREDITS = env.INTRO_SIGNUP_CREDITS;
+export const INTRO_REFERRAL_CREDITS = env.INTRO_REFERRAL_CREDITS;
 
 /** Half-life in minutes. Used in TS for computeRemainingMicro.
  *  In SQL expressions, multiply by 60 to convert to seconds (EXTRACT EPOCH returns seconds). */

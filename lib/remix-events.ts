@@ -8,16 +8,13 @@ import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { remixEvents, agents } from '@/db/schema';
+import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
 import { applyCreditDelta, CREDITS_ENABLED } from '@/lib/credits';
 
 // Configurable reward amounts in micro-credits (env vars, default 0 = disabled)
-export const REMIX_REWARD_REMIXER_MICRO = Number(
-  process.env.REMIX_REWARD_REMIXER_MICRO ?? '0',
-);
-export const REMIX_REWARD_SOURCE_OWNER_MICRO = Number(
-  process.env.REMIX_REWARD_SOURCE_OWNER_MICRO ?? '0',
-);
+export const REMIX_REWARD_REMIXER_MICRO = env.REMIX_REWARD_REMIXER_MICRO;
+export const REMIX_REWARD_SOURCE_OWNER_MICRO = env.REMIX_REWARD_SOURCE_OWNER_MICRO;
 
 export type RemixOutcome = 'completed' | 'failed';
 

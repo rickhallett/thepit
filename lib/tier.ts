@@ -12,6 +12,7 @@
 import { eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
+import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
 import { users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
@@ -19,16 +20,15 @@ import { MODEL_FAMILY } from '@/lib/models';
 
 export type UserTier = 'free' | 'pass' | 'lab';
 
-export const SUBSCRIPTIONS_ENABLED =
-  process.env.SUBSCRIPTIONS_ENABLED === 'true';
+export const SUBSCRIPTIONS_ENABLED = env.SUBSCRIPTIONS_ENABLED;
 
 /** Map Stripe price IDs to subscription tiers. */
 const PRICE_TO_TIER: Record<string, UserTier> = {
-  ...(process.env.STRIPE_PASS_PRICE_ID
-    ? { [process.env.STRIPE_PASS_PRICE_ID]: 'pass' as const }
+  ...(env.STRIPE_PASS_PRICE_ID
+    ? { [env.STRIPE_PASS_PRICE_ID]: 'pass' as const }
     : {}),
-  ...(process.env.STRIPE_LAB_PRICE_ID
-    ? { [process.env.STRIPE_LAB_PRICE_ID]: 'lab' as const }
+  ...(env.STRIPE_LAB_PRICE_ID
+    ? { [env.STRIPE_LAB_PRICE_ID]: 'lab' as const }
     : {}),
 };
 

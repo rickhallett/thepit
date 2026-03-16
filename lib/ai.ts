@@ -25,28 +25,35 @@ import {
   OPENROUTER_MODELS,
   ALL_OPENROUTER_MODEL_IDS,
   DEFAULT_FREE_MODEL,
-  DEFAULT_PREMIUM_MODELS,
   DEFAULT_PREMIUM_MODEL,
   detectProvider,
 } from '@/lib/models';
+import { env } from '@/lib/env';
 
 const defaultAnthropic = createAnthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: env.ANTHROPIC_API_KEY,
 });
 
+// Model ID resolution uses process.env directly for the fallback chain
+// because env.ts applies defaults (e.g. ANTHROPIC_FREE_MODEL defaults to
+// DEFAULT_FREE_MODEL), which means env.ANTHROPIC_FREE_MODEL is never
+// undefined and the ?? fallback to ANTHROPIC_MODEL would never trigger.
+// Reading process.env preserves the "unset = try next fallback" semantics.
 export const FREE_MODEL_ID =
   process.env.ANTHROPIC_FREE_MODEL ??
   process.env.ANTHROPIC_MODEL ??
   DEFAULT_FREE_MODEL;
 
-const premiumModelEnv =
-  process.env.ANTHROPIC_PREMIUM_MODELS ?? DEFAULT_PREMIUM_MODELS;
+const premiumModelEnv = env.ANTHROPIC_PREMIUM_MODELS;
 
 const parsedPremiumModels = premiumModelEnv
   .split(',')
   .map((model) => model.trim())
   .filter(Boolean);
 
+// Raw process.env check: warn only when the user explicitly set the var
+// to something unparseable. env.ANTHROPIC_PREMIUM_MODELS always has a
+// value (Zod default), so it cannot distinguish "unset" from "defaulted".
 if (
   process.env.ANTHROPIC_PREMIUM_MODELS &&
   parsedPremiumModels.length === 0
@@ -62,13 +69,10 @@ export const PREMIUM_MODEL_OPTIONS =
     ? parsedPremiumModels
     : [DEFAULT_PREMIUM_MODEL];
 
-export const DEFAULT_PREMIUM_MODEL_ID =
-  process.env.ANTHROPIC_PREMIUM_MODEL ??
-  PREMIUM_MODEL_OPTIONS[0] ??
-  DEFAULT_PREMIUM_MODEL;
+export const DEFAULT_PREMIUM_MODEL_ID = env.ANTHROPIC_PREMIUM_MODEL;
 
 export const BYOK_MODEL_ID =
-  process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID;
+  env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID;
 
 /** Default OpenRouter model when an OpenRouter key is supplied without a model selection. */
 export const DEFAULT_OPENROUTER_MODEL = OPENROUTER_MODELS.GPT_4O;

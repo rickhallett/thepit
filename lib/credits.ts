@@ -17,53 +17,31 @@ import { desc, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { creditTransactions, credits } from '@/db/schema';
+import { env } from '@/lib/env';
 import { MODEL_IDS } from '@/lib/models';
 
-export const CREDIT_VALUE_GBP = Number(
-  process.env.CREDIT_VALUE_GBP ?? '0.01',
-);
+export const CREDIT_VALUE_GBP = env.CREDIT_VALUE_GBP;
 export const MICRO_PER_CREDIT = 100;
 export const MICRO_VALUE_GBP = CREDIT_VALUE_GBP / MICRO_PER_CREDIT;
-export const CREDITS_ENABLED = process.env.CREDITS_ENABLED === 'true';
-export const CREDITS_ADMIN_ENABLED =
-  process.env.CREDITS_ADMIN_ENABLED === 'true';
-export const CREDITS_ADMIN_GRANT = Number(
-  process.env.CREDITS_ADMIN_GRANT ?? '100',
-);
-export const CREDIT_PLATFORM_MARGIN = Number(
-  process.env.CREDIT_PLATFORM_MARGIN ?? '0.10',
-);
+export const CREDITS_ENABLED = env.CREDITS_ENABLED;
+export const CREDITS_ADMIN_ENABLED = env.CREDITS_ADMIN_ENABLED;
+export const CREDITS_ADMIN_GRANT = env.CREDITS_ADMIN_GRANT;
+export const CREDIT_PLATFORM_MARGIN = env.CREDIT_PLATFORM_MARGIN;
 
 // --- Tier credit grants (one-time on subscription creation / upgrade) ---
-export const SUBSCRIPTION_GRANT_PASS = Number(
-  process.env.SUBSCRIPTION_GRANT_PASS ?? '300',
-);
-export const SUBSCRIPTION_GRANT_LAB = Number(
-  process.env.SUBSCRIPTION_GRANT_LAB ?? '600',
-);
+export const SUBSCRIPTION_GRANT_PASS = env.SUBSCRIPTION_GRANT_PASS;
+export const SUBSCRIPTION_GRANT_LAB = env.SUBSCRIPTION_GRANT_LAB;
 
 // --- Monthly recurring credit grants (on invoice.payment_succeeded) ---
-export const MONTHLY_CREDITS_PASS = Number(
-  process.env.MONTHLY_CREDITS_PASS ?? '300',
-);
-export const MONTHLY_CREDITS_LAB = Number(
-  process.env.MONTHLY_CREDITS_LAB ?? '600',
-);
-const TOKEN_CHARS_PER = Number(
-  process.env.CREDIT_TOKEN_CHARS_PER ?? '4',
-);
-const OUTPUT_TOKENS_PER_TURN = Number(
-  process.env.CREDIT_OUTPUT_TOKENS_PER_TURN ?? '120',
-);
-const INPUT_FACTOR = Number(
-  process.env.CREDIT_INPUT_FACTOR ?? '5.5',
-);
+export const MONTHLY_CREDITS_PASS = env.MONTHLY_CREDITS_PASS;
+export const MONTHLY_CREDITS_LAB = env.MONTHLY_CREDITS_LAB;
+const TOKEN_CHARS_PER = env.CREDIT_TOKEN_CHARS_PER;
+const OUTPUT_TOKENS_PER_TURN = env.CREDIT_OUTPUT_TOKENS_PER_TURN;
+const INPUT_FACTOR = env.CREDIT_INPUT_FACTOR;
 
-export const BYOK_ENABLED = process.env.BYOK_ENABLED === 'true';
-const BYOK_FEE_GBP_PER_1K_TOKENS = Number(
-  process.env.BYOK_FEE_GBP_PER_1K_TOKENS ?? '0.0002',
-);
-const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
+export const BYOK_ENABLED = env.BYOK_ENABLED;
+const BYOK_FEE_GBP_PER_1K_TOKENS = env.BYOK_FEE_GBP_PER_1K_TOKENS;
+const BYOK_MIN_GBP = env.BYOK_MIN_GBP;
 
 /** GBP/USD exchange rate used for pricing conversions. */
 const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
@@ -78,7 +56,7 @@ const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
 };
 
 const ENV_MODEL_PRICES = (() => {
-  const raw = process.env.MODEL_PRICES_GBP_JSON;
+  const raw = env.MODEL_PRICES_GBP_JSON;
   if (!raw) return {} as Record<string, { in: number; out: number }>;
   try {
     return JSON.parse(raw) as Record<string, { in: number; out: number }>;
@@ -204,7 +182,7 @@ export async function ensureCreditAccount(userId: string, tx?: DbOrTx) {
 
   if (existing) return existing;
 
-  const startingCredits = Number(process.env.CREDITS_STARTING_CREDITS ?? '100');
+  const startingCredits = env.CREDITS_STARTING_CREDITS;
   const balanceMicro = Math.max(
     0,
     Math.round(startingCredits * MICRO_PER_CREDIT),

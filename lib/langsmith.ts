@@ -20,13 +20,14 @@
 
 import * as ai from 'ai';
 
+import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
 
 // ---------------------------------------------------------------------------
-// Feature flag — read once at module load
+// Feature flag - read once at module load
 // ---------------------------------------------------------------------------
 
-const LANGSMITH_ENABLED = process.env.LANGSMITH_ENABLED === 'true';
+const LANGSMITH_ENABLED = env.LANGSMITH_ENABLED;
 
 // ---------------------------------------------------------------------------
 // LangSmith Client singleton
@@ -58,7 +59,7 @@ export function getLangSmithClient(): import('langsmith').Client | null {
       // LANGSMITH_PROJECT env vars by the SDK automatically.
     });
     log.info('LangSmith client initialized', {
-      project: process.env.LANGSMITH_PROJECT ?? 'default',
+      project: env.LANGSMITH_PROJECT ?? 'default',
     });
   }
 

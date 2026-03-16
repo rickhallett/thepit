@@ -16,20 +16,21 @@ import { EAS, SchemaEncoder } from '@ethereum-attestation-service/eas-sdk';
 import { ethers } from 'ethers';
 
 import type { AgentManifest } from '@/lib/agent-dna';
+import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
 
 // Base L2 pre-deployed EAS contract addresses (same for all Base deployments)
 const DEFAULT_EAS_ADDRESS = '0x4200000000000000000000000000000000000021';
 const DEFAULT_SCHEMA_REGISTRY = '0x4200000000000000000000000000000000000020';
 
-export const EAS_ENABLED = process.env.EAS_ENABLED === 'true';
-export const EAS_CHAIN_ID = Number(process.env.EAS_CHAIN_ID ?? 8453);
-export const EAS_SCHEMA_UID = process.env.EAS_SCHEMA_UID ?? '';
-export const EAS_RPC_URL = process.env.EAS_RPC_URL ?? '';
+export const EAS_ENABLED = env.EAS_ENABLED;
+export const EAS_CHAIN_ID = env.EAS_CHAIN_ID;
+export const EAS_SCHEMA_UID = env.EAS_SCHEMA_UID ?? '';
+export const EAS_RPC_URL = env.EAS_RPC_URL ?? '';
 export const EAS_CONTRACT_ADDRESS =
-  process.env.EAS_CONTRACT_ADDRESS ?? DEFAULT_EAS_ADDRESS;
+  env.EAS_CONTRACT_ADDRESS ?? DEFAULT_EAS_ADDRESS;
 export const EAS_SCHEMA_REGISTRY_ADDRESS =
-  process.env.EAS_SCHEMA_REGISTRY_ADDRESS ?? DEFAULT_SCHEMA_REGISTRY;
+  env.EAS_SCHEMA_REGISTRY_ADDRESS ?? DEFAULT_SCHEMA_REGISTRY;
 
 // The on-chain schema defines the attestation structure. Each field maps to a
 // Solidity type: strings for human-readable IDs, bytes32 for the 32-byte
@@ -70,7 +71,7 @@ const requireEasConfig = () => {
   if (!EAS_RPC_URL) {
     throw new Error('EAS_RPC_URL is required.');
   }
-  if (!process.env.EAS_SIGNER_PRIVATE_KEY) {
+  if (!env.EAS_SIGNER_PRIVATE_KEY) {
     throw new Error('EAS_SIGNER_PRIVATE_KEY is required.');
   }
 };
@@ -85,7 +86,7 @@ export const attestAgent = async (params: {
 
   const provider = new ethers.JsonRpcProvider(EAS_RPC_URL, EAS_CHAIN_ID);
   const signer = new ethers.Wallet(
-    process.env.EAS_SIGNER_PRIVATE_KEY as string,
+    env.EAS_SIGNER_PRIVATE_KEY as string,
     provider,
   );
 
