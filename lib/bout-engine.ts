@@ -1066,15 +1066,21 @@ async function _executeBoutInner(
       updatedAt: new Date(),
     });
 
-    // Truncate transcript JSON for Sentry logging. Sentry caps event payloads
-    // at ~200KB and string values at 250 chars in structured contexts. A
-    // multi-turn bout transcript can exceed both limits.
-    const MAX_SENTRY_PAYLOAD = 100_000; // 100KB safe ceiling
-    const transcriptJson = JSON.stringify(transcript);
-    const transcriptTruncated = transcriptJson.length > MAX_SENTRY_PAYLOAD;
-    const transcriptData = transcriptTruncated
-      ? transcriptJson.slice(0, MAX_SENTRY_PAYLOAD)
-      : transcriptJson;
+    // Truncate transcript at array-element level for Sentry logging.
+    // Sentry caps event payloads at ~200KB. Slicing a serialized string
+    // at an arbitrary byte boundary produces invalid JSON, defeating
+    // transcript recovery. Instead, drop trailing turns until the
+    // serialized form fits within budget.
+    const MAX_SENTRY_TRANSCRIPT_BYTES = 100_000;
+    let transcriptForLog = transcript;
+    let transcriptTruncated = false;
+
+    let transcriptData = JSON.stringify(transcript);
+    while (transcriptData.length > MAX_SENTRY_TRANSCRIPT_BYTES && transcriptForLog.length > 1) {
+      transcriptForLog = transcriptForLog.slice(0, -1);
+      transcriptData = JSON.stringify(transcriptForLog);
+      transcriptTruncated = true;
+    }
 
     try {
       await db
@@ -1132,6 +1138,7 @@ async function _executeBoutInner(
           transcript_length: transcript.length,
           input_tokens: inputTokens,
           output_tokens: outputTokens,
+          has_share_line: !!shareLine,
           transcript_data: transcriptData,
           transcript_truncated: transcriptTruncated,
           error_message: retryError instanceof Error ? retryError.message : String(retryError),
