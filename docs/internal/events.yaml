@@ -65,3 +65,12 @@ events:
     ref: blog/2026-03-10-agentic-bootcamp.md
     summary: "Operator flagged bootcamp blog post as positive reference for low-slop prose. Post passes full slopodar - no tally voice, no epistemic theatre, no epigrammatic closures, no nominalisation. Structure: observation, problem, what I built, ranking criteria, who it's for. Claims backed by structure, not rhetoric. Use as reference when writing public-facing content."
     backrefs: [slopodar.yaml, bootcamp]
+
+  - date: "2026-03-16"
+    time: "09:00"
+    type: decision
+    agent: Weaver
+    commit: null
+    ref: docs/internal/weaver/codebase-review-model.md
+    summary: "SD-328 tech-debt-exposure. 6-layer codebase review model codified. Supersedes SD-327 interview-prep-pause. The gap is not manual coding fluency but architectural judgment over AI-directed code. Systematic review at multiple zoom levels IS the interview prep. L6 introduces structured @slop annotations backreffing slopodar entries to file/line/commit."
+    backrefs: [SD-327, SD-328, slopodar.yaml, watchdog/lessons-learned-blindspots.md]

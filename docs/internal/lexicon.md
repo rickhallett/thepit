@@ -276,6 +276,9 @@ Concepts for rapid communication of intent regarding complex ideas. Requested by
 **Convexity** — A position with more upside than downside. The goal is to be positioned such that variance helps you. Composable, modular systems are convex — each component can be improved independently, and improvements compound. Monolithic systems are concave — variance hurts.
 *Source: Taleb 2012 (Antifragile). Application: why modular/composable architecture matters for agentic systems.*
 
+**Durian** — A change that is low-hanging fruit (conceptually simple, obviously beneficial) but high blast radius (touches many files, many import paths, many downstream consumers). Named for the fruit that hangs low but detonates loudly when opened. The lib/ restructure is the canonical example: moving files into subdirectories is trivial; updating 400+ import statements without breaking the gate is not. Durians get their own value stream with nothing else in flight. NOVEL.
+*Source: L1 dependency map review, 2026-03-16. Application: risk assessment for refactoring tasks that look simple but have wide coupling.*
+
 **Local Optima** — Best in the neighbourhood but not globally optimal. Must escape (accept temporary regression) to find global optimum. The discomfort of tacking.
 *Source: Optimisation theory. Application: recognising when incremental improvement is a trap.*
 
@@ -365,3 +368,4 @@ The **slop failure modes taxonomy** (slopodar, `docs/internal/slopodar.yaml`) co
 | v0.24 | 2026-03-05 | Log That, Scrub That, Mint. | SD-316 |
 | v0.25 | 2026-03-09 | Darkcat Alley, Sortie. | SD-318 |
 | v0.26 | 2026-03-10 | **3rd Distillation.** Independent cross-triangulation (Architect: naval→Linux, Analyst: naval→SWE). 60% of terms grounded in established frameworks (Lean/Toyota, SRE, CRM, Bainbridge). 18% confirmed as genuinely novel (context engineering for LLM agents). Mathematical heuristics added. 6 terms retired. Remaining terms renamed to standard vocabulary with origin backrefs preserved. Marks beginning of Phase 3. | — |
+| v0.27 | 2026-03-16 | Durian (engineering hazard: low-hanging fruit, high blast radius). | SD-328 |

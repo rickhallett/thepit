@@ -142,3 +142,38 @@
   created: '2026-03-12T05:11:21.252823+00:00'
   closed: null
   reason: null
+- id: BL-013
+  title: VS Code extension for @slop annotations - inline slopodar backref, hover
+    for taxonomy entry, gutter icons for annotation density
+  status: open
+  priority: medium
+  tags:
+  - tooling
+  - slopodar
+  epic: null
+  created: '2026-03-16T09:30:00.000000+00:00'
+  closed: null
+  reason: null
+- id: BL-014
+  title: Remove lib/eval/ dead modules or integrate into runtime evaluation pipeline
+  status: open
+  priority: low
+  tags:
+  - tech-debt
+  - code-health
+  epic: null
+  created: '2026-03-16T09:30:00.000000+00:00'
+  closed: null
+  reason: null
+- id: BL-015
+  title: Restructure lib/ into domain subdirectories (agent/, bout/, api/, credits/,
+    content/, engagement/) - durian job, own value stream
+  status: open
+  priority: medium
+  tags:
+  - tech-debt
+  - code-health
+  epic: null
+  created: '2026-03-16T09:30:00.000000+00:00'
+  closed: null
+  reason: null

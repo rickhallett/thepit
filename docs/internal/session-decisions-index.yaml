@@ -6,9 +6,9 @@
 # The full log is for provenance and archaeology.
 # Recent SDs shown here - read full file for deeper history.
 
-generated: "2026-03-13T22:00:00.000Z"
-total_decisions: 327
-range: "SD-001 to SD-327"
+generated: "2026-03-16T09:00:00.000Z"
+total_decisions: 328
+range: "SD-001 to SD-328"
 note: "Chain carries forward from tspit (pilot study). noopit is thepit-v2 - diverged at SD-278."
 
 # Standing orders that carry forward (always active)
@@ -119,4 +119,8 @@ recent:
   - id: SD-327
     label: "interview-prep-pause"
     summary: "The Pit paused for 6 weeks. Full-time interview prep from 14 March 2026. Manual coding and system design fluency have atrophied after 2 months of AI-assisted development. NeetCode + Codecrafters, no AI during practice blocks. Identity needs distance from the work before interviews."
+    status: "SUPERSEDED by SD-328"
+  - id: SD-328
+    label: "tech-debt-exposure"
+    summary: "Technical debt is an ever-present threat to codebase survivability. The Operator needs deeper human exposure to internals. The gap is not manual coding fluency but architectural judgment over 60k+ LOC directed via AI agents. 6-layer review model codified: L1 dependency/boundary, L2 API surface, L3 error paths, L4 state management, L5 change impact, L6 slop detection (structured @slop annotations backreffing slopodar to file/line/commit). This review IS the interview prep. Model: docs/internal/weaver/codebase-review-model.md."
     status: "ACTIVE"
