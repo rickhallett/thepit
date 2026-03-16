@@ -49,7 +49,7 @@ export async function castWinnerVote(params: {
   boutId: string;
   agentId: string;
   userId: string;
-}): Promise<{ ok: true } | { error: string; status: number }> {
+}): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
   const { boutId, agentId, userId } = params;
   const db = requireDb();
 
@@ -64,7 +64,7 @@ export async function castWinnerVote(params: {
     .limit(1);
 
   if (!bout) {
-    return { error: 'Bout not found.', status: 404 };
+    return { ok: false, error: 'Bout not found.', status: 404 };
   }
 
   // Verify the agent actually participated in this bout
@@ -74,7 +74,7 @@ export async function castWinnerVote(params: {
     && bout.agentLineup.some((a: { id?: string }) => a.id === agentId);
 
   if (!inTranscript && !inLineup) {
-    return { error: 'Agent was not a participant in this bout.', status: 403 };
+    return { ok: false, error: 'Agent was not a participant in this bout.', status: 403 };
   }
 
   await db

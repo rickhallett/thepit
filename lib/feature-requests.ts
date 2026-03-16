@@ -88,7 +88,10 @@ export async function createFeatureRequest(
     })
     .returning({ id: featureRequests.id });
 
-  return { id: created!.id };
+  if (!created) {
+    throw new Error('Feature request insert returned no rows.');
+  }
+  return { id: created.id };
 }
 
 /**
@@ -132,6 +135,6 @@ export async function toggleFeatureRequestVote(
 
   return {
     voted: !existing,
-    voteCount: result!.count,
+    voteCount: result?.count ?? 0,
   };
 }

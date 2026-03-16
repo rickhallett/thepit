@@ -27,7 +27,7 @@ export const POST = withLogging(async function POST(req: Request) {
 
   const result = await castWinnerVote({ boutId, agentId, userId });
 
-  if ('error' in result) {
+  if (!result.ok) {
     return errorResponse(result.error, result.status);
   }
 

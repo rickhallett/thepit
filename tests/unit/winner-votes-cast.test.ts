@@ -51,7 +51,7 @@ describe('castWinnerVote', () => {
       userId: 'user_1',
     });
 
-    expect(result).toEqual({ error: 'Bout not found.', status: 404 });
+    expect(result).toEqual({ ok: false, error: 'Bout not found.', status: 404 });
   });
 
   it('returns error when agent did not participate', async () => {
@@ -73,7 +73,7 @@ describe('castWinnerVote', () => {
       userId: 'user_1',
     });
 
-    expect(result).toEqual({ error: 'Agent was not a participant in this bout.', status: 403 });
+    expect(result).toEqual({ ok: false, error: 'Agent was not a participant in this bout.', status: 403 });
   });
 
   it('succeeds when agent is in transcript', async () => {
