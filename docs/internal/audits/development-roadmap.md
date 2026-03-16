@@ -1,6 +1,7 @@
 # Development Roadmap
 
 Date: 2026-03-16
+Updated: 2026-03-16
 Status: Active
 Sources: L1-L5 codebase review, Anthropic change propagation P1-P4, Gemini change propagation P1-P4, Codex change propagation P1-P4, 3-model triangulation
 
@@ -18,7 +19,7 @@ Convergence key: 3/3 = all three models found it independently (highest confiden
 
 Financial safety and data integrity. These items prevent money loss, data loss, or permanently stuck state. Non-negotiable.
 
-### RD-001: Make intro pool deduction and user credit grant atomic
+### RD-001: Make intro pool deduction and user credit grant atomic [DONE - PR#75, 78d3ecc]
 
 - **Source:** Gemini R3 (HIGH), Anthropic trace, Codex trace 7 | Convergence: 2/3 + L
 - **Priority:** P0
@@ -28,7 +29,7 @@ Financial safety and data integrity. These items prevent money loss, data loss, 
 - **Target:** Wrap both operations in a single `db.transaction()`. Update `claimIntroCredits` and `applyCreditDelta` to accept an optional `tx` parameter.
 - **What breaks if unfixed:** Transient DB failure between the two operations permanently leaks credits from the intro pool. Silent. No reconciliation mechanism exists.
 
-### RD-002: Add error handling to bout completion DB write
+### RD-002: Add error handling to bout completion DB write [DONE - PR#76, faf4917]
 
 - **Source:** Anthropic SMELL-03c + R4, Gemini trace 2 hop 6, Codex trace 1 hop 10 | Convergence: 3/3
 - **Priority:** P0
@@ -38,7 +39,7 @@ Financial safety and data integrity. These items prevent money loss, data loss, 
 - **Target:** Wrap in try/catch. On failure, log the full transcript as structured data to Sentry (the transcript is already in memory). Optionally retry once.
 - **What breaks if unfixed:** DB connection hiccup at bout completion = total data loss for that bout + financial discrepancy. Low probability, high impact.
 
-### RD-003: Add bout sweep job for stuck 'running' bouts
+### RD-003: Add bout sweep job for stuck 'running' bouts [DONE - PR#77, 100f005]
 
 - **Source:** L1-L5 review (preauth-settle gap), all 3 models identified stuck bout risk | Convergence: 3/3 + L
 - **Priority:** P0
