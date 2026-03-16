@@ -5,6 +5,12 @@ import { withLogging } from '@/lib/api-logging';
 import { parseValidBody, rateLimitResponse } from '@/lib/api-utils';
 import { newsletterSchema } from '@/lib/api-schemas';
 
+// @review(L2-E2) CANONICAL PATTERN: This is the cleanest example of the load-bearing
+//   API route pattern. withLogging (context injection) -> rate limit -> parseValidBody
+//   (discriminated union, compiler-enforced error handling) -> business logic -> Response.json.
+//   31 lines. Every route follows this shape or has a documented reason not to.
+//   [severity:sound] [domain:api] [connects:L2-E1]
+
 export const runtime = 'nodejs';
 
 export const POST = withLogging(async function POST(req: Request) {

@@ -85,6 +85,10 @@ export const TIER_CONFIG: Record<UserTier, TierConfig> = {
  * Resolve a user's effective tier.
  * Admin users always get 'lab'. Otherwise reads from DB.
  */
+// @review(L4-TIER1) Cleanest domain in the codebase. Single source of truth
+//   (users.subscriptionTier), single mutation path (Stripe webhooks), no caching.
+//   Tier frozen into BoutContext at validation time - mid-bout upgrade has no effect.
+//   [severity:sound] [domain:state]
 export async function getUserTier(userId: string): Promise<UserTier> {
   if (isAdmin(userId)) return 'lab';
 

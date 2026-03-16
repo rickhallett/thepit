@@ -77,6 +77,10 @@ const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
   [MODEL_IDS.SONNET_46]: { in: 3, out: 15 },
 };
 
+// @review(L3-F11) Malformed MODEL_PRICES_GBP_JSON silently falls back to empty object.
+//   No log, no alert. System runs with default prices. If env var was set intentionally
+//   (e.g. price promotion), the promotion silently does not apply.
+//   [severity:concern] [domain:credits]
 const ENV_MODEL_PRICES = (() => {
   const raw = process.env.MODEL_PRICES_GBP_JSON;
   if (!raw) return {} as Record<string, { in: number; out: number }>;
@@ -236,6 +240,10 @@ export async function getCreditBalanceMicro(userId: string) {
   return account.balanceMicro;
 }
 
+// @review(L4-CRED4) applyCreditDelta is the workhorse - used by settlement, refund,
+//   Stripe webhook, signup bonus. Correctly uses db.transaction() for ledger + balance
+//   atomicity. The one function where financial integrity is enforced.
+//   [severity:sound] [domain:credits] [connects:L4-CRED1]
 export async function applyCreditDelta(
   userId: string,
   deltaMicro: number,
@@ -260,6 +268,11 @@ export async function applyCreditDelta(
     const [updated] = await tx
       .update(credits)
       .set({
+        // @review(L4-CRED1) GREATEST(0) floors balance at zero. If delta is -500 and balance
+        //   is 300, balance becomes 0 but ledger records -500. Sum of ledger deltas will not
+        //   equal final balance. intendedChargeMicro metadata enables manual reconciliation
+        //   but no automated check exists.
+        //   [severity:concern] [domain:credits] [connects:L3-F10,L4-CRED2]
         balanceMicro: sql`GREATEST(0, ${credits.balanceMicro} + ${deltaMicro})`,
         updatedAt: new Date(),
       })
@@ -294,6 +307,10 @@ export async function getCreditTransactions(userId: string, limit = 20) {
  * @returns Object with `success` boolean and current `balanceMicro`.
  *          If success is false, the preauth was rejected due to insufficient funds.
  */
+// @review(L4-CRED3) Preauth is atomic and correct: conditional UPDATE WHERE balance >= amount.
+//   Two concurrent preauths cannot both succeed when only one can be covered.
+//   This is the clean side of the credit system.
+//   [severity:sound] [domain:credits] [connects:L3-F10]
 export async function preauthorizeCredits(
   userId: string,
   amountMicro: number,
@@ -357,6 +374,10 @@ export async function preauthorizeCredits(
  * For refunds (delta < 0, actual cost was less than preauth), applies the
  * credit unconditionally since adding funds can't overdraw.
  */
+// @review(L4-CRED2) Settlement cap uses LEAST(delta, GREATEST(0, balance)). Records full
+//   deltaMicro in ledger but caps actual deduction. intendedChargeMicro metadata for
+//   audit, but no alerting when cap triggers. Silent revenue leak.
+//   [severity:concern] [domain:credits] [connects:L4-CRED1,L3-F09]
 export async function settleCredits(
   userId: string,
   deltaMicro: number,

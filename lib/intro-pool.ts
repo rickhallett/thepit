@@ -108,6 +108,10 @@ export async function getIntroPoolStatus() {
  * Uses a conditional UPDATE that calculates remaining credits in SQL,
  * preventing race conditions where concurrent claims could overdraw the pool.
  */
+// @review(L3-F16) NON-TRANSACTIONAL TWO-STEP: Pool UPDATE (step 1) and applyCreditDelta
+//   for user (step 2) are separate operations. If step 2 fails, pool is depleted but
+//   user never receives credits. Credits vanish permanently. No compensation path.
+//   [severity:risk] [domain:credits] [connects:L4-CRED4,L3-F10]
 export async function claimIntroCredits(params: {
   userId: string;
   credits: number;
@@ -184,6 +188,9 @@ export async function claimIntroCredits(params: {
  * deducts from the shared pool. Used for anonymous users during the intro
  * pool phase when authentication is not required.
  */
+// @review(L4-POOL1) Atomic SQL with CASE expression: remaining-check and claim are one
+//   statement. Concurrent calls serialised by Postgres row-level locking. Sound.
+//   [severity:sound] [domain:credits]
 export async function consumeIntroPoolAnonymous(microCredits: number): Promise<{
   consumed: boolean;
   remainingMicro: number;
@@ -240,6 +247,10 @@ export async function consumeIntroPoolAnonymous(microCredits: number): Promise<{
  * Uses GREATEST to prevent claimedMicro from going below zero in edge cases
  * (e.g. if a refund is accidentally issued twice).
  */
+// @review(L4-POOL2) GREATEST(0, claimed - refund) floors at zero. Double-refund
+//   protected. Drain attack prevention works because this is called in bout-engine
+//   error path for anonymous bouts.
+//   [severity:sound] [domain:credits] [connects:L4-BOUT2]
 export async function refundIntroPool(microCredits: number): Promise<void> {
   if (microCredits <= 0) return;
 

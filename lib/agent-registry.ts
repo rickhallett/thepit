@@ -18,10 +18,18 @@ import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
 import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
 import { ALL_PRESETS, getPresetById } from '@/lib/presets';
 import { buildAgentManifest, hashAgentManifest, hashAgentPrompt } from '@/lib/agent-dna';
+// @review(L2-B1) CIRCULAR: agent-registry imports rowToSnapshot from agent-mapper,
+//   agent-mapper imports AgentSnapshot type from here. Type-only cycle (no runtime
+//   issue) but structurally fragile. Fix: extract AgentSnapshot to agent-types.ts.
+//   [severity:concern] [domain:agents] [connects:L2-B2]
 import { rowToSnapshot } from '@/lib/agent-mapper';
 import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 
+// @review(L2-B3) AgentSnapshot is the central type of the agent domain. 25 fields.
+//   Used by components, lib modules, and API routes. Defined here but constructed
+//   in agent-mapper.ts - the type should live where the constructor lives.
+//   [severity:info] [domain:agents] [connects:L2-B1]
 export type AgentSnapshot = {
   id: string;
   name: string;
@@ -161,6 +169,9 @@ export const registerPresetAgent = async (params: {
   return { agentId, manifest, promptHash, manifestHash };
 };
 
+// @review(L2-B4) DEAD CODE: findAgentById has zero consumers anywhere in the codebase.
+//   No production code, no test code calls this function. Remove or integrate.
+//   [severity:info] [domain:agents]
 export const findAgentById = async (agentId: string) => {
   const db = requireDb();
   const [row] = await db

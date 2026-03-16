@@ -1,5 +1,9 @@
 // Shared agent row-to-snapshot mapping, used by agent-registry and agent-detail.
 
+// @review(L2-B2) Imports AgentSnapshot TYPE from agent-registry (the other half of the
+//   circular). This is type-only and erased at compile time, but if changed to a
+//   regular import, the cycle becomes runtime.
+//   [severity:concern] [domain:agents] [connects:L2-B1]
 import type { AgentSnapshot } from '@/lib/agent-registry';
 import type { agents } from '@/db/schema';
 

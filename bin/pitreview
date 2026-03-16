@@ -1,0 +1,412 @@
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# ///
+"""
+pitreview - Navigate the 5-layer codebase review annotations.
+
+Parses @review(...) comments from source files and provides
+structured navigation through findings.
+
+Usage:
+    uv run bin/pitreview list [--layer L3] [--severity risk] [--domain credits]
+    uv run bin/pitreview show L3-F10
+    uv run bin/pitreview walk <layer|domain|finding-id>
+    uv run bin/pitreview stats
+    uv run bin/pitreview graph [--mermaid]
+
+Annotation format in source files:
+    // @review(L3-F10) Description of finding.
+    //   More detail across multiple lines.
+    //   [severity:risk] [domain:credits] [connects:L3-F09,L4-credits]
+"""
+
+import os
+import re
+import sys
+import argparse
+from dataclasses import dataclass, field
+from pathlib import Path
+from collections import defaultdict
+
+# ANSI colours
+ORANGE = "\033[38;5;208m"
+RED = "\033[38;5;196m"
+GREEN = "\033[38;5;114m"
+CYAN = "\033[38;5;117m"
+DIM = "\033[2m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
+
+SEVERITY_COLOURS = {
+    "risk": RED,
+    "concern": ORANGE,
+    "sound": GREEN,
+    "info": CYAN,
+}
+
+SCAN_DIRS = ["lib", "app", "components", "db"]
+EXTENSIONS = {".ts", ".tsx"}
+
+
+@dataclass
+class Annotation:
+    id: str
+    file: str
+    line: int
+    description: str
+    severity: str = "info"
+    domain: str = ""
+    connects: list[str] = field(default_factory=list)
+    layer: str = ""
+    source_context: list[str] = field(default_factory=list)
+
+
+def find_repo_root() -> Path:
+    """Walk up from script location to find the repo root."""
+    p = Path(__file__).resolve().parent.parent
+    if (p / "package.json").exists():
+        return p
+    # fallback: cwd
+    return Path.cwd()
+
+
+def parse_annotations(root: Path) -> list[Annotation]:
+    """Scan source files for @review(...) annotations."""
+    annotations = []
+    pattern = re.compile(r"//\s*@review\(([^)]+)\)\s*(.*)")
+    meta_pattern = re.compile(r"\[(\w+):([^\]]+)\]")
+
+    for scan_dir in SCAN_DIRS:
+        dir_path = root / scan_dir
+        if not dir_path.exists():
+            continue
+        for fpath in sorted(dir_path.rglob("*")):
+            if fpath.suffix not in EXTENSIONS:
+                continue
+            try:
+                lines = fpath.read_text().splitlines()
+            except Exception:
+                continue
+            i = 0
+            while i < len(lines):
+                m = pattern.match(lines[i].strip())
+                if m:
+                    finding_id = m.group(1).strip()
+                    desc_parts = [m.group(2).strip()]
+                    # collect continuation lines (// followed by text, indented)
+                    j = i + 1
+                    while j < len(lines):
+                        cont = lines[j].strip()
+                        if cont.startswith("//") and not cont.startswith("// @review"):
+                            cont_text = cont.lstrip("/").strip()
+                            if cont_text:
+                                desc_parts.append(cont_text)
+                            j += 1
+                        else:
+                            break
+
+                    full_desc = " ".join(desc_parts)
+
+                    # extract metadata tags
+                    severity = "info"
+                    domain = ""
+                    connects = []
+                    for tag_m in meta_pattern.finditer(full_desc):
+                        key, val = tag_m.group(1), tag_m.group(2)
+                        if key == "severity":
+                            severity = val
+                        elif key == "domain":
+                            domain = val
+                        elif key == "connects":
+                            connects = [c.strip() for c in val.split(",")]
+                    # strip metadata tags from description
+                    clean_desc = meta_pattern.sub("", full_desc).strip()
+
+                    # extract layer from ID
+                    layer_m = re.match(r"(L\d+)", finding_id)
+                    layer = layer_m.group(1) if layer_m else ""
+
+                    # grab source context (5 lines after annotation block)
+                    ctx_start = j
+                    ctx_end = min(j + 7, len(lines))
+                    source_ctx = []
+                    for k in range(ctx_start, ctx_end):
+                        line_content = lines[k]
+                        if line_content.strip().startswith("// @review"):
+                            break
+                        source_ctx.append(line_content)
+
+                    rel_path = str(fpath.relative_to(root))
+                    annotations.append(Annotation(
+                        id=finding_id,
+                        file=rel_path,
+                        line=i + 1,
+                        description=clean_desc,
+                        severity=severity,
+                        domain=domain,
+                        connects=connects,
+                        layer=layer,
+                        source_context=source_ctx,
+                    ))
+                    i = j
+                else:
+                    i += 1
+    return annotations
+
+
+def format_annotation(a: Annotation, show_context: bool = False) -> str:
+    """Format a single annotation for terminal display."""
+    sev_colour = SEVERITY_COLOURS.get(a.severity, CYAN)
+    parts = [
+        f"  {BOLD}{a.id}{RESET}  {sev_colour}[{a.severity}]{RESET}"
+        f"  {DIM}{a.file}:{a.line}{RESET}",
+    ]
+    if a.domain:
+        parts[0] += f"  {DIM}({a.domain}){RESET}"
+    parts.append(f"    {a.description}")
+    if a.connects:
+        parts.append(f"    {DIM}connects: {', '.join(a.connects)}{RESET}")
+    if show_context and a.source_context:
+        parts.append(f"    {DIM}--- source ---{RESET}")
+        for idx, line in enumerate(a.source_context):
+            lineno = a.line + idx + 1
+            parts.append(f"    {DIM}{lineno:4d}{RESET} {line}")
+        parts.append(f"    {DIM}--- end ---{RESET}")
+    return "\n".join(parts)
+
+
+def cmd_list(annotations: list[Annotation], args: argparse.Namespace) -> None:
+    """List annotations with optional filters."""
+    filtered = annotations
+    if args.layer:
+        filtered = [a for a in filtered if a.layer == args.layer]
+    if args.severity:
+        filtered = [a for a in filtered if a.severity == args.severity]
+    if args.domain:
+        filtered = [a for a in filtered if a.domain == args.domain]
+
+    if not filtered:
+        print(f"{DIM}No annotations match filters.{RESET}")
+        return
+
+    # group by file
+    by_file: dict[str, list[Annotation]] = defaultdict(list)
+    for a in filtered:
+        by_file[a.file].append(a)
+
+    for fpath in sorted(by_file):
+        print(f"\n{BOLD}{fpath}{RESET}")
+        for a in sorted(by_file[fpath], key=lambda x: x.line):
+            print(format_annotation(a))
+    print(f"\n{DIM}{len(filtered)} annotations{RESET}")
+
+
+def cmd_show(annotations: list[Annotation], args: argparse.Namespace) -> None:
+    """Show a single annotation with source context."""
+    target = args.finding_id.upper() if not args.finding_id[0].isdigit() else args.finding_id
+    matches = [a for a in annotations if a.id.upper() == target.upper()]
+    if not matches:
+        # try partial match
+        matches = [a for a in annotations if target.upper() in a.id.upper()]
+    if not matches:
+        print(f"{RED}No annotation found matching '{args.finding_id}'{RESET}")
+        sys.exit(1)
+    for a in matches:
+        print(format_annotation(a, show_context=True))
+        print()
+
+
+def cmd_walk(annotations: list[Annotation], args: argparse.Namespace) -> None:
+    """Guided walk through annotations by layer, domain, or connection graph."""
+    target = args.target
+
+    # try as layer (L1, L2, etc)
+    layer_match = [a for a in annotations if a.layer == target.upper()]
+    if layer_match:
+        print(f"\n{BOLD}Walking {target.upper()} - {len(layer_match)} findings{RESET}\n")
+        for idx, a in enumerate(sorted(layer_match, key=lambda x: (x.file, x.line)), 1):
+            print(f"{DIM}[{idx}/{len(layer_match)}]{RESET}")
+            print(format_annotation(a, show_context=True))
+            print()
+        return
+
+    # try as domain
+    domain_match = [a for a in annotations if a.domain == target.lower()]
+    if domain_match:
+        print(f"\n{BOLD}Walking domain '{target}' - {len(domain_match)} findings{RESET}\n")
+        for idx, a in enumerate(sorted(domain_match, key=lambda x: (x.file, x.line)), 1):
+            print(f"{DIM}[{idx}/{len(domain_match)}]{RESET}")
+            print(format_annotation(a, show_context=True))
+            print()
+        return
+
+    # try as finding ID - walk its connection graph (BFS)
+    start = [a for a in annotations if a.id.upper() == target.upper()]
+    if start:
+        by_id = {a.id.upper(): a for a in annotations}
+        visited = []
+        queue = [start[0].id.upper()]
+        seen = set()
+        while queue:
+            current = queue.pop(0)
+            if current in seen:
+                continue
+            seen.add(current)
+            if current in by_id:
+                visited.append(by_id[current])
+                for c in by_id[current].connects:
+                    if c.upper() not in seen:
+                        queue.append(c.upper())
+
+        print(f"\n{BOLD}Walking connection graph from {start[0].id} - {len(visited)} findings{RESET}\n")
+        for idx, a in enumerate(visited, 1):
+            print(f"{DIM}[{idx}/{len(visited)}]{RESET}")
+            print(format_annotation(a, show_context=True))
+            print()
+        return
+
+    # try as severity
+    sev_match = [a for a in annotations if a.severity == target.lower()]
+    if sev_match:
+        print(f"\n{BOLD}Walking severity '{target}' - {len(sev_match)} findings{RESET}\n")
+        for idx, a in enumerate(sorted(sev_match, key=lambda x: (x.file, x.line)), 1):
+            print(f"{DIM}[{idx}/{len(sev_match)}]{RESET}")
+            print(format_annotation(a, show_context=True))
+            print()
+        return
+
+    print(f"{RED}No annotations match '{target}' as layer, domain, finding ID, or severity.{RESET}")
+    sys.exit(1)
+
+
+def cmd_stats(annotations: list[Annotation], _args: argparse.Namespace) -> None:
+    """Print summary statistics."""
+    by_layer = defaultdict(int)
+    by_severity = defaultdict(int)
+    by_domain = defaultdict(int)
+    by_file = defaultdict(int)
+
+    for a in annotations:
+        by_layer[a.layer or "unknown"] += 1
+        by_severity[a.severity] += 1
+        if a.domain:
+            by_domain[a.domain] += 1
+        by_file[a.file] += 1
+
+    print(f"\n{BOLD}Review Annotations: {len(annotations)} total{RESET}\n")
+
+    print(f"{BOLD}By layer:{RESET}")
+    for layer in sorted(by_layer):
+        print(f"  {layer:6s} {by_layer[layer]:3d}")
+
+    print(f"\n{BOLD}By severity:{RESET}")
+    for sev in ["risk", "concern", "sound", "info"]:
+        if sev in by_severity:
+            colour = SEVERITY_COLOURS.get(sev, "")
+            print(f"  {colour}{sev:10s}{RESET} {by_severity[sev]:3d}")
+
+    print(f"\n{BOLD}By domain:{RESET}")
+    for dom in sorted(by_domain):
+        print(f"  {dom:16s} {by_domain[dom]:3d}")
+
+    print(f"\n{BOLD}By file (top 10):{RESET}")
+    for fpath, count in sorted(by_file.items(), key=lambda x: -x[1])[:10]:
+        print(f"  {count:3d}  {fpath}")
+
+    # connection density
+    total_connects = sum(len(a.connects) for a in annotations)
+    connected = sum(1 for a in annotations if a.connects)
+    print(f"\n{BOLD}Connections:{RESET}")
+    print(f"  {connected} annotations with connections ({total_connects} total edges)")
+
+
+def cmd_graph(annotations: list[Annotation], args: argparse.Namespace) -> None:
+    """Print the connection graph."""
+    if args.mermaid:
+        print("graph LR")
+        for a in annotations:
+            node_label = f'{a.id}["{a.id}<br/>{a.severity}"]'
+            print(f"    {node_label}")
+            for c in a.connects:
+                print(f"    {a.id} --> {c}")
+        # styling
+        for a in annotations:
+            if a.severity == "risk":
+                print(f"    style {a.id} fill:#f7768e,color:#1a1b26")
+            elif a.severity == "concern":
+                print(f"    style {a.id} fill:#ff9e64,color:#1a1b26")
+            elif a.severity == "sound":
+                print(f"    style {a.id} fill:#9ece6a,color:#1a1b26")
+    else:
+        print(f"\n{BOLD}Connection Graph{RESET}\n")
+        for a in sorted(annotations, key=lambda x: x.id):
+            if a.connects:
+                sev_colour = SEVERITY_COLOURS.get(a.severity, "")
+                targets = ", ".join(a.connects)
+                print(f"  {sev_colour}{a.id}{RESET} -> {targets}")
+        # orphans
+        connected_ids = set()
+        for a in annotations:
+            connected_ids.add(a.id)
+            connected_ids.update(a.connects)
+        all_ids = {a.id for a in annotations}
+        orphans = all_ids - {a.id for a in annotations if a.connects}
+        orphans -= {c for a in annotations for c in a.connects}
+        if orphans:
+            print(f"\n  {DIM}Standalone (no connections): {', '.join(sorted(orphans))}{RESET}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Navigate the 5-layer codebase review annotations.",
+        prog="pitreview",
+    )
+    sub = parser.add_subparsers(dest="command")
+
+    # list
+    p_list = sub.add_parser("list", help="List annotations")
+    p_list.add_argument("--layer", "-l", help="Filter by layer (L1-L5)")
+    p_list.add_argument("--severity", "-s", help="Filter by severity")
+    p_list.add_argument("--domain", "-d", help="Filter by domain")
+
+    # show
+    p_show = sub.add_parser("show", help="Show annotation with source context")
+    p_show.add_argument("finding_id", help="Finding ID (e.g. L3-F10)")
+
+    # walk
+    p_walk = sub.add_parser("walk", help="Guided walk through findings")
+    p_walk.add_argument("target", help="Layer (L3), domain (credits), finding ID, or severity (risk)")
+
+    # stats
+    sub.add_parser("stats", help="Summary statistics")
+
+    # graph
+    p_graph = sub.add_parser("graph", help="Connection graph")
+    p_graph.add_argument("--mermaid", "-m", action="store_true", help="Output as mermaid diagram")
+
+    args = parser.parse_args()
+    if not args.command:
+        parser.print_help()
+        sys.exit(0)
+
+    root = find_repo_root()
+    annotations = parse_annotations(root)
+
+    if not annotations:
+        print(f"{DIM}No @review annotations found in source files.{RESET}")
+        print(f"{DIM}Scanned: {', '.join(SCAN_DIRS)} under {root}{RESET}")
+        sys.exit(0)
+
+    commands = {
+        "list": cmd_list,
+        "show": cmd_show,
+        "walk": cmd_walk,
+        "stats": cmd_stats,
+        "graph": cmd_graph,
+    }
+    commands[args.command](annotations, args)
+
+
+if __name__ == "__main__":
+    main()

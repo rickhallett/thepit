@@ -9,6 +9,10 @@
 //   3. (caller)              — wrap in streaming or return JSON
 //
 
+// @review(L1-F2) NEXUS: 24 dependencies - highest fan-out in the codebase. Any change to
+//   any imported module could break bout execution. See L1 dependency map for full graph.
+//   [severity:concern] [domain:architecture] [connects:L2-A1,L5-A1]
+
 import { timingSafeEqual } from 'crypto';
 // The streaming route passes an onTurnEvent callback to write SSE events.
 // The sync route omits it and gets the final result directly.
@@ -154,6 +158,11 @@ export type TurnEvent =
   | { type: 'data-share-line'; data: { text: string } };
 
 // ─── Phase 1: Validation ─────────────────────────────────────────────
+
+// @review(L2-A1) Phase boundary enforced by tagged union. Callers must discriminate
+//   on 'ok' before accessing context. Compile-time enforcement, not convention.
+//   True public API: validateBoutRequest + executeBout + 5 types. Clean surface.
+//   [severity:sound] [domain:architecture] [connects:L1-F2]
 
 /** Tagged result of validateBoutRequest — discriminate on `ok`. */
 export type BoutValidation =
@@ -314,6 +323,9 @@ export async function validateBoutRequest(
   const expected = process.env.RESEARCH_API_KEY;
   let researchBypass = false;
   if (researchKey && expected) {
+    // @review(L3-SEC1) Timing-safe comparison prevents side-channel attack on research
+    //   API key. Standard === leaks information through response time variance.
+    //   [severity:sound] [domain:security]
     const a = Buffer.from(researchKey);
     const b = Buffer.from(expected);
     researchBypass = a.length === b.length && timingSafeEqual(a, b);
@@ -426,6 +438,10 @@ export async function validateBoutRequest(
   // Research bypass skips all credit/pool gates — the bouts are platform-internal.
   let preauthMicro = 0;
   let introPoolConsumedMicro = 0;
+  // @review(L3-F10) PREAUTH-SETTLE GAP: Credits deducted here, settled after bout
+  //   completes. Process crash between these points = permanent user overcharge.
+  //   No reconciliation job exists. Highest-risk finding in the codebase.
+  //   [severity:risk] [domain:credits] [connects:L3-F09,L4-credits]
   if (CREDITS_ENABLED && !researchBypass) {
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
@@ -538,6 +554,12 @@ export function hashUserId(userId: string): string {
  * When LangSmith is enabled, the entire bout appears as a single parent trace
  * with child LLM spans for each turn (via wrapAISDK) and the share line call.
  */
+// @review(L2-A3) Tracing wrapper separates infrastructure from business logic.
+//   If LangSmith setup fails, the inner function's error cleanup (credit refund,
+//   DB update, intro pool refund) still runs. Tracing failure cannot bypass
+//   financial cleanup.
+//   [severity:sound] [domain:architecture]
+
 export async function executeBout(
   ctx: BoutContext,
   onEvent?: (event: TurnEvent) => void,
@@ -655,6 +677,11 @@ async function _executeBoutInner(
       modelId === 'byok' ? byokData?.modelId : undefined,
     );
 
+    // @review(L2-A2) Turn loop handles 11 concerns inline: agent selection, SSE emission,
+    //   scripted turns, prompt construction, experiment injection, context budgeting,
+    //   LLM streaming, timeout handling, token accounting, analytics, refusal detection.
+    //   Each is correct but the interleaving is the source of cognitive load.
+    //   [severity:concern] [domain:architecture] [connects:L1-F2]
     for (let i = 0; i < preset.maxTurns; i += 1) {
       const agent = preset.agents[i % preset.agents.length];
       if (!agent) {
@@ -734,6 +761,11 @@ async function _executeBoutInner(
         }
       }
 
+      // @review(L5-CONTEXT) Context window management: estimates token cost, truncates
+      //   history from the front (oldest turns dropped), hard guard if still too large.
+      //   This only exists because someone hit the limit in production.
+      //   [severity:sound] [domain:architecture]
+
       // Context window budgeting: truncate history from the front if the
       // full transcript would exceed the model's input token limit.
       // For BYOK, use the user-selected model ID (OpenRouter or Anthropic)
@@ -805,6 +837,10 @@ async function _executeBoutInner(
       const turnStart = Date.now();
       // BYOK calls use the untraced variant — user API keys must not be
       // logged to our LangSmith project. Platform calls get full tracing.
+      // @review(L5-BYOK) Privacy boundary: BYOK calls use untracedStreamText so user API
+      //   keys never reach LangSmith. Enforced at the streaming layer, not analytics.
+      //   isAnthropicModel() correctly gates prompt caching for non-Anthropic providers.
+      //   [severity:sound] [domain:security] [connects:L5-A1]
       const streamFn = modelId === 'byok' ? untracedStreamText : tracedStreamText;
 
       // Anthropic prompt caching: mark the system message as a cache
@@ -1050,6 +1086,11 @@ async function _executeBoutInner(
       log.warn('Failed to generate share line', toError(error), { boutId });
     }
 
+    // @review(L4-BOUT1) Bout transitions to 'completed' here. No state machine enforces
+    //   valid transitions - convention only. If serverless function dies before this line
+    //   but after the turn loop, bout stays 'running' forever. No sweep job, no TTL.
+    //   [severity:risk] [domain:bouts] [connects:L3-F10,L4-BOUT2]
+
     // Persist completed bout
     await db
       .update(bouts)
@@ -1115,6 +1156,10 @@ async function _executeBoutInner(
     // schema migration (no activated_at column exists). The minor analytics
     // duplication is acceptable — PostHog deduplicates on distinct_id+timestamp
     // and the funnel metric tolerates it.
+    // @review(L4-RACE1) Known race condition documented honestly: two concurrent bouts
+    //   can both fire user_activated. Fix cost (schema migration) exceeds impact
+    //   (PostHog deduplicates). Deliberate accept-and-document decision.
+    //   [severity:info] [domain:bouts]
     if (userId) {
       try {
         const [boutCount] = await db
@@ -1158,6 +1203,10 @@ async function _executeBoutInner(
         margin_health: delta <= 0 ? 'healthy' : 'leak',
       });
 
+      // @review(L3-F09) settleCredits has no try/catch here. DB failure after bout is
+      //   already persisted as 'completed' = dangling preauth. The catch block then
+      //   tries to refund via applyCreditDelta which also hits the failing DB.
+      //   [severity:risk] [domain:credits] [connects:L3-F10,L4-credits]
       if (delta !== 0) {
         await settleCredits(userId, delta, 'settlement', {
           presetId,
@@ -1230,6 +1279,11 @@ async function _executeBoutInner(
       .update(bouts)
       .set({ status: 'error', transcript, updatedAt: new Date() })
       .where(eq(bouts.id, boutId));
+
+    // @review(L4-BOUT2) Error path: partial transcript persisted, credits refunded,
+    //   intro pool refunded (drain attack prevention), error re-thrown. Thorough.
+    //   But if DB is down, both settle and refund fail - preauth permanently stuck.
+    //   [severity:concern] [domain:bouts] [connects:L3-F10,L4-BOUT1]
 
     // Error-path credit settlement: refund unused preauth.
     // The preauth already deducted preauthMicro from the user's balance.
