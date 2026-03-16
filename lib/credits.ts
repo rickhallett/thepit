@@ -259,6 +259,13 @@ export async function applyCreditDelta(
       metadata,
     });
 
+    // GREATEST(0, ...) clamps the balance so it never goes negative.
+    // This means the balance column can diverge from SUM(credit_transactions.delta_micro)
+    // when a negative delta exceeds the available balance. This is intentional:
+    //   - balance is authoritative for "how much can this user spend"
+    //   - the ledger records the full intended delta for audit purposes
+    //   - reconciliation queries should compare balance against ledger sum
+    //     and treat any difference as clamping loss, not data corruption
     const [updated] = await conn
       .update(credits)
       .set({
@@ -378,8 +385,16 @@ export async function settleCredits(
   if (deltaMicro > 0) {
     // Additional charge: cap at available balance atomically.
     // Wrapped in a transaction so the balance deduction and ledger entry
-    // succeed or fail together — prevents silent balance loss if the
+    // succeed or fail together - prevents silent balance loss if the
     // ledger insert fails after the balance update.
+    //
+    // LEAST/GREATEST clamping: the SQL expression deducts min(deltaMicro, balance)
+    // so the balance never goes negative. The ledger entry below records the full
+    // intended deltaMicro (not the clamped amount). This means:
+    //   - balance diverges from SUM(ledger) when the charge exceeds available balance
+    //   - intendedChargeMicro in metadata records what was requested
+    //   - the difference between intended and actual is clamping loss, not data error
+    //   - balance is authoritative for spendable amount; ledger is the audit trail
     await db.transaction(async (tx) => {
       const [result] = await tx
         .update(credits)
