@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 import { trackEvent } from '@/lib/analytics';
@@ -40,6 +40,14 @@ export function FeatureRequestList() {
   const STATUS_LABELS = getStatusLabels(c);
   const [requests, setRequests] = useState<FeatureRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [voteError, setVoteError] = useState<number | null>(null);
+  const voteErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showVoteError = (requestId: number) => {
+    setVoteError(requestId);
+    if (voteErrorTimerRef.current) clearTimeout(voteErrorTimerRef.current);
+    voteErrorTimerRef.current = setTimeout(() => setVoteError(null), 3000);
+  };
 
   const fetchRequests = useCallback(async () => {
     try {
@@ -91,9 +99,11 @@ export function FeatureRequestList() {
       } else {
         // Revert optimistic update
         fetchRequests();
+        showVoteError(requestId);
       }
     } catch {
       fetchRequests();
+      showVoteError(requestId);
     }
   };
 
@@ -187,6 +197,11 @@ export function FeatureRequestList() {
               <span className="text-xs font-bold text-foreground">
                 {r.voteCount}
               </span>
+              {voteError === r.id && (
+                <span className="text-[10px] text-red-400">
+                  Vote failed
+                </span>
+              )}
             </div>
           </div>
         </div>

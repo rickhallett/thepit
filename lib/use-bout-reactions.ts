@@ -29,11 +29,13 @@ export function useBoutReactions(
   const [userReactions, setUserReactions] = useState<UserReactionSet>(
     () => new Set(initialUserReactions ?? []),
   );
+  const [reactionError, setReactionError] = useState<string | null>(null);
 
   /* Ref tracks the authoritative set — never stale, even in async callbacks */
   const userReactionsRef = useRef<UserReactionSet>(new Set(initialUserReactions ?? []));
   const reactionsGivenRef = useRef(0);
   const pendingRef = useRef<Set<string>>(new Set());
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasReacted = useCallback(
     (turn: number, type: 'heart' | 'fire') => userReactions.has(reactionKey(turn, type)),
@@ -127,10 +129,15 @@ export function useBoutReactions(
           },
         };
       });
+
+      // Surface error to the UI, auto-dismiss after 3 seconds
+      setReactionError('Failed to save reaction');
+      if (errorTimerRef.current) clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = setTimeout(() => setReactionError(null), 3000);
     } finally {
       pendingRef.current.delete(key);
     }
   }, [boutId]);
 
-  return { reactions, sendReaction, reactionsGivenRef, hasReacted };
+  return { reactions, sendReaction, reactionsGivenRef, hasReacted, reactionError };
 }
