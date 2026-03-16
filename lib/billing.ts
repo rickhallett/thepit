@@ -35,7 +35,7 @@ async function updateUserSubscription(params: {
   tier: UserTier;
   subscriptionId: string;
   subscriptionStatus: string;
-  currentPeriodEnd: Date | null;
+  currentPeriodEnd?: Date | null;
   stripeCustomerId: string | null;
 }) {
   const db = requireDb();
@@ -45,7 +45,9 @@ async function updateUserSubscription(params: {
       subscriptionTier: params.tier,
       subscriptionId: params.subscriptionId,
       subscriptionStatus: params.subscriptionStatus,
-      subscriptionCurrentPeriodEnd: params.currentPeriodEnd,
+      ...(params.currentPeriodEnd !== undefined
+        ? { subscriptionCurrentPeriodEnd: params.currentPeriodEnd }
+        : {}),
       ...(params.stripeCustomerId
         ? { stripeCustomerId: params.stripeCustomerId }
         : {}),
@@ -105,15 +107,7 @@ export async function handleCheckoutCompleted(
     ? Number(session.metadata.credits)
     : 0;
 
-  const db = requireDb();
-
-  // Always check for existing transaction (consistent timing)
-  const [existing] = await db
-    .select({ id: creditTransactions.id })
-    .from(creditTransactions)
-    .where(eq(creditTransactions.referenceId, session.id))
-    .limit(1);
-
+  const existing = await hasExistingGrant(session.id);
   const shouldProcess = userId && credits > 0 && !existing;
 
   if (shouldProcess) {
@@ -436,12 +430,14 @@ export async function handleInvoicePaymentSucceeded(
   const tier = resolveTierFromPriceId(priceId);
   if (!tier) return;
 
+  // Omit currentPeriodEnd - Stripe doesn't guarantee webhook delivery
+  // order, so subscription.updated may arrive before or after this event.
+  // Preserving the existing value avoids overwriting a correct date with null.
   await updateUserSubscription({
     userId,
     tier,
     subscriptionId: invoice.subscription,
     subscriptionStatus: 'active',
-    currentPeriodEnd: null, // Will be updated by subscription.updated event
     stripeCustomerId: invoice.customer,
   });
 
