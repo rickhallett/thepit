@@ -2,15 +2,11 @@
 // clone lineage (up to maxDepth generations of parent agents). Falls back to
 // preset definitions when the agent isn't yet in the database.
 
-import { getPresetById } from '@/lib/presets';
 import { requireDb } from '@/db';
 import { agents } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import type { AgentSnapshot } from '@/lib/agent-registry';
-import { parsePresetAgentId } from '@/lib/agent-registry';
-import { rowToSnapshot } from '@/lib/agent-mapper';
-import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
-import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
+import { findPresetAgent, presetToSnapshot, rowToSnapshot } from '@/lib/agent-mapper';
 
 export type AgentLineageEntry = {
   id: string;
@@ -19,51 +15,6 @@ export type AgentLineageEntry = {
 
 export type AgentDetail = AgentSnapshot & {
   lineage: AgentLineageEntry[];
-};
-
-const findPresetAgentById = (agentId: string) => {
-  const parsed = parsePresetAgentId(agentId);
-  if (!parsed) return null;
-  const preset = getPresetById(parsed.presetId);
-  if (!preset) return null;
-  const agent = preset.agents.find((item) => item.id === parsed.agentId);
-  if (!agent) return null;
-  return { preset, agent };
-};
-
-const snapshotFromPreset = (agentId: string): AgentSnapshot | null => {
-  const presetMatch = findPresetAgentById(agentId);
-  if (!presetMatch) return null;
-  return {
-    id: agentId,
-    name: presetMatch.agent.name,
-    presetId: presetMatch.preset.id,
-    presetName: presetMatch.preset.name,
-    tier: presetMatch.preset.tier,
-    color: presetMatch.agent.color,
-    avatar: presetMatch.agent.avatar,
-    systemPrompt: presetMatch.agent.systemPrompt,
-    responseLength: DEFAULT_RESPONSE_LENGTH,
-    responseFormat: DEFAULT_RESPONSE_FORMAT,
-    archetype: null,
-    tone: null,
-    quirks: null,
-    speechPattern: null,
-    openingMove: null,
-    signatureMove: null,
-    weakness: null,
-    goal: null,
-    fears: null,
-    customInstructions: null,
-    createdAt: null,
-    ownerId: null,
-    parentId: null,
-    promptHash: null,
-    manifestHash: null,
-    attestationUid: null,
-    attestationTxHash: null,
-    archived: false,
-  };
 };
 
 export const getAgentDetail = async (
@@ -79,10 +30,11 @@ export const getAgentDetail = async (
 
   let snapshot: AgentSnapshot | null = null;
   if (row) {
-    const presetMatch = findPresetAgentById(row.id);
+    const presetMatch = findPresetAgent(row.id);
     snapshot = rowToSnapshot(row, presetMatch);
   } else {
-    snapshot = snapshotFromPreset(agentId);
+    const presetMatch = findPresetAgent(agentId);
+    snapshot = presetMatch ? presetToSnapshot(agentId, presetMatch) : null;
   }
 
   if (!snapshot) return null;
@@ -102,12 +54,12 @@ export const getAgentDetail = async (
       lineage.push({ id: parentRow.id, name: parentRow.name });
       currentParent = parentRow.parentId ?? null;
     } else {
-      /* Parent not in DB — try preset definitions (preset agents are not persisted) */
-      const presetMatch = findPresetAgentById(currentParent);
+      /* Parent not in DB - try preset definitions (preset agents are not persisted) */
+      const presetMatch = findPresetAgent(currentParent);
       if (presetMatch) {
         lineage.push({ id: currentParent, name: presetMatch.agent.name });
       }
-      break; /* Preset agents have no parentId — end of chain */
+      break; /* Preset agents have no parentId - end of chain */
     }
     depth += 1;
   }

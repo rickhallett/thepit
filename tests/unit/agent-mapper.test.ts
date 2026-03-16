@@ -51,8 +51,8 @@ describe('rowToSnapshot', () => {
 
   it('uses preset match for name, color, and avatar', () => {
     const presetMatch = {
-      preset: { name: 'Test Preset' },
-      agent: { color: '#ff0000', avatar: 'star' },
+      preset: { name: 'Test Preset', id: 'test', tier: 'free' as const },
+      agent: { id: 'agent-1', name: 'Test Agent', systemPrompt: 'test', color: '#ff0000', avatar: 'star' },
     };
 
     const snapshot = rowToSnapshot(mockRow, presetMatch);
