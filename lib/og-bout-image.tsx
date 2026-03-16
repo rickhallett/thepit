@@ -2,10 +2,9 @@
 // Used by both /bout/[id]/opengraph-image and /b/[id]/opengraph-image.
 
 import { ImageResponse } from 'next/og';
-import { eq } from 'drizzle-orm';
 
-import { db } from '@/db';
-import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
+import { type TranscriptEntry, type ArenaAgent } from '@/db/schema';
+import { getBoutById } from '@/lib/bouts';
 import { getPresetById, ARENA_PRESET_ID, DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import { getMostReactedTurnIndex, getReactionCounts } from '@/lib/reactions';
 
@@ -13,15 +12,7 @@ export const ogSize = { width: 1200, height: 630 };
 
 export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> {
   // Fetch bout data
-  let bout: (typeof bouts.$inferSelect) | null = null;
-  if (db) {
-    const [result] = await db
-      .select()
-      .from(bouts)
-      .where(eq(bouts.id, boutId))
-      .limit(1);
-    bout = result ?? null;
-  }
+  const bout = await getBoutById(boutId);
 
   // Get preset and agents
   const presetId = bout?.presetId;
@@ -47,7 +38,7 @@ export async function renderBoutOGImage(boutId: string): Promise<ImageResponse> 
   // Hero message: surface the most-reacted turn as the OG quote.
   // Fallback chain: most-reacted turn > shareLine > first qualifying transcript entry.
   let topTurn: Awaited<ReturnType<typeof getMostReactedTurnIndex>> = null;
-  if (db && bout) {
+  if (bout) {
     try {
       const [topResult, reactionMap] = await Promise.all([
         getMostReactedTurnIndex(boutId),

@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
-import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 
 import { Arena } from '@/components/arena';
-import { db, requireDb } from '@/db';
+import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
 import {
   DEFAULT_PREMIUM_MODEL_ID,
   FREE_MODEL_ID,
   PREMIUM_MODEL_OPTIONS,
 } from '@/lib/ai';
+import { getBoutById } from '@/lib/bouts';
 import { log } from '@/lib/logger';
 import {
   BYOK_ENABLED,
@@ -36,15 +36,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const c = await getCopy();
   const { id } = await params;
 
-  let bout: (typeof bouts.$inferSelect) | null = null;
-  if (db) {
-    const [result] = await db
-      .select()
-      .from(bouts)
-      .where(eq(bouts.id, id))
-      .limit(1);
-    bout = result ?? null;
-  }
+  const bout = await getBoutById(id);
 
   const presetId = bout?.presetId;
   const preset = presetId ? getPresetById(presetId) ?? null : null;
@@ -134,13 +126,9 @@ export default async function BoutPage({
       ? resolvedSearchParams.format
       : null;
 
-  let bout: (typeof bouts.$inferSelect) | undefined;
+  let bout: (typeof bouts.$inferSelect) | null = null;
   try {
-    [bout] = await db
-      .select()
-      .from(bouts)
-      .where(eq(bouts.id, resolvedParams.id))
-      .limit(1);
+    bout = await getBoutById(resolvedParams.id);
   } catch (error) {
     log.error('Failed to load bout', error as Error, { boutId: resolvedParams.id });
   }
