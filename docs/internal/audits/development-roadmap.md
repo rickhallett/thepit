@@ -181,7 +181,7 @@ Breaking apart god modules and consolidating duplicated logic. Each item is a re
 
 Establishing a proper data access layer. This is the "durian" - conceptually simple, high blast radius.
 
-### RD-015: Extract DB queries from app/ into lib/ (establish DAL)
+### RD-015: Extract DB queries from app/ into lib/ (establish DAL) [DONE - PR#89 + PR#90]
 
 - **Source:** Anthropic SMELL-01, Gemini R2, Codex leakage assessment | Convergence: 3/3
 - **Priority:** P2
@@ -191,7 +191,7 @@ Establishing a proper data access layer. This is the "durian" - conceptually sim
 - **Target:** Every `app/` file imports only from `lib/`. All Drizzle queries live in lib/ functions. `app/` becomes a thin transport/rendering layer.
 - **What breaks if unfixed:** Database schema changes (column rename, type change, new table structure) require editing UI pages and API route handlers. The coupling makes schema evolution expensive and error-prone.
 
-### RD-016: Remove direct db/schema type imports from components/
+### RD-016: Remove direct db/schema type imports from components/ [DONE - PR#90]
 
 - **Source:** Codex specific finding (components -> db tight coupling via TranscriptEntry) | Convergence: 1/3
 - **Priority:** P3
@@ -201,7 +201,7 @@ Establishing a proper data access layer. This is the "durian" - conceptually sim
 - **Target:** Re-export needed types from a lib/ types file or from the relevant domain module. Components import from lib/, not db/.
 - **What breaks if unfixed:** Schema type rename requires editing component files. Minor coupling but violates the boundary model.
 
-### RD-017: Make agent slot check atomic
+### RD-017: Make agent slot check atomic [DONE - PR#89, function ready, route wiring deferred]
 
 - **Source:** Anthropic R6 | Convergence: 1/3
 - **Priority:** P3
