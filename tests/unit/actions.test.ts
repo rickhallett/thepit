@@ -151,6 +151,8 @@ vi.mock('next/cache', () => ({
 
 vi.mock('@/lib/agent-registry', () => ({
   getAgentSnapshots: mockGetAgentSnapshots,
+  archiveAgent: vi.fn().mockResolvedValue(undefined),
+  restoreAgent: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('@/lib/response-lengths', () => ({

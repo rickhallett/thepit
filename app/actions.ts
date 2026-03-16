@@ -4,10 +4,7 @@ import { nanoid } from 'nanoid';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@clerk/nextjs/server';
-import { eq } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
-import { agents, bouts, users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
 import { ARENA_PRESET_ID, getPresetById } from '@/lib/presets';
 import {
@@ -20,6 +17,12 @@ import { ensureUserRecord } from '@/lib/users';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
 import { getAgentSnapshots } from '@/lib/agent-registry';
+import {
+  archiveAgent as archiveAgentDb,
+  restoreAgent as restoreAgentDb,
+} from '@/lib/agent-registry';
+import { insertBout } from '@/lib/bouts';
+import { getOrCreateStripeCustomer } from '@/lib/stripe-customers';
 import { SUBSCRIPTIONS_ENABLED } from '@/lib/tier';
 import {
   DEFAULT_RESPONSE_LENGTH,
@@ -73,7 +76,6 @@ export async function createBout(presetId: string, formData?: FormData) {
     redirect('/sign-up?redirect_url=/arena');
   }
 
-  const db = requireDb();
   const id = nanoid();
   const topic = getFormString(formData, 'topic');
   const model = getFormString(formData, 'model');
@@ -87,7 +89,7 @@ export async function createBout(presetId: string, formData?: FormData) {
   }
 
   try {
-    await db.insert(bouts).values({
+    await insertBout({
       id,
       presetId,
       status: 'running',
@@ -161,10 +163,9 @@ export async function createArenaBout(formData: FormData) {
     await ensureUserRecord(userId);
   }
 
-  const db = requireDb();
   const id = nanoid();
   try {
-    await db.insert(bouts).values({
+    await insertBout({
       id,
       presetId: ARENA_PRESET_ID,
       status: 'running',
@@ -272,11 +273,7 @@ export async function archiveAgent(agentId: string) {
     throw new Error('Unauthorized.');
   }
 
-  const db = requireDb();
-  await db
-    .update(agents)
-    .set({ archived: true })
-    .where(eq(agents.id, agentId));
+  await archiveAgentDb(agentId);
 
   log.info('audit', { action: 'archive_agent', userId, agentId });
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
@@ -289,65 +286,13 @@ export async function restoreAgent(agentId: string) {
     throw new Error('Unauthorized.');
   }
 
-  const db = requireDb();
-  await db
-    .update(agents)
-    .set({ archived: false })
-    .where(eq(agents.id, agentId));
+  await restoreAgentDb(agentId);
 
   log.info('audit', { action: 'restore_agent', userId, agentId });
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
 
-/**
- * Get or create a Stripe customer for a user.
- *
- * Resolves in this order to avoid duplicate customers under concurrency:
- *   1. Return stripeCustomerId from the users table if already stored.
- *   2. Search Stripe for an existing customer with matching userId metadata.
- *   3. Create a new Stripe customer and persist the ID.
- */
-async function getOrCreateStripeCustomer(userId: string): Promise<string> {
-  const db = requireDb();
-  const [user] = await db
-    .select({
-      stripeCustomerId: users.stripeCustomerId,
-      email: users.email,
-    })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1);
-
-  if (user?.stripeCustomerId) return user.stripeCustomerId;
-
-  // Guard against race conditions: check Stripe for an existing customer
-  // created by a concurrent request before our DB write completed.
-  const existing = await stripe.customers.search({
-    query: `metadata["userId"]:"${userId}"`,
-    limit: 1,
-  });
-
-  if (existing.data.length > 0) {
-    const customerId = existing.data[0]!.id;
-    await db
-      .update(users)
-      .set({ stripeCustomerId: customerId, updatedAt: new Date() })
-      .where(eq(users.id, userId));
-    return customerId;
-  }
-
-  const customer = await stripe.customers.create({
-    metadata: { userId },
-    ...(user?.email ? { email: user.email } : {}),
-  });
-
-  await db
-    .update(users)
-    .set({ stripeCustomerId: customer.id, updatedAt: new Date() })
-    .where(eq(users.id, userId));
-
-  return customer.id;
-}
+// getOrCreateStripeCustomer is imported from @/lib/users
 
 /**
  * Create a Stripe Checkout session for a subscription plan.
@@ -378,7 +323,7 @@ export async function createSubscriptionCheckout(formData: FormData) {
   }
 
   await ensureUserRecord(userId);
-  const customerId = await getOrCreateStripeCustomer(userId);
+  const customerId = await getOrCreateStripeCustomer(userId, stripe);
 
   const appUrl = getAppUrl();
 
@@ -417,7 +362,7 @@ export async function createBillingPortal() {
   }
 
   await ensureUserRecord(userId);
-  const customerId = await getOrCreateStripeCustomer(userId);
+  const customerId = await getOrCreateStripeCustomer(userId, stripe);
 
   const appUrl = getAppUrl();
 

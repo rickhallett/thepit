@@ -4,10 +4,8 @@
 // Uses the Next.js App Router sitemap convention.
 
 import type { MetadataRoute } from 'next';
-import { desc, eq } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
-import { bouts } from '@/db/schema';
+import { getCompletedBoutSummaries } from '@/lib/bouts';
 import { log } from '@/lib/logger';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thepit.cloud';
@@ -64,23 +62,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Add completed bout replay pages (most recent 1000)
   let boutRoutes: MetadataRoute.Sitemap = [];
   try {
-    const db = requireDb();
-    const completedBouts = await db
-      .select({ id: bouts.id, updatedAt: bouts.updatedAt })
-      .from(bouts)
-      .where(eq(bouts.status, 'completed'))
-      .orderBy(desc(bouts.createdAt))
-      .limit(1000);
+    const completedBouts = await getCompletedBoutSummaries(1000);
 
     boutRoutes = completedBouts.map((bout) => ({
       url: `${SITE_URL}/b/${bout.id}`,
-      lastModified: bout.updatedAt,
+      lastModified: bout.updatedAt ?? undefined,
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     }));
   } catch (error) {
     log.error('[sitemap] Failed to fetch bouts', error instanceof Error ? error : undefined);
-    // DB unavailable — return static routes only
+    // DB unavailable - return static routes only
   }
 
   return [...staticRoutes, ...boutRoutes];

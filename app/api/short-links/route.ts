@@ -1,9 +1,7 @@
-import { requireDb } from '@/db';
-import { bouts } from '@/db/schema';
 import { withLogging } from '@/lib/api-logging';
 import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limit';
 import { createShortLink } from '@/lib/short-links';
-import { eq } from 'drizzle-orm';
+import { boutExists } from '@/lib/bouts';
 import { errorResponse, parseValidBody, rateLimitResponse } from '@/lib/api-utils';
 import { shortLinkSchema } from '@/lib/api-schemas';
 
@@ -23,14 +21,9 @@ export const POST = withLogging(async function POST(req: Request) {
   const { boutId } = parsed.data;
 
   // Verify bout exists
-  const db = requireDb();
-  const [bout] = await db
-    .select({ id: bouts.id })
-    .from(bouts)
-    .where(eq(bouts.id, boutId))
-    .limit(1);
+  const exists = await boutExists(boutId);
 
-  if (!bout) {
+  if (!exists) {
     return errorResponse('Bout not found.', 404);
   }
 
