@@ -179,7 +179,7 @@ describe('lib/leaderboard', () => {
     mockDb.select.mockReset();
 
     const second = await getLeaderboardData();
-    expect(second).toBe(first); // Same reference (cached)
+    expect(second).toEqual(first); // Cached (serialized round-trip)
     expect(mockDb.select).not.toHaveBeenCalled();
   });
 

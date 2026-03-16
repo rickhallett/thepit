@@ -7,6 +7,7 @@ import { eq, and } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { creditTransactions } from '@/db/schema';
+import { cacheGet, cacheSet } from '@/lib/cache';
 import { CREDITS_ENABLED, ensureCreditAccount } from '@/lib/credits';
 import {
   claimIntroCredits,
@@ -49,11 +50,7 @@ export async function applySignupBonus(userId: string) {
   };
 }
 
-// In-memory set of recently initialized users. Prevents the 5+ DB queries
-// in initializeUserSession from running on every single page load for the
-// same authenticated user. Entries expire after 1 hour.
-const recentlyInitialized = new Map<string, number>();
-const INIT_CACHE_TTL_MS = 60 * 60 * 1000;
+const INIT_CACHE_TTL_SECONDS = 60 * 60; // 1 hour
 
 export async function initializeUserSession(params: {
   userId: string;
@@ -62,11 +59,9 @@ export async function initializeUserSession(params: {
   utmMedium?: string | null;
   utmCampaign?: string | null;
 }) {
-  const now = Date.now();
-  const lastInit = recentlyInitialized.get(params.userId);
-  if (lastInit && now - lastInit < INIT_CACHE_TTL_MS) {
-    return;
-  }
+  const cacheKey = `onboarding:init:${params.userId}`;
+  const cached = await cacheGet<number>(cacheKey);
+  if (cached) return;
 
   // Check DB for existing user BEFORE ensureUserRecord creates one.
   // This provides a durable new-user signal that survives deploys/restarts,
@@ -141,14 +136,5 @@ export async function initializeUserSession(params: {
     }
   }
 
-  recentlyInitialized.set(params.userId, now);
-
-  // Periodic cleanup: remove stale entries to prevent unbounded growth
-  if (recentlyInitialized.size > 1000) {
-    for (const [uid, ts] of recentlyInitialized) {
-      if (now - ts > INIT_CACHE_TTL_MS) {
-        recentlyInitialized.delete(uid);
-      }
-    }
-  }
+  await cacheSet(cacheKey, Date.now(), INIT_CACHE_TTL_SECONDS);
 }

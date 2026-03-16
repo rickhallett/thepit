@@ -163,6 +163,13 @@ const serverEnvSchema = z.object({
 
   // --- Analytics ---
   PV_INTERNAL_SECRET: z.string().optional(),
+
+  // --- Distributed cache (Upstash Redis) ---
+  // Optional: when missing, lib/cache.ts falls back to in-memory Map.
+  // Read directly by lib/cache.ts via process.env (not via env.*) to
+  // avoid circular dependency. Validated here for startup-time schema check.
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
