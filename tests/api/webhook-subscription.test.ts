@@ -10,6 +10,8 @@ const {
   mockEnsureCreditAccount,
   mockResolveTierFromPriceId,
   mockHeaders,
+  mockServerTrack,
+  mockServerIdentify,
 } = vi.hoisted(() => {
   const db = {
     select: vi.fn(),
@@ -26,6 +28,8 @@ const {
   const applyCreditDelta = vi.fn().mockResolvedValue(undefined);
   const ensureCreditAccount = vi.fn().mockResolvedValue(undefined);
   const resolveTierFromPriceId = vi.fn();
+  const serverTrack = vi.fn().mockResolvedValue(undefined);
+  const serverIdentify = vi.fn().mockResolvedValue(undefined);
 
   const headerMap = new Map<string, string>();
   const headers = vi.fn().mockResolvedValue({
@@ -39,6 +43,8 @@ const {
     mockEnsureCreditAccount: ensureCreditAccount,
     mockResolveTierFromPriceId: resolveTierFromPriceId,
     mockHeaders: { fn: headers, map: headerMap },
+    mockServerTrack: serverTrack,
+    mockServerIdentify: serverIdentify,
   };
 });
 
@@ -87,6 +93,11 @@ vi.mock('@/lib/credits', () => ({
 
 vi.mock('@/lib/tier', () => ({
   resolveTierFromPriceId: mockResolveTierFromPriceId,
+}));
+
+vi.mock('@/lib/posthog-server', () => ({
+  serverTrack: mockServerTrack,
+  serverIdentify: mockServerIdentify,
 }));
 
 vi.mock('next/headers', () => ({
@@ -176,6 +187,8 @@ describe('POST /api/credits/webhook', () => {
     // Re-establish mock implementations wiped by resetAllMocks
     mockApplyCreditDelta.mockResolvedValue(undefined);
     mockEnsureCreditAccount.mockResolvedValue(undefined);
+    mockServerTrack.mockResolvedValue(undefined);
+    mockServerIdentify.mockResolvedValue(undefined);
     mockHeaders.fn.mockResolvedValue({
       get: (name: string) => mockHeaders.map.get(name) ?? null,
     });
@@ -922,5 +935,163 @@ describe('POST /api/credits/webhook', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ received: true });
+  });
+
+  // ==================================================================
+  // PostHog failure resilience - webhook must return 200 even when
+  // analytics calls throw (RD-005)
+  // ==================================================================
+
+  // ------------------------------------------------------------------
+  // 26. checkout.session.completed: returns 200 when serverTrack throws
+  // ------------------------------------------------------------------
+  it('checkout.session.completed: returns 200 when serverTrack throws', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          id: 'cs_ph_fail',
+          mode: 'payment',
+          metadata: { userId: 'user_ph_fail', credits: '50' },
+        },
+      },
+    });
+
+    setupSelect([]);
+    mockServerTrack.mockRejectedValue(new Error('PostHog outage'));
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+
+    // Business logic still ran
+    expect(mockApplyCreditDelta).toHaveBeenCalledWith(
+      'user_ph_fail',
+      50 * 100,
+      'purchase',
+      { referenceId: 'cs_ph_fail', credits: 50 },
+    );
+  });
+
+  // ------------------------------------------------------------------
+  // 27. customer.subscription.created: returns 200 when PostHog throws
+  // ------------------------------------------------------------------
+  it('customer.subscription.created: returns 200 when PostHog throws', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.created',
+      data: {
+        object: {
+          id: 'sub_ph_fail',
+          status: 'active',
+          customer: 'cus_ph_fail',
+          metadata: { userId: 'user_sub_ph_fail' },
+          items: { data: [{ price: { id: 'price_pass' } }] },
+          current_period_end: 1700000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('pass');
+    setupSelect([]);
+    setupUpdate();
+    mockServerTrack.mockRejectedValue(new Error('PostHog outage'));
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+
+    // Tier update and credit grant still applied
+    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockApplyCreditDelta).toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
+  // 28. customer.subscription.updated: returns 200 when PostHog throws
+  // ------------------------------------------------------------------
+  it('customer.subscription.updated: returns 200 when PostHog throws', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.updated',
+      data: {
+        object: {
+          id: 'sub_upd_ph_fail',
+          status: 'active',
+          customer: 'cus_upd_ph_fail',
+          metadata: { userId: 'user_upd_ph_fail' },
+          items: { data: [{ price: { id: 'price_lab' } }] },
+          current_period_end: 1800000000,
+        },
+      },
+    });
+
+    mockResolveTierFromPriceId.mockReturnValue('lab');
+    // User was on pass, upgrading to lab
+    setupSelect([[{ tier: 'pass' }], []]);
+    setupUpdate();
+    mockServerTrack.mockRejectedValue(new Error('PostHog outage'));
+    mockServerIdentify.mockRejectedValue(new Error('PostHog outage'));
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+
+    // Tier update and credit grant still applied
+    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockApplyCreditDelta).toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
+  // 29. customer.subscription.deleted: returns 200 when PostHog throws
+  // ------------------------------------------------------------------
+  it('customer.subscription.deleted: returns 200 when PostHog throws', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'customer.subscription.deleted',
+      data: {
+        object: {
+          id: 'sub_del_ph_fail',
+          status: 'canceled',
+          customer: 'cus_del_ph_fail',
+          metadata: { userId: 'user_del_ph_fail' },
+        },
+      },
+    });
+
+    setupUpdate();
+    mockServerTrack.mockRejectedValue(new Error('PostHog outage'));
+    mockServerIdentify.mockRejectedValue(new Error('PostHog outage'));
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+
+    // Tier downgrade still applied
+    expect(mockDb.update).toHaveBeenCalled();
+  });
+
+  // ------------------------------------------------------------------
+  // 30. invoice.payment_failed: returns 200 when PostHog throws
+  // ------------------------------------------------------------------
+  it('invoice.payment_failed: returns 200 when PostHog throws', async () => {
+    mockStripe.webhooks.constructEvent.mockReturnValue({
+      type: 'invoice.payment_failed',
+      data: {
+        object: {
+          id: 'inv_fail_ph',
+          customer: 'cus_fail_ph',
+          subscription: 'sub_fail_ph',
+          subscription_details: { metadata: { userId: 'user_fail_ph' } },
+        },
+      },
+    });
+
+    setupUpdate();
+    mockServerTrack.mockRejectedValue(new Error('PostHog outage'));
+    mockServerIdentify.mockRejectedValue(new Error('PostHog outage'));
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+
+    // Tier downgrade still applied
+    expect(mockDb.update).toHaveBeenCalled();
   });
 });
