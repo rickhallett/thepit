@@ -13,6 +13,7 @@ const { mockDb, introPoolTable, mockCredits } = vi.hoisted(() => {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
+    transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(db)),
   };
   const credits = {
     ensureCreditAccount: vi.fn(),
@@ -56,6 +57,9 @@ describe('intro-pool', () => {
     mockDb.select.mockReset();
     mockDb.insert.mockReset();
     mockDb.update.mockReset();
+    mockDb.transaction.mockReset();
+    // Default: transaction executes its callback with mockDb as the tx
+    mockDb.transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(mockDb));
     mockCredits.ensureCreditAccount.mockReset();
     mockCredits.applyCreditDelta.mockReset();
     process.env.INTRO_POOL_TOTAL_CREDITS = '15000';
@@ -228,7 +232,7 @@ describe('intro-pool', () => {
 
       expect(result.claimedMicro).toBe(10_000);
       expect(result.exhausted).toBe(false);
-      expect(mockCredits.ensureCreditAccount).toHaveBeenCalledWith('user-1');
+      expect(mockCredits.ensureCreditAccount).toHaveBeenCalledWith('user-1', mockDb);
       expect(mockCredits.applyCreditDelta).toHaveBeenCalledWith(
         'user-1',
         10_000,
@@ -237,6 +241,7 @@ describe('intro-pool', () => {
           referenceId: 'ref-1',
           introPoolClaimedMicro: 10_000,
         }),
+        mockDb,
       );
     });
 
@@ -293,6 +298,7 @@ describe('intro-pool', () => {
         3_000,
         'signup',
         expect.objectContaining({ introPoolClaimedMicro: 3_000 }),
+        mockDb,
       );
     });
 
@@ -398,6 +404,169 @@ describe('intro-pool', () => {
       expect(result.claimedMicro).toBe(0);
       expect(mockCredits.ensureCreditAccount).not.toHaveBeenCalled();
       expect(mockCredits.applyCreditDelta).not.toHaveBeenCalled();
+    });
+
+    it('wraps pool deduction and user credit in db.transaction()', async () => {
+      const poolRow = makePoolRow({
+        initialMicro: 1_000_000,
+        claimedMicro: 0,
+        startedAt: new Date(),
+        drainRateMicroPerMinute: 100,
+      });
+
+      mockDb.select.mockImplementation(() => ({
+        from: () => ({
+          limit: vi.fn().mockResolvedValue([poolRow]),
+        }),
+      }));
+
+      const updatedClaimedMicro = 10_000;
+      mockDb.update.mockImplementation(() => ({
+        set: () => ({
+          where: () => ({
+            returning: vi.fn().mockResolvedValue([{
+              claimedMicro: updatedClaimedMicro,
+              initialMicro: poolRow.initialMicro,
+              startedAt: poolRow.startedAt,
+            }]),
+          }),
+        }),
+      }));
+
+      mockCredits.ensureCreditAccount.mockResolvedValue({
+        userId: 'user-tx',
+        balanceMicro: 0,
+      });
+      mockCredits.applyCreditDelta.mockResolvedValue({
+        userId: 'user-tx',
+        balanceMicro: 10_000,
+      });
+
+      const { claimIntroCredits } = await loadIntroPool();
+      await claimIntroCredits({
+        userId: 'user-tx',
+        credits: 100,
+        source: 'signup',
+      });
+
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1);
+      expect(mockDb.transaction).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('rolls back pool deduction when applyCreditDelta throws', async () => {
+      const poolRow = makePoolRow({
+        initialMicro: 1_000_000,
+        claimedMicro: 0,
+        startedAt: new Date(),
+        drainRateMicroPerMinute: 100,
+      });
+
+      mockDb.select.mockImplementation(() => ({
+        from: () => ({
+          limit: vi.fn().mockResolvedValue([poolRow]),
+        }),
+      }));
+
+      const updatedClaimedMicro = 10_000;
+      mockDb.update.mockImplementation(() => ({
+        set: () => ({
+          where: () => ({
+            returning: vi.fn().mockResolvedValue([{
+              claimedMicro: updatedClaimedMicro,
+              initialMicro: poolRow.initialMicro,
+              startedAt: poolRow.startedAt,
+            }]),
+          }),
+        }),
+      }));
+
+      mockCredits.ensureCreditAccount.mockResolvedValue({
+        userId: 'user-fail',
+        balanceMicro: 0,
+      });
+      // Simulate transient DB failure during user credit
+      mockCredits.applyCreditDelta.mockRejectedValue(
+        new Error('connection dropped'),
+      );
+
+      // Make transaction propagate the rejection (as real Drizzle does)
+      mockDb.transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(mockDb));
+
+      const { claimIntroCredits } = await loadIntroPool();
+      await expect(
+        claimIntroCredits({
+          userId: 'user-fail',
+          credits: 100,
+          source: 'signup',
+        }),
+      ).rejects.toThrow('connection dropped');
+
+      // The transaction was called (and would roll back in a real DB)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1);
+    });
+
+    it('happy path: pool deduction and user credit both succeed in transaction', async () => {
+      const poolRow = makePoolRow({
+        initialMicro: 1_000_000,
+        claimedMicro: 0,
+        startedAt: new Date(),
+        drainRateMicroPerMinute: 100,
+      });
+
+      mockDb.select.mockImplementation(() => ({
+        from: () => ({
+          limit: vi.fn().mockResolvedValue([poolRow]),
+        }),
+      }));
+
+      const updatedClaimedMicro = 10_000;
+      mockDb.update.mockImplementation(() => ({
+        set: () => ({
+          where: () => ({
+            returning: vi.fn().mockResolvedValue([{
+              claimedMicro: updatedClaimedMicro,
+              initialMicro: poolRow.initialMicro,
+              startedAt: poolRow.startedAt,
+            }]),
+          }),
+        }),
+      }));
+
+      mockCredits.ensureCreditAccount.mockResolvedValue({
+        userId: 'user-happy',
+        balanceMicro: 0,
+      });
+      mockCredits.applyCreditDelta.mockResolvedValue({
+        userId: 'user-happy',
+        balanceMicro: 10_000,
+      });
+
+      const { claimIntroCredits } = await loadIntroPool();
+      const result = await claimIntroCredits({
+        userId: 'user-happy',
+        credits: 100,
+        source: 'signup',
+        referenceId: 'ref-happy',
+      });
+
+      // Both operations completed within the transaction
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1);
+      expect(result.claimedMicro).toBe(10_000);
+      expect(result.exhausted).toBe(false);
+      // Pool update happened via tx (which is mockDb in tests)
+      expect(mockDb.update).toHaveBeenCalledWith(introPoolTable);
+      // User credit happened with tx passed through
+      expect(mockCredits.ensureCreditAccount).toHaveBeenCalledWith('user-happy', mockDb);
+      expect(mockCredits.applyCreditDelta).toHaveBeenCalledWith(
+        'user-happy',
+        10_000,
+        'signup',
+        expect.objectContaining({
+          referenceId: 'ref-happy',
+          introPoolClaimedMicro: 10_000,
+        }),
+        mockDb,
+      );
     });
   });
 });

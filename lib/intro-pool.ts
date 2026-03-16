@@ -125,56 +125,60 @@ export async function claimIntroCredits(params: {
     return { claimedMicro: 0, remainingMicro: 0, exhausted: true };
   }
 
-  // Atomic claim: Calculate remaining in SQL and only increment if sufficient
-  // remaining = FLOOR(initial * 0.5^(elapsed_s / half_life_s)) - claimed
-  // We use LEAST to cap the claim at what's actually available
-  const [result] = await db
-    .update(introPool)
-    .set({
-      claimedMicro: sql`${introPool.claimedMicro} + LEAST(
-        ${requestedMicro},
-        GREATEST(
-          0,
-          FLOOR(${introPool.initialMicro} * POWER(0.5, EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / ${HALF_LIFE_MINUTES * 60}))
-          - ${introPool.claimedMicro}
-        )
-      )`,
-      updatedAt: new Date(),
-    })
-    .where(eq(introPool.id, pool.id))
-    .returning({
-      claimedMicro: introPool.claimedMicro,
-      initialMicro: introPool.initialMicro,
-      startedAt: introPool.startedAt,
-    });
+  // Wrap pool deduction + user credit in a single transaction.
+  // If the user credit fails, the pool deduction rolls back - no leaked credits.
+  return db.transaction(async (tx) => {
+    // Atomic claim: Calculate remaining in SQL and only increment if sufficient
+    // remaining = FLOOR(initial * 0.5^(elapsed_s / half_life_s)) - claimed
+    // We use LEAST to cap the claim at what's actually available
+    const [result] = await tx
+      .update(introPool)
+      .set({
+        claimedMicro: sql`${introPool.claimedMicro} + LEAST(
+          ${requestedMicro},
+          GREATEST(
+            0,
+            FLOOR(${introPool.initialMicro} * POWER(0.5, EXTRACT(EPOCH FROM (NOW() - ${introPool.startedAt})) / ${HALF_LIFE_MINUTES * 60}))
+            - ${introPool.claimedMicro}
+          )
+        )`,
+        updatedAt: new Date(),
+      })
+      .where(eq(introPool.id, pool.id))
+      .returning({
+        claimedMicro: introPool.claimedMicro,
+        initialMicro: introPool.initialMicro,
+        startedAt: introPool.startedAt,
+      });
 
-  if (!result) {
-    // Pool doesn't exist - shouldn't happen since we called ensureIntroPool
-    return { claimedMicro: 0, remainingMicro: 0, exhausted: true };
-  }
+    if (!result) {
+      // Pool doesn't exist - shouldn't happen since we called ensureIntroPool
+      return { claimedMicro: 0, remainingMicro: 0, exhausted: true };
+    }
 
-  // Calculate what was actually claimed (new claimed - old claimed)
-  const actualClaimed = result.claimedMicro - pool.claimedMicro;
-  const newRemaining = computeRemainingMicro(result);
+    // Calculate what was actually claimed (new claimed - old claimed)
+    const actualClaimed = result.claimedMicro - pool.claimedMicro;
+    const newRemaining = computeRemainingMicro(result);
 
-  if (actualClaimed <= 0) {
-    return { claimedMicro: 0, remainingMicro: newRemaining, exhausted: newRemaining <= 0 };
-  }
+    if (actualClaimed <= 0) {
+      return { claimedMicro: 0, remainingMicro: newRemaining, exhausted: newRemaining <= 0 };
+    }
 
-  // Credit the user
-  await ensureCreditAccount(params.userId);
-  await applyCreditDelta(params.userId, actualClaimed, params.source, {
-    referenceId: params.referenceId,
-    introPoolClaimedMicro: actualClaimed,
-    introPoolRemainingMicro: newRemaining,
-    ...params.metadata,
+    // Credit the user within the same transaction
+    await ensureCreditAccount(params.userId, tx);
+    await applyCreditDelta(params.userId, actualClaimed, params.source, {
+      referenceId: params.referenceId,
+      introPoolClaimedMicro: actualClaimed,
+      introPoolRemainingMicro: newRemaining,
+      ...params.metadata,
+    }, tx);
+
+    return {
+      claimedMicro: actualClaimed,
+      remainingMicro: newRemaining,
+      exhausted: newRemaining <= 0,
+    };
   });
-
-  return {
-    claimedMicro: actualClaimed,
-    remainingMicro: newRemaining,
-    exhausted: newRemaining <= 0,
-  };
 }
 
 /**

@@ -82,6 +82,9 @@ describe('credits helpers', () => {
     mockDb.select.mockReset();
     mockDb.insert.mockReset();
     mockDb.update.mockReset();
+    mockDb.transaction.mockReset();
+    // Default: transaction executes its callback with mockDb as the tx
+    mockDb.transaction.mockImplementation(async (fn: (tx: unknown) => unknown) => fn(mockDb));
     process.env.CREDIT_VALUE_GBP = '0.01';
     process.env.CREDIT_PLATFORM_MARGIN = '0.10';
     process.env.CREDIT_TOKEN_CHARS_PER = '4';
@@ -409,6 +412,86 @@ describe('credits helpers', () => {
         source: 'preauth',
         referenceId: 'bout-3',
       });
+    });
+  });
+
+  describe('ensureCreditAccount with tx parameter', () => {
+    it('uses provided tx instead of requireDb()', async () => {
+      const txSelect = vi.fn().mockImplementation(() => ({
+        from: () => ({
+          where: () => ({
+            limit: async () => [{ userId: 'user-tx', balanceMicro: 500 }],
+          }),
+        }),
+      }));
+      const tx = { select: txSelect, insert: vi.fn(), update: vi.fn() };
+
+      const { ensureCreditAccount } = await loadCredits();
+      const account = await ensureCreditAccount('user-tx', tx as never);
+
+      expect(txSelect).toHaveBeenCalled();
+      // requireDb's mockDb.select should NOT have been called
+      expect(mockDb.select).not.toHaveBeenCalled();
+      expect(account).toEqual({ userId: 'user-tx', balanceMicro: 500 });
+    });
+
+    it('falls back to requireDb() when tx is not provided', async () => {
+      setupSelect([{ userId: 'user-no-tx', balanceMicro: 999 }]);
+
+      const { ensureCreditAccount } = await loadCredits();
+      const account = await ensureCreditAccount('user-no-tx');
+
+      expect(mockDb.select).toHaveBeenCalled();
+      expect(account).toEqual({ userId: 'user-no-tx', balanceMicro: 999 });
+    });
+  });
+
+  describe('applyCreditDelta with tx parameter', () => {
+    it('uses provided tx directly without creating own transaction', async () => {
+      const txInsert = vi.fn().mockImplementation(() => ({
+        values: vi.fn().mockResolvedValue(undefined),
+      }));
+      const txUpdate = vi.fn().mockImplementation(() => ({
+        set: () => ({
+          where: () => ({
+            returning: vi.fn().mockResolvedValue([{ userId: 'user-tx-delta', balanceMicro: 150 }]),
+          }),
+        }),
+      }));
+      const tx = { select: vi.fn(), insert: txInsert, update: txUpdate };
+
+      const { applyCreditDelta } = await loadCredits();
+      const result = await applyCreditDelta(
+        'user-tx-delta',
+        50,
+        'test-source',
+        { referenceId: 'ref-tx' },
+        tx as never,
+      );
+
+      // tx methods were used
+      expect(txInsert).toHaveBeenCalled();
+      expect(txUpdate).toHaveBeenCalled();
+      // db.transaction was NOT called (no nested transaction)
+      expect(mockDb.transaction).not.toHaveBeenCalled();
+      expect(result).toEqual({ userId: 'user-tx-delta', balanceMicro: 150 });
+    });
+
+    it('creates own transaction when tx is not provided', async () => {
+      setupInsert({ userId: 'user-own-tx', balanceMicro: 200 });
+      setupUpdate({ userId: 'user-own-tx', balanceMicro: 200 });
+
+      const { applyCreditDelta } = await loadCredits();
+      const result = await applyCreditDelta(
+        'user-own-tx',
+        100,
+        'test-source',
+        { referenceId: 'ref-own' },
+      );
+
+      // db.transaction was called (creates its own)
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ userId: 'user-own-tx', balanceMicro: 200 });
     });
   });
 });
