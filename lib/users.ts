@@ -158,4 +158,3 @@ export async function getUserDisplayName(userId: string): Promise<string> {
   return `${userId.slice(0, 8)}...`;
 }
 
-

@@ -189,6 +189,10 @@ export async function countActiveUserAgents(userId: string): Promise<number> {
  * Wraps the count query and insert in a transaction with FOR UPDATE
  * semantics to prevent race conditions where two concurrent requests
  * both pass the slot check before either insert completes (RD-017).
+ *
+ * TODO(RD-017): Wire into POST /api/agents route handler. Currently
+ * the route uses separate countActiveUserAgents + insertAgent calls.
+ * This function is tested and ready for integration.
  */
 export async function createAgentWithSlotCheck(
   userId: string,

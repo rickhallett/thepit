@@ -16,8 +16,8 @@ import {
 import { ensureUserRecord } from '@/lib/users';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import { stripe } from '@/lib/stripe';
-import { getAgentSnapshots } from '@/lib/agent-registry';
 import {
+  getAgentSnapshots,
   archiveAgent as archiveAgentDb,
   restoreAgent as restoreAgentDb,
 } from '@/lib/agent-registry';
@@ -291,8 +291,6 @@ export async function restoreAgent(agentId: string) {
   log.info('audit', { action: 'restore_agent', userId, agentId });
   revalidatePath(`/agents/${encodeURIComponent(agentId)}`);
 }
-
-// getOrCreateStripeCustomer is imported from @/lib/users
 
 /**
  * Create a Stripe Checkout session for a subscription plan.

@@ -7,6 +7,20 @@
 // These agents are standalone — not tied to any preset. They exist in the
 // arena agent pool for users building custom matchups.
 
+import { eq } from 'drizzle-orm';
+
+import { requireDb } from '@/db';
+import { agents } from '@/db/schema';
+import { ALL_PRESETS } from '@/lib/presets';
+import {
+  buildPresetAgentId,
+  registerPresetAgent,
+} from '@/lib/agent-registry';
+import { buildAgentManifest, hashAgentManifest, hashAgentPrompt } from '@/lib/agent-dna';
+import { attestAgent, EAS_ENABLED } from '@/lib/eas';
+import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
+import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
+import { log } from '@/lib/logger';
 import { buildStructuredPrompt } from '@/lib/agent-prompts';
 
 export type SeedAgent = {
@@ -295,21 +309,6 @@ export function buildSeedAgentPrompt(agent: SeedAgent): string {
 // ---------------------------------------------------------------------------
 // Seeding logic (extracted from app/api/admin/seed-agents/route.ts)
 // ---------------------------------------------------------------------------
-
-import { eq } from 'drizzle-orm';
-
-import { requireDb } from '@/db';
-import { agents } from '@/db/schema';
-import { ALL_PRESETS } from '@/lib/presets';
-import {
-  buildPresetAgentId,
-  registerPresetAgent,
-} from '@/lib/agent-registry';
-import { buildAgentManifest, hashAgentManifest, hashAgentPrompt } from '@/lib/agent-dna';
-import { attestAgent, EAS_ENABLED } from '@/lib/eas';
-import { DEFAULT_RESPONSE_FORMAT } from '@/lib/response-formats';
-import { DEFAULT_RESPONSE_LENGTH } from '@/lib/response-lengths';
-import { log } from '@/lib/logger';
 
 /**
  * Seed all preset agents and high-DNA standalone agents into the database.
