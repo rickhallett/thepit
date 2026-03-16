@@ -413,7 +413,7 @@ export function Arena({
   });
 
   // --- Extracted hooks ---
-  const { reactions, sendReaction, reactionsGivenRef, hasReacted } = useBoutReactions(
+  const { reactions, sendReaction, reactionsGivenRef, hasReacted, reactionError } = useBoutReactions(
     boutId,
     initialReactions,
     initialUserReactions,
@@ -557,6 +557,12 @@ export function Arena({
               onCopyMessage={copyMessageShare}
             />
           ))}
+
+          {reactionError && (
+            <p className="text-xs uppercase tracking-[0.3em] text-red-400">
+              {reactionError}
+            </p>
+          )}
 
           {thinkingAgent && status === 'streaming' && (
             <article
