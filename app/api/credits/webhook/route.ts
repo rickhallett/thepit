@@ -190,15 +190,16 @@ export const POST = withLogging(async function POST(req: Request) {
           log.info('Subscription grant applied', { userId, tier, credits: grantCredits });
         }
 
-        try {
-          await serverTrack(userId, 'subscription_started', {
+        try { await serverTrack(userId, 'subscription_started', {
             tier,
             subscription_id: subscription.id,
             status: subscription.status,
             grant_credits: grantCredits,
           });
-          await serverIdentify(userId, { current_tier: tier });
         } catch {
+          // Best-effort - analytics loss is acceptable, webhook failure is not
+        }
+        try { await serverIdentify(userId, { current_tier: tier }); } catch {
           // Best-effort - analytics loss is acceptable, webhook failure is not
         }
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
@@ -337,13 +338,14 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: subscription.customer,
       });
-      try {
-        await serverTrack(userId, 'subscription_churned', {
+      try { await serverTrack(userId, 'subscription_churned', {
           subscription_id: subscription.id,
           previous_tier: previousTier,
         });
-        await serverIdentify(userId, { current_tier: 'free' });
       } catch {
+        // Best-effort - analytics loss is acceptable, webhook failure is not
+      }
+      try { await serverIdentify(userId, { current_tier: 'free' }); } catch {
         // Best-effort - analytics loss is acceptable, webhook failure is not
       }
       log.info('Subscription deleted, downgraded to free', { userId });
@@ -390,14 +392,15 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: invoice.customer,
       });
-      try {
-        await serverTrack(userId, 'payment_failed', {
+      try { await serverTrack(userId, 'payment_failed', {
           subscription_id: invoice.subscription,
           invoice_id: invoice.id,
           previous_tier: previousTier,
         });
-        await serverIdentify(userId, { current_tier: 'free' });
       } catch {
+        // Best-effort - analytics loss is acceptable, webhook failure is not
+      }
+      try { await serverIdentify(userId, { current_tier: 'free' }); } catch {
         // Best-effort - analytics loss is acceptable, webhook failure is not
       }
       log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
