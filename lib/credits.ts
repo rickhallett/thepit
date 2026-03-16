@@ -189,9 +189,14 @@ export const computeCostUsd = (
   };
 };
 
-export async function ensureCreditAccount(userId: string) {
-  const db = requireDb();
-  const [existing] = await db
+/** Database or transaction handle for credit operations.
+ *  When a caller provides a DbOrTx, the caller owns the transaction boundary -
+ *  credit operations run within the caller's transaction instead of creating their own. */
+type DbOrTx = Pick<ReturnType<typeof requireDb>, 'select' | 'insert' | 'update'>;
+
+export async function ensureCreditAccount(userId: string, tx?: DbOrTx) {
+  const conn = tx ?? requireDb();
+  const [existing] = await conn
     .select()
     .from(credits)
     .where(eq(credits.userId, userId))
@@ -207,7 +212,7 @@ export async function ensureCreditAccount(userId: string) {
 
   // Use onConflictDoNothing to handle concurrent insert races — two
   // simultaneous requests for the same new user won't throw a PK violation.
-  const [created] = await db
+  const [created] = await conn
     .insert(credits)
     .values({
       userId,
@@ -218,7 +223,7 @@ export async function ensureCreditAccount(userId: string) {
 
   if (!created) {
     // Another request inserted first — re-read the row.
-    const [raced] = await db
+    const [raced] = await conn
       .select()
       .from(credits)
       .where(eq(credits.userId, userId))
@@ -241,14 +246,11 @@ export async function applyCreditDelta(
   deltaMicro: number,
   reason: string,
   metadata: Record<string, unknown>,
+  tx?: DbOrTx,
 ) {
-  const db = requireDb();
-
-  // Wrap ledger insert + balance update in a transaction so they
-  // succeed or fail atomically.  Without this, a failed update
-  // would leave a dangling ledger entry with no balance change.
-  return db.transaction(async (tx) => {
-    await tx.insert(creditTransactions).values({
+  // Core logic: ledger insert + balance update must be atomic.
+  const applyWithin = async (conn: DbOrTx) => {
+    await conn.insert(creditTransactions).values({
       userId,
       deltaMicro,
       source: reason,
@@ -257,7 +259,7 @@ export async function applyCreditDelta(
       metadata,
     });
 
-    const [updated] = await tx
+    const [updated] = await conn
       .update(credits)
       .set({
         balanceMicro: sql`GREATEST(0, ${credits.balanceMicro} + ${deltaMicro})`,
@@ -267,7 +269,15 @@ export async function applyCreditDelta(
       .returning();
 
     return updated;
-  });
+  };
+
+  // If caller provided a transaction, use it directly (no nested transaction).
+  // Otherwise create our own transaction for atomicity.
+  if (tx) {
+    return applyWithin(tx);
+  }
+  const db = requireDb();
+  return db.transaction(async (innerTx) => applyWithin(innerTx));
 }
 
 export async function getCreditTransactions(userId: string, limit = 20) {
