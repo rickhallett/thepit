@@ -152,7 +152,7 @@ describe('lib/billing', () => {
         metadata: { userId: 'u1', credits: '50' },
         amount_total: 500,
         currency: 'gbp',
-      } as any);
+      } as unknown as Parameters<typeof handleCheckoutCompleted>[0]);
 
       expect(mockEnsureCreditAccount).toHaveBeenCalledWith('u1');
       expect(mockApplyCreditDelta).toHaveBeenCalledWith(
@@ -168,7 +168,7 @@ describe('lib/billing', () => {
         id: 'cs_2',
         mode: 'subscription',
         metadata: { userId: 'u2', credits: '50' },
-      } as any);
+      } as unknown as Parameters<typeof handleCheckoutCompleted>[0]);
 
       expect(mockApplyCreditDelta).not.toHaveBeenCalled();
     });
@@ -179,7 +179,7 @@ describe('lib/billing', () => {
         id: 'cs_dup',
         mode: 'payment',
         metadata: { userId: 'u_dup', credits: '10' },
-      } as any);
+      } as unknown as Parameters<typeof handleCheckoutCompleted>[0]);
 
       expect(mockApplyCreditDelta).not.toHaveBeenCalled();
     });
