@@ -127,12 +127,16 @@ export const POST = withLogging(async function POST(req: Request) {
           referenceId: session.id,
           credits,
         });
-        await serverTrack(userId, 'credit_purchase_completed', {
-          credits,
-          amount_total: session.amount_total ?? 0,
-          currency: session.currency ?? 'gbp',
-          session_id: session.id,
-        });
+        try {
+          await serverTrack(userId, 'credit_purchase_completed', {
+            credits,
+            amount_total: session.amount_total ?? 0,
+            currency: session.currency ?? 'gbp',
+            session_id: session.id,
+          });
+        } catch {
+          // Best-effort - analytics loss is acceptable, webhook failure is not
+        }
       }
 
       if (existing) {
@@ -186,13 +190,18 @@ export const POST = withLogging(async function POST(req: Request) {
           log.info('Subscription grant applied', { userId, tier, credits: grantCredits });
         }
 
-        await serverTrack(userId, 'subscription_started', {
-          tier,
-          subscription_id: subscription.id,
-          status: subscription.status,
-          grant_credits: grantCredits,
-        });
-        await serverIdentify(userId, { current_tier: tier });
+        try { await serverTrack(userId, 'subscription_started', {
+            tier,
+            subscription_id: subscription.id,
+            status: subscription.status,
+            grant_credits: grantCredits,
+          });
+        } catch {
+          // Best-effort - analytics loss is acceptable, webhook failure is not
+        }
+        try { await serverIdentify(userId, { current_tier: tier }); } catch {
+          // Best-effort - analytics loss is acceptable, webhook failure is not
+        }
         log.info('Subscription created', { userId, tier, subscriptionId: subscription.id });
       }
     }
@@ -269,20 +278,32 @@ export const POST = withLogging(async function POST(req: Request) {
             log.info('Upgrade grant applied', { userId, from: oldTier, to: tier, credits: incrementalGrant });
           }
 
-          await serverTrack(userId, 'subscription_upgraded', {
-            from_tier: oldTier,
-            to_tier: tier,
-            subscription_id: subscription.id,
-            grant_credits: incrementalGrant,
-          });
+          try {
+            await serverTrack(userId, 'subscription_upgraded', {
+              from_tier: oldTier,
+              to_tier: tier,
+              subscription_id: subscription.id,
+              grant_credits: incrementalGrant,
+            });
+          } catch {
+            // Best-effort - analytics loss is acceptable, webhook failure is not
+          }
         } else if (newTierRank < oldTierRank) {
-          await serverTrack(userId, 'subscription_downgraded', {
-            from_tier: oldTier,
-            to_tier: tier,
-            subscription_id: subscription.id,
-          });
+          try {
+            await serverTrack(userId, 'subscription_downgraded', {
+              from_tier: oldTier,
+              to_tier: tier,
+              subscription_id: subscription.id,
+            });
+          } catch {
+            // Best-effort - analytics loss is acceptable, webhook failure is not
+          }
         }
-        await serverIdentify(userId, { current_tier: tier });
+        try {
+          await serverIdentify(userId, { current_tier: tier });
+        } catch {
+          // Best-effort - analytics loss is acceptable, webhook failure is not
+        }
         log.info('Subscription updated', { userId, tier, status: subscription.status });
       }
     }
@@ -317,11 +338,16 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: subscription.customer,
       });
-      await serverTrack(userId, 'subscription_churned', {
-        subscription_id: subscription.id,
-        previous_tier: previousTier,
-      });
-      await serverIdentify(userId, { current_tier: 'free' });
+      try { await serverTrack(userId, 'subscription_churned', {
+          subscription_id: subscription.id,
+          previous_tier: previousTier,
+        });
+      } catch {
+        // Best-effort - analytics loss is acceptable, webhook failure is not
+      }
+      try { await serverIdentify(userId, { current_tier: 'free' }); } catch {
+        // Best-effort - analytics loss is acceptable, webhook failure is not
+      }
       log.info('Subscription deleted, downgraded to free', { userId });
     }
   }
@@ -366,12 +392,17 @@ export const POST = withLogging(async function POST(req: Request) {
         currentPeriodEnd: null,
         stripeCustomerId: invoice.customer,
       });
-      await serverTrack(userId, 'payment_failed', {
-        subscription_id: invoice.subscription,
-        invoice_id: invoice.id,
-        previous_tier: previousTier,
-      });
-      await serverIdentify(userId, { current_tier: 'free' });
+      try { await serverTrack(userId, 'payment_failed', {
+          subscription_id: invoice.subscription,
+          invoice_id: invoice.id,
+          previous_tier: previousTier,
+        });
+      } catch {
+        // Best-effort - analytics loss is acceptable, webhook failure is not
+      }
+      try { await serverIdentify(userId, { current_tier: 'free' }); } catch {
+        // Best-effort - analytics loss is acceptable, webhook failure is not
+      }
       log.info('Payment failed, downgraded to free', { userId, subscriptionId: invoice.subscription });
     }
   }
