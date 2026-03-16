@@ -23,11 +23,13 @@ async function rawPOST(req: Request) {
   return Response.json({
     swept: result.swept,
     refunded: result.refunded,
+    failed: result.failed,
     details: result.details.map((d) => ({
       boutId: d.boutId,
       ownerId: d.ownerId,
       createdAt: d.createdAt.toISOString(),
       refundedMicro: d.refundedMicro,
+      ...(d.error ? { error: d.error } : {}),
     })),
   });
 }

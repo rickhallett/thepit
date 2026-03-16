@@ -4,6 +4,10 @@
 // completion leaves bouts in 'running' status permanently. This sweep marks
 // them as 'error', refunds preauthorized credits, and logs each incident
 // for audit.
+//
+// Concurrency safety: uses atomic UPDATE ... WHERE status='running' RETURNING
+// to claim each bout before refunding. A second concurrent sweep will get an
+// empty RETURNING result and skip the refund.
 
 import { and, eq, lt, sql } from 'drizzle-orm';
 import { requireDb } from '@/db';
@@ -18,11 +22,13 @@ export interface SweepDetail {
   ownerId: string | null;
   createdAt: Date;
   refundedMicro: number;
+  error?: string;
 }
 
 export interface SweepResult {
   swept: number;
   refunded: number;
+  failed: number;
   details: SweepDetail[];
 }
 
@@ -31,7 +37,8 @@ export async function sweepStuckBouts(
 ): Promise<SweepResult> {
   const db = requireDb();
 
-  const cutoff = sql`NOW() - INTERVAL '${sql.raw(String(thresholdMinutes))} minutes'`;
+  // Compute cutoff in JS to avoid sql.raw injection surface.
+  const cutoff = new Date(Date.now() - thresholdMinutes * 60 * 1000);
 
   const stuckBouts = await db
     .select()
@@ -45,67 +52,99 @@ export async function sweepStuckBouts(
 
   const details: SweepDetail[] = [];
   let refundedCount = 0;
+  let failedCount = 0;
 
   for (const bout of stuckBouts) {
-    let refundedMicro = 0;
-
-    // Refund preauth credits for user-owned bouts
-    if (bout.ownerId) {
-      const [preauth] = await db
-        .select()
-        .from(creditTransactions)
+    try {
+      // Atomic claim: only proceed if WE flip the status.
+      // A concurrent sweep seeing the same bout will get an empty
+      // RETURNING result and skip the refund entirely.
+      const [claimed] = await db
+        .update(bouts)
+        .set({
+          status: 'error',
+          updatedAt: sql`NOW()`,
+        })
         .where(
           and(
-            eq(creditTransactions.referenceId, bout.id),
-            eq(creditTransactions.source, 'preauth'),
+            eq(bouts.id, bout.id),
+            eq(bouts.status, 'running'),
           ),
         )
-        .limit(1);
+        .returning();
 
-      if (preauth) {
-        const amount = Math.abs(preauth.deltaMicro);
-        await applyCreditDelta(bout.ownerId, amount, 'sweep-refund', {
-          referenceId: bout.id,
-          boutId: bout.id,
-          reason: 'stuck-bout-sweep',
-        });
-        refundedMicro = amount;
-        refundedCount++;
+      if (!claimed) {
+        // Another sweep already claimed this bout - skip.
+        continue;
       }
+
+      let refundedMicro = 0;
+
+      // Refund preauth credits for user-owned bouts
+      if (bout.ownerId) {
+        const [preauth] = await db
+          .select()
+          .from(creditTransactions)
+          .where(
+            and(
+              eq(creditTransactions.referenceId, bout.id),
+              eq(creditTransactions.source, 'preauth'),
+            ),
+          )
+          .limit(1);
+
+        if (preauth) {
+          const amount = Math.abs(preauth.deltaMicro);
+          await applyCreditDelta(bout.ownerId, amount, 'sweep-refund', {
+            referenceId: `sweep-refund:${bout.id}`,
+            boutId: bout.id,
+            reason: 'stuck-bout-sweep',
+          });
+          refundedMicro = amount;
+          refundedCount++;
+        }
+      }
+
+      log.audit('bout_sweep', {
+        boutId: bout.id,
+        ownerId: bout.ownerId,
+        createdAt: bout.createdAt.toISOString(),
+        refundedMicro,
+      });
+
+      details.push({
+        boutId: bout.id,
+        ownerId: bout.ownerId,
+        createdAt: bout.createdAt,
+        refundedMicro,
+      });
+    } catch (err) {
+      failedCount++;
+      const message = err instanceof Error ? err.message : String(err);
+      log.error('bout_sweep_item_failed', {
+        boutId: bout.id,
+        error: message,
+      });
+      details.push({
+        boutId: bout.id,
+        ownerId: bout.ownerId,
+        createdAt: bout.createdAt,
+        refundedMicro: 0,
+        error: message,
+      });
     }
-
-    // Mark bout as error
-    await db
-      .update(bouts)
-      .set({
-        status: 'error',
-        updatedAt: new Date(),
-      })
-      .where(eq(bouts.id, bout.id));
-
-    log.audit('bout_sweep', {
-      boutId: bout.id,
-      ownerId: bout.ownerId,
-      createdAt: bout.createdAt.toISOString(),
-      refundedMicro,
-    });
-
-    details.push({
-      boutId: bout.id,
-      ownerId: bout.ownerId,
-      createdAt: bout.createdAt,
-      refundedMicro,
-    });
   }
 
   log.info('bout_sweep_complete', {
-    swept: details.length,
+    swept: details.length - failedCount,
     refunded: refundedCount,
+    failed: failedCount,
   });
 
   return {
-    swept: details.length,
+    swept: details.length - failedCount,
     refunded: refundedCount,
+    failed: failedCount,
     details,
   };
 }
