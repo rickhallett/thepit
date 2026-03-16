@@ -9,9 +9,27 @@
  *   env.DATABASE_URL   // string (validated)
  *   env.CREDITS_ENABLED // boolean (coerced from 'true'/'false')
  *
- * NOTE: NEXT_PUBLIC_* variables are NOT validated here — they are bundled
+ * NOTE: NEXT_PUBLIC_* variables are NOT validated here - they are bundled
  * at build time by Next.js and accessed directly in client components.
  * Server-side env vars only.
+ *
+ * TODO(RD-014): The following files still read process.env directly and
+ * should be migrated to use `env.*` in a follow-up PR:
+ *   - lib/bout-execution.ts (1 read: ANTHROPIC_BYOK_MODEL)
+ *   - lib/bout-validation.ts (1 read: RESEARCH_API_KEY)
+ *   - lib/models.ts (validateModelEnvVars - intentionally reads raw env)
+ *   - lib/logger.ts (LOG_LEVEL - cannot import env.ts, circular dep)
+ *   - lib/posthog-server.ts (NEXT_PUBLIC_* - client vars, excluded)
+ *   - lib/brand.ts (NEXT_PUBLIC_* - client vars, excluded)
+ *   - lib/openapi.ts (NEXT_PUBLIC_SITE_URL - client var)
+ *   - lib/attestation-links.ts (NEXT_PUBLIC_EAS_SCAN_BASE - client var)
+ *   - app/actions.ts (3 reads: APP_URL, STRIPE_SECRET_KEY, price IDs)
+ *   - app/api/credits/webhook/route.ts (STRIPE_WEBHOOK_SECRET)
+ *   - app/api/contact/route.ts (RESEND_API_KEY, CONTACT_TO/FROM_EMAIL)
+ *   - app/api/pv/route.ts (PV_INTERNAL_SECRET)
+ *   - app/api/v1/bout/route.ts (RESEARCH_API_KEY)
+ *   - app/api/byok-stash/route.ts (NODE_ENV)
+ *   - app/sitemap.ts, app/robots.ts (NEXT_PUBLIC_SITE_URL - client var)
  */
 
 import { z } from 'zod/v4';

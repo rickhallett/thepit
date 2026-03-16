@@ -5,11 +5,12 @@
 // cross-dataset de-anonymization while preserving within-dataset
 // consistency (same userId always maps to the same hash).
 
+import { env } from '@/lib/env';
 import { sha256Hex } from '@/lib/hash';
 
 const ANONYMIZE_SALT = (() => {
-  const salt = process.env.RESEARCH_ANONYMIZE_SALT;
-  if (!salt && process.env.NODE_ENV === 'production') {
+  const salt = env.RESEARCH_ANONYMIZE_SALT;
+  if (!salt && env.NODE_ENV === 'production') {
     throw new Error(
       'RESEARCH_ANONYMIZE_SALT must be set in production to protect PII in research exports. ' +
       'Generate a random value: openssl rand -hex 32',

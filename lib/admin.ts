@@ -1,6 +1,8 @@
 // Admin authorization: checks user IDs against a comma-separated allowlist.
 
-const ADMIN_USER_IDS = (process.env.ADMIN_USER_IDS ?? '').split(',').filter(Boolean);
+import { env } from '@/lib/env';
+
+const ADMIN_USER_IDS = (env.ADMIN_USER_IDS ?? '').split(',').filter(Boolean);
 
 export function isAdmin(userId: string | null): boolean {
   if (!userId) return false;
