@@ -1055,16 +1055,31 @@ async function _executeBoutInner(
     // be lost and the bout stuck in 'running' status. Credits are already
     // deducted via preauthorization, so this is a data-loss scenario with
     // financial implications.
+
+    // Build the completion payload as a function so each attempt gets a fresh
+    // timestamp (updatedAt/shareGeneratedAt should reflect actual persist time).
+    const buildCompletionPayload = () => ({
+      status: 'completed' as const,
+      transcript,
+      shareLine,
+      shareGeneratedAt: shareLine ? new Date() : null,
+      updatedAt: new Date(),
+    });
+
+    // Truncate transcript JSON for Sentry logging. Sentry caps event payloads
+    // at ~200KB and string values at 250 chars in structured contexts. A
+    // multi-turn bout transcript can exceed both limits.
+    const MAX_SENTRY_PAYLOAD = 100_000; // 100KB safe ceiling
+    const transcriptJson = JSON.stringify(transcript);
+    const transcriptTruncated = transcriptJson.length > MAX_SENTRY_PAYLOAD;
+    const transcriptData = transcriptTruncated
+      ? transcriptJson.slice(0, MAX_SENTRY_PAYLOAD)
+      : transcriptJson;
+
     try {
       await db
         .update(bouts)
-        .set({
-          status: 'completed',
-          transcript,
-          shareLine,
-          shareGeneratedAt: shareLine ? new Date() : null,
-          updatedAt: new Date(),
-        })
+        .set(buildCompletionPayload())
         .where(eq(bouts.id, boutId));
     } catch (completionError) {
       // Preserve transcript in Sentry structured logging - even if DB is down,
@@ -1078,7 +1093,8 @@ async function _executeBoutInner(
         input_tokens: inputTokens,
         output_tokens: outputTokens,
         has_share_line: !!shareLine,
-        transcript_data: JSON.stringify(transcript),
+        transcript_data: transcriptData,
+        transcript_truncated: transcriptTruncated,
         error_message: completionError instanceof Error ? completionError.message : String(completionError),
         attempt: 1,
       });
@@ -1100,13 +1116,7 @@ async function _executeBoutInner(
       try {
         await db
           .update(bouts)
-          .set({
-            status: 'completed',
-            transcript,
-            shareLine,
-            shareGeneratedAt: shareLine ? new Date() : null,
-            updatedAt: new Date(),
-          })
+          .set(buildCompletionPayload())
           .where(eq(bouts.id, boutId));
 
         log.info('Bout completion DB write succeeded on retry', {
@@ -1122,7 +1132,8 @@ async function _executeBoutInner(
           transcript_length: transcript.length,
           input_tokens: inputTokens,
           output_tokens: outputTokens,
-          transcript_data: JSON.stringify(transcript),
+          transcript_data: transcriptData,
+          transcript_truncated: transcriptTruncated,
           error_message: retryError instanceof Error ? retryError.message : String(retryError),
           attempt: 2,
         });

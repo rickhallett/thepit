@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BoutContext } from '@/lib/bout-engine';
 
 // ---------------------------------------------------------------------------
@@ -289,7 +289,7 @@ function setupCompletionUpdateMock() {
 describe('bout completion resilience', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useRealTimers();
 
     tracedStreamTextMock.mockImplementation(() =>
       createStreamResult('Hello from AI!', { inputTokens: 100, outputTokens: 50 }),
@@ -324,10 +324,6 @@ describe('bout completion resilience', () => {
     }));
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   // R-01: Sentry receives transcript data when completion UPDATE fails
   it('R-01: logs transcript to Sentry when completion UPDATE throws', async () => {
     const ctrl = setupCompletionUpdateMock();
@@ -342,6 +338,7 @@ describe('bout completion resilience', () => {
       expect.objectContaining({
         bout_id: 'bout-test-1',
         transcript_data: expect.any(String),
+        transcript_truncated: false,
         attempt: 1,
       }),
     );
