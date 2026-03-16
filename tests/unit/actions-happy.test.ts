@@ -13,6 +13,8 @@ const {
   mockEnsureUserRecord,
   mockGetAgentSnapshots,
   mockGetFormString,
+  mockArchiveAgent,
+  mockRestoreAgent,
 } = vi.hoisted(() => {
   const authFn = vi.fn();
   const db = {
@@ -46,6 +48,9 @@ const {
   const getAgentSnapshotsFn = vi.fn().mockResolvedValue([]);
   const getFormStringFn = vi.fn().mockReturnValue('');
 
+  const archiveAgentFn = vi.fn().mockResolvedValue(undefined);
+  const restoreAgentFn = vi.fn().mockResolvedValue(undefined);
+
   return {
     authMock: authFn,
     mockDb: db,
@@ -56,6 +61,8 @@ const {
     mockEnsureUserRecord: ensureUserRecordFn,
     mockGetAgentSnapshots: getAgentSnapshotsFn,
     mockGetFormString: getFormStringFn,
+    mockArchiveAgent: archiveAgentFn,
+    mockRestoreAgent: restoreAgentFn,
   };
 });
 
@@ -148,6 +155,8 @@ vi.mock('next/cache', () => ({
 
 vi.mock('@/lib/agent-registry', () => ({
   getAgentSnapshots: mockGetAgentSnapshots,
+  archiveAgent: mockArchiveAgent,
+  restoreAgent: mockRestoreAgent,
 }));
 
 vi.mock('@/lib/response-lengths', () => ({
@@ -290,9 +299,7 @@ describe('archiveAgent', () => {
     mockIsAdmin.mockReturnValue(true);
     await archiveAgent('agent-abc');
 
-    expect(mockDb.update).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'id', archived: 'archived' }),
-    );
+    expect(mockArchiveAgent).toHaveBeenCalledWith('agent-abc');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/agents/agent-abc');
   });
 });
@@ -302,9 +309,7 @@ describe('restoreAgent', () => {
     mockIsAdmin.mockReturnValue(true);
     await restoreAgent('agent-xyz');
 
-    expect(mockDb.update).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'id', archived: 'archived' }),
-    );
+    expect(mockRestoreAgent).toHaveBeenCalledWith('agent-xyz');
     expect(mockRevalidatePath).toHaveBeenCalledWith('/agents/agent-xyz');
   });
 });

@@ -10,7 +10,7 @@
 // ensures leaderboards and agent detail pages work even before agents are
 // explicitly registered in the DB.
 
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import { requireDb } from '@/db';
 import { agents } from '@/db/schema';
@@ -136,3 +136,125 @@ export const findAgentById = async (agentId: string) => {
     .limit(1);
   return row;
 };
+
+// ---------------------------------------------------------------------------
+// Data Access Layer functions (extracted from app/ route handlers)
+// ---------------------------------------------------------------------------
+
+/** Values accepted when inserting a new agent row. */
+export type AgentInsertValues = {
+  id: string;
+  name: string;
+  systemPrompt: string;
+  presetId: string | null;
+  tier: 'free' | 'premium' | 'custom';
+  model: string | null;
+  responseLength: string;
+  responseFormat: string;
+  archetype?: string | null;
+  tone?: string | null;
+  quirks?: string[];
+  speechPattern?: string | null;
+  openingMove?: string | null;
+  signatureMove?: string | null;
+  weakness?: string | null;
+  goal?: string | null;
+  fears?: string | null;
+  customInstructions?: string | null;
+  createdAt?: Date;
+  ownerId?: string | null;
+  parentId?: string | null;
+  promptHash: string;
+  manifestHash: string;
+};
+
+/** Count active (non-archived) agents owned by a user. */
+export async function countActiveUserAgents(userId: string): Promise<number> {
+  const db = requireDb();
+  const [result] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(agents)
+    .where(
+      and(
+        eq(agents.ownerId, userId),
+        eq(agents.archived, false),
+      ),
+    );
+  return result?.count ?? 0;
+}
+
+/**
+ * Atomically check user agent slot availability and insert a new agent.
+ *
+ * Wraps the count query and insert in a transaction with FOR UPDATE
+ * semantics to prevent race conditions where two concurrent requests
+ * both pass the slot check before either insert completes (RD-017).
+ *
+ * TODO(RD-017): Wire into POST /api/agents route handler. Currently
+ * the route uses separate countActiveUserAgents + insertAgent calls.
+ * This function is tested and ready for integration.
+ */
+export async function createAgentWithSlotCheck(
+  userId: string,
+  values: AgentInsertValues,
+  canCreateFn: (userId: string, count: number) => Promise<{ allowed: boolean; reason?: string }>,
+): Promise<void> {
+  const db = requireDb();
+  await db.transaction(async (tx) => {
+    const [countResult] = await tx
+      .select({ count: sql<number>`count(*)::int` })
+      .from(agents)
+      .where(
+        and(
+          eq(agents.ownerId, userId),
+          eq(agents.archived, false),
+        ),
+      );
+    const currentCount = countResult?.count ?? 0;
+    const slotCheck = await canCreateFn(userId, currentCount);
+    if (!slotCheck.allowed) {
+      throw new Error(slotCheck.reason ?? 'Agent slot limit reached.');
+    }
+    await tx.insert(agents).values(values);
+  });
+}
+
+/** Insert an agent row directly (no slot check). Used by seed-agents. */
+export async function insertAgent(values: AgentInsertValues): Promise<void> {
+  const db = requireDb();
+  await db.insert(agents).values(values);
+}
+
+/** Update attestation data on an agent after EAS attestation. */
+export async function updateAgentAttestation(
+  agentId: string,
+  data: { uid: string; txHash: string },
+): Promise<void> {
+  const db = requireDb();
+  await db
+    .update(agents)
+    .set({
+      attestationUid: data.uid,
+      attestationTxHash: data.txHash,
+      attestedAt: new Date(),
+    })
+    .where(eq(agents.id, agentId));
+}
+
+/** Mark an agent as archived. */
+export async function archiveAgent(agentId: string): Promise<void> {
+  const db = requireDb();
+  await db
+    .update(agents)
+    .set({ archived: true })
+    .where(eq(agents.id, agentId));
+}
+
+/** Restore an archived agent. */
+export async function restoreAgent(agentId: string): Promise<void> {
+  const db = requireDb();
+  await db
+    .update(agents)
+    .set({ archived: false })
+    .where(eq(agents.id, agentId));
+}

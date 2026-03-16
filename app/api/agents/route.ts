@@ -1,19 +1,21 @@
 import { nanoid } from 'nanoid';
-import { eq, and, sql } from 'drizzle-orm';
 
 import { auth } from '@clerk/nextjs/server';
 
-import { requireDb } from '@/db';
 import { log } from '@/lib/logger';
 import { errorResponse, parseValidBody, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { withLogging } from '@/lib/api-logging';
-import { agents } from '@/db/schema';
 import { checkRateLimit } from '@/lib/rate-limit';
 import {
   buildAgentManifest,
   hashAgentManifest,
   hashAgentPrompt,
 } from '@/lib/agent-dna';
+import {
+  countActiveUserAgents,
+  insertAgent,
+  updateAgentAttestation,
+} from '@/lib/agent-registry';
 import { buildStructuredPrompt } from '@/lib/agent-prompts';
 import { attestAgent, EAS_ENABLED } from '@/lib/eas';
 import { recordRemixEvent } from '@/lib/remix-events';
@@ -172,19 +174,10 @@ export const POST = withLogging(async function POST(req: Request) {
 
   await ensureUserRecord(userId);
 
-  // Tier-based agent slot limit
+  // Tier-based agent slot limit - count check happens before manifest build
+  // so we can return early without wasting hash computation.
   if (SUBSCRIPTIONS_ENABLED) {
-    const db = requireDb();
-    const [countResult] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(agents)
-      .where(
-        and(
-          eq(agents.ownerId, userId),
-          eq(agents.archived, false),
-        ),
-      );
-    const currentCount = countResult?.count ?? 0;
+    const currentCount = await countActiveUserAgents(userId);
     const slotCheck = await canCreateAgent(userId, currentCount);
     if (!slotCheck.allowed) {
       return errorResponse(slotCheck.reason, 402);
@@ -214,8 +207,7 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse('Manifest hash mismatch.', 400);
   }
 
-  const db = requireDb();
-  await db.insert(agents).values({
+  const agentValues = {
     id: manifest.agentId,
     name: manifest.name,
     systemPrompt: manifest.systemPrompt,
@@ -239,7 +231,9 @@ export const POST = withLogging(async function POST(req: Request) {
     parentId: manifest.parentId,
     promptHash,
     manifestHash,
-  });
+  };
+
+  await insertAgent(agentValues);
 
   let attestationFailed = false;
 
@@ -250,14 +244,10 @@ export const POST = withLogging(async function POST(req: Request) {
         promptHash,
         manifestHash,
       });
-      await db
-        .update(agents)
-        .set({
-          attestationUid: attestation.uid,
-          attestationTxHash: attestation.txHash,
-          attestedAt: new Date(),
-        })
-        .where(eq(agents.id, manifest.agentId));
+      await updateAgentAttestation(manifest.agentId, {
+        uid: attestation.uid,
+        txHash: attestation.txHash,
+      });
     } catch (error) {
       log.error('Agent attestation failed', error instanceof Error ? error : new Error(String(error)), { agentId: manifest.agentId });
       attestationFailed = true;
