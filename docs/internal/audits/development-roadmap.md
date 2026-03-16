@@ -105,7 +105,7 @@ Missing error handling that produces bad UX or hides failures. Each item is a sm
 - **Target:** Expose error state from hooks. Render a minimal inline error or toast when API calls fail.
 - **What breaks if unfixed:** Users' reactions and votes silently fail. Erodes trust in feedback loops. Particularly noticeable under rate limiting.
 
-### RD-009: Investigate GREATEST(0) ledger/balance discrepancy
+### RD-009: Investigate GREATEST(0) ledger/balance discrepancy [DONE - PR#83, intentional]
 
 - **Source:** L4 state management audit | Convergence: L only
 - **Priority:** P2
@@ -121,7 +121,7 @@ Missing error handling that produces bad UX or hides failures. Each item is a sm
 
 Breaking apart god modules and consolidating duplicated logic. Each item is a refactor that does not change external behaviour.
 
-### RD-010: Decompose bout-engine.ts into focused modules
+### RD-010: Decompose bout-engine.ts into focused modules [DONE - PR#84]
 
 - **Source:** Anthropic R5, Gemini smell, Codex R4 | Convergence: 3/3
 - **Priority:** P1
@@ -145,7 +145,7 @@ Breaking apart god modules and consolidating duplicated logic. Each item is a re
 - **Target:** Create `lib/bouts.ts` with `getBoutById(id)`. Update 3-4 import sites.
 - **What breaks if unfixed:** If the bout query needs to change (soft-delete filter, select columns), each call site must be found and updated independently.
 
-### RD-012: Extract webhook business logic into lib/billing.ts
+### RD-012: Extract webhook business logic into lib/billing.ts [DONE - PR#85]
 
 - **Source:** Anthropic SMELL-02, Gemini trace 4 | Convergence: 2/3
 - **Priority:** P2
