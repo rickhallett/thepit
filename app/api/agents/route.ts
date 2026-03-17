@@ -155,7 +155,7 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
-  const rateCheck = checkRateLimit(
+  const rateCheck = await checkRateLimit(
     { name: 'agent-creation', maxRequests: 10, windowMs: 60 * 60 * 1000 },
     userId,
   );

@@ -20,7 +20,7 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
-  const rateCheck = checkRateLimit(RATE_LIMIT, userId);
+  const rateCheck = await checkRateLimit(RATE_LIMIT, userId);
   if (!rateCheck.success) {
     return rateLimitResponse(rateCheck);
   }

@@ -400,7 +400,7 @@ export async function validateBoutRequest(
 
   if (boutMaxRequests !== undefined) {
     const rateLimitId = userId ?? getClientIdentifier(req);
-    const boutRateCheck = checkRateLimit(
+    const boutRateCheck = await checkRateLimit(
       { name: 'bout-creation', maxRequests: boutMaxRequests, windowMs: 60 * 60 * 1000 },
       rateLimitId,
     );

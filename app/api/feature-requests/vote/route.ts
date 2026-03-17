@@ -15,7 +15,7 @@ export const POST = withLogging(async function POST(req: Request) {
     return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
   }
 
-  const rateCheck = checkRateLimit(
+  const rateCheck = await checkRateLimit(
     { name: 'feature-request-votes', maxRequests: 30, windowMs: 60 * 1000 },
     userId,
   );
