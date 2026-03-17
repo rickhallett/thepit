@@ -20,4 +20,13 @@ export function requireDb() {
   return db;
 }
 
+/** Database or transaction handle for composable operations.
+ *  When a caller provides a DbOrTx, the caller owns the transaction boundary -
+ *  operations run within the caller's transaction instead of creating their own.
+ *  Standardised in SD-329. */
+export type DbOrTx = Pick<
+  ReturnType<typeof requireDb>,
+  'select' | 'insert' | 'update' | 'delete'
+>;
+
 export * from './schema';

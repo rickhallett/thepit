@@ -9,7 +9,7 @@
 import { eq } from 'drizzle-orm';
 import type Stripe from 'stripe';
 
-import { requireDb } from '@/db';
+import { requireDb, type DbOrTx } from '@/db';
 import { creditTransactions, users } from '@/db/schema';
 import {
   applyCreditDelta,
@@ -37,9 +37,9 @@ async function updateUserSubscription(params: {
   subscriptionStatus: string;
   currentPeriodEnd?: Date | null;
   stripeCustomerId: string | null;
-}) {
-  const db = requireDb();
-  await db
+}, tx?: DbOrTx) {
+  const conn = tx ?? requireDb();
+  await conn
     .update(users)
     .set({
       subscriptionTier: params.tier,
@@ -60,9 +60,9 @@ async function updateUserSubscription(params: {
  * Check whether a credit grant with the given referenceId already exists.
  * Used to make all grant paths idempotent against Stripe webhook retries.
  */
-async function hasExistingGrant(referenceId: string): Promise<boolean> {
-  const db = requireDb();
-  const [existing] = await db
+async function hasExistingGrant(referenceId: string, tx?: DbOrTx): Promise<boolean> {
+  const conn = tx ?? requireDb();
+  const [existing] = await conn
     .select({ id: creditTransactions.id })
     .from(creditTransactions)
     .where(eq(creditTransactions.referenceId, referenceId))
@@ -107,16 +107,27 @@ export async function handleCheckoutCompleted(
     ? Number(session.metadata.credits)
     : 0;
 
-  const existing = await hasExistingGrant(session.id);
-  const shouldProcess = userId && credits > 0 && !existing;
+  if (!userId || credits <= 0) return;
 
-  if (shouldProcess) {
-    await ensureCreditAccount(userId);
+  // Wrap idempotency check + credit grant in a transaction so a concurrent
+  // webhook retry cannot pass hasExistingGrant simultaneously and double-grant.
+  const db = requireDb();
+  const granted = await db.transaction(async (tx) => {
+    const existing = await hasExistingGrant(session.id, tx);
+    if (existing) {
+      log.info('Webhook: duplicate session, skipping', { sessionId: session.id });
+      return false;
+    }
+    await ensureCreditAccount(userId, tx);
     const deltaMicro = credits * MICRO_PER_CREDIT;
     await applyCreditDelta(userId, deltaMicro, 'purchase', {
       referenceId: session.id,
       credits,
-    });
+    }, tx);
+    return true;
+  });
+
+  if (granted) {
     try {
       await serverTrack(userId, 'credit_purchase_completed', {
         credits,
@@ -127,10 +138,6 @@ export async function handleCheckoutCompleted(
     } catch {
       // Best-effort - analytics loss is acceptable, webhook failure is not
     }
-  }
-
-  if (existing) {
-    log.info('Webhook: duplicate session, skipping', { sessionId: session.id });
   }
 }
 
@@ -156,34 +163,42 @@ export async function handleSubscriptionCreated(
   const tier = resolveTierFromPriceId(priceId);
   if (!tier) return;
 
-  await updateUserSubscription({
-    userId,
-    tier,
-    subscriptionId: subscription.id,
-    subscriptionStatus: subscription.status,
-    currentPeriodEnd: subscription.current_period_end
-      ? new Date(subscription.current_period_end * 1000)
-      : null,
-    stripeCustomerId: subscription.customer,
-  });
-
-  // One-time credit grant on new subscription (idempotent)
+  // Wrap tier update + credit grant in a transaction so the user's tier
+  // and their one-time grant are atomic. Without this, a failure after
+  // updateUserSubscription but before applyCreditDelta leaves the user
+  // with the correct tier but missing their grant.
+  const db = requireDb();
   const grantCredits = tier === 'lab'
     ? SUBSCRIPTION_GRANT_LAB
     : tier === 'pass'
       ? SUBSCRIPTION_GRANT_PASS
       : 0;
   const subscriptionGrantRef = `${subscription.id}:subscription_grant`;
-  if (grantCredits > 0 && !(await hasExistingGrant(subscriptionGrantRef))) {
-    await ensureCreditAccount(userId);
-    await applyCreditDelta(
+
+  await db.transaction(async (tx) => {
+    await updateUserSubscription({
       userId,
-      grantCredits * MICRO_PER_CREDIT,
-      'subscription_grant',
-      { referenceId: subscriptionGrantRef, tier, credits: grantCredits },
-    );
-    log.info('Subscription grant applied', { userId, tier, credits: grantCredits });
-  }
+      tier,
+      subscriptionId: subscription.id,
+      subscriptionStatus: subscription.status,
+      currentPeriodEnd: subscription.current_period_end
+        ? new Date(subscription.current_period_end * 1000)
+        : null,
+      stripeCustomerId: subscription.customer,
+    }, tx);
+
+    if (grantCredits > 0 && !(await hasExistingGrant(subscriptionGrantRef, tx))) {
+      await ensureCreditAccount(userId, tx);
+      await applyCreditDelta(
+        userId,
+        grantCredits * MICRO_PER_CREDIT,
+        'subscription_grant',
+        { referenceId: subscriptionGrantRef, tier, credits: grantCredits },
+        tx,
+      );
+      log.info('Subscription grant applied', { userId, tier, credits: grantCredits });
+    }
+  });
 
   try {
     await serverTrack(userId, 'subscription_started', {
@@ -230,61 +245,75 @@ export async function handleSubscriptionUpdated(
   // Exhaustive tier ordering - TypeScript enforces all UserTier values
   // are mapped, so adding a new tier without updating this map is a
   // compile-time error (no silent misclassification of upgrades).
+  // Wrap tier read + update + credit grant in a transaction to prevent
+  // TOCTOU: concurrent webhook deliveries could both read the old tier
+  // and both apply upgrade grants based on a stale baseline.
   const tierOrder: Record<UserTier, number> = { free: 0, pass: 1, lab: 2 };
   const db = requireDb();
-  const [currentUser] = await db
-    .select({ tier: users.subscriptionTier })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1);
-  const oldTier: UserTier = (currentUser?.tier as UserTier) ?? 'free';
-  const oldTierRank = tierOrder[oldTier];
-  const newTierRank = tierOrder[tier];
 
-  await updateUserSubscription({
-    userId,
-    tier,
-    subscriptionId: subscription.id,
-    subscriptionStatus: subscription.status,
-    currentPeriodEnd: subscription.current_period_end
-      ? new Date(subscription.current_period_end * 1000)
-      : null,
-    stripeCustomerId: subscription.customer,
+  const { oldTier, newTierRank, oldTierRank } = await db.transaction(async (tx) => {
+    const [currentUser] = await tx
+      .select({ tier: users.subscriptionTier })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    const innerOldTier: UserTier = (currentUser?.tier as UserTier) ?? 'free';
+
+    await updateUserSubscription({
+      userId,
+      tier,
+      subscriptionId: subscription.id,
+      subscriptionStatus: subscription.status,
+      currentPeriodEnd: subscription.current_period_end
+        ? new Date(subscription.current_period_end * 1000)
+        : null,
+      stripeCustomerId: subscription.customer,
+    }, tx);
+
+    const innerOldTierRank = tierOrder[innerOldTier];
+    const innerNewTierRank = tierOrder[tier];
+
+    if (innerNewTierRank > innerOldTierRank) {
+      const grantMap: Record<UserTier, number> = {
+        free: 0,
+        pass: SUBSCRIPTION_GRANT_PASS,
+        lab: SUBSCRIPTION_GRANT_LAB,
+      };
+      const incrementalGrant = grantMap[tier] - grantMap[innerOldTier];
+      const upgradeGrantRef = `${subscription.id}:upgrade_grant:${innerOldTier}:${tier}`;
+      if (incrementalGrant > 0 && !(await hasExistingGrant(upgradeGrantRef, tx))) {
+        await ensureCreditAccount(userId, tx);
+        await applyCreditDelta(
+          userId,
+          incrementalGrant * MICRO_PER_CREDIT,
+          'subscription_upgrade_grant',
+          {
+            referenceId: upgradeGrantRef,
+            from_tier: innerOldTier,
+            to_tier: tier,
+            credits: incrementalGrant,
+          },
+          tx,
+        );
+        log.info('Upgrade grant applied', { userId, from: innerOldTier, to: tier, credits: incrementalGrant });
+      }
+    }
+
+    return { oldTier: innerOldTier as UserTier, newTierRank: innerNewTierRank, oldTierRank: innerOldTierRank };
   });
 
   if (newTierRank > oldTierRank) {
-    // Incremental credit grant on upgrade (difference between tiers)
     const grantMap: Record<UserTier, number> = {
       free: 0,
       pass: SUBSCRIPTION_GRANT_PASS,
       lab: SUBSCRIPTION_GRANT_LAB,
     };
-    const incrementalGrant = grantMap[tier] - grantMap[oldTier];
-    // Include tier transition in referenceId so a user who downgrades
-    // then re-upgrades on the same subscription gets a fresh grant.
-    const upgradeGrantRef = `${subscription.id}:upgrade_grant:${oldTier}:${tier}`;
-    if (incrementalGrant > 0 && !(await hasExistingGrant(upgradeGrantRef))) {
-      await ensureCreditAccount(userId);
-      await applyCreditDelta(
-        userId,
-        incrementalGrant * MICRO_PER_CREDIT,
-        'subscription_upgrade_grant',
-        {
-          referenceId: upgradeGrantRef,
-          from_tier: oldTier,
-          to_tier: tier,
-          credits: incrementalGrant,
-        },
-      );
-      log.info('Upgrade grant applied', { userId, from: oldTier, to: tier, credits: incrementalGrant });
-    }
-
     try {
       await serverTrack(userId, 'subscription_upgraded', {
         from_tier: oldTier,
         to_tier: tier,
         subscription_id: subscription.id,
-        grant_credits: incrementalGrant,
+        grant_credits: grantMap[tier] - grantMap[oldTier],
       });
     } catch {
       // Best-effort - analytics loss is acceptable, webhook failure is not
@@ -430,22 +459,9 @@ export async function handleInvoicePaymentSucceeded(
   const tier = resolveTierFromPriceId(priceId);
   if (!tier) return;
 
-  // Omit currentPeriodEnd - Stripe doesn't guarantee webhook delivery
-  // order, so subscription.updated may arrive before or after this event.
-  // Preserving the existing value avoids overwriting a correct date with null.
-  await updateUserSubscription({
-    userId,
-    tier,
-    subscriptionId: invoice.subscription,
-    subscriptionStatus: 'active',
-    stripeCustomerId: invoice.customer,
-  });
-
-  // Monthly recurring credit grant - only on renewal invoices.
-  // Stripe fires both customer.subscription.created AND
-  // invoice.payment_succeeded on initial subscribe. The one-time grant
-  // is handled by subscription.created; skip the monthly grant for the
-  // first invoice to avoid double-granting.
+  // Wrap tier restore + monthly grant in a transaction so the user's tier
+  // and their monthly credit grant are atomic.
+  const db = requireDb();
   const isRenewal = invoice.billing_reason !== 'subscription_create';
   const monthlyCredits = tier === 'lab'
     ? MONTHLY_CREDITS_LAB
@@ -453,20 +469,35 @@ export async function handleInvoicePaymentSucceeded(
       ? MONTHLY_CREDITS_PASS
       : 0;
   const monthlyGrantRef = `${invoice.id}:monthly_grant`;
-  if (isRenewal && monthlyCredits > 0 && !(await hasExistingGrant(monthlyGrantRef))) {
-    await ensureCreditAccount(userId);
-    await applyCreditDelta(
+
+  await db.transaction(async (tx) => {
+    // Omit currentPeriodEnd - Stripe doesn't guarantee webhook delivery
+    // order, so subscription.updated may arrive before or after this event.
+    await updateUserSubscription({
       userId,
-      monthlyCredits * MICRO_PER_CREDIT,
-      'monthly_grant',
-      {
-        referenceId: monthlyGrantRef,
-        tier,
-        credits: monthlyCredits,
-      },
-    );
-    log.info('Monthly credit grant applied', { userId, tier, credits: monthlyCredits });
-  }
+      tier,
+      subscriptionId: invoice.subscription!,
+      subscriptionStatus: 'active',
+      stripeCustomerId: invoice.customer,
+    }, tx);
+
+    // Monthly recurring credit grant - only on renewal invoices.
+    if (isRenewal && monthlyCredits > 0 && !(await hasExistingGrant(monthlyGrantRef, tx))) {
+      await ensureCreditAccount(userId, tx);
+      await applyCreditDelta(
+        userId,
+        monthlyCredits * MICRO_PER_CREDIT,
+        'monthly_grant',
+        {
+          referenceId: monthlyGrantRef,
+          tier,
+          credits: monthlyCredits,
+        },
+        tx,
+      );
+      log.info('Monthly credit grant applied', { userId, tier, credits: monthlyCredits });
+    }
+  });
 
   log.info('Payment succeeded, tier restored', { userId, tier });
 }

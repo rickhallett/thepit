@@ -9,6 +9,7 @@ const {
   mockInsertValues,
   mockInsertReturning,
   applyCreditDeltaMock,
+  mockDb,
 } = vi.hoisted(() => {
   // Single result mock that handles both .limit() and direct await
   const mockQueryResult = vi.fn().mockResolvedValue([]);
@@ -16,11 +17,17 @@ const {
   const mockInsertValues = vi
     .fn()
     .mockReturnValue({ returning: mockInsertReturning });
+  const db = {
+    select: vi.fn(),
+    insert: vi.fn(),
+    transaction: vi.fn(),
+  };
   return {
     mockQueryResult,
     mockInsertValues,
     mockInsertReturning,
     applyCreditDeltaMock: vi.fn().mockResolvedValue(undefined),
+    mockDb: db,
   };
 });
 
@@ -39,10 +46,7 @@ function makeQueryChain() {
 }
 
 vi.mock('@/db', () => ({
-  requireDb: () => ({
-    select: vi.fn().mockImplementation(() => makeQueryChain()),
-    insert: vi.fn().mockReturnValue({ values: mockInsertValues }),
-  }),
+  requireDb: () => mockDb,
 }));
 
 vi.mock('@/db/schema', () => ({
@@ -73,6 +77,9 @@ describe('remix-events', () => {
     mockInsertReturning.mockResolvedValue([{ id: 1 }]);
     mockInsertValues.mockReturnValue({ returning: mockInsertReturning });
     applyCreditDeltaMock.mockResolvedValue(undefined);
+    mockDb.select.mockImplementation(() => makeQueryChain());
+    mockDb.insert.mockReturnValue({ values: mockInsertValues });
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
   });
 
   describe('recordRemixEvent', () => {

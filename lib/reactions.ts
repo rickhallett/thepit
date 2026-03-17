@@ -3,7 +3,7 @@
 
 import { and, eq, sql, desc } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
+import { requireDb, type DbOrTx } from '@/db';
 import { bouts, reactions, type TranscriptEntry } from '@/db/schema';
 import { assertNever } from '@/lib/api-utils';
 
@@ -113,7 +113,8 @@ export async function toggleReaction(params: {
   const { boutId, turnIndex, reactionType, userId, clientFingerprint } = params;
   const db = requireDb();
 
-  // Verify bout exists and turnIndex is valid
+  // Pre-transaction validation: verify bout exists and turnIndex is valid.
+  // Read-only, doesn't need to be in the transaction.
   const [bout] = await db
     .select({ id: bouts.id, transcript: bouts.transcript })
     .from(bouts)
@@ -129,56 +130,61 @@ export async function toggleReaction(params: {
     return { ok: false, error: 'Invalid turn index.', status: 400 };
   }
 
-  // Toggle: check if reaction exists, then insert or delete
-  const [existing] = await db
-    .select({ id: reactions.id })
-    .from(reactions)
-    .where(
-      and(
-        eq(reactions.boutId, boutId),
-        eq(reactions.turnIndex, turnIndex),
-        eq(reactions.reactionType, reactionType),
-        eq(reactions.clientFingerprint, clientFingerprint),
-      ),
-    )
-    .limit(1);
+  // Wrap check + toggle + count in a transaction to prevent TOCTOU:
+  // two concurrent requests could both see "no existing reaction" and
+  // both insert (onConflictDoNothing handles that), but the returned
+  // counts would be inconsistent with the action taken.
+  return db.transaction(async (tx) => {
+    const [existing] = await tx
+      .select({ id: reactions.id })
+      .from(reactions)
+      .where(
+        and(
+          eq(reactions.boutId, boutId),
+          eq(reactions.turnIndex, turnIndex),
+          eq(reactions.reactionType, reactionType),
+          eq(reactions.clientFingerprint, clientFingerprint),
+        ),
+      )
+      .limit(1);
 
-  let action: 'added' | 'removed';
+    let action: 'added' | 'removed';
 
-  if (existing) {
-    await db.delete(reactions).where(eq(reactions.id, existing.id));
-    action = 'removed';
-  } else {
-    await db
-      .insert(reactions)
-      .values({
-        boutId,
-        turnIndex,
-        reactionType,
-        userId,
-        clientFingerprint,
+    if (existing) {
+      await tx.delete(reactions).where(eq(reactions.id, existing.id));
+      action = 'removed';
+    } else {
+      await tx
+        .insert(reactions)
+        .values({
+          boutId,
+          turnIndex,
+          reactionType,
+          userId,
+          clientFingerprint,
+        })
+        .onConflictDoNothing();
+      action = 'added';
+    }
+
+    // Return absolute counts for this turn
+    const [counts] = await tx
+      .select({
+        heart: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'heart') as int)`,
+        fire: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'fire') as int)`,
       })
-      .onConflictDoNothing();
-    action = 'added';
-  }
+      .from(reactions)
+      .where(
+        and(
+          eq(reactions.boutId, boutId),
+          eq(reactions.turnIndex, turnIndex),
+        ),
+      );
 
-  // Return absolute counts for this turn
-  const [counts] = await db
-    .select({
-      heart: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'heart') as int)`,
-      fire: sql<number>`cast(count(*) filter (where ${reactions.reactionType} = 'fire') as int)`,
-    })
-    .from(reactions)
-    .where(
-      and(
-        eq(reactions.boutId, boutId),
-        eq(reactions.turnIndex, turnIndex),
-      ),
-    );
-
-  return {
-    ok: true,
-    action,
-    counts: counts ?? { heart: 0, fire: 0 },
-  };
+    return {
+      ok: true,
+      action,
+      counts: counts ?? { heart: 0, fire: 0 },
+    };
+  });
 }

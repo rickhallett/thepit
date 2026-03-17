@@ -15,7 +15,9 @@ const {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
+    transaction: vi.fn(),
   };
+  db.transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
 
   return {
     mockDb: db,
@@ -138,6 +140,7 @@ describe('lib/billing', () => {
     mockEnsureCreditAccount.mockResolvedValue(undefined);
     mockServerTrack.mockResolvedValue(undefined);
     mockServerIdentify.mockResolvedValue(undefined);
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
     setupSelect([]);
     setupUpdate();
   });
@@ -154,12 +157,13 @@ describe('lib/billing', () => {
         currency: 'gbp',
       } as unknown as Parameters<typeof handleCheckoutCompleted>[0]);
 
-      expect(mockEnsureCreditAccount).toHaveBeenCalledWith('u1');
+      expect(mockEnsureCreditAccount).toHaveBeenCalledWith('u1', expect.anything());
       expect(mockApplyCreditDelta).toHaveBeenCalledWith(
         'u1',
         5000,
         'purchase',
         { referenceId: 'cs_1', credits: 50 },
+        expect.anything(),
       );
     });
 
@@ -211,6 +215,7 @@ describe('lib/billing', () => {
           tier: 'pass',
           credits: 300,
         }),
+        expect.anything(),
       );
     });
 
@@ -232,6 +237,7 @@ describe('lib/billing', () => {
         60000,
         'subscription_grant',
         expect.objectContaining({ credits: 600 }),
+        expect.anything(),
       );
     });
 
@@ -301,6 +307,7 @@ describe('lib/billing', () => {
           from_tier: 'pass',
           to_tier: 'lab',
         }),
+        expect.anything(),
       );
     });
 
@@ -469,7 +476,7 @@ describe('lib/billing', () => {
         lines: { data: [{ price: { id: 'price_pass' } }] },
       });
 
-      expect(mockEnsureCreditAccount).toHaveBeenCalledWith('u_renew');
+      expect(mockEnsureCreditAccount).toHaveBeenCalledWith('u_renew', expect.anything());
       expect(mockApplyCreditDelta).toHaveBeenCalledWith(
         'u_renew',
         30000,
@@ -479,6 +486,7 @@ describe('lib/billing', () => {
           tier: 'pass',
           credits: 300,
         }),
+        expect.anything(),
       );
     });
 

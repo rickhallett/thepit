@@ -5,7 +5,7 @@
 
 import { eq, and } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
+import { requireDb, type DbOrTx } from '@/db';
 import { creditTransactions } from '@/db/schema';
 import { cacheGet, cacheSet } from '@/lib/cache';
 import { CREDITS_ENABLED, ensureCreditAccount } from '@/lib/credits';
@@ -21,33 +21,39 @@ export async function applySignupBonus(userId: string) {
   if (!CREDITS_ENABLED) {
     return { status: 'disabled' as const };
   }
+
+  // Wrap idempotency check + pool claim in a transaction so two concurrent
+  // session inits for the same user cannot both pass the existing check
+  // and double-claim signup credits from the pool.
   const db = requireDb();
-  const [existing] = await db
-    .select({ id: creditTransactions.id })
-    .from(creditTransactions)
-    .where(
-      and(
-        eq(creditTransactions.userId, userId),
-        eq(creditTransactions.source, 'signup'),
-      ),
-    )
-    .limit(1);
+  return db.transaction(async (tx) => {
+    const [existing] = await tx
+      .select({ id: creditTransactions.id })
+      .from(creditTransactions)
+      .where(
+        and(
+          eq(creditTransactions.userId, userId),
+          eq(creditTransactions.source, 'signup'),
+        ),
+      )
+      .limit(1);
 
-  if (existing) {
-    return { status: 'already' as const };
-  }
+    if (existing) {
+      return { status: 'already' as const };
+    }
 
-  const result = await claimIntroCredits({
-    userId,
-    credits: INTRO_SIGNUP_CREDITS,
-    source: 'signup',
-    referenceId: userId,
+    const result = await claimIntroCredits({
+      userId,
+      credits: INTRO_SIGNUP_CREDITS,
+      source: 'signup',
+      referenceId: userId,
+    }, tx);
+
+    return {
+      status: result.claimedMicro > 0 ? ('claimed' as const) : ('empty' as const),
+      claimedMicro: result.claimedMicro,
+    };
   });
-
-  return {
-    status: result.claimedMicro > 0 ? ('claimed' as const) : ('empty' as const),
-    claimedMicro: result.claimedMicro,
-  };
 }
 
 const INIT_CACHE_TTL_SECONDS = 60 * 60; // 1 hour
