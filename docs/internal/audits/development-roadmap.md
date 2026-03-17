@@ -217,7 +217,7 @@ Establishing a proper data access layer. This is the "durian" - conceptually sim
 
 Preparing for horizontal scaling. These items are not urgent at current scale but become correctness problems under load.
 
-### RD-018: Replace in-memory leaderboard cache with distributed cache
+### RD-018: Replace in-memory leaderboard cache with distributed cache [DONE - PR#91]
 
 - **Source:** Anthropic (noted), Gemini R1 (HIGH), Codex (decision log) | Convergence: 3/3
 - **Priority:** P2
@@ -227,7 +227,7 @@ Preparing for horizontal scaling. These items are not urgent at current scale bu
 - **Target:** Introduce `lib/cache.ts` wrapping a distributed cache (Upstash Redis or Vercel KV). Replace module-level variable with async cache read/write.
 - **What breaks if unfixed:** At current single-instance scale: nothing. At horizontal scale: users see different leaderboards depending on which serverless instance serves the request.
 
-### RD-019: Replace in-memory onboarding cache with distributed cache
+### RD-019: Replace in-memory onboarding cache with distributed cache [DONE - PR#91]
 
 - **Source:** Anthropic (noted), Gemini (flagged), Codex (noted) | Convergence: 3/3
 - **Priority:** P2
@@ -237,7 +237,7 @@ Preparing for horizontal scaling. These items are not urgent at current scale bu
 - **Target:** Use distributed cache from RD-018.
 - **What breaks if unfixed:** At horizontal scale: onboarding DB queries run on every request for recently-onboarded users routed to a different instance. DB dedup prevents correctness issues but adds unnecessary load.
 
-### RD-020: Evaluate distributed rate limiting
+### RD-020: Evaluate distributed rate limiting [DONE - PR#92, implemented]
 
 - **Source:** Anthropic D1, Gemini implicit, Codex D2 | Convergence: 3/3 (all acknowledge, all defer)
 - **Priority:** P3
