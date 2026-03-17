@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     "**/node_modules/**",
     // Standalone Node scripts (require() style, not part of Next.js app)
     "slopodar-ext/**",
+    // External tool suite (not our code, not committed)
+    "Claude-Command-Suite/**",
   ]),
 ]);
 
