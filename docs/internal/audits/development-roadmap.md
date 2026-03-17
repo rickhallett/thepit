@@ -253,7 +253,7 @@ Preparing for horizontal scaling. These items are not urgent at current scale bu
 
 Dead code removal, dead table cleanup, and structural preparation for future features.
 
-### RD-021: Add post-completion hook point to bout-engine
+### RD-021: Add post-completion hook point to bout-engine [DONE - PR#93]
 
 - **Source:** Anthropic R7 | Convergence: 1/3 (but all 3 models identified tournament difficulty)
 - **Priority:** P2
@@ -263,7 +263,7 @@ Dead code removal, dead table cleanup, and structural preparation for future fea
 - **Target:** Add an optional callback parameter to `executeBout()`: `onBoutCompleted(boutId, transcript, metadata)`. Default to no-op. Call after the completion DB write.
 - **What breaks if unfixed:** Tournament brackets become structurally difficult. The only alternative is polling the bouts table for status changes (fragile, latency). This is the key structural blocker for the next major feature.
 
-### RD-022: Remove dead table free_bout_pool
+### RD-022: Remove dead table free_bout_pool [DONE - PR#94]
 
 - **Source:** Anthropic Phase 1, Codex R3 | Convergence: 2/3
 - **Priority:** P3
@@ -273,7 +273,7 @@ Dead code removal, dead table cleanup, and structural preparation for future fea
 - **Target:** Drop table via migration. Remove from schema.
 - **What breaks if unfixed:** Schema carries dead weight. Future reviewers cannot tell which tables are real.
 
-### RD-023: Remove dead table agent_flags
+### RD-023: Remove dead table agent_flags [DONE - PR#94]
 
 - **Source:** Anthropic Phase 1 | Convergence: 1/3
 - **Priority:** P3
@@ -283,7 +283,7 @@ Dead code removal, dead table cleanup, and structural preparation for future fea
 - **Target:** Drop table via migration. Remove from schema.
 - **What breaks if unfixed:** Same as RD-022. Dead schema surface area.
 
-### RD-024: Clean up dead exports in agent cluster
+### RD-024: Clean up dead exports in agent cluster [DONE - PR#95]
 
 - **Source:** L2-B API surface audit | Convergence: L only
 - **Priority:** P3
@@ -293,7 +293,7 @@ Dead code removal, dead table cleanup, and structural preparation for future fea
 - **Target:** Remove dead exports. Verify with grep/tsc that no consumers exist.
 - **What breaks if unfixed:** Dead code creates false API surface. New agents may assume these functions are live and build on them.
 
-### RD-025: Reduce app/actions.ts coordination scope
+### RD-025: Reduce app/actions.ts coordination scope [DONE - completed by RD-012 + RD-015]
 
 - **Source:** Gemini Phase 3 (unique finding) | Convergence: 1/3
 - **Priority:** P3
