@@ -12,7 +12,7 @@
 
 import { eq, sql } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
+import { requireDb, type DbOrTx } from '@/db';
 import { introPool } from '@/db/schema';
 import { env } from '@/lib/env';
 import { MICRO_PER_CREDIT, ensureCreditAccount, applyCreditDelta } from '@/lib/credits';
@@ -107,7 +107,7 @@ export async function claimIntroCredits(params: {
   source: string;
   referenceId?: string;
   metadata?: Record<string, unknown>;
-}) {
+}, outerTx?: DbOrTx) {
   const db = requireDb();
   const pool = await ensureIntroPool();
   const requestedMicro = toMicro(params.credits);
@@ -118,9 +118,9 @@ export async function claimIntroCredits(params: {
     return { claimedMicro: 0, remainingMicro: 0, exhausted: true };
   }
 
-  // Wrap pool deduction + user credit in a single transaction.
-  // If the user credit fails, the pool deduction rolls back - no leaked credits.
-  return db.transaction(async (tx) => {
+  // Core claim logic. Runs within the caller's transaction when outerTx is
+  // provided, or creates its own transaction when called standalone.
+  const claimInTx = async (tx: DbOrTx) => {
     // Read a fresh claimedMicro inside the transaction so the baseline for
     // delta calculation matches the isolation level. The outer ensureIntroPool
     // call guarantees the row exists, but its claimedMicro may be stale if a
@@ -184,7 +184,14 @@ export async function claimIntroCredits(params: {
       remainingMicro: newRemaining,
       exhausted: newRemaining <= 0,
     };
-  });
+  };
+
+  // When called within an outer transaction, run directly in that context.
+  // Otherwise create our own transaction (backward-compatible default).
+  if (outerTx) {
+    return claimInTx(outerTx);
+  }
+  return db.transaction(claimInTx);
 }
 
 /**

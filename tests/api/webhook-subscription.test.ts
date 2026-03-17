@@ -17,7 +17,9 @@ const {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
+    transaction: vi.fn(),
   };
+  db.transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
 
   const stripe = {
     webhooks: {
@@ -192,6 +194,7 @@ describe('POST /api/credits/webhook', () => {
     mockHeaders.fn.mockResolvedValue({
       get: (name: string) => mockHeaders.map.get(name) ?? null,
     });
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
 
     mockHeaders.map.clear();
     setWebhookSecret('whsec_test_secret');
@@ -255,12 +258,13 @@ describe('POST /api/credits/webhook', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ received: true });
 
-    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_pay');
+    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_pay', expect.anything());
     expect(mockApplyCreditDelta).toHaveBeenCalledWith(
       'user_pay',
       50 * 100, // credits * MICRO_PER_CREDIT
       'purchase',
       { referenceId: 'cs_123', credits: 50 },
+      expect.anything(),
     );
   });
 
@@ -622,7 +626,7 @@ describe('POST /api/credits/webhook', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
 
-    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_grant_pass');
+    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_grant_pass', expect.anything());
     expect(mockApplyCreditDelta).toHaveBeenCalledWith(
       'user_grant_pass',
       300 * 100, // 300 credits * MICRO_PER_CREDIT
@@ -632,6 +636,7 @@ describe('POST /api/credits/webhook', () => {
         tier: 'pass',
         credits: 300,
       }),
+      expect.anything(),
     );
   });
 
@@ -670,6 +675,7 @@ describe('POST /api/credits/webhook', () => {
         tier: 'lab',
         credits: 600,
       }),
+      expect.anything(),
     );
   });
 
@@ -710,6 +716,7 @@ describe('POST /api/credits/webhook', () => {
         to_tier: 'lab',
         credits: 300,
       }),
+      expect.anything(),
     );
   });
 
@@ -773,7 +780,7 @@ describe('POST /api/credits/webhook', () => {
     const res = await POST(makeRequest());
     expect(res.status).toBe(200);
 
-    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_monthly');
+    expect(mockEnsureCreditAccount).toHaveBeenCalledWith('user_monthly', expect.anything());
     expect(mockApplyCreditDelta).toHaveBeenCalledWith(
       'user_monthly',
       300 * 100,
@@ -783,6 +790,7 @@ describe('POST /api/credits/webhook', () => {
         tier: 'pass',
         credits: 300,
       }),
+      expect.anything(),
     );
   });
 
@@ -970,6 +978,7 @@ describe('POST /api/credits/webhook', () => {
       50 * 100,
       'purchase',
       { referenceId: 'cs_ph_fail', credits: 50 },
+      expect.anything(),
     );
   });
 

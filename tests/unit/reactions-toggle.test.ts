@@ -5,7 +5,9 @@ const { mockDb } = vi.hoisted(() => {
     select: vi.fn(),
     insert: vi.fn(),
     delete: vi.fn(),
+    transaction: vi.fn(),
   };
+  db.transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
   return { mockDb: db };
 });
 
@@ -45,6 +47,8 @@ describe('toggleReaction', () => {
     mockDb.select.mockReset();
     mockDb.insert.mockReset();
     mockDb.delete.mockReset();
+    mockDb.transaction.mockReset();
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
   });
 
   it('returns error when bout not found', async () => {

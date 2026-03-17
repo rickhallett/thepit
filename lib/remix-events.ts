@@ -6,7 +6,7 @@
 
 import { eq, sql } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
+import { requireDb, type DbOrTx } from '@/db';
 import { remixEvents, agents } from '@/db/schema';
 import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
@@ -68,34 +68,38 @@ export async function recordRemixEvent({
     ? REMIX_REWARD_SOURCE_OWNER_MICRO
     : 0;
 
-  const [row] = await db
-    .insert(remixEvents)
-    .values({
-      sourceAgentId,
-      remixedAgentId,
-      remixerUserId,
-      sourceOwnerId,
-      outcome,
-      reason: reason ?? null,
-      rewardRemixerMicro: rewardRemixer,
-      rewardSourceOwnerMicro: rewardSourceOwner,
-      metadata: metadata ?? {},
-    })
-    .returning({ id: remixEvents.id });
-  if (!row) throw new Error('Insert returned no rows');
+  // Wrap event insert + credit rewards in a transaction so the event
+  // record and both reward grants succeed or fail together. Without this,
+  // a partial failure could grant credits to the remixer but not the source
+  // owner (or vice versa), with no way to reconcile.
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(remixEvents)
+      .values({
+        sourceAgentId,
+        remixedAgentId,
+        remixerUserId,
+        sourceOwnerId,
+        outcome,
+        reason: reason ?? null,
+        rewardRemixerMicro: rewardRemixer,
+        rewardSourceOwnerMicro: rewardSourceOwner,
+        metadata: metadata ?? {},
+      })
+      .returning({ id: remixEvents.id });
+    if (!row) throw new Error('Insert returned no rows');
 
-  // Distribute rewards (best-effort, non-blocking for the caller)
-  if (shouldReward) {
-    const refId = `remix-${row.id}`;
-    const rewardMeta = { remixEventId: row.id, sourceAgentId, remixedAgentId };
+    if (shouldReward) {
+      const refId = `remix-${row.id}`;
+      const rewardMeta = { remixEventId: row.id, sourceAgentId, remixedAgentId };
 
-    try {
       if (rewardRemixer > 0) {
         await applyCreditDelta(
           remixerUserId,
           rewardRemixer,
           'remix-reward-remixer',
           { ...rewardMeta, referenceId: refId },
+          tx,
         );
       }
       if (rewardSourceOwner > 0 && sourceOwnerId) {
@@ -104,18 +108,13 @@ export async function recordRemixEvent({
           rewardSourceOwner,
           'remix-reward-source-owner',
           { ...rewardMeta, referenceId: refId },
+          tx,
         );
       }
-    } catch (err) {
-      log.error(
-        'Remix reward distribution failed',
-        err instanceof Error ? err : new Error(String(err)),
-        { remixEventId: row.id },
-      );
     }
-  }
 
-  return { id: row.id, rewarded: shouldReward && (rewardRemixer > 0 || rewardSourceOwner > 0) };
+    return { id: row.id, rewarded: shouldReward && (rewardRemixer > 0 || rewardSourceOwner > 0) };
+  });
 }
 
 /**

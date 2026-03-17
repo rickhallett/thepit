@@ -15,12 +15,13 @@ const {
   mockSelect,
   mockSelectResult,
   mockDelete,
+  mockDb,
 } = vi.hoisted(() => {
   const mockOnConflict = vi.fn().mockResolvedValue(undefined);
   const mockValues = vi.fn().mockReturnValue({ onConflictDoNothing: mockOnConflict });
   const mockInsert = vi.fn().mockReturnValue({ values: mockValues });
 
-  // select().from().where().limit() chain — defaults to empty (no existing reaction)
+  // select().from().where().limit() chain - defaults to empty (no existing reaction)
   const mockSelectResult: { id: number }[] = [];
   const mockLimit = vi.fn().mockImplementation(() => Promise.resolve(mockSelectResult));
   const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });
@@ -30,6 +31,14 @@ const {
   // delete().where() chain
   const mockDeleteWhere = vi.fn().mockResolvedValue(undefined);
   const mockDelete = vi.fn().mockReturnValue({ where: mockDeleteWhere });
+
+  const db = {
+    select: mockSelect,
+    insert: mockInsert,
+    delete: mockDelete,
+    transaction: vi.fn(),
+  };
+  db.transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
 
   return {
     checkRateLimitMock: vi.fn(),
@@ -42,6 +51,7 @@ const {
     mockSelect,
     mockSelectResult,
     mockDelete,
+    mockDb: db,
   };
 });
 
@@ -59,11 +69,7 @@ vi.mock('@/lib/hash', () => ({
 }));
 
 vi.mock('@/db', () => ({
-  requireDb: () => ({
-    select: mockSelect,
-    insert: mockInsert,
-    delete: mockDelete,
-  }),
+  requireDb: () => mockDb,
 }));
 
 vi.mock('@/db/schema', () => ({
@@ -95,6 +101,7 @@ describe('reactions success paths', () => {
     mockInsert.mockReturnValue({ values: mockValues });
     const mockDeleteWhere = vi.fn().mockResolvedValue(undefined);
     mockDelete.mockReturnValue({ where: mockDeleteWhere });
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
 
     getClientIdentifierMock.mockReturnValue('127.0.0.1');
     checkRateLimitMock.mockReturnValue({

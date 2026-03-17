@@ -15,7 +15,7 @@
 
 import { desc, eq, sql } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
+import { requireDb, type DbOrTx } from '@/db';
 import { creditTransactions, credits } from '@/db/schema';
 import { env } from '@/lib/env';
 import { MODEL_IDS } from '@/lib/models';
@@ -167,10 +167,7 @@ export const computeCostUsd = (
   };
 };
 
-/** Database or transaction handle for credit operations.
- *  When a caller provides a DbOrTx, the caller owns the transaction boundary -
- *  credit operations run within the caller's transaction instead of creating their own. */
-type DbOrTx = Pick<ReturnType<typeof requireDb>, 'select' | 'insert' | 'update'>;
+// DbOrTx imported from @/db (SD-329 standardisation)
 
 export async function ensureCreditAccount(userId: string, tx?: DbOrTx) {
   const conn = tx ?? requireDb();

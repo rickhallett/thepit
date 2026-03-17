@@ -3,7 +3,7 @@
 
 import { eq, ne, and, sql, desc } from 'drizzle-orm';
 
-import { requireDb } from '@/db';
+import { requireDb, type DbOrTx } from '@/db';
 import { featureRequests, featureRequestVotes, users } from '@/db/schema';
 
 /** Shape returned by listFeatureRequests for each row. */
@@ -104,37 +104,41 @@ export async function toggleFeatureRequestVote(
 ): Promise<{ voted: boolean; voteCount: number }> {
   const db = requireDb();
 
-  const [existing] = await db
-    .select({ id: featureRequestVotes.id })
-    .from(featureRequestVotes)
-    .where(
-      and(
-        eq(featureRequestVotes.featureRequestId, featureRequestId),
-        eq(featureRequestVotes.userId, userId),
-      ),
-    )
-    .limit(1);
+  // Wrap check + toggle + count in a transaction so the returned count
+  // is consistent with the action taken (no interleaving with concurrent votes).
+  return db.transaction(async (tx) => {
+    const [existing] = await tx
+      .select({ id: featureRequestVotes.id })
+      .from(featureRequestVotes)
+      .where(
+        and(
+          eq(featureRequestVotes.featureRequestId, featureRequestId),
+          eq(featureRequestVotes.userId, userId),
+        ),
+      )
+      .limit(1);
 
-  if (existing) {
-    await db
-      .delete(featureRequestVotes)
-      .where(eq(featureRequestVotes.id, existing.id));
-  } else {
-    await db
-      .insert(featureRequestVotes)
-      .values({ featureRequestId, userId })
-      .onConflictDoNothing();
-  }
+    if (existing) {
+      await tx
+        .delete(featureRequestVotes)
+        .where(eq(featureRequestVotes.id, existing.id));
+    } else {
+      await tx
+        .insert(featureRequestVotes)
+        .values({ featureRequestId, userId })
+        .onConflictDoNothing();
+    }
 
-  const [result] = await db
-    .select({
-      count: sql<number>`count(*)::int`,
-    })
-    .from(featureRequestVotes)
-    .where(eq(featureRequestVotes.featureRequestId, featureRequestId));
+    const [result] = await tx
+      .select({
+        count: sql<number>`count(*)::int`,
+      })
+      .from(featureRequestVotes)
+      .where(eq(featureRequestVotes.featureRequestId, featureRequestId));
 
-  return {
-    voted: !existing,
-    voteCount: result?.count ?? 0,
-  };
+    return {
+      voted: !existing,
+      voteCount: result?.count ?? 0,
+    };
+  });
 }

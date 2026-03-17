@@ -14,7 +14,9 @@ const { mockDb, creditTransactionsTable } = vi.hoisted(() => {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
+    transaction: vi.fn(),
   };
+  db.transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
   return { mockDb: db, creditTransactionsTable: table };
 });
 
@@ -76,6 +78,8 @@ describe('onboarding', () => {
     mockDb.select.mockReset();
     mockDb.insert.mockReset();
     mockDb.update.mockReset();
+    mockDb.transaction.mockReset();
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
     mockCreditsEnabled = true;
     mockEnsureUserRecord.mockClear();
     mockUserRecordExists.mockClear();
@@ -112,7 +116,7 @@ describe('onboarding', () => {
         credits: 100,
         source: 'signup',
         referenceId: 'user_1',
-      });
+      }, expect.anything());
     });
 
     it('returns empty when intro pool exhausted', async () => {

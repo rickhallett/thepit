@@ -19,7 +19,9 @@ const { mockDb, usersTable, referralsTable, mockClaimIntroCredits, mockNanoid } 
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
+    transaction: vi.fn(),
   };
+  db.transaction.mockImplementation(async (fn: (tx: typeof db) => unknown) => fn(db));
   const claimIntroCredits = vi.fn();
   const nanoid = vi.fn();
   return { mockDb: db, usersTable: users, referralsTable: referrals, mockClaimIntroCredits: claimIntroCredits, mockNanoid: nanoid };
@@ -55,6 +57,8 @@ describe('referrals', () => {
     mockDb.select.mockReset();
     mockDb.insert.mockReset();
     mockDb.update.mockReset();
+    mockDb.transaction.mockReset();
+    mockDb.transaction.mockImplementation(async (fn: (tx: typeof mockDb) => unknown) => fn(mockDb));
     mockClaimIntroCredits.mockReset();
     mockNanoid.mockReset();
     mockNanoid.mockReturnValue('abcd1234');
@@ -206,7 +210,7 @@ describe('referrals', () => {
         source: 'referral',
         referenceId: 'referred-1',
         metadata: { referredId: 'referred-1' },
-      });
+      }, expect.anything());
       // Should mark referral as credited
       expect(mockDb.update).toHaveBeenCalledWith(referralsTable);
     });
