@@ -127,16 +127,6 @@ export const registerPresetAgent = async (params: {
   return { agentId, manifest, promptHash, manifestHash };
 };
 
-export const findAgentById = async (agentId: string) => {
-  const db = requireDb();
-  const [row] = await db
-    .select()
-    .from(agents)
-    .where(and(eq(agents.id, agentId), eq(agents.archived, false)))
-    .limit(1);
-  return row;
-};
-
 // ---------------------------------------------------------------------------
 // Data Access Layer functions (extracted from app/ route handlers)
 // ---------------------------------------------------------------------------
@@ -181,42 +171,6 @@ export async function countActiveUserAgents(userId: string): Promise<number> {
       ),
     );
   return result?.count ?? 0;
-}
-
-/**
- * Atomically check user agent slot availability and insert a new agent.
- *
- * Wraps the count query and insert in a transaction with FOR UPDATE
- * semantics to prevent race conditions where two concurrent requests
- * both pass the slot check before either insert completes (RD-017).
- *
- * TODO(RD-017): Wire into POST /api/agents route handler. Currently
- * the route uses separate countActiveUserAgents + insertAgent calls.
- * This function is tested and ready for integration.
- */
-export async function createAgentWithSlotCheck(
-  userId: string,
-  values: AgentInsertValues,
-  canCreateFn: (userId: string, count: number) => Promise<{ allowed: boolean; reason?: string }>,
-): Promise<void> {
-  const db = requireDb();
-  await db.transaction(async (tx) => {
-    const [countResult] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(agents)
-      .where(
-        and(
-          eq(agents.ownerId, userId),
-          eq(agents.archived, false),
-        ),
-      );
-    const currentCount = countResult?.count ?? 0;
-    const slotCheck = await canCreateFn(userId, currentCount);
-    if (!slotCheck.allowed) {
-      throw new Error(slotCheck.reason ?? 'Agent slot limit reached.');
-    }
-    await tx.insert(agents).values(values);
-  });
 }
 
 /** Insert an agent row directly (no slot check). Used by seed-agents. */

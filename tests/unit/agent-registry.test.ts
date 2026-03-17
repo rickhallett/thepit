@@ -123,16 +123,6 @@ const setupSelect = (result: unknown[]) => {
   }));
 };
 
-const setupSelectWithLimit = (result: unknown[]) => {
-  mockDb.select.mockImplementation(() => ({
-    from: () => ({
-      where: () => ({
-        limit: async () => result,
-      }),
-    }),
-  }));
-};
-
 const loadRegistry = async () => import('@/lib/agent-registry');
 
 describe('agent-registry', () => {
@@ -278,26 +268,4 @@ describe('agent-registry', () => {
     });
   });
 
-  describe('findAgentById', () => {
-    it('returns agent when found (non-archived)', async () => {
-      const agentRow = {
-        id: 'preset:roast-battle:judge',
-        name: 'The Judge',
-        archived: false,
-      };
-      setupSelectWithLimit([agentRow]);
-
-      const { findAgentById } = await loadRegistry();
-      const result = await findAgentById('preset:roast-battle:judge');
-      expect(result).toEqual(agentRow);
-    });
-
-    it('returns undefined when not found', async () => {
-      setupSelectWithLimit([]);
-
-      const { findAgentById } = await loadRegistry();
-      const result = await findAgentById('nonexistent');
-      expect(result).toBeUndefined();
-    });
-  });
 });

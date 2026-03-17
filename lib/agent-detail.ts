@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 import type { AgentSnapshot } from '@/lib/agent-registry';
 import { findPresetAgent, presetToSnapshot, rowToSnapshot } from '@/lib/agent-mapper';
 
-export type AgentLineageEntry = {
+type AgentLineageEntry = {
   id: string;
   name: string;
 };
