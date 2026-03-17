@@ -41,8 +41,6 @@ All modules that touch the database import `requireDb` from `@/db` and table/enu
 | `winner_votes` | `serial` | Per-bout winner votes (unique per user per bout) |
 | `newsletter_signups` | `serial` | Email collection with unique email index |
 | `agents` | `varchar(128)` | Agent definitions: personality fields, dual hashes, EAS attestation, lineage |
-| `free_bout_pool` | `serial` | Global daily free bout limit (unique per date) |
-| `agent_flags` | `serial` | User-submitted moderation flags (unique per agent per user) |
 | `paper_submissions` | `serial` | ArXiv paper submissions with moderation status |
 | `feature_requests` | `serial` | User feature request submissions with admin review |
 | `feature_request_votes` | `serial` | Votes on feature requests (unique per user per request) |
@@ -73,8 +71,6 @@ ArenaAgent = { id: string; name: string; systemPrompt: string; color?: string; a
 | `winner_votes` | `created_at` | btree |
 | `newsletter_signups` | `email` | unique |
 | `agents` | `(archived, created_at)` | composite |
-| `free_bout_pool` | `date` | unique |
-| `agent_flags` | `(agent_id, user_id)` | unique |
 | `paper_submissions` | `user_id` | btree |
 | `paper_submissions` | `(user_id, arxiv_id)` | unique |
 | `feature_requests` | `created_at` | btree |

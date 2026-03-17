@@ -295,41 +295,6 @@ export const agents = pgTable('agents', {
   }).onDelete('set null'),
 }));
 
-export const freeBoutPool = pgTable('free_bout_pool', {
-  id: serial('id').primaryKey(),
-  date: varchar('date', { length: 10 }).notNull(),
-  used: integer('used').notNull().default(0),
-  maxDaily: integer('max_daily').notNull(),
-  /** Cumulative platform spend (micro-credits) on free-tier bouts today. */
-  spendMicro: bigint('spend_micro', { mode: 'number' }).notNull().default(0),
-  /** Daily spend cap (micro-credits). Default £20 = 200,000 micro. */
-  spendCapMicro: bigint('spend_cap_micro', { mode: 'number' }).notNull().default(200_000),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-}, (table) => ({
-  dateIdx: uniqueIndex('free_bout_pool_date_idx').on(table.date),
-}));
-
-export const agentFlags = pgTable(
-  'agent_flags',
-  {
-    id: serial('id').primaryKey(),
-    agentId: varchar('agent_id', { length: 128 }).notNull().references(() => agents.id, { onDelete: 'cascade' }),
-    userId: varchar('user_id', { length: 128 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
-    reason: varchar('reason', { length: 32 }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => ({
-    uniqueFlag: uniqueIndex('agent_flags_unique').on(
-      table.agentId,
-      table.userId,
-    ),
-  }),
-);
-
 export const paperSubmissions = pgTable(
   'paper_submissions',
   {

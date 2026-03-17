@@ -50,7 +50,6 @@ async function main() {
     'remix_events',
     'research_exports',
     'credit_transactions',
-    'free_bout_pool',
   ];
 
   console.log('Tables to TRUNCATE:');
@@ -114,9 +113,6 @@ async function main() {
 
   await db.execute(sql`TRUNCATE TABLE credit_transactions CASCADE`);
   console.log('  ✓ credit_transactions');
-
-  await db.execute(sql`TRUNCATE TABLE free_bout_pool CASCADE`);
-  console.log('  ✓ free_bout_pool');
 
   console.log('');
 

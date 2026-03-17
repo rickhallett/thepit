@@ -178,34 +178,7 @@ func checkStuckBouts(cfg *config.Config) alert.Check {
 	return alert.Check{Name: "Stuck Bouts", Level: alert.LevelOK, Message: "none"}
 }
 
-func checkFreeBoutPool(cfg *config.Config) alert.Check {
-	conn, err := db.Connect(cfg.DatabaseURL)
-	if err != nil {
-		return alert.Check{Name: "Free Bout Pool", Level: alert.LevelCrit, Message: "db unavailable"}
-	}
-	defer conn.Close()
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	today := time.Now().Format("2006-01-02")
-	var poolUsed, poolMax int64
-	err = conn.DB.QueryRowContext(ctx,
-		`SELECT COALESCE(used, 0), COALESCE(max_daily, 500) FROM free_bout_pool WHERE date = $1`, today).Scan(&poolUsed, &poolMax)
-	if err != nil {
-		poolMax = 500
-		poolUsed = 0
-	}
-
-	remaining := poolMax - poolUsed
-	pctRemaining := float64(remaining) / float64(poolMax) * 100
-
-	msg := fmt.Sprintf("%d/%d remaining (%.0f%%)", remaining, poolMax, pctRemaining)
-	if pctRemaining < 5 {
-		return alert.Check{Name: "Free Bout Pool", Level: alert.LevelCrit, Message: msg}
-	}
-	if pctRemaining < 15 {
-		return alert.Check{Name: "Free Bout Pool", Level: alert.LevelWarn, Message: msg}
-	}
-	return alert.Check{Name: "Free Bout Pool", Level: alert.LevelOK, Message: msg}
+func checkFreeBoutPool(_ *config.Config) alert.Check {
+	// Free bout pool table was removed (RD-022). Always OK.
+	return alert.Check{Name: "Free Bout Pool", Level: alert.LevelOK, Message: "removed"}
 }

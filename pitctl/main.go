@@ -207,7 +207,6 @@ func runAgents(cfg *config.Config, args []string, confirmed bool) {
 	default:
 		opts := cmd.AgentsListOpts{
 			Archived: hasFlag(args, "--archived"),
-			Flagged:  hasFlag(args, "--flagged"),
 		}
 		if l := flagVal(args, "--limit"); l != "" {
 			opts.Limit, _ = strconv.Atoi(l)

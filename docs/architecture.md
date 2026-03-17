@@ -29,8 +29,6 @@ Client parsing happens in `lib/use-bout.ts` with `parseJsonEventStream`.
 - `reactions` + `winner_votes` — audience engagement (deduped)
 - `users` — Clerk user mirror, subscription tier, stripe customer
 - `newsletter_signups` — email list
-- `free_bout_pool` — daily free bout cap
-- `agent_flags` — community moderation
 - `paper_submissions` — arXiv paper submissions for research curation
 - `feature_requests` + `feature_request_votes` — community feature voting
 - `page_views` — server-side analytics (path, session, UTM, geo)

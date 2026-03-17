@@ -18,7 +18,6 @@ import (
 // AgentsListOpts configures the agents list command.
 type AgentsListOpts struct {
 	Archived bool
-	Flagged  bool
 	Limit    int
 }
 
@@ -40,28 +39,15 @@ func RunAgentsList(cfg *config.Config, opts AgentsListOpts) error {
 	var query string
 	var args []interface{}
 
-	if opts.Flagged {
+	if opts.Archived {
 		query = `
-			SELECT a.id, a.name, a.tier, a.archived, COUNT(f.id) as flags, a.created_at
-			FROM agents a
-			INNER JOIN agent_flags f ON f.agent_id = a.id
-			GROUP BY a.id, a.name, a.tier, a.archived, a.created_at
-			ORDER BY flags DESC
-			LIMIT $1`
-		args = []interface{}{opts.Limit}
-	} else if opts.Archived {
-		query = `
-			SELECT a.id, a.name, a.tier, a.archived,
-			       (SELECT COUNT(*) FROM agent_flags f WHERE f.agent_id = a.id) as flags,
-			       a.created_at
+			SELECT a.id, a.name, a.tier, a.archived, a.created_at
 			FROM agents a WHERE a.archived = true
 			ORDER BY a.created_at DESC LIMIT $1`
 		args = []interface{}{opts.Limit}
 	} else {
 		query = `
-			SELECT a.id, a.name, a.tier, a.archived,
-			       (SELECT COUNT(*) FROM agent_flags f WHERE f.agent_id = a.id) as flags,
-			       a.created_at
+			SELECT a.id, a.name, a.tier, a.archived, a.created_at
 			FROM agents a WHERE a.archived = false
 			ORDER BY a.created_at DESC LIMIT $1`
 		args = []interface{}{opts.Limit}
@@ -74,9 +60,7 @@ func RunAgentsList(cfg *config.Config, opts AgentsListOpts) error {
 	defer rows.Close()
 
 	heading := "agents"
-	if opts.Flagged {
-		heading = "flagged agents"
-	} else if opts.Archived {
+	if opts.Archived {
 		heading = "archived agents"
 	}
 
@@ -88,10 +72,9 @@ func RunAgentsList(cfg *config.Config, opts AgentsListOpts) error {
 	for rows.Next() {
 		var id, name, tier string
 		var archived bool
-		var flags int64
 		var createdAt time.Time
 
-		if err := rows.Scan(&id, &name, &tier, &archived, &flags, &createdAt); err != nil {
+		if err := rows.Scan(&id, &name, &tier, &archived, &createdAt); err != nil {
 			return err
 		}
 
@@ -105,7 +88,6 @@ func RunAgentsList(cfg *config.Config, opts AgentsListOpts) error {
 			truncStr(name, 20),
 			tier,
 			archStr,
-			fmt.Sprintf("%d", flags),
 			format.Date(createdAt),
 		})
 	}
@@ -119,7 +101,7 @@ func RunAgentsList(cfg *config.Config, opts AgentsListOpts) error {
 	t := table.New().
 		Border(lipgloss.RoundedBorder()).
 		BorderStyle(theme.BorderStyle()).
-		Headers("ID", "Name", "Tier", "Archived", "Flags", "Created").
+		Headers("ID", "Name", "Tier", "Archived", "Created").
 		Rows(tableRows...).
 		StyleFunc(func(row, col int) lipgloss.Style {
 			base := lipgloss.NewStyle().Padding(0, 1)
@@ -133,8 +115,6 @@ func RunAgentsList(cfg *config.Config, opts AgentsListOpts) error {
 				return base.Foreground(theme.ColorCyan)
 			case 2:
 				return base.Foreground(theme.ColorPurple)
-			case 4:
-				return base.Foreground(theme.ColorFg).Align(lipgloss.Right)
 			default:
 				return base.Foreground(theme.ColorFg)
 			}
@@ -175,10 +155,6 @@ func RunAgentsInspect(cfg *config.Config, agentID string) error {
 		return err
 	}
 
-	// Flag count.
-	var flagCount int64
-	conn.QueryVal(ctx, &flagCount, `SELECT COUNT(*) FROM agent_flags WHERE agent_id = $1`, agentID)
-
 	// Bout appearances.
 	var boutCount int64
 	conn.QueryVal(ctx, &boutCount,
@@ -199,7 +175,6 @@ func RunAgentsInspect(cfg *config.Config, agentID string) error {
 	kv("Owner", nullStr(ownerID))
 	kv("Parent", nullStr(parentID))
 	kv("Archived", fmt.Sprintf("%v", archived))
-	kv("Flags", format.Num(flagCount))
 	kv("Bout Appearances", format.Num(boutCount))
 	kv("Prompt Hash", promptHash)
 	kv("Manifest Hash", manifestHash)
