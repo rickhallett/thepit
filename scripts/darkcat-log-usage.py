@@ -15,8 +15,24 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 from datetime import datetime, timezone
+
+
+def get_repo_root() -> str:
+    """Resolve the git repo root so the TSV lands in the right place regardless of worktree."""
+    try:
+        # In a worktree, 'git rev-parse --path-format=absolute --git-common-dir'
+        # points to the main repo's .git, which is one level up from the root.
+        common = subprocess.check_output(
+            ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            text=True,
+        ).strip()
+        # common is /path/to/repo/.git - parent is the repo root
+        return os.path.dirname(common)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return os.getcwd()
 
 
 def extract_findings_verdict(text: str) -> tuple[str, str]:
@@ -44,9 +60,15 @@ def main() -> None:
     parser.add_argument("--tree", required=True, help="Git tree hash")
     parser.add_argument("--pr", default="", help="PR number (optional)")
     parser.add_argument(
-        "--tsv", default="data/darkcat-usage.tsv", help="TSV output path"
+        "--tsv",
+        default=None,
+        help="TSV output path (default: <repo-root>/data/darkcat-usage.tsv)",
     )
     args = parser.parse_args()
+
+    # Resolve TSV path relative to repo root, not cwd (worktree-safe)
+    if args.tsv is None:
+        args.tsv = os.path.join(get_repo_root(), "data", "darkcat-usage.tsv")
 
     with open(args.json_file) as f:
         data = json.load(f)
