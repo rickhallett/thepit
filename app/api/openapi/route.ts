@@ -13,7 +13,7 @@ import { withLogging } from '@/lib/api-logging';
 const RATE_LIMIT = { name: 'openapi', maxRequests: 10, windowMs: 60_000 };
 
 async function rawGET(req: Request) {
-  const rateCheck = checkRateLimit(RATE_LIMIT, getClientIdentifier(req));
+  const rateCheck = await checkRateLimit(RATE_LIMIT, getClientIdentifier(req));
   if (!rateCheck.success) {
     return rateLimitResponse(rateCheck);
   }

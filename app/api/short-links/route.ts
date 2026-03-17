@@ -8,7 +8,7 @@ import { shortLinkSchema } from '@/lib/api-schemas';
 export const runtime = 'nodejs';
 
 export const POST = withLogging(async function POST(req: Request) {
-  const rateCheck = checkRateLimit(
+  const rateCheck = await checkRateLimit(
     { name: 'short-links', maxRequests: 30, windowMs: 60 * 1000 },
     getClientIdentifier(req),
   );

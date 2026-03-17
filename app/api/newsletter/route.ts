@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 
 export const POST = withLogging(async function POST(req: Request) {
   const clientId = getClientIdentifier(req);
-  const rateCheck = checkRateLimit(
+  const rateCheck = await checkRateLimit(
     { name: 'newsletter', maxRequests: 5, windowMs: 60 * 60 * 1000 },
     clientId,
   );

@@ -38,7 +38,7 @@ export const POST = withLogging(async function POST(req: Request) {
     }
   }
 
-  const rateCheck = checkRateLimit(RATE_LIMIT, userId);
+  const rateCheck = await checkRateLimit(RATE_LIMIT, userId);
   if (!rateCheck.success) {
     return rateLimitResponse(rateCheck);
   }

@@ -68,7 +68,7 @@ async function rawPOST(req: Request) {
   }
 
   const clientId = getClientIdentifier(req);
-  const rateCheck = checkRateLimit(
+  const rateCheck = await checkRateLimit(
     { name: 'ask-the-pit', maxRequests: 5, windowMs: 60 * 1000 },
     clientId,
   );

@@ -22,7 +22,7 @@ const RATE_LIMIT_CONFIG: RateLimitConfig = {
 
 export const POST = withLogging(async function POST(req: Request) {
   const clientId = getClientIdentifier(req);
-  const rateLimit = checkRateLimit(RATE_LIMIT_CONFIG, clientId);
+  const rateLimit = await checkRateLimit(RATE_LIMIT_CONFIG, clientId);
 
   if (!rateLimit.success) {
     return rateLimitResponse(rateLimit);
