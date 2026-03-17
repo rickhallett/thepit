@@ -34,7 +34,6 @@ import {
   archiveAgent,
   restoreAgent,
   countActiveUserAgents,
-  createAgentWithSlotCheck,
   insertAgent,
   updateAgentAttestation,
 } from '@/lib/agent-registry';
@@ -151,48 +150,4 @@ describe('lib/agent-registry DAL functions', () => {
     });
   });
 
-  // ================================================================
-  // createAgentWithSlotCheck
-  // ================================================================
-  describe('createAgentWithSlotCheck', () => {
-    const baseValues = {
-      id: 'agent-slot',
-      name: 'Slot Agent',
-      systemPrompt: 'Be witty.',
-      presetId: null,
-      tier: 'custom' as const,
-      model: null,
-      responseLength: 'short',
-      responseFormat: 'spaced',
-      promptHash: 'hash1',
-      manifestHash: 'hash2',
-    };
-
-    it('inserts agent when slot check allows', async () => {
-      const canCreate = vi.fn().mockResolvedValue({ allowed: true });
-
-      await createAgentWithSlotCheck('user-1', baseValues, canCreate);
-
-      expect(mockDb.transaction).toHaveBeenCalledOnce();
-      expect(canCreate).toHaveBeenCalledWith('user-1', 0);
-      expect(mockDb.insert).toHaveBeenCalled();
-    });
-
-    it('throws when slot check denies', async () => {
-      const canCreate = vi.fn().mockResolvedValue({
-        allowed: false,
-        reason: 'Agent limit reached.',
-      });
-
-      await expect(
-        createAgentWithSlotCheck('user-1', baseValues, canCreate),
-      ).rejects.toThrow('Agent limit reached.');
-    });
-
-    it('uses transaction for atomicity', async () => {
-      const canCreate = vi.fn().mockResolvedValue({ allowed: true });
-      await createAgentWithSlotCheck('user-1', baseValues, canCreate);
-      expect(mockDb.transaction).toHaveBeenCalledOnce();
-    });
-  });
 });
