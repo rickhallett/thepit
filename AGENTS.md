@@ -288,6 +288,7 @@ last_known_position: <last completed task>
 | Janitor | hygiene, refactoring |
 | Analyst | research, prior art, landscape analysis |
 | AnotherPair | subtle process observation, slop detection |
+| Walkthrough | production verification, deployment visual QA |
 
 Agent files: `.opencode/agents/{role}.md` (canonical). `.claude/agents/` contains symlinks for harness compat.
 

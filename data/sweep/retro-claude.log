@@ -1,0 +1,206 @@
+Now I have the context I need. Here is my full adversarial review.
+
+---
+
+```
+RANGE: 130fe06..38953e3
+FILES: 107 files changed
+
+## Findings
+
+### [SEVERITY: critical] bout-sweep refund reversal is not atomic - unconditional status reset
+File: lib/bout-sweep.ts:126-132
+Pattern: WD-LRT (Looks Right Trap)
+What: When applyCreditDelta throws, the bout status is reset to 'running' with WHERE that only checks bout ID, not current status.
+Why: A concurrent sweep that claimed the same bout between the refund failure and the reset would have its work undone. The unconditional UPDATE breaks the atomic claim guarantee established by the RETURNING pattern at line 62-74.
+Fix: Change `.where(eq(bouts.id, bout.id))` to `.where(and(eq(bouts.id, bout.id), eq(bouts.status, 'error')))`.
+
+### [SEVERITY: major] bout-sweep infinite retry loop on persistent refund failure
+File: lib/bout-sweep.ts:107-147
+Pattern: structural
+What: When applyCreditDelta consistently throws (e.g., corrupted credit account), the bout is reset to 'running', the next sweep picks it up, fails again, resets again - indefinitely.
+Why: No circuit breaker, retry counter, or escalation path. Each sweep invocation burns DB queries and log entries without progress. The bout never reaches a terminal state.
+Fix: After N consecutive failures (trackable via metadata or a retry_count column), leave the bout in 'error' status and flag for manual review instead of resetting to 'running'.
+
+### [SEVERITY: major] bout-sweep SELECT has no LIMIT clause
+File: lib/bout-sweep.ts:43-51
+Pattern: structural
+What: The initial query `db.select().from(bouts).where(...)` loads all stuck bouts into memory without a LIMIT.
+Why: A cascade failure (widespread serverless timeout) could leave thousands of bouts stuck. Loading them all into memory risks OOM in a serverless function, and sequential processing risks function timeout before completing any refunds.
+Fix: Add `.limit(100)` or paginate. The endpoint is designed to be called repeatedly (cron), so bounded batches are safer.
+
+### [SEVERITY: major] bout-validation.ts imports unused symbols from ai and presets
+File: lib/bout-validation.ts:21-26
+Pattern: WD-DC (Dead Code)
+What: `getModel`, `getInputTokenBudget`, and `DEFAULT_AGENT_COLOR` are imported but never referenced in bout-validation.ts. They belong in bout-execution.ts.
+Why: Dead imports increase bundle size and create false dependency signals. A developer reading this file assumes these are used in validation logic. TypeScript won't catch this since they're valid exports.
+Fix: Remove the three unused imports from bout-validation.ts.
+
+### [SEVERITY: major] billing.ts handleSubscriptionUpdated: old tier read is not transactional with tier write
+File: lib/billing.ts:199-248
+Pattern: structural (TOCTOU)
+What: The old tier is read from the users table (line 212-217), then the new tier is written (line 221-230), then credits are granted based on the delta. These three operations are not in a transaction.
+Why: Two concurrent subscription.updated events (e.g., rapid free->pass then pass->lab) can both read old tier as 'free', both grant full credits from free, missing the incremental pass->lab delta. The referenceId includes the old tier so idempotency guards don't prevent this - the two events have different referenceIds.
+Fix: Wrap lines 212-260 in a db.transaction() to ensure the old tier read and the new tier write are atomic.
+
+### [SEVERITY: minor] bout-execution.ts transcript truncation floor is 1 entry
+File: lib/bout-execution.ts:612-620
+Pattern: WD-PG (Paper Guardrail)
+What: The while loop `transcriptForLog.length > 1` never reduces below 1 entry. A single transcript entry exceeding 100KB (e.g., very long LLM response) will still be logged to Sentry at full size.
+Why: Sentry caps event payloads at ~200KB. A single 150KB transcript entry would exceed the Sentry limit and be silently dropped, defeating the recovery mechanism this code exists to provide.
+Fix: After the loop, check if the remaining entry exceeds the budget. If so, truncate the text field of the last entry to fit, with a `[truncated]` marker.
+
+### [SEVERITY: minor] bout-execution.ts completion retry uses fixed 500ms sleep
+File: lib/bout-execution.ts:650
+Pattern: structural
+What: `await new Promise((resolve) => setTimeout(resolve, 500));` adds 500ms to the error path unconditionally.
+Why: In a serverless function approaching its timeout, this 500ms delay is wasted and could push the function past timeout before the retry attempt. The retry then fails with a timeout error instead of the DB error.
+Fix: Consider exponential backoff starting at 100ms, or skip the delay entirely since the transient condition (e.g., Neon cold start) is often resolved by the time the JS event loop processes the next tick.
+
+### [SEVERITY: minor] cache.ts - leaderboard data loses Date type fidelity through JSON round-trip
+File: lib/cache.ts + lib/leaderboard.ts
+Pattern: WD-SH (Semantic Hallucination)
+What: LeaderboardData stored via cacheSet undergoes JSON.stringify/parse. Any Date objects in the data become ISO strings after deserialization.
+Why: If LeaderboardData contains Date values (e.g., from `createdAt` columns), consumers receiving cached data will get strings where they expect Date objects, causing `.toISOString()` calls to throw.
+Fix: Verify LeaderboardData contains no Date fields, or add reviver logic to cacheGet for known date fields.
+
+## Anti-Pattern Checklist
+
+| ID | Verdict |
+|----|---------|
+| right-answer-wrong-work | NOT FOUND |
+| phantom-ledger | NOT FOUND - credit ledger entries match operations correctly |
+| shadow-validation | NOT FOUND |
+| error-string-archaeology | NOT FOUND |
+| half-life-clock-skew | NOT FOUND - intro pool uses SQL EXTRACT EPOCH consistently |
+| mock-castle | NOT FOUND - test mock scaffolding is proportional to assertions |
+| phantom-tollbooth | NOT FOUND |
+| schema-shadow | NOT FOUND |
+| confessional-test | NOT FOUND |
+| cost-margin-asymmetry | NOT FOUND |
+| paper-guardrail | FOUND - transcript truncation floor (see finding above) |
+| stale-reference-propagation | NOT FOUND |
+| loom-speed | NOT FOUND |
+
+## Summary
+
+Findings: 8 (critical: 1, major: 4, minor: 3)
+Verdict: PASS WITH FINDINGS
+```
+
+```yaml
+review:
+  model: "claude-opus-4-6"
+  date: "2026-03-17"
+  scope: "130fe06..38953e3 (RD-001 through RD-025)"
+
+findings:
+  - id: F-001
+    file: "lib/bout-sweep.ts"
+    line: "126-132"
+    severity: critical
+    watchdog: WD-LRT
+    slopodar: none
+    title: "Refund reversal reset is unconditional - breaks atomic claim"
+    description: >
+      When applyCreditDelta throws, the bout status is reset to 'running'
+      with WHERE clause checking only bout ID, not current status. This
+      breaks the atomic claim guarantee: a concurrent sweep could have
+      already re-claimed the bout between the refund failure and the reset.
+    recommendation: "Add eq(bouts.status, 'error') to the WHERE clause on the reversal UPDATE"
+
+  - id: F-002
+    file: "lib/bout-sweep.ts"
+    line: "107-147"
+    severity: high
+    watchdog: none
+    slopodar: none
+    title: "No circuit breaker on persistent refund failure - infinite retry loop"
+    description: >
+      When applyCreditDelta consistently throws for a specific bout (e.g.
+      corrupted credit account), the bout is reset to 'running' on each
+      sweep invocation, picked up again, fails again, resets again. No
+      retry limit or escalation path exists.
+    recommendation: "After N failures, leave bout in 'error' and flag for manual review"
+
+  - id: F-003
+    file: "lib/bout-sweep.ts"
+    line: "43-51"
+    severity: high
+    watchdog: none
+    slopodar: none
+    title: "Stuck bouts SELECT has no LIMIT - unbounded memory and time"
+    description: >
+      The initial query loads all stuck bouts into memory without a LIMIT.
+      A cascade failure could leave thousands of bouts stuck. Loading and
+      processing them all risks OOM and function timeout.
+    recommendation: "Add .limit(100) and rely on repeated cron invocations for full coverage"
+
+  - id: F-004
+    file: "lib/bout-validation.ts"
+    line: "21-26"
+    severity: high
+    watchdog: WD-DC
+    slopodar: none
+    title: "Dead imports: getModel, getInputTokenBudget, DEFAULT_AGENT_COLOR"
+    description: >
+      Three symbols imported from @/lib/ai and @/lib/presets are never
+      referenced in bout-validation.ts. They are used only in
+      bout-execution.ts. The imports survived the bout-engine decomposition.
+    recommendation: "Remove the three unused imports"
+
+  - id: F-005
+    file: "lib/billing.ts"
+    line: "199-248"
+    severity: high
+    watchdog: none
+    slopodar: none
+    title: "TOCTOU on old tier read in handleSubscriptionUpdated"
+    description: >
+      Old tier is read, new tier is written, then credits are granted based
+      on the delta - all outside a transaction. Two concurrent events can
+      both read the same old tier and both grant full upgrade credits.
+      Pre-existing issue moved from webhook handler, not a regression.
+    recommendation: "Wrap the read-update-grant sequence in db.transaction()"
+
+  - id: F-006
+    file: "lib/bout-execution.ts"
+    line: "612-620"
+    severity: medium
+    watchdog: WD-PG
+    slopodar: paper-guardrail
+    title: "Transcript truncation floor allows oversized single entry"
+    description: >
+      The while loop condition (length > 1) never reduces below one entry.
+      A single transcript entry exceeding 100KB will be logged to Sentry
+      at full size, potentially exceeding the 200KB event limit and
+      silently dropping the recovery data.
+    recommendation: "Truncate the text field of the last entry if it exceeds budget"
+
+  - id: F-007
+    file: "lib/bout-execution.ts"
+    line: "650"
+    severity: low
+    watchdog: none
+    slopodar: none
+    title: "Fixed 500ms sleep before DB retry in serverless context"
+    description: >
+      The completion retry path unconditionally waits 500ms. Near a
+      serverless function timeout, this delay could push the retry
+      attempt past the function's execution limit.
+    recommendation: "Reduce to 100ms or remove delay entirely"
+
+  - id: F-008
+    file: "lib/cache.ts"
+    line: "n/a"
+    severity: low
+    watchdog: WD-SH
+    slopodar: none
+    title: "JSON round-trip may lose Date type fidelity for cached data"
+    description: >
+      Data stored via cacheSet undergoes JSON.stringify/parse. Date objects
+      become ISO strings after deserialization. If any cached data (e.g.
+      LeaderboardData) contains Date fields, consumers will get strings
+      where they expect Date objects.
+    recommendation: "Verify LeaderboardData contains no Date fields or add reviver"
+```
