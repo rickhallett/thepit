@@ -24,4 +24,6 @@ export {
 
 export {
   executeBout,
+  type BoutCompletionEvent,
+  type OnBoutCompleted,
 } from './bout-execution';

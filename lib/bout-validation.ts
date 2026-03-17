@@ -55,6 +55,7 @@ import { UNSAFE_PATTERN } from '@/lib/validation';
 import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { getRequestId } from '@/lib/request-context';
 import type { PromptHook, ScriptedTurn } from '@/lib/experiment';
+import type { OnBoutCompleted } from './bout-execution';
 
 // ─── Prompt caching ──────────────────────────────────────────────────
 
@@ -112,6 +113,9 @@ export type BoutContext = {
   promptHook?: PromptHook;
   /** Pre-scripted turns that bypass the LLM call. Research API only. */
   scriptedTurns?: Map<number, ScriptedTurn>;
+  // ─── Post-completion hook (optional) ────────────────────────────
+  /** Callback invoked after bout completion DB write. Advisory - errors are caught and logged. */
+  onBoutCompleted?: OnBoutCompleted;
 };
 
 /** Result returned by executeBout after all turns complete. */
