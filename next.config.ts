@@ -31,7 +31,7 @@ const cspDirectives = [
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: ${clerkImgDomains}`,
   "font-src 'self' data: https://fonts.scalar.com",
-  `connect-src 'self' ${clerkDomains} ${turnstileDomains} ${posthogDomains} https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com`,
+  `connect-src 'self' ${clerkDomains} ${turnstileDomains} ${posthogDomains} https://clerk-telemetry.com https://*.ingest.us.sentry.io https://*.sentry.io https://vitals.vercel-insights.com https://checkout.stripe.com https://billing.stripe.com`,
   `frame-src 'self' https://checkout.stripe.com ${clerkDomains} ${turnstileDomains} https://www.youtube-nocookie.com`,
   "worker-src 'self' blob:",
   "object-src 'none'",
