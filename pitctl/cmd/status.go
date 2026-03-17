@@ -52,24 +52,6 @@ func RunStatus(cfg *config.Config) error {
 		fmt.Sprintf("  %-20s %s", theme.Muted.Render("BYOK"), enabledStr(cfg.IsEnabled("BYOK_ENABLED"))),
 	}
 
-	// Free bout pool.
-	var poolUsed, poolMax int64
-	today := time.Now().Format("2006-01-02")
-	err = conn.DB.QueryRowContext(ctx,
-		`SELECT COALESCE(used, 0), COALESCE(max_daily, 500) FROM free_bout_pool WHERE date = $1`, today).Scan(&poolUsed, &poolMax)
-	if err != nil {
-		// No pool entry for today — show full pool.
-		poolMax = 500
-		if m := cfg.Get("FREE_BOUT_POOL_MAX"); m != "" {
-			fmt.Sscanf(m, "%d", &poolMax)
-		}
-		poolUsed = 0
-	}
-	remaining := poolMax - poolUsed
-	lines = append(lines, fmt.Sprintf("  %-20s %s",
-		theme.Muted.Render("Free Bout Pool"),
-		theme.Value.Render(fmt.Sprintf("%s / %s remaining today", format.Num(remaining), format.Num(poolMax)))))
-
 	for _, l := range lines {
 		fmt.Println(l)
 	}
@@ -114,15 +96,13 @@ func RunStatus(cfg *config.Config) error {
 	}
 
 	// Agent stats.
-	var totalAgents, freeAgents, premiumAgents, customAgents, archivedAgents, flaggedAgents int64
+	var totalAgents, freeAgents, premiumAgents, customAgents, archivedAgents int64
 
 	queryWarn(ctx, conn, &totalAgents, `SELECT COUNT(*) FROM agents`)
 	queryWarn(ctx, conn, &freeAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'free' AND NOT archived`)
 	queryWarn(ctx, conn, &premiumAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'premium' AND NOT archived`)
 	queryWarn(ctx, conn, &customAgents, `SELECT COUNT(*) FROM agents WHERE tier = 'custom' AND NOT archived`)
 	queryWarn(ctx, conn, &archivedAgents, `SELECT COUNT(*) FROM agents WHERE archived`)
-	queryWarn(ctx, conn, &flaggedAgents,
-		`SELECT COUNT(DISTINCT agent_id) FROM agent_flags`)
 
 	agentRows := [][]string{
 		{"Total", format.Num(totalAgents)},
@@ -130,7 +110,6 @@ func RunStatus(cfg *config.Config) error {
 		{"Premium", format.Num(premiumAgents)},
 		{"Custom", format.Num(customAgents)},
 		{"Archived", format.Num(archivedAgents)},
-		{"Flagged", format.Num(flaggedAgents)},
 	}
 
 	// Render tables side by side.

@@ -202,26 +202,6 @@ export const contactSubmissions = pgTable("contact_submissions", {
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 });
 
-export const agentFlags = pgTable("agent_flags", {
-	id: serial().primaryKey().notNull(),
-	agentId: varchar("agent_id", { length: 128 }).notNull(),
-	userId: varchar("user_id", { length: 128 }).notNull(),
-	reason: varchar({ length: 32 }).notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	uniqueIndex("agent_flags_unique").using("btree", table.agentId.asc().nullsLast().op("text_ops"), table.userId.asc().nullsLast().op("text_ops")),
-]);
-
-export const freeBoutPool = pgTable("free_bout_pool", {
-	id: serial().primaryKey().notNull(),
-	date: varchar({ length: 10 }).notNull(),
-	used: integer().default(0).notNull(),
-	maxDaily: integer("max_daily").notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-}, (table) => [
-	uniqueIndex("free_bout_pool_date_idx").using("btree", table.date.asc().nullsLast().op("text_ops")),
-]);
-
 export const bouts = pgTable("bouts", {
 	id: varchar({ length: 21 }).primaryKey().notNull(),
 	presetId: varchar("preset_id", { length: 64 }).notNull(),
