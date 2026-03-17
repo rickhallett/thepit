@@ -13,8 +13,9 @@ const require = createRequire(import.meta.url);
 // api.stripe.com) are omitted since CSP only governs the browser.
 //
 // Clerk domains: production uses clerk.thepit.cloud (Frontend API) and
-// accounts.thepit.cloud (account portal).
-const clerkDomains = 'https://clerk.thepit.cloud https://accounts.thepit.cloud';
+// accounts.thepit.cloud (account portal). The wildcard covers Clerk's
+// dev/test instances (e.g. *.clerk.accounts.dev) used on preview deploys.
+const clerkDomains = 'https://clerk.thepit.cloud https://accounts.thepit.cloud https://*.clerk.accounts.dev';
 const clerkImgDomains = 'https://img.clerk.com https://images.clerk.dev https://images.clerk.com';
 // Clerk uses Cloudflare Turnstile for bot protection on sign-up/sign-in.
 // The widget loads scripts and iframes from challenges.cloudflare.com.
