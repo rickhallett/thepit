@@ -21,37 +21,48 @@ import { resolveClientIp } from '@/lib/ip';
 // Distributed (Upstash Redis) rate limiter
 // ---------------------------------------------------------------------------
 
-/** One Ratelimit instance per config name, each with its own window/limit. */
+/**
+ * One Ratelimit instance per unique (name, maxRequests, windowMs) tuple.
+ * The cache key includes limit parameters because the same config name
+ * (e.g. 'bout-creation') may be called with different maxRequests per
+ * tier (anonymous: 2, free: 5, pass: 15). Caching by name alone would
+ * lock in the first-seen limit for all subsequent tiers.
+ */
 const distributedLimiters = new Map<string, Ratelimit>();
 
-let redisAvailable: boolean | null = null;
+/** Shared Redis instance for all limiters. Created once on first use. */
+let sharedRedis: Redis | null = null;
 let redisWarningLogged = false;
+
+function getSharedRedis(): Redis | null {
+  if (sharedRedis) return sharedRedis;
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  sharedRedis = new Redis({ url, token });
+  return sharedRedis;
+}
 
 /**
  * Return an Upstash Ratelimit instance for the given config, or null when
- * Redis env vars are missing. Instances are created lazily and cached.
+ * Redis env vars are missing. Instances are created lazily and cached by
+ * the full config signature (name + maxRequests + windowMs).
  */
 function getDistributedLimiter(config: RateLimitConfig): Ratelimit | null {
-  if (redisAvailable === false) return null;
+  const redis = getSharedRedis();
+  if (!redis) return null;
 
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) {
-    redisAvailable = false;
-    return null;
-  }
-  redisAvailable = true;
-
-  const existing = distributedLimiters.get(config.name);
+  const cacheKey = `${config.name}:${config.maxRequests}:${config.windowMs}`;
+  const existing = distributedLimiters.get(cacheKey);
   if (existing) return existing;
 
   const limiter = new Ratelimit({
-    redis: new Redis({ url, token }),
+    redis,
     limiter: Ratelimit.slidingWindow(config.maxRequests, `${config.windowMs} ms`),
-    prefix: `ratelimit:${config.name}`,
+    prefix: `ratelimit:${config.name}:${config.maxRequests}`,
   });
 
-  distributedLimiters.set(config.name, limiter);
+  distributedLimiters.set(cacheKey, limiter);
   return limiter;
 }
 
