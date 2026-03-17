@@ -201,11 +201,21 @@ all: a1 a2 a3 a4 a5 b1 b2 b3 b4 c1 c2 c3 c4
 
 # DC-1: Claude
 darkcat: setup
-    @echo ">> DC-1 (Claude) - {{ tree }}"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo ">> DC-1 (Claude) - {{ tree }}"
     timeout {{ darkcat_timeout }} claude -p "$(cat {{ darkcat_prompt }})" \
         --allowedTools "Bash(git:*) Read" \
-        > {{ logs_dir }}/dc-{{ tree }}-claude.log 2>&1
-    @echo "  -> {{ logs_dir }}/dc-{{ tree }}-claude.log"
+        --output-format json \
+        > {{ logs_dir }}/dc-{{ tree }}-claude.json 2>&1
+    # Extract review text for .log (attestation, grep, human reading)
+    python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('result',''))" \
+        {{ logs_dir }}/dc-{{ tree }}-claude.json \
+        > {{ logs_dir }}/dc-{{ tree }}-claude.log
+    echo "  -> {{ logs_dir }}/dc-{{ tree }}-claude.log"
+    # Log usage to TSV
+    uv run scripts/darkcat-log-usage.py {{ logs_dir }}/dc-{{ tree }}-claude.json \
+        --model claude --tree {{ tree }}
     grep -E '^[#]{3} \[SEVERITY' {{ logs_dir }}/dc-{{ tree }}-claude.log | sed 's/^[#]*/   /' || true
     grep -E '^(Findings:|Verdict:)' {{ logs_dir }}/dc-{{ tree }}-claude.log | sed 's/^/  /' || true
     {{ pitcommit }} attest dc-claude --tree {{ tree_full }} --log {{ logs_dir }}/dc-{{ tree }}-claude.log
@@ -251,7 +261,13 @@ darkcat-synth harness="claude": setup
         claude)
             timeout {{ darkcat_timeout }} claude -p "$(cat {{ darkcat_synth_prompt }})" \
                 --allowedTools "Bash(git:*) Read" \
-                > {{ logs_dir }}/dc-{{ tree }}-synth.log 2>&1
+                --output-format json \
+                > {{ logs_dir }}/dc-{{ tree }}-synth.json 2>&1
+            python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('result',''))" \
+                {{ logs_dir }}/dc-{{ tree }}-synth.json \
+                > {{ logs_dir }}/dc-{{ tree }}-synth.log
+            uv run scripts/darkcat-log-usage.py {{ logs_dir }}/dc-{{ tree }}-synth.json \
+                --model claude-synth --tree {{ tree }}
             ;;
         codex)
             timeout {{ darkcat_timeout }} codex exec --sandbox read-only \
@@ -273,11 +289,19 @@ darkcat-synth harness="claude": setup
 
 # Review a specific commit (ad-hoc)
 darkcat-ref ref: setup
-    @echo ">> darkcat - {{ ref }}"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo ">> darkcat - {{ ref }}"
     timeout {{ darkcat_timeout }} claude -p "$(cat {{ darkcat_prompt }}) \n\nReview this specific commit: {{ ref }}" \
         --allowedTools "Bash(git:*) Read" \
-        > {{ logs_dir }}/dc-{{ ref }}-claude.log 2>&1
-    @echo "  -> {{ logs_dir }}/dc-{{ ref }}-claude.log"
+        --output-format json \
+        > {{ logs_dir }}/dc-{{ ref }}-claude.json 2>&1
+    python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('result',''))" \
+        {{ logs_dir }}/dc-{{ ref }}-claude.json \
+        > {{ logs_dir }}/dc-{{ ref }}-claude.log
+    echo "  -> {{ logs_dir }}/dc-{{ ref }}-claude.log"
+    uv run scripts/darkcat-log-usage.py {{ logs_dir }}/dc-{{ ref }}-claude.json \
+        --model claude --tree {{ ref }}
     grep -E '^(Findings:|Verdict:|##|###)' {{ logs_dir }}/dc-{{ ref }}-claude.log || true
 
 # ── Gauntlet - Full Verification Pipeline ────────────────────
