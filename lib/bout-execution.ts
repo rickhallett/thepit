@@ -37,6 +37,22 @@ import {
 import type { BoutContext, BoutResult, TurnEvent, ByokKeyData } from './bout-validation';
 import { ANTHROPIC_CACHE_CONTROL, isAnthropicModel, hashUserId } from './bout-validation';
 
+// ─── Post-completion hook types ──────────────────────────────────────
+
+/** Metadata passed to the post-completion hook after a bout finishes. */
+export type BoutCompletionEvent = {
+  boutId: string;
+  presetId: string;
+  ownerId: string | null;
+  transcript: TranscriptEntry[];
+  agentLineup: { id: string; name: string }[] | null;
+  winnerId: string | null;
+  status: 'completed' | 'error';
+};
+
+/** Optional callback invoked after bout completion DB write. */
+export type OnBoutCompleted = (event: BoutCompletionEvent) => void | Promise<void>;
+
 // ─── Phase 2: Execution ──────────────────────────────────────────────
 
 /**
@@ -673,6 +689,25 @@ async function _executeBoutInner(
       }
     }
 
+    // Post-completion hook: notify downstream systems (e.g. tournament brackets).
+    // Called after the DB write succeeds. Errors are caught and logged - the hook
+    // is advisory and must not prevent the bout from completing.
+    if (ctx.onBoutCompleted) {
+      try {
+        await ctx.onBoutCompleted({
+          boutId,
+          presetId,
+          ownerId: userId,
+          transcript,
+          agentLineup: preset.agents.map((a) => ({ id: a.id, name: a.name })),
+          winnerId: null, // winner determined by votes, not engine
+          status: 'completed',
+        });
+      } catch (hookError) {
+        log.error('Post-completion hook failed', toError(hookError), { boutId });
+      }
+    }
+
     const boutDurationMs = Date.now() - boutStartTime;
     log.info('Bout completed', {
       requestId,
@@ -836,6 +871,23 @@ async function _executeBoutInner(
       .update(bouts)
       .set({ status: 'error', transcript, updatedAt: new Date() })
       .where(eq(bouts.id, boutId));
+
+    // Post-completion hook (error path): notify downstream systems of failure.
+    if (ctx.onBoutCompleted) {
+      try {
+        await ctx.onBoutCompleted({
+          boutId,
+          presetId,
+          ownerId: userId,
+          transcript,
+          agentLineup: preset.agents.map((a) => ({ id: a.id, name: a.name })),
+          winnerId: null,
+          status: 'error',
+        });
+      } catch (hookError) {
+        log.error('Post-completion hook failed (error path)', toError(hookError), { boutId });
+      }
+    }
 
     // Error-path credit settlement: refund unused preauth.
     // The preauth already deducted preauthMicro from the user's balance.
