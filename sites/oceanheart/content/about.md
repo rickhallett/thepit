@@ -10,7 +10,9 @@ The psychology turns out to be load-bearing. It directly produced the operator t
 
 ## What I'm building
 
-**[The Pit](https://thepit.cloud)** - a full-stack evaluation platform where AI models compete in structured debate formats with credit-based access and real-time bout streaming. Built in Next.js, TypeScript, Python, and Go with 1,289 tests and a [public repo](https://github.com/rickhallett/thepit). Underneath the product is an agentic engineering layer: 8 specialised agents governed by integration discipline, multi-model adversarial code review, cryptographically attested commits, and operator fatigue monitoring. I govern the process by which their output becomes trustworthy.
+**[The Pit](https://thepit.cloud)** - a full-stack evaluation platform where AI models compete in structured debate formats with credit-based access and real-time bout streaming. Built in Next.js, TypeScript, Python, and Go with 1,500+ tests and a [public repo](https://github.com/rickhallett/thepit). Underneath the product is an agentic engineering layer: 8 specialised agents governed by integration discipline, multi-model adversarial code review, cryptographically attested commits, and operator fatigue monitoring. I govern the process by which their output becomes trustworthy.
+
+**halos** - personal AI infrastructure with fleet management for non-technical users. I provisioned independent AI assistants for family members with calibrated personalities, filesystem-locked governance, and behavioural evaluation before deployment. The [series of posts](/blog/2026-03-18-halos-01-fleet/) documents the architecture: fleet provisioning, personality engines, assessment systems with multi-turn dialogue scenarios, and 8 CLI modules for memory, work tracking, and agent telemetry.
 
 **[The Agentic Engineering Bootcamp](/bootcamp/)** - 51 steps across 5 bootcamps. Self-study material I wrote for myself and am publishing because it might be useful to others. Covers Linux substrate, agentic practices, operational analytics, evaluation/adversarial testing, and agent infrastructure. The material came directly out of the practical problems I hit building The Pit.
 
