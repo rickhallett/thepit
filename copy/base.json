@@ -351,6 +351,10 @@
     ],
     "overflow": [
       {
+        "label": "Devlog",
+        "href": "/devlog"
+      },
+      {
         "label": "Research",
         "href": "/research"
       },
