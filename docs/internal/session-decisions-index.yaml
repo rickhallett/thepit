@@ -8,7 +8,7 @@
 
 generated: "2026-03-16T09:00:00.000Z"
 total_decisions: 328
-range: "SD-001 to SD-328"
+range: "SD-001 to SD-329"
 note: "Chain carries forward from tspit (pilot study). noopit is thepit-v2 - diverged at SD-278."
 
 # Standing orders that carry forward (always active)
@@ -32,7 +32,7 @@ standing_orders:
   - id: SD-286
     label: "slopodar-boot"
     summary: "Slopodar is mandatory reading for all agents on load. 49 entries."
-    status: "STANDING ORDER"
+    status: "SUPERSEDED by SD-329"
   - id: SD-297
     label: "sd-collision-protocol"
     summary: "SD number collisions resolved by forward-ref, not rewrite (SD-266)."
@@ -124,3 +124,7 @@ recent:
     label: "tech-debt-exposure"
     summary: "Technical debt is an ever-present threat to codebase survivability. The Operator needs deeper human exposure to internals. The gap is not manual coding fluency but architectural judgment over 60k+ LOC directed via AI agents. 6-layer review model codified: L1 dependency/boundary, L2 API surface, L3 error paths, L4 state management, L5 change impact, L6 slop detection (structured @slop annotations backreffing slopodar to file/line/commit). This review IS the interview prep. Model: docs/internal/weaver/codebase-review-model.md."
     status: "ACTIVE"
+  - id: SD-329
+    label: "slopodar-to-failure-taxonomy"
+    summary: "The slopodar (49-entry anti-pattern taxonomy) is superseded operationally by the failure_category enum in the product schema (wrong_answer, partial_answer, refusal, off_topic, unsafe_output, hallucination, format_violation, context_misuse, instruction_violation). The slopodar is not deleted - it is historical data and the chain is immutable (SD-266). It was the Operator's organic contact with failure classification that the field is now establishing in more collectively agreeable terms. The product's failure taxonomy is the distillation. Supersedes SD-286 (slopodar mandatory boot read). Agents no longer need to load slopodar.yaml on boot."
+    status: "STANDING"

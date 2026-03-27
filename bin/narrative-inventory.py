@@ -659,9 +659,7 @@ def parse_phasmid(repo_root):
 
 
 def parse_slopodar(repo_root):
-    path = repo_root / "sites/oceanheart/data/slopodar.yaml"
-    if not path.exists():
-        path = repo_root / "slopodar.yaml"
+    path = repo_root / "slopodar.yaml"
     if not path.exists():
         return []
 

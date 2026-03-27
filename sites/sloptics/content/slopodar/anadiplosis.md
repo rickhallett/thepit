@@ -1,4 +1,0 @@
-+++
-title = "Anadiplosis"
-id = "anadiplosis"
-+++

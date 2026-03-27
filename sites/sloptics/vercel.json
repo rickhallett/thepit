@@ -1,7 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "hugo",
-  "buildCommand": "hugo --minify",
-  "outputDirectory": "public",
-  "installCommand": "yum install -y hugo || apt-get install -y hugo || (curl -L https://github.com/gohugoio/hugo/releases/download/v0.147.1/hugo_extended_0.147.1_Linux-64bit.tar.gz | tar -xz -C /usr/local/bin)"
-}

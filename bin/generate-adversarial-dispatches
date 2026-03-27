@@ -7,6 +7,9 @@
 
 Each dispatch file is a self-contained prompt ready to paste into the target model.
 Output: data/alley/bootcamp-adversarial/{model}/prompt-{N}-{name}.md
+
+NOTE: FILE_ACCESS paths reference sites/oceanheart/content/ which was extracted from
+this repo (2026-03-27). Dispatches were already generated - this script is historical.
 """
 
 import os

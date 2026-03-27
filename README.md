@@ -2,13 +2,31 @@
 
 ![CI](https://github.com/rickhallett/thepit/actions/workflows/ci.yml/badge.svg)
 
-A real-time AI debate arena. Language models argue structured debates while the platform generates behavioural data, tracks agent lineage, and lets users vote on outcomes.
+A multi-agent AI evaluation platform. Structured contests between agent configurations with observable traces, explicit scoring, failure tagging, and cost visibility. Built to make agent performance legible, comparable, governable, and economically inspectable.
 
-Users pick debate presets (16 formats), watch agents argue in real-time via SSE, vote on winners, and react to individual turns. Agent cloning, DNA hashing, credit economy, demo mode, BYOK for subscribers.
+Define tasks, run agent configurations against them, evaluate outputs with explicit rubrics, record failures by taxonomy, and inspect cost and latency per run. Real-time streaming via SSE, side-by-side comparisons, trace replay, and audit logs.
 
 **1,289 tests | 96% coverage | TypeScript strict | zero lint errors**
 
 Live at [thepit.cloud](https://thepit.cloud).
+
+## What This Proves
+
+The Pit operates on two layers:
+
+1. **In-product governance** - how agents inside the platform are constrained, evaluated, and compared
+2. **On-product governance** - how development itself is measured, reviewed, and traceable
+
+Seven skill domains demonstrated end-to-end:
+- Specification precision
+- Evaluation and quality judgment
+- Decomposition and orchestration
+- Failure pattern recognition
+- Trust and guardrail design
+- Context architecture
+- Token and cost economics
+
+The development process is itself an instrumented agentic system - spec-first tasks, evaluated changes, failure taxonomy on build, context versioning, and cost logging. Portfolio evidence comes from real traces, not retrospective storytelling.
 
 ## Quick Start
 
@@ -43,6 +61,9 @@ lib/                    Domain modules (flat files: credits.ts, bout-engine.ts, 
 drizzle/                Schema, migrations
 components/             React components (shadcn/ui base)
 tests/                  Unit, integration, API, E2E, and simulation tests
+docs/
+  the-pit-spec.md       Product and portfolio specification
+  the-pit-skills-and-governance-notes.md
 ```
 
 ## Testing
@@ -81,9 +102,13 @@ This repository consolidates three development phases via subtree merge, preserv
 
 **Phase 3 - Validation** (Mar 2026): Cross-model adversarial review, slop failure modes taxonomy (49 entries), container-based agent isolation, and a 12-chapter systems engineering bootcamp.
 
+**Current direction:** Evaluation-first platform. Structured runs with rubric scoring, failure taxonomy, cost accounting, and dual-layer governance (in-product and on-product). MVP target: run two agent configurations against a task, score them, tag failures, report cost, explain why one won.
+
 The agentic infrastructure (adversarial review pipeline, anti-pattern detection, session governance) lives in `docs/internal/` and supporting tooling. The interesting finding: sycophantic drift - agents performing honesty while being dishonest about their confidence - is harder to catch than hallucination, because it passes every surface-level check.
 
 The pilot study (Phase 1-2) has its own repo with [420 PRs of engineering history](https://github.com/rickhallett/thepit-pilot/pulls?q=is%3Apr+is%3Amerged) - review descriptions, adversarial review findings, and the full decision chain.
+
+The Pit is not just an agentic product. It is an instrumented environment for building, evaluating, and demonstrating agentic engineering competence in public.
 
 ## License
 
