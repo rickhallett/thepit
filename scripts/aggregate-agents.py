@@ -4,14 +4,14 @@
 Usage:
     python scripts/aggregate-agents.py
 
-Reads every .md file in .opencode/agents/, orders them by hierarchy,
-and writes .opencode/agents/MASTER.md with a table of contents and
+Reads every .md file in .claude/agents/, orders them by hierarchy,
+and writes .claude/agents/MASTER.md with a table of contents and
 full content separated by horizontal rules.
 """
 
 from pathlib import Path
 
-AGENTS_DIR = Path(__file__).resolve().parent.parent / ".opencode" / "agents"
+AGENTS_DIR = Path(__file__).resolve().parent.parent / ".claude" / "agents"
 OUTPUT = AGENTS_DIR / "MASTER.md"
 
 # Hierarchy order: governance first, then orchestration, builders,
@@ -63,7 +63,7 @@ def main() -> None:
     lines.append("# The Pit — Agent System Reference")
     lines.append("")
     lines.append(f"> Auto-generated from {len(sections)} agent definitions ")
-    lines.append(f"> in `.opencode/agents/`. Do not edit directly — ")
+    lines.append(f"> in `.claude/agents/`. Do not edit directly — ")
     lines.append("> run `python scripts/aggregate-agents.py` to regenerate.")
     lines.append("")
     lines.append("## Table of Contents")

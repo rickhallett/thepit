@@ -367,7 +367,7 @@ items:
 
   - id: yamakazi-pilots
     idea: >-
-      Convert all agent/officer files (.opencode/agents/*.md) from markdown
+      Convert all agent/officer files (.claude/agents/*.md) from markdown
       to YAML. Motivation: collect data on agent metrics as we go, YAML is
       more reliable for structured data + metrics fields. Note: MUST verify
       prompt harness (Claude Code, OpenCode) will load YAML agent files —
