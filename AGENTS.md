@@ -24,6 +24,7 @@ These apply in every session unless the Operator explicitly overrides them.
 - Python uses `uv` exclusively [SD-310]
 - New tasks go through `backlog add "title" --priority P [--epic E] [--tag T]`
 - Notable events append to `docs/internal/events.yaml`
+- Development costs append to `docs/internal/dev-cost-ledger.yaml` per PR or session
 - Commendations append to `docs/internal/weaver/commendations.log`
 - Bad output means diagnose, reset, and rerun. Do not patch around unknown causes
 - One action = one instruction set = one agent

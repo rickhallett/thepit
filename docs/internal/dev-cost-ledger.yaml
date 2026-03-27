@@ -1,0 +1,13 @@
+# Development cost tracking for on-product governance.
+# Updated per PR or per session. Aggregated at phase boundary.
+# This is the evidence for "cost per accepted change" metric.
+# See: docs/specs/on-product-governance.md
+
+entries:
+  - date: "2026-03-27"
+    pr: null
+    milestone: "pre-implementation"
+    agent_minutes: 120
+    model_calls_estimate: 60
+    failures_caught: 7
+    notes: "Spec writing (3 phases), roadmap, reviewer briefing, README rewrite, OpenHands evaluation, 2 rounds adversarial review (7 findings resolved), on-product governance spec"

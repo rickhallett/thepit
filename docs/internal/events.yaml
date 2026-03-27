@@ -92,3 +92,48 @@ events:
     ref: docs/deep-archive/2026-03-27-roadmap-sweep
     summary: "Roadmap-driven Markdown sweep executed. All authored Markdown except the six active files moved into d3 cold storage with source-relative paths preserved under docs/deep-archive/2026-03-27-roadmap-sweep."
     backrefs: [docs/roadmap.md, AGENTS.md, README.md, docs/the-pit-spec.md, docs/the-pit-skills-and-governance-notes.md]
+
+  - date: "2026-03-27"
+    time: "14:30"
+    type: planning
+    agent: Weaver
+    commit: null
+    ref: docs/specs/
+    summary: "Roadmap and implementation specs produced. 3-phase plan (run model, evaluation, cost+UI), 15 milestones, detailed specs per phase with schema definitions, module boundaries, and test prescriptions. Reviewer briefing created for adversarial review prep. README rewritten to align with spec direction."
+    backrefs: [docs/roadmap.md, docs/specs/phase-1-run-model.md, docs/specs/phase-2-evaluation.md, docs/specs/phase-3-cost-and-ui.md, docs/specs/reviewer-briefing.md, README.md]
+
+  - date: "2026-03-27"
+    time: "14:45"
+    type: decision
+    agent: Weaver
+    commit: null
+    ref: null
+    summary: "OpenHands evaluated for The Pit execution layer. Rejected for MVP - abstraction mismatch (coding agent vs evaluation platform), stack mismatch (Python vs TypeScript), heavyweight for prompt-based tasks. Bookmarked for post-MVP tool-using contestant execution via sidecar integration."
+    backrefs: [docs/roadmap.md, docs/the-pit-spec.md]
+
+  - date: "2026-03-27"
+    time: "15:15"
+    type: review
+    agent: Codex
+    commit: null
+    ref: docs/specs/
+    summary: "Cross-model adversarial review of phase 1/2/3 specs. 7 findings (2 blocker, 3 high, 2 medium). All resolved: (1) cost_ledger redesigned with polymorphic sourceType+sourceId for trace/evaluation/summary costs, (2) GET /report made pure assembly - no mutations, evaluation only via explicit POST /evaluate, (3) zombie run sweep added for stale running state, (4) failed runs made evaluable for failure analysis, (5) rubric invariants tightened - unique names, min<max, label range validation, (6) score unit declared as normalized 0..1 throughout, (7) create and execute split into two requests with maxDuration on execute. Reviewer briefing updated to reflect all changes."
+    backrefs: [docs/specs/phase-1-run-model.md, docs/specs/phase-2-evaluation.md, docs/specs/phase-3-cost-and-ui.md, docs/specs/reviewer-briefing.md]
+
+  - date: "2026-03-27"
+    time: "15:45"
+    type: decision
+    agent: Weaver
+    commit: null
+    ref: SD-329
+    summary: "SD-329: slopodar superseded operationally by product failure_category enum. Slopodar preserved as historical data (SD-266 immutability). SD-286 (slopodar mandatory boot read) superseded. On-product governance spec written with per-PR discipline, phase retrospective template, dev cost ledger, and GitHub label scheme. All three phase specs cross-reference the governance track. Cost ledger seeded with pre-implementation session."
+    backrefs: [docs/specs/on-product-governance.md, docs/internal/dev-cost-ledger.yaml, docs/internal/session-decisions-index.yaml, SD-286, SD-266]
+
+  - date: "2026-03-27"
+    time: "16:00"
+    type: decision
+    agent: Weaver
+    commit: null
+    ref: docs/specs/on-product-governance.md
+    summary: "Adversarial review tiered by risk surface. Gate-only for schema/CRUD (6 milestones), single-model for API/UI (7 milestones), full 3-model triangulation for engine milestones (M1.4, M2.2). Evidence: git history shows 0% finding rate on schema PRs, 40%+ on integration code (c8ce063 rate limiter bypass, 2805384 double-refund race + SQL injection, a7e5514 serialization bugs). Tiered spend is itself a demonstration of token cost economics (skill 7) applied to the development process - calibrating verification cost against defect probability rather than applying uniform overhead."
+    backrefs: [docs/specs/on-product-governance.md, SD-329]
