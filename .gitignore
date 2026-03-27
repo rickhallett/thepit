@@ -145,13 +145,7 @@ docs/internal/option-b-analysis.md
 data/sweep/corpus/
 data/sweep/responses/
 
-# Hugo (oceanheart.ai) build artifacts
-sites/oceanheart/public/
-sites/oceanheart/resources/
-sites/oceanheart/.hugo_build.lock
-sites/oceanheart/data/slopodar.yaml
-
-# Hugo root-level pollution (from accidental builds outside sites/oceanheart/)
+# Hugo root-level pollution (from accidental builds)
 /.hugo_build.lock
 /public/categories/
 /public/index.xml

@@ -656,7 +656,6 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 |-- notebooks/                      -- Analysis notebooks
 |-- public/                         -- Next.js static assets
 |-- copy/                           -- Marketing and content copy
-|-- sites/oceanheart/               -- Hugo site (oceanheart.ai CV, about, research)
 |-- .opencode/agents/*.md           -- Agent identity files (canonical copies)
 |-- .claude/agents/*.md             -- Symlinks -> .opencode/agents/ (harness compat)
 |-- .github/workflows/              -- CI workflow (ci.yml)
@@ -664,7 +663,6 @@ You cannot reliably self-detect slop because the same token-prediction mechanism
 |-- docs/                           -- Documentation
 |   |-- decisions/SD-*.md           -- Session-scoped decision files
 |   |-- field-notes/                -- Field observations
-|   |-- bootcamp/                   -- Bootcamp content
 |   |-- diagrams/                   -- Architecture and flow diagrams
 |   |-- spec/                       -- Current-era specs (midgets)
 |   |-- archive/                    -- Pilot-era archived material
