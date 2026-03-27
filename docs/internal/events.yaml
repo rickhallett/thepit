@@ -74,3 +74,21 @@ events:
     ref: docs/internal/weaver/codebase-review-model.md
     summary: "SD-328 tech-debt-exposure. 6-layer codebase review model codified. Supersedes SD-327 interview-prep-pause. The gap is not manual coding fluency but architectural judgment over AI-directed code. Systematic review at multiple zoom levels IS the interview prep. L6 introduces structured @slop annotations backreffing slopodar entries to file/line/commit."
     backrefs: [SD-327, SD-328, slopodar.yaml, watchdog/lessons-learned-blindspots.md]
+
+  - date: "2026-03-27"
+    time: "13:30"
+    type: audit
+    agent: Codex
+    commit: null
+    ref: docs/deep-archive/2026-03-27-roadmap-sweep/docs/internal/audits/markdown-roadmap-audit-2026-03-27.md
+    summary: "Full Markdown audit completed against docs/roadmap.md as the governing filter. Verdict: retain a minimal active surface, deep-archive most historical Markdown, and delete duplicate instruction bundles and low-value generated docs."
+    backrefs: [docs/roadmap.md, docs/the-pit-spec.md, docs/the-pit-skills-and-governance-notes.md, AGENTS.md]
+
+  - date: "2026-03-27"
+    time: "14:05"
+    type: archive
+    agent: Codex
+    commit: null
+    ref: docs/deep-archive/2026-03-27-roadmap-sweep
+    summary: "Roadmap-driven Markdown sweep executed. All authored Markdown except the six active files moved into d3 cold storage with source-relative paths preserved under docs/deep-archive/2026-03-27-roadmap-sweep."
+    backrefs: [docs/roadmap.md, AGENTS.md, README.md, docs/the-pit-spec.md, docs/the-pit-skills-and-governance-notes.md]
