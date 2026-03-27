@@ -5,3 +5,5 @@ export { createRun, getRun, listRuns } from './runs';
 export type { Task, NewTask, ListTasksOptions } from './types';
 export type { Run, NewRun, RunStatus, ListRunsOptions } from './types';
 export type { CreateRunInput } from './runs';
+export { addContestant, getContestantsForRun } from './contestants';
+export type { Contestant, NewContestant, ContextBundleInput } from './types';

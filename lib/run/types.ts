@@ -5,7 +5,8 @@
 // over manual type definitions where possible.
 
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import type { tasks, runs } from '@/db/schema';
+import type { tasks, runs, contestants } from '@/db/schema';
+import type { ContextBundleInput } from '@/db/schema';
 
 /** A task as stored in the database. */
 export type Task = InferSelectModel<typeof tasks>;
@@ -37,3 +38,12 @@ export type ListRunsOptions = {
   limit?: number;
   offset?: number;
 };
+
+/** A contestant as stored in the database. */
+export type Contestant = InferSelectModel<typeof contestants>;
+
+/** Input shape for creating a contestant (Drizzle insert). */
+export type NewContestant = InferInsertModel<typeof contestants>;
+
+// Re-export for consumers
+export type { ContextBundleInput };

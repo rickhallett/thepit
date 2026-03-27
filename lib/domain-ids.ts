@@ -43,6 +43,9 @@ export type TaskId = Brand<string, 'TaskId'>;
 /** Run identifier -- 21-char nanoid (M1.2). */
 export type RunId = Brand<string, 'RunId'>;
 
+/** Contestant identifier -- 21-char nanoid (M1.3). */
+export type ContestantId = Brand<string, 'ContestantId'>;
+
 // ─── Brand constructors ─────────────────────────────────────────────────────
 //
 // These cast raw values to branded types. Use them at trust boundaries:
@@ -83,6 +86,11 @@ export function asTaskId(raw: string): TaskId {
 /** Brand a raw string as a RunId. */
 export function asRunId(raw: string): RunId {
   return raw as RunId;
+}
+
+/** Brand a raw string as a ContestantId. */
+export function asContestantId(raw: string): ContestantId {
+  return raw as ContestantId;
 }
 
 // ─── Type guards ────────────────────────────────────────────────────────────

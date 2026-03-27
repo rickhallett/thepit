@@ -200,3 +200,26 @@ export const createTaskSchema = z.object({
   domain: z.string().max(64, 'Domain must be 64 characters or fewer.').optional(),
 });
 export type CreateTaskBody = z.infer<typeof createTaskSchema>;
+
+// ---------------------------------------------------------------------------
+// Run model -- contestants (M1.3)
+// ---------------------------------------------------------------------------
+
+/** Validation for adding a contestant to a run. */
+export const addContestantSchema = z.object({
+  label: z.string().min(1, 'Contestant label is required.').max(128, 'Label must be 128 characters or fewer.'),
+  model: z.string().min(1, 'Model is required.').max(128, 'Model must be 128 characters or fewer.'),
+  provider: z.enum(['openai', 'anthropic', 'google', 'xai']).optional(),
+  systemPrompt: z.string().optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  maxTokens: z.number().int().positive().optional(),
+  toolAccess: z.array(z.string()).optional(),
+  contextBundle: z.object({
+    documents: z.array(z.object({
+      label: z.string(),
+      content: z.string(),
+      source: z.string().optional(),
+    })).optional(),
+  }).optional(),
+});
+export type AddContestantBody = z.infer<typeof addContestantSchema>;
