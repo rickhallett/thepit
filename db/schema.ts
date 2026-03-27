@@ -513,3 +513,35 @@ export const tasks = pgTable('tasks', {
   domainIdx: index('tasks_domain_idx').on(table.domain),
   createdAtIdx: index('tasks_created_at_idx').on(table.createdAt),
 }));
+
+// ---------------------------------------------------------------------------
+// Run model -- runs (M1.2)
+// ---------------------------------------------------------------------------
+
+export const runStatus = pgEnum('run_status', [
+  'pending', 'running', 'completed', 'failed',
+]);
+
+export const runs = pgTable('runs', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  taskId: varchar('task_id', { length: 21 })
+    .notNull()
+    .references(() => tasks.id),
+  status: runStatus('status').default('pending').notNull(),
+  ownerId: varchar('owner_id', { length: 128 })
+    .references(() => users.id, { onDelete: 'set null' }),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  error: text('error'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  taskIdIdx: index('runs_task_id_idx').on(table.taskId),
+  ownerIdIdx: index('runs_owner_id_idx').on(table.ownerId),
+  statusCreatedIdx: index('runs_status_created_idx').on(table.status, table.createdAt),
+}));
