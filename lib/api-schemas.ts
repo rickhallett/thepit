@@ -184,3 +184,19 @@ export const agentCreateSchema = z.object({
   clientManifestHash: z.string().optional(),
 });
 export type AgentCreateBody = z.infer<typeof agentCreateSchema>;
+
+// ---------------------------------------------------------------------------
+// Run model -- tasks (M1.1)
+// ---------------------------------------------------------------------------
+
+/** POST /api/tasks (future M1.5) -- validated at domain layer for now. */
+export const createTaskSchema = z.object({
+  name: z.string().min(1, 'Task name is required.').max(256, 'Task name must be 256 characters or fewer.'),
+  description: z.string().optional(),
+  prompt: z.string().min(1, 'Task prompt is required.'),
+  constraints: z.array(z.string()).optional(),
+  expectedOutputShape: z.enum(['text', 'json', 'code']).optional(),
+  acceptanceCriteria: z.array(z.string()).optional(),
+  domain: z.string().max(64, 'Domain must be 64 characters or fewer.').optional(),
+});
+export type CreateTaskBody = z.infer<typeof createTaskSchema>;
