@@ -40,6 +40,9 @@ export type MicroCredits = Brand<number, 'MicroCredits'>;
 /** Task identifier -- 21-char nanoid (M1.1). */
 export type TaskId = Brand<string, 'TaskId'>;
 
+/** Run identifier -- 21-char nanoid (M1.2). */
+export type RunId = Brand<string, 'RunId'>;
+
 // ─── Brand constructors ─────────────────────────────────────────────────────
 //
 // These cast raw values to branded types. Use them at trust boundaries:
@@ -75,6 +78,11 @@ export function asMicroCredits(raw: number): MicroCredits {
 /** Brand a raw string as a TaskId. */
 export function asTaskId(raw: string): TaskId {
   return raw as TaskId;
+}
+
+/** Brand a raw string as a RunId. */
+export function asRunId(raw: string): RunId {
+  return raw as RunId;
 }
 
 // ─── Type guards ────────────────────────────────────────────────────────────
