@@ -27,6 +27,7 @@ import {
   boolean,
   integer,
   foreignKey,
+  real,
 } from 'drizzle-orm/pg-core';
 
 export type TranscriptEntry = {
@@ -545,3 +546,37 @@ export const runs = pgTable('runs', {
   ownerIdIdx: index('runs_owner_id_idx').on(table.ownerId),
   statusCreatedIdx: index('runs_status_created_idx').on(table.status, table.createdAt),
 }));
+
+// ---------------------------------------------------------------------------
+// Run model -- contestants (M1.3)
+// ---------------------------------------------------------------------------
+
+export const contestants = pgTable('contestants', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  runId: varchar('run_id', { length: 21 })
+    .notNull()
+    .references(() => runs.id, { onDelete: 'cascade' }),
+  label: varchar('label', { length: 128 }).notNull(),
+  model: varchar('model', { length: 128 }).notNull(),
+  provider: varchar('provider', { length: 64 }),
+  systemPrompt: text('system_prompt'),
+  temperature: real('temperature'),
+  maxTokens: integer('max_tokens'),
+  toolAccess: jsonb('tool_access').$type<string[]>(),
+  contextBundle: jsonb('context_bundle').$type<ContextBundleInput>(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  runIdIdx: index('contestants_run_id_idx').on(table.runId),
+}));
+
+/** Inline context documents for MVP. Post-MVP context layer (Phase 4)
+ *  will introduce proper context bundle tables with provenance. */
+export type ContextBundleInput = {
+  documents?: Array<{
+    label: string;
+    content: string;
+    source?: string;
+  }>;
+};
