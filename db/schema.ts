@@ -482,3 +482,34 @@ export const researchExports = pgTable('research_exports', {
   agentCount: integer('agent_count').notNull(),
   payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// Run model -- tasks (M1.1)
+// ---------------------------------------------------------------------------
+// Coexists alongside the bout model. No FK between runs and bouts.
+// See docs/specs/phase-1-run-model.md for design decisions.
+
+/** Expected output shape for a task. */
+export const expectedOutputShape = pgEnum('expected_output_shape', [
+  'text', 'json', 'code',
+]);
+
+export const tasks = pgTable('tasks', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  name: varchar('name', { length: 256 }).notNull(),
+  description: text('description'),
+  prompt: text('prompt').notNull(),
+  constraints: jsonb('constraints').$type<string[]>(),
+  expectedOutputShape: expectedOutputShape('expected_output_shape'),
+  acceptanceCriteria: jsonb('acceptance_criteria').$type<string[]>(),
+  domain: varchar('domain', { length: 64 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  domainIdx: index('tasks_domain_idx').on(table.domain),
+  createdAtIdx: index('tasks_created_at_idx').on(table.createdAt),
+}));
