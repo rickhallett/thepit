@@ -5,8 +5,8 @@
 // over manual type definitions where possible.
 
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import type { tasks, runs, contestants } from '@/db/schema';
-import type { ContextBundleInput } from '@/db/schema';
+import type { tasks, runs, contestants, traces } from '@/db/schema';
+import type { ContextBundleInput, TraceMessage } from '@/db/schema';
 
 /** A task as stored in the database. */
 export type Task = InferSelectModel<typeof tasks>;
@@ -47,3 +47,16 @@ export type NewContestant = InferInsertModel<typeof contestants>;
 
 // Re-export for consumers
 export type { ContextBundleInput };
+export type { TraceMessage };
+
+/** A trace as stored in the database. */
+export type Trace = InferSelectModel<typeof traces>;
+
+/** Input shape for creating a trace (Drizzle insert). */
+export type NewTrace = InferInsertModel<typeof traces>;
+
+/** A run with its task, contestants, and traces. */
+export type RunWithTraces = Run & {
+  task: Task;
+  contestants: (Contestant & { trace: Trace | null })[];
+};

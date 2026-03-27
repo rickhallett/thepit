@@ -580,3 +580,46 @@ export type ContextBundleInput = {
     source?: string;
   }>;
 };
+
+// ---------------------------------------------------------------------------
+// Run model -- traces (M1.4)
+// ---------------------------------------------------------------------------
+
+export type TraceMessage = {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+};
+
+export const traces = pgTable('traces', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  runId: varchar('run_id', { length: 21 })
+    .notNull()
+    .references(() => runs.id, { onDelete: 'cascade' }),
+  contestantId: varchar('contestant_id', { length: 21 })
+    .notNull()
+    .references(() => contestants.id, { onDelete: 'cascade' }),
+  // Request
+  requestMessages: jsonb('request_messages').$type<TraceMessage[]>().notNull(),
+  requestModel: varchar('request_model', { length: 128 }).notNull(),
+  requestTemperature: real('request_temperature'),
+  // Response
+  responseContent: text('response_content'),
+  responseFinishReason: varchar('response_finish_reason', { length: 32 }),
+  // Metrics
+  inputTokens: integer('input_tokens'),
+  outputTokens: integer('output_tokens'),
+  totalTokens: integer('total_tokens'),
+  latencyMs: integer('latency_ms'),
+  // Status
+  status: varchar('status', { length: 16 }).notNull(),
+  error: text('error'),
+  // Timestamps
+  startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+  completedAt: timestamp('completed_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  runIdIdx: index('traces_run_id_idx').on(table.runId),
+  contestantIdIdx: index('traces_contestant_id_idx').on(table.contestantId),
+}));
