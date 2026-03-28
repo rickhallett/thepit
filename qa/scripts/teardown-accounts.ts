@@ -11,8 +11,8 @@
  */
 
 import { createClerkClient } from '@clerk/backend'
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
+import postgres from 'postgres'
+import { drizzle } from 'drizzle-orm/postgres-js'
 import { eq } from 'drizzle-orm'
 
 import { users, credits } from '../../db/schema.js'
@@ -76,8 +76,8 @@ async function main() {
 
   // Initialize clients
   const clerk = createClerkClient({ secretKey: clerkSecretKey })
-  const sql = neon(databaseUrl)
-  const db = drizzle(sql, { schema: { users, credits } })
+  const client = postgres(databaseUrl, { prepare: false })
+  const db = drizzle(client, { schema: { users, credits } })
 
   let deletedCount = 0
   let notFoundCount = 0

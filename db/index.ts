@@ -1,17 +1,17 @@
-import { Pool } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
 
 import * as schema from './schema';
 
 const connectionString = process.env.DATABASE_URL;
 
-// Use neon-serverless (WebSocket Pool) instead of neon-http to support
-// interactive transactions (db.transaction()). neon-http is stateless and
-// throws "No transactions support in neon-http driver" at runtime.
-// Node 22+ has native WebSocket — no ws polyfill needed.
-export const db = connectionString
-  ? drizzle({ client: new Pool({ connectionString }), schema })
+// postgres-js driver: works with any standard Postgres (Supabase, Neon, etc.).
+// Supports interactive transactions natively. Connection-pooler compatible.
+const client = connectionString
+  ? postgres(connectionString, { prepare: false })
   : null;
+
+export const db = client ? drizzle(client, { schema }) : null;
 
 export function requireDb() {
   if (!db) {
