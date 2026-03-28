@@ -10,8 +10,8 @@
  * WARNING: This is a destructive operation. Use with caution.
  */
 
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import { sql } from 'drizzle-orm';
 
 const INTRO_POOL_CREDITS = 15000;
@@ -37,8 +37,7 @@ async function main() {
   console.log(`Intro pool will be set to: ${INTRO_POOL_CREDITS} credits`);
   console.log('');
 
-  const client = postgres(dbUrl, { prepare: false });
-  const db = drizzle(client);
+  const db = drizzle(neon(dbUrl));
 
   // Tables to truncate (all activity data)
   const tablesToTruncate = [
@@ -120,7 +119,7 @@ async function main() {
   // Reset user free bouts used
   console.log('Resetting user free_bouts_used...');
   const userResult = await db.execute(sql`UPDATE users SET free_bouts_used = 0`);
-  console.log(`  ✓ Reset ${userResult.length} users`);
+  console.log(`  ✓ Reset ${userResult.rowCount ?? 0} users`);
   console.log('');
 
   // Reset intro pool
@@ -128,7 +127,7 @@ async function main() {
   // First, check if intro_pool has any rows
   const existingPool = await db.execute(sql`SELECT id FROM intro_pool LIMIT 1`);
 
-  if (existingPool.length > 0) {
+  if (existingPool.rows.length > 0) {
     // Update existing row
     await db.execute(sql`
       UPDATE intro_pool

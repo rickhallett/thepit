@@ -32,6 +32,9 @@ importers:
       '@fontsource/space-grotesk':
         specifier: ^5.2.10
         version: 5.2.10
+      '@neondatabase/serverless':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@openrouter/ai-sdk-provider':
         specifier: ^2.2.3
         version: 2.2.3(ai@6.0.81(zod@4.3.6))(zod@4.3.6)
@@ -61,7 +64,7 @@ importers:
         version: 2.1.1
       drizzle-orm:
         specifier: ^0.45.1
-        version: 0.45.1(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(@upstash/redis@1.37.0)(postgres@3.4.8)
+        version: 0.45.1(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(@upstash/redis@1.37.0)
       ethers:
         specifier: ^6.16.0
         version: 6.16.0
@@ -77,9 +80,6 @@ importers:
       next:
         specifier: 16.1.6
         version: 16.1.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      postgres:
-        specifier: ^3.4.8
-        version: 3.4.8
       posthog-js:
         specifier: ^1.345.3
         version: 1.345.5
@@ -4377,10 +4377,6 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  postgres@3.4.8:
-    resolution: {integrity: sha512-d+JFcLM17njZaOLkv6SCev7uoLaBtfK86vMUXhW1Z4glPWh4jozno9APvW/XKFJ3CCxVoC7OL38BqRydtu5nGg==}
-    engines: {node: '>=12'}
-
   posthog-js@1.345.5:
     resolution: {integrity: sha512-Hplt/aRD3DQLTQl3NxmS7V0jZPF18nnKJ4rST0qinz/6tXNCMemYqOVb4C/HYAXXWrtVVzGSJeNCNKvECFHHoQ==}
 
@@ -6120,7 +6116,6 @@ snapshots:
     dependencies:
       '@types/node': 22.19.11
       '@types/pg': 8.16.0
-    optional: true
 
   '@next/env@16.1.6': {}
 
@@ -7177,7 +7172,6 @@ snapshots:
   '@types/node@22.19.11':
     dependencies:
       undici-types: 6.21.0
-    optional: true
 
   '@types/node@22.7.5':
     dependencies:
@@ -7202,7 +7196,6 @@ snapshots:
       '@types/node': 20.19.33
       pg-protocol: 1.11.0
       pg-types: 2.2.0
-    optional: true
 
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
@@ -8022,13 +8015,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.45.1(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(@upstash/redis@1.37.0)(postgres@3.4.8):
+  drizzle-orm@0.45.1(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.16.0)(@upstash/redis@1.37.0):
     optionalDependencies:
       '@neondatabase/serverless': 1.0.2
       '@opentelemetry/api': 1.9.0
       '@types/pg': 8.16.0
       '@upstash/redis': 1.37.0
-      postgres: 3.4.8
 
   dunder-proto@1.0.1:
     dependencies:
@@ -9634,8 +9626,6 @@ snapshots:
   postgres-interval@1.2.0:
     dependencies:
       xtend: 4.0.2
-
-  postgres@3.4.8: {}
 
   posthog-js@1.345.5:
     dependencies:
