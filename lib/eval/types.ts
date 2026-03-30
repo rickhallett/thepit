@@ -100,3 +100,43 @@ export type { RubricCriterion };
 export type Evaluation = InferSelectModel<typeof evaluations>;
 
 export type { CriterionScore, ReconciliationEvent };
+
+// ---------------------------------------------------------------------------
+// Scorecard and comparison (M2.3)
+// ---------------------------------------------------------------------------
+
+import type { RunId, ContestantId } from '@/lib/domain-ids';
+
+/** Per-contestant scorecard with normalized and weighted criterion scores. */
+export type Scorecard = {
+  runId: RunId;
+  contestantId: ContestantId;
+  contestantLabel: string;
+  rubricName: string;
+  overallScore: number;
+  criterionScores: Array<{
+    name: string;
+    score: number;
+    normalizedScore: number;
+    weight: number;
+    weightedScore: number;
+    rationale: string;
+  }>;
+};
+
+/** Side-by-side comparison of all contestants in a run. */
+export type RunComparison = {
+  taskName: string;
+  rubricName: string;
+  contestants: Scorecard[];
+  winner: {
+    contestantId: ContestantId;
+    label: string;
+    margin: number;
+  } | null;
+  criterionBreakdown: Array<{
+    criterionName: string;
+    scores: Array<{ contestantLabel: string; score: number }>;
+    winner: string | null;
+  }>;
+};

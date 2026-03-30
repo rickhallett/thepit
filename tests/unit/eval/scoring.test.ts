@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { computeWeightedScore } from '@/lib/eval/scoring';
+import { computeWeightedScore, buildScorecard, compareRun } from '@/lib/eval/scoring';
 import type { CriterionScore, RubricCriterion } from '@/db/schema';
+import type { Evaluation, Rubric } from '@/lib/eval/types';
+import type { Contestant, Task } from '@/lib/run/types';
+import type { RunId, ContestantId, RubricId, EvaluationId } from '@/lib/domain-ids';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -132,6 +135,250 @@ describe('lib/eval/scoring', () => {
 
       const result = computeWeightedScore(scores, criteria);
       expect(result).toBe(0);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // buildScorecard (M2.3)
+  // -------------------------------------------------------------------------
+
+  describe('buildScorecard', () => {
+    function makeEvaluation(overrides: Partial<Evaluation> = {}): Evaluation {
+      return {
+        id: 'eval-00000000000000000' as EvaluationId,
+        runId: 'run-000000000000000000' as RunId,
+        contestantId: 'cont-00000000000000000' as ContestantId,
+        rubricId: 'rubric-00000000000000' as RubricId,
+        judgeModel: 'gpt-4o',
+        scores: [
+          makeScore('relevance', 5),
+          makeScore('clarity', 3),
+        ],
+        overallScore: 0.75,
+        rationale: 'Overall rationale.',
+        rawJudgeResponse: null,
+        reconciliation: null,
+        inputTokens: null,
+        outputTokens: null,
+        latencyMs: null,
+        createdAt: new Date(),
+        ...overrides,
+      };
+    }
+
+    function makeContestant(overrides: Partial<Contestant> = {}): Contestant {
+      return {
+        id: 'cont-00000000000000000' as ContestantId,
+        runId: 'run-000000000000000000' as RunId,
+        label: 'GPT-4o',
+        model: 'gpt-4o',
+        provider: 'openai',
+        systemPrompt: null,
+        temperature: null,
+        maxTokens: null,
+        toolAccess: null,
+        contextBundle: null,
+        createdAt: new Date(),
+        ...overrides,
+      };
+    }
+
+    function makeRubric(overrides: Partial<Rubric> = {}): Rubric {
+      return {
+        id: 'rubric-00000000000000' as RubricId,
+        name: 'Test Rubric',
+        description: 'A test rubric',
+        domain: 'test',
+        criteria: [
+          makeCriterion('relevance', 0.5),
+          makeCriterion('clarity', 0.5),
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        ...overrides,
+      };
+    }
+
+    it('computes weighted scores correctly', () => {
+      const evaluation = makeEvaluation();
+      const contestant = makeContestant();
+      const rubric = makeRubric();
+
+      const scorecard = buildScorecard(evaluation, contestant, rubric);
+
+      expect(scorecard.runId).toBe(evaluation.runId);
+      expect(scorecard.contestantId).toBe(contestant.id);
+      expect(scorecard.contestantLabel).toBe('GPT-4o');
+      expect(scorecard.rubricName).toBe('Test Rubric');
+      // relevance: (5-1)/(5-1)*0.5=0.5, clarity: (3-1)/(5-1)*0.5=0.25
+      expect(scorecard.overallScore).toBeCloseTo(0.75);
+    });
+
+    it('includes per-criterion breakdown', () => {
+      const evaluation = makeEvaluation();
+      const contestant = makeContestant();
+      const rubric = makeRubric();
+
+      const scorecard = buildScorecard(evaluation, contestant, rubric);
+
+      expect(scorecard.criterionScores).toHaveLength(2);
+
+      const relevance = scorecard.criterionScores.find((c) => c.name === 'relevance')!;
+      expect(relevance.score).toBe(5);
+      expect(relevance.normalizedScore).toBeCloseTo(1.0);
+      expect(relevance.weight).toBe(0.5);
+      expect(relevance.weightedScore).toBeCloseTo(0.5);
+      expect(relevance.rationale).toBe('Rationale for relevance');
+
+      const clarity = scorecard.criterionScores.find((c) => c.name === 'clarity')!;
+      expect(clarity.score).toBe(3);
+      expect(clarity.normalizedScore).toBeCloseTo(0.5);
+      expect(clarity.weight).toBe(0.5);
+      expect(clarity.weightedScore).toBeCloseTo(0.25);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // compareRun (M2.3)
+  // -------------------------------------------------------------------------
+
+  describe('compareRun', () => {
+    function makeEvaluation(
+      contestantId: string,
+      scores: CriterionScore[],
+      overallScore: number,
+    ): Evaluation {
+      return {
+        id: `eval-${contestantId}` as EvaluationId,
+        runId: 'run-000000000000000000' as RunId,
+        contestantId: contestantId as ContestantId,
+        rubricId: 'rubric-00000000000000' as RubricId,
+        judgeModel: 'gpt-4o',
+        scores,
+        overallScore,
+        rationale: 'Rationale.',
+        rawJudgeResponse: null,
+        reconciliation: null,
+        inputTokens: null,
+        outputTokens: null,
+        latencyMs: null,
+        createdAt: new Date(),
+      };
+    }
+
+    function makeContestant(id: string, label: string): Contestant {
+      return {
+        id: id as ContestantId,
+        runId: 'run-000000000000000000' as RunId,
+        label,
+        model: 'gpt-4o',
+        provider: 'openai',
+        systemPrompt: null,
+        temperature: null,
+        maxTokens: null,
+        toolAccess: null,
+        contextBundle: null,
+        createdAt: new Date(),
+      };
+    }
+
+    const rubric: Rubric = {
+      id: 'rubric-00000000000000' as RubricId,
+      name: 'Test Rubric',
+      description: 'A test rubric',
+      domain: 'test',
+      criteria: [
+        makeCriterion('relevance', 0.5),
+        makeCriterion('clarity', 0.5),
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const task: Task = {
+      id: 'task-0000000000000000000',
+      name: 'Test Task',
+      description: 'A test task',
+      prompt: 'Do something',
+      constraints: null,
+      expectedOutputShape: null,
+      acceptanceCriteria: null,
+      domain: 'test',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Task;
+
+    it('identifies winner by highest overall score', () => {
+      const evaluations = [
+        makeEvaluation('cont-a', [makeScore('relevance', 5), makeScore('clarity', 5)], 1.0),
+        makeEvaluation('cont-b', [makeScore('relevance', 3), makeScore('clarity', 3)], 0.5),
+      ];
+      const contestants = [
+        makeContestant('cont-a', 'GPT-4o'),
+        makeContestant('cont-b', 'Claude'),
+      ];
+
+      const result = compareRun(evaluations, contestants, rubric, task);
+
+      expect(result.winner).not.toBeNull();
+      expect(result.winner!.contestantId).toBe('cont-a');
+      expect(result.winner!.label).toBe('GPT-4o');
+      expect(result.winner!.margin).toBeCloseTo(0.5);
+    });
+
+    it('returns null winner on tie', () => {
+      const evaluations = [
+        makeEvaluation('cont-a', [makeScore('relevance', 4), makeScore('clarity', 4)], 0.75),
+        makeEvaluation('cont-b', [makeScore('relevance', 4), makeScore('clarity', 4)], 0.75),
+      ];
+      const contestants = [
+        makeContestant('cont-a', 'GPT-4o'),
+        makeContestant('cont-b', 'Claude'),
+      ];
+
+      const result = compareRun(evaluations, contestants, rubric, task);
+
+      expect(result.winner).toBeNull();
+    });
+
+    it('includes per-criterion breakdown with per-criterion winners', () => {
+      const evaluations = [
+        makeEvaluation('cont-a', [makeScore('relevance', 5), makeScore('clarity', 2)], 0.625),
+        makeEvaluation('cont-b', [makeScore('relevance', 3), makeScore('clarity', 4)], 0.625),
+      ];
+      const contestants = [
+        makeContestant('cont-a', 'GPT-4o'),
+        makeContestant('cont-b', 'Claude'),
+      ];
+
+      const result = compareRun(evaluations, contestants, rubric, task);
+
+      expect(result.criterionBreakdown).toHaveLength(2);
+
+      const relevanceBreakdown = result.criterionBreakdown.find((c) => c.criterionName === 'relevance')!;
+      expect(relevanceBreakdown.winner).toBe('GPT-4o');
+      expect(relevanceBreakdown.scores).toHaveLength(2);
+
+      const clarityBreakdown = result.criterionBreakdown.find((c) => c.criterionName === 'clarity')!;
+      expect(clarityBreakdown.winner).toBe('Claude');
+    });
+
+    it('handles single contestant', () => {
+      const evaluations = [
+        makeEvaluation('cont-a', [makeScore('relevance', 4), makeScore('clarity', 4)], 0.75),
+      ];
+      const contestants = [
+        makeContestant('cont-a', 'GPT-4o'),
+      ];
+
+      const result = compareRun(evaluations, contestants, rubric, task);
+
+      expect(result.contestants).toHaveLength(1);
+      expect(result.winner).not.toBeNull();
+      expect(result.winner!.contestantId).toBe('cont-a');
+      expect(result.winner!.label).toBe('GPT-4o');
+      expect(result.winner!.margin).toBeCloseTo(0.75);
+      expect(result.criterionBreakdown).toHaveLength(2);
     });
   });
 });
