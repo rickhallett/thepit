@@ -152,3 +152,25 @@ export type FailureTag = InferSelectModel<typeof failureTags>;
 
 /** Failure category enum values. */
 export type FailureCategory = (typeof failureCategory.enumValues)[number];
+
+// ---------------------------------------------------------------------------
+// Run report (M2.5)
+// ---------------------------------------------------------------------------
+
+import type { Run, Task, Contestant, Trace } from '@/lib/run/types';
+
+/** Composite report assembling run data, evaluations, and comparisons. */
+export type RunReport = {
+  run: Run;
+  task: Task;
+  rubric: Rubric;
+  needsEvaluation: boolean;
+  contestants: Array<{
+    contestant: Contestant;
+    trace: Trace | null;
+    scorecard: Scorecard | null;
+    failureTags: FailureTag[];
+  }>;
+  comparison: RunComparison | null;
+  summary: string | null;
+};
