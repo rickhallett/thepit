@@ -12,3 +12,5 @@ export type { Trace, NewTrace, TraceMessage, RunWithTraces } from './types';
 export { getRunWithTraces } from './queries';
 export { getModelPricing, computeCostMicro, MODEL_PRICING } from './pricing';
 export type { ModelPricing } from './pricing';
+export { getRunEconomics } from './economics';
+export type { RunEconomics, ContestantEconomics } from './economics';
