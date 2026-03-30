@@ -14,3 +14,7 @@ export { buildJudgePrompt, evaluateContestant, evaluateRun } from './judge';
 export type { Evaluation, CriterionScore, ReconciliationEvent } from './types';
 export type { JudgeConfig } from './judge';
 export type { InsertEvaluationInput } from './evaluations';
+
+// Scorecard and comparison (M2.3)
+export { buildScorecard, compareRun } from './scoring';
+export type { Scorecard, RunComparison } from './types';
