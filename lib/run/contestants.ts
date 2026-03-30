@@ -38,7 +38,7 @@ export async function addContestant(
     })
     .returning();
 
-  return contestant;
+  return contestant!;
 }
 
 /** Retrieve all contestants for a run. */

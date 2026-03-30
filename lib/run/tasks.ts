@@ -34,7 +34,7 @@ export async function createTask(
     })
     .returning();
 
-  return task;
+  return task!;
 }
 
 /** Retrieve a single task by ID. Returns null if not found. */

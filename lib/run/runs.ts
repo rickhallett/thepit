@@ -36,7 +36,7 @@ export async function createRun(
     })
     .returning();
 
-  return run;
+  return run!;
 }
 
 /** Retrieve a single run by ID. Returns null if not found. */

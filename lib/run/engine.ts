@@ -129,7 +129,7 @@ export async function executeRun(
           content: m.content,
         })),
         temperature: contestant.temperature ?? undefined,
-        maxTokens: contestant.maxTokens ?? undefined,
+        maxOutputTokens: contestant.maxTokens ?? undefined,
       });
       const latencyMs = Math.round(performance.now() - start);
       const completedAt = new Date();
@@ -145,10 +145,10 @@ export async function executeRun(
           requestTemperature: contestant.temperature,
           responseContent: result.text,
           responseFinishReason: result.finishReason ?? null,
-          inputTokens: result.usage?.promptTokens ?? null,
-          outputTokens: result.usage?.completionTokens ?? null,
+          inputTokens: result.usage?.inputTokens ?? null,
+          outputTokens: result.usage?.outputTokens ?? null,
           totalTokens: result.usage
-            ? (result.usage.promptTokens ?? 0) + (result.usage.completionTokens ?? 0)
+            ? (result.usage.inputTokens ?? 0) + (result.usage.outputTokens ?? 0)
             : null,
           latencyMs,
           status: 'success',
@@ -158,7 +158,7 @@ export async function executeRun(
         })
         .returning();
 
-      traceResults.push({ ...contestant, trace });
+      traceResults.push({ ...contestant, trace: trace ?? null });
     } catch (err) {
       failures++;
       const completedAt = new Date();
@@ -186,7 +186,7 @@ export async function executeRun(
         })
         .returning();
 
-      traceResults.push({ ...contestant, trace });
+      traceResults.push({ ...contestant, trace: trace ?? null });
     }
   }
 

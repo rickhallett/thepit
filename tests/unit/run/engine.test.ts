@@ -217,7 +217,7 @@ describe('lib/run/engine', () => {
     it('omits system prompt when absent', () => {
       const noPrompt = { ...fakeContestant1, systemPrompt: null };
       const msgs = buildMessages(fakeTask, noPrompt);
-      expect(msgs[0].role).toBe('user');
+      expect(msgs[0]!.role).toBe('user');
     });
 
     it('includes context bundle documents', () => {
@@ -239,7 +239,7 @@ describe('lib/run/engine', () => {
       const simpleTask = { ...fakeTask, constraints: null, acceptanceCriteria: null };
       const msgs = buildMessages(simpleTask, { ...fakeContestant1, systemPrompt: null });
       expect(msgs).toHaveLength(1);
-      expect(msgs[0].content).toBe('Score this answer.');
+      expect(msgs[0]!.content).toBe('Score this answer.');
     });
   });
 
@@ -255,7 +255,7 @@ describe('lib/run/engine', () => {
       const result = await executeRun(mockDb as unknown as DbOrTx, fakeRunId);
       expect(result.task).toBeDefined();
       expect(result.contestants).toHaveLength(2);
-      expect(result.contestants[0].trace).toBeDefined();
+      expect(result.contestants[0]!.trace).toBeDefined();
     });
 
     it('updates run status to running then completed', async () => {

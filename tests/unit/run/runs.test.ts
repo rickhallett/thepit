@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import type { RunId } from '@/lib/domain-ids';
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks -- Drizzle query chain
@@ -156,7 +157,7 @@ describe('lib/run/runs', () => {
       mockSelectLimit.mockResolvedValue([]);
       const result = await getRun(
         mockDb as unknown as DbOrTx,
-        'nonexistent' as any,
+        'nonexistent' as unknown as RunId,
       );
       expect(result).toBeNull();
     });
@@ -165,7 +166,7 @@ describe('lib/run/runs', () => {
       mockSelectLimit.mockResolvedValue([fakeRun]);
       const result = await getRun(
         mockDb as unknown as DbOrTx,
-        fakeRun.id as any,
+        fakeRun.id as unknown as RunId,
       );
       expect(result).toEqual(fakeRun);
     });

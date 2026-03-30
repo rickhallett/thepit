@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import type { TaskId } from '@/lib/domain-ids';
 
 // ---------------------------------------------------------------------------
 // Hoisted mocks -- Drizzle query chain
@@ -168,7 +169,7 @@ describe('lib/run/tasks', () => {
       mockSelectLimit.mockResolvedValue([]);
       const result = await getTask(
         mockDb as unknown as DbOrTx,
-        'nonexistent' as any,
+        'nonexistent' as unknown as TaskId,
       );
       expect(result).toBeNull();
     });
@@ -177,7 +178,7 @@ describe('lib/run/tasks', () => {
       mockSelectLimit.mockResolvedValue([fakeTask]);
       const result = await getTask(
         mockDb as unknown as DbOrTx,
-        fakeTask.id as any,
+        fakeTask.id as unknown as TaskId,
       );
       expect(result).toEqual(fakeTask);
     });
@@ -212,7 +213,7 @@ describe('lib/run/tasks', () => {
         orderBy: mockOrderBy,
       });
 
-      const result = await listTasks(mockDb as unknown as DbOrTx, {
+      await listTasks(mockDb as unknown as DbOrTx, {
         domain: 'job-application',
       });
 
