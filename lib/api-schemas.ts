@@ -223,3 +223,18 @@ export const addContestantSchema = z.object({
   }).optional(),
 });
 export type AddContestantBody = z.infer<typeof addContestantSchema>;
+
+// ---------------------------------------------------------------------------
+// Run model -- composite run creation (M1.5)
+// ---------------------------------------------------------------------------
+
+/** POST /api/runs -- create a run with task + contestants. */
+export const createRunSchema = z.object({
+  task: z.union([
+    createTaskSchema,
+    z.object({ taskId: z.string().length(21, 'taskId must be 21 characters.') }),
+  ]),
+  contestants: z.array(addContestantSchema).min(2, 'At least 2 contestants are required.'),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+export type CreateRunBody = z.infer<typeof createRunSchema>;
