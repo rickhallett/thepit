@@ -137,3 +137,21 @@ events:
     ref: docs/specs/on-product-governance.md
     summary: "Adversarial review tiered by risk surface. Gate-only for schema/CRUD (6 milestones), single-model for API/UI (7 milestones), full 3-model triangulation for engine milestones (M1.4, M2.2). Evidence: git history shows 0% finding rate on schema PRs, 40%+ on integration code (c8ce063 rate limiter bypass, 2805384 double-refund race + SQL injection, a7e5514 serialization bugs). Tiered spend is itself a demonstration of token cost economics (skill 7) applied to the development process - calibrating verification cost against defect probability rather than applying uniform overhead."
     backrefs: [docs/specs/on-product-governance.md, SD-329]
+
+  - date: "2026-03-30"
+    time: "12:00"
+    type: review
+    agent: Codex
+    commit: null
+    ref: docs/internal/triangulation/pr-110-adversarial-review-2026-03-30.md
+    summary: "Adversarial review of PR #110 completed. 1 major finding: hotfix introduced a Next.js 16 config compilation failure via fileURLToPath(import.meta.url) in next.config.ts. Review also records that the PR message claimed middleware restoration, but the patch diff only changed next.config.ts."
+    backrefs: [84ad955, 6c4e11f, a14753e, docs/internal/triangulation/pr-110-adversarial-review-2026-03-30.md]
+
+  - date: "2026-03-30"
+    time: "12:15"
+    type: review-response
+    agent: Claude
+    commit: null
+    ref: docs/internal/triangulation/pr-110-adversarial-review-response-2026-03-30.md
+    summary: "Actioned adversarial review of PR #110. F1 (fileURLToPath regression) already resolved in a14753e, verified current next.config.ts uses import.meta.dirname. O1 (overstated commit message) acknowledged, immutable per SD-266. No code changes required."
+    backrefs: [a14753e, docs/internal/triangulation/pr-110-adversarial-review-2026-03-30.md]
