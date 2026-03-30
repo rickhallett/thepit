@@ -238,3 +238,51 @@ export const createRunSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 export type CreateRunBody = z.infer<typeof createRunSchema>;
+
+// ---------------------------------------------------------------------------
+// Evaluation model -- rubrics (M2.1)
+// ---------------------------------------------------------------------------
+
+/** Rubric criterion validation. */
+export const rubricCriterionSchema = z.object({
+  name: z.string().min(1, 'Criterion name is required.').max(128),
+  description: z.string().min(1, 'Criterion description is required.'),
+  weight: z.number().min(0).max(1),
+  scale: z.object({
+    min: z.number().int(),
+    max: z.number().int(),
+    labels: z.record(z.string(), z.string()).optional(),
+  }),
+});
+
+/** POST /api/rubrics -- create a rubric with weighted criteria. */
+export const createRubricSchema = z.object({
+  name: z.string().min(1, 'Rubric name is required.').max(256),
+  description: z.string().optional(),
+  domain: z.string().max(64).optional(),
+  criteria: z.array(rubricCriterionSchema).min(1, 'At least 1 criterion is required.'),
+}).refine(
+  (data) => {
+    const sum = data.criteria.reduce((s, c) => s + c.weight, 0);
+    return Math.abs(sum - 1) < 0.01;
+  },
+  { message: 'Criterion weights must sum to 1 (tolerance: 0.01).' },
+).refine(
+  (data) => {
+    const names = data.criteria.map(c => c.name.toLowerCase());
+    return new Set(names).size === names.length;
+  },
+  { message: 'Criterion names must be unique (case-insensitive).' },
+).refine(
+  (data) => data.criteria.every(c => c.scale.min < c.scale.max),
+  { message: 'Scale min must be strictly less than scale max.' },
+).refine(
+  (data) => data.criteria.every(c =>
+    !c.scale.labels || Object.keys(c.scale.labels).every(k => {
+      const n = Number(k);
+      return n >= c.scale.min && n <= c.scale.max;
+    })
+  ),
+  { message: 'Scale labels must reference values within the scale range.' },
+);
+export type CreateRubricBody = z.infer<typeof createRubricSchema>;

@@ -623,3 +623,33 @@ export const traces = pgTable('traces', {
   runIdIdx: index('traces_run_id_idx').on(table.runId),
   contestantIdIdx: index('traces_contestant_id_idx').on(table.contestantId),
 }));
+
+// ---------------------------------------------------------------------------
+// Phase 2: Evaluation and Scoring
+// ---------------------------------------------------------------------------
+
+/** Rubric criterion -- defines one axis of evaluation. */
+export type RubricCriterion = {
+  name: string;
+  description: string;
+  weight: number;
+  scale: {
+    min: number;
+    max: number;
+    labels?: Record<number, string>;
+  };
+};
+
+export const rubrics = pgTable('rubrics', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  name: varchar('name', { length: 256 }).notNull(),
+  description: text('description'),
+  domain: varchar('domain', { length: 64 }),
+  criteria: jsonb('criteria').$type<RubricCriterion[]>().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});

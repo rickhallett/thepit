@@ -49,6 +49,9 @@ export type ContestantId = Brand<string, 'ContestantId'>;
 /** Trace identifier -- 21-char nanoid (M1.4). */
 export type TraceId = Brand<string, 'TraceId'>;
 
+/** Rubric identifier -- 21-char nanoid (M2.1). */
+export type RubricId = Brand<string, 'RubricId'>;
+
 // ─── Brand constructors ─────────────────────────────────────────────────────
 //
 // These cast raw values to branded types. Use them at trust boundaries:
@@ -99,6 +102,11 @@ export function asContestantId(raw: string): ContestantId {
 /** Brand a raw string as a TraceId. */
 export function asTraceId(raw: string): TraceId {
   return raw as TraceId;
+}
+
+/** Brand a raw string as a RubricId. */
+export function asRubricId(raw: string): RubricId {
+  return raw as RubricId;
 }
 
 // ─── Type guards ────────────────────────────────────────────────────────────

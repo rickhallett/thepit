@@ -1,4 +1,4 @@
-// Shared types for LangSmith-compatible evaluation functions.
+// Shared types for evaluation functions and the run evaluation model.
 //
 // Evaluators are pure functions that score application outputs.
 // They return feedback dictionaries compatible with LangSmith's
@@ -66,3 +66,22 @@ export type BeliefStanceEvalInput = {
   /** Turn index (0-based) for temporal tracking. */
   turnIndex: number;
 };
+
+// ---------------------------------------------------------------------------
+// Run evaluation model (M2.1+)
+// ---------------------------------------------------------------------------
+
+import type { InferSelectModel } from 'drizzle-orm';
+import type { rubrics, RubricCriterion } from '@/db/schema';
+
+/** A rubric as stored in the database. */
+export type Rubric = InferSelectModel<typeof rubrics>;
+
+/** Options for listing rubrics with filtering. */
+export type ListRubricsOptions = {
+  domain?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export type { RubricCriterion };
