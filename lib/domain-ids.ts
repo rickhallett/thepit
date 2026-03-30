@@ -55,6 +55,9 @@ export type RubricId = Brand<string, 'RubricId'>;
 /** Evaluation identifier -- 21-char nanoid (M2.2). */
 export type EvaluationId = Brand<string, 'EvaluationId'>;
 
+/** Failure tag identifier -- 21-char nanoid (M2.4). */
+export type FailureTagId = Brand<string, 'FailureTagId'>;
+
 // ─── Brand constructors ─────────────────────────────────────────────────────
 //
 // These cast raw values to branded types. Use them at trust boundaries:
@@ -115,6 +118,11 @@ export function asRubricId(raw: string): RubricId {
 /** Brand a raw string as an EvaluationId. */
 export function asEvaluationId(raw: string): EvaluationId {
   return raw as EvaluationId;
+}
+
+/** Brand a raw string as a FailureTagId. */
+export function asFailureTagId(raw: string): FailureTagId {
+  return raw as FailureTagId;
 }
 
 // ─── Type guards ────────────────────────────────────────────────────────────

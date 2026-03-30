@@ -297,3 +297,28 @@ export const evaluateRunSchema = z.object({
   judgeModel: z.string().max(128).optional(),
 });
 export type EvaluateRunBody = z.infer<typeof evaluateRunSchema>;
+
+// ---------------------------------------------------------------------------
+// Failure tags (M2.4)
+// ---------------------------------------------------------------------------
+
+/** Failure category values -- mirrors failureCategory pgEnum in db/schema.ts. */
+const FAILURE_CATEGORIES = [
+  'wrong_answer',
+  'partial_answer',
+  'refusal',
+  'off_topic',
+  'unsafe_output',
+  'hallucination',
+  'format_violation',
+  'context_misuse',
+  'instruction_violation',
+] as const;
+
+/** POST /api/runs/:id/failures -- add a manual failure tag. */
+export const addFailureTagSchema = z.object({
+  contestantId: z.string().length(21, 'contestantId must be 21 characters.'),
+  category: z.enum(FAILURE_CATEGORIES, { message: 'Invalid failure category.' }),
+  description: z.string().optional(),
+});
+export type AddFailureTagBody = z.infer<typeof addFailureTagSchema>;

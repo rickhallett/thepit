@@ -75,10 +75,12 @@ import type { InferSelectModel } from 'drizzle-orm';
 import type {
   rubrics,
   evaluations,
+  failureTags,
   RubricCriterion,
   CriterionScore,
   ReconciliationEvent,
 } from '@/db/schema';
+import type { failureCategory } from '@/db/schema';
 
 /** A rubric as stored in the database. */
 export type Rubric = InferSelectModel<typeof rubrics>;
@@ -140,3 +142,13 @@ export type RunComparison = {
     winner: string | null;
   }>;
 };
+
+// ---------------------------------------------------------------------------
+// Failure tags (M2.4)
+// ---------------------------------------------------------------------------
+
+/** A failure tag as stored in the database. */
+export type FailureTag = InferSelectModel<typeof failureTags>;
+
+/** Failure category enum values. */
+export type FailureCategory = (typeof failureCategory.enumValues)[number];

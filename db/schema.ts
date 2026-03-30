@@ -700,3 +700,41 @@ export const evaluations = pgTable('evaluations', {
   index('evaluations_contestant_id_idx').on(table.contestantId),
   index('evaluations_rubric_id_idx').on(table.rubricId),
 ]);
+
+// ---------------------------------------------------------------------------
+// Phase 2: Failure Tags (M2.4)
+// ---------------------------------------------------------------------------
+
+export const failureCategory = pgEnum('failure_category', [
+  'wrong_answer',
+  'partial_answer',
+  'refusal',
+  'off_topic',
+  'unsafe_output',
+  'hallucination',
+  'format_violation',
+  'context_misuse',
+  'instruction_violation',
+]);
+
+export const failureTags = pgTable('failure_tags', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  runId: varchar('run_id', { length: 21 })
+    .notNull()
+    .references(() => runs.id, { onDelete: 'cascade' }),
+  contestantId: varchar('contestant_id', { length: 21 })
+    .notNull()
+    .references(() => contestants.id, { onDelete: 'cascade' }),
+  category: failureCategory('category').notNull(),
+  description: text('description'),
+  source: varchar('source', { length: 32 }).notNull(),
+  evaluationId: varchar('evaluation_id', { length: 21 })
+    .references(() => evaluations.id),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => [
+  index('failure_tags_run_id_idx').on(table.runId),
+  index('failure_tags_contestant_id_idx').on(table.contestantId),
+  index('failure_tags_category_idx').on(table.category),
+]);
