@@ -23,3 +23,7 @@ export type { Scorecard, RunComparison } from './types';
 export { addFailureTag, getFailureTagsForRun, getFailureTagsForContestant, getFailureDistribution } from './failure-tags';
 export type { AddFailureTagInput } from './failure-tags';
 export type { FailureTag, FailureCategory } from './types';
+
+// Run report (M2.5)
+export { assembleRunReport } from './report';
+export type { RunReport } from './types';
