@@ -8,7 +8,7 @@ import { eq, and, lt } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { generateText } from 'ai';
 
-import { runs, contestants, traces, tasks } from '@/db/schema';
+import { runs, contestants, traces, tasks, costLedger } from '@/db/schema';
 import type { DbOrTx } from '@/db';
 import { getModel } from '@/lib/ai';
 import { asTraceId } from '@/lib/domain-ids';
@@ -16,6 +16,7 @@ import type { RunId } from '@/lib/domain-ids';
 import type {
   Run, Task, Contestant, Trace, RunWithTraces, TraceMessage,
 } from './types';
+import { computeCostMicro } from '@/lib/run/pricing';
 
 const STALE_RUN_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -157,6 +158,27 @@ export async function executeRun(
           completedAt,
         })
         .returning();
+
+      // Cost ledger entry for successful trace
+      const cost = computeCostMicro(
+        contestant.model,
+        result.usage?.inputTokens ?? 0,
+        result.usage?.outputTokens ?? 0,
+      );
+      if (cost) {
+        await db.insert(costLedger).values({
+          id: nanoid(),
+          sourceType: 'trace',
+          sourceId: traceId,
+          runId,
+          contestantId: contestant.id,
+          model: contestant.model,
+          inputTokens: result.usage?.inputTokens ?? 0,
+          outputTokens: result.usage?.outputTokens ?? 0,
+          ...cost,
+          latencyMs,
+        });
+      }
 
       traceResults.push({ ...contestant, trace: trace ?? null });
     } catch (err) {

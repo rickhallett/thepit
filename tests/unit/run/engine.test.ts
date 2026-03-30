@@ -42,6 +42,7 @@ vi.mock('@/db/schema', () => ({
   tasks: { id: 'id' },
   contestants: { runId: 'run_id' },
   traces: {},
+  costLedger: {},
 }));
 
 vi.mock('drizzle-orm', () => ({

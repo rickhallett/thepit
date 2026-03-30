@@ -738,3 +738,38 @@ export const failureTags = pgTable('failure_tags', {
   index('failure_tags_contestant_id_idx').on(table.contestantId),
   index('failure_tags_category_idx').on(table.category),
 ]);
+
+// ---------------------------------------------------------------------------
+// Phase 3: Cost Ledger (M3.1)
+// ---------------------------------------------------------------------------
+
+export const costSourceType = pgEnum('cost_source_type', [
+  'trace',
+  'evaluation',
+  'summary',
+]);
+
+export const costLedger = pgTable('cost_ledger', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  sourceType: costSourceType('source_type').notNull(),
+  sourceId: varchar('source_id', { length: 21 }).notNull(),
+  runId: varchar('run_id', { length: 21 })
+    .notNull()
+    .references(() => runs.id, { onDelete: 'cascade' }),
+  contestantId: varchar('contestant_id', { length: 21 })
+    .references(() => contestants.id, { onDelete: 'cascade' }),
+  model: varchar('model', { length: 128 }).notNull(),
+  inputTokens: integer('input_tokens').notNull(),
+  outputTokens: integer('output_tokens').notNull(),
+  inputCostMicro: integer('input_cost_micro').notNull(),
+  outputCostMicro: integer('output_cost_micro').notNull(),
+  totalCostMicro: integer('total_cost_micro').notNull(),
+  latencyMs: integer('latency_ms').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => [
+  index('cost_ledger_run_id_idx').on(table.runId),
+  index('cost_ledger_contestant_id_idx').on(table.contestantId),
+  index('cost_ledger_source_idx').on(table.sourceType, table.sourceId),
+]);
