@@ -653,3 +653,50 @@ export const rubrics = pgTable('rubrics', {
     .defaultNow()
     .notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// Phase 2: Evaluations (M2.2)
+// ---------------------------------------------------------------------------
+
+/** Per-criterion score from a judge evaluation. */
+export type CriterionScore = {
+  criterionName: string;
+  score: number;
+  rationale: string;
+};
+
+/** Reconciliation event from judge output normalization. */
+export type ReconciliationEvent = {
+  type: 'missing_criterion' | 'extra_criterion' | 'score_clamped' | 'parse_fallback';
+  criterionName: string;
+  detail?: string;
+};
+
+export const evaluations = pgTable('evaluations', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  runId: varchar('run_id', { length: 21 })
+    .notNull()
+    .references(() => runs.id, { onDelete: 'cascade' }),
+  contestantId: varchar('contestant_id', { length: 21 })
+    .notNull()
+    .references(() => contestants.id, { onDelete: 'cascade' }),
+  rubricId: varchar('rubric_id', { length: 21 })
+    .notNull()
+    .references(() => rubrics.id),
+  judgeModel: varchar('judge_model', { length: 128 }).notNull(),
+  scores: jsonb('scores').$type<CriterionScore[]>().notNull(),
+  overallScore: real('overall_score').notNull(),
+  rationale: text('rationale').notNull(),
+  rawJudgeResponse: text('raw_judge_response'),
+  reconciliation: jsonb('reconciliation').$type<ReconciliationEvent[]>(),
+  inputTokens: integer('input_tokens'),
+  outputTokens: integer('output_tokens'),
+  latencyMs: integer('latency_ms'),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => [
+  index('evaluations_run_id_idx').on(table.runId),
+  index('evaluations_contestant_id_idx').on(table.contestantId),
+  index('evaluations_rubric_id_idx').on(table.rubricId),
+]);
