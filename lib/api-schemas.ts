@@ -184,3 +184,57 @@ export const agentCreateSchema = z.object({
   clientManifestHash: z.string().optional(),
 });
 export type AgentCreateBody = z.infer<typeof agentCreateSchema>;
+
+// ---------------------------------------------------------------------------
+// Run model -- tasks (M1.1)
+// ---------------------------------------------------------------------------
+
+/** POST /api/tasks (future M1.5) -- validated at domain layer for now. */
+export const createTaskSchema = z.object({
+  name: z.string().min(1, 'Task name is required.').max(256, 'Task name must be 256 characters or fewer.'),
+  description: z.string().optional(),
+  prompt: z.string().min(1, 'Task prompt is required.'),
+  constraints: z.array(z.string()).optional(),
+  expectedOutputShape: z.enum(['text', 'json', 'code']).optional(),
+  acceptanceCriteria: z.array(z.string()).optional(),
+  domain: z.string().max(64, 'Domain must be 64 characters or fewer.').optional(),
+});
+export type CreateTaskBody = z.infer<typeof createTaskSchema>;
+
+// ---------------------------------------------------------------------------
+// Run model -- contestants (M1.3)
+// ---------------------------------------------------------------------------
+
+/** Validation for adding a contestant to a run. */
+export const addContestantSchema = z.object({
+  label: z.string().min(1, 'Contestant label is required.').max(128, 'Label must be 128 characters or fewer.'),
+  model: z.string().min(1, 'Model is required.').max(128, 'Model must be 128 characters or fewer.'),
+  provider: z.enum(['openai', 'anthropic', 'google', 'xai']).optional(),
+  systemPrompt: z.string().optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  maxTokens: z.number().int().positive().optional(),
+  toolAccess: z.array(z.string()).optional(),
+  contextBundle: z.object({
+    documents: z.array(z.object({
+      label: z.string(),
+      content: z.string(),
+      source: z.string().optional(),
+    })).optional(),
+  }).optional(),
+});
+export type AddContestantBody = z.infer<typeof addContestantSchema>;
+
+// ---------------------------------------------------------------------------
+// Run model -- composite run creation (M1.5)
+// ---------------------------------------------------------------------------
+
+/** POST /api/runs -- create a run with task + contestants. */
+export const createRunSchema = z.object({
+  task: z.union([
+    createTaskSchema,
+    z.object({ taskId: z.string().length(21, 'taskId must be 21 characters.') }),
+  ]),
+  contestants: z.array(addContestantSchema).min(2, 'At least 2 contestants are required.'),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+export type CreateRunBody = z.infer<typeof createRunSchema>;

@@ -27,6 +27,7 @@ import {
   boolean,
   integer,
   foreignKey,
+  real,
 } from 'drizzle-orm/pg-core';
 
 export type TranscriptEntry = {
@@ -482,3 +483,143 @@ export const researchExports = pgTable('research_exports', {
   agentCount: integer('agent_count').notNull(),
   payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// Run model -- tasks (M1.1)
+// ---------------------------------------------------------------------------
+// Coexists alongside the bout model. No FK between runs and bouts.
+// See docs/specs/phase-1-run-model.md for design decisions.
+
+/** Expected output shape for a task. */
+export const expectedOutputShape = pgEnum('expected_output_shape', [
+  'text', 'json', 'code',
+]);
+
+export const tasks = pgTable('tasks', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  name: varchar('name', { length: 256 }).notNull(),
+  description: text('description'),
+  prompt: text('prompt').notNull(),
+  constraints: jsonb('constraints').$type<string[]>(),
+  expectedOutputShape: expectedOutputShape('expected_output_shape'),
+  acceptanceCriteria: jsonb('acceptance_criteria').$type<string[]>(),
+  domain: varchar('domain', { length: 64 }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  domainIdx: index('tasks_domain_idx').on(table.domain),
+  createdAtIdx: index('tasks_created_at_idx').on(table.createdAt),
+}));
+
+// ---------------------------------------------------------------------------
+// Run model -- runs (M1.2)
+// ---------------------------------------------------------------------------
+
+export const runStatus = pgEnum('run_status', [
+  'pending', 'running', 'completed', 'failed',
+]);
+
+export const runs = pgTable('runs', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  taskId: varchar('task_id', { length: 21 })
+    .notNull()
+    .references(() => tasks.id),
+  status: runStatus('status').default('pending').notNull(),
+  ownerId: varchar('owner_id', { length: 128 })
+    .references(() => users.id, { onDelete: 'set null' }),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  error: text('error'),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  taskIdIdx: index('runs_task_id_idx').on(table.taskId),
+  ownerIdIdx: index('runs_owner_id_idx').on(table.ownerId),
+  statusCreatedIdx: index('runs_status_created_idx').on(table.status, table.createdAt),
+}));
+
+// ---------------------------------------------------------------------------
+// Run model -- contestants (M1.3)
+// ---------------------------------------------------------------------------
+
+export const contestants = pgTable('contestants', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  runId: varchar('run_id', { length: 21 })
+    .notNull()
+    .references(() => runs.id, { onDelete: 'cascade' }),
+  label: varchar('label', { length: 128 }).notNull(),
+  model: varchar('model', { length: 128 }).notNull(),
+  provider: varchar('provider', { length: 64 }),
+  systemPrompt: text('system_prompt'),
+  temperature: real('temperature'),
+  maxTokens: integer('max_tokens'),
+  toolAccess: jsonb('tool_access').$type<string[]>(),
+  contextBundle: jsonb('context_bundle').$type<ContextBundleInput>(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  runIdIdx: index('contestants_run_id_idx').on(table.runId),
+}));
+
+/** Inline context documents for MVP. Post-MVP context layer (Phase 4)
+ *  will introduce proper context bundle tables with provenance. */
+export type ContextBundleInput = {
+  documents?: Array<{
+    label: string;
+    content: string;
+    source?: string;
+  }>;
+};
+
+// ---------------------------------------------------------------------------
+// Run model -- traces (M1.4)
+// ---------------------------------------------------------------------------
+
+export type TraceMessage = {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+};
+
+export const traces = pgTable('traces', {
+  id: varchar('id', { length: 21 }).primaryKey(),
+  runId: varchar('run_id', { length: 21 })
+    .notNull()
+    .references(() => runs.id, { onDelete: 'cascade' }),
+  contestantId: varchar('contestant_id', { length: 21 })
+    .notNull()
+    .references(() => contestants.id, { onDelete: 'cascade' }),
+  // Request
+  requestMessages: jsonb('request_messages').$type<TraceMessage[]>().notNull(),
+  requestModel: varchar('request_model', { length: 128 }).notNull(),
+  requestTemperature: real('request_temperature'),
+  // Response
+  responseContent: text('response_content'),
+  responseFinishReason: varchar('response_finish_reason', { length: 32 }),
+  // Metrics
+  inputTokens: integer('input_tokens'),
+  outputTokens: integer('output_tokens'),
+  totalTokens: integer('total_tokens'),
+  latencyMs: integer('latency_ms'),
+  // Status
+  status: varchar('status', { length: 16 }).notNull(),
+  error: text('error'),
+  // Timestamps
+  startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+  completedAt: timestamp('completed_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+}, (table) => ({
+  runIdIdx: index('traces_run_id_idx').on(table.runId),
+  contestantIdIdx: index('traces_contestant_id_idx').on(table.contestantId),
+}));

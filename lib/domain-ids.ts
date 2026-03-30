@@ -34,8 +34,20 @@ export type UserId = Brand<string, 'UserId'>;
 /** Agent identifier — preset composite or custom nanoid. */
 export type AgentId = Brand<string, 'AgentId'>;
 
-/** Micro-credit amount — 1 credit = 100 micro. */
+/** Micro-credit amount -- 1 credit = 100 micro. */
 export type MicroCredits = Brand<number, 'MicroCredits'>;
+
+/** Task identifier -- 21-char nanoid (M1.1). */
+export type TaskId = Brand<string, 'TaskId'>;
+
+/** Run identifier -- 21-char nanoid (M1.2). */
+export type RunId = Brand<string, 'RunId'>;
+
+/** Contestant identifier -- 21-char nanoid (M1.3). */
+export type ContestantId = Brand<string, 'ContestantId'>;
+
+/** Trace identifier -- 21-char nanoid (M1.4). */
+export type TraceId = Brand<string, 'TraceId'>;
 
 // ─── Brand constructors ─────────────────────────────────────────────────────
 //
@@ -67,6 +79,26 @@ export function asAgentId(raw: string): AgentId {
 /** Brand a raw number as MicroCredits. */
 export function asMicroCredits(raw: number): MicroCredits {
   return raw as MicroCredits;
+}
+
+/** Brand a raw string as a TaskId. */
+export function asTaskId(raw: string): TaskId {
+  return raw as TaskId;
+}
+
+/** Brand a raw string as a RunId. */
+export function asRunId(raw: string): RunId {
+  return raw as RunId;
+}
+
+/** Brand a raw string as a ContestantId. */
+export function asContestantId(raw: string): ContestantId {
+  return raw as ContestantId;
+}
+
+/** Brand a raw string as a TraceId. */
+export function asTraceId(raw: string): TraceId {
+  return raw as TraceId;
 }
 
 // ─── Type guards ────────────────────────────────────────────────────────────
