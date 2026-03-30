@@ -7,7 +7,8 @@ import { z } from 'zod/v4';
 import { generateObject } from 'ai';
 import { eq } from 'drizzle-orm';
 
-import { runs, contestants, traces, tasks } from '@/db/schema';
+import { nanoid } from 'nanoid';
+import { runs, contestants, traces, tasks, costLedger } from '@/db/schema';
 import type { DbOrTx } from '@/db';
 import { getModel } from '@/lib/ai';
 import type { RunId, RubricId, ContestantId, EvaluationId } from '@/lib/domain-ids';
@@ -18,6 +19,7 @@ import { getRubric } from './rubrics';
 import { insertEvaluation } from './evaluations';
 import { computeWeightedScore } from './scoring';
 import { addFailureTag } from './failure-tags';
+import { computeCostMicro } from '@/lib/run/pricing';
 
 // ---------------------------------------------------------------------------
 // Judge config
@@ -245,6 +247,27 @@ export async function evaluateContestant(
         evaluationId: evaluation.id as EvaluationId,
       });
     }
+  }
+
+  // Cost ledger entry for judge evaluation (M3.1)
+  const cost = computeCostMicro(
+    config.model,
+    result.usage?.inputTokens ?? 0,
+    result.usage?.outputTokens ?? 0,
+  );
+  if (cost) {
+    await db.insert(costLedger).values({
+      id: nanoid(),
+      sourceType: 'evaluation',
+      sourceId: evaluation.id,
+      runId: trace.runId,
+      contestantId: trace.contestantId,
+      model: config.model,
+      inputTokens: result.usage?.inputTokens ?? 0,
+      outputTokens: result.usage?.outputTokens ?? 0,
+      ...cost,
+      latencyMs,
+    });
   }
 
   return evaluation;
