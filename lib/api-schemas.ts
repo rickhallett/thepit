@@ -286,3 +286,14 @@ export const createRubricSchema = z.object({
   { message: 'Scale labels must reference values within the scale range.' },
 );
 export type CreateRubricBody = z.infer<typeof createRubricSchema>;
+
+// ---------------------------------------------------------------------------
+// Evaluation model -- evaluate run (M2.2)
+// ---------------------------------------------------------------------------
+
+/** POST /api/runs/:id/evaluate -- trigger evaluation of a run. */
+export const evaluateRunSchema = z.object({
+  rubricId: z.string().length(21, 'rubricId must be 21 characters.'),
+  judgeModel: z.string().max(128).optional(),
+});
+export type EvaluateRunBody = z.infer<typeof evaluateRunSchema>;

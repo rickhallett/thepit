@@ -72,7 +72,13 @@ export type BeliefStanceEvalInput = {
 // ---------------------------------------------------------------------------
 
 import type { InferSelectModel } from 'drizzle-orm';
-import type { rubrics, RubricCriterion } from '@/db/schema';
+import type {
+  rubrics,
+  evaluations,
+  RubricCriterion,
+  CriterionScore,
+  ReconciliationEvent,
+} from '@/db/schema';
 
 /** A rubric as stored in the database. */
 export type Rubric = InferSelectModel<typeof rubrics>;
@@ -85,3 +91,12 @@ export type ListRubricsOptions = {
 };
 
 export type { RubricCriterion };
+
+// ---------------------------------------------------------------------------
+// Evaluation model (M2.2)
+// ---------------------------------------------------------------------------
+
+/** An evaluation as stored in the database. */
+export type Evaluation = InferSelectModel<typeof evaluations>;
+
+export type { CriterionScore, ReconciliationEvent };
