@@ -18,3 +18,8 @@ export type { InsertEvaluationInput } from './evaluations';
 // Scorecard and comparison (M2.3)
 export { buildScorecard, compareRun } from './scoring';
 export type { Scorecard, RunComparison } from './types';
+
+// Failure tags (M2.4)
+export { addFailureTag, getFailureTagsForRun, getFailureTagsForContestant, getFailureDistribution } from './failure-tags';
+export type { AddFailureTagInput } from './failure-tags';
+export type { FailureTag, FailureCategory } from './types';

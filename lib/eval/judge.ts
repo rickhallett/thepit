@@ -10,13 +10,14 @@ import { eq } from 'drizzle-orm';
 import { runs, contestants, traces, tasks } from '@/db/schema';
 import type { DbOrTx } from '@/db';
 import { getModel } from '@/lib/ai';
-import type { RunId, RubricId, ContestantId } from '@/lib/domain-ids';
-import type { Rubric, Evaluation, RubricCriterion } from './types';
+import type { RunId, RubricId, ContestantId, EvaluationId } from '@/lib/domain-ids';
+import type { Rubric, Evaluation, RubricCriterion, FailureCategory } from './types';
 import type { CriterionScore, ReconciliationEvent } from '@/db/schema';
 import type { TraceMessage } from '@/db/schema';
 import { getRubric } from './rubrics';
 import { insertEvaluation } from './evaluations';
 import { computeWeightedScore } from './scoring';
+import { addFailureTag } from './failure-tags';
 
 // ---------------------------------------------------------------------------
 // Judge config
@@ -39,6 +40,20 @@ const judgeOutputSchema = z.object({
     rationale: z.string().min(1),
   })),
   overallRationale: z.string().min(1),
+  failureTags: z.array(z.object({
+    category: z.enum([
+      'wrong_answer',
+      'partial_answer',
+      'refusal',
+      'off_topic',
+      'unsafe_output',
+      'hallucination',
+      'format_violation',
+      'context_misuse',
+      'instruction_violation',
+    ]),
+    description: z.string(),
+  })).optional(),
 });
 
 type JudgeOutput = z.infer<typeof judgeOutputSchema>;
@@ -217,6 +232,20 @@ export async function evaluateContestant(
     outputTokens: result.usage?.outputTokens ?? null,
     latencyMs,
   });
+
+  // Persist judge-assigned failure tags (M2.4)
+  if (judgeOutput.failureTags && judgeOutput.failureTags.length > 0) {
+    for (const ft of judgeOutput.failureTags) {
+      await addFailureTag(db, {
+        runId: trace.runId as RunId,
+        contestantId: trace.contestantId as ContestantId,
+        category: ft.category as FailureCategory,
+        description: ft.description,
+        source: 'judge',
+        evaluationId: evaluation.id as EvaluationId,
+      });
+    }
+  }
 
   return evaluation;
 }
