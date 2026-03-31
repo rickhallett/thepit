@@ -155,3 +155,12 @@ events:
     ref: docs/internal/triangulation/pr-110-adversarial-review-response-2026-03-30.md
     summary: "Actioned adversarial review of PR #110. F1 (fileURLToPath regression) already resolved in a14753e, verified current next.config.ts uses import.meta.dirname. O1 (overstated commit message) acknowledged, immutable per SD-266. No code changes required."
     backrefs: [a14753e, docs/internal/triangulation/pr-110-adversarial-review-2026-03-30.md]
+
+  - date: "2026-03-30"
+    time: "14:08"
+    type: review
+    agent: Codex
+    commit: null
+    ref: docs/internal/triangulation/phase-1-2-3-review-springboard-2026-03-30.md
+    summary: "Completed adversarial review of the phase 1/2/3 delivery. 5 material findings recorded: migrations absent from Drizzle journal, ownerless mutation routes, public run data exposure, nondeterministic economics score selection across evaluations, and rubric selection/report assembly drift on the run page. Original springboard corrected where its strongest claims were stale or misframed."
+    backrefs: [docs/internal/triangulation/phase-1-2-3-review-springboard-2026-03-30.md, drizzle/meta/_journal.json, app/api/runs/[id]/execute/route.ts, app/api/runs/[id]/route.ts, lib/run/economics.ts, app/(eval)/runs/[id]/page.tsx]

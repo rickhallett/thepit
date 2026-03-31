@@ -10,6 +10,7 @@ import { parseValidBody, errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { log } from '@/lib/logger';
 import { addFailureTagSchema } from '@/lib/api-schemas';
 import { addFailureTag, getFailureTagsForRun } from '@/lib/eval/failure-tags';
+import { getRunIfOwner } from '@/lib/run/runs';
 
 export const runtime = 'nodejs';
 
@@ -17,14 +18,26 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { userId } = await auth();
+  if (!userId) {
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
+  }
+
   const { id } = await params;
 
   try {
     const db = requireDb();
-    const tags = await getFailureTagsForRun(db, asRunId(id));
+    const runId = asRunId(id);
+
+    const run = await getRunIfOwner(db, runId, userId);
+    if (!run) return errorResponse('Run not found', 404);
+
+    const tags = await getFailureTagsForRun(db, runId);
     return Response.json(tags, { status: 200 });
   } catch (error) {
-    log.error('GET /api/runs/[id]/failures failed', error instanceof Error ? error : new Error(String(error)));
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('Forbidden')) return errorResponse(API_ERRORS.FORBIDDEN, 403);
+    log.error('GET /api/runs/[id]/failures failed', error instanceof Error ? error : new Error(msg));
     return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 }
@@ -47,8 +60,13 @@ export async function POST(
 
   try {
     const db = requireDb();
+    const runId = asRunId(id);
+
+    const run = await getRunIfOwner(db, runId, userId);
+    if (!run) return errorResponse('Run not found', 404);
+
     const tag = await addFailureTag(db, {
-      runId: asRunId(id),
+      runId,
       contestantId: asContestantId(contestantId),
       category,
       description: description ?? null,

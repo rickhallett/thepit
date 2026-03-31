@@ -7,10 +7,12 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 const mockAuth = vi.hoisted(() => vi.fn().mockResolvedValue({ userId: 'user-1' }));
 const mockRequireDb = vi.hoisted(() => vi.fn().mockReturnValue({}));
 const mockEvaluateRun = vi.hoisted(() => vi.fn());
+const mockGetRunIfOwner = vi.hoisted(() => vi.fn());
 
 vi.mock('@clerk/nextjs/server', () => ({ auth: mockAuth }));
 vi.mock('@/db', () => ({ requireDb: mockRequireDb }));
 vi.mock('@/lib/eval/judge', () => ({ evaluateRun: mockEvaluateRun }));
+vi.mock('@/lib/run/runs', () => ({ getRunIfOwner: mockGetRunIfOwner }));
 vi.mock('@/lib/logger', () => ({
   log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
@@ -54,10 +56,13 @@ function makeRequest(method: string, url: string, body?: unknown): Request {
 // Tests
 // ---------------------------------------------------------------------------
 
+const fakeRun = { id: 'run-000000000000000000', ownerId: 'user-1', status: 'completed' };
+
 describe('POST /api/runs/:id/evaluate', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.mockResolvedValue({ userId: 'user-1' });
+    mockGetRunIfOwner.mockResolvedValue(fakeRun);
     mockEvaluateRun.mockResolvedValue([fakeEvaluation]);
   });
 

@@ -2,6 +2,8 @@
 // and pagination. Closes #128.
 
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 import { requireDb } from '@/db';
 import { listRuns } from '@/lib/run/runs';
 import { RunList } from '@/components/eval/RunList';
@@ -33,8 +35,11 @@ export default async function RunsPage({
   const rawOffset = typeof params.offset === 'string' ? parseInt(params.offset, 10) : 0;
   const offset = Number.isFinite(rawOffset) && rawOffset >= 0 ? rawOffset : 0;
 
+  const { userId } = await auth();
+  if (!userId) redirect('/sign-in');
+
   const db = requireDb();
-  const runs = await listRuns(db, { status, limit: DEFAULT_LIMIT, offset });
+  const runs = await listRuns(db, { status, ownerId: userId, limit: DEFAULT_LIMIT, offset });
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

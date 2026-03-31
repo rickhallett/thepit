@@ -1,277 +1,191 @@
-# Adversarial Review Springboard: Phase 1 + 2 + 3
+# Adversarial Review: Phase 1 + 2 + 3
 
 Date: 2026-03-30
-Scope: Commits ae5f854..a4e5a3e (11 squash merges)
-Lines added: ~9,050 across 74 files
-Tests added: ~146 (1,542 -> 1,688)
-Agents involved: 10 (1 human-driven, 9 autonomous subagents in isolated worktrees)
-Session duration: single session, ~215 agent-minutes wall-clock
+Reviewer: Codex
+Scope: commits `ae5f854..a4e5a3e`
+Method: code inspection against current repo state, migration-path inspection against installed Drizzle packages, and test-surface inspection
+Verdict: not ready for production use in its current form
 
-## Taxonomy of Review Labels
+## Executive Summary
 
-Use these labels to tag findings. Each has a severity and a category.
+The review surfaced five material defects and one important correction to the original springboard.
 
-### Severity
+The two highest-risk problems are:
 
-- **S1-critical**: Breaks correctness, data integrity, or security. Must fix before production.
-- **S2-major**: Incorrect behavior under non-edge conditions. Likely to surface in normal use.
-- **S3-minor**: Code quality, convention violation, or edge case. Unlikely to cause incidents.
-- **S4-nit**: Style, naming, documentation. No functional impact.
+1. The newly added migrations are not registered in `drizzle/meta/_journal.json`, so Drizzle's migrator will not apply them at all.
+2. The run surfaces have no ownership enforcement. Any logged-in user can execute, evaluate, or tag another user's run, and several read paths expose run contents publicly.
 
-### Category
+There are also correctness defects in report and economics assembly once a run has been evaluated more than once or against more than one rubric. The current implementation quietly picks arbitrary or mismatched evaluation records.
 
-- **DATA**: Schema design, migration correctness, FK integrity, type safety at persistence boundary
-- **LOGIC**: Business logic correctness, state machine violations, off-by-one, normalization math
-- **SECURITY**: Auth bypass, injection, missing validation at trust boundary, rate limiting gaps
-- **API**: HTTP contract (status codes, response shapes, error handling, idempotency)
-- **INTEGRATION**: Cross-module coupling, import cycles, mock fidelity vs real behavior
-- **CONCURRENCY**: Race conditions, duplicate writes, stale reads
-- **COST**: Financial computation correctness (microdollar arithmetic, rounding, pricing)
-- **AI**: LLM call patterns, prompt construction, structured output parsing, reconciliation
-- **UI**: Component correctness, missing states (loading/error/empty), accessibility
-- **PROCESS**: Commit hygiene, PR scope, test coverage gaps, spec divergence
+## Findings
 
-## Commit Map
+### 1. `S1-critical DATA` New run-model migrations will be skipped by Drizzle's migrator
 
-Each commit below is a squash merge. The PR number links to GitHub for the full diff.
+**Why this matters**
 
-### Phase 1: Run Model
+The review scope added migrations `0004` through `0010`, but the migration journal still contains only `0000_baseline` and `0001_wild_dreadnoughts`. Drizzle ORM's migrator reads executable migrations strictly from `meta/_journal.json`, not by scanning the directory. In this repo state, the new SQL files exist but are invisible to the migrator.
 
-**#110** `6cc922d` -- Phase 1 combined (M1.1-M1.5)
-Originally 6 commits squashed. Contains all run model foundations.
+**Evidence**
 
-| Layer | Files |
-|---|---|
-| Schema | `db/schema.ts` (+141), `drizzle/0004` through `0007` |
-| Domain IDs | `lib/domain-ids.ts` (+34): TaskId, RunId, ContestantId, TraceId |
-| Domain logic | `lib/run/tasks.ts`, `runs.ts`, `contestants.ts`, `engine.ts`, `queries.ts`, `types.ts`, `index.ts` |
-| API schemas | `lib/api-schemas.ts` (+39): createTaskSchema, addContestantSchema, createRunSchema |
-| Routes | `app/api/runs/route.ts` (POST+GET), `[id]/route.ts` (GET), `[id]/execute/route.ts` (POST) |
-| Tests | `tests/unit/run/` (5 files), `tests/api/run/runs-api.test.ts` |
+- `drizzle/meta/_journal.json` contains only two entries: `0000_baseline`, `0001_wild_dreadnoughts`
+- `drizzle/0004_m1.1-tasks.sql` through `drizzle/0010_m3.1-cost-ledger.sql` exist on disk but have no journal entries
+- `node_modules/drizzle-orm/migrator.js` reads `journal.entries` and loads `${journalEntry.tag}.sql` only
 
-Review surface:
-- `engine.ts` is the execution orchestrator. Status lifecycle: pending -> running -> completed/failed. sweepStaleRuns for zombie recovery.
-- `queries.ts` joins run + task + contestants + traces. No Drizzle relations used -- manual multi-query assembly.
-- All routes that take `[id]` params do NOT use `withLogging` (signature mismatch). Manual try/catch instead.
+**Impact**
 
-### Phase 2: Evaluation and Scoring
+- Fresh or partially migrated environments using Drizzle migrate will not create `tasks`, `runs`, `contestants`, `traces`, `rubrics`, `evaluations`, `failure_tags`, or `cost_ledger`
+- Runtime code will then fail against missing tables and enums even though the migration files are present in git
 
-**#112** `32b737d` -- M2.1 Rubric schema
-| Files | `db/schema.ts`, `drizzle/0008`, `lib/eval/rubrics.ts`, `lib/eval/types.ts`, `lib/eval/index.ts`, `lib/api-schemas.ts`, `lib/domain-ids.ts`, `tests/unit/eval/rubrics.test.ts` |
-|---|---|
+**References**
 
-Review surface:
-- `createRubricSchema` has 4 Zod refinements (weight sum, name uniqueness, scale min<max, label range). The weight tolerance is 0.01.
-- `lib/eval/types.ts` was an existing file with EvalScore/RefusalEvalInput etc. New types appended, not replacing.
+- `drizzle/meta/_journal.json`
+- `drizzle/0004_m1.1-tasks.sql`
+- `drizzle/0010_m3.1-cost-ledger.sql`
+- `node_modules/drizzle-orm/migrator.js`
 
----
+### 2. `S1-critical SECURITY` Any authenticated user can mutate another user's run
 
-**#114** `f39638f` -- M2.2 Evaluator engine (LARGEST PR -- produced by autonomous agent)
-| Layer | Files |
-|---|---|
-| Schema | `db/schema.ts` (evaluations table), `drizzle/0009` |
-| Domain IDs | `lib/domain-ids.ts`: EvaluationId |
-| Judge engine | `lib/eval/judge.ts` (359 lines): buildJudgePrompt, evaluateContestant, evaluateRun |
-| Scoring | `lib/eval/scoring.ts` (185 lines): computeWeightedScore |
-| Persistence | `lib/eval/evaluations.ts` (101 lines) |
-| Routes | `app/api/runs/[id]/evaluate/route.ts`, `app/api/rubrics/route.ts`, `app/api/rubrics/[id]/route.ts` |
-| Tests | `tests/unit/eval/judge.test.ts` (529 lines), `tests/unit/eval/scoring.test.ts`, `tests/api/eval/evaluate.test.ts`, `tests/api/eval/rubrics-api.test.ts` |
+**Why this matters**
 
-Review surface:
-- **Judge reconciliation logic** is the highest-complexity code in the entire delivery. Case-insensitive name matching, missing criterion -> scale.min, extra criterion -> discard, out-of-range -> clamp. Each produces a ReconciliationEvent in metadata.
-- Uses `generateObject` from AI SDK with Zod schema for structured output. A validation hook flagged this as deprecated in AI SDK v6 (should be `generateText` + `Output.object()`). The installed AI SDK version still has `generateObject` and typecheck passes. Worth verifying the installed version.
-- `computeWeightedScore` normalizes to 0..1: `((score - min) / (max - min)) * weight`. Division by zero if min === max, but createRubricSchema enforces min < max.
-- `evaluateRun` accepts 'completed' OR 'failed' runs. Skips error traces. Only rejects 'pending' and 'running'.
+Run creation records an `ownerId`, but the mutation routes never verify that the caller owns the target run. Authentication is present, authorization is missing.
 
----
+**Evidence**
 
-**#118** `656b2ef` -- M2.3 Scorecard and comparison (autonomous agent)
-| Files | `lib/eval/scoring.ts` (extended), `lib/eval/types.ts`, `app/api/runs/[id]/scores/route.ts`, `app/api/comparisons/route.ts`, `tests/` |
-|---|---|
+- Run owner is stored at creation in `app/api/runs/route.ts:43`
+- `POST /api/runs/[id]/execute` checks only `auth()` then calls `executeRun` directly in `app/api/runs/[id]/execute/route.ts:21-31`
+- `POST /api/runs/[id]/evaluate` checks only `auth()` then calls `evaluateRun` directly in `app/api/runs/[id]/evaluate/route.ts:21-39`
+- `POST /api/runs/[id]/failures` checks only `auth()` then inserts a manual tag directly in `app/api/runs/[id]/failures/route.ts:36-58`
+- None of the domain functions (`lib/run/engine.ts`, `lib/eval/judge.ts`, `lib/eval/failure-tags.ts`) enforce owner checks either
 
-Review surface:
-- `compareRun()` determines winner by highest overallScore. Returns null on tie. Margin is the difference.
-- The comparisons route takes query params (runId, rubricId) -- both required.
+**Impact**
 
----
+- User B can execute User A's pending run
+- User B can spend judge-model cost on User A's completed run
+- User B can attach manual failure tags to User A's results
 
-**#119** `379c96e` -- M2.4 Failure tagging (autonomous agent, rebased over M2.3)
-| Files | `db/schema.ts`, `drizzle/0010_m2.4`, `lib/eval/failure-tags.ts`, `lib/eval/judge.ts` (patched), `app/api/runs/[id]/failures/route.ts`, `lib/api-schemas.ts`, `tests/` |
-|---|---|
+This is a straight insecure direct object reference over guessed or leaked run IDs.
 
-Review surface:
-- **Migration number collision**: `drizzle/0010_m2.4-failure-tags.sql` and `drizzle/0010_m3.1-cost-ledger.sql` share the `0010` prefix. Both were created by parallel agents. Whether this causes issues depends on Drizzle's migration runner behavior.
-- 9-value `failureCategory` enum. Judge extension adds optional `failureTags` to judge output schema.
-- `addFailureTagSchema` uses a static `FAILURE_CATEGORIES` const rather than importing the pgEnum. Comment says this avoids breaking test mocks.
+**References**
 
-### Phase 3: Cost Visibility and MVP Surface
+- `app/api/runs/route.ts:43`
+- `app/api/runs/[id]/execute/route.ts:21`
+- `app/api/runs/[id]/evaluate/route.ts:21`
+- `app/api/runs/[id]/failures/route.ts:36`
 
-**#120** `0969b13` -- M3.1 Cost ledger (autonomous agent, rebased over M2.4, conflict resolved manually)
-| Files | `db/schema.ts`, `drizzle/0010_m3.1`, `lib/run/pricing.ts`, `lib/run/engine.ts` (patched), `lib/eval/judge.ts` (patched), `tests/` |
-|---|---|
+### 3. `S1-critical SECURITY` Run contents are exposed publicly across API and UI surfaces
 
-Review surface:
-- **Same migration collision** as noted above.
-- `computeCostMicro` uses `Math.round()` for integer microdollars. Pricing table has 5 models.
-- Engine patch: cost ledger entry inserted after every successful trace. Judge patch: cost ledger entry after every evaluation.
-- Conflict resolution merged both M2.4 (failure tags) and M3.1 (cost entries) into `evaluateContestant()` in judge.ts. Review the ordering.
+**Why this matters**
 
----
+The system stores task prompts, constraints, acceptance criteria, full request messages, model responses, scores, costs, and failure tags. Several routes and pages expose this data without auth or owner checks.
 
-**#124** `9305527` -- M3.3 UI: run creation form (autonomous agent)
-| Files | `app/(eval)/layout.tsx`, `app/(eval)/runs/new/page.tsx`, `components/eval/RunForm.tsx` (622 lines), `components/eval/ModelSelector.tsx` |
-|---|---|
+**Evidence**
 
-Review surface:
-- `RunForm.tsx` is the largest single component (622 lines, 'use client'). Three-step wizard with dynamic lists for constraints and contestants.
-- Uses `fetch('/api/runs', ...)` directly. Error handling pattern: shows error string in UI.
-- Uses existing `PitButton` component, not shadcn. Plain HTML inputs with Tailwind.
+- `GET /api/runs/[id]` has no auth and returns `getRunWithTraces(...)` in `app/api/runs/[id]/route.ts:13-27`
+- `GET /api/runs/[id]/failures` has no auth in `app/api/runs/[id]/failures/route.ts:16-25`
+- `GET /api/runs/[id]/report` has no auth in `app/api/runs/[id]/report/route.ts:20-37`
+- `GET /api/runs` scopes by `ownerId: userId ?? undefined`, which means unauthenticated callers fall through to all runs in `app/api/runs/route.ts:58-76` and `lib/run/runs.ts:61-79`
+- The run list page bypasses auth entirely and calls `listRuns(db, { status, limit, offset })` in `app/(eval)/runs/page.tsx:36-37`
+- The run report page directly loads and renders the run, traces, economics, and failure tags with no auth gate in `app/(eval)/runs/[id]/page.tsx:27-45` and `app/(eval)/runs/[id]/page.tsx:156-189`
 
----
+**Impact**
 
-**#125** `8f19e1e` -- M3.2 Economics endpoint (autonomous agent)
-| Files | `lib/run/economics.ts`, `app/api/runs/[id]/economics/route.ts`, `tests/` |
-|---|---|
+- Unauthenticated users can enumerate runs
+- Anyone who can reach a run page or guessed API path can read prompts, trace payloads, and evaluation artifacts belonging to other users
 
-Review surface:
-- `scorePerDollar = overallScore / (costMicro / 1_000_000)`. Division by zero if costMicro is 0.
-- `scorePerSecond = overallScore / (latencyMs / 1000)`. Division by zero if latencyMs is 0.
+If public runs are intended, that needs an explicit visibility model. The current implementation behaves as public-by-accident.
 
----
+**References**
 
-**#126** `4056b0d` -- M2.5 Run report (autonomous agent)
-| Files | `lib/eval/report.ts`, `app/api/runs/[id]/report/route.ts`, `lib/eval/types.ts`, `tests/` |
-|---|---|
+- `app/api/runs/[id]/route.ts:13`
+- `app/api/runs/[id]/failures/route.ts:16`
+- `app/api/runs/[id]/report/route.ts:20`
+- `app/api/runs/route.ts:58`
+- `lib/run/runs.ts:61`
+- `app/(eval)/runs/page.tsx:36`
+- `app/(eval)/runs/[id]/page.tsx:31`
 
-Review surface:
-- `assembleRunReport` is pure read. GET /report is safe/idempotent.
-- Summary field: `buildSummaryPrompt` exists but is not called during assembly. Summary is always null until a future milestone wires it.
-- Report requires rubricId query param. Only evaluations for that specific rubric are included.
+### 4. `S2-major LOGIC` Economics can display the wrong score once a run has multiple evaluations
 
----
+**Why this matters**
 
-**#129** `d609503` -- M3.4 UI: run report page (autonomous agent)
-| Files | `app/(eval)/runs/[id]/page.tsx` (252 lines), `components/eval/` (6 new components) |
-|---|---|
+`getRunEconomics()` claims to join the latest score per contestant, but it loads all evaluations for the run without ordering or rubric filtering, then overwrites a map entry per row. That means the score used for `overallScore`, `scorePerDollar`, and `bestValueContestant` is effectively arbitrary when there are multiple evaluations.
 
-Review surface:
-- Server component calls `requireDb()` directly. Data fetching at page level.
-- `EvaluateButton.tsx` is a client component that takes a rubric ID via text input and POSTs to evaluate endpoint. No rubric selector/picker UI.
-- `TraceViewer.tsx` uses `<details>/<summary>` for collapsibility.
+**Evidence**
 
----
+- `lib/run/economics.ts:81-96` loads `evaluations` by `runId` only
+- No `orderBy` is applied
+- No `rubricId` is applied
+- The comment in `lib/run/economics.ts:90-92` explicitly admits the rows are unordered and the code just overwrites
 
-**#130** `a4e5a3e` -- M3.5 UI: run list page (autonomous agent)
-| Files | `app/(eval)/runs/page.tsx`, `components/eval/RunList.tsx`, `components/eval/StatusBadge.tsx` |
-|---|---|
+**Impact**
 
-Review surface:
-- Status filter tabs via query string `?status=completed`.
-- Pagination via offset query param.
-- `listRuns` called with `ownerId: userId ?? undefined` -- unauthenticated users see all runs.
+- A rerun of evaluation can silently change the economics view even when execution cost did not change
+- Evaluating the same run against a second rubric can make economics show a score from the wrong rubric
+- `bestValueContestant` can be wrong for the report viewer
 
-## Cross-Cutting Review Vectors
+**References**
 
-These are not per-commit but span the entire delivery.
+- `lib/run/economics.ts:81-96`
+- `lib/run/economics.ts:121-168`
 
-### V1: Migration ordering
-8 migrations added (0004-0010). Two share the `0010` prefix (M2.4 and M3.1). Created by parallel agents that did not coordinate numbering. Check: does Drizzle sort by filename or track applied state separately?
+### 5. `S2-major LOGIC` The report page can assemble against the wrong rubric and show partial scorecards
 
-### V2: Autonomous agent fidelity
-9 of 11 commits were produced by autonomous agents with no human code review. Each agent received a detailed prompt but made independent implementation decisions. Cross-agent consistency (naming, error handling, mock patterns) is a review surface.
+**Why this matters**
 
-### V3: judge.ts layering
-`lib/eval/judge.ts` was created by the M2.2 agent, then patched by M2.4 (failure tags) and M3.1 (cost ledger). The patches were applied via manual conflict resolution during rebases. The final function `evaluateContestant()` has three concerns layered: evaluation persistence, failure tag persistence, cost ledger persistence. Review the ordering and error handling if any layer fails.
+The run report page chooses the rubric by taking `allEvaluations[0].rubricId`. `getEvaluationsForRun()` orders by evaluation `createdAt`, not by evaluation batch or run-level canonical rubric. If the latest inserted evaluation belongs to only one contestant or to a second rubric, the page assembles the entire report around that rubric.
 
-### V4: Score normalization chain
-Scores flow through: judge output (rubric-native scale) -> `computeWeightedScore` (0..1) -> `buildScorecard` -> `compareRun` -> `getRunEconomics` (scorePerDollar). Each stage assumes the previous produced correct values. An error at the normalization step propagates through the entire display chain.
+**Evidence**
 
-### V5: Auth patterns
-Routes use `auth()` from Clerk. Some mutation routes require auth (POST /runs, POST /evaluate, POST /failures). Some read routes do not (GET /runs/:id, GET /comparisons). The list route (`GET /api/runs`) scopes to `ownerId: userId ?? undefined`, meaning unauthenticated requests may see all runs. Compare with the UI list page behavior.
+- `getEvaluationsForRun()` sorts all rows by `createdAt desc` in `lib/eval/evaluations.ts:60-69`
+- The page picks `allEvaluations[0]!.rubricId` in `app/(eval)/runs/[id]/page.tsx:43-45`
+- `assembleRunReport()` then filters evaluations to that one rubric in `lib/eval/report.ts:43-56`
 
-### V6: Test mock fidelity
-All domain tests mock the Drizzle query chain (select/from/where/limit). These mocks do not validate query construction -- they test that functions call the mock chain and return expected shapes. Actual SQL correctness is untested. Integration tests exist in the repo (tests/integration/) but are skipped in CI for the run model.
+**Impact**
 
-### V7: AI SDK version
-The codebase uses `generateObject` from the `ai` package. The Vercel plugin's validation hook flagged this as deprecated in AI SDK v6. Typecheck passes with the installed version. Check `package.json` / lockfile for the actual installed version and whether `generateObject` is stable or scheduled for removal.
+- Multi-rubric runs can render a report for an arbitrary rubric with no user choice
+- If an evaluation batch is partial or interrupted, the page can show scorecards for only some contestants while still presenting the run as "the" report
+- The summary is not a generated report summary; it is the rationale from the first retained evaluation in `lib/eval/report.ts:92-94`
 
-### V8: Error propagation in executeRun/evaluateRun
-Both orchestrators swallow per-contestant errors and continue. A single contestant failure does not abort the run/evaluation. The error is captured in the trace/evaluation record. Review: is the error message sufficient for debugging? Are there cases where continuing is incorrect?
+**References**
 
-## File Index by Category
+- `lib/eval/evaluations.ts:60`
+- `app/(eval)/runs/[id]/page.tsx:43`
+- `lib/eval/report.ts:43-56`
+- `lib/eval/report.ts:92-94`
 
-### Schema + Migrations (review for DATA)
-```
-db/schema.ts                          (+291 lines across 4 commits)
-drizzle/0004_m1.1-tasks.sql
-drizzle/0005_m1.2-runs.sql
-drizzle/0006_m1.3-contestants.sql
-drizzle/0007_m1.4-traces.sql
-drizzle/0008_m2.1-rubrics.sql
-drizzle/0009_m2.2-evaluations.sql
-drizzle/0010_m2.4-failure-tags.sql
-drizzle/0010_m3.1-cost-ledger.sql     <-- collision with above
-```
+## Corrections To The Original Springboard
 
-### Domain Logic (review for LOGIC, AI, COST)
-```
-lib/run/engine.ts                     Execution orchestrator
-lib/run/pricing.ts                    MODEL_PRICING, computeCostMicro
-lib/run/economics.ts                  scorePerDollar, scorePerSecond
-lib/run/tasks.ts, runs.ts, contestants.ts, queries.ts   CRUD
-lib/eval/judge.ts                     LLM-as-judge, reconciliation
-lib/eval/scoring.ts                   computeWeightedScore, buildScorecard, compareRun
-lib/eval/evaluations.ts               Evaluation persistence
-lib/eval/failure-tags.ts              Failure tag CRUD
-lib/eval/report.ts                    Report assembly
-lib/eval/rubrics.ts                   Rubric CRUD
-```
+These springboard prompts did not survive inspection as written:
 
-### API Routes (review for API, SECURITY)
-```
-app/api/runs/route.ts                 POST+GET
-app/api/runs/[id]/route.ts            GET
-app/api/runs/[id]/execute/route.ts    POST
-app/api/runs/[id]/evaluate/route.ts   POST
-app/api/runs/[id]/scores/route.ts     GET
-app/api/runs/[id]/economics/route.ts  GET
-app/api/runs/[id]/failures/route.ts   GET+POST
-app/api/runs/[id]/report/route.ts     GET
-app/api/rubrics/route.ts              POST+GET
-app/api/rubrics/[id]/route.ts         GET
-app/api/comparisons/route.ts          GET
-```
+### `scorePerDollar` / `scorePerSecond` zero-division risk
 
-### UI Components (review for UI)
-```
-app/(eval)/layout.tsx
-app/(eval)/runs/page.tsx              Run list
-app/(eval)/runs/new/page.tsx          Create run
-app/(eval)/runs/[id]/page.tsx         Run report
-components/eval/RunForm.tsx           622 lines, largest component
-components/eval/ModelSelector.tsx
-components/eval/RunList.tsx
-components/eval/StatusBadge.tsx
-components/eval/ScoreCard.tsx
-components/eval/FailureTagBadge.tsx
-components/eval/CostBreakdown.tsx
-components/eval/ComparisonView.tsx
-components/eval/TraceViewer.tsx
-components/eval/EvaluateButton.tsx
-```
+This is not a live defect in the current code. Both calculations are guarded:
 
-### Tests (review for INTEGRATION, mock fidelity)
-```
-tests/unit/run/    (7 files)          tasks, runs, contestants, engine, queries, pricing, economics
-tests/unit/eval/   (5 files)          rubrics, judge, scoring, failure-tags, report
-tests/api/run/     (2 files)          runs-api, economics
-tests/api/eval/    (5 files)          evaluate, rubrics-api, scores, failures, report
-```
+- `lib/run/economics.ts:126-130`
 
-### Types + Schemas (review for DATA, API contract)
-```
-lib/domain-ids.ts                     7 branded types (Bout, User, Agent, Task, Run, Contestant, Trace, Rubric, Evaluation, FailureTag)
-lib/run/types.ts                      Run model types
-lib/eval/types.ts                     Eval model types (Rubric, Evaluation, CriterionScore, Scorecard, RunComparison, RunReport, FailureTag)
-lib/api-schemas.ts                    Zod schemas for all request bodies
-```
+The real issue in economics is evaluation selection, not division by zero.
+
+### Duplicate `0010` prefix as the primary migration problem
+
+This is not the operative failure mode. The stronger and immediate defect is that the journal does not register any of the new migrations. Even if the `0010` naming is sloppy, the current deploy blocker is the absent journal entries.
+
+### `generateObject` deprecation as a current breakage
+
+The installed dependency is `ai@^6.0.73` in `package.json`, and the current code typechecks against it. This may still be future tech debt, but it is not a verified present-tense production bug from this review alone.
+
+## Test Surface Gaps
+
+- The run-model tests mostly mock Drizzle chains rather than exercising real SQL, so migration and query-ordering defects are not caught.
+- No test in the scanned surface asserts run ownership on execute/evaluate/failure-tag routes.
+- No test in the scanned surface asserts multi-rubric report selection or economics behavior.
+
+## Ready/Not Ready
+
+Not ready.
+
+Minimum bar before calling this delivery production-safe:
+
+1. Regenerate or otherwise correctly register the new Drizzle migrations.
+2. Add owner authorization checks to every run read/write surface or introduce an explicit public visibility model.
+3. Make economics and report assembly choose evaluations deterministically, with explicit rubric semantics.
+4. Add integration tests for migration application and multi-evaluation behavior.

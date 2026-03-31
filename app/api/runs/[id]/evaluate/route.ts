@@ -10,6 +10,7 @@ import { parseValidBody, errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { log } from '@/lib/logger';
 import { evaluateRunSchema } from '@/lib/api-schemas';
 import { evaluateRun } from '@/lib/eval/judge';
+import { getRunIfOwner } from '@/lib/run/runs';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -32,7 +33,12 @@ export async function POST(
 
   try {
     const db = requireDb();
-    const evaluations = await evaluateRun(db, asRunId(id), {
+    const runId = asRunId(id);
+
+    const run = await getRunIfOwner(db, runId, userId);
+    if (!run) return errorResponse('Run not found', 404);
+
+    const evaluations = await evaluateRun(db, runId, {
       model: judgeModel ?? 'claude-sonnet-4-20250514',
       rubricId: asRubricId(rubricId),
     });
@@ -40,6 +46,9 @@ export async function POST(
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
 
+    if (msg.includes('Forbidden')) {
+      return errorResponse(API_ERRORS.FORBIDDEN, 403);
+    }
     if (msg.includes('not found')) {
       return errorResponse('Run not found', 404);
     }

@@ -57,6 +57,10 @@ async function rawPOST(req: Request) {
 
 async function rawGET(req: Request) {
   const { userId } = await auth();
+  if (!userId) {
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
+  }
+
   const url = new URL(req.url);
 
   const status = url.searchParams.get('status') as RunStatus | null;
@@ -68,7 +72,7 @@ async function rawGET(req: Request) {
   const runs = await listRuns(db, {
     status: status ?? undefined,
     taskId: taskId ?? undefined,
-    ownerId: userId ?? undefined,
+    ownerId: userId,
     limit: Math.min(limit, 100),
     offset: Math.max(offset, 0),
   });

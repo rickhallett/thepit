@@ -10,13 +10,18 @@ const mockCreateTask = vi.hoisted(() => vi.fn());
 const mockCreateRun = vi.hoisted(() => vi.fn());
 const mockAddContestant = vi.hoisted(() => vi.fn());
 const mockListRuns = vi.hoisted(() => vi.fn());
+const mockGetRunIfOwner = vi.hoisted(() => vi.fn());
 const mockGetRunWithTraces = vi.hoisted(() => vi.fn());
 const mockExecuteRun = vi.hoisted(() => vi.fn());
 
 vi.mock('@clerk/nextjs/server', () => ({ auth: mockAuth }));
 vi.mock('@/db', () => ({ requireDb: mockRequireDb }));
 vi.mock('@/lib/run/tasks', () => ({ createTask: mockCreateTask }));
-vi.mock('@/lib/run/runs', () => ({ createRun: mockCreateRun, listRuns: mockListRuns }));
+vi.mock('@/lib/run/runs', () => ({
+  createRun: mockCreateRun,
+  listRuns: mockListRuns,
+  getRunIfOwner: mockGetRunIfOwner,
+}));
 vi.mock('@/lib/run/contestants', () => ({ addContestant: mockAddContestant }));
 vi.mock('@/lib/run/queries', () => ({ getRunWithTraces: mockGetRunWithTraces }));
 vi.mock('@/lib/run/engine', () => ({ executeRun: mockExecuteRun }));
@@ -203,6 +208,8 @@ describe('GET /api/runs', () => {
 describe('GET /api/runs/:id', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuth.mockResolvedValue({ userId: 'user-1' });
+    mockGetRunIfOwner.mockResolvedValue(fakeRun);
   });
 
   it('returns run with traces (200)', async () => {
@@ -220,6 +227,7 @@ describe('GET /api/runs/:id', () => {
   });
 
   it('returns 404 for missing run', async () => {
+    mockGetRunIfOwner.mockResolvedValue(null);
     mockGetRunWithTraces.mockResolvedValue(null);
 
     const { GET } = await import('@/app/api/runs/[id]/route');
@@ -238,6 +246,7 @@ describe('POST /api/runs/:id/execute', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.mockResolvedValue({ userId: 'user-1' });
+    mockGetRunIfOwner.mockResolvedValue(fakeRun);
   });
 
   it('executes a pending run (200)', async () => {
@@ -264,7 +273,7 @@ describe('POST /api/runs/:id/execute', () => {
   });
 
   it('returns 404 for missing run', async () => {
-    mockExecuteRun.mockRejectedValue(new Error('Run not found: run-000'));
+    mockGetRunIfOwner.mockResolvedValue(null);
 
     const { POST } = await import('@/app/api/runs/[id]/execute/route');
     const req = makeRequest('POST', 'http://localhost/api/runs/run-000/execute');

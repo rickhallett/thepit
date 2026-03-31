@@ -2,11 +2,13 @@
 //
 // HTTP layer only. Composite query lives in lib/run/queries.ts.
 
+import { auth } from '@clerk/nextjs/server';
 import { requireDb } from '@/db';
 import { asRunId } from '@/lib/domain-ids';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { log } from '@/lib/logger';
 import { getRunWithTraces } from '@/lib/run/queries';
+import { getRunIfOwner } from '@/lib/run/runs';
 
 export const runtime = 'nodejs';
 
@@ -14,19 +16,30 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { userId } = await auth();
+  if (!userId) {
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
+  }
+
   const { id } = await params;
 
   try {
     const db = requireDb();
-    const run = await getRunWithTraces(db, asRunId(id));
+    const runId = asRunId(id);
 
-    if (!run) {
-      return errorResponse('Run not found', 404);
-    }
+    const run = await getRunIfOwner(db, runId, userId);
+    if (!run) return errorResponse('Run not found', 404);
 
-    return Response.json(run);
+    const runWithTraces = await getRunWithTraces(db, runId);
+    if (!runWithTraces) return errorResponse('Run not found', 404);
+
+    return Response.json(runWithTraces);
   } catch (error) {
-    log.error('GET /api/runs/[id] failed', error instanceof Error ? error : new Error(String(error)));
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('Forbidden')) {
+      return errorResponse(API_ERRORS.FORBIDDEN, 403);
+    }
+    log.error('GET /api/runs/[id] failed', error instanceof Error ? error : new Error(msg));
     return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 }
