@@ -3,11 +3,13 @@
 // Loads the run, its contestants, the latest evaluation per contestant,
 // and the rubric. Builds a scorecard per contestant and returns the array.
 
+import { auth } from '@clerk/nextjs/server';
 import { requireDb } from '@/db';
 import { asRunId, asRubricId } from '@/lib/domain-ids';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { log } from '@/lib/logger';
 import { getRunWithTraces } from '@/lib/run/queries';
+import { getRunIfOwner } from '@/lib/run/runs';
 import { getEvaluationsForRun } from '@/lib/eval/evaluations';
 import { getRubric } from '@/lib/eval/rubrics';
 import { buildScorecard } from '@/lib/eval/scoring';
@@ -18,13 +20,23 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { userId } = await auth();
+  if (!userId) {
+    return errorResponse(API_ERRORS.AUTH_REQUIRED, 401);
+  }
+
   const { id } = await params;
   const url = new URL(req.url);
   const rubricId = url.searchParams.get('rubricId');
 
   try {
     const db = requireDb();
-    const run = await getRunWithTraces(db, asRunId(id));
+    const runId = asRunId(id);
+
+    const ownerCheck = await getRunIfOwner(db, runId, userId);
+    if (!ownerCheck) return errorResponse('Run not found', 404);
+
+    const run = await getRunWithTraces(db, runId);
 
     if (!run) {
       return errorResponse('Run not found', 404);
@@ -66,7 +78,9 @@ export async function GET(
 
     return Response.json(scorecards, { status: 200 });
   } catch (error) {
-    log.error('GET /api/runs/[id]/scores failed', error instanceof Error ? error : new Error(String(error)));
+    const msg = error instanceof Error ? error.message : String(error);
+    if (msg.includes('Forbidden')) return errorResponse(API_ERRORS.FORBIDDEN, 403);
+    log.error('GET /api/runs/[id]/scores failed', error instanceof Error ? error : new Error(msg));
     return errorResponse(API_ERRORS.INTERNAL, 500);
   }
 }

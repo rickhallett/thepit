@@ -3,11 +3,11 @@
 // Pure aggregation over cost_ledger and evaluations tables.
 // No new tables. No migrations. No HTTP awareness.
 
-import { eq, sql } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 
 import { costLedger, contestants, evaluations } from '@/db/schema';
 import type { DbOrTx } from '@/db';
-import type { RunId, ContestantId } from '@/lib/domain-ids';
+import type { RunId, RubricId, ContestantId } from '@/lib/domain-ids';
 
 /** Per-contestant economics with optional score-based tradeoff metrics. */
 export type ContestantEconomics = {
@@ -48,6 +48,7 @@ export type RunEconomics = {
 export async function getRunEconomics(
   db: DbOrTx,
   runId: RunId,
+  rubricId?: RubricId,
 ): Promise<RunEconomics | null> {
   // 1. Aggregate cost_ledger by contestantId
   const costRows = await db
@@ -78,21 +79,30 @@ export async function getRunEconomics(
     contestantRows.map((c) => [c.id, c]),
   );
 
-  // 3. Load latest evaluations per contestant (if any)
+  // 3. Load evaluations per contestant, ordered by createdAt desc.
+  // Filter by rubricId if provided for deterministic selection.
+  const evalConditions = [eq(evaluations.runId, runId)];
+  if (rubricId) {
+    evalConditions.push(eq(evaluations.rubricId, rubricId));
+  }
+
   const evalRows = await db
     .select({
       contestantId: evaluations.contestantId,
       overallScore: evaluations.overallScore,
+      createdAt: evaluations.createdAt,
     })
     .from(evaluations)
-    .where(eq(evaluations.runId, runId));
+    .where(and(...evalConditions))
+    .orderBy(desc(evaluations.createdAt));
 
   // Build a map of contestantId -> latest overallScore.
-  // If multiple evaluations exist for the same contestant, take the last one
-  // (evalRows are unordered here, so we just overwrite -- fine for MVP).
+  // Rows are ordered newest-first, so the first seen per contestant is the latest.
   const scoreMap = new Map<string, number>();
   for (const row of evalRows) {
-    scoreMap.set(row.contestantId, row.overallScore);
+    if (!scoreMap.has(row.contestantId)) {
+      scoreMap.set(row.contestantId, row.overallScore);
+    }
   }
 
   // 4. Combine into ContestantEconomics[]

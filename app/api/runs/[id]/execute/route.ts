@@ -10,6 +10,7 @@ import { asRunId } from '@/lib/domain-ids';
 import { errorResponse, API_ERRORS } from '@/lib/api-utils';
 import { log } from '@/lib/logger';
 import { executeRun } from '@/lib/run/engine';
+import { getRunIfOwner } from '@/lib/run/runs';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -27,17 +28,24 @@ export async function POST(
 
   try {
     const db = requireDb();
-    const result = await executeRun(db, asRunId(id));
+    const runId = asRunId(id);
+
+    const run = await getRunIfOwner(db, runId, userId);
+    if (!run) return errorResponse('Run not found', 404);
+
+    const result = await executeRun(db, runId);
     return Response.json(result);
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
 
-    // Expected errors from executeRun validation
+    if (msg.includes('Forbidden')) {
+      return errorResponse(API_ERRORS.FORBIDDEN, 403);
+    }
     if (msg.includes('not found')) {
       return errorResponse('Run not found', 404);
     }
     if (msg.includes('expected pending')) {
-      return errorResponse(`Run is not in pending status`, 409);
+      return errorResponse('Run is not in pending status', 409);
     }
 
     log.error('POST /api/runs/[id]/execute failed', error instanceof Error ? error : new Error(msg));

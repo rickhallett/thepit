@@ -4,15 +4,19 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 // Hoisted mocks
 // ---------------------------------------------------------------------------
 
+const mockAuth = vi.hoisted(() => vi.fn().mockResolvedValue({ userId: 'user-1' }));
 const mockRequireDb = vi.hoisted(() => vi.fn().mockReturnValue({}));
 const mockGetRunWithTraces = vi.hoisted(() => vi.fn());
+const mockGetRunIfOwner = vi.hoisted(() => vi.fn());
 const mockGetEvaluationsForRun = vi.hoisted(() => vi.fn());
 const mockGetRubric = vi.hoisted(() => vi.fn());
 const mockBuildScorecard = vi.hoisted(() => vi.fn());
 const mockCompareRun = vi.hoisted(() => vi.fn());
 
+vi.mock('@clerk/nextjs/server', () => ({ auth: mockAuth }));
 vi.mock('@/db', () => ({ requireDb: mockRequireDb }));
 vi.mock('@/lib/run/queries', () => ({ getRunWithTraces: mockGetRunWithTraces }));
+vi.mock('@/lib/run/runs', () => ({ getRunIfOwner: mockGetRunIfOwner }));
 vi.mock('@/lib/eval/evaluations', () => ({ getEvaluationsForRun: mockGetEvaluationsForRun }));
 vi.mock('@/lib/eval/rubrics', () => ({ getRubric: mockGetRubric }));
 vi.mock('@/lib/eval/scoring', () => ({
@@ -92,6 +96,8 @@ function makeRequest(method: string, url: string): Request {
 describe('GET /api/runs/:id/scores', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuth.mockResolvedValue({ userId: 'user-1' });
+    mockGetRunIfOwner.mockResolvedValue(fakeRun);
     mockGetRunWithTraces.mockResolvedValue(fakeRun);
     mockGetEvaluationsForRun.mockResolvedValue([fakeEvaluation]);
     mockGetRubric.mockResolvedValue(fakeRubric);
@@ -110,6 +116,7 @@ describe('GET /api/runs/:id/scores', () => {
   });
 
   it('returns 404 for missing run', async () => {
+    mockGetRunIfOwner.mockResolvedValue(null);
     mockGetRunWithTraces.mockResolvedValue(null);
 
     const { GET } = await import('@/app/api/runs/[id]/scores/route');

@@ -49,7 +49,8 @@
   epic: null
   created: '2026-03-09T09:53:25.454394+00:00'
   closed: '2026-03-12T14:00:00+00:00'
-  reason: 'Signal killed SD-321. Adversarial test completed SD-320: shorthand >= signal with 14% smaller size.'
+  reason: 'Signal killed SD-321. Adversarial test completed SD-320: shorthand >= signal
+    with 14% smaller size.'
 - id: BL-007
   title: 'Blog publish scheduler: script to flip draft=false on posts by date. Hugo
     renders future-dated draft=false pages only with buildFuture=true. Need either
@@ -177,3 +178,14 @@
   created: '2026-03-16T09:30:00.000000+00:00'
   closed: null
   reason: null
+- id: BL-016
+  title: Adversarial review for phase 1/2/3 delivery
+  status: closed
+  priority: high
+  tags:
+  - review
+  - triangulation
+  epic: null
+  created: '2026-03-30T14:08:33.476823+01:00'
+  closed: '2026-03-30T14:08:36.967585+01:00'
+  reason: Review completed and written to docs/internal/triangulation/phase-1-2-3-review-springboard-2026-03-30.md

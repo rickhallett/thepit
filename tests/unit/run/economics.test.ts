@@ -30,6 +30,8 @@ vi.mock('@/db/schema', () => ({
 
 vi.mock('drizzle-orm', () => ({
   eq: vi.fn((_col: unknown, _val: unknown) => ({ _eq: [_col, _val] })),
+  and: vi.fn((...conditions: unknown[]) => ({ _and: conditions })),
+  desc: vi.fn((_col: unknown) => ({ _desc: _col })),
   sql: (strings: TemplateStringsArray, ...values: unknown[]) => ({
     as: (_alias: string) => `sql_${_alias}`,
     _sql: true,
@@ -98,7 +100,8 @@ function buildMockDb(
               return { groupBy: vi.fn().mockReturnValue(costRows) };
             }
             if (idx === 1) return contestantRows;
-            return evalRows;
+            // Evaluations query now chains .orderBy() after .where()
+            return { orderBy: vi.fn().mockReturnValue(evalRows) };
           }),
         }),
       };

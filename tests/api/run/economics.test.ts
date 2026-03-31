@@ -4,11 +4,15 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 // Hoisted mocks
 // ---------------------------------------------------------------------------
 
+const mockAuth = vi.hoisted(() => vi.fn().mockResolvedValue({ userId: 'user-1' }));
 const mockRequireDb = vi.hoisted(() => vi.fn().mockReturnValue({}));
 const mockGetRunEconomics = vi.hoisted(() => vi.fn());
+const mockGetRunIfOwner = vi.hoisted(() => vi.fn());
 
+vi.mock('@clerk/nextjs/server', () => ({ auth: mockAuth }));
 vi.mock('@/db', () => ({ requireDb: mockRequireDb }));
 vi.mock('@/lib/run/economics', () => ({ getRunEconomics: mockGetRunEconomics }));
+vi.mock('@/lib/run/runs', () => ({ getRunIfOwner: mockGetRunIfOwner }));
 vi.mock('@/lib/logger', () => ({
   log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
@@ -65,9 +69,13 @@ function makeRequest(method: string, url: string): Request {
 // Tests
 // ---------------------------------------------------------------------------
 
+const fakeRun = { id: RUN_ID, ownerId: 'user-1', status: 'completed' };
+
 describe('GET /api/runs/:id/economics', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuth.mockResolvedValue({ userId: 'user-1' });
+    mockGetRunIfOwner.mockResolvedValue(fakeRun);
   });
 
   it('returns economics (200)', async () => {
@@ -87,6 +95,7 @@ describe('GET /api/runs/:id/economics', () => {
   });
 
   it('returns 404 for missing run', async () => {
+    mockGetRunIfOwner.mockResolvedValue(null);
     mockGetRunEconomics.mockResolvedValue(null);
 
     const { GET } = await import('@/app/api/runs/[id]/economics/route');

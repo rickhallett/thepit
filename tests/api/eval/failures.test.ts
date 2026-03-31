@@ -8,6 +8,7 @@ const mockAuth = vi.hoisted(() => vi.fn().mockResolvedValue({ userId: 'user-1' }
 const mockRequireDb = vi.hoisted(() => vi.fn().mockReturnValue({}));
 const mockAddFailureTag = vi.hoisted(() => vi.fn());
 const mockGetFailureTagsForRun = vi.hoisted(() => vi.fn());
+const mockGetRunIfOwner = vi.hoisted(() => vi.fn());
 
 vi.mock('@clerk/nextjs/server', () => ({ auth: mockAuth }));
 vi.mock('@/db', () => ({ requireDb: mockRequireDb }));
@@ -15,6 +16,7 @@ vi.mock('@/lib/eval/failure-tags', () => ({
   addFailureTag: mockAddFailureTag,
   getFailureTagsForRun: mockGetFailureTagsForRun,
 }));
+vi.mock('@/lib/run/runs', () => ({ getRunIfOwner: mockGetRunIfOwner }));
 vi.mock('@/lib/logger', () => ({
   log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
@@ -52,10 +54,13 @@ function makeRequest(method: string, url: string, body?: unknown): Request {
 // Tests
 // ---------------------------------------------------------------------------
 
+const fakeRun = { id: 'run-000000000000000000', ownerId: 'user-1', status: 'completed' };
+
 describe('POST /api/runs/:id/failures', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.mockResolvedValue({ userId: 'user-1' });
+    mockGetRunIfOwner.mockResolvedValue(fakeRun);
     mockAddFailureTag.mockResolvedValue(fakeTag);
   });
 
@@ -96,6 +101,8 @@ describe('POST /api/runs/:id/failures', () => {
 describe('GET /api/runs/:id/failures', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAuth.mockResolvedValue({ userId: 'user-1' });
+    mockGetRunIfOwner.mockResolvedValue(fakeRun);
     mockGetFailureTagsForRun.mockResolvedValue([fakeTag]);
   });
 

@@ -10,7 +10,7 @@ import { runs } from '@/db/schema';
 import type { DbOrTx } from '@/db';
 import { asRunId, type RunId } from '@/lib/domain-ids';
 import type { TaskId } from '@/lib/domain-ids';
-import type { Run, RunStatus, ListRunsOptions } from './types';
+import type { Run, ListRunsOptions } from './types';
 
 /** Input for creating a new run. */
 export type CreateRunInput = {
@@ -51,6 +51,23 @@ export async function getRun(
     .limit(1);
 
   return run ?? null;
+}
+
+/**
+ * Verify that a run exists and belongs to the specified owner.
+ * Returns the run if authorized, null if not found, throws if unauthorized.
+ */
+export async function getRunIfOwner(
+  db: DbOrTx,
+  id: RunId,
+  userId: string,
+): Promise<Run | null> {
+  const run = await getRun(db, id);
+  if (!run) return null;
+  if (run.ownerId !== userId) {
+    throw new Error('Forbidden: run belongs to another user');
+  }
+  return run;
 }
 
 /** List runs with optional filters and pagination. */

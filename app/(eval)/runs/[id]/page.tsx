@@ -1,9 +1,11 @@
 // Run report page -- server component displaying run data, traces,
 // evaluations, economics, and comparison (M3.4). Closes #127.
 
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { auth } from '@clerk/nextjs/server';
 import { requireDb } from '@/db';
 import { asRunId, asRubricId } from '@/lib/domain-ids';
+import { getRunIfOwner } from '@/lib/run/runs';
 import { getRunWithTraces } from '@/lib/run/queries';
 import { getRunEconomics } from '@/lib/run/economics';
 import { getEvaluationsForRun } from '@/lib/eval/evaluations';
@@ -21,28 +23,48 @@ import type { RunReport } from '@/lib/eval/types';
 
 export default async function RunReportPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const { userId } = await auth();
+  if (!userId) redirect('/sign-in');
+
   const { id } = await params;
   const db = requireDb();
   const runId = asRunId(id);
 
+  // Ownership check
+  const ownerCheck = await getRunIfOwner(db, runId, userId);
+  if (!ownerCheck) notFound();
+
   const run = await getRunWithTraces(db, runId);
   if (!run) notFound();
 
-  const economics = await getRunEconomics(db, runId);
+  const sp = await searchParams;
+  const rubricIdParam = typeof sp.rubricId === 'string' ? sp.rubricId : undefined;
 
-  // Check for evaluations and build report if any exist.
-  // We need a rubricId to assemble the report. Find it from
-  // the first evaluation, if evaluations exist.
   const allEvaluations = await getEvaluationsForRun(db, runId);
   const allFailureTags = await getFailureTagsForRun(db, runId);
 
+  // Determine rubricId: explicit query param takes precedence.
+  // If not provided but evaluations exist, collect available rubrics
+  // so the user can choose. Never auto-pick arbitrarily.
+  const availableRubricIds = [...new Set(allEvaluations.map(e => e.rubricId))];
+  const selectedRubricId = rubricIdParam
+    ? asRubricId(rubricIdParam)
+    : availableRubricIds.length === 1
+      ? asRubricId(availableRubricIds[0]!)
+      : undefined;
+
+  const economics = selectedRubricId
+    ? await getRunEconomics(db, runId, selectedRubricId)
+    : await getRunEconomics(db, runId);
+
   let report: RunReport | null = null;
-  if (allEvaluations.length > 0) {
-    const rubricId = asRubricId(allEvaluations[0]!.rubricId);
-    report = await assembleRunReport(db, runId, rubricId);
+  if (selectedRubricId) {
+    report = await assembleRunReport(db, runId, selectedRubricId);
   }
 
   const { task, contestants, status } = run;
@@ -56,6 +78,25 @@ export default async function RunReportPage({
           Run {id} / {status}
         </p>
       </div>
+
+      {/* Rubric selection (when multiple rubrics evaluated and none specified) */}
+      {!selectedRubricId && availableRubricIds.length > 1 && (
+        <section className="rounded border border-accent/40 bg-accent/5 p-4 text-sm">
+          <p className="mb-2 font-medium">Multiple rubrics used. Select one to view scores:</p>
+          <ul className="space-y-1">
+            {availableRubricIds.map((rid) => (
+              <li key={rid}>
+                <a
+                  href={`/runs/${id}?rubricId=${rid}`}
+                  className="text-accent underline hover:no-underline"
+                >
+                  {rid}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Task details */}
       <section className="space-y-2">
