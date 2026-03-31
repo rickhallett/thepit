@@ -18,6 +18,7 @@ import { CostBreakdown } from '@/components/eval/CostBreakdown';
 import { ComparisonView } from '@/components/eval/ComparisonView';
 import { TraceViewer } from '@/components/eval/TraceViewer';
 import { EvaluateButton } from '@/components/eval/EvaluateButton';
+import { ExecuteButton } from '@/components/eval/ExecuteButton';
 
 import type { RunReport } from '@/lib/eval/types';
 
@@ -279,6 +280,13 @@ export default async function RunReportPage({
               )}
             </dl>
           </div>
+        </section>
+      )}
+
+      {/* Execute button (pending runs only) */}
+      {status === 'pending' && (
+        <section>
+          <ExecuteButton runId={id} />
         </section>
       )}
 

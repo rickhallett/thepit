@@ -1,43 +1,43 @@
 - id: BL-001
   title: Migrate Makefile to justfile
-  status: open
+  status: closed
   priority: medium
   tags:
   - housekeeping
   epic: null
   created: '2026-03-08T15:41:52.485496+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-002
   title: Daemon integration tests for two-phase shutdown
-  status: open
+  status: closed
   priority: low
   tags:
   - testing
   epic: E1
   created: '2026-03-08T15:41:52.544237+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-003
   title: 'Darkcat finding: daemon exits even when shutdown command fails'
-  status: open
+  status: closed
   priority: medium
   tags:
   - bugfix
   epic: E1
   created: '2026-03-08T15:41:52.605071+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-004
   title: Migrate pnpm to bun (pair with Just migration)
-  status: open
+  status: closed
   priority: medium
   tags:
   - housekeeping
   epic: null
   created: '2026-03-08T15:52:48.640667+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-005
   title: Check Signal compression claim against compressed natural language control
     (shorthand). Signal may hold up as style guidance with implicit syntax meaning,
@@ -52,31 +52,19 @@
   reason: 'Signal killed SD-321. Adversarial test completed SD-320: shorthand >= signal
     with 14% smaller size.'
 - id: BL-007
-  title: 'Blog publish scheduler: script to flip draft=false on posts by date. Hugo
-    renders future-dated draft=false pages only with buildFuture=true. Need either
-    a cron/CI job that flips draft flag on publish day, or set buildFuture=true and
-    rely solely on date field. Simplest: buildFuture=false (default) + script that
-    sets draft=false and date=today on publish day.'
-  status: open
+  title: 'Blog publish scheduler: script to flip draft=false on posts by date.'
+  status: closed
   priority: medium
   tags:
   - tooling
   - blog
   epic: null
   created: '2026-03-10T13:00:00+00:00'
-  closed: null
-  reason: 'Deferred: dates set on 16 drafts (2026-03-16 through 2026-03-31) but no
-    automated publish mechanism yet'
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-008
-  title: 'Analyst dispatch: portfolio value left on table after pivot to midgets.
-    The thepit-v2 darkcat alley pipeline produced triangulation data + fix commits
-    but human QA pass was never completed. What did ALL three models miss? Fix quality
-    metrics (pre-QA vs post-QA delta) never computed. Numeric comparison data exists
-    for richer visualisations (hex.tech/pynb). Dispatch analyst to assess: (1) what
-    signal remains in the unfinished QA data, (2) what cross-model blind spots the
-    convergence data reveals, (3) whether the numeric data supports portfolio-grade
-    visualisations.'
-  status: open
+  title: 'Analyst dispatch: portfolio value left on table after pivot to midgets.'
+  status: closed
   priority: medium
   tags:
   - portfolio
@@ -84,35 +72,30 @@
   - darkcat-alley
   epic: null
   created: '2026-03-10T14:00:00+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-009
-  title: 'midgets README.md with link to how-we-got-here.md - flyover orientation
-    for new users. README links to repo, POC, governance. how-we-got-here.md covers
-    the arc: pilot study (tspit) -> SaaS product (thepit-v2, 274/274 green) -> pivot
-    to agent-native Linux (midgets). Defer until multi-agent gauntlet is working.'
-  status: open
+  title: 'midgets README.md with link to how-we-got-here.md'
+  status: closed
   priority: low
   tags:
   - documentation
   - onboarding
   epic: null
   created: '2026-03-10T14:00:00+00:00'
-  closed: null
-  reason: 'Deferred: blocked on multi-agent gauntlet being operational first'
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-006
-  title: 'Slopmop v2: Unix pipe filter for slop detection/replacement (T0 deterministic
-    + T2 semantic). Prior work shows structural heuristics (T1) unreliable. Added
-    complexity vs marginal gain relative to true north.'
-  status: open
+  title: 'Slopmop v2: Unix pipe filter for slop detection/replacement'
+  status: closed
   priority: low
   tags:
   - tooling
   - portfolio
   epic: null
   created: '2026-03-10T12:00:00+00:00'
-  closed: null
-  reason: 'Parked: complexity vs marginal gain. See docs/field-notes/2026-03-10-slopmop-pipe-filter-exploration.md'
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-010
   title: Evaluate debian:bookworm-slim or wolfi as midget base image
   status: closed
@@ -125,59 +108,57 @@
   reason: 'Decided: using debian:bookworm-slim. Evaluation complete.'
 - id: BL-011
   title: capture and pipe used tokens for midgets back for observation
-  status: open
+  status: closed
   priority: medium
   tags: []
   epic: null
   created: '2026-03-11T09:22:33.022298+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-012
   title: Slopodar muster - rate 547 single-model proposals via bin/slopodar-muster,
     enrich taxonomy
-  status: open
+  status: closed
   priority: medium
   tags:
   - slopodar
   epic: null
   created: '2026-03-12T05:11:21.252823+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-013
-  title: VS Code extension for @slop annotations - inline slopodar backref, hover
-    for taxonomy entry, gutter icons for annotation density
-  status: open
+  title: VS Code extension for @slop annotations
+  status: closed
   priority: medium
   tags:
   - tooling
   - slopodar
   epic: null
   created: '2026-03-16T09:30:00.000000+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-014
   title: Remove lib/eval/ dead modules or integrate into runtime evaluation pipeline
-  status: open
+  status: closed
   priority: low
   tags:
   - tech-debt
   - code-health
   epic: null
   created: '2026-03-16T09:30:00.000000+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-015
-  title: Restructure lib/ into domain subdirectories (agent/, bout/, api/, credits/,
-    content/, engagement/) - durian job, own value stream
-  status: open
+  title: Restructure lib/ into domain subdirectories
+  status: closed
   priority: medium
   tags:
   - tech-debt
   - code-health
   epic: null
   created: '2026-03-16T09:30:00.000000+00:00'
-  closed: null
-  reason: null
+  closed: '2026-03-31T14:00:00+00:00'
+  reason: 'Operator: backlog cleared. Not pursuing.'
 - id: BL-016
   title: Adversarial review for phase 1/2/3 delivery
   status: closed

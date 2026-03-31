@@ -10,13 +10,21 @@
 //   - sk-ant-*   → Anthropic directly (backward compatible)
 //   - sk-or-v1-* → OpenRouter (300+ models via curated subset)
 //
-// Platform-funded calls always use Anthropic directly. OpenRouter is
-// BYOK-only — the platform never routes its own calls through OpenRouter.
+// Platform-funded calls route by model ID prefix:
+//   claude-*  -> Anthropic
+//   gpt-* / o1-* / o3-* / o4-* -> OpenAI
+//   gemini-*  -> Google
+//
+// BYOK calls detect provider from API key prefix:
+//   sk-ant-*   -> Anthropic directly
+//   sk-or-v1-* -> OpenRouter (300+ models)
 //
 // LLM cost/token analytics are captured via PostHog $ai_generation events
 // in the bout engine (lib/bout-engine.ts) after each turn completes.
 
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 import {
@@ -33,6 +41,14 @@ import { env } from '@/lib/env';
 const defaultAnthropic = createAnthropic({
   apiKey: env.ANTHROPIC_API_KEY,
 });
+
+const defaultOpenAI = process.env.OPENAI_API_KEY
+  ? createOpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
+
+const defaultGoogle = process.env.GEMINI_API_KEY
+  ? createGoogleGenerativeAI({ apiKey: process.env.GEMINI_API_KEY })
+  : null;
 
 // Model ID resolution uses process.env directly for the fallback chain
 // because env.ts applies defaults (e.g. ANTHROPIC_FREE_MODEL defaults to
@@ -95,10 +111,19 @@ export const getModel = (
   apiKey?: string,
   byokModelId?: string,
 ) => {
-  // Platform-funded call (no user key)
+  // Platform-funded call (no user key) -- route by model ID prefix
   if (!apiKey) {
     const resolvedId =
       modelId === 'byok' ? BYOK_MODEL_ID : modelId ?? FREE_MODEL_ID;
+
+    if (resolvedId.startsWith('gpt-') || resolvedId.startsWith('o1-') || resolvedId.startsWith('o3-') || resolvedId.startsWith('o4-')) {
+      if (!defaultOpenAI) throw new Error('OPENAI_API_KEY is not set');
+      return defaultOpenAI(resolvedId);
+    }
+    if (resolvedId.startsWith('gemini-')) {
+      if (!defaultGoogle) throw new Error('GEMINI_API_KEY is not set');
+      return defaultGoogle(resolvedId);
+    }
     return defaultAnthropic(resolvedId);
   }
 
