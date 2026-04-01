@@ -434,6 +434,147 @@ describe('run-bout streaming error handling', () => {
   });
 
   // -------------------------------------------------------------------------
+  // 4b. onError: DOMException AbortError (AI SDK abort signal)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for DOMException AbortError', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-abort', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const abortError = new DOMException('The operation was aborted', 'AbortError');
+    const result = capturedOnError!(abortError);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 4c. onError: DOMException TimeoutError (AbortSignal.timeout)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for DOMException TimeoutError', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-dom-timeout', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const timeoutError = new DOMException('The operation timed out', 'TimeoutError');
+    const result = capturedOnError!(timeoutError);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 4d. onError: Error with name AbortError (non-DOMException)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for Error with name AbortError', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-abort-err', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const err = new Error('This operation was aborted');
+    err.name = 'AbortError';
+    const result = capturedOnError!(err);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 4e. onError: Error with name ResponseAborted (Next.js abort)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for ResponseAborted errors', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-resp-abort', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const err = new Error('The response was aborted');
+    err.name = 'ResponseAborted';
+    const result = capturedOnError!(err);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 4f. onError: message containing "timed out" (variant spelling)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for "timed out" in error message', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-timed-out', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const result = capturedOnError!(new Error('The operation timed out'));
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
   // 5. onError: 429 rate limit → descriptive message
   // -------------------------------------------------------------------------
   it('returns rate limit message for 429 errors', async () => {
