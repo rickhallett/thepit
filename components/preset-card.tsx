@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useFormStatus } from 'react-dom';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
-import { FREE_MODEL_ID } from '@/lib/ai';
+import { DEFAULT_FREE_MODEL as FREE_MODEL_ID } from '@/lib/models';
 import { trackEvent } from '@/lib/analytics';
 import { useCopy } from '@/lib/copy-client';
 import {
@@ -12,7 +12,7 @@ import {
   estimateBoutCostGbp,
   formatCredits,
   toMicroCredits,
-} from '@/lib/credits';
+} from '@/lib/credits-client';
 import {
   labelForModel,
   useByokModelPicker,

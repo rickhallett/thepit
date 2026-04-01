@@ -7,7 +7,7 @@ import { AgentIcon } from '@/components/agent-icon';
 import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { useCopy } from '@/lib/copy-client';
-import { FREE_MODEL_ID } from '@/lib/ai';
+import { DEFAULT_FREE_MODEL as FREE_MODEL_ID } from '@/lib/models';
 import { useByokModelPicker } from '@/lib/use-byok-model-picker';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {
