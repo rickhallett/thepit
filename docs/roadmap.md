@@ -1,270 +1,263 @@
 ---
-title: "The Pit - Actionable Roadmap"
+title: "The Pit - Platform Infrastructure Roadmap"
 category: plan
-status: draft
-created: 2026-03-27
+status: active
+created: 2026-04-01
 author: weaver
-sources:
-  - docs/the-pit-spec.md
-  - docs/the-pit-skills-and-governance-notes.md
+supersedes: docs/deep-archive/2026-04-01-run-pipeline-abandoned/roadmap-m1-m3-abandoned.md
 ---
 
-# The Pit - Actionable Roadmap
+# The Pit - Platform Infrastructure Roadmap
 
 ## Governing constraint
 
-The spec defines an MVP objective:
+The Pit is a multi-agent debate arena. The product exists and works:
+streaming engine, credit economy, agent builder, shareable replays,
+voting, leaderboard, arena presets, BYOK, custom arenas. 24 tables,
+21 API routes, 1,289 tests.
 
-> Run a structured task between two or more agent configurations,
-> evaluate outputs, store traces, show scores, show failure tags,
-> and show cost.
+This roadmap sequences the remaining Platform lane work from the
+public roadmap. Nothing here invents new product direction. Each
+epic extends or hardens what already ships.
 
-Everything below sequences toward that. Nothing ships that does not
-contribute to that sentence. The existing product (debate arena, SSE
-streaming, agent management, credit economy, 1,289 tests) is the
-foundation - not the destination.
+## Epics
 
-## Phasing
-
-Three phases. Each phase has a gate. No phase begins until the
-previous phase's gate is green.
+Five epics. Sequenced by dependency and risk. Each epic contains
+issues suitable for the 1-PR-per-concern workflow.
 
 ---
 
-### Phase 1 - Run Model and Execution (Workstream 1)
+### Epic 1 - Platform Hardening
 
-**Goal:** A structured run can be defined, executed, and persisted
-with traces.
+**Goal:** Fix known bugs and close audit items in the existing
+foundation before building on it.
 
-**Why first:** Everything else (evaluation, governance, context,
-economics) operates on runs. Without the run model, there is nothing
-to evaluate, govern, or cost.
+**Why first:** Termites in the hull. These are risks to what
+already ships. New features built on a cracked foundation inherit
+the cracks.
 
-#### Milestones
+**Depends on:** Nothing. Start immediately.
 
-**M1.1 - Run schema**
-- Define the run data model: task definition, contestant configs,
-  context bundle reference, status, timestamps
-- Drizzle migration (1 table: runs)
-- GitHub issue, feature branch, 1 PR
+#### Stories
 
-**M1.2 - Task definition schema**
-- Structured task spec: prompt/instructions, constraints, expected
-  output shape, acceptance criteria
-- Drizzle migration (1 table: tasks)
-- 1 PR
+| # | Title | Type | Estimate |
+|---|-------|------|----------|
+| 131 | Fix adversarial review findings (migrations, auth, eval selection) | bug | 45-60 agent-min |
+| 58 | Per-turn timeout for bout engine streamText calls | feature | 30-45 agent-min |
+| 59 | Timeout tests for streaming turn loop | test | 20-30 agent-min |
+| 60 | Classify AI SDK timeout errors in onError handler | feature | 20-30 agent-min |
+| 17 | Rate limiter serverless state sharing audit | audit | 45-60 agent-min |
+| 19 | Blockchain attestation verification gaps audit | audit | 30-45 agent-min |
 
-**M1.3 - Contestant configuration**
-- Model, provider, system prompt, tool access, temperature, context
-  bundle reference
-- Drizzle migration (1 table: contestants)
-- 1 PR
+#### Gate
 
-**M1.4 - Execution engine**
-- Execute a run: load task, load contestant configs, call models via
-  existing AI SDK integration, capture full response
-- Store execution trace (raw request/response, timing, token counts)
-- Drizzle migration (1 table: traces)
-- 1 PR
-
-**M1.5 - Run API**
-- POST /api/runs (create + execute)
-- GET /api/runs/:id (retrieve run with traces)
-- GET /api/runs (list)
-- 1 PR
-
-#### Phase 1 gate
-- Can create a task, configure two contestants, execute a run, and
-  retrieve the full trace via API
-- All existing tests still pass
-- New tests cover run lifecycle
+All existing tests pass. Identified bugs fixed or explicitly
+deferred with documented rationale in the issue.
 
 ---
 
-### Phase 2 - Evaluation and Scoring (Workstream 2)
+### Epic 2 - Ask The Pit (QA and Finish)
 
-**Goal:** Runs produce scores, not just outputs. Evaluation is
-explicit, rubric-driven, and traceable.
+**Goal:** Bring Ask The Pit from 75% to production-ready and
+enable it publicly.
 
-**Depends on:** Phase 1 (runs exist to evaluate)
+**Why second:** The feature is mostly built (API, component,
+config, tests). Finishing it is high-value for low cost and
+demonstrates the "AI-powered FAQ" roadmap item as shipped.
 
-#### Milestones
+**Depends on:** Epic 1 (hardening, especially #131 if it touches
+auth paths Ask The Pit uses).
 
-**M2.1 - Rubric schema**
-- Define rubric data model: criteria, weights, scale, descriptions
-- Drizzle migration (1 table: rubrics)
-- 1 PR
+**Current state:**
+- API route: complete, well-secured, prompt-cached
+- Client UI: functional modal chat, but error messages are vague
+- Config: feature-flagged OFF by default
+- Tests: API + config covered, no e2e, no integration for doc
+  loading or path traversal
 
-**M2.2 - Evaluator engine**
-- Judge module: takes a run trace + rubric, produces per-criterion
-  scores with rationale
-- LLM-as-judge via existing AI SDK (configurable judge model)
-- Store evaluation result with full rationale trace
-- Drizzle migration (1 table: evaluations)
-- 1 PR
+#### Stories
 
-**M2.3 - Scorecard**
-- Aggregate scores per run, per criterion
-- Side-by-side comparison endpoint for two runs on same task
-- GET /api/runs/:id/scores
-- GET /api/comparisons?run_a=X&run_b=Y
-- 1 PR
+| Title | Type | Estimate |
+|-------|------|----------|
+| QA pass: manual testing against checklist (see below) | qa | 30 agent-min |
+| Improve client error messaging (rate limit, network, disabled) | fix | 20-30 agent-min |
+| Add e2e test (click button, type question, verify response) | test | 30-45 agent-min |
+| Add integration tests (doc loading, path traversal guard, section stripping) | test | 20-30 agent-min |
+| Expand documentation sources (add FAQ, API guide, architecture overview) | feature | 20-30 agent-min |
+| Enable feature flag in production | chore | 5 agent-min |
+| Update roadmap page: mark Ask The Pit as shipped | chore | 5 agent-min |
 
-**M2.4 - Failure tagging**
-- Failure taxonomy enum (start small: wrong_answer, partial_answer,
-  refusal, off_topic, unsafe_output, hallucination, format_violation)
-- Manual and evaluator-assigned tags on runs
-- Drizzle migration (1 table: failure_tags)
-- 1 PR
+**QA checklist:**
+- Feature flag off: button does not appear
+- Feature flag on: button appears and responds
+- Rate limit (5/min) enforced correctly
+- Rate limit response is clear to user
+- Documentation sections load correctly
+- Sensitive data (Environment section) stripped
+- Path traversal attempts blocked
+- Long messages (2000 chars) work
+- Over-length messages (2001 chars) rejected
+- Empty messages rejected
+- Network disconnection handled gracefully
+- API errors (503, etc.) show appropriate message
+- Streaming response displays real-time
+- Scrolling works during streaming
+- Multiple conversations in same session work
+- Security prompt followed (does not reveal raw docs or env vars)
+- Response time acceptable (<5s typical)
+- LangSmith traces appear correctly (if enabled)
 
-**M2.5 - Run report**
-- Endpoint that assembles: task, contestants, traces, scores,
-  failure tags, and a generated summary explaining why one run won
-- GET /api/runs/:id/report
-- 1 PR
+#### Gate
 
-#### Phase 2 gate
-- Can run two contestants on a task, score both against a rubric,
-  tag failures, and retrieve a comparative report
-- Evaluator rationale is persisted and inspectable
-- Tests cover scoring lifecycle and edge cases
-
----
-
-### Phase 3 - Cost Visibility and MVP Surface (Workstream 5 + UI)
-
-**Goal:** Every run exposes cost, latency, and token usage. A
-minimal UI makes the MVP usable beyond API calls.
-
-**Depends on:** Phase 2 (scores exist to display alongside cost)
-
-#### Milestones
-
-**M3.1 - Cost ledger**
-- Capture per-run: model used, input tokens, output tokens, latency,
-  computed cost (model pricing table)
-- Drizzle migration (1 table: cost_ledger)
-- Attach to existing trace capture from M1.4
-- 1 PR
-
-**M3.2 - Score/cost tradeoff endpoint**
-- GET /api/runs/:id/economics
-- Returns: score, cost, latency, tokens, score-per-dollar,
-  score-per-second
-- 1 PR
-
-**M3.3 - MVP UI - run creation**
-- Page: create a task, configure two contestants, launch run
-- Minimal form, no polish - functional
-- 1 PR
-
-**M3.4 - MVP UI - run report**
-- Page: view run report with scores, failure tags, cost, traces
-- Side-by-side contestant comparison
-- 1 PR
-
-**M3.5 - MVP UI - run list**
-- Page: list past runs with status, scores, cost summary
-- 1 PR
-
-#### Phase 3 gate
-- End-to-end: create task in UI, run two contestants, view scored
-  report with cost breakdown
-- The MVP sentence is satisfied
+Feature flag enabled in production. QA checklist green. E2e test
+passing in CI.
 
 ---
 
-## Deferred to post-MVP
+### Epic 3 - Vercel AI Gateway and Multi-Model Routing
 
-These are real and important but do not gate the MVP sentence.
+**Goal:** BYOK users can access any supported LLM via Vercel AI
+Gateway. Arena supports per-agent model selection.
 
-**Governance layer (Workstream 3)**
-- Permission boundaries, approval gates, guardrails, audit logs
-- Sequence after MVP proves the run/eval/cost loop works
+**Why third:** Extends the existing BYOK infrastructure (which
+already works for Anthropic and OpenRouter). High hiring signal --
+demonstrates production AI SDK integration and multi-provider
+routing.
 
-**Context layer (Workstream 4)**
-- Context bundle schema, provenance tracking, retrieval surfaces,
-  dirty-context handling
-- Sequence after MVP; for now contestants get inline context only
+**Depends on:** Epic 1 (hardening).
 
-**Portfolio evidence layer (Workstream 6)**
-- Auto-generated portfolio writeups from real runs
-- Sequence after there are enough runs to generate evidence from
+#### Stories
 
-**On-product governance experiments**
-- Spec-first rate, evaluated-change rate, failure taxonomy coverage
-- These are measured from development process, not product features
-- Begin tracking from Phase 1 onward as a parallel practice, not a
-  gated milestone
+| # | Title | Type | Estimate |
+|---|-------|------|----------|
+| 13 | Vercel AI Gateway integration (BYOK multi-provider) | feature | 60-90 agent-min |
+| new | Multi-model routing: per-agent model selection in arena builder | feature | 45-60 agent-min |
+| new | Update roadmap page: mark AI Gateway and multi-model routing as shipped | chore | 5 agent-min |
+
+#### Gate
+
+BYOK user can select from multiple providers. Per-agent model
+selection works in custom arena builder. Existing BYOK Anthropic
+and OpenRouter flows unbroken. Tests cover provider routing.
 
 ---
 
-## Sequencing summary
+### Epic 4 - Tournament Brackets
+
+**Goal:** Elimination-style multi-round events where agents
+compete in structured brackets.
+
+**Why fourth:** Builds on the existing bout infrastructure.
+Highest-complexity new feature. Strong portfolio signal -- shows
+system design at scale.
+
+**Depends on:** Epic 1 (hardening). Architecturally independent
+of Epics 2-3.
+
+#### Stories
+
+| # | Title | Type | Estimate |
+|---|-------|------|----------|
+| 14 | Tournament data model: brackets, rounds, seeding, progression | feature | 60-90 agent-min |
+| new | Tournament execution engine: schedule bouts, advance winners | feature | 60-90 agent-min |
+| new | Tournament API: create, seed, progress, results | feature | 45-60 agent-min |
+| new | Tournament UI: bracket display, seeding, live progress, results | feature | 60-90 agent-min |
+| new | Update roadmap page: mark tournament brackets as shipped | chore | 5 agent-min |
+
+#### Gate
+
+Can create a tournament, seed agents, run elimination rounds,
+advance winners, display bracket and results. Bout engine
+integration tested. Credit accounting correct for multi-bout
+tournaments.
+
+---
+
+### Epic 5 - Spectator Chat
+
+**Goal:** Live commentary during streaming bouts. Viewers can
+discuss while watching.
+
+**Why last:** Socially valuable but not structurally critical.
+Builds on existing SSE streaming infrastructure. Can be descoped
+if time is better spent elsewhere.
+
+**Depends on:** Nothing structurally, but sequenced last by
+priority.
+
+#### Stories
+
+| Title | Type | Estimate |
+|-------|------|----------|
+| Spectator chat data model: messages, participants, bout association | feature | 30-45 agent-min |
+| Spectator chat backend: WebSocket or SSE channel per bout | feature | 45-60 agent-min |
+| Spectator chat UI: embedded chat panel during live bouts | feature | 45-60 agent-min |
+| Moderation: basic rate limiting, content filtering | feature | 30-45 agent-min |
+| Update roadmap page: mark spectator chat as shipped | chore | 5 agent-min |
+
+#### Gate
+
+Spectators can post live comments during a streaming bout.
+Messages appear in real-time for all viewers. Rate-limited and
+filtered.
+
+---
+
+## Sequencing Summary
 
 ```
-Phase 1: Run Model          M1.1 -> M1.2 -> M1.3 -> M1.4 -> M1.5
-                             [gate]
-Phase 2: Evaluation          M2.1 -> M2.2 -> M2.3 -> M2.4 -> M2.5
-                             [gate]
-Phase 3: Cost + UI           M3.1 -> M3.2 -> M3.3 -> M3.4 -> M3.5
-                             [gate = MVP]
+Epic 1: Platform Hardening (start immediately)
+  |
+  +---> Epic 2: Ask The Pit (QA + finish)
+  |
+  +---> Epic 3: AI Gateway + Multi-Model Routing
+  |
+  +---> Epic 4: Tournament Brackets
+  |
+  +---> Epic 5: Spectator Chat (lowest priority)
 ```
 
-15 milestones. Each is 1 PR, 1 concern, 1 gate cycle.
+Epics 2-5 can proceed in parallel after Epic 1 clears. Within
+each epic, stories are sequential unless noted otherwise.
 
----
+**Recommended serial order if single-agent execution:**
+Epic 1 -> Epic 2 -> Epic 3 -> Epic 4 -> Epic 5
+
+**Parallelism opportunities:**
+- Epic 2 and Epic 3 are independent of each other
+- Epic 4 backend and Epic 3 can overlap
+- Epic 5 has no structural dependencies
 
 ## Estimation
 
-Per AGENTS.md standing orders, estimates are in agent-minutes, not
-human speed. Each milestone is a schema + implementation + tests PR.
-
-- Schema-only milestones (M1.1-M1.3, M2.1, M2.4, M3.1): ~30-45
-  agent-minutes each
-- Engine milestones (M1.4, M2.2): ~60-90 agent-minutes each
-- API/endpoint milestones (M1.5, M2.3, M2.5, M3.2): ~30-60
-  agent-minutes each
-- UI milestones (M3.3-M3.5): ~45-90 agent-minutes each
-
-Total estimate: ~10-15 agent-hours for the full MVP.
+| Epic | Stories | Estimate |
+|------|---------|----------|
+| 1 - Hardening | 6 | 3-5 agent-hours |
+| 2 - Ask The Pit | 7 | 2-3 agent-hours |
+| 3 - AI Gateway | 3 | 2-3 agent-hours |
+| 4 - Tournaments | 5 | 4-6 agent-hours |
+| 5 - Spectator Chat | 5 | 3-4 agent-hours |
+| **Total** | **26** | **14-21 agent-hours** |
 
 ---
 
-## First domain
+## Issue Hygiene
 
-Per the spec, the recommended first domain is job-application and
-role-fit workflows. The first task definition should be something
-like:
-- "Evaluate this CV bullet against this role requirement"
-- "Compare two cover letter approaches for this role"
-- "Score this interview answer against this rubric"
+Closed as not planned (2026-04-01):
+- #18 (duplicate of #58)
+- #102, #104, #106, #109 (M1.x run pipeline abandoned)
 
-This keeps the MVP portfolio-relevant and directly useful.
+Archived:
+- `docs/roadmap.md` -> `docs/deep-archive/2026-04-01-run-pipeline-abandoned/`
 
----
+Existing issues retained:
+- #131, #58, #59, #60, #17, #19, #13, #14
 
-## On-product governance (parallel track)
+New issues to create:
+- Ask The Pit stories (Epic 2, ~7 issues)
+- Multi-model routing (Epic 3, 1 issue)
+- Tournament execution, API, UI (Epic 4, 3 issues)
+- Spectator chat stories (Epic 5, 4 issues)
+- Roadmap page updates (1 per epic, 5 issues)
 
-Starting from Phase 1, track:
-- Every milestone begins with a GitHub issue containing acceptance
-  criteria (spec-first rate)
-- Every PR has explicit evaluation criteria in the description
-  (evaluated-change rate)
-- Build failures tagged by category in commit messages
-  (failure taxonomy coverage)
-- Agent token spend logged per PR (cost per accepted change)
-
-This is the dual-layer thesis in practice. The product is being
-built with the same discipline the product will eventually enforce.
-
----
-
-## Decision required
-
-Before starting Phase 1, the Operator should confirm:
-1. Is the existing schema (22 tables) compatible or does the run
-   model need to coexist alongside existing debate infrastructure?
-2. Should existing bout/debate tables be migrated or left as-is
-   with new run tables added alongside?
-3. First task domain: job-application workflows as spec recommends,
-   or something else?
+Total new issues: ~20
