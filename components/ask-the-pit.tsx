@@ -2,6 +2,23 @@
 
 import { useCallback, useRef, useState } from 'react';
 
+/** Map an HTTP error status to a user-facing message. */
+export function getErrorMessage(
+  status: number,
+  _body?: { error?: string },
+): string {
+  switch (status) {
+    case 429:
+      return 'Too many questions. Try again in a moment.';
+    case 404:
+      return 'Ask The Pit is currently unavailable.';
+    case 503:
+      return 'The Pit could not generate a response. Try again.';
+    default:
+      return 'Something went wrong. Try again.';
+  }
+}
+
 type Message = {
   id: number;
   role: 'user' | 'assistant';
@@ -46,10 +63,16 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
         });
 
         if (!res.ok) {
-          const text = await res.text();
+          let body: { error?: string } | undefined;
+          try {
+            body = await res.json();
+          } catch {
+            // Response was not JSON; fall through with undefined body.
+          }
+          const msg = getErrorMessage(res.status, body);
           setMessages((prev) => [
             ...prev,
-            { id: nextMessageId++, role: 'assistant', content: `Error: ${text}` },
+            { id: nextMessageId++, role: 'assistant', content: msg },
           ]);
           setStreaming(false);
           return;
@@ -92,7 +115,7 @@ export function AskThePit({ enabled }: { enabled: boolean }) {
       } catch {
         setMessages((prev) => [
           ...prev,
-          { id: nextMessageId++, role: 'assistant', content: 'Failed to connect.' },
+          { id: nextMessageId++, role: 'assistant', content: 'Could not reach The Pit. Check your connection.' },
         ]);
       } finally {
         setStreaming(false);
