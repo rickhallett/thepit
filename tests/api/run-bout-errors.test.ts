@@ -575,6 +575,91 @@ describe('run-bout streaming error handling', () => {
   });
 
   // -------------------------------------------------------------------------
+  // 4g. onError: HTTP 408 status code (Request Timeout)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for error with status 408', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-408', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const err = Object.assign(new Error('Request Timeout'), { status: 408 });
+    const result = capturedOnError!(err);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 4h. onError: HTTP 504 status code (Gateway Timeout)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for error with status 504', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-504', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const err = Object.assign(new Error('Gateway Timeout'), { status: 504 });
+    const result = capturedOnError!(err);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // 4i. onError: StreamTimeoutError (case-insensitive name match)
+  // -------------------------------------------------------------------------
+  it('returns timeout message for StreamTimeoutError name', async () => {
+    let capturedOnError: ((error: unknown) => string) | undefined;
+
+    createUIMessageStreamMock.mockImplementation(
+      ({ onError }: { execute: (opts: unknown) => Promise<void>; onError?: (error: unknown) => string }) => {
+        capturedOnError = onError;
+        return 'mock-stream';
+      },
+    );
+    createUIMessageStreamResponseMock.mockReturnValue(
+      new Response('stream', { status: 200 }),
+    );
+
+    await POST(
+      makeRequest({ boutId: 'bout-stream-timeout', presetId: 'darwin-special' }),
+    );
+
+    expect(capturedOnError).toBeDefined();
+    const err = new Error('Stream exceeded maximum duration');
+    err.name = 'StreamTimeoutError';
+    const result = capturedOnError!(err);
+    expect(result).toBe(
+      'The bout timed out. Try a shorter length or fewer turns.',
+    );
+  });
+
+  // -------------------------------------------------------------------------
   // 5. onError: 429 rate limit → descriptive message
   // -------------------------------------------------------------------------
   it('returns rate limit message for 429 errors', async () => {
