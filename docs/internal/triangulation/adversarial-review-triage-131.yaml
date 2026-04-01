@@ -1,0 +1,82 @@
+# Adversarial Review Triage - Issue #131
+# Date: 2026-04-01
+# Context: The M1-M3 run/evaluation/cost pipeline that the original
+# adversarial review targeted has been abandoned. Code never merged to main.
+# This triage documents which findings are moot and which still apply.
+
+findings:
+  - id: F1
+    severity: S1-critical
+    category: DATA
+    title: "Migrations 0004-0010 not registered in Drizzle journal"
+    status: moot
+    reason: >
+      Migrations 0004-0010 do not exist on main. They were part of the
+      abandoned pipeline branch. Three earlier hand-written migrations
+      (0001_add_reference_id_unique, 0002_add_user_activated_at,
+      0003_drop_dead_tables) are present as SQL files but not in the
+      Drizzle journal. These were applied manually outside Drizzle's
+      migration system and predate the adversarial review. They are
+      documented here but do not pose a runtime risk since Drizzle
+      only tracks its own generated migrations.
+    action: none-required
+    residual_note: >
+      The three orphan SQL files should be cleaned up or registered if
+      the project re-adopts strict Drizzle migration tracking. Filed
+      as tech-debt, not a blocker.
+
+  - id: F2
+    severity: S1-critical
+    category: SECURITY
+    title: "No ownership enforcement on mutation routes"
+    status: mitigated
+    reason: >
+      All mutation routes on main enforce auth or are public by design.
+      POST /api/agents requires userId (401 if missing).
+      POST /api/run-bout checks bout ownership at bout-validation.ts:309.
+      POST /api/reactions allows anonymous by design (rate-limited, fingerprinted).
+      POST /api/winner-vote requires userId (401 if missing).
+      POST /api/byok-stash requires userId (401 if missing).
+      POST /api/feature-requests requires userId (401 if missing).
+      POST /api/ask-the-pit is public by design (rate-limited by IP).
+      Admin routes use requireAdmin.
+    action: none-required
+    residual_note: >
+      Reactions and ask-the-pit are intentionally public endpoints with
+      rate limiting. This is a design decision, not a gap.
+
+  - id: F3
+    severity: S1-critical
+    category: SECURITY
+    title: "Run contents exposed publicly"
+    status: moot
+    reason: >
+      No run API routes exist on main. The /api/runs/* endpoints were
+      part of the abandoned pipeline branch and never merged.
+    action: none-required
+
+  - id: F4
+    severity: S2-major
+    category: LOGIC
+    title: "Economics picks arbitrary score with multiple evaluations"
+    status: moot
+    reason: >
+      No economics or evaluation code exists on main. The /api/runs/[id]/economics
+      and evaluation routes were part of the abandoned pipeline branch.
+    action: none-required
+
+  - id: F5
+    severity: S2-major
+    category: LOGIC
+    title: "Report page assembles against wrong rubric"
+    status: moot
+    reason: >
+      No report or rubric routes exist on main. The /api/runs/[id]/report
+      and /api/rubrics routes were part of the abandoned pipeline branch.
+    action: none-required
+
+summary: >
+  4 of 5 findings (F1, F3, F4, F5) are moot because the targeted code
+  was never merged to main. F2 (ownership enforcement) was investigated
+  and found to be already mitigated on all existing mutation routes.
+  No code changes required.
