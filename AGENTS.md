@@ -112,6 +112,13 @@ git worktree add -b feat/42-arena-builder ../thepit-42-arena-builder main
 issue -> worktree -> develop -> gate -> PR -> review -> squash merge -> post-merge verify -> close issue -> remove worktree
 ```
 
+## Deployment
+
+- Git-triggered deployments are **disabled** on Vercel (burns server budget)
+- Deploy manually with `vercel --prod` from the CLI
+- Set env vars with `printf 'value' | vercel env add NAME production --force`
+- Never use `echo` for piping env values (use `printf`)
+
 ## Gate
 
 The gate is survival, not optimisation.
