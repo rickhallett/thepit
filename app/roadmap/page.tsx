@@ -63,7 +63,7 @@ const LANES: Lane[] = [
       { label: 'Vercel AI Gateway (BYOK)', status: 'planned', detail: 'BYOK users choose any LLM via Vercel AI Gateway' },
       { label: 'Multi-model routing', status: 'planned', detail: 'Route different agents to different models' },
       { label: 'Tournament brackets', status: 'planned', detail: 'Elimination-style multi-round events' },
-      { label: 'Ask The Pit', status: 'planned', detail: 'AI-powered FAQ chat using project documentation' },
+      { label: 'Ask The Pit', status: 'done', detail: 'AI-powered FAQ chat using curated platform documentation' },
       { label: 'Spectator chat', status: 'planned', detail: 'Live commentary during streaming bouts' },
     ],
   },
