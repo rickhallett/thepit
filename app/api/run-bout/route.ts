@@ -49,13 +49,22 @@ async function rawPOST(req: Request) {
       // AI SDK abort/timeout errors surface as DOMException or Error with
       // name "AbortError", "TimeoutError", or "ResponseAborted" (Next.js).
       // Plain provider errors may contain "timeout", "timed out", or "DEADLINE".
+      // Provider HTTP errors may carry status 408 (Request Timeout) or 504
+      // (Gateway Timeout) without any timeout keyword in the message.
+      const status =
+        error != null && typeof (error as Record<string, unknown>).status === 'number'
+          ? (error as Record<string, unknown>).status
+          : undefined;
       if (
         name === 'AbortError' ||
         name === 'TimeoutError' ||
         name === 'ResponseAborted' ||
+        /timeout/i.test(name) ||
         message.includes('timeout') ||
         message.includes('timed out') ||
-        message.includes('DEADLINE')
+        message.includes('DEADLINE') ||
+        status === 408 ||
+        status === 504
       ) {
         return 'The bout timed out. Try a shorter length or fewer turns.';
       }
