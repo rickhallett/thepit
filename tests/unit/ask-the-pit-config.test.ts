@@ -25,7 +25,7 @@ describe('lib/ask-the-pit-config', () => {
   it('has correct default values', async () => {
     const config = await import('@/lib/ask-the-pit-config');
     expect(config.ASK_THE_PIT_ENABLED).toBe(false);
-    expect(config.ASK_THE_PIT_DOCS).toEqual(['README.md', 'AGENTS.md']);
+    expect(config.ASK_THE_PIT_DOCS).toEqual(['docs/public/ask-the-pit-knowledge.md']);
     expect(config.ASK_THE_PIT_MODEL).toBe(MODEL_IDS.HAIKU);
     expect(config.ASK_THE_PIT_MAX_TOKENS).toBe(2_000);
   });
