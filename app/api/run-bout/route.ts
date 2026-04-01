@@ -40,9 +40,23 @@ async function rawPOST(req: Request) {
     onError(error) {
       const message =
         error instanceof Error ? error.message : String(error);
+      const name =
+        error instanceof Error || error instanceof DOMException
+          ? error.name
+          : '';
       log.error('Bout stream error', error instanceof Error ? error : new Error(message), { boutId: context.boutId });
 
-      if (message.includes('timeout') || message.includes('DEADLINE')) {
+      // AI SDK abort/timeout errors surface as DOMException or Error with
+      // name "AbortError", "TimeoutError", or "ResponseAborted" (Next.js).
+      // Plain provider errors may contain "timeout", "timed out", or "DEADLINE".
+      if (
+        name === 'AbortError' ||
+        name === 'TimeoutError' ||
+        name === 'ResponseAborted' ||
+        message.includes('timeout') ||
+        message.includes('timed out') ||
+        message.includes('DEADLINE')
+      ) {
         return 'The bout timed out. Try a shorter length or fewer turns.';
       }
       if (message.includes('rate') || message.includes('429')) {
