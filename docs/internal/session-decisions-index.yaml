@@ -7,8 +7,8 @@
 # Recent SDs shown here - read full file for deeper history.
 
 generated: "2026-03-16T09:00:00.000Z"
-total_decisions: 328
-range: "SD-001 to SD-329"
+total_decisions: 329
+range: "SD-001 to SD-330"
 note: "Chain carries forward from tspit (pilot study). noopit is thepit-v2 - diverged at SD-278."
 
 # Standing orders that carry forward (always active)
@@ -128,3 +128,7 @@ recent:
     label: "slopodar-to-failure-taxonomy"
     summary: "The slopodar (49-entry anti-pattern taxonomy) is superseded operationally by the failure_category enum in the product schema (wrong_answer, partial_answer, refusal, off_topic, unsafe_output, hallucination, format_violation, context_misuse, instruction_violation). The slopodar is not deleted - it is historical data and the chain is immutable (SD-266). It was the Operator's organic contact with failure classification that the field is now establishing in more collectively agreeable terms. The product's failure taxonomy is the distillation. Supersedes SD-286 (slopodar mandatory boot read). Agents no longer need to load slopodar.yaml on boot."
     status: "STANDING"
+  - id: SD-330
+    label: "run-pipeline-abandoned"
+    summary: "M1-M3 run/evaluation/cost pipeline abandoned. Orders miscommunicated, plans departed from sensible reality. The Pit returns to development of the core product: multi-agent debate arena. Roadmap refocused on platform hardening, Ask The Pit, AI Gateway, tournaments, spectator chat. Closed issues #102, #104, #106, #109, #18. Archived old roadmap to docs/deep-archive/2026-04-01-run-pipeline-abandoned/. New roadmap: docs/roadmap.md."
+    status: "PERMANENT"
