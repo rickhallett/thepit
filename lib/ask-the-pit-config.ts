@@ -7,8 +7,7 @@ import { env } from '@/lib/env';
 export const ASK_THE_PIT_ENABLED = env.ASK_THE_PIT_ENABLED;
 
 export const ASK_THE_PIT_DOCS = [
-  'README.md',
-  'AGENTS.md',
+  'docs/public/ask-the-pit-knowledge.md',
 ];
 
 export const ASK_THE_PIT_MODEL = env.ASK_THE_PIT_MODEL ?? FREE_MODEL_ID;

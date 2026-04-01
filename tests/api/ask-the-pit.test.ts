@@ -26,7 +26,7 @@ const {
     readFileSyncMock: vi.fn(),
     pitConfig: {
       ASK_THE_PIT_ENABLED: true,
-      ASK_THE_PIT_DOCS: ['README.md'],
+      ASK_THE_PIT_DOCS: ['docs/public/ask-the-pit-knowledge.md'],
       ASK_THE_PIT_MODEL: MODELS.HAIKU,
       ASK_THE_PIT_MAX_TOKENS: 2000,
     },
