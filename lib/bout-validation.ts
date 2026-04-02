@@ -108,6 +108,8 @@ export type BoutContext = {
   tier: 'anonymous' | 'free' | 'pass' | 'lab';
   requestId: string;
   db: ReturnType<typeof requireDb>;
+  /** Per-agent model overrides validated against tier rules. Maps agentId to modelId. */
+  agentModelOverrides?: Record<string, string>;
   // ─── Experiment infrastructure (optional) ────────────────────────
   /** Per-turn callback to inject content into agent system prompts. Research API only. */
   promptHook?: PromptHook;
@@ -426,6 +428,31 @@ export async function validateBoutRequest(
     // modelId stays at FREE_MODEL_ID (set above).
   }
 
+  // Per-agent model overrides: validate each agent's model against tier rules.
+  // Only enabled when subscriptions are active and user is authenticated.
+  // Invalid overrides are silently dropped (agent falls back to global modelId).
+  const agentModelOverrides: Record<string, string> = {};
+  if (preset.id === ARENA_PRESET_ID && SUBSCRIPTIONS_ENABLED && userId) {
+    const tier = currentTier as Exclude<typeof currentTier, 'anonymous'>;
+    for (const agent of preset.agents) {
+      if (agent.model && agent.model !== modelId && agent.model !== 'byok') {
+        if (canAccessModel(tier, agent.model) && (PREMIUM_MODEL_OPTIONS.includes(agent.model) || agent.model === FREE_MODEL_ID)) {
+          agentModelOverrides[agent.id] = agent.model;
+        }
+      }
+    }
+  }
+
+  // Credit pre-authorization uses the most expensive model for worst-case estimate.
+  const allModelsInBout = [modelId, ...Object.values(agentModelOverrides)];
+  const worstCaseModelId = allModelsInBout.length > 1
+    ? allModelsInBout.reduce((worst, m) => {
+        const wCost = estimateBoutCostGbp(1, worst);
+        const mCost = estimateBoutCostGbp(1, m);
+        return mCost > wCost ? m : worst;
+      })
+    : modelId;
+
   // Credit pre-authorization
   // Research bypass skips all credit/pool gates - the bouts are platform-internal.
   let preauthMicro = 0;
@@ -433,7 +460,7 @@ export async function validateBoutRequest(
   if (CREDITS_ENABLED && !researchBypass) {
     const estimatedCost = estimateBoutCostGbp(
       preset.maxTurns,
-      modelId,
+      worstCaseModelId,
       lengthConfig.outputTokensPerTurn,
     );
     preauthMicro = toMicroCredits(estimatedCost);
@@ -506,6 +533,9 @@ export async function validateBoutRequest(
       tier: currentTier,
       requestId,
       db,
+      agentModelOverrides: Object.keys(agentModelOverrides).length > 0
+        ? agentModelOverrides
+        : undefined,
     },
   };
 }

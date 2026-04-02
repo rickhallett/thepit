@@ -42,6 +42,7 @@ export type ArenaAgent = {
   systemPrompt: string;
   color?: string;
   avatar?: string;
+  model?: string;
 };
 
 export const boutStatus = pgEnum('bout_status', [

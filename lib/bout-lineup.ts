@@ -27,6 +27,7 @@ export function buildArenaPresetFromLineup(
     systemPrompt: agent.systemPrompt,
     color: agent.color ?? DEFAULT_AGENT_COLOR,
     avatar: agent.avatar,
+    model: agent.model,
   }));
   return {
     id: ARENA_PRESET_ID,

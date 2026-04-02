@@ -60,6 +60,7 @@ export function ArenaBuilder({
   const [selectedModel, setSelectedModel] = useState(
     defaultPremiumModel ?? premiumModels[0] ?? FREE_MODEL_ID,
   );
+  const [agentModels, setAgentModels] = useState<Record<string, string>>({});
   const [byokKey, setByokKey] = useState('');
   const [byokError, setByokError] = useState<string | null>(null);
   const byokStashedRef = useRef(false);
@@ -85,6 +86,11 @@ export function ArenaBuilder({
   const toggle = (id: string) => {
     setSelected((prev) => {
       if (prev.includes(id)) {
+        setAgentModels((m) => {
+          const next = { ...m };
+          delete next[id];
+          return next;
+        });
         return prev.filter((item) => item !== id);
       }
       if (prev.length >= 6) return prev;
@@ -154,14 +160,34 @@ export function ArenaBuilder({
             {selected.map((id) => {
               const agent = agents.find((item) => item.id === id);
               return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => toggle(id)}
-                  className="rounded-full border-2 border-foreground/50 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
-                >
-                  {agent?.name ?? id}
-                </button>
+                <div key={id} className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggle(id)}
+                    className="rounded-full border-2 border-foreground/50 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
+                  >
+                    {agent?.name ?? id}
+                  </button>
+                  {showModelSelector && (
+                    <select
+                      value={agentModels[id] ?? ''}
+                      onChange={(e) =>
+                        setAgentModels((m) => ({
+                          ...m,
+                          [id]: e.target.value,
+                        }))
+                      }
+                      className="border border-foreground/40 bg-black/60 px-2 py-1 text-[9px] uppercase tracking-[0.2em] text-muted focus:border-accent focus:outline-none"
+                    >
+                      <option value="">Bout model</option>
+                      {modelOptions.filter((m) => m !== 'byok').map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -293,6 +319,11 @@ export function ArenaBuilder({
         {selected.map((id) => (
           <input key={id} type="hidden" name="agentIds" value={id} />
         ))}
+        {Object.entries(agentModels).map(([id, model]) =>
+          model ? (
+            <input key={`model-${id}`} type="hidden" name={`agentModel_${id}`} value={model} />
+          ) : null,
+        )}
         {demoMode ? (
           <button
             type="submit"

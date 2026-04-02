@@ -38,6 +38,24 @@ describe('buildArenaPresetFromLineup', () => {
     expect(preset.agents[0]!.avatar).toBeUndefined();
   });
 
+  it('preserves model when present', () => {
+    const lineup = [
+      { id: 'a1', name: 'Agent 1', systemPrompt: 'prompt', model: 'claude-sonnet-4-5-20250514' },
+    ];
+
+    const preset = buildArenaPresetFromLineup(lineup);
+    expect(preset.agents[0]!.model).toBe('claude-sonnet-4-5-20250514');
+  });
+
+  it('leaves model undefined when absent', () => {
+    const lineup = [
+      { id: 'a1', name: 'Agent 1', systemPrompt: 'prompt' },
+    ];
+
+    const preset = buildArenaPresetFromLineup(lineup);
+    expect(preset.agents[0]!.model).toBeUndefined();
+  });
+
   it('handles empty lineup', () => {
     const preset = buildArenaPresetFromLineup([]);
     expect(preset.agents).toHaveLength(0);

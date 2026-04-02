@@ -153,6 +153,7 @@ export async function createArenaBout(formData: FormData) {
       systemPrompt: agent.systemPrompt,
       color: agent.color,
       avatar: agent.avatar,
+      model: getFormString(formData, `agentModel_${agent.id}`) || undefined,
     }));
 
   if (lineup.length !== agentIds.length) {
