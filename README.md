@@ -102,7 +102,7 @@ This repository consolidates three development phases via subtree merge, preserv
 
 **Phase 3 - Validation** (Mar 2026): Cross-model adversarial review, slop failure modes taxonomy (49 entries), container-based agent isolation, and a 12-chapter systems engineering bootcamp.
 
-**Current direction:** Multi-agent debate arena with real-time streaming, agent identity (DNA hashing, on-chain attestation), credit economy, and community features. Platform infrastructure: AI gateway for multi-provider BYOK, tournament brackets, live spectator chat. The dual-layer governance thesis (in-product and on-product) continues as the engineering methodology, not a product feature.
+**Current direction:** Multi-agent debate arena with real-time streaming, agent identity (DNA hashing, on-chain attestation), credit economy, and community features. Platform infrastructure: AI gateway for multi-provider BYOK, tournament brackets. The dual-layer governance thesis (in-product and on-product) continues as the engineering methodology, not a product feature.
 
 The agentic infrastructure (adversarial review pipeline, anti-pattern detection, session governance) lives in `docs/internal/` and supporting tooling. The interesting finding: sycophantic drift - agents performing honesty while being dishonest about their confidence - is harder to catch than hallucination, because it passes every surface-level check.
 
