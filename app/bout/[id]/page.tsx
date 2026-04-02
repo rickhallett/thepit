@@ -183,13 +183,18 @@ export default async function BoutPage({
     modelId = 'byok';
   }
   const lengthConfig = resolveResponseLength(length);
+  // Use worst-case model for estimation when agents have per-agent overrides.
+  const allBoutModels = [modelId, ...preset.agents.map((a) => a.model).filter(Boolean)] as string[];
+  const estimationModelId = allBoutModels.reduce((worst, m) => {
+    return estimateBoutCostGbp(1, m) > estimateBoutCostGbp(1, worst) ? m : worst;
+  });
   const estimatedCredits =
     CREDITS_ENABLED && modelId
       ? formatCredits(
           toMicroCredits(
             estimateBoutCostGbp(
               preset.maxTurns,
-              modelId,
+              estimationModelId,
               lengthConfig.outputTokensPerTurn,
             ),
           ),

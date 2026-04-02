@@ -180,9 +180,9 @@ export function ArenaBuilder({
                       className="border border-foreground/40 bg-black/60 px-2 py-1 text-[9px] uppercase tracking-[0.2em] text-muted focus:border-accent focus:outline-none"
                     >
                       <option value="">Bout model</option>
-                      {modelOptions.map((model) => (
+                      {modelOptions.filter((m) => m !== 'byok').map((model) => (
                         <option key={model} value={model}>
-                          {model === 'byok' ? 'BYOK' : model}
+                          {model}
                         </option>
                       ))}
                     </select>

@@ -429,15 +429,14 @@ export async function validateBoutRequest(
   }
 
   // Per-agent model overrides: validate each agent's model against tier rules.
+  // Only enabled when subscriptions are active and user is authenticated.
   // Invalid overrides are silently dropped (agent falls back to global modelId).
   const agentModelOverrides: Record<string, string> = {};
-  if (preset.id === ARENA_PRESET_ID) {
+  if (preset.id === ARENA_PRESET_ID && SUBSCRIPTIONS_ENABLED && userId) {
+    const tier = currentTier as Exclude<typeof currentTier, 'anonymous'>;
     for (const agent of preset.agents) {
-      if (agent.model && agent.model !== modelId) {
-        const canAccess = userId
-          ? canAccessModel(currentTier as Exclude<typeof currentTier, 'anonymous'>, agent.model)
-          : false;
-        if (canAccess && (PREMIUM_MODEL_OPTIONS.includes(agent.model) || agent.model === FREE_MODEL_ID)) {
+      if (agent.model && agent.model !== modelId && agent.model !== 'byok') {
+        if (canAccessModel(tier, agent.model) && (PREMIUM_MODEL_OPTIONS.includes(agent.model) || agent.model === FREE_MODEL_ID)) {
           agentModelOverrides[agent.id] = agent.model;
         }
       }
