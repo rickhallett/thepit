@@ -15,12 +15,8 @@ import { toError } from '@/lib/errors';
 import { log } from '@/lib/logger';
 import { bouts } from '@/db/schema';
 import { readAndClearByokKey } from '@/lib/byok';
-import {
-  FREE_MODEL_ID,
-  PREMIUM_MODEL_OPTIONS,
-  getModel,
-  getInputTokenBudget,
-} from '@/lib/ai';
+import { getModel, isAnthropicModel } from '@/lib/ai';
+import { DEFAULT_FREE_MODEL, PREMIUM_MODEL_IDS, getInputTokenBudget } from '@/lib/model-registry';
 import {
   ARENA_PRESET_ID,
   DEFAULT_AGENT_COLOR,
@@ -50,7 +46,6 @@ import {
   incrementFreeBoutsUsed,
   getFreeBoutsUsed,
 } from '@/lib/tier';
-import { FIRST_BOUT_PROMOTION_MODEL } from '@/lib/models';
 import { UNSAFE_PATTERN } from '@/lib/validation';
 import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
 import { getRequestId } from '@/lib/request-context';
@@ -70,21 +65,14 @@ export const ANTHROPIC_CACHE_CONTROL = {
   anthropic: { cacheControl: { type: 'ephemeral' as const } },
 } as const;
 
-/**
- * Whether the current bout is hitting an Anthropic model (platform or BYOK).
- * OpenRouter BYOK calls should NOT receive Anthropic-specific providerOptions.
- * @internal Exported for testing only - do not use outside bout-engine.
- */
-export function isAnthropicModel(modelId: string, byokData: ByokKeyData | null): boolean {
-  if (modelId !== 'byok') return true; // Platform-funded - always Anthropic
-  return byokData?.provider === 'anthropic';
-}
+// Re-export isAnthropicModel from lib/ai for consumers that import it from here.
+// Task 9 will update bout-execution.ts to import directly from lib/ai.
+export { isAnthropicModel } from '@/lib/ai';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
 /** Structured BYOK key data decoded from the stash cookie. */
 export type ByokKeyData = {
-  provider: import('@/lib/models').ByokProvider;
   modelId: string | undefined;
   key: string;
 };
@@ -367,7 +355,7 @@ export async function validateBoutRequest(
 
   // Tier-based access control
   const isByok = requestedModel === 'byok' && BYOK_ENABLED;
-  let modelId = FREE_MODEL_ID;
+  let modelId = DEFAULT_FREE_MODEL;
   // freePoolSpendMicro/freePoolDate removed - no daily pool cap.
 
   if (SUBSCRIPTIONS_ENABLED && userId) {
@@ -384,7 +372,7 @@ export async function validateBoutRequest(
         return { ok: false, error: errorResponse('BYOK key required.', 400) };
       }
       modelId = 'byok';
-    } else if (requestedModel && PREMIUM_MODEL_OPTIONS.includes(requestedModel)) {
+    } else if (requestedModel && PREMIUM_MODEL_IDS.includes(requestedModel)) {
       if (!canAccessModel(tier, requestedModel)) {
         return {
           ok: false,
@@ -396,8 +384,8 @@ export async function validateBoutRequest(
       }
       modelId = requestedModel;
     } else if (preset.tier === 'premium' || preset.id === ARENA_PRESET_ID) {
-      const allowed = PREMIUM_MODEL_OPTIONS.filter((m) => canAccessModel(tier, m));
-      modelId = allowed[0] ?? FREE_MODEL_ID;
+      const allowed = PREMIUM_MODEL_IDS.filter((m) => canAccessModel(tier, m));
+      modelId = allowed[0] ?? DEFAULT_FREE_MODEL;
     }
 
     // First-bout promotion: give free-tier users the promotion model on
@@ -406,13 +394,13 @@ export async function validateBoutRequest(
     if (
       !isByok &&
       tier === 'free' &&
-      modelId === FREE_MODEL_ID &&
+      modelId === DEFAULT_FREE_MODEL &&
       !requestedModel
     ) {
       const used = await getFreeBoutsUsed(userId);
-      if (used === 0) {
-        modelId = FIRST_BOUT_PROMOTION_MODEL;
-        log.info('First-bout promotion applied', { userId, model: FIRST_BOUT_PROMOTION_MODEL });
+      if (used === 0 && PREMIUM_MODEL_IDS[0]) {
+        modelId = PREMIUM_MODEL_IDS[0];
+        log.info('First-bout promotion applied', { userId, model: PREMIUM_MODEL_IDS[0] });
       }
     }
 
@@ -423,7 +411,7 @@ export async function validateBoutRequest(
     }
   } else {
     // Anonymous / demo users: Haiku only. No premium models, no BYOK.
-    // modelId stays at FREE_MODEL_ID (set above).
+    // modelId stays at DEFAULT_FREE_MODEL (set above).
   }
 
   // Credit pre-authorization
