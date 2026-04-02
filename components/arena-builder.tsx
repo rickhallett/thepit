@@ -7,7 +7,12 @@ import { AgentIcon } from '@/components/agent-icon';
 import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { useCopy } from '@/lib/copy-client';
-import { DEFAULT_FREE_MODEL as FREE_MODEL_ID } from '@/lib/models';
+import {
+  DEFAULT_FREE_MODEL as FREE_MODEL_ID,
+  DEFAULT_PREMIUM_MODEL,
+  getRegistry,
+  getModelLabel,
+} from '@/lib/model-registry';
 import { useByokModelPicker } from '@/lib/use-byok-model-picker';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import {
@@ -60,6 +65,7 @@ export function ArenaBuilder({
   const [selectedModel, setSelectedModel] = useState(
     defaultPremiumModel ?? premiumModels[0] ?? FREE_MODEL_ID,
   );
+  const [agentModels, setAgentModels] = useState<Record<string, string>>({});
   const [byokKey, setByokKey] = useState('');
   const [byokError, setByokError] = useState<string | null>(null);
   const byokStashedRef = useRef(false);
@@ -93,11 +99,11 @@ export function ArenaBuilder({
   };
 
   const showModelSelector = premiumEnabled || byokEnabled;
+  const registryModels = getRegistry();
   const modelOptions = [
-    FREE_MODEL_ID,
-    ...(premiumEnabled ? premiumModels : []),
+    ...registryModels.map((m) => m.id),
     ...(byokEnabled ? ['byok'] : []),
-  ].filter(Boolean);
+  ];
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     setByokError(null);
@@ -154,14 +160,32 @@ export function ArenaBuilder({
             {selected.map((id) => {
               const agent = agents.find((item) => item.id === id);
               return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => toggle(id)}
-                  className="rounded-full border-2 border-foreground/50 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
-                >
-                  {agent?.name ?? id}
-                </button>
+                <div key={id} className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => toggle(id)}
+                    className="rounded-full border-2 border-foreground/50 px-3 py-1 text-[10px] uppercase tracking-[0.3em] text-muted transition hover:border-accent hover:text-accent"
+                  >
+                    {agent?.name ?? id}
+                  </button>
+                  <select
+                    value={agentModels[id] ?? ''}
+                    onChange={(e) =>
+                      setAgentModels((prev) => ({
+                        ...prev,
+                        [id]: e.target.value,
+                      }))
+                    }
+                    className="border border-foreground/30 bg-black/60 px-1 py-0.5 text-[9px] uppercase tracking-[0.15em] text-muted focus:border-accent focus:outline-none"
+                  >
+                    <option value="">Default</option>
+                    {registryModels.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               );
             })}
           </div>
@@ -232,7 +256,7 @@ export function ArenaBuilder({
             >
               {modelOptions.map((model) => (
                 <option key={model} value={model}>
-                  {model === 'byok' ? 'BYOK' : model}
+                  {model === 'byok' ? 'BYOK' : getModelLabel(model)}
                 </option>
               ))}
             </select>
@@ -293,6 +317,16 @@ export function ArenaBuilder({
         {selected.map((id) => (
           <input key={id} type="hidden" name="agentIds" value={id} />
         ))}
+        {selected.map((id) =>
+          agentModels[id] ? (
+            <input
+              key={`model-${id}`}
+              type="hidden"
+              name={`agent_model_${id}`}
+              value={agentModels[id]}
+            />
+          ) : null,
+        )}
         {demoMode ? (
           <button
             type="submit"
