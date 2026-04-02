@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MODEL_IDS } from '@/lib/models';
+import { DEFAULT_FREE_MODEL, DEFAULT_PREMIUM_MODEL } from '@/lib/model-registry';
 
 // ─── Hoisted mocks ───────────────────────────────────────────────────
 
@@ -80,7 +80,7 @@ const mockContext = {
   topic: 'Winter preparation',
   lengthConfig: { id: 'standard', label: 'Standard', hint: '3-5 sentences', maxOutputTokens: 200, outputTokensPerTurn: 120 },
   formatConfig: { id: 'plain', label: 'Plain text', hint: 'no markup', instruction: 'Respond in plain text.' },
-  modelId: MODEL_IDS.HAIKU,
+  modelId: DEFAULT_FREE_MODEL,
   byokData: null,
   userId: 'user_123',
   preauthMicro: 0,

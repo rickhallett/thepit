@@ -6,10 +6,10 @@ import { Arena } from '@/components/arena';
 import { requireDb } from '@/db';
 import { bouts, type TranscriptEntry, type ArenaAgent } from '@/db/schema';
 import {
-  DEFAULT_PREMIUM_MODEL_ID,
-  FREE_MODEL_ID,
-  PREMIUM_MODEL_OPTIONS,
-} from '@/lib/ai';
+  DEFAULT_PREMIUM_MODEL as DEFAULT_PREMIUM_MODEL_ID,
+  DEFAULT_FREE_MODEL as FREE_MODEL_ID,
+  PREMIUM_MODEL_IDS as PREMIUM_MODEL_OPTIONS,
+} from '@/lib/model-registry';
 import { getBoutById } from '@/lib/bouts';
 import { log } from '@/lib/logger';
 import {

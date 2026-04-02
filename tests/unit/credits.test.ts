@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MODEL_IDS } from '@/lib/models';
+import { DEFAULT_FREE_MODEL, DEFAULT_PREMIUM_MODEL } from '@/lib/model-registry';
 
 const { mockDb, creditsTable, creditTransactionsTable } = vi.hoisted(() => {
   const credits = {
@@ -101,7 +101,7 @@ describe('credits helpers', () => {
     // indirectly through the exported estimateBoutCostGbp which calls it.
     const { estimateBoutCostGbp } = await loadCredits();
     // 10 turns should produce a positive cost (proves token estimation works)
-    const cost = estimateBoutCostGbp(10, MODEL_IDS.HAIKU, 100);
+    const cost = estimateBoutCostGbp(10, DEFAULT_FREE_MODEL, 100);
     expect(cost).toBeGreaterThan(0);
   });
 
@@ -121,7 +121,7 @@ describe('credits helpers', () => {
 
   it('returns positive costs for known models', async () => {
     const { estimateBoutCostGbp } = await loadCredits();
-    const cost = estimateBoutCostGbp(12, MODEL_IDS.HAIKU, 120);
+    const cost = estimateBoutCostGbp(12, DEFAULT_FREE_MODEL, 120);
     expect(cost).toBeGreaterThan(0);
   });
 
@@ -130,7 +130,7 @@ describe('credits helpers', () => {
 
     // Unknown model should fall back to haiku pricing (not zero)
     // getModelPricing is now internal; verify via cost outputs matching
-    const haikuCost = estimateBoutCostGbp(4, MODEL_IDS.HAIKU, 120);
+    const haikuCost = estimateBoutCostGbp(4, DEFAULT_FREE_MODEL, 120);
     const unknownCost = estimateBoutCostGbp(4, 'unknown-model', 120);
     expect(unknownCost).toEqual(haikuCost);
 
@@ -178,7 +178,7 @@ describe('credits helpers', () => {
     delete process.env.MODEL_PRICES_GBP_JSON;
     // getModelPricing is now internal; verify haiku cost is positive
     const { estimateBoutCostGbp } = await loadCredits();
-    const cost = estimateBoutCostGbp(4, MODEL_IDS.HAIKU, 120);
+    const cost = estimateBoutCostGbp(4, DEFAULT_FREE_MODEL, 120);
     expect(cost).toBeGreaterThan(0);
   });
 
@@ -186,7 +186,7 @@ describe('credits helpers', () => {
     process.env.MODEL_PRICES_GBP_JSON = '{bad-json';
     // getModelPricing is now internal; verify haiku cost is positive
     const { estimateBoutCostGbp } = await loadCredits();
-    const cost = estimateBoutCostGbp(4, MODEL_IDS.HAIKU, 120);
+    const cost = estimateBoutCostGbp(4, DEFAULT_FREE_MODEL, 120);
     expect(cost).toBeGreaterThan(0);
   });
 
@@ -198,7 +198,7 @@ describe('credits helpers', () => {
 
   it('computes costs from token counts', async () => {
     const { computeCostGbp } = await loadCredits();
-    const cost = computeCostGbp(1000, 2000, MODEL_IDS.HAIKU);
+    const cost = computeCostGbp(1000, 2000, DEFAULT_FREE_MODEL);
     expect(cost).toBeGreaterThan(0);
   });
 

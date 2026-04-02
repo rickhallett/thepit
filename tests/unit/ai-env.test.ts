@@ -1,44 +1,36 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-vi.mock('@ai-sdk/anthropic', () => ({
-  createAnthropic: vi.fn(() => vi.fn((modelId: string) => ({ modelId }))),
-}));
+import {
+  DEFAULT_FREE_MODEL,
+  DEFAULT_PREMIUM_MODEL,
+  FREE_MODEL_IDS,
+  PREMIUM_MODEL_IDS,
+} from '@/lib/model-registry';
 
-describe('lib/ai env overrides', () => {
-  beforeEach(() => {
-    vi.resetModules();
-    delete process.env.ANTHROPIC_FREE_MODEL;
-    delete process.env.ANTHROPIC_MODEL;
-    delete process.env.ANTHROPIC_PREMIUM_MODELS;
-    delete process.env.ANTHROPIC_PREMIUM_MODEL;
-    delete process.env.ANTHROPIC_BYOK_MODEL;
+describe('model-registry defaults', () => {
+  it('DEFAULT_FREE_MODEL is the first free-tier model', () => {
+    expect(DEFAULT_FREE_MODEL).toBe(FREE_MODEL_IDS[0]);
+    expect(typeof DEFAULT_FREE_MODEL).toBe('string');
+    expect(DEFAULT_FREE_MODEL.length).toBeGreaterThan(0);
   });
 
-  // H1: ANTHROPIC_FREE_MODEL override
-  it('FREE_MODEL_ID uses ANTHROPIC_FREE_MODEL when set', async () => {
-    process.env.ANTHROPIC_FREE_MODEL = 'claude-test-free';
-    const { FREE_MODEL_ID } = await import('@/lib/ai');
-    expect(FREE_MODEL_ID).toBe('claude-test-free');
+  it('DEFAULT_PREMIUM_MODEL is the first premium-tier model', () => {
+    expect(DEFAULT_PREMIUM_MODEL).toBe(PREMIUM_MODEL_IDS[0]);
+    expect(typeof DEFAULT_PREMIUM_MODEL).toBe('string');
+    expect(DEFAULT_PREMIUM_MODEL.length).toBeGreaterThan(0);
   });
 
-  // H2: ANTHROPIC_MODEL fallback
-  it('FREE_MODEL_ID falls back to ANTHROPIC_MODEL', async () => {
-    process.env.ANTHROPIC_MODEL = 'claude-fallback';
-    const { FREE_MODEL_ID } = await import('@/lib/ai');
-    expect(FREE_MODEL_ID).toBe('claude-fallback');
+  it('FREE_MODEL_IDS contains only free-tier models', () => {
+    expect(FREE_MODEL_IDS.length).toBeGreaterThan(0);
+    for (const id of FREE_MODEL_IDS) {
+      expect(typeof id).toBe('string');
+    }
   });
 
-  // H3: ANTHROPIC_PREMIUM_MODELS comma parsing
-  it('PREMIUM_MODEL_OPTIONS parses comma-separated models', async () => {
-    process.env.ANTHROPIC_PREMIUM_MODELS = 'model-a, model-b , model-c';
-    const { PREMIUM_MODEL_OPTIONS } = await import('@/lib/ai');
-    expect(PREMIUM_MODEL_OPTIONS).toEqual(['model-a', 'model-b', 'model-c']);
-  });
-
-  // H4: ANTHROPIC_BYOK_MODEL override
-  it('BYOK_MODEL_ID uses ANTHROPIC_BYOK_MODEL when set', async () => {
-    process.env.ANTHROPIC_BYOK_MODEL = 'claude-byok-custom';
-    const { BYOK_MODEL_ID } = await import('@/lib/ai');
-    expect(BYOK_MODEL_ID).toBe('claude-byok-custom');
+  it('PREMIUM_MODEL_IDS contains only premium-tier models', () => {
+    expect(PREMIUM_MODEL_IDS.length).toBeGreaterThan(0);
+    for (const id of PREMIUM_MODEL_IDS) {
+      expect(typeof id).toBe('string');
+    }
   });
 });

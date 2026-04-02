@@ -328,7 +328,7 @@ describe('bout-engine behavior (validate → execute)', () => {
     if (!result.ok) return;
 
     expect(result.context.modelId).toBe('byok');
-    expect(result.context.byokData?.provider).toBe('anthropic');
+    expect(result.context.byokData?.key).toBe('sk-ant-test');
 
     const boutResult = await executeBout(result.context);
     expect(boutResult.transcript).toHaveLength(2);

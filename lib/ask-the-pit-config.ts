@@ -5,7 +5,7 @@
 // import lib/env.ts because Turbopack may pull the transitive dependency
 // into client chunks, causing env validation to fire in the browser.
 
-import { DEFAULT_FREE_MODEL } from '@/lib/models';
+import { DEFAULT_FREE_MODEL } from '@/lib/model-registry';
 
 export const ASK_THE_PIT_ENABLED = process.env.ASK_THE_PIT_ENABLED === 'true';
 

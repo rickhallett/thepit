@@ -8,7 +8,7 @@ import { CheckoutBanner } from '@/components/checkout-banner';
 import { BuyCreditsButton } from '@/components/buy-credits-button';
 import { IntroPoolCounter } from '@/components/intro-pool-counter';
 // FreeBoutCounter removed — free bout pool replaced by intro pool half-life decay
-import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
+import { DEFAULT_PREMIUM_MODEL as DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_IDS as PREMIUM_MODEL_OPTIONS } from '@/lib/model-registry';
 import { CREDIT_PACKAGES } from '@/lib/credit-catalog';
 import {
   BYOK_ENABLED,

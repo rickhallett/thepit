@@ -6,13 +6,11 @@ import {
 } from '@/lib/xml-prompt';
 
 import {
-  MODEL_CONTEXT_LIMITS,
-  DEFAULT_CONTEXT_LIMIT,
   CONTEXT_SAFETY_MARGIN,
   getInputTokenBudget,
-} from '@/lib/ai';
-
-import { MODEL_IDS } from '@/lib/models';
+  DEFAULT_CONTEXT_WINDOW,
+  DEFAULT_FREE_MODEL,
+} from '@/lib/model-registry';
 
 // ---------------------------------------------------------------------------
 // estimatePromptTokens
@@ -41,19 +39,16 @@ describe('estimatePromptTokens', () => {
 
 describe('getInputTokenBudget', () => {
   it('returns correct budget for known models', () => {
-    const budget = getInputTokenBudget(MODEL_IDS.HAIKU);
-    const expected = Math.floor(200_000 * (1 - CONTEXT_SAFETY_MARGIN));
+    const budget = getInputTokenBudget(DEFAULT_FREE_MODEL);
+    // DEFAULT_FREE_MODEL is openai/gpt-4o-mini with 128_000 context
+    const expected = Math.floor(128_000 * (1 - CONTEXT_SAFETY_MARGIN));
     expect(budget).toBe(expected);
   });
 
   it('uses default limit for unknown models', () => {
     const budget = getInputTokenBudget('unknown-model-xyz');
-    const expected = Math.floor(DEFAULT_CONTEXT_LIMIT * (1 - CONTEXT_SAFETY_MARGIN));
+    const expected = Math.floor(DEFAULT_CONTEXT_WINDOW * (1 - CONTEXT_SAFETY_MARGIN));
     expect(budget).toBe(expected);
-  });
-
-  it('all known models have context limits defined', () => {
-    expect(Object.keys(MODEL_CONTEXT_LIMITS).length).toBeGreaterThanOrEqual(4);
   });
 });
 

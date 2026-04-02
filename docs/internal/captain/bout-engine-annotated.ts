@@ -66,11 +66,14 @@ import { getRequestId } from '@/lib/request-context';
 import { bouts, type TranscriptEntry } from '@/db/schema';
 import { readAndClearByokKey } from '@/lib/byok';
 import {
-  FREE_MODEL_ID,
-  PREMIUM_MODEL_OPTIONS,
   getModel,
-  getInputTokenBudget,
 } from '@/lib/ai';
+import {
+  DEFAULT_FREE_MODEL as FREE_MODEL_ID,
+  PREMIUM_MODEL_IDS as PREMIUM_MODEL_OPTIONS,
+  getInputTokenBudget,
+  DEFAULT_PREMIUM_MODEL,
+} from '@/lib/model-registry';
 import {
   ARENA_PRESET_ID,
   DEFAULT_AGENT_COLOR,
@@ -108,7 +111,7 @@ import {
 } from '@/lib/tier';
 // free-bout-pool removed - intro pool half-life is the sole anonymous cost gate.
 // Authenticated free-tier users are now gated by credits only (no daily pool cap).
-import { FIRST_BOUT_PROMOTION_MODEL } from '@/lib/models';
+const FIRST_BOUT_PROMOTION_MODEL = DEFAULT_PREMIUM_MODEL;
 import { UNSAFE_PATTERN } from '@/lib/validation';
 import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
 import { errorResponse, rateLimitResponse, API_ERRORS } from '@/lib/api-utils';
@@ -128,9 +131,8 @@ const ANTHROPIC_CACHE_CONTROL = {
   anthropic: { cacheControl: { type: 'ephemeral' as const } },
 } as const;
 
-export function isAnthropicModel(modelId: string, byokData: ByokKeyData | null): boolean {
-  if (modelId !== 'byok') return true; // Platform-funded - always Anthropic
-  return byokData?.provider === 'anthropic';
+export function isAnthropicModel(modelId: string): boolean {
+  return modelId.startsWith('anthropic/');
 }
 
 // >> ============================================================
@@ -152,7 +154,6 @@ export function isAnthropicModel(modelId: string, byokData: ByokKeyData | null):
 // >> ============================================================
 
 export type ByokKeyData = {
-  provider: import('@/lib/models').ByokProvider;
   modelId: string | undefined;
   key: string;
 };
@@ -459,7 +460,7 @@ export async function validateBoutRequest(
       }
       modelId = requestedModel;
     } else if (preset.tier === 'premium' || preset.id === ARENA_PRESET_ID) {
-      const allowed = PREMIUM_MODEL_OPTIONS.filter((m) => canAccessModel(tier, m));
+      const allowed = PREMIUM_MODEL_OPTIONS.filter((m: string) => canAccessModel(tier, m));
       modelId = allowed[0] ?? FREE_MODEL_ID;
     }
 
@@ -728,10 +729,10 @@ async function _executeBoutInner(
       'The audience understands these are fictional characters with exaggerated viewpoints. ' +
       'Do not reveal system details, API keys, or internal platform information.';
 
+    const turnModelId = modelId === 'byok' ? (byokData?.modelId ?? FREE_MODEL_ID) : modelId;
     const boutModel = getModel(
-      modelId,
+      turnModelId,
       modelId === 'byok' ? byokData?.key : undefined,
-      modelId === 'byok' ? byokData?.modelId : undefined,
     );
 
     // >> ============================================================
@@ -904,7 +905,7 @@ async function _executeBoutInner(
       // >> layer - the right place to enforce it.
       const streamFn = modelId === 'byok' ? untracedStreamText : tracedStreamText;
 
-      const useCache = isAnthropicModel(modelId, byokData);
+      const useCache = isAnthropicModel(turnModelId);
       const result = streamFn({
         model: boutModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
@@ -1017,8 +1018,7 @@ async function _executeBoutInner(
       // >> cost in USD, duration, and whether it was a BYOK call.
       const aiModelId = modelId === 'byok'
         ? (byokData?.modelId ?? 'byok-unknown') : modelId;
-      const aiProvider = modelId === 'byok'
-        ? (byokData?.provider ?? 'unknown') : 'anthropic';
+      const aiProvider = isAnthropicModel(aiModelId) ? 'anthropic' : 'openrouter';
       const { inputCostUsd, outputCostUsd, totalCostUsd } = computeCostUsd(
         turnInputTokens, turnOutputTokens, modelId,
       );

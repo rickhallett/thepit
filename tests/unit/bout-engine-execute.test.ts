@@ -596,11 +596,11 @@ describe('executeBout', () => {
       getInputTokenBudgetMock.mockReturnValue(170_000);
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'anthropic', modelId: 'claude-opus-4-20250514', key: 'sk-test' },
+        byokData: { modelId: 'anthropic/claude-opus-4', key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
-      expect(getInputTokenBudgetMock).toHaveBeenCalledWith('claude-opus-4-20250514');
+      expect(getInputTokenBudgetMock).toHaveBeenCalledWith('anthropic/claude-opus-4');
     });
 
     it('E-23: hard guard throws when prompt exceeds budget', async () => {
@@ -622,7 +622,7 @@ describe('executeBout', () => {
       getInputTokenBudgetMock.mockReturnValue(170_000);
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'anthropic', modelId: undefined, key: 'sk-test' },
+        byokData: { modelId: undefined, key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
@@ -657,7 +657,7 @@ describe('executeBout', () => {
     it('E-28: BYOK calls use untracedStreamText', async () => {
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'anthropic', modelId: 'claude-sonnet-4-5-20250929', key: 'sk-test' },
+        byokData: { modelId: 'anthropic/claude-sonnet-4-5', key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
@@ -678,7 +678,7 @@ describe('executeBout', () => {
     it('E-30: BYOK OpenRouter model does NOT get cache control', async () => {
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'openrouter', modelId: 'gpt-4o', key: 'sk-or-test' },
+        byokData: { modelId: 'openai/gpt-4o', key: 'sk-or-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
@@ -1025,7 +1025,7 @@ describe('executeBout', () => {
     it('E-54: BYOK attribution uses byokData model info', async () => {
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'openrouter', modelId: 'gpt-4o', key: 'sk-test' },
+        byokData: { modelId: 'openai/gpt-4o', key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);

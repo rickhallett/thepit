@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useFormStatus } from 'react-dom';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
-import { DEFAULT_FREE_MODEL as FREE_MODEL_ID } from '@/lib/models';
+import { DEFAULT_FREE_MODEL as FREE_MODEL_ID } from '@/lib/model-registry';
 import { trackEvent } from '@/lib/analytics';
 import { useCopy } from '@/lib/copy-client';
 import {

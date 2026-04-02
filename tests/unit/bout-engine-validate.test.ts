@@ -793,7 +793,7 @@ describe('validateBoutRequest', () => {
       expect(readAndClearByokKeyMock).toHaveBeenCalledWith(expect.anything());
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.context.byokData?.provider).toBe('anthropic');
+        expect(result.context.byokData?.key).toBeDefined();
       }
     });
 

@@ -9,7 +9,7 @@
 // module load time and throws in the browser where server env vars are
 // undefined. Client components must use this module instead.
 
-import { MODEL_IDS } from '@/lib/models';
+import { getModelPricing as registryPricing } from '@/lib/model-registry';
 
 // --- Defaults (must match env.ts schema defaults) ---
 
@@ -31,16 +31,9 @@ const BYOK_MIN_GBP = Number(process.env.BYOK_MIN_GBP ?? '0.001');
 
 export const CREDITS_ENABLED = process.env.CREDITS_ENABLED === 'true';
 
-// --- Model pricing (hardcoded defaults, no env.ts) ---
+// --- Model pricing (from registry) ---
 
-const MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
-  [MODEL_IDS.HAIKU]: { in: 1, out: 5 },
-  [MODEL_IDS.SONNET_45]: { in: 3, out: 15 },
-  [MODEL_IDS.SONNET_46]: { in: 3, out: 15 },
-};
-
-const getModelPricing = (modelId: string) =>
-  MODEL_PRICES_GBP[modelId] ?? MODEL_PRICES_GBP[MODEL_IDS.HAIKU]!;
+const getModelPricing = (modelId: string) => registryPricing(modelId);
 
 // --- Pure functions (same logic as lib/credits.ts) ---
 

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 
 import { ArenaBuilder } from '@/components/arena-builder';
-import { DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_OPTIONS } from '@/lib/ai';
+import { DEFAULT_PREMIUM_MODEL as DEFAULT_PREMIUM_MODEL_ID, PREMIUM_MODEL_IDS as PREMIUM_MODEL_OPTIONS } from '@/lib/model-registry';
 import { BYOK_ENABLED } from '@/lib/credits';
 import { getAgentSnapshots } from '@/lib/agent-registry';
 import { getCopy } from '@/lib/copy';
