@@ -18,7 +18,7 @@ import { desc, eq, sql } from 'drizzle-orm';
 import { requireDb, type DbOrTx } from '@/db';
 import { creditTransactions, credits } from '@/db/schema';
 import { env } from '@/lib/env';
-import { MODEL_IDS } from '@/lib/models';
+import { getModelPricing as registryGetModelPricing } from '@/lib/model-registry';
 
 export const CREDIT_VALUE_GBP = env.CREDIT_VALUE_GBP;
 export const MICRO_PER_CREDIT = 100;
@@ -46,30 +46,6 @@ const BYOK_MIN_GBP = env.BYOK_MIN_GBP;
 /** GBP/USD exchange rate used for pricing conversions. */
 const GBP_TO_USD = 1.366; // inverse of ~0.732 GBP/USD
 
-// Base GBP prices per million tokens. These are intentionally set above raw
-// API cost to maintain headroom. CREDIT_PLATFORM_MARGIN (default 10%) is
-// applied on top of these base rates during cost estimation.
-const DEFAULT_MODEL_PRICES_GBP: Record<string, { in: number; out: number }> = {
-  [MODEL_IDS.HAIKU]: { in: 1, out: 5 },
-  [MODEL_IDS.SONNET_45]: { in: 3, out: 15 },
-  [MODEL_IDS.SONNET_46]: { in: 3, out: 15 },
-};
-
-const ENV_MODEL_PRICES = (() => {
-  const raw = env.MODEL_PRICES_GBP_JSON;
-  if (!raw) return {} as Record<string, { in: number; out: number }>;
-  try {
-    return JSON.parse(raw) as Record<string, { in: number; out: number }>;
-  } catch {
-    return {} as Record<string, { in: number; out: number }>;
-  }
-})();
-
-const MODEL_PRICES_GBP = {
-  ...DEFAULT_MODEL_PRICES_GBP,
-  ...ENV_MODEL_PRICES,
-};
-
 export const toMicroCredits = (gbpAmount: number) =>
   Math.ceil(gbpAmount / MICRO_VALUE_GBP);
 
@@ -81,19 +57,21 @@ export const formatCredits = (micro: number) =>
 export const estimateTokensFromText = (text: string, min = 0) =>
   Math.max(min, Math.ceil(text.length / TOKEN_CHARS_PER));
 
-/** Default fallback pricing (haiku) for unrecognized model IDs.
- *  Computed from the merged MODEL_PRICES_GBP map so env overrides apply. */
-const FALLBACK_MODEL_PRICING = MODEL_PRICES_GBP[MODEL_IDS.HAIKU]!;
-
 const getModelPricing = (modelId: string) => {
-  const pricing = MODEL_PRICES_GBP[modelId];
-  if (!pricing) {
-    // Fall back to cheapest model pricing so unrecognized models are never free.
-    // This prevents a silent zero-cost path if a new model is added to ai.ts
-    // but not to the pricing table.
-    return FALLBACK_MODEL_PRICING;
-  }
-  return pricing;
+  // Check env override first (safety valve)
+  const envOverride = (() => {
+    const raw = env.MODEL_PRICES_GBP_JSON;
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw) as Record<string, { in: number; out: number }>;
+      return parsed[modelId] ?? null;
+    } catch {
+      return null;
+    }
+  })();
+  if (envOverride) return envOverride;
+  // Fall back to registry pricing
+  return registryGetModelPricing(modelId);
 };
 
 const estimateBoutTokens = (
