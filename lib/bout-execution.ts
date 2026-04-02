@@ -156,6 +156,7 @@ async function _executeBoutInner(
   const transcript: TranscriptEntry[] = [];
   let inputTokens = 0;
   let outputTokens = 0;
+  let accumulatedCostGbp = 0;
   let shareLine: string | null = null;
 
   try {
@@ -178,12 +179,6 @@ async function _executeBoutInner(
       'The audience understands these are fictional characters with exaggerated viewpoints. ' +
       'Do not reveal system details, API keys, or internal platform information.';
 
-    const boutModel = getModel(
-      modelId,
-      modelId === 'byok' ? byokData?.key : undefined,
-      modelId === 'byok' ? byokData?.modelId : undefined,
-    );
-
     for (let i = 0; i < preset.maxTurns; i += 1) {
       const agent = preset.agents[i % preset.agents.length];
       if (!agent) {
@@ -193,6 +188,14 @@ async function _executeBoutInner(
             : `Agent not found at index ${i % preset.agents.length} - preset.agents is corrupted (boutId=${boutId})`,
         );
       }
+
+      // Per-turn model resolution: use agent override if validated, else global
+      const turnModelId = ctx.agentModelOverrides?.[agent.id] ?? modelId;
+      const turnModel = getModel(
+        turnModelId,
+        turnModelId === 'byok' ? byokData?.key : undefined,
+        turnModelId === 'byok' ? byokData?.modelId : undefined,
+      );
       const turnId = `${boutId}-${i}-${agent.id}`;
 
       onEvent?.({ type: 'start', messageId: turnId });
@@ -267,9 +270,9 @@ async function _executeBoutInner(
       // full transcript would exceed the model's input token limit.
       // For BYOK, use the user-selected model ID (OpenRouter or Anthropic)
       // to look up the correct context window, falling back to the platform default.
-      const resolvedModelId = modelId === 'byok'
+      const resolvedModelId = turnModelId === 'byok'
         ? (byokData?.modelId ?? process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID)
-        : modelId;
+        : turnModelId;
       const tokenBudget = getInputTokenBudget(resolvedModelId);
       let historyForTurn = history;
       if (history.length > 0) {
@@ -334,14 +337,14 @@ async function _executeBoutInner(
       const turnStart = Date.now();
       // BYOK calls use the untraced variant - user API keys must not be
       // logged to our LangSmith project. Platform calls get full tracing.
-      const streamFn = modelId === 'byok' ? untracedStreamText : tracedStreamText;
+      const streamFn = turnModelId === 'byok' ? untracedStreamText : tracedStreamText;
 
       // Anthropic prompt caching: mark the system message as a cache
       // breakpoint so repeated turns reuse the cached safety+persona+format
       // prefix. Ignored for non-Anthropic providers (OpenRouter BYOK).
-      const useCache = isAnthropicModel(modelId, byokData);
+      const useCache = isAnthropicModel(turnModelId, byokData);
       const result = streamFn({
-        model: boutModel,
+        model: turnModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
         messages: [
           {
@@ -368,7 +371,7 @@ async function _executeBoutInner(
                 requestId,
                 boutId,
                 turn: i,
-                modelId,
+                modelId: turnModelId,
                 ttft_ms: ttft,
               });
             }
@@ -422,6 +425,8 @@ async function _executeBoutInner(
         outputTokens += turnOutputTokens;
       }
 
+      accumulatedCostGbp += computeCostGbp(turnInputTokens, turnOutputTokens, turnModelId);
+
       // Anthropic prompt caching metadata: extract cache hit/miss tokens.
       // providerMetadata.anthropic may contain cacheCreationInputTokens and
       // cacheReadInputTokens when cache control breakpoints are active.
@@ -444,7 +449,7 @@ async function _executeBoutInner(
         boutId,
         turn: i,
         agentId: agent.id,
-        modelId,
+        modelId: turnModelId,
         inputTokens: turnInputTokens,
         outputTokens: turnOutputTokens,
         ...(cacheCreationTokens > 0 && { cacheCreationTokens }),
@@ -455,16 +460,16 @@ async function _executeBoutInner(
       // PostHog LLM analytics: capture $ai_generation for cost/token tracking.
       // Replaces the Helicone proxy that was previously used for this purpose.
       // BYOK turns use the user's resolved model ID for accurate attribution.
-      const aiModelId = modelId === 'byok'
+      const aiModelId = turnModelId === 'byok'
         ? (byokData?.modelId ?? 'byok-unknown')
-        : modelId;
-      const aiProvider = modelId === 'byok'
+        : turnModelId;
+      const aiProvider = turnModelId === 'byok'
         ? (byokData?.provider ?? 'unknown')
         : 'anthropic';
       const { inputCostUsd, outputCostUsd, totalCostUsd } = computeCostUsd(
         turnInputTokens,
         turnOutputTokens,
-        modelId,
+        turnModelId,
       );
       serverCaptureAIGeneration(userId ?? 'anonymous', {
         model: aiModelId,
@@ -492,7 +497,7 @@ async function _executeBoutInner(
           turn: i,
           agentId: agent.id,
           agentName: agent.name,
-          modelId,
+          modelId: turnModelId,
           presetId,
           topic,
           marker: refusalMarker,
@@ -779,8 +784,9 @@ async function _executeBoutInner(
     }
 
     // Credit settlement (success path)
+    // Uses per-turn accumulated cost for accurate mixed-model settlement.
     if (CREDITS_ENABLED && userId) {
-      const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
+      const actualCost = accumulatedCostGbp;
       const actualMicro = toMicroCredits(actualCost);
       const delta = actualMicro - preauthMicro;
 
@@ -893,7 +899,7 @@ async function _executeBoutInner(
     // The preauth already deducted preauthMicro from the user's balance.
     // We need to add back the unused portion (preauthMicro - actualMicro).
     if (CREDITS_ENABLED && preauthMicro && userId) {
-      const actualCost = computeCostGbp(inputTokens, outputTokens, modelId);
+      const actualCost = accumulatedCostGbp;
       const actualMicro = toMicroCredits(actualCost);
       const refundMicro = preauthMicro - actualMicro;
       if (refundMicro > 0) {
