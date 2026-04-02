@@ -140,8 +140,9 @@ vi.mock('@/lib/rate-limit', () => ({
 vi.mock('@/lib/byok', () => ({ readAndClearByokKey: vi.fn() }));
 
 vi.mock('@/lib/ai', () => ({
-  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
+  FREE_MODEL_ID: 'openai/gpt-4o-mini',
   PREMIUM_MODEL_OPTIONS: [],
+  isAnthropicModel: (modelId: string) => modelId.startsWith('anthropic/'),
   getModel: getModelMock,
   getInputTokenBudget: getInputTokenBudgetMock,
 }));
@@ -174,7 +175,7 @@ vi.mock('@/lib/request-context', () => ({
 }));
 
 vi.mock('@/lib/models', () => ({
-  FIRST_BOUT_PROMOTION_MODEL: 'claude-sonnet-4-5-20250929',
+  FIRST_BOUT_PROMOTION_MODEL: 'openai/gpt-5.4',
 }));
 
 // ---------------------------------------------------------------------------
@@ -596,11 +597,11 @@ describe('executeBout', () => {
       getInputTokenBudgetMock.mockReturnValue(170_000);
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'anthropic', modelId: 'claude-opus-4-20250514', key: 'sk-test' },
+        byokData: { modelId: 'anthropic/claude-opus-4', key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
-      expect(getInputTokenBudgetMock).toHaveBeenCalledWith('claude-opus-4-20250514');
+      expect(getInputTokenBudgetMock).toHaveBeenCalledWith('anthropic/claude-opus-4');
     });
 
     it('E-23: hard guard throws when prompt exceeds budget', async () => {
@@ -622,7 +623,7 @@ describe('executeBout', () => {
       getInputTokenBudgetMock.mockReturnValue(170_000);
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'anthropic', modelId: undefined, key: 'sk-test' },
+        byokData: { modelId: undefined, key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
@@ -657,7 +658,7 @@ describe('executeBout', () => {
     it('E-28: BYOK calls use untracedStreamText', async () => {
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'anthropic', modelId: 'claude-sonnet-4-5-20250929', key: 'sk-test' },
+        byokData: { modelId: 'anthropic/claude-sonnet-4-5', key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
@@ -667,7 +668,7 @@ describe('executeBout', () => {
     });
 
     it('E-29: Anthropic platform model gets cache control', async () => {
-      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET });
+      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET, modelId: 'anthropic/claude-haiku-4' });
       await executeBout(ctx);
       const call = tracedStreamTextMock.mock.calls[0]![0];
       // First message (system) should have providerOptions with cacheControl
@@ -678,7 +679,7 @@ describe('executeBout', () => {
     it('E-30: BYOK OpenRouter model does NOT get cache control', async () => {
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'openrouter', modelId: 'gpt-4o', key: 'sk-or-test' },
+        byokData: { modelId: 'openai/gpt-4o', key: 'sk-or-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
@@ -773,7 +774,7 @@ describe('executeBout', () => {
         }),
       );
 
-      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET });
+      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET, modelId: 'anthropic/claude-haiku-4' });
       await executeBout(ctx);
 
       // Cache metadata should be included in AI generation capture
@@ -1025,7 +1026,7 @@ describe('executeBout', () => {
     it('E-54: BYOK attribution uses byokData model info', async () => {
       const ctx = makeContext({
         modelId: 'byok',
-        byokData: { provider: 'openrouter', modelId: 'gpt-4o', key: 'sk-test' },
+        byokData: { modelId: 'openai/gpt-4o', key: 'sk-test' },
         preset: SINGLE_AGENT_PRESET,
       });
       await executeBout(ctx);
@@ -1033,7 +1034,7 @@ describe('executeBout', () => {
       expect(serverCaptureAIGenerationMock).toHaveBeenCalledWith(
         'user-1',
         expect.objectContaining({
-          model: 'gpt-4o',
+          model: 'openai/gpt-4o',
           provider: 'openrouter',
           isByok: true,
         }),

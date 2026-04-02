@@ -40,6 +40,7 @@ export type Agent = {
   systemPrompt: string;
   color: string;
   avatar?: string;
+  model?: string;  // OpenRouter model ID override (per-agent)
 };
 
 export type Preset = {

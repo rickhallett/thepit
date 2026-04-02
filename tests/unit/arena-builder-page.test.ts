@@ -35,9 +35,10 @@ vi.mock('@/lib/tier', () => ({
   SUBSCRIPTIONS_ENABLED: true,
 }));
 
-vi.mock('@/lib/ai', () => ({
-  DEFAULT_PREMIUM_MODEL_ID: 'claude-3-sonnet',
-  PREMIUM_MODEL_OPTIONS: [{ id: 'claude-3-sonnet', label: 'Sonnet' }],
+vi.mock('@/lib/model-registry', () => ({
+  DEFAULT_PREMIUM_MODEL: 'openai/gpt-5.4',
+  PREMIUM_MODEL_IDS: ['openai/gpt-5.4', 'anthropic/claude-sonnet-4-6'],
+  getInputTokenBudget: vi.fn(() => 170_000),
 }));
 
 vi.mock('@/lib/credits', () => ({
@@ -308,8 +309,8 @@ describe('ArenaBuilderPage', () => {
       const props = findComponentProps(result, 'ArenaBuilder');
 
       expect(props?.premiumEnabled).toBe(true);
-      expect(props?.premiumModels).toEqual([{ id: 'claude-3-sonnet', label: 'Sonnet' }]);
-      expect(props?.defaultPremiumModel).toBe('claude-3-sonnet');
+      expect(props?.premiumModels).toEqual(['openai/gpt-5.4', 'anthropic/claude-sonnet-4-6']);
+      expect(props?.defaultPremiumModel).toBe('openai/gpt-5.4');
     });
 
     it('passes premiumEnabled=false when PREMIUM_ENABLED is not set', async () => {

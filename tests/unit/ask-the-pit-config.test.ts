@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { MODEL_IDS } from '@/lib/models';
+import { DEFAULT_FREE_MODEL } from '@/lib/model-registry';
 
 describe('lib/ask-the-pit-config', () => {
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('lib/ask-the-pit-config', () => {
     const config = await import('@/lib/ask-the-pit-config');
     expect(config.ASK_THE_PIT_ENABLED).toBe(false);
     expect(config.ASK_THE_PIT_DOCS).toEqual(['docs/public/ask-the-pit-knowledge.md']);
-    expect(config.ASK_THE_PIT_MODEL).toBe(MODEL_IDS.HAIKU);
+    expect(config.ASK_THE_PIT_MODEL).toBe(DEFAULT_FREE_MODEL);
     expect(config.ASK_THE_PIT_MAX_TOKENS).toBe(2_000);
   });
 });

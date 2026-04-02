@@ -54,10 +54,8 @@ vi.mock('@/lib/rate-limit', () => ({
 }));
 vi.mock('@/lib/byok', () => ({ readAndClearByokKey: vi.fn() }));
 vi.mock('@/lib/ai', () => ({
-  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
-  PREMIUM_MODEL_OPTIONS: [],
   getModel: vi.fn(),
-  getInputTokenBudget: vi.fn(),
+  isAnthropicModel: vi.fn((modelId: string) => modelId.startsWith('anthropic/')),
 }));
 vi.mock('@/lib/presets', () => ({
   getPresetById: vi.fn(),
@@ -80,8 +78,11 @@ vi.mock('@/lib/async-context', () => ({
 vi.mock('@/lib/request-context', () => ({
   getRequestId: vi.fn(() => 'req-test'),
 }));
-vi.mock('@/lib/models', () => ({
-  FIRST_BOUT_PROMOTION_MODEL: 'claude-sonnet-4-5-20250929',
+vi.mock('@/lib/model-registry', () => ({
+  DEFAULT_FREE_MODEL: 'openai/gpt-4o-mini',
+  DEFAULT_PREMIUM_MODEL: 'openai/gpt-5.4',
+  PREMIUM_MODEL_IDS: ['openai/gpt-5.4'],
+  getInputTokenBudget: vi.fn(),
 }));
 
 // ---------------------------------------------------------------------------
@@ -89,34 +90,22 @@ vi.mock('@/lib/models', () => ({
 // ---------------------------------------------------------------------------
 
 describe('isAnthropicModel', () => {
-  it('H-01: returns true for platform-funded model (not byok)', () => {
-    expect(isAnthropicModel('claude-haiku-4-5-20251001', null)).toBe(true);
-    expect(isAnthropicModel('claude-sonnet-4-5-20250929', null)).toBe(true);
+  it('H-01: returns true for anthropic/ prefixed models', () => {
+    expect(isAnthropicModel('anthropic/claude-haiku-4')).toBe(true);
+    expect(isAnthropicModel('anthropic/claude-sonnet-4-6')).toBe(true);
   });
 
-  it('H-02: returns true for BYOK with anthropic provider', () => {
-    expect(
-      isAnthropicModel('byok', {
-        provider: 'anthropic',
-        modelId: 'claude-sonnet-4-5-20250929',
-        key: 'sk-ant-test',
-      }),
-    ).toBe(true);
+  it('H-02: returns false for non-anthropic models', () => {
+    expect(isAnthropicModel('openai/gpt-4o')).toBe(false);
+    expect(isAnthropicModel('google/gemini-2.5-flash-preview')).toBe(false);
   });
 
-  it('H-03: returns false for BYOK with openrouter provider', () => {
-    expect(
-      isAnthropicModel('byok', {
-        provider: 'openrouter',
-        modelId: 'gpt-4o',
-        key: 'sk-or-test',
-      }),
-    ).toBe(false);
+  it('H-03: returns false for byok placeholder', () => {
+    expect(isAnthropicModel('byok')).toBe(false);
   });
 
-  it('H-04: returns false for BYOK with null byokData', () => {
-    // When modelId is 'byok' but byokData is null, provider check fails.
-    expect(isAnthropicModel('byok', null)).toBe(false);
+  it('H-04: returns false for empty string', () => {
+    expect(isAnthropicModel('')).toBe(false);
   });
 });
 

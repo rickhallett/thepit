@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { MODEL_IDS } from '@/lib/models';
+import { DEFAULT_FREE_MODEL, DEFAULT_PREMIUM_MODEL } from '@/lib/model-registry';
 
 const { mockDb } = vi.hoisted(() => {
   const db = {
@@ -240,36 +240,35 @@ describe('tier module', () => {
       expect(canAccessModel('lab', 'byok')).toBe(true);
     });
 
-    it('allows free tier to use haiku', async () => {
+    it('allows free tier to use free models', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', MODEL_IDS.HAIKU)).toBe(true);
+      expect(canAccessModel('free', DEFAULT_FREE_MODEL)).toBe(true);
     });
 
-    it('allows free tier to use sonnet 4.5', async () => {
+    it('allows free tier to access free-tier registry models', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', MODEL_IDS.SONNET_45)).toBe(true);
+      expect(canAccessModel('free', 'openai/gpt-4o-mini')).toBe(true);
     });
 
-    it('allows free tier to use sonnet 4.6', async () => {
+    it('denies free tier premium models', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('free', MODEL_IDS.SONNET_46)).toBe(true);
+      expect(canAccessModel('free', DEFAULT_PREMIUM_MODEL)).toBe(false);
     });
 
-    it('allows pass tier to use sonnet 4.5', async () => {
+    it('allows pass tier to use premium models', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('pass', MODEL_IDS.SONNET_45)).toBe(true);
+      expect(canAccessModel('pass', DEFAULT_PREMIUM_MODEL)).toBe(true);
     });
 
-    it('allows pass tier to use sonnet 4.6', async () => {
+    it('allows pass tier to use free models', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('pass', MODEL_IDS.SONNET_46)).toBe(true);
+      expect(canAccessModel('pass', DEFAULT_FREE_MODEL)).toBe(true);
     });
 
     it('allows lab tier to use all models', async () => {
       const { canAccessModel } = await loadTier();
-      expect(canAccessModel('lab', MODEL_IDS.HAIKU)).toBe(true);
-      expect(canAccessModel('lab', MODEL_IDS.SONNET_45)).toBe(true);
-      expect(canAccessModel('lab', MODEL_IDS.SONNET_46)).toBe(true);
+      expect(canAccessModel('lab', DEFAULT_FREE_MODEL)).toBe(true);
+      expect(canAccessModel('lab', DEFAULT_PREMIUM_MODEL)).toBe(true);
     });
 
     it('denies unknown models by default (fail-closed)', async () => {
@@ -279,20 +278,18 @@ describe('tier module', () => {
   });
 
   describe('getAvailableModels', () => {
-    it('returns haiku and sonnet for free tier', async () => {
+    it('returns free models for free tier', async () => {
       const { getAvailableModels } = await loadTier();
       const models = getAvailableModels('free');
-      expect(models).toContain(MODEL_IDS.HAIKU);
-      expect(models).toContain(MODEL_IDS.SONNET_45);
-      expect(models).toContain(MODEL_IDS.SONNET_46);
+      expect(models).toContain(DEFAULT_FREE_MODEL);
+      expect(models.length).toBeGreaterThanOrEqual(1);
     });
 
-    it('returns haiku and sonnet for pass tier', async () => {
+    it('returns free and premium models for pass tier', async () => {
       const { getAvailableModels } = await loadTier();
       const models = getAvailableModels('pass');
-      expect(models).toContain(MODEL_IDS.HAIKU);
-      expect(models).toContain(MODEL_IDS.SONNET_45);
-      expect(models).toContain(MODEL_IDS.SONNET_46);
+      expect(models).toContain(DEFAULT_FREE_MODEL);
+      expect(models).toContain(DEFAULT_PREMIUM_MODEL);
     });
 
     it('returns all models for lab tier', async () => {

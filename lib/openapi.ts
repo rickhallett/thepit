@@ -4,7 +4,7 @@
 // It is served from GET /api/openapi (gated behind Lab tier auth)
 // and rendered by Scalar at /docs/api (public browsing).
 
-import { MODEL_IDS } from '@/lib/models';
+import { DEFAULT_PREMIUM_MODEL } from '@/lib/model-registry';
 
 export const spec = {
   openapi: '3.1.0',
@@ -59,7 +59,7 @@ export const spec = {
                   model: {
                     type: 'string',
                     description: 'Model to use. Options depend on your tier: free tier gets Haiku, paid tiers get Sonnet. Use "byok" for your own API key.',
-                    example: MODEL_IDS.SONNET_46,
+                    example: DEFAULT_PREMIUM_MODEL,
                   },
                   length: {
                     type: 'string',

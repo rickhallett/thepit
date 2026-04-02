@@ -135,8 +135,9 @@ vi.mock('@/lib/rate-limit', () => ({
 vi.mock('@/lib/byok', () => ({ readAndClearByokKey: vi.fn() }));
 
 vi.mock('@/lib/ai', () => ({
-  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
+  FREE_MODEL_ID: 'openai/gpt-4o-mini',
   PREMIUM_MODEL_OPTIONS: [],
+  isAnthropicModel: (modelId: string) => modelId.startsWith('anthropic/'),
   getModel: getModelMock,
   getInputTokenBudget: getInputTokenBudgetMock,
 }));
@@ -169,7 +170,7 @@ vi.mock('@/lib/request-context', () => ({
 }));
 
 vi.mock('@/lib/models', () => ({
-  FIRST_BOUT_PROMOTION_MODEL: 'claude-sonnet-4-5-20250929',
+  FIRST_BOUT_PROMOTION_MODEL: 'openai/gpt-5.4',
 }));
 
 // ---------------------------------------------------------------------------

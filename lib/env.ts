@@ -34,12 +34,6 @@
 
 import { z } from 'zod/v4';
 
-import {
-  DEFAULT_FREE_MODEL,
-  DEFAULT_PREMIUM_MODEL,
-  DEFAULT_PREMIUM_MODELS,
-} from '@/lib/models';
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -58,18 +52,14 @@ const numStr = (defaultValue: number) =>
 const serverEnvSchema = z.object({
   // --- Required ---
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-  ANTHROPIC_API_KEY: z.string().min(1, 'ANTHROPIC_API_KEY is required'),
+  OPENROUTER_API_KEY: z.string().min(1, 'OPENROUTER_API_KEY is required'),
   CLERK_SECRET_KEY: z.string().min(1, 'CLERK_SECRET_KEY is required'),
 
   // --- Node environment ---
   NODE_ENV: z.enum(['development', 'production', 'test']).optional().default('development'),
 
   // --- Model configuration ---
-  ANTHROPIC_FREE_MODEL: z.string().optional().default(DEFAULT_FREE_MODEL),
-  ANTHROPIC_PREMIUM_MODEL: z.string().optional().default(DEFAULT_PREMIUM_MODEL),
-  ANTHROPIC_PREMIUM_MODELS: z.string().optional().default(DEFAULT_PREMIUM_MODELS),
-  ANTHROPIC_BYOK_MODEL: z.string().optional(),
-  ANTHROPIC_MODEL: z.string().optional(),
+  MODEL_REGISTRY_JSON: z.string().optional(),
   ASK_THE_PIT_MODEL: z.string().optional(),
 
   // --- Feature flags ---
@@ -196,7 +186,7 @@ function validateEnv(): ServerEnv {
     return serverEnvSchema.parse({
       ...process.env,
       DATABASE_URL: process.env.DATABASE_URL || 'postgresql://localhost/dev',
-      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || 'not-set',
+      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || 'not-set',
       CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || 'not-set',
     });
   }
