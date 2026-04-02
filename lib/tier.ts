@@ -16,7 +16,7 @@ import { env } from '@/lib/env';
 import { log } from '@/lib/logger';
 import { users } from '@/db/schema';
 import { isAdmin } from '@/lib/admin';
-import { MODEL_FAMILY } from '@/lib/models';
+import { getModelEntry, getRegistry } from '@/lib/model-registry';
 
 export type UserTier = 'free' | 'pass' | 'lab';
 
@@ -42,8 +42,6 @@ export type TierConfig = {
   boutsPerDay: number;
   /** Lifetime cap on platform-funded bouts (null = unlimited). */
   lifetimeBoutCap: number | null;
-  /** Which model families this tier can access. */
-  models: ('haiku' | 'sonnet')[];
   /** Max custom agents the user can own. */
   maxAgents: number;
   /** Whether the user can access the API. */
@@ -56,7 +54,6 @@ export const TIER_CONFIG: Record<UserTier, TierConfig> = {
   free: {
     boutsPerDay: 5,
     lifetimeBoutCap: null,
-    models: ['haiku', 'sonnet'],
     maxAgents: 1,
     apiAccess: false,
     agentAnalytics: false,
@@ -64,7 +61,6 @@ export const TIER_CONFIG: Record<UserTier, TierConfig> = {
   pass: {
     boutsPerDay: 15,
     lifetimeBoutCap: null,
-    models: ['haiku', 'sonnet'],
     maxAgents: 5,
     apiAccess: false,
     agentAnalytics: true,
@@ -72,14 +68,11 @@ export const TIER_CONFIG: Record<UserTier, TierConfig> = {
   lab: {
     boutsPerDay: 100,
     lifetimeBoutCap: null,
-    models: ['haiku', 'sonnet'],
     maxAgents: Infinity,
     apiAccess: true,
     agentAnalytics: true,
   },
 };
-
-// MODEL_FAMILY imported from @/lib/models (centralized model registry).
 
 /**
  * Resolve a user's effective tier.
@@ -218,19 +211,17 @@ export function canAccessModel(
   modelId: string,
 ): boolean {
   if (modelId === 'byok') return tier !== 'free';
-
-  const family = MODEL_FAMILY[modelId as keyof typeof MODEL_FAMILY];
-  if (!family) return false; // Unknown models default to denied (fail-closed)
-
-  return TIER_CONFIG[tier].models.includes(family);
+  const entry = getModelEntry(modelId);
+  if (!entry) return false; // Unknown models denied (fail-closed)
+  if (entry.tier === 'free') return true; // Free models accessible to all
+  return tier !== 'free'; // Premium models require paid tier
 }
 
 /**
  * Get the list of model IDs available to a tier.
  */
 export function getAvailableModels(tier: UserTier): string[] {
-  const allowedFamilies = TIER_CONFIG[tier].models;
-  return Object.entries(MODEL_FAMILY)
-    .filter(([, family]) => allowedFamilies.includes(family))
-    .map(([modelId]) => modelId);
+  return getRegistry()
+    .filter((m) => m.tier === 'free' || tier !== 'free')
+    .map((m) => m.id);
 }
