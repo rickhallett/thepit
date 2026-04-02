@@ -30,7 +30,7 @@ describe('getModel', () => {
     const { getModel } = await import('@/lib/ai');
     const model = getModel('openai/gpt-4o-mini');
     expect(model).toBeDefined();
-    expect((model as any).modelId).toBe('openai/gpt-4o-mini');
+    expect((model as { modelId: string }).modelId).toBe('openai/gpt-4o-mini');
   });
 
   it('creates new OpenRouter instance for BYOK', async () => {

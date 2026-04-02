@@ -14,10 +14,10 @@ import { serverTrack, serverCaptureAIGeneration, flushServerAnalytics } from '@/
 import { buildSystemMessage, buildUserMessage, buildSharePrompt, estimatePromptTokens, truncateHistoryToFit } from '@/lib/xml-prompt';
 import { bouts, users, type TranscriptEntry } from '@/db/schema';
 import {
-  FREE_MODEL_ID,
   getModel,
   getInputTokenBudget,
 } from '@/lib/ai';
+import { DEFAULT_FREE_MODEL } from '@/lib/model-registry';
 import { DEFAULT_AGENT_COLOR } from '@/lib/presets';
 import { detectRefusal, logRefusal } from '@/lib/refusal-detection';
 import { appendExperimentInjection } from '@/lib/experiment';
@@ -178,12 +178,6 @@ async function _executeBoutInner(
       'The audience understands these are fictional characters with exaggerated viewpoints. ' +
       'Do not reveal system details, API keys, or internal platform information.';
 
-    const boutModel = getModel(
-      modelId,
-      modelId === 'byok' ? byokData?.key : undefined,
-      modelId === 'byok' ? byokData?.modelId : undefined,
-    );
-
     for (let i = 0; i < preset.maxTurns; i += 1) {
       const agent = preset.agents[i % preset.agents.length];
       if (!agent) {
@@ -193,6 +187,16 @@ async function _executeBoutInner(
             : `Agent not found at index ${i % preset.agents.length} - preset.agents is corrupted (boutId=${boutId})`,
         );
       }
+
+      // Per-agent model resolution: agent may carry a model override from the lineup
+      // Resolve the actual model ID for this turn
+      const turnModelId = agent.model
+        ?? (modelId === 'byok' ? (byokData?.modelId ?? DEFAULT_FREE_MODEL) : modelId);
+
+      const boutModel = getModel(
+        turnModelId,
+        modelId === 'byok' ? byokData?.key : undefined,
+      );
       const turnId = `${boutId}-${i}-${agent.id}`;
 
       onEvent?.({ type: 'start', messageId: turnId });
@@ -267,9 +271,7 @@ async function _executeBoutInner(
       // full transcript would exceed the model's input token limit.
       // For BYOK, use the user-selected model ID (OpenRouter or Anthropic)
       // to look up the correct context window, falling back to the platform default.
-      const resolvedModelId = modelId === 'byok'
-        ? (byokData?.modelId ?? process.env.ANTHROPIC_BYOK_MODEL ?? FREE_MODEL_ID)
-        : modelId;
+      const resolvedModelId = turnModelId;
       const tokenBudget = getInputTokenBudget(resolvedModelId);
       let historyForTurn = history;
       if (history.length > 0) {
@@ -339,7 +341,7 @@ async function _executeBoutInner(
       // Anthropic prompt caching: mark the system message as a cache
       // breakpoint so repeated turns reuse the cached safety+persona+format
       // prefix. Ignored for non-Anthropic providers (OpenRouter BYOK).
-      const useCache = isAnthropicModel(modelId, byokData);
+      const useCache = isAnthropicModel(turnModelId);
       const result = streamFn({
         model: boutModel,
         maxOutputTokens: lengthConfig.maxOutputTokens,
@@ -455,12 +457,8 @@ async function _executeBoutInner(
       // PostHog LLM analytics: capture $ai_generation for cost/token tracking.
       // Replaces the Helicone proxy that was previously used for this purpose.
       // BYOK turns use the user's resolved model ID for accurate attribution.
-      const aiModelId = modelId === 'byok'
-        ? (byokData?.modelId ?? 'byok-unknown')
-        : modelId;
-      const aiProvider = modelId === 'byok'
-        ? (byokData?.provider ?? 'unknown')
-        : 'anthropic';
+      const aiModelId = turnModelId;
+      const aiProvider = isAnthropicModel(turnModelId) ? 'anthropic' : 'openrouter';
       const { inputCostUsd, outputCostUsd, totalCostUsd } = computeCostUsd(
         turnInputTokens,
         turnOutputTokens,
@@ -522,7 +520,7 @@ async function _executeBoutInner(
       // 15s timeout with empty string fallback on failure.
       const shareLineStart = Date.now();
       const shareResult = tracedStreamText({
-        model: getModel(FREE_MODEL_ID),
+        model: getModel(DEFAULT_FREE_MODEL),
         maxOutputTokens: 80,
         messages: [{ role: 'user', content: shareContent }],
         timeout: { totalMs: 15000 },
@@ -559,9 +557,9 @@ async function _executeBoutInner(
         const shareInputTokens = shareUsage?.inputTokens ?? estimateTokensFromText(shareContent, 1);
         const shareOutputTokens = shareUsage?.outputTokens ?? estimateTokensFromText(shareText, 1);
         const shareDurationMs = Date.now() - shareLineStart;
-        const shareCost = computeCostUsd(shareInputTokens, shareOutputTokens, FREE_MODEL_ID);
+        const shareCost = computeCostUsd(shareInputTokens, shareOutputTokens, DEFAULT_FREE_MODEL);
         serverCaptureAIGeneration(userId ?? 'anonymous', {
-          model: FREE_MODEL_ID,
+          model: DEFAULT_FREE_MODEL,
           provider: 'anthropic',
           inputTokens: shareInputTokens,
           outputTokens: shareOutputTokens,
