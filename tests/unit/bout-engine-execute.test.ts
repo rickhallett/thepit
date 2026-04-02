@@ -140,8 +140,9 @@ vi.mock('@/lib/rate-limit', () => ({
 vi.mock('@/lib/byok', () => ({ readAndClearByokKey: vi.fn() }));
 
 vi.mock('@/lib/ai', () => ({
-  FREE_MODEL_ID: 'claude-haiku-4-5-20251001',
+  FREE_MODEL_ID: 'openai/gpt-4o-mini',
   PREMIUM_MODEL_OPTIONS: [],
+  isAnthropicModel: (modelId: string) => modelId.startsWith('anthropic/'),
   getModel: getModelMock,
   getInputTokenBudget: getInputTokenBudgetMock,
 }));
@@ -174,7 +175,7 @@ vi.mock('@/lib/request-context', () => ({
 }));
 
 vi.mock('@/lib/models', () => ({
-  FIRST_BOUT_PROMOTION_MODEL: 'claude-sonnet-4-5-20250929',
+  FIRST_BOUT_PROMOTION_MODEL: 'openai/gpt-5.4',
 }));
 
 // ---------------------------------------------------------------------------
@@ -667,7 +668,7 @@ describe('executeBout', () => {
     });
 
     it('E-29: Anthropic platform model gets cache control', async () => {
-      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET });
+      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET, modelId: 'anthropic/claude-haiku-4' });
       await executeBout(ctx);
       const call = tracedStreamTextMock.mock.calls[0]![0];
       // First message (system) should have providerOptions with cacheControl
@@ -773,7 +774,7 @@ describe('executeBout', () => {
         }),
       );
 
-      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET });
+      const ctx = makeContext({ preset: SINGLE_AGENT_PRESET, modelId: 'anthropic/claude-haiku-4' });
       await executeBout(ctx);
 
       // Cache metadata should be included in AI generation capture
@@ -1033,7 +1034,7 @@ describe('executeBout', () => {
       expect(serverCaptureAIGenerationMock).toHaveBeenCalledWith(
         'user-1',
         expect.objectContaining({
-          model: 'gpt-4o',
+          model: 'openai/gpt-4o',
           provider: 'openrouter',
           isByok: true,
         }),

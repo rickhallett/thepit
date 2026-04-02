@@ -30,10 +30,10 @@ const {
     update: vi.fn(),
   };
   const MODELS = {
-    HAIKU: 'claude-haiku-4-5-20251001',
-    SONNET_45: 'claude-sonnet-4-5-20250929',
-    SONNET_46: 'claude-sonnet-4-6',
-    FIRST_BOUT: 'claude-sonnet-4-6',
+    HAIKU: 'openai/gpt-4o-mini',
+    SONNET_45: 'anthropic/claude-sonnet-4-6',
+    SONNET_46: 'openai/gpt-5.4',
+    FIRST_BOUT: 'openai/gpt-5.4',
   } as const;
   return {
     mockDb: db,
@@ -105,6 +105,7 @@ vi.mock('@/lib/ai', () => ({
   FREE_MODEL_ID: MODELS.HAIKU,
   PREMIUM_MODEL_OPTIONS: [MODELS.SONNET_46, MODELS.SONNET_45],
   DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
+  isAnthropicModel: (modelId: string) => modelId.startsWith('anthropic/'),
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));
@@ -200,7 +201,7 @@ vi.mock('@/lib/request-context', () => ({
 }));
 
 vi.mock('@/lib/models', () => ({
-  FIRST_BOUT_PROMOTION_MODEL: MODELS.FIRST_BOUT,
+  FIRST_BOUT_PROMOTION_MODEL: 'openai/gpt-5.4',
 }));
 
 // ---------------------------------------------------------------------------

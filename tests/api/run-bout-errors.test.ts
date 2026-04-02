@@ -19,9 +19,9 @@ const {
     update: vi.fn(),
   };
   const MODELS = {
-    HAIKU: 'claude-haiku-4-5-20251001',
-    SONNET_45: 'claude-sonnet-4-5-20250929',
-    SONNET_46: 'claude-sonnet-4-6',
+    HAIKU: 'openai/gpt-4o-mini',
+    SONNET_45: 'anthropic/claude-sonnet-4-6',
+    SONNET_46: 'openai/gpt-5.4',
   } as const;
   return {
     mockDb: db,
@@ -75,6 +75,7 @@ vi.mock('@/lib/ai', () => ({
     MODELS.SONNET_45,
   ],
   DEFAULT_PREMIUM_MODEL_ID: MODELS.SONNET_46,
+  isAnthropicModel: (modelId: string) => modelId.startsWith('anthropic/'),
   getModel: vi.fn(() => 'mock-model'),
   getInputTokenBudget: vi.fn(() => 170_000),
 }));
