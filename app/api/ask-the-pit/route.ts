@@ -45,20 +45,22 @@ let cachedSystemPrompt: string | null = null;
 function loadDocs(): string {
   if (cachedDocs !== null) return cachedDocs;
   const root = process.cwd();
-  cachedDocs = ASK_THE_PIT_DOCS.map((docPath) => {
+  const parts = ASK_THE_PIT_DOCS.map((docPath) => {
+    const fullPath = resolve(join(root, docPath));
+    // Prevent path traversal -- resolved path must stay within the project root.
+    const rel = relative(root, fullPath);
+    if (rel.startsWith('..') || isAbsolute(rel)) {
+      throw new Error(`Blocked path traversal: ${docPath}`);
+    }
     try {
-      const fullPath = resolve(join(root, docPath));
-      // Prevent path traversal — resolved path must stay within the project root.
-      const rel = relative(root, fullPath);
-      if (rel.startsWith('..') || isAbsolute(rel)) {
-        return `[Blocked: ${docPath}]`;
-      }
       const content = readFileSync(fullPath, 'utf-8');
       return stripSensitiveSections(content);
-    } catch {
-      return `[Could not load ${docPath}]`;
+    } catch (err) {
+      throw new Error(`Could not load knowledge doc: ${docPath}`, { cause: err });
     }
-  }).join('\n\n---\n\n');
+  });
+  const result = parts.join('\n\n---\n\n');
+  cachedDocs = result;
   return cachedDocs;
 }
 
@@ -81,11 +83,18 @@ async function rawPOST(req: Request) {
   const { message } = parsed.data;
 
   const requestId = getRequestId(req);
+  let docs: string;
+  try {
+    docs = loadDocs();
+  } catch (err) {
+    log.error('Ask The Pit knowledge docs failed to load', toError(err), { requestId });
+    return errorResponse(API_ERRORS.SERVICE_UNAVAILABLE, 503);
+  }
   if (!cachedSystemPrompt) {
     cachedSystemPrompt = buildAskThePitSystem({
       roleDescription: ASK_THE_PIT_ROLE,
       rules: ASK_THE_PIT_RULES,
-      documentation: loadDocs(),
+      documentation: docs,
     });
   }
   const systemPrompt = cachedSystemPrompt;

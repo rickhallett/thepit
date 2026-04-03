@@ -122,7 +122,7 @@ describe('ask-the-pit document loading integration', () => {
     expect(systemContent).toContain('multi-agent AI debate arena');
   });
 
-  it('IT2: path traversal blocked', async () => {
+  it('IT2: path traversal returns 503', async () => {
     vi.resetModules();
 
     pitConfig.ASK_THE_PIT_DOCS = ['../../etc/passwd'];
@@ -131,11 +131,10 @@ describe('ask-the-pit document loading integration', () => {
     const { POST } = await import('@/app/api/ask-the-pit/route');
     const res = await POST(makeJsonReq({ message: 'hello' }));
 
-    expect(res.status).toBe(200);
-
-    const systemContent = getSystemContent();
-    expect(systemContent).toContain('[Blocked:');
-    expect(systemContent).not.toContain('should not appear');
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toBe('Service unavailable.');
+    expect(streamTextMock).not.toHaveBeenCalled();
   });
 
   it('IT3: sensitive section stripping', async () => {
@@ -157,7 +156,7 @@ describe('ask-the-pit document loading integration', () => {
     expect(systemContent).toContain('Real-time streaming debates');
   });
 
-  it('IT4: missing doc handled gracefully', async () => {
+  it('IT4: missing doc returns 503', async () => {
     vi.resetModules();
 
     readFileSyncMock.mockImplementation(() => {
@@ -167,9 +166,9 @@ describe('ask-the-pit document loading integration', () => {
     const { POST } = await import('@/app/api/ask-the-pit/route');
     const res = await POST(makeJsonReq({ message: 'hello' }));
 
-    expect(res.status).toBe(200);
-
-    const systemContent = getSystemContent();
-    expect(systemContent).toContain('[Could not load');
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toBe('Service unavailable.');
+    expect(streamTextMock).not.toHaveBeenCalled();
   });
 });
