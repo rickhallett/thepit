@@ -22,7 +22,7 @@ epic extends or hardens what already ships.
 
 ## Epics
 
-Five epics. Sequenced by dependency and risk. Each epic contains
+Four epics. Sequenced by dependency and risk. Each epic contains
 issues suitable for the 1-PR-per-concern workflow.
 
 ---
@@ -145,61 +145,103 @@ and OpenRouter flows unbroken. Tests cover provider routing.
 ### Epic 4 - Tournament Brackets
 
 **Goal:** Elimination-style multi-round events where agents
-compete in structured brackets.
+compete in structured brackets. Single-elimination first.
+Double-elimination and round-robin are future extensions.
 
 **Why fourth:** Builds on the existing bout infrastructure.
 Highest-complexity new feature. Strong portfolio signal -- shows
-system design at scale.
+state machine design, multi-bout orchestration, and real-time UI
+at scale. Highest combined hiring + social ROI of remaining items.
 
 **Depends on:** Epic 1 (hardening). Architecturally independent
 of Epics 2-3.
 
-#### Stories
+**Integration point:** `BoutContext.onBoutCompleted` hook wires
+tournament round advancement into the existing bout engine.
+No changes to bout-validation or bout-execution internals.
 
-| # | Title | Type | Estimate |
-|---|-------|------|----------|
-| 14 | Tournament data model: brackets, rounds, seeding, progression | feature | 60-90 agent-min |
-| new | Tournament execution engine: schedule bouts, advance winners | feature | 60-90 agent-min |
-| new | Tournament API: create, seed, progress, results | feature | 45-60 agent-min |
-| new | Tournament UI: bracket display, seeding, live progress, results | feature | 60-90 agent-min |
-| new | Update roadmap page: mark tournament brackets as shipped | chore | 5 agent-min |
+#### Phase 1 - Data Model and State Machine
 
-#### Gate
+| # | Title | Type | Estimate | Notes |
+|---|-------|------|----------|-------|
+| 14 | Tournament schema: tournaments, rounds, matches tables | feature | 45-60 agent-min | 3 new Drizzle tables. `tournaments` (id, ownerId, name, status enum, bracketSize, config JSONB, timestamps). `tournament_rounds` (id, tournamentId, roundNumber, status). `tournament_matches` (id, roundId, boutId FK nullable, seedPosition, agent1Id, agent2Id, winnerId nullable, status enum). Migration + seed. |
+| new | Tournament state machine (lib/tournaments.ts) | feature | 60-90 agent-min | Lifecycle: draft -> seeding -> running -> completed / cancelled. Round advancement: when all matches in a round are resolved, generate next round matches from winners. Validate bracket size is power of 2 (4, 8, 16). Seeding: random or manual. Handle byes for odd counts by rounding up to next power of 2. |
+| new | Tournament credit model | feature | 30-45 agent-min | Preauthorize full tournament cost at creation (bracketSize - 1 bouts). Settle per-bout as each completes. Refund unplayed bouts on cancellation. Extend `estimateBoutCostGbp` with `estimateTournamentCostGbp(bracketSize, modelId, maxTurns)`. |
 
-Can create a tournament, seed agents, run elimination rounds,
-advance winners, display bracket and results. Bout engine
-integration tested. Credit accounting correct for multi-bout
-tournaments.
+**Phase 1 gate:** Can create a tournament in the DB, seed agents,
+and advance through rounds in unit tests. No UI, no API yet.
 
----
+#### Phase 2 - API and Orchestration
 
-### Epic 5 - Spectator Chat
+| # | Title | Type | Estimate | Notes |
+|---|-------|------|----------|-------|
+| new | Tournament API routes | feature | 45-60 agent-min | `POST /api/tournaments` (create + seed). `GET /api/tournaments/[id]` (bracket state). `POST /api/tournaments/[id]/start` (begin round 1). `POST /api/tournaments/[id]/cancel`. Auth-gated: owner or admin. |
+| new | Tournament bout orchestration | feature | 45-60 agent-min | On `start`: create bout rows for round 1 matches, each with `onBoutCompleted` hook wired to `advanceTournamentRound()`. After voting window closes (configurable, default 5 min), tally votes and resolve match winner. If all matches in round resolved, generate next round and create next bouts. Use existing `buildArenaPresetFromLineup()` to construct per-match presets from the two competing agents. |
+| new | Voting window and auto-resolution | feature | 30-45 agent-min | Tournament matches need a bounded voting window (unlike regular bouts which accumulate votes indefinitely). After window expires, highest vote count wins. Ties broken by: (a) agent with fewer total tournament wins advances (underdog rule), (b) coin flip if still tied. Vercel Cron checks for expired voting windows every 60s. |
 
-**Goal:** Live commentary during streaming bouts. Viewers can
-discuss while watching.
+**Phase 2 gate:** Can create, start, and complete a tournament
+via API. Round advancement works end-to-end. Voting window
+resolves matches correctly. Integration tests cover the full
+lifecycle including cancellation refunds.
 
-**Why last:** Socially valuable but not structurally critical.
-Builds on existing SSE streaming infrastructure. Can be descoped
-if time is better spent elsewhere.
+#### Phase 3 - UI
 
-**Depends on:** Nothing structurally, but sequenced last by
-priority.
+| # | Title | Type | Estimate | Notes |
+|---|-------|------|----------|-------|
+| new | Tournament bracket display component | feature | 60-90 agent-min | `/tournaments/[id]` page. SVG or CSS grid bracket visualization. Show match status (pending, live, completed), agent names, vote counts, winner highlight. Responsive: horizontal bracket on desktop, vertical list on mobile. Reuse existing agent color/avatar system. |
+| new | Tournament creation flow | feature | 45-60 agent-min | `/tournaments/new` page. Select agents from existing agent pool (user-created + preset agents). Set bracket size, topic, model tier, voting window duration. Credit cost preview before confirm. Reuse arena builder agent selection UI patterns. |
+| new | Tournament live updates | feature | 30-45 agent-min | Polling (30s interval) for bracket state on the tournament page. When a match is live, link to the bout page for real-time streaming. When a match resolves, animate the winner advancing in the bracket. |
+| new | Tournament listing and history | feature | 20-30 agent-min | `/tournaments` index page. Active tournaments, recent results. Link from user profile (future) and leaderboard. |
+| new | Update roadmap page: mark tournament brackets as shipped | chore | 5 agent-min | |
 
-#### Stories
+**Phase 3 gate:** Full user flow: create tournament, watch bouts,
+vote on matches, see bracket advance, view final results. Mobile
+responsive. No JS errors in bracket rendering for 4/8/16 sizes.
 
-| Title | Type | Estimate |
-|-------|------|----------|
-| Spectator chat data model: messages, participants, bout association | feature | 30-45 agent-min |
-| Spectator chat backend: WebSocket or SSE channel per bout | feature | 45-60 agent-min |
-| Spectator chat UI: embedded chat panel during live bouts | feature | 45-60 agent-min |
-| Moderation: basic rate limiting, content filtering | feature | 30-45 agent-min |
-| Update roadmap page: mark spectator chat as shipped | chore | 5 agent-min |
+#### Architecture Decisions
 
-#### Gate
+- **Single-elimination only (v1).** Double-elimination and
+  round-robin are scope creep. Ship the simplest bracket format
+  that demonstrates the system design.
+- **Polling, not websockets.** 30s polling is good enough for
+  bracket updates. Bouts already stream via SSE. Adding a second
+  real-time channel for bracket state is not justified yet.
+- **Reuse bout engine, don't fork it.** Tournaments create
+  standard bouts. The `onBoutCompleted` hook is the only
+  integration surface. If the hook is missed (serverless cold
+  start, error), the cron job picks up unresolved matches.
+- **Voting window is mandatory for tournaments.** Regular bouts
+  let votes accumulate forever. Tournament matches need bounded
+  resolution to advance the bracket.
+- **Credit preauth at tournament level.** One upfront charge
+  covers all bouts. Per-bout settlement adjusts actuals. Avoids
+  mid-tournament "insufficient credits" failures.
+- **Bracket sizes: 4, 8, 16.** Power-of-2 only in v1. Byes for
+  odd agent counts fill to next power of 2.
 
-Spectators can post live comments during a streaming bout.
-Messages appear in real-time for all viewers. Rate-limited and
-filtered.
+#### Risks
+
+- **Voting engagement.** If nobody votes on a match, the
+  auto-resolution picks a winner by tie-break rules. This is
+  correct but unsatisfying. Mitigant: allow tournament creator to
+  cast deciding vote, or use evaluator LLM as fallback judge.
+- **Bout failures mid-tournament.** If a bout errors out, the
+  match needs manual resolution or the non-erroring agent
+  advances by default. The `onBoutCompleted` hook receives error
+  status -- handle it in the state machine.
+- **Cron reliability.** Vercel Crons are best-effort with ~60s
+  granularity. Acceptable for voting window resolution. Not
+  acceptable if sub-second advancement matters (it doesn't for
+  v1).
+
+#### Estimate
+
+| Phase | Stories | Estimate |
+|-------|---------|----------|
+| 1 - Data model + state machine | 3 | 2.5-3.5 agent-hours |
+| 2 - API + orchestration | 3 | 2-3 agent-hours |
+| 3 - UI | 5 | 3-4 agent-hours |
+| **Total** | **11** | **7.5-10.5 agent-hours** |
 
 ---
 
@@ -213,20 +255,17 @@ Epic 1: Platform Hardening (start immediately)
   +---> Epic 3: AI Gateway + Multi-Model Routing
   |
   +---> Epic 4: Tournament Brackets
-  |
-  +---> Epic 5: Spectator Chat (lowest priority)
 ```
 
-Epics 2-5 can proceed in parallel after Epic 1 clears. Within
+Epics 2-4 can proceed in parallel after Epic 1 clears. Within
 each epic, stories are sequential unless noted otherwise.
 
 **Recommended serial order if single-agent execution:**
-Epic 1 -> Epic 2 -> Epic 3 -> Epic 4 -> Epic 5
+Epic 1 -> Epic 2 -> Epic 3 -> Epic 4
 
 **Parallelism opportunities:**
 - Epic 2 and Epic 3 are independent of each other
 - Epic 4 backend and Epic 3 can overlap
-- Epic 5 has no structural dependencies
 
 ## Estimation
 
@@ -235,9 +274,8 @@ Epic 1 -> Epic 2 -> Epic 3 -> Epic 4 -> Epic 5
 | 1 - Hardening | 6 | 3-5 agent-hours |
 | 2 - Ask The Pit | 7 | 2-3 agent-hours |
 | 3 - AI Gateway | 3 | 2-3 agent-hours |
-| 4 - Tournaments | 5 | 4-6 agent-hours |
-| 5 - Spectator Chat | 5 | 3-4 agent-hours |
-| **Total** | **26** | **14-21 agent-hours** |
+| 4 - Tournaments | 11 | 7.5-10.5 agent-hours |
+| **Total** | **27** | **14.5-20.5 agent-hours** |
 
 ---
 
@@ -256,8 +294,9 @@ Existing issues retained:
 New issues to create:
 - Ask The Pit stories (Epic 2, ~7 issues)
 - Multi-model routing (Epic 3, 1 issue)
-- Tournament execution, API, UI (Epic 4, 3 issues)
-- Spectator chat stories (Epic 5, 4 issues)
-- Roadmap page updates (1 per epic, 5 issues)
+- Tournament phase 1: schema, state machine, credits (Epic 4, 3 issues)
+- Tournament phase 2: API, orchestration, voting window (Epic 4, 3 issues)
+- Tournament phase 3: bracket UI, creation flow, live updates, listing (Epic 4, 4 issues)
+- Roadmap page updates (1 per epic, 4 issues)
 
-Total new issues: ~20
+Total new issues: ~22

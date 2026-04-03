@@ -35,6 +35,7 @@ type RoadmapItem = {
   label: string;
   status: ItemStatus;
   detail?: string;
+  hidden?: boolean;
 };
 
 type Lane = {
@@ -64,7 +65,6 @@ const LANES: Lane[] = [
       { label: 'Multi-model routing', status: 'planned', detail: 'Route different agents to different models' },
       { label: 'Tournament brackets', status: 'planned', detail: 'Elimination-style multi-round events' },
       { label: 'Ask The Pit', status: 'done', detail: 'AI-powered FAQ chat using curated platform documentation' },
-      { label: 'Spectator chat', status: 'planned', detail: 'Live commentary during streaming bouts' },
     ],
   },
   {
@@ -74,15 +74,15 @@ const LANES: Lane[] = [
     tagline: 'Creator tools and social layer',
     items: [
       { label: 'Agent DNA + hashing', status: 'done', detail: 'SHA-256 identity hashing for every agent' },
-      { label: 'On-chain EAS attestation', status: 'planned', detail: '125 development attestations on Base L2 mainnet; automated production pipeline not yet enabled' },
+      { label: 'On-chain EAS attestation', status: 'planned', detail: '125 development attestations on Base L2 mainnet; automated production pipeline not yet enabled', hidden: true },
       { label: 'Structured agent builder', status: 'done', detail: 'Archetype, tone, quirks, goals, fears' },
       { label: 'Prompt lineage tracking', status: 'done', detail: 'Parent/child agent genealogy' },
       { label: 'Creator profiles', status: 'planned', detail: 'Public pages with agent portfolio and stats' },
       { label: 'Remix rewards', status: 'done', detail: 'Credits for remixing and being remixed' },
       { label: 'Agent marketplace', status: 'planned', detail: 'Browse, fork, and trade agent prompts' },
-      { label: 'Social graph', status: 'planned', detail: 'Follow creators, get notified on new agents' },
-      { label: 'Collaborative agents', status: 'planned', detail: 'Multi-author agent construction' },
-      { label: 'Community moderation', status: 'planned', detail: 'Flag and vote on agent quality \u2014 crowd-sourced ecosystem health' },
+      { label: 'Social graph', status: 'planned', detail: 'Follow creators, get notified on new agents', hidden: true },
+      { label: 'Collaborative agents', status: 'planned', detail: 'Multi-author agent construction', hidden: true },
+      { label: 'Community moderation', status: 'planned', detail: 'Flag and vote on agent quality \u2014 crowd-sourced ecosystem health', hidden: true },
       { label: 'Seasonal rankings', status: 'planned', detail: 'Monthly leaderboard resets with rewards' },
     ],
   },
@@ -104,8 +104,9 @@ const LANES: Lane[] = [
 ];
 
 function LaneHeader({ lane }: { lane: Lane }) {
-  const doneCount = lane.items.filter((i) => i.status === 'done').length;
-  const total = lane.items.length;
+  const visible = lane.items.filter((i) => !i.hidden);
+  const doneCount = visible.filter((i) => i.status === 'done').length;
+  const total = visible.length;
   const pct = Math.round((doneCount / total) * 100);
 
   return (
@@ -159,7 +160,7 @@ function RoadmapItemRow({
   const isDone = item.status === 'done';
 
   return (
-    <div className="group relative flex gap-4">
+    <div className={`group relative flex gap-4${item.hidden ? ' hidden' : ''}`}>
       {/* Vertical connector line */}
       <div className="flex flex-col items-center">
         <div
@@ -249,12 +250,12 @@ export default async function RoadmapPage() {
   const STATUS_CONFIG = buildStatusConfig(c.roadmap.statusLabels);
 
   const totalDone = LANES.reduce(
-    (acc, lane) => acc + lane.items.filter((i) => i.status === 'done').length,
+    (acc, lane) => acc + lane.items.filter((i) => !i.hidden && i.status === 'done').length,
     0,
   );
-  const totalItems = LANES.reduce((acc, lane) => acc + lane.items.length, 0);
+  const totalItems = LANES.reduce((acc, lane) => acc + lane.items.filter((i) => !i.hidden).length, 0);
   const totalActive = LANES.reduce(
-    (acc, lane) => acc + lane.items.filter((i) => i.status === 'active').length,
+    (acc, lane) => acc + lane.items.filter((i) => !i.hidden && i.status === 'active').length,
     0,
   );
 
