@@ -6,6 +6,38 @@ Version: 0.3 (28 Feb 2026 - 18 evidence annotations from SD-195 to SD-206 + post
 Read bottom-up for data flow, top-down for control flow.
 Format: `LAYER | primitives | interface_to_next_layer`
 
+# Agentic System Layer Model
+
+Read bottom-up for data flow, top-down for control flow.
+
+---
+
+| Layer | Primitives | Key properties |
+|---|---|---|
+| **L12 human in the loop** | operators_walkthrough · manual_qa · domain_expertise · reasoning_token_observation | Irreplaceable. Not scalable. Trained capacity — degrades without use. Last resort for state persistence. |
+| **L11 cross-model** | different_priors · different_inductive_bias · cross_validation | One sample from a different distribution > N samples from the same one. |
+| **L10 multi-agent** | same_model_ensemble · prompt_variation · model_homogeneity | Precision increases. Accuracy does not. Unanimous agreement is consistency, not validation. |
+| **L9 thread position** | anchoring · consistency_pressure · sycophancy_risk · acquiescence_bias | Self-reinforcing loop. Anchoring increases monotonically within a window. Partial reset on compaction. |
+| **L8 agent role** | system_prompt · role_definition · grounding_instructions | Primacy bias. Structural instructions resist drift; ornamental ones don't. More is not monotonically better. |
+| **L7 tool calling** | function_schema · tool_result_injection · parallel_dispatch | Tool results cost context. Results are the model's only empirical contact with the filesystem and runtime. |
+| **L6 harness** | session_mgmt · token_tracking · tool_registry · subagent_dispatch | Three modes: direct (interruptible), dispatch (queued), override (force kill). Injections opaque to L12. |
+| **L5 API** | request · response · usage{input_tokens, output_tokens} | Only fully calibrated layer. Token counts are exact. Cumulative tracking is caller's responsibility. |
+| **L4 generation** | autoregressive · temperature · top_p · no_lookahead · no_revision | Output is sequential and irrevocable. Reasoning tokens are the only observable process channel. |
+| **L3 context window** | utilisation · saturation_point · primacy_bias · recency_bias · compaction | Model experiences degradation but cannot measure it. Compaction is a human-controllable lever. |
+| **L2 attention** | self_attention · kv_cache · attention_dilution · quadratic_cost | Quality degrades as length grows. Attention weights are not observable by model or human. |
+| **L1 tokenisation** | bpe_encoding · context_window · effective_context_length | Text becomes integer sequences. Budget is finite and hard-capped. Deterministic and verifiable. |
+| **L0 weights** | prior · inductive_bias · rlhf_alignment · training_distribution | Frozen at inference. Opaque to all layers above. Cannot be modified mid-conversation. |
+
+---
+
+## Cross-cutting concerns
+
+**Calibration** — varies by layer. L5 token counts are exact. L0 confidence scores are uncalibrated. L9 anchoring effects are unmeasured. Know which layers you can trust.
+
+**Temporal asymmetry** — the model has no experience of time between turns. Urgency, hesitation, deliberation are all stripped by serialisation. A one-word halt and a thousand-word brief arrive identically.
+
+**Joint cognitive defense** — the primary defense against output degradation is not model self-monitoring. It is the joint system: model generating with the slopodar loaded, human reading with it loaded, divergence between them as the calibration mechanism.
+
 ---
 
 ```
